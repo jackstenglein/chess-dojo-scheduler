@@ -1,0 +1,14 @@
+{
+    "jsxSingleQuote": true,
+    "printWidth": 90,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "overrides": [
+        {
+            "files": "*.yml",
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
+}
