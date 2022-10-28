@@ -16,6 +16,8 @@ type UserCreator interface {
 }
 
 type UserSetter interface {
+	UserGetter
+
 	// SetUser saves the provided User object. The new object is returned.
 	SetUser(user *User) error
 }

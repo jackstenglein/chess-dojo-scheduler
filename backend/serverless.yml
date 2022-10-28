@@ -78,6 +78,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
   getUser:
@@ -86,6 +87,10 @@ functions:
       patterns:
         - ./bin/user/get
     events:
+      - httpApi:
+          path: /user
+          method: get
+          authorizer: serviceAuthorizer
       - httpApi:
           path: /public/user/{username}
           method: get

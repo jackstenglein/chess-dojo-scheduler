@@ -18,23 +18,23 @@ var repository database.UserSetter = database.DynamoDB
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 
-	info, err := api.GetUserInfo(event)
+	info := api.GetUserInfo(event)
+	if info.Username == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+	}
+
+	user, err := repository.GetUser(info.Username)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	user := database.User{
-		Username: info.Username,
-		Email:    info.Email,
-		Name:     info.Name,
-	}
-	err = json.Unmarshal([]byte(event.Body), &user)
+	err = json.Unmarshal([]byte(event.Body), user)
 	if err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
 		return api.Failure(funcName, err), nil
 	}
 
-	err = repository.SetUser(&user)
+	err = repository.SetUser(user)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}

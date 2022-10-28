@@ -19,8 +19,13 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	username, ok := event.PathParameters["username"]
-	if !ok {
+	username, public := event.PathParameters["username"]
+	if !public {
+		info := api.GetUserInfo(event)
+		username = info.Username
+	}
+
+	if username == "" {
 		err := errors.New(400, "Invalid request: username is required", "")
 		return api.Failure(funcName, err), nil
 	}
