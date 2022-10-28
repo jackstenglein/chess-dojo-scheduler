@@ -6,12 +6,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
 type UserCreator interface {
 	// CreateUser creates a new User object with the provided information.
 	CreateUser(username, email, name string) (*User, error)
+}
+
+type UserSetter interface {
+	// SetUser saves the provided User object. The new object is returned.
+	SetUser(user *User) error
 }
 
 // dynamoRepository implements a database using AWS DynamoDB.
@@ -29,31 +35,34 @@ var userTable = os.Getenv("stage") + "-users"
 
 // CreateUser creates a new User object with the provided information.
 func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, error) {
-	input := &dynamodb.PutItemInput{
-		ConditionExpression: aws.String("attribute_not_exists(username)"),
-		Item: map[string]*dynamodb.AttributeValue{
-			"username": {
-				S: aws.String(username),
-			},
-			"email": {
-				S: aws.String(email),
-			},
-			"name": {
-				S: aws.String(name),
-			},
-		},
-		TableName: aws.String(userTable),
-	}
-
-	_, err := repo.svc.PutItem(input)
-	if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-		return nil, errors.Wrap(400, "Invalid request: user already exists", "DynamoDB conditional check failed", aerr)
-	}
-
 	user := &User{
 		Username: username,
 		Email:    email,
 		Name:     name,
 	}
-	return user, errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+
+	err := repo.setUserConditional(user, aws.String("attribute_not_exists(username)"))
+	return user, err
+}
+
+// SetUser saves the provided User object in the database.
+func (repo *dynamoRepository) SetUser(user *User) error {
+	return repo.setUserConditional(user, nil)
+}
+
+// setUserConditional saves the provided User object in the database using an optional condition statement.
+func (repo *dynamoRepository) setUserConditional(user *User, condition *string) error {
+	item, err := dynamodbattribute.MarshalMap(user)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal user", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		ConditionExpression: condition,
+		Item:                item,
+		TableName:           aws.String(userTable),
+	}
+
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
 }

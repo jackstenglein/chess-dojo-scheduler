@@ -64,6 +64,22 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
 
+  setUser:
+    handler: bin/user/set
+    package:
+      patterns:
+        - ./bin/user/set
+    events:
+      - httpApi:
+          path: /user
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt UsersTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############

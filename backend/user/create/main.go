@@ -13,7 +13,7 @@ import (
 
 type Event events.CognitoEventUserPoolsPostConfirmation
 
-var repository = database.DynamoDB
+var repository database.UserCreator = database.DynamoDB
 
 const triggerSource = "PostConfirmation_ConfirmSignUp"
 
