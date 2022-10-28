@@ -1,3 +1,6 @@
+# Secret files
+oauth.yml
+
 # Serverless directories
 .serverless
 
@@ -19,3 +22,5 @@ vendor
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+node_modules
