@@ -80,6 +80,21 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
 
+  getUser:
+    handler: bin/user/get
+    package:
+      patterns:
+        - ./bin/user/get
+    events:
+      - httpApi:
+          path: /public/user/{username}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############

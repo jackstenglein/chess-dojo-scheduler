@@ -38,10 +38,3 @@ type User struct {
 	LichessUsername  string     `dynamodbav:"lichessUsername" json:"lichessUsername"`
 	DojoCohort       DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
 }
-
-type UserUpdateRequest struct {
-	DiscordUsername  *string     `dynamodbav:"discordUsername,omitempty" json:"discordUsername"`
-	ChesscomUsername *string     `dynamodbav:"chesscomUsername,omitempty" json:"chesscomUsername"`
-	LichessUsername  *string     `dynamodbav:"lichessUsername,omitempty" json:"lichessUsername"`
-	DojoCohort       *DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort"`
-}

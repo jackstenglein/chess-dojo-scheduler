@@ -43,7 +43,7 @@ func GetUserInfo(event Request) (*UserInfo, error) {
 	}
 
 	if username == "" || name == "" || email == "" {
-		return nil, errors.New(400, "Invalid request: unable to extract user info", "")
+		return new(UserInfo), errors.New(400, "Invalid request: unable to extract user info", "")
 	}
 
 	return &UserInfo{Username: username, Name: name, Email: email}, nil

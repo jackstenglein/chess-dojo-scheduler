@@ -20,6 +20,11 @@ type UserSetter interface {
 	SetUser(user *User) error
 }
 
+type UserGetter interface {
+	// GetUser returns the User object with the provided username.
+	GetUser(username string) (*User, error)
+}
+
 // dynamoRepository implements a database using AWS DynamoDB.
 type dynamoRepository struct {
 	svc *dynamodb.DynamoDB
@@ -65,4 +70,32 @@ func (repo *dynamoRepository) setUserConditional(user *User, condition *string) 
 
 	_, err = repo.svc.PutItem(input)
 	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+}
+
+// GetUser returns the User object with the provided username.
+func (repo *dynamoRepository) GetUser(username string) (*User, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {
+				S: aws.String(username),
+			},
+		},
+		TableName: aws.String(userTable),
+	}
+
+	result, err := repo.svc.GetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
+	}
+
+	if result.Item == nil {
+		return nil, errors.New(404, "Invalid request: user not found", "GetUser result.Item is nil")
+	}
+
+	user := User{}
+	err = dynamodbattribute.UnmarshalMap(result.Item, &user)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetUser result", err)
+	}
+	return &user, nil
 }
