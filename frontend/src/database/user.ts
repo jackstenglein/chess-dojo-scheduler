@@ -101,30 +101,26 @@ export class User {
     }
 }
 
-export function getInitials(name: string): string {
-    if (name.length === 0) {
-        return '';
-    }
-
-    let firstLetter = name.charAt(0).toUpperCase();
-    let firstLetterIndex = 0;
-    for (let i = 0; i < name.length; i++) {
-        let letter = name.charAt(i);
-        if (letter >= 'A' && letter <= 'Z') {
-            firstLetter = letter;
-            firstLetterIndex = i;
-            break;
-        }
-    }
-
-    let lastLetter = '';
-    for (let i = name.length - 1; i > firstLetterIndex; i--) {
-        let letter = name.charAt(i);
-        if (letter >= 'A' && letter <= 'Z') {
-            lastLetter = letter;
-            break;
-        }
-    }
-
-    return firstLetter + lastLetter;
-}
+export const dojoCohorts: string[] = [
+    '0-400',
+    '400-600',
+    '600-700',
+    '700-800',
+    '800-900',
+    '900-1000',
+    '1000-1100',
+    '1100-1200',
+    '1200-1300',
+    '1300-1400',
+    '1400-1500',
+    '1500-1600',
+    '1600-1700',
+    '1700-1800',
+    '1800-1900',
+    '1900-2000',
+    '2000-2100',
+    '2100-2200',
+    '2200-2300',
+    '2300-2400',
+    '2400+',
+];

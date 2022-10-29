@@ -5,6 +5,7 @@ import { config } from './config';
 
 import { AuthProvider, RequireAuth } from './auth/Auth';
 import LandingPage from './home/LandingPage';
+import ProfilePage from './profile/ProfilePage';
 
 Amplify.configure({
     Auth: {
@@ -37,17 +38,18 @@ function Router() {
             <Route path='/'>
                 <Route index element={<LandingPage />} />
 
-                {/* <Route element={<RequireAuth />}> */}
-                {/* <Route path='select-type' element={<SelectTypePage />} />
+                <Route element={<RequireAuth />}>
+                    <Route path='/profile' element={<ProfilePage />} />
+                    {/* <Route path='select-type' element={<SelectTypePage />} />
                     <Route path='select-school' element={<SelectSchoolPage />} />
                     <Route path='select-class' element={<SelectClassPage />} />
                     <Route path='verify-class' element={<VerifyClassPage />} />
                     <Route path='service-terms' element={<TermsOfServicePage />} /> */}
 
-                {/* <Route element={<RequireSignup />}> */}
-                {/* <Route path='home' element={<HomePage />} /> */}
-                {/* </Route> */}
-                {/* </Route> */}
+                    {/* <Route element={<RequireSignup />}> */}
+                    {/* <Route path='home' element={<HomePage />} /> */}
+                    {/* </Route> */}
+                </Route>
                 {/* <Route path='*' element={<NotFoundPage />} /> */}
             </Route>
         </Routes>
