@@ -6,6 +6,7 @@ import { config } from './config';
 import { AuthProvider, RequireAuth } from './auth/Auth';
 import LandingPage from './home/LandingPage';
 import ProfilePage from './profile/ProfilePage';
+import { ApiProvider } from './api/Api';
 
 Amplify.configure({
     Auth: {
@@ -26,7 +27,9 @@ function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
-                <Router />
+                <ApiProvider>
+                    <Router />
+                </ApiProvider>
             </AuthProvider>
         </BrowserRouter>
     );

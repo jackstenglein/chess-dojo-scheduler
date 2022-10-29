@@ -1,19 +1,22 @@
 import { useState } from 'react';
-import { Button, Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
+import { useApi } from '../api/Api';
+import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 
 const ProfilePage = () => {
     const user = useAuth().user!;
+    const api = useApi();
 
     const [dojoCohort, setDojoCohort] = useState(user.dojoCohort);
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [chesscomUsername, setChesscomUsername] = useState(user.chesscomUsername);
     const [lichessUsername, setLichessUsername] = useState(user.lichessUsername);
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [loading, setLoading] = useState(false);
+    const request = useRequest();
 
     const onSave = () => {
         const newErrors: Record<string, string> = {};
@@ -35,7 +38,21 @@ const ProfilePage = () => {
             return;
         }
 
-        setLoading(true);
+        request.onStart();
+
+        api.updateUser({
+            dojoCohort,
+            discordUsername,
+            chesscomUsername,
+            lichessUsername,
+        })
+            .then(() => {
+                request.onSuccess('Profile updated');
+            })
+            .catch((err) => {
+                console.error(err);
+                request.onFailure(err);
+            });
     };
 
     const changesMade =
@@ -46,6 +63,8 @@ const ProfilePage = () => {
 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
+            <RequestSnackbar request={request} showSuccess />
+
             <Stack spacing={4}>
                 <Typography variant='h4'>Profile</Typography>
 
@@ -94,7 +113,7 @@ const ProfilePage = () => {
                 <LoadingButton
                     variant='contained'
                     onClick={onSave}
-                    loading={loading}
+                    loading={request.status === RequestStatus.Loading}
                     disabled={!changesMade}
                 >
                     Save

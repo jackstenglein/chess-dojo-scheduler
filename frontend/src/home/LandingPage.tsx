@@ -1,11 +1,10 @@
 import { Container, Stack, Typography } from '@mui/material';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import GoogleButton from 'react-google-button';
 
 import { AuthStatus, useAuth } from '../auth/Auth';
 
 const LandingPage = () => {
-    const navigate = useNavigate();
     const auth = useAuth();
 
     if (auth.status === AuthStatus.Authenticated) {
