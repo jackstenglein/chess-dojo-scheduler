@@ -3,7 +3,7 @@ import Amplify from 'aws-amplify';
 
 import { config } from './config';
 
-import { AuthProvider, RequireAuth } from './auth/Auth';
+import { AuthProvider, RequireAuth, RequireProfile } from './auth/Auth';
 import LandingPage from './home/LandingPage';
 import ProfilePage from './profile/ProfilePage';
 import { ApiProvider } from './api/Api';
@@ -42,16 +42,11 @@ function Router() {
                 <Route index element={<LandingPage />} />
 
                 <Route element={<RequireAuth />}>
-                    <Route path='/profile' element={<ProfilePage />} />
-                    {/* <Route path='select-type' element={<SelectTypePage />} />
-                    <Route path='select-school' element={<SelectSchoolPage />} />
-                    <Route path='select-class' element={<SelectClassPage />} />
-                    <Route path='verify-class' element={<VerifyClassPage />} />
-                    <Route path='service-terms' element={<TermsOfServicePage />} /> */}
+                    <Route path='profile' element={<ProfilePage />} />
 
-                    {/* <Route element={<RequireSignup />}> */}
-                    {/* <Route path='home' element={<HomePage />} /> */}
-                    {/* </Route> */}
+                    <Route element={<RequireProfile />}>
+                        <Route path='home' element={<h2>Home</h2>} />
+                    </Route>
                 </Route>
                 {/* <Route path='*' element={<NotFoundPage />} /> */}
             </Route>

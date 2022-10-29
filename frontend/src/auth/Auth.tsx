@@ -13,6 +13,7 @@ import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 
 import { CognitoUser, User } from '../database/user';
 import { getUser } from '../api/userApi';
+import ProfilePage from '../profile/ProfilePage';
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -113,11 +114,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+/**
+ * @returns A React component that renders an Outlet only if the current user is signed in.
+ * Otherwise, the user is redirected to the landing page.
+ */
 export function RequireAuth() {
-    let auth = useAuth();
-    let location = useLocation();
-
-    console.log('Require auth user: ', auth.user);
+    const auth = useAuth();
 
     if (auth.status === AuthStatus.Loading) {
         return (
@@ -128,11 +130,32 @@ export function RequireAuth() {
     }
 
     if (auth.status === AuthStatus.Unauthenticated || !auth.user) {
-        // Redirect them to the /signin page, but save the current location they were
-        // trying to go to when they were redirected. This allows us to send them
-        // along to that page after they sign in, which is a nicer user experience
-        // than dropping them off on the home page.
-        return <Navigate to='/signin' state={{ from: location }} replace />;
+        return <Navigate to='/' replace />;
+    }
+
+    return <Outlet />;
+}
+
+/**
+ * @returns A React component that renders an Outlet only if the current user is signed in and has a completed profile.
+ * Otherwise, if the user is not signed in, they are redirected to the landing page, and if they are signed in
+ * but don't have a completed profile, they are redirected to the profile page.
+ */
+export function RequireProfile() {
+    const auth = useAuth();
+    const user = auth.user;
+
+    if (auth.status === AuthStatus.Unauthenticated || !user) {
+        return <Navigate to='/' replace />;
+    }
+
+    if (
+        user.dojoCohort === '' ||
+        user.discordUsername === '' ||
+        user.chesscomUsername === '' ||
+        user.lichessUsername === ''
+    ) {
+        return <ProfilePage />;
     }
 
     return <Outlet />;
