@@ -118,6 +118,31 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt AvailabilitiesTable.Arn
 
+  bookAvailability:
+    handler: bin/availability/book
+    package:
+      patterns:
+        - ./bin/availability/book
+    events:
+      - httpApi:
+          path: /availability/book
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt MeetingsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:DeleteItem
+        Resource: !GetAtt AvailabilitiesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############
@@ -226,6 +251,41 @@ resources:
             KeySchema:
               - AttributeName: startTime
                 KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TimeToLiveSpecification:
+          AttributeName: expirationTime
+          Enabled: true
+
+    MeetingsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${opt:stage, self:provider.stage}-meetings
+        AttributeDefinitions:
+          - AttributeName: owner
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: participant
+            AttributeType: S
+        KeySchema:
+          - AttributeName: owner
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: ParticipantIndex
+            KeySchema:
+              - AttributeName: participant
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL
             ProvisionedThroughput:

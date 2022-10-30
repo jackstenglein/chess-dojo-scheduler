@@ -32,6 +32,17 @@ type AvailabilitySetter interface {
 	SetAvailability(availability *Availability) error
 }
 
+type AvailabilityBooker interface {
+	UserGetter
+
+	// GetAvailability returns the Availability object with the provided owner and id.
+	GetAvailability(owner, id string) (*Availability, error)
+
+	// BookAvailablity converts the provided Availability into the provided Meeting object. The Availability
+	// object is deleted and the Meeting object is saved in its place.
+	BookAvailability(availability *Availability, request *Meeting) error
+}
+
 // dynamoRepository implements a database using AWS DynamoDB.
 type dynamoRepository struct {
 	svc *dynamodb.DynamoDB
@@ -45,6 +56,7 @@ var DynamoDB = &dynamoRepository{
 
 var userTable = os.Getenv("stage") + "-users"
 var availabilityTable = os.Getenv("stage") + "-availabilities"
+var meetingTable = os.Getenv("stage") + "-meetings"
 
 // CreateUser creates a new User object with the provided information.
 func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, error) {
@@ -118,6 +130,91 @@ func (repo *dynamoRepository) SetAvailability(availability *Availability) error 
 	input := &dynamodb.PutItemInput{
 		Item:      item,
 		TableName: aws.String(availabilityTable),
+	}
+
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed Dynamo PutItem request", err)
+}
+
+// GetAvailability returns the availability object with the provided owner username and id.
+func (repo *dynamoRepository) GetAvailability(owner, id string) (*Availability, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {
+				S: aws.String(owner),
+			},
+			"id": {
+				S: aws.String(id),
+			},
+		},
+		TableName: aws.String(availabilityTable),
+	}
+
+	result, err := repo.svc.GetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
+	}
+
+	if result.Item == nil {
+		return nil, errors.New(404, "Invalid request: availability not found or already booked", "GetAvailability result.Item is nil")
+	}
+
+	availability := Availability{}
+	err = dynamodbattribute.UnmarshalMap(result.Item, &availability)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetAvailability result", err)
+	}
+	return &availability, nil
+}
+
+// DeleteAvailability deletes the given availability object. An error is returned if it does not exist.
+func (repo *dynamoRepository) DeleteAvailability(owner, id string) error {
+	input := &dynamodb.DeleteItemInput{
+		ConditionExpression: aws.String("attribute_exists(id)"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {
+				S: aws.String(owner),
+			},
+			"id": {
+				S: aws.String(id),
+			},
+		},
+		TableName: aws.String(availabilityTable),
+	}
+
+	if _, err := repo.svc.DeleteItem(input); err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return errors.Wrap(404, "Invalid request: availability does not exist or is already booked", "DynamoDB conditional check failed", aerr)
+		}
+		return errors.Wrap(500, "Temporary server error", "Failed to unmarshal DeleteItem result", err)
+	}
+	return nil
+}
+
+// BookAvailablity converts the provided Availability into the provided Meeting object. The Availability
+// object is deleted and the Meeting object is saved in its place.
+func (repo *dynamoRepository) BookAvailability(availability *Availability, request *Meeting) error {
+	// First delete the availability to make sure nobody else can book it
+	if err := repo.DeleteAvailability(availability.Owner, availability.Id); err != nil {
+		return err
+	}
+
+	// DynamoDB conditional expression should ensure only one person can make it here
+	// for the same availability object, so it is now safe to save the meeting.
+	err := repo.SetMeeting(request)
+	return err
+}
+
+// SetMeeting inserts the provided Meeting into the database.
+func (repo *dynamoRepository) SetMeeting(meeting *Meeting) error {
+	item, err := dynamodbattribute.MarshalMap(meeting)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal meeting", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(meetingTable),
 	}
 
 	_, err = repo.svc.PutItem(input)

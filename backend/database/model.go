@@ -66,14 +66,9 @@ var availabilityTypes = []AvailabilityType{
 	"ROOK_ENDGAME_PROGRESSION",
 }
 
-const allAvailabilityTypes AvailabilityType = "ALL_AVAILABILITY_TYPES"
-
 // IsValidAvailabilityType returns true if the provided availability type
 // is valid.
 func IsValidAvailabilityType(t AvailabilityType) bool {
-	if t == allAvailabilityTypes {
-		return true
-	}
 	for _, t2 := range availabilityTypes {
 		if t == t2 {
 			return true
@@ -89,7 +84,7 @@ type Availability struct {
 	// The cohort of the owner.
 	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
 
-	// A v4 UUID identifying this availability. This is used as the DynamoDB sort key.
+	// A v4 UUID identifying this availability
 	Id string `dynamodbav:"id" json:"id"`
 
 	// The time the availability starts, in full ISO-8601 format. This is the earliest
@@ -109,4 +104,26 @@ type Availability struct {
 
 	// The dojo cohorts that the owner is willing to play against/meet with.
 	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
+}
+
+type Meeting struct {
+	// The username of the person that created the availability
+	// that spwaned this meeting.
+	Owner string `dynamodbav:"owner" json:"owner"`
+
+	// The other person participating in this meeting.
+	Participant string `dynamodbav:"participant" json:"participant"`
+
+	// A v4 UUID identifying this meeting
+	Id string `dynamodbav:"id" json:"id"`
+
+	// The time the meeting starts, in full ISO-8601 format.
+	StartTime string `dynamodbav:"startTime" json:"startTime"`
+
+	// The time that the meeting will be deleted from the database. This is set
+	// to 48 hours after the start time.
+	ExpirationTime int64 `dynamodbav:"expirationTime" json:"-"`
+
+	// The game/meeting type that the participants will play
+	Type AvailabilityType `dynamodbav:"type" json:"type"`
 }
