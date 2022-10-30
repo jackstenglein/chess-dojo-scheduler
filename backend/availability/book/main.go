@@ -95,6 +95,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	if info.Username == request.Owner {
+		err := errors.New(400, "Invalid request: you cannot book your own availability", "")
+		return api.Failure(funcName, err), nil
+	}
+
 	availability, err := repository.GetAvailability(request.Owner, request.Id)
 	if err != nil {
 		return api.Failure(funcName, err), nil
