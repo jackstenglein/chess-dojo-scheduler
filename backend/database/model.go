@@ -26,6 +26,21 @@ var cohorts = []DojoCohort{
 	"2400+",
 }
 
+const allCohorts = "ALL_COHORTS"
+
+// IsValidCohort returns true if the provided cohort is valid.
+func IsValidCohort(c DojoCohort) bool {
+	if c == allCohorts {
+		return true
+	}
+	for _, c2 := range cohorts {
+		if c == c2 {
+			return true
+		}
+	}
+	return false
+}
+
 type User struct {
 	// Cognito attributes
 	Username string `dynamodbav:"username" json:"username"`
@@ -37,4 +52,61 @@ type User struct {
 	ChesscomUsername string     `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
 	LichessUsername  string     `dynamodbav:"lichessUsername" json:"lichessUsername"`
 	DojoCohort       DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
+}
+
+type AvailabilityType string
+
+var availabilityTypes = []AvailabilityType{
+	"OPENING_SPARRING",
+	"MIDDLEGAME_SPARRING",
+	"ENDGAME_SPARRING",
+	"CLASSICAL_GAME",
+	"CLASSIC_ANALYSIS",
+	"BOOK_STUDY",
+	"ROOK_ENDGAME_PROGRESSION",
+}
+
+const allAvailabilityTypes AvailabilityType = "ALL_AVAILABILITY_TYPES"
+
+// IsValidAvailabilityType returns true if the provided availability type
+// is valid.
+func IsValidAvailabilityType(t AvailabilityType) bool {
+	if t == allAvailabilityTypes {
+		return true
+	}
+	for _, t2 := range availabilityTypes {
+		if t == t2 {
+			return true
+		}
+	}
+	return false
+}
+
+type Availability struct {
+	// The username of the creator of this availability.
+	Owner string `dynamodbav:"owner" json:"owner"`
+
+	// The cohort of the owner.
+	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
+
+	// A v4 UUID identifying this availability. This is used as the DynamoDB sort key.
+	Id string `dynamodbav:"id" json:"id"`
+
+	// The time the availability starts, in full ISO-8601 format. This is the earliest
+	// that the owner is willing to start their game/meeting.
+	StartTime string `dynamodbav:"startTime" json:"startTime"`
+
+	// The time the availability ends, in full ISO-8601 format. This is the latest
+	// that the owner is willing to start their game/meeting.
+	EndTime string `dynamodbav:"endTime" json:"endTime"`
+
+	// The time that the availability will be deleted from the database. This is set
+	// to 48 hours after the end time.
+	ExpirationTime int64 `dynamodbav:"expirationTime" json:"-"`
+
+	// The game/meeting types that the owner is willing to play.
+	Types []AvailabilityType `dynamodbav:"types" json:"types"`
+
+	// The dojo cohorts that the owner is willing to play against/meet with.
+	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
 }

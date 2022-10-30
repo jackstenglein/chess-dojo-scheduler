@@ -15,16 +15,21 @@ type UserCreator interface {
 	CreateUser(username, email, name string) (*User, error)
 }
 
-type UserSetter interface {
-	UserGetter
-
-	// SetUser saves the provided User object. The new object is returned.
-	SetUser(user *User) error
-}
-
 type UserGetter interface {
 	// GetUser returns the User object with the provided username.
 	GetUser(username string) (*User, error)
+}
+
+type UserSetter interface {
+	UserGetter
+
+	// SetUser saves the provided User object into the database.
+	SetUser(user *User) error
+}
+
+type AvailabilitySetter interface {
+	// SetAvailablity inserts the provided availability into the database.
+	SetAvailability(availability *Availability) error
 }
 
 // dynamoRepository implements a database using AWS DynamoDB.
@@ -39,6 +44,7 @@ var DynamoDB = &dynamoRepository{
 }
 
 var userTable = os.Getenv("stage") + "-users"
+var availabilityTable = os.Getenv("stage") + "-availabilities"
 
 // CreateUser creates a new User object with the provided information.
 func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, error) {
@@ -100,4 +106,20 @@ func (repo *dynamoRepository) GetUser(username string) (*User, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetUser result", err)
 	}
 	return &user, nil
+}
+
+// SetAvailability inserts the provided Availability into the database.
+func (repo *dynamoRepository) SetAvailability(availability *Availability) error {
+	item, err := dynamodbattribute.MarshalMap(availability)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal availability", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(availabilityTable),
+	}
+
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed Dynamo PutItem request", err)
 }

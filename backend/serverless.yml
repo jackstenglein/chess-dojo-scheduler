@@ -100,6 +100,24 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
+  ########## Availability Endpoints ##############
+
+  setAvailability:
+    handler: bin/availability/set
+    package:
+      patterns:
+        - ./bin/availability/set
+    events:
+      - httpApi:
+          path: /availability
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt AvailabilitiesTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############
@@ -186,3 +204,36 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+
+    AvailabilitiesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${opt:stage, self:provider.stage}-availabilities
+        AttributeDefinitions:
+          - AttributeName: owner
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: startTime
+            AttributeType: S
+        KeySchema:
+          - AttributeName: owner
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: SearchIndex
+            KeySchema:
+              - AttributeName: startTime
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TimeToLiveSpecification:
+          AttributeName: expirationTime
+          Enabled: true
