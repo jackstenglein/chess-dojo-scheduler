@@ -143,6 +143,22 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
+  deleteAvailability:
+    handler: bin/availability/delete
+    package:
+      patterns:
+        - ./bin/availability/delete
+    events:
+      - httpApi:
+          path: /availability/{id}
+          method: delete
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt AvailabilitiesTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############

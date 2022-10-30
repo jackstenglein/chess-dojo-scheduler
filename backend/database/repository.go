@@ -43,6 +43,11 @@ type AvailabilityBooker interface {
 	BookAvailability(availability *Availability, request *Meeting) error
 }
 
+type AvailabilityDeleter interface {
+	// DeleteAvailability deletes the given availability object. An error is returned if it does not exist.
+	DeleteAvailability(owner, id string) error
+}
+
 // dynamoRepository implements a database using AWS DynamoDB.
 type dynamoRepository struct {
 	svc *dynamodb.DynamoDB
