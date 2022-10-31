@@ -21,7 +21,9 @@ type GetAvailabilitiesResponse struct {
 	LastEvaluatedKey string                   `json:"lastEvaluatedKey,omitempty"`
 }
 
-func getSharedParameters(event api.Request) (startTime, endTime, startKey string, limit int, err error) {
+// getSharedParameters returns the parameters that are shared between getByOwnerHandler
+// and getPublicHandler.
+func getSharedParameters(event api.Request) (limit int, startKey string, err error) {
 	limit = 100
 	limitStr, ok := event.QueryStringParameters["limit"]
 	if ok {
@@ -30,15 +32,6 @@ func getSharedParameters(event api.Request) (startTime, endTime, startKey string
 			err = errors.Wrap(400, "Invalid request: limit must be an int", "strconv.Atoi failure", err)
 			return
 		}
-	}
-
-	startTime, _ = event.QueryStringParameters["startTime"]
-
-	endTime, _ = event.QueryStringParameters["endTime"]
-
-	if startTime > endTime {
-		err = errors.New(400, "Invalid request: startTime must be less than endTime", "")
-		return
 	}
 
 	startKey, _ = event.QueryStringParameters["startKey"]
@@ -52,7 +45,7 @@ func getByOwnerHandler(info *api.UserInfo, event api.Request) api.Response {
 		return api.Failure(funcName, err)
 	}
 
-	_, _, startKey, limit, err := getSharedParameters(event)
+	limit, startKey, err := getSharedParameters(event)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}
@@ -68,47 +61,51 @@ func getByOwnerHandler(info *api.UserInfo, event api.Request) api.Response {
 	})
 }
 
-// func getPublicHandler(info *api.UserInfo, event api.Request) api.Response {
+// getByTimeHandler returns a list of all Availabilities matching the provided request.
+func getByTimeHandler(info *api.UserInfo, event api.Request) api.Response {
+	startTime, ok := event.QueryStringParameters["startTime"]
+	if !ok {
+		err := errors.New(400, "Invalid request: startTime is required", "")
+		return api.Failure(funcName, err)
+	}
 
-// 	startTime, endTime, startKey, location, limit, err := getSharedParameters(event)
-// 	if err != nil {
-// 		return api.Failure(funcName, err)
-// 	}
+	endTime, ok := event.QueryStringParameters["endTime"]
+	if !ok {
+		err := errors.New(400, "Invalid request: endTime is required", "")
+		return api.Failure(funcName, err)
+	}
 
-// 	school, ok := event.QueryStringParameters["school"]
-// 	if !ok {
-// 		err := errors.New(400, "Invalid request: school is required", "")
-// 		return api.Failure(funcName, err)
-// 	}
+	if startTime > endTime {
+		err := errors.New(400, "Invalid request: startTime must be less than endTime", "")
+		return api.Failure(funcName, err)
+	}
 
-// 	class, ok := event.QueryStringParameters["class"]
-// 	if !ok {
-// 		err := errors.New(400, "Invalid request: class is required", "")
-// 		return api.Failure(funcName, err)
-// 	}
+	limit, startKey, err := getSharedParameters(event)
+	if err != nil {
+		return api.Failure(funcName, err)
+	}
 
-// 	log.Debugf("Finding availabilities for username: %s", info.Username)
-// 	availabilities, lastKey, err := repository.GetAvailabilities(info.Username, school, startTime, endTime, class, location, startKey, limit)
-// 	if err != nil {
-// 		return api.Failure(funcName, err)
-// 	}
+	availabilities, lastKey, err := repository.GetAvailabilitiesByTime(info.Username, startTime, endTime, limit, startKey)
+	if err != nil {
+		return api.Failure(funcName, err)
+	}
 
-// 	return api.Success(funcName, &GetAvailabilitiesResponse{
-// 		Availabilities:   availabilities,
-// 		LastEvaluatedKey: lastKey,
-// 	})
-// }
+	return api.Success(funcName, &GetAvailabilitiesResponse{
+		Availabilities:   availabilities,
+		LastEvaluatedKey: lastKey,
+	})
+}
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 	info := api.GetUserInfo(event)
-	return getByOwnerHandler(info, event), nil
-	// if info.Type == api.TutorType {
-	// 	return getTutorHandler(info, event), nil
-	// }
 
-	// return getPublicHandler(info, event), nil
+	if _, ok := event.QueryStringParameters["byTime"]; ok {
+		return getByTimeHandler(info, event), nil
+	}
+
+	return getByOwnerHandler(info, event), nil
 }
 
 func main() {

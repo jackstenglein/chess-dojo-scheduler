@@ -104,6 +104,9 @@ type Availability struct {
 
 	// The dojo cohorts that the owner is willing to play against/meet with.
 	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
+
+	// The status of the Availability. Always set to SCHEDULED for now.
+	Status string `dynamodbav:"status" json:"-"`
 }
 
 type Meeting struct {

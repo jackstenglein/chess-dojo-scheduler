@@ -51,7 +51,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	availability := database.Availability{}
+	availability := database.Availability{Status: "SCHEDULED"}
 	if err := json.Unmarshal([]byte(event.Body), &availability); err != nil {
 		err := errors.Wrap(400, "Invalid request: body format is invalid", "Unable to unmarshal body", err)
 		return api.Failure(funcName, err), nil

@@ -272,6 +272,8 @@ resources:
             AttributeType: S
           - AttributeName: id
             AttributeType: S
+          - AttributeName: status
+            AttributeType: S
           - AttributeName: startTime
             AttributeType: S
         KeySchema:
@@ -282,8 +284,10 @@ resources:
         GlobalSecondaryIndexes:
           - IndexName: SearchIndex
             KeySchema:
-              - AttributeName: startTime
+              - AttributeName: status
                 KeyType: HASH
+              - AttributeName: startTime
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL
             ProvisionedThroughput:

@@ -173,29 +173,15 @@ func (repo *dynamoRepository) GetAvailability(owner, id string) (*Availability, 
 	return &availability, nil
 }
 
-// GetAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
-// username and limit are required parameters. startKey is optional. The list of availabilities and
-// the next start key are returned.
-func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit int, startKey string) ([]*Availability, string, error) {
-	var exclusiveStartKey map[string]*dynamodb.AttributeValue
+// fetchAvailabilities performs the provided DynamoDB query. The startKey is unmarshalled and set on the query.
+func (repo *dynamoRepository) fetchAvailabilities(input *dynamodb.QueryInput, startKey string) ([]*Availability, string, error) {
 	if startKey != "" {
+		var exclusiveStartKey map[string]*dynamodb.AttributeValue
 		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
 		if err != nil {
 			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
 		}
-	}
-
-	input := &dynamodb.QueryInput{
-		ExclusiveStartKey:        exclusiveStartKey,
-		ExpressionAttributeNames: map[string]*string{"#owner": aws.String("owner")},
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":username": {
-				S: aws.String(username),
-			},
-		},
-		KeyConditionExpression: aws.String("#owner = :username"),
-		Limit:                  aws.Int64(int64(limit)),
-		TableName:              aws.String(availabilityTable),
+		input.SetExclusiveStartKey(exclusiveStartKey)
 	}
 
 	result, err := repo.svc.Query(input)
@@ -219,6 +205,59 @@ func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit in
 	}
 
 	return availabilities, lastKey, nil
+}
+
+// GetAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
+// username and limit are required parameters. startKey is optional. The list of availabilities and
+// the next start key are returned.
+func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit int, startKey string) ([]*Availability, string, error) {
+	input := &dynamodb.QueryInput{
+		ExpressionAttributeNames: map[string]*string{"#owner": aws.String("owner")},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":username": {
+				S: aws.String(username),
+			},
+		},
+		KeyConditionExpression: aws.String("#owner = :username"),
+		Limit:                  aws.Int64(int64(limit)),
+		TableName:              aws.String(availabilityTable),
+	}
+
+	return repo.fetchAvailabilities(input, startKey)
+}
+
+// GetAvailabilitiesByTime returns a list of Availabilities matching the provided start and end time.
+// Availabilities owned by the calling username are filtered out of the result list. username, startTime,
+// endTime and limit are required parameters. startKey is optional. The list of availabilities and
+// the next start key are returned.
+func (repo *dynamoRepository) GetAvailabilitiesByTime(username, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#status = :scheduled AND startTime BETWEEN :startTime AND :endTime"),
+		ExpressionAttributeNames: map[string]*string{
+			"#status": aws.String("status"),
+			"#owner":  aws.String("owner"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":scheduled": {
+				S: aws.String("SCHEDULED"),
+			},
+			":startTime": {
+				S: aws.String(startTime),
+			},
+			":endTime": {
+				S: aws.String(endTime),
+			},
+			":username": {
+				S: aws.String(username),
+			},
+		},
+		FilterExpression: aws.String("#owner <> :username"),
+		Limit:            aws.Int64(int64(limit)),
+		IndexName:        aws.String("SearchIndex"),
+		TableName:        aws.String(availabilityTable),
+	}
+
+	return repo.fetchAvailabilities(input, startKey)
 }
 
 // DeleteAvailability deletes the given availability object. An error is returned if it does not exist.
