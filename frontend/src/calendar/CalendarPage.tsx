@@ -16,11 +16,13 @@ export default function CalendarPage() {
     const navigate = useNavigate();
 
     // const availabilities = useRef<Record<string, Availability>>({});
-    const fetchRequest = useRequest();
     const deleteRequest = useRequest();
 
     const ownedAvailabilities = useRef<Record<string, Availability>>({});
     const ownedAvailabilitiesRequest = useRequest<Availability[]>();
+
+    const otherAvailabilities = useRef<Availability[]>([]);
+    const otherAvailabilitiesRequest = useRequest();
 
     useEffect(() => {
         if (ownedAvailabilitiesRequest.status === RequestStatus.NotSent) {
@@ -41,43 +43,43 @@ export default function CalendarPage() {
         }
     }, [ownedAvailabilitiesRequest, api]);
 
-    // const fetchAvailabilities = async (query: string) => {
-    //     const startToken = '?start=';
-    //     const endToken = '&end=';
-    //     const endIndex = query.indexOf(endToken);
-    //     const startStr = query.substring(startToken.length, endIndex);
-    //     const endStr = query.substring(endIndex + endToken.length);
+    const fetchAvailabilities = async (query: string) => {
+        const startToken = '?start=';
+        const endToken = '&end=';
+        const endIndex = query.indexOf(endToken);
+        const startStr = query.substring(startToken.length, endIndex);
+        const endStr = query.substring(endIndex + endToken.length);
 
-    //     const startIso = new Date(startStr).toISOString();
-    //     const endIso = new Date(endStr).toISOString();
+        const startIso = new Date(startStr).toISOString();
+        const endIso = new Date(endStr).toISOString();
 
-    //     fetchRequest.onStart();
+        otherAvailabilitiesRequest.onStart();
 
-    //     return api
-    //         .getAvailabilities({ startDate: startIso, endDate: endIso })
-    //         .then((avails) => {
-    //             const newAvailabilities = Object.assign(
-    //                 {},
-    //                 ...avails.map((a) => ({ [a.id]: a }))
-    //             );
-    //             availabilities.current = Object.assign(availabilities, newAvailabilities);
-    //             fetchRequest.onSuccess();
-    //             return avails.map(
-    //                 (a) =>
-    //                     ({
-    //                         event_id: a.id,
-    //                         title: 'Available',
-    //                         start: new Date(a.startTime),
-    //                         end: new Date(a.endTime),
-    //                         availability: a,
-    //                     } as ProcessedEvent)
-    //             );
-    //         })
-    //         .catch((err) => {
-    //             console.error(err);
-    //             fetchRequest.onFailure(err);
-    //         });
-    // };
+        return api
+            .getAvailabilitiesByTime(startIso, endIso)
+            .then((avails) => {
+                otherAvailabilitiesRequest.onSuccess();
+                Object.assign(otherAvailabilities.current, avails);
+                return avails.map(
+                    (a) =>
+                        ({
+                            event_id: a.id,
+                            title: 'Available',
+                            start: new Date(a.startTime),
+                            end: new Date(a.endTime),
+                            availability: a,
+                            color: 'red',
+                            editable: false,
+                            deletable: false,
+                            draggable: false,
+                        } as ProcessedEvent)
+                );
+            })
+            .catch((err) => {
+                console.error(err);
+                otherAvailabilitiesRequest.onFailure(err);
+            });
+    };
 
     const onConfirm = (availability: Availability) => {
         ownedAvailabilities.current[availability.id] = availability;
@@ -101,18 +103,37 @@ export default function CalendarPage() {
         }
     };
 
-    const ownedAvailabilityEvents: ProcessedEvent[] =
-        Object.values(ownedAvailabilities.current).map((a) => ({
+    const ownedAvailabilityEvents: ProcessedEvent[] = Object.values(
+        ownedAvailabilities.current
+    ).map((a) => ({
+        event_id: a.id,
+        title: 'Available',
+        start: new Date(a.startTime),
+        end: new Date(a.endTime),
+        availability: a,
+        draggable: false,
+    }));
+
+    const otherAvailabilityEvents: ProcessedEvent[] =
+        otherAvailabilities.current.map((a) => ({
             event_id: a.id,
-            title: 'Available',
+            title: 'Availability',
             start: new Date(a.startTime),
             end: new Date(a.endTime),
             availability: a,
+            color: 'red',
+            editable: false,
+            deletable: false,
+            draggable: false,
         })) ?? [];
+
+    const events: ProcessedEvent[] = ownedAvailabilityEvents.concat(
+        otherAvailabilityEvents
+    );
 
     return (
         <Container sx={{ py: 3 }}>
-            <RequestSnackbar request={fetchRequest} />
+            <RequestSnackbar request={otherAvailabilitiesRequest} />
             <RequestSnackbar request={deleteRequest} showSuccess />
 
             <Scheduler
@@ -138,9 +159,9 @@ export default function CalendarPage() {
                 customEditor={(scheduler) => (
                     <AvailabilityEditor scheduler={scheduler} onConfirm={onConfirm} />
                 )}
-                // remoteEvents={fetchAvailabilities}
+                remoteEvents={fetchAvailabilities}
                 onDelete={deleteAvailability}
-                events={ownedAvailabilityEvents}
+                events={events}
             />
         </Container>
     );

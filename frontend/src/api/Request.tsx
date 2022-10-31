@@ -1,5 +1,5 @@
 import { Snackbar, Alert } from '@mui/material';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, ReactNode } from 'react';
 
 /**
  * RequestStatus defines the different status types that an API request can have.
@@ -72,18 +72,34 @@ export function useRequest<T = any>(): Request<T> {
     };
 }
 
+function isReactNode(node: any | ReactNode): node is ReactNode {
+    if (node === null || node === undefined) {
+        return true;
+    }
+    if (
+        typeof node === 'string' ||
+        typeof node === 'number' ||
+        typeof node === 'boolean'
+    ) {
+        return true;
+    }
+    return false;
+}
+
 interface RequestSnackbarProps<T = any> {
     request: Request<T>;
     showError?: boolean;
     showSuccess?: boolean;
     defaultErrorMessage?: string;
+    defaultSuccessMessage?: string;
 }
 
-export function RequestSnackbar<T extends React.ReactNode = any>({
+export function RequestSnackbar<T = any>({
     request,
     showError,
     showSuccess,
     defaultErrorMessage,
+    defaultSuccessMessage,
 }: RequestSnackbarProps<T>) {
     let displayError =
         (showError === undefined || showError) &&
@@ -97,6 +113,10 @@ export function RequestSnackbar<T extends React.ReactNode = any>({
         request.error?.message ||
         defaultErrorMessage ||
         'Something went wrong. Please try again later or contact support if the problem persists';
+
+    const successMessage = isReactNode(request.data)
+        ? request.data
+        : defaultSuccessMessage || 'Request succeeded';
 
     return (
         <>
@@ -121,7 +141,7 @@ export function RequestSnackbar<T extends React.ReactNode = any>({
                 autoHideDuration={6000}
                 onClose={request.reset}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                message={request.data}
+                message={successMessage}
             />
         </>
     );

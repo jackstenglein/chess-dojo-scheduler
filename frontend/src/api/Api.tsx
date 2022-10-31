@@ -8,6 +8,7 @@ import {
     bookAvailability,
     deleteAvailability,
     getAvailabilities,
+    getAvailabilitiesByTime,
     setAvailability,
 } from './availabilityApi';
 import { UserApiContextType, getUser, updateUser } from './userApi';
@@ -48,6 +49,12 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 bookAvailability(idToken, a, time, type),
             getAvailabilities: (limit?: number, startKey?: string) =>
                 getAvailabilities(idToken, limit, startKey),
+            getAvailabilitiesByTime: (
+                startTime: string,
+                endTime: string,
+                limit?: number,
+                startKey?: string
+            ) => getAvailabilitiesByTime(idToken, startTime, endTime, limit, startKey),
         };
     }, [idToken, auth.updateUser]);
 

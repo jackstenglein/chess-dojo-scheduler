@@ -21,14 +21,6 @@ export type AvailabilityApiContextType = {
     ) => Promise<AxiosResponse<Availability, any>>;
 
     /**
-     * getAvailabilities returns a list of the currently signed-in user's availabilities matching the provided
-     * GetAvailabilityRequest object.
-     * @param req The request to use when searching for availabilities.
-     * @returns A list of availabilities.
-     */
-    getAvailabilities: (limit?: number, startKey?: string) => Promise<Availability[]>;
-
-    /**
      * deleteAvailability deletes the provided availability from the database.
      * @param availability The availability to delete.
      * @returns An AxiosResponse containing no data.
@@ -36,12 +28,28 @@ export type AvailabilityApiContextType = {
     deleteAvailability: (availability: Availability) => Promise<AxiosResponse<null, any>>;
 
     /**
-     * getPublicAvailabilities returns a list of public availabilities matching the provided
+     * getAvailabilities returns a list of the currently signed-in user's availabilities matching the provided
      * GetAvailabilityRequest object.
-     * @param req The request to use when searching for availabilities.
+     * @param limit The max amount of items to fetch per page.
+     * @param startKey The first startKey to use when searching.
+     * @returns A list of availabilities.
+     */
+    getAvailabilities: (limit?: number, startKey?: string) => Promise<Availability[]>;
+
+    /**
+     * getAvailabilitiesByTime returns a list of availabilities from other users.
+     * @param startTime The startTime to use when searching.
+     * @param endTime The endTime to use when searching.
+     * @param limit The max amount of items to fetch per page.
+     * @param startKey The first startKey to use when searching.
      * @returns A list of availabilities matching the provided request.
      */
-    // getPublicAvailabilities: (req: GetAvailabilitiesRequest) => Promise<Availability[]>;
+    getAvailabilitiesByTime: (
+        startTime: string,
+        endTime: string,
+        limit?: number,
+        startKey?: string
+    ) => Promise<Availability[]>;
 
     /**
      * Books the provided availability at the provided start times.
@@ -71,6 +79,20 @@ export function setAvailability(idToken: string, availability: Availability) {
     });
 }
 
+/**
+ * deleteAvailability deletes the provided availability from the database.
+ * @param idToken The id token of the current signed-in user.
+ * @param availability The availability to delete.
+ * @returns An AxiosResponse containing no data.
+ */
+export function deleteAvailability(idToken: string, availability: Availability) {
+    return axios.delete<null>(BASE_URL + `/availability/${availability.id}`, {
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+}
+
 // GetAvailabilitiesResponse represents the raw API response for a GetAvailability request.
 interface GetAvailabilitiesResponse {
     availabilities: Availability[];
@@ -81,7 +103,8 @@ interface GetAvailabilitiesResponse {
  * getAvailabilities returns a list of the currently signed-in user's availabilities matching the provided
  * GetAvailabilityRequest object.
  * @param idToken The id token of the current signed-in user.
- * @param req The request to use when searching for availabilities.
+ * @param limit The max amount of items to fetch per page.
+ * @param startKey The first startKey to use when searching.
  * @returns A list of availabilities.
  */
 export async function getAvailabilities(
@@ -111,50 +134,41 @@ export async function getAvailabilities(
 }
 
 /**
- * deleteAvailability deletes the provided availability from the database.
+ * getAvailabilitiesByTime returns a list of availabilities from other users.
  * @param idToken The id token of the current signed-in user.
- * @param availability The availability to delete.
- * @returns An AxiosResponse containing no data.
- */
-export function deleteAvailability(idToken: string, availability: Availability) {
-    return axios.delete<null>(BASE_URL + `/availability/${availability.id}`, {
-        headers: {
-            Authorization: 'Bearer ' + idToken,
-        },
-    });
-}
-
-/**
- * getPublicAvailabilities returns a list of public availabilities matching the provided
- * GetAvailabilityRequest object.
- * @param idToken The id token of the current signed-in user.
- * @param req The request to use when searching for availabilities.
+ * @param startTime The startTime to use when searching.
+ * @param endTime The endTime to use when searching.
+ * @param limit The max amount of items to fetch per page.
+ * @param startKey The first startKey to use when searching.
  * @returns A list of availabilities matching the provided request.
  */
-// export async function getPublicAvailabilities(
-//     idToken: string,
-//     req: GetAvailabilitiesRequest
-// ) {
-//     let params = { ...req };
-//     const result: Availability[] = [];
-//     do {
-//         const resp = await axios.get<GetAvailabilitiesResponse>(
-//             BASE_URL + '/public/availability',
-//             {
-//                 params,
-//                 headers:
-//                     idToken.length > 0
-//                         ? { Authorization: 'Bearer ' + idToken }
-//                         : undefined,
-//             }
-//         );
+export async function getAvailabilitiesByTime(
+    idToken: string,
+    startTime: string,
+    endTime: string,
+    limit?: number,
+    startKey?: string
+) {
+    let params = { startTime, endTime, limit: limit || 100, startKey };
+    const result: Availability[] = [];
+    do {
+        const resp = await axios.get<GetAvailabilitiesResponse>(
+            BASE_URL + '/availability?byTime=true',
+            {
+                params,
+                headers:
+                    idToken.length > 0
+                        ? { Authorization: 'Bearer ' + idToken }
+                        : undefined,
+            }
+        );
 
-//         result.push(...resp.data.availabilities);
-//         params.startKey = resp.data.lastEvaluatedKey;
-//     } while (params.startKey);
+        result.push(...resp.data.availabilities);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
 
-//     return result;
-// }
+    return result;
+}
 
 /**
  * Books the provided availability at the provided start time.
