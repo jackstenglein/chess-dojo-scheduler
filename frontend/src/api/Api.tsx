@@ -1,13 +1,20 @@
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 
 import { useAuth } from '../auth/Auth';
+import { Availability } from '../database/availability';
 import { User } from '../database/user';
+import {
+    AvailabilityApiContextType,
+    bookAvailability,
+    deleteAvailability,
+    setAvailability,
+} from './availabilityApi';
 import { UserApiContextType, getUser, updateUser } from './userApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
  */
-type ApiContextType = UserApiContextType;
+type ApiContextType = UserApiContextType & AvailabilityApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -33,6 +40,11 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getUser: () => getUser(idToken),
             updateUser: (update: Partial<User>) =>
                 updateUser(idToken, update, auth.updateUser),
+
+            setAvailability: (a: Availability) => setAvailability(idToken, a),
+            deleteAvailability: (a: Availability) => deleteAvailability(idToken, a),
+            bookAvailability: (a: Availability, time: Date, type: string) =>
+                bookAvailability(idToken, a, time, type),
         };
     }, [idToken, auth.updateUser]);
 

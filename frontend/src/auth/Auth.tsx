@@ -6,7 +6,7 @@ import {
     useCallback,
     ReactNode,
 } from 'react';
-import { useLocation, Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { Stack, CircularProgress } from '@mui/material';
 import { Auth as AmplifyAuth } from 'aws-amplify';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';

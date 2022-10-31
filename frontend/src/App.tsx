@@ -7,6 +7,7 @@ import { AuthProvider, RequireAuth, RequireProfile } from './auth/Auth';
 import LandingPage from './home/LandingPage';
 import ProfilePage from './profile/ProfilePage';
 import { ApiProvider } from './api/Api';
+import CalendarPage from './calendar/CalendarPage';
 
 Amplify.configure({
     Auth: {
@@ -46,6 +47,7 @@ function Router() {
 
                     <Route element={<RequireProfile />}>
                         <Route path='home' element={<h2>Home</h2>} />
+                        <Route path='calendar' element={<CalendarPage />} />
                     </Route>
                 </Route>
                 {/* <Route path='*' element={<NotFoundPage />} /> */}

@@ -57,13 +57,13 @@ type User struct {
 type AvailabilityType string
 
 var availabilityTypes = []AvailabilityType{
+	"CLASSICAL_GAME",
 	"OPENING_SPARRING",
 	"MIDDLEGAME_SPARRING",
 	"ENDGAME_SPARRING",
-	"CLASSICAL_GAME",
+	"ROOK_ENDGAME_PROGRESSION",
 	"CLASSIC_ANALYSIS",
 	"BOOK_STUDY",
-	"ROOK_ENDGAME_PROGRESSION",
 }
 
 // IsValidAvailabilityType returns true if the provided availability type
