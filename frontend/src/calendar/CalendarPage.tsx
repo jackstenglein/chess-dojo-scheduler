@@ -1,13 +1,13 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Container, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Scheduler } from '@aldabil/react-scheduler';
-// import { ProcessedEvent } from '@aldabil/react-scheduler/dist/types';
+import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
 import { Availability } from '../database/availability';
-import { RequestSnackbar, useRequest } from '../api/Request';
+import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 
 export default function CalendarPage() {
@@ -15,9 +15,31 @@ export default function CalendarPage() {
     const api = useApi();
     const navigate = useNavigate();
 
-    const availabilities = useRef<Record<string, Availability>>({});
+    // const availabilities = useRef<Record<string, Availability>>({});
     const fetchRequest = useRequest();
     const deleteRequest = useRequest();
+
+    const ownedAvailabilities = useRef<Record<string, Availability>>({});
+    const ownedAvailabilitiesRequest = useRequest<Availability[]>();
+
+    useEffect(() => {
+        if (ownedAvailabilitiesRequest.status === RequestStatus.NotSent) {
+            ownedAvailabilitiesRequest.onStart();
+            api.getAvailabilities()
+                .then((availabilities) => {
+                    ownedAvailabilitiesRequest.onSuccess(availabilities);
+                    const newAvailabilities = Object.assign(
+                        {},
+                        ...availabilities.map((a) => ({ [a.id]: a }))
+                    );
+                    Object.assign(ownedAvailabilities.current, newAvailabilities);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    ownedAvailabilitiesRequest.onFailure(err);
+                });
+        }
+    }, [ownedAvailabilitiesRequest, api]);
 
     // const fetchAvailabilities = async (query: string) => {
     //     const startToken = '?start=';
@@ -58,26 +80,35 @@ export default function CalendarPage() {
     // };
 
     const onConfirm = (availability: Availability) => {
-        availabilities.current[availability.id] = availability;
+        ownedAvailabilities.current[availability.id] = availability;
     };
 
     const deleteAvailability = async (id: string) => {
-        const availability = availabilities.current[id];
+        const availability = ownedAvailabilities.current[id];
         if (!availability) {
             return;
         }
 
         try {
             deleteRequest.onStart();
-            const response = await api.deleteAvailability(availability);
-            delete availabilities.current[response.data.id];
+            await api.deleteAvailability(availability);
+            delete ownedAvailabilities.current[id];
             deleteRequest.onSuccess('Availability deleted');
-            return response.data.id;
+            return id;
         } catch (err) {
             console.error(err);
             deleteRequest.onFailure(err);
         }
     };
+
+    const ownedAvailabilityEvents: ProcessedEvent[] =
+        Object.values(ownedAvailabilities.current).map((a) => ({
+            event_id: a.id,
+            title: 'Available',
+            start: new Date(a.startTime),
+            end: new Date(a.endTime),
+            availability: a,
+        })) ?? [];
 
     return (
         <Container sx={{ py: 3 }}>
@@ -109,13 +140,7 @@ export default function CalendarPage() {
                 )}
                 // remoteEvents={fetchAvailabilities}
                 onDelete={deleteAvailability}
-                events={Object.values(availabilities).map((a) => ({
-                    event_id: a.id,
-                    title: 'Available',
-                    start: new Date(a.startTime),
-                    end: new Date(a.endTime),
-                    availability: a,
-                }))}
+                events={ownedAvailabilityEvents}
             />
         </Container>
     );

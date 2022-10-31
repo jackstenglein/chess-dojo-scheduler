@@ -159,6 +159,23 @@ functions:
           - dynamodb:DeleteItem
         Resource: !GetAtt AvailabilitiesTable.Arn
 
+  getAvailability:
+    handler: bin/availability/get
+    package:
+      patterns:
+        - ./bin/availability/get
+    events:
+      - httpApi:
+          path: /availability
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - !GetAtt AvailabilitiesTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"encoding/json"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -170,6 +171,54 @@ func (repo *dynamoRepository) GetAvailability(owner, id string) (*Availability, 
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetAvailability result", err)
 	}
 	return &availability, nil
+}
+
+// GetAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
+// username and limit are required parameters. startKey is optional. The list of availabilities and
+// the next start key are returned.
+func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit int, startKey string) ([]*Availability, string, error) {
+	var exclusiveStartKey map[string]*dynamodb.AttributeValue
+	if startKey != "" {
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+	}
+
+	input := &dynamodb.QueryInput{
+		ExclusiveStartKey:        exclusiveStartKey,
+		ExpressionAttributeNames: map[string]*string{"#owner": aws.String("owner")},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":username": {
+				S: aws.String(username),
+			},
+		},
+		KeyConditionExpression: aws.String("#owner = :username"),
+		Limit:                  aws.Int64(int64(limit)),
+		TableName:              aws.String(availabilityTable),
+	}
+
+	result, err := repo.svc.Query(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
+	}
+
+	var availabilities []*Availability
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &availabilities)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetAvailabilities result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal GetAvailabilities LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return availabilities, lastKey, nil
 }
 
 // DeleteAvailability deletes the given availability object. An error is returned if it does not exist.

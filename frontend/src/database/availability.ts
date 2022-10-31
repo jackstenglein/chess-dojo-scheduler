@@ -8,16 +8,6 @@ export interface Availability {
     cohorts: string[];
 }
 
-// export const availabilityTypes = [
-//     'CLASSICAL_GAME',
-//     'OPENING_SPARRING',
-//     'MIDDLEGAME_SPARRING',
-//     'ENDGAME_SPARRING',
-//     'ROOK_ENDGAME_PROGRESSION',
-//     'CLASSICAL_ANALYSIS',
-//     'BOOK_STUDY',
-// ];
-
 export enum AvailabilityType {
     ClassicalGame = 'CLASSICAL_GAME',
     OpeningSparring = 'OPENING_SPARRING',
@@ -25,7 +15,7 @@ export enum AvailabilityType {
     EndgameSparring = 'ENDGAME_SPARRING',
     RookEndgameProgression = 'ROOK_ENDGAME_PROGRESSION',
     ClassicAnalysis = 'CLASSIC_ANALYSIS',
-    BookStudy = 'BookStudy',
+    BookStudy = 'BOOK_STUDY',
 }
 
 export function getDisplayString(type: AvailabilityType | null | undefined): string {

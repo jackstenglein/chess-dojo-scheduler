@@ -26,16 +26,14 @@ export type AvailabilityApiContextType = {
      * @param req The request to use when searching for availabilities.
      * @returns A list of availabilities.
      */
-    // getAvailabilities: (req: GetAvailabilitiesRequest) => Promise<Availability[]>;
+    getAvailabilities: (limit?: number, startKey?: string) => Promise<Availability[]>;
 
     /**
      * deleteAvailability deletes the provided availability from the database.
      * @param availability The availability to delete.
-     * @returns An AxiosResponse containing the deleted availability.
+     * @returns An AxiosResponse containing no data.
      */
-    deleteAvailability: (
-        availability: Availability
-    ) => Promise<AxiosResponse<Availability, any>>;
+    deleteAvailability: (availability: Availability) => Promise<AxiosResponse<null, any>>;
 
     /**
      * getPublicAvailabilities returns a list of public availabilities matching the provided
@@ -73,20 +71,11 @@ export function setAvailability(idToken: string, availability: Availability) {
     });
 }
 
-// export interface GetAvailabilitiesRequest {
-//     startDate?: string;
-//     endDate?: string;
-//     school?: string;
-//     class?: string;
-//     limit?: number;
-//     startKey?: string;
-//     location?: AvailabilityLocation;
-// }
-
-// interface GetAvailabilitiesResponse {
-//     availabilities: Availability[];
-//     lastEvaluatedKey: string;
-// }
+// GetAvailabilitiesResponse represents the raw API response for a GetAvailability request.
+interface GetAvailabilitiesResponse {
+    availabilities: Availability[];
+    lastEvaluatedKey: string;
+}
 
 /**
  * getAvailabilities returns a list of the currently signed-in user's availabilities matching the provided
@@ -95,36 +84,40 @@ export function setAvailability(idToken: string, availability: Availability) {
  * @param req The request to use when searching for availabilities.
  * @returns A list of availabilities.
  */
-// export async function getAvailabilities(idToken: string, req: GetAvailabilitiesRequest) {
-//     let params = { ...req };
-//     const result: Availability[] = [];
+export async function getAvailabilities(
+    idToken: string,
+    limit?: number,
+    startKey?: string
+) {
+    let params = { limit: limit || 100, startKey };
+    const result: Availability[] = [];
 
-//     do {
-//         const resp = await axios.get<GetAvailabilitiesResponse>(
-//             BASE_URL + '/availability',
-//             {
-//                 params,
-//                 headers: {
-//                     Authorization: 'Bearer ' + idToken,
-//                 },
-//             }
-//         );
+    do {
+        const resp = await axios.get<GetAvailabilitiesResponse>(
+            BASE_URL + '/availability',
+            {
+                params,
+                headers: {
+                    Authorization: 'Bearer ' + idToken,
+                },
+            }
+        );
 
-//         result.push(...resp.data.availabilities);
-//         params.startKey = resp.data.lastEvaluatedKey;
-//     } while (params.startKey);
+        result.push(...resp.data.availabilities);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
 
-//     return result;
-// }
+    return result;
+}
 
 /**
  * deleteAvailability deletes the provided availability from the database.
  * @param idToken The id token of the current signed-in user.
  * @param availability The availability to delete.
- * @returns An AxiosResponse containing the deleted availability.
+ * @returns An AxiosResponse containing no data.
  */
 export function deleteAvailability(idToken: string, availability: Availability) {
-    return axios.delete<Availability>(BASE_URL + `/availability/${availability.id}`, {
+    return axios.delete<null>(BASE_URL + `/availability/${availability.id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
