@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Stack,
     Typography,
@@ -16,6 +17,7 @@ import {
     TextField,
     FormHelperText,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { TransitionProps } from '@mui/material/transitions';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -29,7 +31,6 @@ import {
 } from '../database/availability';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { LoadingButton } from '@mui/lab';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -51,6 +52,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
 
     const api = useApi();
     const request = useRequest();
+    const navigate = useNavigate();
 
     const [isBooking, setIsBooking] = useState(false);
     const [selectedType, setSelectedType] = useState<AvailabilityType | null>(null);
@@ -99,6 +101,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
             .then((response) => {
                 console.log('Book response: ', response);
                 request.onSuccess();
+                navigate(`/meeting/${response.data.id}`);
             })
             .catch((err) => {
                 console.error(err);

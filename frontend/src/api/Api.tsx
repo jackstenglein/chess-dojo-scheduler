@@ -11,12 +11,15 @@ import {
     getAvailabilitiesByTime,
     setAvailability,
 } from './availabilityApi';
+import { getMeeting, MeetingApiContextType } from './meetingApi';
 import { UserApiContextType, getUser, updateUser } from './userApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
  */
-type ApiContextType = UserApiContextType & AvailabilityApiContextType;
+type ApiContextType = UserApiContextType &
+    AvailabilityApiContextType &
+    MeetingApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -55,6 +58,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 limit?: number,
                 startKey?: string
             ) => getAvailabilitiesByTime(idToken, startTime, endTime, limit, startKey),
+
+            getMeeting: (id: string) => getMeeting(idToken, id),
         };
     }, [idToken, auth.updateUser]);
 

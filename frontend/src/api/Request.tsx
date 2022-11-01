@@ -23,6 +23,8 @@ interface Request<T = any> {
     onSuccess: (data?: T) => void;
     onFailure: (error?: any) => void;
     reset: () => void;
+    isLoading: () => boolean;
+    isSent: () => boolean;
 }
 
 /**
@@ -61,6 +63,14 @@ export function useRequest<T = any>(): Request<T> {
         setError(undefined);
     }, [setStatus, setData, setError]);
 
+    const isLoading = useCallback(() => {
+        return status === RequestStatus.Loading;
+    }, [status]);
+
+    const isSent = useCallback(() => {
+        return status !== RequestStatus.NotSent;
+    }, [status]);
+
     return {
         status,
         data,
@@ -69,6 +79,8 @@ export function useRequest<T = any>(): Request<T> {
         onSuccess,
         onFailure,
         reset,
+        isLoading,
+        isSent,
     };
 }
 
