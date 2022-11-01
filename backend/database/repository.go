@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 type UserCreator interface {
@@ -47,6 +48,21 @@ type AvailabilityBooker interface {
 type AvailabilityDeleter interface {
 	// DeleteAvailability deletes the given availability object. An error is returned if it does not exist.
 	DeleteAvailability(owner, id string) error
+}
+
+type AvailabilitySearcher interface {
+	UserGetter
+
+	// GetAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
+	// username and limit are required parameters. startKey is optional. The list of availabilities and
+	// the next start key are returned.
+	GetAvailabilitiesByOwner(username string, limit int, startKey string) ([]*Availability, string, error)
+
+	// GetAvailabilitiesByTime returns a list of Availabilities matching the provided start and end time.
+	// Availabilities owned by the calling user are filtered out of the result list, as are availabilities
+	// that are not bookable by the caller's cohort. user, startTime, endTime and limit are required parameters.
+	// startKey is optional. The list of availabilities and the next start key are returned.
+	GetAvailabilitiesByTime(caller *User, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error)
 }
 
 // dynamoRepository implements a database using AWS DynamoDB.
@@ -184,10 +200,13 @@ func (repo *dynamoRepository) fetchAvailabilities(input *dynamodb.QueryInput, st
 		input.SetExclusiveStartKey(exclusiveStartKey)
 	}
 
+	log.Debugf("Availability Query input: %v", input)
+
 	result, err := repo.svc.Query(input)
 	if err != nil {
 		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
 	}
+	log.Debugf("Availability query result: %v", result)
 
 	var availabilities []*Availability
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &availabilities)
@@ -230,12 +249,13 @@ func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit in
 // Availabilities owned by the calling username are filtered out of the result list. username, startTime,
 // endTime and limit are required parameters. startKey is optional. The list of availabilities and
 // the next start key are returned.
-func (repo *dynamoRepository) GetAvailabilitiesByTime(username, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error) {
+func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#status = :scheduled AND startTime BETWEEN :startTime AND :endTime"),
 		ExpressionAttributeNames: map[string]*string{
-			"#status": aws.String("status"),
-			"#owner":  aws.String("owner"),
+			"#status":  aws.String("status"),
+			"#owner":   aws.String("owner"),
+			"#cohorts": aws.String("cohorts"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":scheduled": {
@@ -248,10 +268,13 @@ func (repo *dynamoRepository) GetAvailabilitiesByTime(username, startTime, endTi
 				S: aws.String(endTime),
 			},
 			":username": {
-				S: aws.String(username),
+				S: aws.String(user.Username),
+			},
+			":callerCohort": {
+				S: aws.String(string(user.DojoCohort)),
 			},
 		},
-		FilterExpression: aws.String("#owner <> :username"),
+		FilterExpression: aws.String("#owner <> :username AND contains(#cohorts, :callerCohort)"),
 		Limit:            aws.Int64(int64(limit)),
 		IndexName:        aws.String("SearchIndex"),
 		TableName:        aws.String(availabilityTable),

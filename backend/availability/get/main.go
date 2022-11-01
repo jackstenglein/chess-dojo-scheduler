@@ -63,6 +63,16 @@ func getByOwnerHandler(info *api.UserInfo, event api.Request) api.Response {
 
 // getByTimeHandler returns a list of all Availabilities matching the provided request.
 func getByTimeHandler(info *api.UserInfo, event api.Request) api.Response {
+	if info.Username == "" {
+		err := errors.New(400, "Invalid request: username is required", "")
+		return api.Failure(funcName, err)
+	}
+
+	user, err := repository.GetUser(info.Username)
+	if err != nil {
+		return api.Failure(funcName, err)
+	}
+
 	startTime, ok := event.QueryStringParameters["startTime"]
 	if !ok {
 		err := errors.New(400, "Invalid request: startTime is required", "")
@@ -85,7 +95,7 @@ func getByTimeHandler(info *api.UserInfo, event api.Request) api.Response {
 		return api.Failure(funcName, err)
 	}
 
-	availabilities, lastKey, err := repository.GetAvailabilitiesByTime(info.Username, startTime, endTime, limit, startKey)
+	availabilities, lastKey, err := repository.GetAvailabilitiesByTime(user, startTime, endTime, limit, startKey)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}

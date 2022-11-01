@@ -179,6 +179,10 @@ functions:
               - - !GetAtt AvailabilitiesTable.Arn
                 - '/index/SearchIndex'
           - !GetAtt AvailabilitiesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
 
 resources:
   Resources:
