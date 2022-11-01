@@ -2,6 +2,7 @@ package database
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -63,6 +64,11 @@ type AvailabilitySearcher interface {
 	// that are not bookable by the caller's cohort. user, startTime, endTime and limit are required parameters.
 	// startKey is optional. The list of availabilities and the next start key are returned.
 	GetAvailabilitiesByTime(caller *User, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error)
+}
+
+type MeetingGetter interface {
+	// GetMeeting returns the meeting with the provided id.
+	GetMeeting(id string) (*Meeting, error)
 }
 
 // dynamoRepository implements a database using AWS DynamoDB.
@@ -335,4 +341,33 @@ func (repo *dynamoRepository) SetMeeting(meeting *Meeting) error {
 
 	_, err = repo.svc.PutItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed Dynamo PutItem request", err)
+}
+
+// GetMeeting returns the meeting with the provided id.
+func (repo *dynamoRepository) GetMeeting(id string) (*Meeting, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(id),
+			},
+		},
+		TableName: aws.String(meetingTable),
+	}
+
+	result, err := repo.svc.GetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetMeeting failure", err)
+	}
+
+	if result.Item == nil {
+		return nil, errors.New(404,
+			fmt.Sprintf("Invalid request: meeting id `%s` not found", id),
+			"GetMeeting result.Item is nil")
+	}
+
+	meeting := Meeting{}
+	if err = dynamodbattribute.UnmarshalMap(result.Item, &meeting); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetMeeting result", err)
+	}
+	return &meeting, nil
 }

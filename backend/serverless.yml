@@ -184,6 +184,24 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
+  ########## Meeting Endpoints ##############
+
+  getMeeting:
+    handler: bin/meeting/get
+    package:
+      patterns:
+        - ./bin/meeting/get
+    events:
+      - httpApi:
+          path: /meeting/{id}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt MeetingsTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############
@@ -313,18 +331,27 @@ resources:
       Properties:
         TableName: ${opt:stage, self:provider.stage}-meetings
         AttributeDefinitions:
-          - AttributeName: owner
-            AttributeType: S
           - AttributeName: id
+            AttributeType: S
+          - AttributeName: owner
             AttributeType: S
           - AttributeName: participant
             AttributeType: S
         KeySchema:
-          - AttributeName: owner
-            KeyType: HASH
           - AttributeName: id
-            KeyType: RANGE
+            KeyType: HASH
         GlobalSecondaryIndexes:
+          - IndexName: OwnerIndex
+            KeySchema:
+              - AttributeName: owner
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
           - IndexName: ParticipantIndex
             KeySchema:
               - AttributeName: participant

@@ -12,7 +12,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-var repository = database.DynamoDB
+var repository database.AvailabilitySearcher = database.DynamoDB
 
 const funcName = "availability-get-handler"
 
