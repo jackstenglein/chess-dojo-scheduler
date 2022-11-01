@@ -4,7 +4,7 @@ export interface Availability {
     id: string;
     startTime: string;
     endTime: string;
-    types: string[];
+    types: AvailabilityType[];
     cohorts: string[];
 }
 

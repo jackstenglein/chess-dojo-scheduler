@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Container, Stack, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Container } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
@@ -8,14 +7,11 @@ import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
 import { Availability } from '../database/availability';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
+import AvailabilityViewer from './AvailabilityViewer';
 
 export default function CalendarPage() {
-    const user = useAuth().user;
     const api = useApi();
-    const navigate = useNavigate();
 
-    // const availabilities = useRef<Record<string, Availability>>({});
     const deleteRequest = useRequest();
 
     const ownedAvailabilities = useRef<Record<string, Availability>>({});
@@ -58,13 +54,12 @@ export default function CalendarPage() {
         return api
             .getAvailabilitiesByTime(startIso, endIso)
             .then((avails) => {
-                otherAvailabilitiesRequest.onSuccess();
                 Object.assign(otherAvailabilities.current, avails);
                 return avails.map(
                     (a) =>
                         ({
                             event_id: a.id,
-                            title: 'Available',
+                            title: 'Bookable',
                             start: new Date(a.startTime),
                             end: new Date(a.endTime),
                             availability: a,
@@ -72,6 +67,7 @@ export default function CalendarPage() {
                             editable: false,
                             deletable: false,
                             draggable: false,
+                            isOwner: false,
                         } as ProcessedEvent)
                 );
             })
@@ -112,12 +108,13 @@ export default function CalendarPage() {
         end: new Date(a.endTime),
         availability: a,
         draggable: false,
+        isOwner: true,
     }));
 
     const otherAvailabilityEvents: ProcessedEvent[] =
         otherAvailabilities.current.map((a) => ({
             event_id: a.id,
-            title: 'Availability',
+            title: 'Bookable',
             start: new Date(a.startTime),
             end: new Date(a.endTime),
             availability: a,
@@ -125,6 +122,7 @@ export default function CalendarPage() {
             editable: false,
             deletable: false,
             draggable: false,
+            isOwner: false,
         })) ?? [];
 
     const events: ProcessedEvent[] = ownedAvailabilityEvents.concat(
@@ -162,6 +160,9 @@ export default function CalendarPage() {
                 remoteEvents={fetchAvailabilities}
                 onDelete={deleteAvailability}
                 events={events}
+                viewerExtraComponent={(fields, event) => (
+                    <AvailabilityViewer event={event} />
+                )}
             />
         </Container>
     );
