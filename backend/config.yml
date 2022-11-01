@@ -1,2 +1,2 @@
-stage: dev
-frontendHost: 'http://localhost:3000'
+stage: prod
+frontendHost: 'https://www.chess-dojo-scheduler.com'

@@ -19,17 +19,17 @@ export interface Config {
 export const config: Config = {
     auth: {
         region: 'us-east-1',
-        userPoolId: 'us-east-1_apywr6kwu',
-        userPoolWebClientId: '76en8knncv8bfpfgbheua6j6k',
+        userPoolId: 'us-east-1_0revSxCzf',
+        userPoolWebClientId: '1dfi5rar7a2fr5samugigrmise',
         oauth: {
-            domain: 'user-pool-domain-dev-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com',
+            domain: 'user-pool-domain-prod-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com',
             scope: ['profile', 'email', 'openid'],
-            redirectSignIn: 'http://localhost:3000',
-            redirectSignOut: 'http://localhost:3000',
+            redirectSignIn: 'https://www.chess-dojo-scheduler.com',
+            redirectSignOut: 'http://www.chess-dojo-scheduler.com',
             responseType: 'code',
         },
     },
     api: {
-        baseUrl: 'https://c2qamdaw08.execute-api.us-east-1.amazonaws.com',
+        baseUrl: 'https://g4shdaq6ug.execute-api.us-east-1.amazonaws.com',
     },
 };
