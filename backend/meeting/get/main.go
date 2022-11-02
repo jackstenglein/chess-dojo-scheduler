@@ -15,6 +15,15 @@ var repository database.MeetingGetter = database.DynamoDB
 
 const funcName = "meeting-get-handler"
 
+// GetMeetingResponse encodes the response from a GetMeeting request.
+type GetMeetingResponse struct {
+	// The requested Meeting.
+	Meeting *database.Meeting `json:"meeting"`
+
+	// The other user participating in this Meeting.
+	Opponent *database.User `json:"opponent"`
+}
+
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -36,12 +45,21 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if meeting.Owner != info.Username && meeting.Participant != info.Username {
+	var opponentUsername string
+	if info.Username == meeting.Owner {
+		opponentUsername = meeting.Participant
+	} else if info.Username == meeting.Participant {
+		opponentUsername = meeting.Owner
+	} else {
 		err := errors.New(403, "Invalid request: user is not a member of this meeting", "")
 		return api.Failure(funcName, err), nil
 	}
 
-	return api.Success(funcName, meeting), nil
+	opponent, err := repository.GetUser(opponentUsername)
+	return api.Success(funcName, &GetMeetingResponse{
+		Meeting:  meeting,
+		Opponent: opponent,
+	}), nil
 }
 
 func main() {

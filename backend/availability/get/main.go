@@ -79,13 +79,9 @@ func getByTimeHandler(info *api.UserInfo, event api.Request) api.Response {
 		return api.Failure(funcName, err)
 	}
 
-	endTime, ok := event.QueryStringParameters["endTime"]
-	if !ok {
-		err := errors.New(400, "Invalid request: endTime is required", "")
-		return api.Failure(funcName, err)
-	}
+	endTime, _ := event.QueryStringParameters["endTime"]
 
-	if startTime > endTime {
+	if endTime != "" && startTime > endTime {
 		err := errors.New(400, "Invalid request: startTime must be less than endTime", "")
 		return api.Failure(funcName, err)
 	}

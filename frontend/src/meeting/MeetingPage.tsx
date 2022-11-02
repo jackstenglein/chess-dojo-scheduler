@@ -10,15 +10,15 @@ import {
     Typography,
 } from '@mui/material';
 
-import { Meeting } from '../database/meeting';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import { getDisplayString } from '../database/availability';
+import { GetMeetingResponse } from '../api/meetingApi';
 
 const MeetingPage = () => {
     const api = useApi();
     const { meetingId } = useParams();
-    const request = useRequest<Meeting>();
+    const request = useRequest<GetMeetingResponse>();
 
     const fetchMeeting = useCallback(() => {
         request.onStart();
@@ -38,7 +38,7 @@ const MeetingPage = () => {
         }
     }, [request, fetchMeeting]);
 
-    if (request.isLoading()) {
+    if (request.isLoading() || !request.isSent()) {
         return (
             <Container sx={{ pt: 6, pb: 4 }}>
                 <CircularProgress />
@@ -54,7 +54,8 @@ const MeetingPage = () => {
         );
     }
 
-    const meeting = request.data;
+    const meeting = request.data.meeting;
+    const opponent = request.data.opponent;
     const start = new Date(meeting.startTime);
     const startDate = start.toLocaleDateString();
     const startTime = start.toLocaleTimeString();
@@ -88,7 +89,45 @@ const MeetingPage = () => {
                 </Card>
                 <Card variant='outlined'>
                     <CardHeader title='Opponent' />
-                    <CardContent></CardContent>
+                    <CardContent>
+                        <Stack spacing={3}>
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Discord Username
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {opponent.discordUsername}
+                                </Typography>
+                            </Stack>
+
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Chess Dojo Cohort
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {opponent.dojoCohort}
+                                </Typography>
+                            </Stack>
+
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Chess.com Username
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {opponent.chesscomUsername}
+                                </Typography>
+                            </Stack>
+
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Lichess Username
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {opponent.lichessUsername}
+                                </Typography>
+                            </Stack>
+                        </Stack>
+                    </CardContent>
                 </Card>
             </Stack>
         </Container>

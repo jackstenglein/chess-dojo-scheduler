@@ -200,7 +200,33 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: !GetAtt MeetingsTable.Arn
+        Resource:
+          - !GetAtt MeetingsTable.Arn
+          - !GetAtt UsersTable.Arn
+
+  listMeetings:
+    handler: bin/meeting/list
+    package:
+      patterns:
+        - ./bin/meeting/list
+    events:
+      - httpApi:
+          path: /meeting
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt MeetingsTable.Arn
+                - '/index/OwnerIndex'
+          - Fn::Join:
+              - ''
+              - - !GetAtt MeetingsTable.Arn
+                - '/index/ParticipantIndex'
 
 resources:
   Resources:
