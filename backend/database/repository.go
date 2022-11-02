@@ -445,7 +445,7 @@ func (repo *dynamoRepository) ListMeetings(username string, limit int, startKey 
 	}
 
 	lastKeys := listMeetingsStartKey{}
-	var meetings []*Meeting
+	var meetings = make([]*Meeting, 0)
 
 	if startKey == "" || startKeys.OwnerKey != "" {
 		ownerInput := &dynamodb.QueryInput{
