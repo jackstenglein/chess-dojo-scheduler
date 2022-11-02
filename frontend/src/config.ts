@@ -25,7 +25,7 @@ export const config: Config = {
             domain: 'user-pool-domain-prod-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com',
             scope: ['profile', 'email', 'openid'],
             redirectSignIn: 'https://www.chess-dojo-scheduler.com',
-            redirectSignOut: 'http://www.chess-dojo-scheduler.com',
+            redirectSignOut: 'https://www.chess-dojo-scheduler.com',
             responseType: 'code',
         },
     },
