@@ -1,36 +1,32 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Container } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
-import { Availability } from '../database/availability';
+import { Availability, getDisplayString } from '../database/availability';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import AvailabilityViewer from './AvailabilityViewer';
+import { Meeting } from '../database/meeting';
+
+const ONE_HOUR = 3600000;
 
 export default function CalendarPage() {
     const api = useApi();
 
     const deleteRequest = useRequest();
 
-    const ownedAvailabilities = useRef<Record<string, Availability>>({});
     const ownedAvailabilitiesRequest = useRequest<Availability[]>();
-
-    const otherAvailabilities = useRef<Availability[]>([]);
-    const otherAvailabilitiesRequest = useRequest();
+    const otherAvailabilitiesRequest = useRequest<Availability[]>();
+    const meetingsRequest = useRequest<Meeting[]>();
 
     useEffect(() => {
-        if (ownedAvailabilitiesRequest.status === RequestStatus.NotSent) {
+        if (!ownedAvailabilitiesRequest.isSent()) {
             ownedAvailabilitiesRequest.onStart();
             api.getAvailabilities()
                 .then((availabilities) => {
                     ownedAvailabilitiesRequest.onSuccess(availabilities);
-                    const newAvailabilities = Object.assign(
-                        {},
-                        ...availabilities.map((a) => ({ [a.id]: a }))
-                    );
-                    Object.assign(ownedAvailabilities.current, newAvailabilities);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -39,50 +35,54 @@ export default function CalendarPage() {
         }
     }, [ownedAvailabilitiesRequest, api]);
 
-    const fetchAvailabilities = async (query: string) => {
-        const startToken = '?start=';
-        const endToken = '&end=';
-        const endIndex = query.indexOf(endToken);
-        const startStr = query.substring(startToken.length, endIndex);
-        const endStr = query.substring(endIndex + endToken.length);
+    useEffect(() => {
+        if (!meetingsRequest.isSent()) {
+            meetingsRequest.onStart();
+            api.listMeetings()
+                .then((meetings) => {
+                    meetingsRequest.onSuccess(meetings);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    meetingsRequest.onFailure(err);
+                });
+        }
+    }, [meetingsRequest, api]);
 
-        const startIso = new Date(startStr).toISOString();
-        const endIso = new Date(endStr).toISOString();
-
-        otherAvailabilitiesRequest.onStart();
-
-        return api
-            .getAvailabilitiesByTime(startIso, endIso)
-            .then((avails) => {
-                Object.assign(otherAvailabilities.current, avails);
-                return avails.map(
-                    (a) =>
-                        ({
-                            event_id: a.id,
-                            title: 'Bookable',
-                            start: new Date(a.startTime),
-                            end: new Date(a.endTime),
-                            availability: a,
-                            color: 'red',
-                            editable: false,
-                            deletable: false,
-                            draggable: false,
-                            isOwner: false,
-                        } as ProcessedEvent)
-                );
-            })
-            .catch((err) => {
-                console.error(err);
-                otherAvailabilitiesRequest.onFailure(err);
-            });
-    };
+    useEffect(() => {
+        if (!otherAvailabilitiesRequest.isSent()) {
+            otherAvailabilitiesRequest.onStart();
+            const startIso = new Date().toISOString();
+            api.getAvailabilitiesByTime(startIso)
+                .then((availabilities) => {
+                    otherAvailabilitiesRequest.onSuccess(availabilities);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    otherAvailabilitiesRequest.onFailure(err);
+                });
+        }
+    }, [otherAvailabilitiesRequest, api]);
 
     const onConfirm = (availability: Availability) => {
-        ownedAvailabilities.current[availability.id] = availability;
+        const ownedAvailabilities = ownedAvailabilitiesRequest.data ?? [];
+        const index = ownedAvailabilities.findIndex((a) => a.id === availability.id);
+        if (index >= 0) {
+            ownedAvailabilitiesRequest.onSuccess([
+                ...ownedAvailabilities.slice(0, index),
+                availability,
+                ...ownedAvailabilities.slice(index + 1),
+            ]);
+        } else {
+            ownedAvailabilitiesRequest.onSuccess(
+                ownedAvailabilities.concat(availability)
+            );
+        }
     };
 
     const deleteAvailability = async (id: string) => {
-        const availability = ownedAvailabilities.current[id];
+        const ownedAvailabilities = ownedAvailabilitiesRequest.data ?? [];
+        const availability = ownedAvailabilities.find((a) => a.id === id);
         if (!availability) {
             return;
         }
@@ -90,7 +90,9 @@ export default function CalendarPage() {
         try {
             deleteRequest.onStart();
             await api.deleteAvailability(availability);
-            delete ownedAvailabilities.current[id];
+            ownedAvailabilitiesRequest.onSuccess(
+                ownedAvailabilities.filter((a) => a.id !== id)
+            );
             deleteRequest.onSuccess('Availability deleted');
             return id;
         } catch (err) {
@@ -99,20 +101,31 @@ export default function CalendarPage() {
         }
     };
 
-    const ownedAvailabilityEvents: ProcessedEvent[] = Object.values(
-        ownedAvailabilities.current
-    ).map((a) => ({
-        event_id: a.id,
-        title: 'Available',
-        start: new Date(a.startTime),
-        end: new Date(a.endTime),
-        availability: a,
-        draggable: false,
-        isOwner: true,
-    }));
+    const ownedAvailabilityEvents: ProcessedEvent[] =
+        ownedAvailabilitiesRequest.data?.map((a) => ({
+            event_id: a.id,
+            title: 'Available',
+            start: new Date(a.startTime),
+            end: new Date(a.endTime),
+            availability: a,
+            draggable: false,
+            isOwner: true,
+        })) ?? [];
+
+    const meetingEvents: ProcessedEvent[] =
+        meetingsRequest.data?.map((m) => ({
+            event_id: m.id,
+            title: getDisplayString(m.type),
+            start: new Date(m.startTime),
+            end: new Date(new Date(m.startTime).getTime() + ONE_HOUR),
+            meeting: m,
+            editable: false,
+            deletable: false,
+            draggable: false,
+        })) ?? [];
 
     const otherAvailabilityEvents: ProcessedEvent[] =
-        otherAvailabilities.current.map((a) => ({
+        otherAvailabilitiesRequest.data?.map((a) => ({
             event_id: a.id,
             title: 'Bookable',
             start: new Date(a.startTime),
@@ -126,8 +139,11 @@ export default function CalendarPage() {
         })) ?? [];
 
     const events: ProcessedEvent[] = ownedAvailabilityEvents.concat(
-        otherAvailabilityEvents
+        otherAvailabilityEvents,
+        meetingEvents
     );
+
+    console.log('Full Events: ', events);
 
     return (
         <Container sx={{ py: 3 }}>
@@ -157,7 +173,6 @@ export default function CalendarPage() {
                 customEditor={(scheduler) => (
                     <AvailabilityEditor scheduler={scheduler} onConfirm={onConfirm} />
                 )}
-                remoteEvents={fetchAvailabilities}
                 onDelete={deleteAvailability}
                 events={events}
                 viewerExtraComponent={(fields, event) => (

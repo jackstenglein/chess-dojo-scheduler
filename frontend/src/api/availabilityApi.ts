@@ -46,7 +46,7 @@ export type AvailabilityApiContextType = {
      */
     getAvailabilitiesByTime: (
         startTime: string,
-        endTime: string,
+        endTime?: string,
         limit?: number,
         startKey?: string
     ) => Promise<Availability[]>;
@@ -145,7 +145,7 @@ export async function getAvailabilities(
 export async function getAvailabilitiesByTime(
     idToken: string,
     startTime: string,
-    endTime: string,
+    endTime?: string,
     limit?: number,
     startKey?: string
 ) {

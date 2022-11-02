@@ -54,7 +54,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 getAvailabilities(idToken, limit, startKey),
             getAvailabilitiesByTime: (
                 startTime: string,
-                endTime: string,
+                endTime?: string,
                 limit?: number,
                 startKey?: string
             ) => getAvailabilitiesByTime(idToken, startTime, endTime, limit, startKey),

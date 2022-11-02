@@ -61,8 +61,8 @@ type AvailabilitySearcher interface {
 
 	// GetAvailabilitiesByTime returns a list of Availabilities matching the provided start and end time.
 	// Availabilities owned by the calling user are filtered out of the result list, as are availabilities
-	// that are not bookable by the caller's cohort. user, startTime, endTime and limit are required parameters.
-	// startKey is optional. The list of availabilities and the next start key are returned.
+	// that are not bookable by the caller's cohort. user, startTime and limit are required parameters.
+	// endTime and startKey are optional. The list of availabilities and the next start key are returned.
 	GetAvailabilitiesByTime(caller *User, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error)
 }
 
@@ -262,37 +262,43 @@ func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit in
 
 // GetAvailabilitiesByTime returns a list of Availabilities matching the provided start and end time.
 // Availabilities owned by the calling username are filtered out of the result list. username, startTime,
-// endTime and limit are required parameters. startKey is optional. The list of availabilities and
+// and limit are required parameters. endTime and startKey are optional. The list of availabilities and
 // the next start key are returned.
 func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error) {
+	keyConditionExpression := "#status = :scheduled AND startTime >= :startTime"
+	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
+		":scheduled": {
+			S: aws.String("SCHEDULED"),
+		},
+		":startTime": {
+			S: aws.String(startTime),
+		},
+		":username": {
+			S: aws.String(user.Username),
+		},
+		":callerCohort": {
+			S: aws.String(string(user.DojoCohort)),
+		},
+	}
+	if endTime != "" {
+		keyConditionExpression = "#status = :scheduled AND startTime BETWEEN :startTime AND :endTime"
+		expressionAttributeValues[":endTime"] = &dynamodb.AttributeValue{
+			S: aws.String(endTime),
+		}
+	}
+
 	input := &dynamodb.QueryInput{
-		KeyConditionExpression: aws.String("#status = :scheduled AND startTime BETWEEN :startTime AND :endTime"),
+		KeyConditionExpression: aws.String(keyConditionExpression),
 		ExpressionAttributeNames: map[string]*string{
 			"#status":  aws.String("status"),
 			"#owner":   aws.String("owner"),
 			"#cohorts": aws.String("cohorts"),
 		},
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":scheduled": {
-				S: aws.String("SCHEDULED"),
-			},
-			":startTime": {
-				S: aws.String(startTime),
-			},
-			":endTime": {
-				S: aws.String(endTime),
-			},
-			":username": {
-				S: aws.String(user.Username),
-			},
-			":callerCohort": {
-				S: aws.String(string(user.DojoCohort)),
-			},
-		},
-		FilterExpression: aws.String("#owner <> :username AND contains(#cohorts, :callerCohort)"),
-		Limit:            aws.Int64(int64(limit)),
-		IndexName:        aws.String("SearchIndex"),
-		TableName:        aws.String(availabilityTable),
+		ExpressionAttributeValues: expressionAttributeValues,
+		FilterExpression:          aws.String("#owner <> :username AND contains(#cohorts, :callerCohort)"),
+		Limit:                     aws.Int64(int64(limit)),
+		IndexName:                 aws.String("SearchIndex"),
+		TableName:                 aws.String(availabilityTable),
 	}
 
 	return repo.fetchAvailabilities(input, startKey)
