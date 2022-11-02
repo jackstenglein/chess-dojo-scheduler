@@ -17,6 +17,14 @@ export type MeetingApiContextType = {
      * @returns An AxiosResponse containing the GetMeetingResponse object.
      */
     getMeeting: (id: string) => Promise<AxiosResponse<GetMeetingResponse, any>>;
+
+    /**
+     * listMeetings returns a list of the currently signed-in user's meetings.
+     * @param limit The max amount of items to fetch per page.
+     * @param startKey The first startKey to use when searching for meetings.
+     * @returns
+     */
+    listMeetings: (limit?: number, startKey?: string) => Promise<Meeting[]>;
 };
 
 // The response from a GetMeeting request.
@@ -37,4 +45,35 @@ export function getMeeting(idToken: string, id: string) {
             Authorization: 'Bearer ' + idToken,
         },
     });
+}
+
+interface ListMeetingsResponse {
+    meetings: Meeting[];
+    lastEvaluatedKey: string;
+}
+
+/**
+ * listMeetings returns a list of the currently signed-in user's meetings.
+ * @param idToken The id token of the current signed-in user.
+ * @param limit The max amount of items to fetch per page.
+ * @param startKey The first startKey to use when searching for meetings.
+ * @returns
+ */
+export async function listMeetings(idToken: string, limit?: number, startKey?: string) {
+    let params = { limit: limit || 100, startKey };
+    const result: Meeting[] = [];
+
+    do {
+        const resp = await axios.get<ListMeetingsResponse>(BASE_URL + '/meeting', {
+            params,
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        });
+
+        result.push(...resp.data.meetings);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+
+    return result;
 }

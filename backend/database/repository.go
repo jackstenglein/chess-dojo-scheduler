@@ -73,6 +73,13 @@ type MeetingGetter interface {
 	GetMeeting(id string) (*Meeting, error)
 }
 
+type MeetingLister interface {
+	// ListMeetings returns a list of Meetings matching the provided username.
+	// username and limit are required parameters. startKey is optional.
+	// The list of meetings and the next start key are returned.
+	ListMeetings(username string, limit int, startKey string) ([]*Meeting, string, error)
+}
+
 // dynamoRepository implements a database using AWS DynamoDB.
 type dynamoRepository struct {
 	svc *dynamodb.DynamoDB
@@ -372,4 +379,124 @@ func (repo *dynamoRepository) GetMeeting(id string) (*Meeting, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetMeeting result", err)
 	}
 	return &meeting, nil
+}
+
+func (repo *dynamoRepository) fetchMeetings(input *dynamodb.QueryInput, startKey string) ([]*Meeting, string, error) {
+	if startKey != "" {
+		var exclusiveStartKey map[string]*dynamodb.AttributeValue
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+		input.SetExclusiveStartKey(exclusiveStartKey)
+	}
+
+	log.Debugf("Meeting Query input: %v", input)
+
+	result, err := repo.svc.Query(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
+	}
+	log.Debugf("Meeting query result: %v", result)
+
+	var meetings []*Meeting
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &meetings)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal DynamoDB Query result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal DynamoDB Query LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return meetings, lastKey, nil
+}
+
+type listMeetingsStartKey struct {
+	OwnerKey       string `json:"ownerKey"`
+	ParticipantKey string `json:"participantKey"`
+}
+
+// ListMeetings returns a list of Meetings matching the provided username.
+// username and limit are required parameters. startKey is optional.
+// The list of meetings and the next start key are returned.
+func (repo *dynamoRepository) ListMeetings(username string, limit int, startKey string) ([]*Meeting, string, error) {
+
+	// We don't know if the calling user is the owner or participant in the meeting, so we have to query both indices
+	// and combine the results
+
+	startKeys := &listMeetingsStartKey{}
+	if startKey != "" {
+		err := json.Unmarshal([]byte(startKey), startKeys)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+	}
+
+	lastKeys := listMeetingsStartKey{}
+	var meetings []*Meeting
+
+	if startKey == "" || startKeys.OwnerKey != "" {
+		ownerInput := &dynamodb.QueryInput{
+			KeyConditionExpression: aws.String("#owner = :username"),
+			ExpressionAttributeNames: map[string]*string{
+				"#owner": aws.String("owner"),
+			},
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":username": {
+					S: aws.String(username),
+				},
+			},
+			Limit:     aws.Int64(int64(limit)),
+			IndexName: aws.String("OwnerIndex"),
+			TableName: aws.String(meetingTable),
+		}
+		ownerMeetings, ownerLastKey, err := repo.fetchMeetings(ownerInput, startKeys.OwnerKey)
+		if err != nil {
+			return nil, "", err
+		}
+
+		meetings = append(meetings, ownerMeetings...)
+		lastKeys.OwnerKey = ownerLastKey
+	}
+
+	if startKey == "" || startKeys.ParticipantKey != "" {
+		participantInput := &dynamodb.QueryInput{
+			KeyConditionExpression: aws.String("#participant = :username"),
+			ExpressionAttributeNames: map[string]*string{
+				"#participant": aws.String("participant"),
+			},
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":username": {
+					S: aws.String(username),
+				},
+			},
+			Limit:     aws.Int64(int64(limit)),
+			IndexName: aws.String("ParticipantIndex"),
+			TableName: aws.String(meetingTable),
+		}
+		participantMeetings, participantLastKey, err := repo.fetchMeetings(participantInput, startKeys.OwnerKey)
+		if err != nil {
+			return nil, "", err
+		}
+
+		meetings = append(meetings, participantMeetings...)
+		lastKeys.ParticipantKey = participantLastKey
+	}
+
+	var lastKey string
+	if lastKeys.OwnerKey != "" || lastKeys.ParticipantKey != "" {
+		b, err := json.Marshal(&lastKeys)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal listMeetingsStartKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return meetings, lastKey, nil
 }
