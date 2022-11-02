@@ -31,6 +31,8 @@ const ListMeetingsPage = () => {
 
     const meetings = request.data ?? [];
 
+    const requestLoading = request.isLoading() || !request.isSent();
+
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
@@ -38,9 +40,9 @@ const ListMeetingsPage = () => {
             <Stack spacing={2} alignItems='start'>
                 <Typography variant='h4'>Meetings</Typography>
 
-                {request.isLoading() || (!request.isSent() && <CircularProgress />)}
+                {requestLoading && <CircularProgress />}
 
-                {meetings.length === 0 && (
+                {!requestLoading && meetings.length === 0 && (
                     <>
                         <Typography variant='body1'>
                             Looks like you don't have any meetings. Go to the calendar and

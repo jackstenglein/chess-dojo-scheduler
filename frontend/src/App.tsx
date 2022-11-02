@@ -10,6 +10,7 @@ import { ApiProvider } from './api/Api';
 import CalendarPage from './calendar/CalendarPage';
 import MeetingPage from './meeting/MeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
+import Navbar from './navbar/Navbar';
 
 Amplify.configure({
     Auth: {
@@ -31,6 +32,7 @@ function App() {
         <BrowserRouter>
             <AuthProvider>
                 <ApiProvider>
+                    <Navbar />
                     <Router />
                 </ApiProvider>
             </AuthProvider>
@@ -48,7 +50,6 @@ function Router() {
                     <Route path='profile' element={<ProfilePage />} />
 
                     <Route element={<RequireProfile />}>
-                        <Route path='home' element={<h2>Home</h2>} />
                         <Route path='calendar' element={<CalendarPage />} />
                         <Route path='meeting'>
                             <Route index element={<ListMeetingsPage />} />

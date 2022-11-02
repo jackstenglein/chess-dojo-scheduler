@@ -38,7 +38,7 @@ const MeetingPage = () => {
         }
     }, [request, fetchMeeting]);
 
-    if (request.isLoading()) {
+    if (request.isLoading() || !request.isSent()) {
         return (
             <Container sx={{ pt: 6, pb: 4 }}>
                 <CircularProgress />

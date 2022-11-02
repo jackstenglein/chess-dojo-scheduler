@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Card, CardActionArea, CardHeader, Grid } from '@mui/material';
+import { Card, CardActionArea, CardHeader } from '@mui/material';
 import { Meeting } from '../database/meeting';
 import { getDisplayString } from '../database/availability';
 
