@@ -22,10 +22,10 @@ export type AvailabilityApiContextType = {
 
     /**
      * deleteAvailability deletes the provided availability from the database.
-     * @param availability The availability to delete.
+     * @param id The id of the availability to delete.
      * @returns An AxiosResponse containing no data.
      */
-    deleteAvailability: (availability: Availability) => Promise<AxiosResponse<null, any>>;
+    deleteAvailability: (id: string) => Promise<AxiosResponse<null, any>>;
 
     /**
      * getAvailabilities returns a list of the currently signed-in user's availabilities matching the provided
@@ -82,11 +82,11 @@ export function setAvailability(idToken: string, availability: Availability) {
 /**
  * deleteAvailability deletes the provided availability from the database.
  * @param idToken The id token of the current signed-in user.
- * @param availability The availability to delete.
+ * @param id The id of the availability to delete.
  * @returns An AxiosResponse containing no data.
  */
-export function deleteAvailability(idToken: string, availability: Availability) {
-    return axios.delete<null>(BASE_URL + `/availability/${availability.id}`, {
+export function deleteAvailability(idToken: string, id: string) {
+    return axios.delete<null>(BASE_URL + `/availability/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
