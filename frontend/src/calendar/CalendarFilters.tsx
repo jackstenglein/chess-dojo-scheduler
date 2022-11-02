@@ -1,6 +1,5 @@
 import { Stack, Typography, Divider, FormControlLabel, Checkbox } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '../auth/Auth';
 import { AvailabilityType, getDisplayString } from '../database/availability';
 import { dojoCohorts } from '../database/user';
 
@@ -25,8 +24,6 @@ interface Filters {
 }
 
 export function useFilters(): Filters {
-    const user = useAuth().user!;
-
     const [availabilities, setAvailabilities] = useState(true);
     const [meetings, setMeetings] = useState(true);
 
