@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Grid } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
@@ -18,6 +18,7 @@ export default function CalendarPage() {
 
     const deleteRequest = useRequest();
 
+    const [ownedAvailabilities, setOwnedAvailabilties] = useState<Availability[]>([]);
     const ownedAvailabilitiesRequest = useRequest<Availability[]>();
     const otherAvailabilitiesRequest = useRequest<Availability[]>();
     const meetingsRequest = useRequest<Meeting[]>();
@@ -29,6 +30,7 @@ export default function CalendarPage() {
             ownedAvailabilitiesRequest.onStart();
             api.getAvailabilities()
                 .then((availabilities) => {
+                    setOwnedAvailabilties(availabilities);
                     ownedAvailabilitiesRequest.onSuccess(availabilities);
                 })
                 .catch((err) => {
@@ -68,34 +70,29 @@ export default function CalendarPage() {
     }, [otherAvailabilitiesRequest, api]);
 
     const onConfirm = (availability: Availability) => {
-        const ownedAvailabilities = ownedAvailabilitiesRequest.data ?? [];
-        const index = ownedAvailabilities.findIndex((a) => a.id === availability.id);
-        if (index >= 0) {
-            ownedAvailabilitiesRequest.onSuccess([
-                ...ownedAvailabilities.slice(0, index),
-                availability,
-                ...ownedAvailabilities.slice(index + 1),
-            ]);
-        } else {
-            ownedAvailabilitiesRequest.onSuccess(
-                ownedAvailabilities.concat(availability)
-            );
-        }
+        setOwnedAvailabilties((availabilities) => {
+            const index = availabilities.findIndex((a) => a.id === availability.id);
+            if (index >= 0) {
+                return [
+                    ...availabilities.slice(0, index),
+                    availability,
+                    ...availabilities.slice(index + 1),
+                ];
+            } else {
+                return availabilities.concat(availability);
+            }
+        });
     };
 
     const deleteAvailability = async (id: string) => {
-        const ownedAvailabilities = ownedAvailabilitiesRequest.data ?? [];
-        const availability = ownedAvailabilities.find((a) => a.id === id);
-        if (!availability) {
-            return;
-        }
-
         try {
-            console.log('Deleting availability');
-            deleteRequest.onStart();
-            await api.deleteAvailability(availability);
-            ownedAvailabilitiesRequest.onSuccess(
-                ownedAvailabilities.filter((a) => a.id !== id)
+            console.log('Deleting availability with id: ', id);
+            // Don't use deleteRequest.onStart as it messes up the
+            // scheduler library
+            await api.deleteAvailability(id);
+            console.log(`Availability ${id} deleted`);
+            setOwnedAvailabilties((availabilities) =>
+                availabilities.filter((a) => a.id !== id)
             );
             deleteRequest.onSuccess('Availability deleted');
             return id;
@@ -109,7 +106,7 @@ export default function CalendarPage() {
 
     if (filters.availabilities) {
         const ownedAvailabilityEvents: ProcessedEvent[] =
-            ownedAvailabilitiesRequest.data?.map((a) => ({
+            ownedAvailabilities.map((a) => ({
                 event_id: a.id,
                 title: 'Available',
                 start: new Date(a.startTime),
@@ -136,8 +133,6 @@ export default function CalendarPage() {
         events.push(...meetingEvents);
     }
 
-    console.log('Other availabilities pre filter: ', otherAvailabilitiesRequest.data);
-
     const otherAvailabilityEvents: ProcessedEvent[] =
         otherAvailabilitiesRequest.data
             ?.filter((a) => {
@@ -163,8 +158,6 @@ export default function CalendarPage() {
             })) ?? [];
 
     events.push(...otherAvailabilityEvents);
-
-    console.log('Full Events: ', events);
 
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>

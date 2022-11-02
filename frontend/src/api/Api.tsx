@@ -47,7 +47,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 updateUser(idToken, update, auth.updateUser),
 
             setAvailability: (a: Availability) => setAvailability(idToken, a),
-            deleteAvailability: (a: Availability) => deleteAvailability(idToken, a),
+            deleteAvailability: (id: string) => deleteAvailability(idToken, id),
             bookAvailability: (a: Availability, time: Date, type: string) =>
                 bookAvailability(idToken, a, time, type),
             getAvailabilities: (limit?: number, startKey?: string) =>
