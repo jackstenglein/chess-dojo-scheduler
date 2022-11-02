@@ -200,7 +200,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: !GetAtt MeetingsTable.Arn
+        Resource:
+          - !GetAtt MeetingsTable.Arn
+          - !GetAtt UsersTable.Arn
 
 resources:
   Resources:

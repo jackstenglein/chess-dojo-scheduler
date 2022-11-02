@@ -67,6 +67,8 @@ type AvailabilitySearcher interface {
 }
 
 type MeetingGetter interface {
+	UserGetter
+
 	// GetMeeting returns the meeting with the provided id.
 	GetMeeting(id string) (*Meeting, error)
 }
