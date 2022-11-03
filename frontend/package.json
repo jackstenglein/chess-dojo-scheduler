@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@aldabil/react-scheduler": "^2.5.2",
+    "@aldabil/react-scheduler": "^2.5.4",
     "@aws-amplify/auth": "^4.6.13",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
