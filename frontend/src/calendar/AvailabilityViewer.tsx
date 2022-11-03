@@ -114,6 +114,12 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
             <Stack sx={{ pt: 2 }} spacing={2}>
                 <Stack>
                     <Typography variant='subtitle2' color='text.secondary'>
+                        Owner Discord
+                    </Typography>
+                    <Typography variant='body1'>{availability.ownerDiscord}</Typography>
+                </Stack>
+                <Stack>
+                    <Typography variant='subtitle2' color='text.secondary'>
                         Owner Cohort
                     </Typography>
                     <Typography variant='body1'>{availability.ownerCohort}</Typography>
@@ -174,6 +180,15 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                                 {minStartTime.toLocaleDateString()}{' '}
                                 {minStartTime.toLocaleTimeString()} -{' '}
                                 {maxStartTime.toLocaleTimeString()}
+                            </Typography>
+                        </Stack>
+
+                        <Stack>
+                            <Typography variant='subtitle2' color='text.secondary'>
+                                Owner Discord
+                            </Typography>
+                            <Typography variant='body1'>
+                                {availability.ownerDiscord}
                             </Typography>
                         </Stack>
 
