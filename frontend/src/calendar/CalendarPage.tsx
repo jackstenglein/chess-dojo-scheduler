@@ -146,7 +146,7 @@ export default function CalendarPage() {
             })
             .map((a) => ({
                 event_id: a.id,
-                title: 'Bookable',
+                title: `Bookable - ${a.ownerDiscord}`,
                 start: new Date(a.startTime),
                 end: new Date(a.endTime),
                 availability: a,

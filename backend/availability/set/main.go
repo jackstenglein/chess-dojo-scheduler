@@ -62,6 +62,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	if availability.OwnerDiscord == "" {
+		err := errors.New(400, "Invalid request: ownerDiscord is required", "")
+		return api.Failure(funcName, err), nil
+	}
+
 	if !database.IsValidCohort(availability.OwnerCohort) {
 		err := errors.New(400, fmt.Sprintf("Invalid request: ownerCohort `%s` is invalid", availability.OwnerCohort), "")
 		return api.Failure(funcName, err), nil

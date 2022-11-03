@@ -81,6 +81,9 @@ type Availability struct {
 	// The username of the creator of this availability.
 	Owner string `dynamodbav:"owner" json:"owner"`
 
+	// The discord username of the owner.
+	OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
+
 	// The cohort of the owner.
 	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
 

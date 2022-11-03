@@ -1,5 +1,6 @@
 export interface Availability {
     owner: string;
+    ownerDiscord: string;
     ownerCohort: string;
     id: string;
     startTime: string;
