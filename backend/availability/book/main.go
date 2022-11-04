@@ -100,6 +100,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	startTime, err := time.Parse(time.RFC3339, request.StartTime)
+	request.ExpirationTime = startTime.Add(48 * time.Hour).Unix()
+
 	availability, err := repository.GetAvailability(request.Owner, request.Id)
 	if err != nil {
 		return api.Failure(funcName, err), nil
