@@ -78,8 +78,23 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         });
     };
 
+    // Time in hours between UTC and local. The value is positive if the local time zone is
+    // behind UTC and negative if the local time zone is ahead of UTC.
+    const timezoneOffset = new Date().getTimezoneOffset() / 60;
+    const timezone =
+        timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
+
     return (
         <Stack sx={{ pt: 0.5 }} spacing={4}>
+            <Stack>
+                <Typography variant='h6' color='text.secondary'>
+                    Current Timezone
+                </Typography>
+                <Divider />
+                <Typography variant='body1' pt={1}>
+                    {timezone}
+                </Typography>
+            </Stack>
             <Stack>
                 <Typography variant='h6' color='text.secondary'>
                     My Calendar (Blue)
