@@ -10,6 +10,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { Stack, CircularProgress } from '@mui/material';
 import { Auth as AmplifyAuth } from 'aws-amplify';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
+import { v4 as uuidv4 } from 'uuid';
 
 import { CognitoUser, User } from '../database/user';
 import { getUser } from '../api/userApi';
@@ -27,11 +28,72 @@ interface AuthContextType {
 
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
+
     socialSignin: (provider: string) => void;
+    signin: (email: string, password: string) => Promise<void>;
+
+    signup: (name: string, email: string, password: string) => Promise<any>;
+    confirmSignup: (username: string, code: string) => Promise<void>;
+    resendSignupCode: (username: string) => Promise<any>;
+    forgotPassword: (email: string) => Promise<void>;
+    forgotPasswordConfirm: (
+        email: string,
+        code: string,
+        password: string
+    ) => Promise<string>;
+
     signout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>(null!);
+
+function socialSignin(provider: string) {
+    AmplifyAuth.federatedSignIn({
+        provider: provider as CognitoHostedUIIdentityProvider,
+    })
+        .then((value) => {
+            console.log('Federated sign in value: ', value);
+        })
+        .catch((err) => {
+            console.error('Federated sign in error: ', err);
+        });
+}
+
+function signup(name: string, email: string, password: string) {
+    return AmplifyAuth.signUp({
+        username: uuidv4(),
+        password,
+        attributes: {
+            email,
+            name,
+        },
+    });
+}
+
+function confirmSignup(username: string, code: string) {
+    return AmplifyAuth.confirmSignUp(username, code, {
+        forceAliasCreation: false,
+    }).catch((err) => {
+        if (
+            err.code !== 'NotAuthorizedException' ||
+            !err.message.includes('Current status is CONFIRMED')
+        ) {
+            throw err;
+        }
+    });
+}
+
+function resendSignupCode(username: string) {
+    return AmplifyAuth.resendSignUp(username);
+}
+
+function forgotPassword(email: string) {
+    return AmplifyAuth.forgotPassword(email);
+}
+
+function forgotPasswordConfirm(email: string, code: string, password: string) {
+    return AmplifyAuth.forgotPasswordSubmit(email, code, password);
+}
 
 export function useAuth() {
     return useContext(AuthContext);
@@ -78,16 +140,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const socialSignin = (provider: string) => {
-        AmplifyAuth.federatedSignIn({
-            provider: provider as CognitoHostedUIIdentityProvider,
-        })
-            .then((value) => {
-                console.log('Federated sign in value: ', value);
-            })
-            .catch((err) => {
-                console.error('Federated sign in error: ', err);
-            });
+    const signin = (email: string, password: string) => {
+        return new Promise<void>(async (resolve, reject) => {
+            try {
+                console.log('Signing in');
+                const cognitoResponse = await AmplifyAuth.signIn(email, password);
+                await handleCognitoResponse(cognitoResponse);
+                resolve();
+            } catch (err) {
+                console.error('Failed Auth.signIn: ', err);
+                setStatus(AuthStatus.Unauthenticated);
+                reject(err);
+            }
+        });
     };
 
     const signout = async () => {
@@ -105,9 +170,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const value = {
         user,
         status,
+
         getCurrentUser,
         updateUser,
+
         socialSignin,
+        signin,
+
+        signup,
+        confirmSignup,
+        resendSignupCode,
+        forgotPassword,
+        forgotPasswordConfirm,
+
         signout,
     };
 

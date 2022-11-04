@@ -271,6 +271,7 @@ resources:
         LogoutURLs:
           - ${file(./config.yml):frontendHost}
         SupportedIdentityProviders:
+          - COGNITO
           - Google
         AccessTokenValidity: 24
         IdTokenValidity: 24

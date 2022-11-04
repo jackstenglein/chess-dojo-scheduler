@@ -11,6 +11,10 @@ import CalendarPage from './calendar/CalendarPage';
 import MeetingPage from './meeting/MeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
 import Navbar from './navbar/Navbar';
+import SigninPage from './auth/SigninPage';
+import SignupPage from './auth/SignupPage';
+import VerifyEmailPage from './auth/VerifyEmailPage';
+import ForgotPasswordPage from './auth/ForgotPasswordPage';
 
 Amplify.configure({
     Auth: {
@@ -45,6 +49,10 @@ function Router() {
         <Routes>
             <Route path='/'>
                 <Route index element={<LandingPage />} />
+                <Route path='signin' element={<SigninPage />} />
+                <Route path='signup' element={<SignupPage />} />
+                <Route path='verify-email' element={<VerifyEmailPage />} />
+                <Route path='forgot-password' element={<ForgotPasswordPage />} />
 
                 <Route element={<RequireAuth />}>
                     <Route path='profile' element={<ProfilePage />} />
