@@ -146,6 +146,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                 open={isBooking}
                 onClose={stopBooking}
                 TransitionComponent={Transition}
+                sx={{ zIndex: 1600 }}
             >
                 <RequestSnackbar request={request} />
 
@@ -200,6 +201,29 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                                 {availability.ownerCohort}
                             </Typography>
                         </Stack>
+
+                        <Stack>
+                            <Typography variant='subtitle2' color='text.secondary'>
+                                Location
+                            </Typography>
+                            <Typography variant='body1'>
+                                {availability.location || 'Discord'}
+                            </Typography>
+                        </Stack>
+
+                        {availability.description && (
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Description
+                                </Typography>
+                                <Typography
+                                    variant='body1'
+                                    style={{ whiteSpace: 'pre-line' }}
+                                >
+                                    {availability.description}
+                                </Typography>
+                            </Stack>
+                        )}
 
                         <FormControl error={!!errors.type}>
                             <FormLabel>Meeting Type</FormLabel>

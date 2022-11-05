@@ -4,16 +4,19 @@ import {
     DialogContent,
     Stack,
     TextField,
-    DialogContentText,
-    DialogActions,
     Button,
     FormControlLabel,
     Checkbox,
     FormHelperText,
     FormControl,
     Typography,
+    Dialog,
+    Slide,
+    AppBar,
+    Toolbar,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { TransitionProps } from '@mui/material/transitions';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -25,19 +28,29 @@ import {
     AvailabilityType,
     getDisplayString,
 } from '../database/availability';
-import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
+import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
-
-interface AvailabilityEditorProps {
-    scheduler: SchedulerHelpers;
-    onConfirm: (availability: Availability) => void;
-}
+import React from 'react';
 
 const ONE_HOUR = 60 * 60 * 1000;
 
 function isValidDate(d: any) {
     return d instanceof Date && !isNaN(d.getTime());
+}
+
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement;
+    },
+    ref: React.Ref<unknown>
+) {
+    return <Slide direction='up' ref={ref} {...props} />;
+});
+
+interface AvailabilityEditorProps {
+    scheduler: SchedulerHelpers;
+    onConfirm: (availability: Availability) => void;
 }
 
 const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
@@ -54,6 +67,11 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
     const request = useRequest();
     const [start, setStart] = useState<Date | null>(defaultStart || null);
     const [end, setEnd] = useState<Date | null>(defaultEnd || null);
+
+    const [location, setLocation] = useState(originalEvent?.availability?.location ?? '');
+    const [description, setDescription] = useState(
+        originalEvent?.availability?.description ?? ''
+    );
 
     const [allTypes, setAllTypes] = useState(false);
     const [types, setTypes] = useState<Record<AvailabilityType, boolean>>(
@@ -166,6 +184,8 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
                 endTime: endIso,
                 types: selectedTypes,
                 cohorts: selectedCohorts,
+                location,
+                description,
             });
             console.log('Got setAvailability response: ', response);
             const availability = response.data;
@@ -190,8 +210,35 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
     };
 
     return (
-        <>
+        <Dialog
+            fullScreen
+            open={true}
+            TransitionComponent={Transition}
+            sx={{ zIndex: 1600 }}
+        >
             <RequestSnackbar request={request} />
+
+            <AppBar sx={{ position: 'relative' }}>
+                <Toolbar>
+                    <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
+                        Set Availability
+                    </Typography>
+                    <Button
+                        color='inherit'
+                        onClick={scheduler.close}
+                        disabled={request.isLoading()}
+                    >
+                        Cancel
+                    </Button>
+                    <LoadingButton
+                        color='inherit'
+                        loading={request.isLoading()}
+                        onClick={onSubmit}
+                    >
+                        Save
+                    </LoadingButton>
+                </Toolbar>
+            </AppBar>
 
             <DialogTitle>
                 {defaultStart.toLocaleDateString('en-US', {
@@ -202,48 +249,94 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
             </DialogTitle>
 
             <DialogContent>
-                <DialogContentText>
-                    Availabilities must be at least one hour long.
-                </DialogContentText>
                 <Stack
-                    spacing={3}
+                    spacing={4}
                     sx={{
                         mt: 4,
                     }}
                 >
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <TimePicker
-                            label='Start Time'
-                            value={start}
-                            onChange={(value) => {
-                                console.log(value);
-                                setStart(value);
-                            }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    fullWidth
-                                    error={!!errors.start}
-                                    helperText={errors.start}
-                                />
-                            )}
-                        />
+                    <Stack>
+                        <Typography variant='h6'>Times</Typography>
+                        <Typography
+                            variant='subtitle1'
+                            color='text.secondary'
+                            sx={{ mb: 2 }}
+                        >
+                            Availabilities must be at least one hour long
+                        </Typography>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <TimePicker
+                                label='Start Time'
+                                value={start}
+                                onChange={(value) => {
+                                    console.log(value);
+                                    setStart(value);
+                                }}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        fullWidth
+                                        error={!!errors.start}
+                                        helperText={errors.start}
+                                        sx={{ mb: 3 }}
+                                    />
+                                )}
+                            />
 
-                        <TimePicker
-                            label='End Time'
-                            value={end}
-                            onChange={(value) => setEnd(value)}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    fullWidth
-                                    error={!!errors.end}
-                                    helperText={errors.end}
-                                />
-                            )}
-                            minTime={minEnd}
+                            <TimePicker
+                                label='End Time'
+                                value={end}
+                                onChange={(value) => setEnd(value)}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        fullWidth
+                                        error={!!errors.end}
+                                        helperText={errors.end}
+                                    />
+                                )}
+                                minTime={minEnd}
+                            />
+                        </LocalizationProvider>
+                    </Stack>
+
+                    <Stack>
+                        <Typography variant='h6'>Location (Optional)</Typography>
+                        <Typography
+                            variant='subtitle1'
+                            color='text.secondary'
+                            sx={{ mb: 1.5 }}
+                        >
+                            Add a Zoom link, specify a Discord classroom, etc.
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            label='Location'
+                            variant='outlined'
+                            value={location}
+                            onChange={(event) => setLocation(event.target.value)}
+                            helperText='Defaults to "Discord" if left blank.'
                         />
-                    </LocalizationProvider>
+                    </Stack>
+
+                    <Stack>
+                        <Typography variant='h6'>Description (Optional)</Typography>
+                        <Typography
+                            variant='subtitle1'
+                            color='text.secondary'
+                            sx={{ mb: 1.5 }}
+                        >
+                            Add a sparring position or any other notes for your opponent.
+                        </Typography>
+                        <TextField
+                            label='Description'
+                            multiline
+                            minRows={3}
+                            maxRows={3}
+                            value={description}
+                            onChange={(event) => setDescription(event.target.value)}
+                        />
+                    </Stack>
 
                     <Stack>
                         <Typography variant='h6'>Availability Types</Typography>
@@ -334,21 +427,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
                     </Stack>
                 </Stack>
             </DialogContent>
-            <DialogActions>
-                <Button
-                    disabled={request.status === RequestStatus.Loading}
-                    onClick={scheduler.close}
-                >
-                    Cancel
-                </Button>
-                <LoadingButton
-                    loading={request.status === RequestStatus.Loading}
-                    onClick={onSubmit}
-                >
-                    Save
-                </LoadingButton>
-            </DialogActions>
-        </>
+        </Dialog>
     );
 };
 
