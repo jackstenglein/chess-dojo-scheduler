@@ -24,6 +24,8 @@ const columns: GridColDef[] = [
     {
         field: 'location',
         headerName: 'Location',
+        valueGetter: (params: GridValueGetterParams<any, Meeting>) =>
+            params.row.location || 'Discord',
         flex: 1,
     },
 ];
