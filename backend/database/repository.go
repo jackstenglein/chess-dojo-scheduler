@@ -98,6 +98,15 @@ type AdminAvailabilityLister interface {
 	ScanAvailabilities(startKey string) ([]*Availability, string, error)
 }
 
+type AdminMeetingLister interface {
+	UserGetter
+
+	// ScanMeetings returns a list of all Meetings in the database, up to 1MB of data.
+	// startKey is an optional parameter that can be used to perform pagination.
+	// The list of Meetings and the next start key are returned.
+	ScanMeetings(startKey string) ([]*Meeting, string, error)
+}
+
 // dynamoRepository implements a database using AWS DynamoDB.
 type dynamoRepository struct {
 	svc *dynamodb.DynamoDB
@@ -596,6 +605,45 @@ func (repo *dynamoRepository) ListMeetings(username string, limit int, startKey 
 		b, err := json.Marshal(&lastKeys)
 		if err != nil {
 			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal listMeetingsStartKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return meetings, lastKey, nil
+}
+
+// ScanMeetings returns a list of all Meetings in the database, up to 1MB of data.
+// startKey is an optional parameter that can be used to perform pagination.
+// The list of meetings and the next start key are returned.
+func (repo *dynamoRepository) ScanMeetings(startKey string) ([]*Meeting, string, error) {
+	var exclusiveStartKey map[string]*dynamodb.AttributeValue
+	if startKey != "" {
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+	}
+
+	input := &dynamodb.ScanInput{
+		ExclusiveStartKey: exclusiveStartKey,
+		TableName:         aws.String(meetingTable),
+	}
+	result, err := repo.svc.Scan(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
+	}
+
+	var meetings []*Meeting
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &meetings)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanMeetings result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanMeetings LastEvaluatedKey", err)
 		}
 		lastKey = string(b)
 	}

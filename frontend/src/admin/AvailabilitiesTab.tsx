@@ -50,7 +50,7 @@ const AvailabilitiesTab = () => {
     useEffect(() => {
         if (!request.isSent()) {
             request.onStart();
-            api.listAvailabilities()
+            api.adminListAvailabilities()
                 .then((response) => {
                     request.onSuccess(response);
                 })

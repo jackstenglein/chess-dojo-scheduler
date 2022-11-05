@@ -1,42 +1,41 @@
 import { useEffect } from 'react';
 import { CircularProgress } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { User } from '../database/user';
+import { getDisplayString } from '../database/availability';
+import { Meeting } from '../database/meeting';
 
 const columns: GridColDef[] = [
     {
-        field: 'discordUsername',
-        headerName: 'Discord Username',
+        field: 'startTime',
+        headerName: 'Start Time',
+        minWidth: 200,
         flex: 1,
     },
     {
-        field: 'dojoCohort',
-        headerName: 'Dojo Cohort',
+        field: 'type',
+        headerName: 'Type',
+        valueGetter: (params: GridValueGetterParams<any, Meeting>) =>
+            getDisplayString(params.row.type),
         flex: 1,
     },
     {
-        field: 'chesscomUsername',
-        headerName: 'Chess.com Username',
-        flex: 1,
-    },
-    {
-        field: 'lichessUsername',
-        headerName: 'Lichess Username',
+        field: 'location',
+        headerName: 'Location',
         flex: 1,
     },
 ];
 
-const UsersTab = () => {
+const MeetingsTab = () => {
     const api = useApi();
-    const request = useRequest<User[]>();
+    const request = useRequest<Meeting[]>();
 
     useEffect(() => {
         if (!request.isSent()) {
             request.onStart();
-            api.adminListUsers()
+            api.adminListMeetings()
                 .then((response) => {
                     request.onSuccess(response);
                 })
@@ -61,10 +60,9 @@ const UsersTab = () => {
                 rows={request.data ?? []}
                 pageSize={20}
                 rowsPerPageOptions={[5, 10, 20, 50]}
-                getRowId={(row) => row.username}
             />
         </>
     );
 };
 
-export default UsersTab;
+export default MeetingsTab;
