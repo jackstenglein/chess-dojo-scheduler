@@ -3,6 +3,7 @@ import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Availability } from '../database/availability';
 import { User } from '../database/user';
+import { AdminApiContextType, listUsers } from './adminApi';
 import {
     AvailabilityApiContextType,
     bookAvailability,
@@ -17,7 +18,8 @@ import { UserApiContextType, getUser, updateUser } from './userApi';
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
  */
-type ApiContextType = UserApiContextType &
+type ApiContextType = AdminApiContextType &
+    UserApiContextType &
     AvailabilityApiContextType &
     MeetingApiContextType;
 
@@ -42,6 +44,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
     const value = useMemo(() => {
         return {
+            listUsers: (startKey?: string) => listUsers(idToken, startKey),
+
             getUser: () => getUser(idToken),
             updateUser: (update: Partial<User>) =>
                 updateUser(idToken, update, auth.updateUser),

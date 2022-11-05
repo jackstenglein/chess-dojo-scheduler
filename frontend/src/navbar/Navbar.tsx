@@ -6,6 +6,7 @@ import { AuthStatus, useAuth } from '../auth/Auth';
 const Navbar = () => {
     const navigate = useNavigate();
     const auth = useAuth();
+    const isAdmin = auth.user?.isAdmin || false;
 
     return (
         <AppBar position='sticky'>
@@ -52,6 +53,15 @@ const Navbar = () => {
                                     Profile
                                 </Button>
                             </Box>
+
+                            {isAdmin && (
+                                <Button
+                                    onClick={() => navigate('/admin')}
+                                    sx={{ color: 'white' }}
+                                >
+                                    Admin Portal
+                                </Button>
+                            )}
 
                             <Button onClick={auth.signout} sx={{ color: 'white' }}>
                                 Sign Out

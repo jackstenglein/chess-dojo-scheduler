@@ -46,6 +46,24 @@ package:
     - '!./**'
 
 functions:
+  ######### Admin Endpoints ##############
+  listUsers:
+    handler: bin/admin/user/list
+    package:
+      patterns:
+        - ./bin/admin/user/list
+    events:
+      - httpApi:
+          path: /admin/user
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Scan
+        Resource: !GetAtt UsersTable.Arn
+
   ######### User Endpoints ###############
 
   createUser:

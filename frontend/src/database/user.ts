@@ -46,7 +46,9 @@ export class User {
         public discordUsername: string,
         public chesscomUsername: string,
         public lichessUsername: string,
-        public dojoCohort: string
+        public dojoCohort: string,
+
+        public isAdmin: boolean
     ) {}
 
     static from(apiResponse: any, cognitoUser?: CognitoUser) {
@@ -56,7 +58,8 @@ export class User {
             apiResponse.discordUsername || '',
             apiResponse.chesscomUsername || '',
             apiResponse.lichessUsername || '',
-            apiResponse.dojoCohort || ''
+            apiResponse.dojoCohort || '',
+            apiResponse.isAdmin || false
         );
     }
 
@@ -73,7 +76,8 @@ export class User {
             user.discordUsername || '',
             user.chesscomUsername || '',
             user.lichessUsername || '',
-            user.dojoCohort || ''
+            user.dojoCohort || '',
+            user.isAdmin || false
         );
     }
 
@@ -96,7 +100,8 @@ export class User {
             update.discordUsername || this.discordUsername,
             update.chesscomUsername || this.chesscomUsername,
             update.lichessUsername || this.lichessUsername,
-            update.dojoCohort || this.dojoCohort
+            update.dojoCohort || this.dojoCohort,
+            update.isAdmin || this.isAdmin
         );
     }
 }
