@@ -7,6 +7,8 @@ export interface Availability {
     endTime: string;
     types: AvailabilityType[];
     cohorts: string[];
+    location: string;
+    description: string;
 }
 
 export enum AvailabilityType {

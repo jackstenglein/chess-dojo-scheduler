@@ -6,4 +6,6 @@ export interface Meeting {
     id: string;
     startTime: string;
     type: AvailabilityType;
+    location: string;
+    description: string;
 }

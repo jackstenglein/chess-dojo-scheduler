@@ -110,6 +110,12 @@ type Availability struct {
 
 	// The status of the Availability. Always set to SCHEDULED for now.
 	Status string `dynamodbav:"status" json:"-"`
+
+	// Contains either a zoom link, discord, discord classroom, etc.
+	Location string `dynamodbav:"location" json:"location"`
+
+	// An optional description for sparring positions, etc.
+	Description string `dynamodbav:"description" json:"description"`
 }
 
 type Meeting struct {
@@ -132,4 +138,10 @@ type Meeting struct {
 
 	// The game/meeting type that the participants will play
 	Type AvailabilityType `dynamodbav:"type" json:"type"`
+
+	// Contains either a zoom link, discord, discord classroom, etc.
+	Location string `dynamodbav:"location" json:"location"`
+
+	// An optional description for sparring positions, etc.
+	Description string `dynamodbav:"description" json:"description"`
 }

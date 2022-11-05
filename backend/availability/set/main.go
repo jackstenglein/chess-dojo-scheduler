@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -101,6 +102,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if availability.Id == "" {
 		availability.Id = uuid.New().String()
+	}
+
+	if strings.TrimSpace(availability.Location) == "" {
+		availability.Location = "Discord"
 	}
 
 	if err := repository.SetAvailability(&availability); err != nil {

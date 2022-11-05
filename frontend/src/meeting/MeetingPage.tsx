@@ -84,6 +84,32 @@ const MeetingPage = () => {
                                     {getDisplayString(meeting.type)}
                                 </Typography>
                             </Stack>
+
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Location
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {meeting.location || 'Discord'}
+                                </Typography>
+                            </Stack>
+
+                            {meeting.description && (
+                                <Stack>
+                                    <Typography
+                                        variant='subtitle2'
+                                        color='text.secondary'
+                                    >
+                                        Description
+                                    </Typography>
+                                    <Typography
+                                        variant='body1'
+                                        style={{ whiteSpace: 'pre-line' }}
+                                    >
+                                        {meeting.description}
+                                    </Typography>
+                                </Stack>
+                            )}
                         </Stack>
                     </CardContent>
                 </Card>
