@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { CircularProgress } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -10,21 +10,29 @@ const columns: GridColDef[] = [
     {
         field: 'discordUsername',
         headerName: 'Discord Username',
+        valueGetter: (params: GridValueGetterParams<any, User>) =>
+            params.row.discordUsername || 'N/A',
         flex: 1,
     },
     {
         field: 'dojoCohort',
         headerName: 'Dojo Cohort',
+        valueGetter: (params: GridValueGetterParams<any, User>) =>
+            params.row.dojoCohort || 'N/A',
         flex: 1,
     },
     {
         field: 'chesscomUsername',
         headerName: 'Chess.com Username',
+        valueGetter: (params: GridValueGetterParams<any, User>) =>
+            params.row.chesscomUsername || 'N/A',
         flex: 1,
     },
     {
         field: 'lichessUsername',
         headerName: 'Lichess Username',
+        valueGetter: (params: GridValueGetterParams<any, User>) =>
+            params.row.lichessUsername || 'N/A',
         flex: 1,
     },
 ];
