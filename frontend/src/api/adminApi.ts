@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { User } from '../database/user';
 import { config } from '../config';
+import { Availability } from '../database/availability';
 
 const BASE_URL = config.api.baseUrl;
 
@@ -14,6 +15,12 @@ export type AdminApiContextType = {
      * @returns A list of users.
      */
     listUsers: (startKey?: string) => Promise<User[]>;
+
+    /**
+     * listAvailabilities returns all availabilities in the database.
+     * @returns A list of availabilities.
+     */
+    listAvailabilities: (startKey?: string) => Promise<Availability[]>;
 };
 
 interface ListUsersResponse {
@@ -40,6 +47,39 @@ export async function listUsers(idToken: string, startKey?: string) {
         });
 
         result.push(...resp.data.users);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+
+    return result;
+}
+
+interface ListAvailabilitiesResponse {
+    availabilities: Availability[];
+    lastEvaluatedKey: string;
+}
+
+/**
+ * Returns a list of all availabilities in the database.
+ * @param idToken The id token of the current signed-in user.
+ * @param startKey The first startKey to use when searching.
+ * @returns A list of all users in the database.
+ */
+export async function listAvailabilities(idToken: string, startKey?: string) {
+    let params = { startKey };
+    const result: Availability[] = [];
+
+    do {
+        const resp = await axios.get<ListAvailabilitiesResponse>(
+            BASE_URL + '/admin/availability',
+            {
+                params,
+                headers: {
+                    Authorization: 'Bearer ' + idToken,
+                },
+            }
+        );
+
+        result.push(...resp.data.availabilities);
         params.startKey = resp.data.lastEvaluatedKey;
     } while (params.startKey);
 

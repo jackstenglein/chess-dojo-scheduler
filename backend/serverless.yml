@@ -47,6 +47,7 @@ package:
 
 functions:
   ######### Admin Endpoints ##############
+
   listUsers:
     handler: bin/admin/user/list
     package:
@@ -63,6 +64,26 @@ functions:
           - dynamodb:GetItem
           - dynamodb:Scan
         Resource: !GetAtt UsersTable.Arn
+
+  listAvailabilities:
+    handler: bin/admin/availability/list
+    package:
+      patterns:
+        - ./bin/admin/availability/list
+    events:
+      - httpApi:
+          path: /admin/availability
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt AvailabilitiesTable.Arn
 
   ######### User Endpoints ###############
 

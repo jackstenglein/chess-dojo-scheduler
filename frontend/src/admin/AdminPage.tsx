@@ -3,6 +3,7 @@ import { Box, Container, Tab, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/Auth';
+import AvailabilitiesTab from './AvailabilitiesTab';
 import UsersTab from './UsersTab';
 
 const AdminPage = () => {
@@ -31,7 +32,9 @@ const AdminPage = () => {
                     <TabPanel value='users'>
                         <UsersTab />
                     </TabPanel>
-                    <TabPanel value='availabilities'>Availabilities</TabPanel>
+                    <TabPanel value='availabilities'>
+                        <AvailabilitiesTab />
+                    </TabPanel>
                     <TabPanel value='meetings'>Meetings</TabPanel>
                 </TabContext>
             </Box>

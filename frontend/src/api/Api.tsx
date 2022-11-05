@@ -3,7 +3,7 @@ import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Availability } from '../database/availability';
 import { User } from '../database/user';
-import { AdminApiContextType, listUsers } from './adminApi';
+import { AdminApiContextType, listAvailabilities, listUsers } from './adminApi';
 import {
     AvailabilityApiContextType,
     bookAvailability,
@@ -45,6 +45,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
     const value = useMemo(() => {
         return {
             listUsers: (startKey?: string) => listUsers(idToken, startKey),
+            listAvailabilities: (startKey?: string) =>
+                listAvailabilities(idToken, startKey),
 
             getUser: () => getUser(idToken),
             updateUser: (update: Partial<User>) =>

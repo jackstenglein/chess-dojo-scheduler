@@ -89,6 +89,15 @@ type AdminUserLister interface {
 	ScanUsers(startKey string) ([]*User, string, error)
 }
 
+type AdminAvailabilityLister interface {
+	UserGetter
+
+	// ScanAvailabilities returns a list of all Availabilities in the database, up to 1MB of data.
+	// startKey is an optional parameter that can be used to perform pagination.
+	// The list of availabilities and the next start key are returned.
+	ScanAvailabilities(startKey string) ([]*Availability, string, error)
+}
+
 // dynamoRepository implements a database using AWS DynamoDB.
 type dynamoRepository struct {
 	svc *dynamodb.DynamoDB
@@ -197,7 +206,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	if len(result.LastEvaluatedKey) > 0 {
 		b, err := json.Marshal(result.LastEvaluatedKey)
 		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal GetAvailabilities LastEvaluatedKey", err)
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanUsers LastEvaluatedKey", err)
 		}
 		lastKey = string(b)
 	}
@@ -388,6 +397,45 @@ func (repo *dynamoRepository) BookAvailability(availability *Availability, reque
 	// for the same availability object, so it is now safe to save the meeting.
 	err := repo.SetMeeting(request)
 	return err
+}
+
+// ScanAvailabilities returns a list of all Availabilities in the database, up to 1MB of data.
+// startKey is an optional parameter that can be used to perform pagination.
+// The list of availabilities and the next start key are returned.
+func (repo *dynamoRepository) ScanAvailabilities(startKey string) ([]*Availability, string, error) {
+	var exclusiveStartKey map[string]*dynamodb.AttributeValue
+	if startKey != "" {
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+	}
+
+	input := &dynamodb.ScanInput{
+		ExclusiveStartKey: exclusiveStartKey,
+		TableName:         aws.String(availabilityTable),
+	}
+	result, err := repo.svc.Scan(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
+	}
+
+	var availabilities []*Availability
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &availabilities)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanAvailabilities result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanAvailabilities LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return availabilities, lastKey, nil
 }
 
 // SetMeeting inserts the provided Meeting into the database.
