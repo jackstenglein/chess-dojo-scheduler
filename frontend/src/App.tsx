@@ -15,6 +15,7 @@ import SigninPage from './auth/SigninPage';
 import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
+import AdminPage from './admin/AdminPage';
 
 Amplify.configure({
     Auth: {
@@ -56,6 +57,7 @@ function Router() {
 
                 <Route element={<RequireAuth />}>
                     <Route path='profile' element={<ProfilePage />} />
+                    <Route path='admin' element={<AdminPage />} />
 
                     <Route element={<RequireProfile />}>
                         <Route path='calendar' element={<CalendarPage />} />

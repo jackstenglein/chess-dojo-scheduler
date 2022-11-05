@@ -52,6 +52,8 @@ type User struct {
 	ChesscomUsername string     `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
 	LichessUsername  string     `dynamodbav:"lichessUsername" json:"lichessUsername"`
 	DojoCohort       DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
+
+	IsAdmin bool `dynamodbav:"isAdmin" json:"isAdmin"`
 }
 
 type AvailabilityType string

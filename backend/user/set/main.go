@@ -27,11 +27,16 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
+	originalIsAdmin := user.IsAdmin
 
 	err = json.Unmarshal([]byte(event.Body), user)
 	if err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
 		return api.Failure(funcName, err), nil
+	}
+
+	if user.IsAdmin != originalIsAdmin {
+		return api.Failure(funcName, errors.New(400, "Invalid request: isAdmin is immutable", "")), nil
 	}
 
 	err = repository.SetUser(user)

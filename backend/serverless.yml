@@ -46,6 +46,65 @@ package:
     - '!./**'
 
 functions:
+  ######### Admin Endpoints ##############
+
+  adminListUsers:
+    handler: bin/admin/user/list
+    package:
+      patterns:
+        - ./bin/admin/user/list
+    events:
+      - httpApi:
+          path: /admin/user
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Scan
+        Resource: !GetAtt UsersTable.Arn
+
+  adminListAvailabilities:
+    handler: bin/admin/availability/list
+    package:
+      patterns:
+        - ./bin/admin/availability/list
+    events:
+      - httpApi:
+          path: /admin/availability
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt AvailabilitiesTable.Arn
+
+  adminListMeetings:
+    handler: bin/admin/meeting/list
+    package:
+      patterns:
+        - ./bin/admin/meeting/list
+    events:
+      - httpApi:
+          path: /admin/meeting
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt MeetingsTable.Arn
+
   ######### User Endpoints ###############
 
   createUser:

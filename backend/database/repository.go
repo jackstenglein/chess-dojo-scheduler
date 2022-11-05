@@ -80,6 +80,33 @@ type MeetingLister interface {
 	ListMeetings(username string, limit int, startKey string) ([]*Meeting, string, error)
 }
 
+type AdminUserLister interface {
+	UserGetter
+
+	// ScanUsers returns a list of all Users in the database, up to 1MB of data.
+	// startKey is an optional parameter that can be used to perform pagination.
+	// The list of users and the next start key are returned.
+	ScanUsers(startKey string) ([]*User, string, error)
+}
+
+type AdminAvailabilityLister interface {
+	UserGetter
+
+	// ScanAvailabilities returns a list of all Availabilities in the database, up to 1MB of data.
+	// startKey is an optional parameter that can be used to perform pagination.
+	// The list of availabilities and the next start key are returned.
+	ScanAvailabilities(startKey string) ([]*Availability, string, error)
+}
+
+type AdminMeetingLister interface {
+	UserGetter
+
+	// ScanMeetings returns a list of all Meetings in the database, up to 1MB of data.
+	// startKey is an optional parameter that can be used to perform pagination.
+	// The list of Meetings and the next start key are returned.
+	ScanMeetings(startKey string) ([]*Meeting, string, error)
+}
+
 // dynamoRepository implements a database using AWS DynamoDB.
 type dynamoRepository struct {
 	svc *dynamodb.DynamoDB
@@ -155,6 +182,45 @@ func (repo *dynamoRepository) GetUser(username string) (*User, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetUser result", err)
 	}
 	return &user, nil
+}
+
+// ScanUsers returns a list of all Users in the database, up to 1MB of data.
+// startKey is an optional parameter that can be used to perform pagination.
+// The list of users and the next start key are returned.
+func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error) {
+	var exclusiveStartKey map[string]*dynamodb.AttributeValue
+	if startKey != "" {
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+	}
+
+	input := &dynamodb.ScanInput{
+		ExclusiveStartKey: exclusiveStartKey,
+		TableName:         aws.String(userTable),
+	}
+	result, err := repo.svc.Scan(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
+	}
+
+	var users []*User
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &users)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanUsers result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanUsers LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return users, lastKey, nil
 }
 
 // SetAvailability inserts the provided Availability into the database.
@@ -342,6 +408,45 @@ func (repo *dynamoRepository) BookAvailability(availability *Availability, reque
 	return err
 }
 
+// ScanAvailabilities returns a list of all Availabilities in the database, up to 1MB of data.
+// startKey is an optional parameter that can be used to perform pagination.
+// The list of availabilities and the next start key are returned.
+func (repo *dynamoRepository) ScanAvailabilities(startKey string) ([]*Availability, string, error) {
+	var exclusiveStartKey map[string]*dynamodb.AttributeValue
+	if startKey != "" {
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+	}
+
+	input := &dynamodb.ScanInput{
+		ExclusiveStartKey: exclusiveStartKey,
+		TableName:         aws.String(availabilityTable),
+	}
+	result, err := repo.svc.Scan(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
+	}
+
+	var availabilities []*Availability
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &availabilities)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanAvailabilities result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanAvailabilities LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return availabilities, lastKey, nil
+}
+
 // SetMeeting inserts the provided Meeting into the database.
 func (repo *dynamoRepository) SetMeeting(meeting *Meeting) error {
 	item, err := dynamodbattribute.MarshalMap(meeting)
@@ -500,6 +605,45 @@ func (repo *dynamoRepository) ListMeetings(username string, limit int, startKey 
 		b, err := json.Marshal(&lastKeys)
 		if err != nil {
 			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal listMeetingsStartKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return meetings, lastKey, nil
+}
+
+// ScanMeetings returns a list of all Meetings in the database, up to 1MB of data.
+// startKey is an optional parameter that can be used to perform pagination.
+// The list of meetings and the next start key are returned.
+func (repo *dynamoRepository) ScanMeetings(startKey string) ([]*Meeting, string, error) {
+	var exclusiveStartKey map[string]*dynamodb.AttributeValue
+	if startKey != "" {
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+	}
+
+	input := &dynamodb.ScanInput{
+		ExclusiveStartKey: exclusiveStartKey,
+		TableName:         aws.String(meetingTable),
+	}
+	result, err := repo.svc.Scan(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
+	}
+
+	var meetings []*Meeting
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &meetings)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanMeetings result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanMeetings LastEvaluatedKey", err)
 		}
 		lastKey = string(b)
 	}
