@@ -25,12 +25,11 @@ plugins:
 
 provider:
   name: aws
-  stage: ${file(./config.yml):stage}
   runtime: go1.x
   region: us-east-1
   environment:
-    stage: ${opt:stage, self:provider.stage}
-    frontendHost: ${file(./config.yml):frontendHost}
+    stage: ${sls:stage}
+    frontendHost: ${file(./config-${sls:stage}):frontendHost}
   httpApi:
     cors: true
     authorizers:
@@ -114,7 +113,7 @@ functions:
         - ./bin/user/create
     events:
       - cognitoUserPool:
-          pool: ${opt:stage, self:provider.stage}-chess-dojo-scheduler-auth-pool
+          pool: ${sls:stage}-chess-dojo-scheduler-auth-pool
           trigger: PostConfirmation
           existing: true
     iamRoleStatements:
@@ -294,7 +293,7 @@ resources:
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
       Properties:
-        UserPoolName: ${opt:stage, self:provider.stage}-chess-dojo-scheduler-auth-pool
+        UserPoolName: ${sls:stage}-chess-dojo-scheduler-auth-pool
         UsernameConfiguration:
           CaseSensitive: false
         AliasAttributes:
@@ -312,7 +311,7 @@ resources:
     UserClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
-        ClientName: ${opt:stage, self:provider.stage}-chess-dojo-scheduler-auth-client
+        ClientName: ${sls:stage}-chess-dojo-scheduler-auth-client
         GenerateSecret: false
         UserPoolId: { Ref: CognitoUserPool }
         ExplicitAuthFlows:
@@ -326,9 +325,9 @@ resources:
           - email
           - profile
         CallbackURLs:
-          - ${file(./config.yml):frontendHost}
+          - ${file(./config-${sls:stage}):frontendHost}
         LogoutURLs:
-          - ${file(./config.yml):frontendHost}
+          - ${file(./config-${sls:stage}):frontendHost}
         SupportedIdentityProviders:
           - COGNITO
           - Google
@@ -339,7 +338,7 @@ resources:
       Type: AWS::Cognito::UserPoolDomain
       Properties:
         UserPoolId: { Ref: CognitoUserPool }
-        Domain: user-pool-domain-${opt:stage, self:provider.stage}-chess-dojo-scheduler
+        Domain: user-pool-domain-${sls:stage}-chess-dojo-scheduler
 
     UserPoolIdentityProvider:
       Type: AWS::Cognito::UserPoolIdentityProvider
@@ -364,7 +363,7 @@ resources:
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${opt:stage, self:provider.stage}-users
+        TableName: ${sls:stage}-users
         AttributeDefinitions:
           - AttributeName: username
             AttributeType: S
@@ -378,7 +377,7 @@ resources:
     AvailabilitiesTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${opt:stage, self:provider.stage}-availabilities
+        TableName: ${sls:stage}-availabilities
         AttributeDefinitions:
           - AttributeName: owner
             AttributeType: S
@@ -415,7 +414,7 @@ resources:
     MeetingsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${opt:stage, self:provider.stage}-meetings
+        TableName: ${sls:stage}-meetings
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S

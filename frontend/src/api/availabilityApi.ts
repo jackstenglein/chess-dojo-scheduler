@@ -1,10 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
 
-import { config } from '../config';
+import { getConfig } from '../config';
 import { Availability } from '../database/availability';
 import { Meeting } from '../database/meeting';
 
-const BASE_URL = config.api.baseUrl;
+const BASE_URL = getConfig().api.baseUrl;
 
 /**
  * AvailabilityApiContextType provides an API for interacting with the current

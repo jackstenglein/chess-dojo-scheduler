@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { User } from '../database/user';
-import { config } from '../config';
+import { getConfig } from '../config';
 
-const BASE_URL = config.api.baseUrl;
+const BASE_URL = getConfig().api.baseUrl;
 
 /**
  * UserApiContextType provides an API for interacting with the current signed-in user.

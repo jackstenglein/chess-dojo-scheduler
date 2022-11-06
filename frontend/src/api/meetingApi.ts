@@ -1,10 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
 
-import { config } from '../config';
+import { getConfig } from '../config';
 import { Meeting } from '../database/meeting';
 import { User } from '../database/user';
 
-const BASE_URL = config.api.baseUrl;
+const BASE_URL = getConfig().api.baseUrl;
 
 /**
  * MeetingApiContextType provides an API for interacting with the current
