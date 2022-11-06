@@ -65,8 +65,8 @@ var availabilityTypes = []AvailabilityType{
 	"ENDGAME_SPARRING",
 	"ROOK_ENDGAME_PROGRESSION",
 	"CLASSIC_ANALYSIS",
+	"ANALYZE_OWN_GAME",
 	"BOOK_STUDY",
-	"ANALYZE_OWN_GAME"
 }
 
 // IsValidAvailabilityType returns true if the provided availability type
