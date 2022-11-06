@@ -29,7 +29,7 @@ provider:
   region: us-east-1
   environment:
     stage: ${sls:stage}
-    frontendHost: ${file(./config-${sls:stage}):frontendHost}
+    frontendHost: ${file(./config-${sls:stage}.yml):frontendHost}
   httpApi:
     cors: true
     authorizers:
@@ -325,9 +325,9 @@ resources:
           - email
           - profile
         CallbackURLs:
-          - ${file(./config-${sls:stage}):frontendHost}
+          - ${file(./config-${sls:stage}.yml):frontendHost}
         LogoutURLs:
-          - ${file(./config-${sls:stage}):frontendHost}
+          - ${file(./config-${sls:stage}.yml):frontendHost}
         SupportedIdentityProviders:
           - COGNITO
           - Google
