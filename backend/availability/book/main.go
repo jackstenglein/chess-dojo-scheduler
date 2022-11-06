@@ -85,22 +85,22 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	info := api.GetUserInfo(event)
 
-	request := database.Meeting{Participant: info.Username}
-	if err := json.Unmarshal([]byte(event.Body), &request); err != nil {
+	meeting := database.Meeting{}
+	if err := json.Unmarshal([]byte(event.Body), &meeting); err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
 		return api.Failure(funcName, err), nil
 	}
 
-	if err := checkRequest(&request); err != nil {
+	if err := checkRequest(&meeting); err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	if info.Username == request.Owner {
+	if info.Username == meeting.Owner {
 		err := errors.New(400, "Invalid request: you cannot book your own availability", "")
 		return api.Failure(funcName, err), nil
 	}
 
-	availability, err := repository.GetAvailability(request.Owner, request.Id)
+	availability, err := repository.GetAvailability(meeting.Owner, meeting.Id)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
@@ -110,11 +110,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if err = checkTimes(availability, request.StartTime); err != nil {
+	if err = checkTimes(availability, meeting.StartTime); err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	if err = checkType(availability, request.Type); err != nil {
+	if err = checkType(availability, meeting.Type); err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
@@ -122,16 +122,18 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	startTime, err := time.Parse(time.RFC3339, request.StartTime)
-	request.ExpirationTime = startTime.Add(48 * time.Hour).Unix()
-	request.Location = availability.Location
-	request.Description = availability.Description
+	startTime, err := time.Parse(time.RFC3339, meeting.StartTime)
+	meeting.ExpirationTime = startTime.Add(48 * time.Hour).Unix()
+	meeting.Location = availability.Location
+	meeting.Description = availability.Description
+	meeting.Participant = info.Username
+	meeting.Status = database.Scheduled
 
-	if err := repository.BookAvailability(availability, &request); err != nil {
+	if err := repository.BookAvailability(availability, &meeting); err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	return api.Success(funcName, request), nil
+	return api.Success(funcName, meeting), nil
 }
 
 func main() {

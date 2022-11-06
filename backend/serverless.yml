@@ -194,7 +194,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-          - dynamodb:DeleteItem
+          - dynamodb:PutItem
         Resource: !GetAtt AvailabilitiesTable.Arn
       - Effect: Allow
         Action:
@@ -289,6 +289,34 @@ functions:
               - ''
               - - !GetAtt MeetingsTable.Arn
                 - '/index/ParticipantIndex'
+
+  cancelMeeting:
+    handler: bin/meeting/cancel
+    package:
+      patterns:
+        - ./bin/meeting/cancel
+    events:
+      - httpApi:
+          path: /meeting/cancel/{id}
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt MeetingsTable.Arn
+          - !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt MeetingsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt AvailabilitiesTable.Arn
 
 resources:
   Resources:

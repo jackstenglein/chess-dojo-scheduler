@@ -80,6 +80,15 @@ func IsValidAvailabilityType(t AvailabilityType) bool {
 	return false
 }
 
+// Represents the scheduling status for availabilities and meetings.
+type SchedulingStatus string
+
+const (
+	Scheduled SchedulingStatus = "SCHEDULED"
+	Booked    SchedulingStatus = "BOOKED"
+	Canceled  SchedulingStatus = "CANCELED"
+)
+
 type Availability struct {
 	// The username of the creator of this availability.
 	Owner string `dynamodbav:"owner" json:"owner"`
@@ -111,8 +120,8 @@ type Availability struct {
 	// The dojo cohorts that the owner is willing to play against/meet with.
 	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
 
-	// The status of the Availability. Always set to SCHEDULED for now.
-	Status string `dynamodbav:"status" json:"-"`
+	// The status of the Availability.
+	Status SchedulingStatus `dynamodbav:"status" json:"-"`
 
 	// Contains either a zoom link, discord, discord classroom, etc.
 	Location string `dynamodbav:"location" json:"location"`
@@ -129,7 +138,8 @@ type Meeting struct {
 	// The other person participating in this meeting.
 	Participant string `dynamodbav:"participant" json:"participant"`
 
-	// A v4 UUID identifying this meeting
+	// A v4 UUID identifying this meeting. It is the same as the id of the
+	// availability that this meeting was created from.
 	Id string `dynamodbav:"id" json:"id"`
 
 	// The time the meeting starts, in full ISO-8601 format.
@@ -147,4 +157,7 @@ type Meeting struct {
 
 	// An optional description for sparring positions, etc.
 	Description string `dynamodbav:"description" json:"description"`
+
+	// The status of the Meeting.
+	Status SchedulingStatus `dynamodbav:"status" json:"status"`
 }

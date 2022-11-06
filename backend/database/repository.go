@@ -80,6 +80,14 @@ type MeetingLister interface {
 	ListMeetings(username string, limit int, startKey string) ([]*Meeting, string, error)
 }
 
+type MeetingCanceler interface {
+	MeetingGetter
+
+	// CancelMeeting marks the provided meeting as canceled and marks the availability
+	// it was created from as scheduled. The updated meeting is returned.
+	CancelMeeting(meeting *Meeting) (*Meeting, error)
+}
+
 type AdminUserLister interface {
 	UserGetter
 
@@ -312,13 +320,20 @@ func (repo *dynamoRepository) fetchAvailabilities(input *dynamodb.QueryInput, st
 // the next start key are returned.
 func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit int, startKey string) ([]*Availability, string, error) {
 	input := &dynamodb.QueryInput{
-		ExpressionAttributeNames: map[string]*string{"#owner": aws.String("owner")},
+		ExpressionAttributeNames: map[string]*string{
+			"#owner":  aws.String("owner"),
+			"#status": aws.String("status"),
+		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":username": {
 				S: aws.String(username),
 			},
+			":scheduled": {
+				S: aws.String(string(Scheduled)),
+			},
 		},
 		KeyConditionExpression: aws.String("#owner = :username"),
+		FilterExpression:       aws.String("#status = :scheduled"),
 		Limit:                  aws.Int64(int64(limit)),
 		TableName:              aws.String(availabilityTable),
 	}
@@ -334,7 +349,7 @@ func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime stri
 	keyConditionExpression := "#status = :scheduled AND endTime >= :startTime"
 	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
 		":scheduled": {
-			S: aws.String("SCHEDULED"),
+			S: aws.String(string(Scheduled)),
 		},
 		":startTime": {
 			S: aws.String(startTime),
@@ -389,16 +404,40 @@ func (repo *dynamoRepository) DeleteAvailability(owner, id string) error {
 }
 
 // BookAvailablity converts the provided Availability into the provided Meeting object. The Availability
-// object is deleted and the Meeting object is saved in its place.
+// object is marked as booked and the Meeting object is saved. The request only succeeds if the
+// Availability is currently marked as scheduled in the database.
 func (repo *dynamoRepository) BookAvailability(availability *Availability, request *Meeting) error {
-	// First delete the availability to make sure nobody else can book it
-	if err := repo.DeleteAvailability(availability.Owner, availability.Id); err != nil {
-		return err
+	// First mark the availability as booked to make sure nobody else can book it
+	availability.Status = Booked
+	item, err := dynamodbattribute.MarshalMap(availability)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal availability", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		ConditionExpression: aws.String("attribute_exists(id) AND #status = :scheduled"),
+		ExpressionAttributeNames: map[string]*string{
+			"#status": aws.String("status"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":scheduled": {
+				S: aws.String(string(Scheduled)),
+			},
+		},
+		Item:      item,
+		TableName: aws.String(availabilityTable),
+	}
+
+	if _, err := repo.svc.PutItem(input); err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return errors.Wrap(400, "Invalid request: availability no longer exists or was already booked", "DynamoDB conditional check failed", aerr)
+		}
+		return errors.Wrap(500, "Temporary server error", "Failed to unmarshal DeleteItem result", err)
 	}
 
 	// DynamoDB conditional expression should ensure only one person can make it here
 	// for the same availability object, so it is now safe to save the meeting.
-	err := repo.SetMeeting(request)
+	err = repo.SetMeeting(request)
 	return err
 }
 
@@ -604,6 +643,46 @@ func (repo *dynamoRepository) ListMeetings(username string, limit int, startKey 
 	}
 
 	return meetings, lastKey, nil
+}
+
+// CancelMeeting marks the provided meeting as canceled and marks the availability
+// it was created from as scheduled (on a best effort basis). The updated meeting is
+// returned.
+func (repo *dynamoRepository) CancelMeeting(meeting *Meeting) (*Meeting, error) {
+	meeting.Status = Canceled
+	if err := repo.SetMeeting(meeting); err != nil {
+		return nil, err
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("attribute_exists(id)"),
+		UpdateExpression:    aws.String("SET #status = :scheduled"),
+		ExpressionAttributeNames: map[string]*string{
+			"#status": aws.String("status"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":scheduled": {
+				S: aws.String(string(Scheduled)),
+			},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {
+				S: aws.String(meeting.Owner),
+			},
+			"id": {
+				S: aws.String(meeting.Id),
+			},
+		},
+		TableName: aws.String(availabilityTable),
+	}
+
+	// Attempt to mark the availability as scheduled on a best-effort basis.
+	// If it fails, then we log the error but still return a success to the caller.
+	if _, err := repo.svc.UpdateItem(input); err != nil {
+		log.Error("Failed to mark availability as scheduled: ", err)
+	}
+
+	return meeting, nil
 }
 
 // ScanMeetings returns a list of all Meetings in the database, up to 1MB of data.
