@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Amplify from 'aws-amplify';
+import { ThemeProvider } from '@mui/system';
 
 import { config } from './config';
-
 import { AuthProvider, RequireAuth, RequireProfile } from './auth/Auth';
 import LandingPage from './home/LandingPage';
 import ProfilePage from './profile/ProfilePage';
@@ -16,6 +16,7 @@ import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import AdminPage from './admin/AdminPage';
+import theme from './theme';
 
 Amplify.configure({
     Auth: {
@@ -34,14 +35,16 @@ Amplify.configure({
 
 function App() {
     return (
-        <BrowserRouter>
-            <AuthProvider>
-                <ApiProvider>
-                    <Navbar />
-                    <Router />
-                </ApiProvider>
-            </AuthProvider>
-        </BrowserRouter>
+        <ThemeProvider theme={theme}>
+            <BrowserRouter>
+                <AuthProvider>
+                    <ApiProvider>
+                        <Navbar />
+                        <Router />
+                    </ApiProvider>
+                </AuthProvider>
+            </BrowserRouter>
+        </ThemeProvider>
     );
 }
 
