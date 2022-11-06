@@ -46,7 +46,6 @@ export type AvailabilityApiContextType = {
      */
     getAvailabilitiesByTime: (
         startTime: string,
-        endTime?: string,
         limit?: number,
         startKey?: string
     ) => Promise<Availability[]>;
@@ -137,7 +136,6 @@ export async function getAvailabilities(
  * getAvailabilitiesByTime returns a list of availabilities from other users.
  * @param idToken The id token of the current signed-in user.
  * @param startTime The startTime to use when searching.
- * @param endTime The endTime to use when searching.
  * @param limit The max amount of items to fetch per page.
  * @param startKey The first startKey to use when searching.
  * @returns A list of availabilities matching the provided request.
@@ -145,11 +143,10 @@ export async function getAvailabilities(
 export async function getAvailabilitiesByTime(
     idToken: string,
     startTime: string,
-    endTime?: string,
     limit?: number,
     startKey?: string
 ) {
-    let params = { startTime, endTime, limit: limit || 100, startKey };
+    let params = { startTime, limit: limit || 100, startKey };
     const result: Availability[] = [];
     do {
         const resp = await axios.get<GetAvailabilitiesResponse>(

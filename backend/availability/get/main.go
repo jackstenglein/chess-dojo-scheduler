@@ -79,19 +79,12 @@ func getByTimeHandler(info *api.UserInfo, event api.Request) api.Response {
 		return api.Failure(funcName, err)
 	}
 
-	endTime, _ := event.QueryStringParameters["endTime"]
-
-	if endTime != "" && startTime > endTime {
-		err := errors.New(400, "Invalid request: startTime must be less than endTime", "")
-		return api.Failure(funcName, err)
-	}
-
 	limit, startKey, err := getSharedParameters(event)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}
 
-	availabilities, lastKey, err := repository.GetAvailabilitiesByTime(user, startTime, endTime, limit, startKey)
+	availabilities, lastKey, err := repository.GetAvailabilitiesByTime(user, startTime, limit, startKey)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}

@@ -59,11 +59,11 @@ type AvailabilitySearcher interface {
 	// the next start key are returned.
 	GetAvailabilitiesByOwner(username string, limit int, startKey string) ([]*Availability, string, error)
 
-	// GetAvailabilitiesByTime returns a list of Availabilities matching the provided start and end time.
-	// Availabilities owned by the calling user are filtered out of the result list, as are availabilities
-	// that are not bookable by the caller's cohort. user, startTime and limit are required parameters.
-	// endTime and startKey are optional. The list of availabilities and the next start key are returned.
-	GetAvailabilitiesByTime(caller *User, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error)
+	// GetAvailabilitiesByTime returns a list of Availabilities where the Availability endTime >= the startTime
+	// parameter. Availabilities owned by the calling username are filtered out of the result list. username,
+	// startTime and limit are required parameters. startKey is optional. The list of availabilities and
+	// the next start key are returned.
+	GetAvailabilitiesByTime(caller *User, startTime string, limit int, startKey string) ([]*Availability, string, error)
 }
 
 type MeetingGetter interface {
@@ -326,12 +326,12 @@ func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit in
 	return repo.fetchAvailabilities(input, startKey)
 }
 
-// GetAvailabilitiesByTime returns a list of Availabilities matching the provided start and end time.
-// Availabilities owned by the calling username are filtered out of the result list. username, startTime,
-// and limit are required parameters. endTime and startKey are optional. The list of availabilities and
+// GetAvailabilitiesByTime returns a list of Availabilities where the Availability endTime >= the startTime
+// parameter. Availabilities owned by the calling username are filtered out of the result list. username,
+// startTime and limit are required parameters. startKey is optional. The list of availabilities and
 // the next start key are returned.
-func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime, endTime string, limit int, startKey string) ([]*Availability, string, error) {
-	keyConditionExpression := "#status = :scheduled AND startTime >= :startTime"
+func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime string, limit int, startKey string) ([]*Availability, string, error) {
+	keyConditionExpression := "#status = :scheduled AND endTime >= :startTime"
 	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
 		":scheduled": {
 			S: aws.String("SCHEDULED"),
@@ -346,12 +346,6 @@ func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime, end
 			S: aws.String(string(user.DojoCohort)),
 		},
 	}
-	if endTime != "" {
-		keyConditionExpression = "#status = :scheduled AND startTime BETWEEN :startTime AND :endTime"
-		expressionAttributeValues[":endTime"] = &dynamodb.AttributeValue{
-			S: aws.String(endTime),
-		}
-	}
 
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String(keyConditionExpression),
@@ -363,7 +357,7 @@ func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime, end
 		ExpressionAttributeValues: expressionAttributeValues,
 		FilterExpression:          aws.String("#owner <> :username AND contains(#cohorts, :callerCohort)"),
 		Limit:                     aws.Int64(int64(limit)),
-		IndexName:                 aws.String("SearchIndex"),
+		IndexName:                 aws.String("EndSearchIndex"),
 		TableName:                 aws.String(availabilityTable),
 	}
 

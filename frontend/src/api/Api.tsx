@@ -67,10 +67,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 getAvailabilities(idToken, limit, startKey),
             getAvailabilitiesByTime: (
                 startTime: string,
-                endTime?: string,
                 limit?: number,
                 startKey?: string
-            ) => getAvailabilitiesByTime(idToken, startTime, endTime, limit, startKey),
+            ) => getAvailabilitiesByTime(idToken, startTime, limit, startKey),
 
             getMeeting: (id: string) => getMeeting(idToken, id),
             listMeetings: (limit?: number, startKey?: string) =>

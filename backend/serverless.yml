@@ -236,6 +236,10 @@ functions:
               - ''
               - - !GetAtt AvailabilitiesTable.Arn
                 - '/index/SearchIndex'
+          - Fn::Join:
+              - ''
+              - - !GetAtt AvailabilitiesTable.Arn
+                - '/index/EndSearchIndex'
           - !GetAtt AvailabilitiesTable.Arn
       - Effect: Allow
         Action:
@@ -385,7 +389,7 @@ resources:
             AttributeType: S
           - AttributeName: status
             AttributeType: S
-          - AttributeName: startTime
+          - AttributeName: endTime
             AttributeType: S
         KeySchema:
           - AttributeName: owner
@@ -393,11 +397,11 @@ resources:
           - AttributeName: id
             KeyType: RANGE
         GlobalSecondaryIndexes:
-          - IndexName: SearchIndex
+          - IndexName: EndSearchIndex
             KeySchema:
               - AttributeName: status
                 KeyType: HASH
-              - AttributeName: startTime
+              - AttributeName: endTime
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
