@@ -210,12 +210,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
     };
 
     return (
-        <Dialog
-            fullScreen
-            open={true}
-            TransitionComponent={Transition}
-            sx={{ zIndex: 1600 }}
-        >
+        <Dialog fullScreen open={true} TransitionComponent={Transition}>
             <RequestSnackbar request={request} />
 
             <AppBar sx={{ position: 'relative' }}>

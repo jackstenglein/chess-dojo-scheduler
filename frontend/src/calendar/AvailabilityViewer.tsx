@@ -146,7 +146,6 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                 open={isBooking}
                 onClose={stopBooking}
                 TransitionComponent={Transition}
-                sx={{ zIndex: 1600 }}
             >
                 <RequestSnackbar request={request} />
 
