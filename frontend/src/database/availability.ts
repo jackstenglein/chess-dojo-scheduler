@@ -19,6 +19,7 @@ export enum AvailabilityType {
     RookEndgameProgression = 'ROOK_ENDGAME_PROGRESSION',
     ClassicAnalysis = 'CLASSIC_ANALYSIS',
     BookStudy = 'BOOK_STUDY',
+    AnalyzeOwnGame = 'ANALYZE_OWN_GAME',
 }
 
 export function getDisplayString(type: AvailabilityType | null | undefined): string {
@@ -41,5 +42,7 @@ export function getDisplayString(type: AvailabilityType | null | undefined): str
             return 'Analyze Classic Game';
         case AvailabilityType.BookStudy:
             return 'Book Study';
+        case AvailabilityType.AnalyzeOwnGame:
+            return 'Analyze Own Game'
     }
 }
