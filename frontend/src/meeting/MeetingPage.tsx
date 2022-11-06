@@ -8,6 +8,7 @@ import {
     CardHeader,
     CardContent,
     Typography,
+    Alert,
 } from '@mui/material';
 
 import { useApi } from '../api/Api';
@@ -60,9 +61,19 @@ const MeetingPage = () => {
     const startDate = start.toLocaleDateString();
     const startTime = start.toLocaleTimeString();
 
+    const opponentIsOwner = meeting.owner === opponent.username;
+
     return (
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
             <Stack spacing={4}>
+                {opponentIsOwner && (
+                    <Alert severity='warning'>
+                        This website does not have notifications yet. Please message your
+                        opponent on discord and let them know you booked their meeting.
+                        Otherwise, they may not know they're supposed to play you.
+                    </Alert>
+                )}
+
                 <Card variant='outlined'>
                     <CardHeader title='Meeting Details' />
                     <CardContent>
