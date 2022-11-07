@@ -63,6 +63,9 @@ type MeetingCanceler interface {
 	// CancelMeeting marks the provided meeting as canceled and marks the availability
 	// it was created from as scheduled. The updated meeting is returned.
 	CancelMeeting(meeting *Meeting) (*Meeting, error)
+
+	// RecordMeetingCancelation saves statistics on the canceled meeting.
+	RecordMeetingCancelation(cancelerCohort DojoCohort) error
 }
 
 type AdminMeetingLister interface {

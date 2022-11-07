@@ -171,3 +171,27 @@ func (repo *dynamoRepository) RecordMeetingCreation(meeting *Meeting, ownerCohor
 	_, err := repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed to update meeting statistics record", err)
 }
+
+// RecordMeetingCancelation saves statistics on the canceled meeting.
+func (repo *dynamoRepository) RecordMeetingCancelation(cancelerCohort DojoCohort) error {
+	updateExpression := "SET canceled = canceled + :v, cancelerCohorts.#cc = cancelerCohorts.#cc + :v"
+	input := &dynamodb.UpdateItemInput{
+		UpdateExpression: aws.String(updateExpression),
+		ExpressionAttributeNames: map[string]*string{
+			"#cc": aws.String(string(cancelerCohort)),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":v": {
+				N: aws.String("1"),
+			},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		TableName: aws.String(meetingTable),
+	}
+	_, err := repo.svc.UpdateItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed to update meeting statistics record", err)
+}
