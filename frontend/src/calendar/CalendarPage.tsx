@@ -7,7 +7,7 @@ import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
 import { Availability, getDisplayString } from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { Meeting } from '../database/meeting';
+import { Meeting, MeetingStatus } from '../database/meeting';
 import { CalendarFilters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
 
@@ -120,16 +120,18 @@ export default function CalendarPage() {
 
     if (filters.meetings) {
         const meetingEvents: ProcessedEvent[] =
-            meetingsRequest.data?.map((m) => ({
-                event_id: m.id,
-                title: getDisplayString(m.type),
-                start: new Date(m.startTime),
-                end: new Date(new Date(m.startTime).getTime() + ONE_HOUR),
-                meeting: m,
-                editable: false,
-                deletable: false,
-                draggable: false,
-            })) ?? [];
+            meetingsRequest.data
+                ?.filter((m) => m.status !== MeetingStatus.Canceled)
+                .map((m) => ({
+                    event_id: m.id,
+                    title: getDisplayString(m.type),
+                    start: new Date(m.startTime),
+                    end: new Date(new Date(m.startTime).getTime() + ONE_HOUR),
+                    meeting: m,
+                    editable: false,
+                    deletable: false,
+                    draggable: false,
+                })) ?? [];
         events.push(...meetingEvents);
     }
 

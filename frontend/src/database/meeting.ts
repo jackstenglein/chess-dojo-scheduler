@@ -1,5 +1,10 @@
 import { AvailabilityType } from './availability';
 
+export enum MeetingStatus {
+    Scheduled = 'SCHEDULED',
+    Canceled = 'CANCELED',
+}
+
 export interface Meeting {
     owner: string;
     participant: string;
@@ -8,4 +13,5 @@ export interface Meeting {
     type: AvailabilityType;
     location: string;
     description: string;
+    status: MeetingStatus;
 }

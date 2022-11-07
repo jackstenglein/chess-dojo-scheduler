@@ -17,7 +17,12 @@ import {
     getAvailabilitiesByTime,
     setAvailability,
 } from './availabilityApi';
-import { getMeeting, listMeetings, MeetingApiContextType } from './meetingApi';
+import {
+    cancelMeeting,
+    getMeeting,
+    listMeetings,
+    MeetingApiContextType,
+} from './meetingApi';
 import { UserApiContextType, getUser, updateUser } from './userApi';
 
 /**
@@ -72,6 +77,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             ) => getAvailabilitiesByTime(idToken, startTime, limit, startKey),
 
             getMeeting: (id: string) => getMeeting(idToken, id),
+            cancelMeeting: (id: string) => cancelMeeting(idToken, id),
             listMeetings: (limit?: number, startKey?: string) =>
                 listMeetings(idToken, limit, startKey),
         };

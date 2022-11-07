@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     CircularProgress,
@@ -9,17 +9,30 @@ import {
     CardContent,
     Typography,
     Alert,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    DialogContentText,
+    DialogActions,
+    IconButton,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { LoadingButton } from '@mui/lab';
 
 import { useApi } from '../api/Api';
-import { useRequest } from '../api/Request';
+import { RequestSnackbar, useRequest } from '../api/Request';
 import { getDisplayString } from '../database/availability';
 import { GetMeetingResponse } from '../api/meetingApi';
+import { MeetingStatus } from '../database/meeting';
 
 const MeetingPage = () => {
     const api = useApi();
     const { meetingId } = useParams();
     const request = useRequest<GetMeetingResponse>();
+
+    const [isCanceling, setIsCanceling] = useState(false);
+    const cancelRequest = useRequest();
 
     const fetchMeeting = useCallback(() => {
         request.onStart();
@@ -55,6 +68,22 @@ const MeetingPage = () => {
         );
     }
 
+    const onCancel = () => {
+        cancelRequest.onStart();
+
+        api.cancelMeeting(meetingId!)
+            .then((response) => {
+                console.log('Cancel meeting response: ', response);
+                request.onSuccess({ ...request.data!, meeting: response.data });
+                setIsCanceling(false);
+                cancelRequest.onSuccess();
+            })
+            .catch((err) => {
+                console.error(err);
+                cancelRequest.onFailure(err);
+            });
+    };
+
     const meeting = request.data.meeting;
     const opponent = request.data.opponent;
     const start = new Date(meeting.startTime);
@@ -65,8 +94,38 @@ const MeetingPage = () => {
 
     return (
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
+            <Dialog open={isCanceling} onClose={() => setIsCanceling(false)}>
+                <RequestSnackbar request={cancelRequest} />
+                <DialogTitle>
+                    Cancel this meeting?
+                    <IconButton
+                        aria-label='close'
+                        onClick={() => setIsCanceling(false)}
+                        sx={{
+                            position: 'absolute',
+                            right: 10,
+                            top: 8,
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to cancel this meeting? You can't undo this
+                        action. If you continue, please message your opponent on discord
+                        and let them know you have canceled.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <LoadingButton onClick={onCancel} loading={cancelRequest.isLoading()}>
+                        Cancel Meeting
+                    </LoadingButton>
+                </DialogActions>
+            </Dialog>
+
             <Stack spacing={4}>
-                {opponentIsOwner && (
+                {opponentIsOwner && meeting.status !== MeetingStatus.Canceled && (
                     <Alert severity='warning'>
                         This website does not have notifications yet. Please message your
                         opponent on discord and let them know you booked their meeting.
@@ -74,8 +133,25 @@ const MeetingPage = () => {
                     </Alert>
                 )}
 
+                {meeting.status === MeetingStatus.Canceled && (
+                    <Alert severity='error'>This meeting has been canceled.</Alert>
+                )}
+
                 <Card variant='outlined'>
-                    <CardHeader title='Meeting Details' />
+                    <CardHeader
+                        title='Meeting Details'
+                        action={
+                            meeting.status !== MeetingStatus.Canceled ? (
+                                <Button
+                                    variant='contained'
+                                    color='error'
+                                    onClick={() => setIsCanceling(true)}
+                                >
+                                    Cancel Meeting
+                                </Button>
+                            ) : undefined
+                        }
+                    />
                     <CardContent>
                         <Stack spacing={3}>
                             <Stack>
@@ -124,6 +200,7 @@ const MeetingPage = () => {
                         </Stack>
                     </CardContent>
                 </Card>
+
                 <Card variant='outlined'>
                     <CardHeader title='Opponent' />
                     <CardContent>

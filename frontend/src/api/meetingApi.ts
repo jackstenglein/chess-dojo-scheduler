@@ -19,6 +19,13 @@ export type MeetingApiContextType = {
     getMeeting: (id: string) => Promise<AxiosResponse<GetMeetingResponse, any>>;
 
     /**
+     * cancelMeeting cancels the Meeting with the provided id.
+     * @param id The Meeting id to cancel.
+     * @returns An AxiosReponse containing the updated meeting.
+     */
+    cancelMeeting: (id: string) => Promise<AxiosResponse<Meeting, any>>;
+
+    /**
      * listMeetings returns a list of the currently signed-in user's meetings.
      * @param limit The max amount of items to fetch per page.
      * @param startKey The first startKey to use when searching for meetings.
@@ -45,6 +52,24 @@ export function getMeeting(idToken: string, id: string) {
             Authorization: 'Bearer ' + idToken,
         },
     });
+}
+
+/**
+ * cancelMeeting cancels the Meeting with the provided id.
+ * @param idToken The id token of the current signed-in user.
+ * @param id The Meeting id to cancel.
+ * @returns An AxiosReponse containing the updated meeting.
+ */
+export function cancelMeeting(idToken: string, id: string) {
+    return axios.put<Meeting>(
+        `${BASE_URL}/meeting/cancel/${id}`,
+        {},
+        {
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        }
+    );
 }
 
 interface ListMeetingsResponse {
