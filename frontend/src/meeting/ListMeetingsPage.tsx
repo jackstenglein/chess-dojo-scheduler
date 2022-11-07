@@ -1,8 +1,7 @@
 import { Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
+import { useMeetings } from '../api/Cache';
+import { RequestSnackbar } from '../api/Request';
 
 import { Meeting } from '../database/meeting';
 import MeetingListItem from './MeetingListItem';
@@ -10,30 +9,13 @@ import MeetingListItem from './MeetingListItem';
 const ONE_HOUR = 3600000;
 
 const ListMeetingsPage = () => {
-    const api = useApi();
     const navigate = useNavigate();
 
-    const request = useRequest<Meeting[]>();
-
-    useEffect(() => {
-        if (!request.isSent()) {
-            request.onStart();
-
-            api.listMeetings()
-                .then((result) => {
-                    result.sort((lhs, rhs) => lhs.startTime.localeCompare(rhs.startTime));
-                    request.onSuccess(result);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    request.onFailure(err);
-                });
-        }
-    }, [request, api]);
-
-    const meetings = request.data ?? [];
-    const requestLoading = request.isLoading() || !request.isSent();
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
+    const meetingFilter = (m: Meeting) => m.startTime >= filterTime;
+
+    const { meetings, request } = useMeetings();
+    const requestLoading = request.isLoading() || !request.isSent();
 
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>
@@ -42,7 +24,7 @@ const ListMeetingsPage = () => {
             <Stack spacing={2} alignItems='start'>
                 <Typography variant='h4'>Meetings</Typography>
 
-                {requestLoading && <CircularProgress />}
+                {requestLoading && meetings.length === 0 && <CircularProgress />}
 
                 {!requestLoading && meetings.length === 0 && (
                     <>
@@ -56,11 +38,9 @@ const ListMeetingsPage = () => {
                     </>
                 )}
 
-                {meetings
-                    .filter((m) => m.startTime >= filterTime)
-                    .map((meeting) => (
-                        <MeetingListItem key={meeting.id} meeting={meeting} />
-                    ))}
+                {meetings.filter(meetingFilter).map((meeting) => (
+                    <MeetingListItem key={meeting.id} meeting={meeting} />
+                ))}
             </Stack>
         </Container>
     );

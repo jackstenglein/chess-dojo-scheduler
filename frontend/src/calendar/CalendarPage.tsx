@@ -7,9 +7,10 @@ import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
 import { Availability, getDisplayString } from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { Meeting, MeetingStatus } from '../database/meeting';
+import { MeetingStatus } from '../database/meeting';
 import { CalendarFilters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
+import { useMeetings } from '../api/Cache';
 
 const ONE_HOUR = 3600000;
 
@@ -21,7 +22,7 @@ export default function CalendarPage() {
     const [ownedAvailabilities, setOwnedAvailabilties] = useState<Availability[]>([]);
     const ownedAvailabilitiesRequest = useRequest<Availability[]>();
     const otherAvailabilitiesRequest = useRequest<Availability[]>();
-    const meetingsRequest = useRequest<Meeting[]>();
+    const { meetings, request: meetingsRequest } = useMeetings();
 
     const filters = useFilters();
 
@@ -39,20 +40,6 @@ export default function CalendarPage() {
                 });
         }
     }, [ownedAvailabilitiesRequest, api]);
-
-    useEffect(() => {
-        if (!meetingsRequest.isSent()) {
-            meetingsRequest.onStart();
-            api.listMeetings()
-                .then((meetings) => {
-                    meetingsRequest.onSuccess(meetings);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    meetingsRequest.onFailure(err);
-                });
-        }
-    }, [meetingsRequest, api]);
 
     useEffect(() => {
         if (!otherAvailabilitiesRequest.isSent()) {
@@ -120,7 +107,7 @@ export default function CalendarPage() {
 
     if (filters.meetings) {
         const meetingEvents: ProcessedEvent[] =
-            meetingsRequest.data
+            meetings
                 ?.filter((m) => m.status !== MeetingStatus.Canceled)
                 .map((m) => ({
                     event_id: m.id,
@@ -163,7 +150,9 @@ export default function CalendarPage() {
 
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
+            <RequestSnackbar request={ownedAvailabilitiesRequest} />
             <RequestSnackbar request={otherAvailabilitiesRequest} />
+            <RequestSnackbar request={meetingsRequest} />
             <RequestSnackbar request={deleteRequest} showSuccess />
 
             <Grid container spacing={2}>

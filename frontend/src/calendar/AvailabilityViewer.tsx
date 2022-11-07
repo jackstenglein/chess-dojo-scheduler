@@ -31,6 +31,7 @@ import {
 } from '../database/availability';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
+import { useCache } from '../api/Cache';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -53,6 +54,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
     const api = useApi();
     const request = useRequest();
     const navigate = useNavigate();
+    const cache = useCache();
 
     const [isBooking, setIsBooking] = useState(false);
     const [selectedType, setSelectedType] = useState<AvailabilityType | null>(null);
@@ -101,6 +103,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
             .then((response) => {
                 console.log('Book response: ', response);
                 request.onSuccess();
+                cache.putMeeting(response.data);
                 navigate(`/meeting/${response.data.id}`);
             })
             .catch((err) => {

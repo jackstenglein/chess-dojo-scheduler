@@ -1,12 +1,23 @@
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 
 import { useNavigate } from 'react-router-dom';
+import { useMeetings } from '../api/Cache';
 import { AuthStatus, useAuth } from '../auth/Auth';
+import { Meeting } from '../database/meeting';
+
+const ONE_HOUR = 3600000;
 
 const Navbar = () => {
     const navigate = useNavigate();
     const auth = useAuth();
     const isAdmin = auth.user?.isAdmin || false;
+
+    const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
+    const { meetings } = useMeetings();
+    const meetingCount = meetings.filter(
+        (m: Meeting) => m.startTime >= filterTime
+    ).length;
+    const meetingText = meetingCount > 0 ? `Meetings (${meetingCount})` : `Meetings`;
 
     return (
         <AppBar position='sticky'>
@@ -43,7 +54,7 @@ const Navbar = () => {
                                     onClick={() => navigate('/meeting')}
                                     sx={{ color: 'white' }}
                                 >
-                                    Meetings
+                                    {meetingText}
                                 </Button>
 
                                 <Button

@@ -17,6 +17,7 @@ import VerifyEmailPage from './auth/VerifyEmailPage';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import AdminPage from './admin/AdminPage';
 import theme from './theme';
+import { CacheProvider } from './api/Cache';
 
 const config = getConfig();
 Amplify.configure({
@@ -40,8 +41,10 @@ function App() {
             <BrowserRouter>
                 <AuthProvider>
                     <ApiProvider>
-                        <Navbar />
-                        <Router />
+                        <CacheProvider>
+                            <Navbar />
+                            <Router />
+                        </CacheProvider>
                     </ApiProvider>
                 </AuthProvider>
             </BrowserRouter>

@@ -15,7 +15,7 @@ export enum RequestStatus {
 /**
  * Request defines the overall state of an API request, as well as functions to update that state.
  */
-interface Request<T = any> {
+export interface Request<T = any> {
     status: RequestStatus;
     data?: T;
     error?: any;
