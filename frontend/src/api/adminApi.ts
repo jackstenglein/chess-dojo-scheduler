@@ -1,9 +1,10 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 import { User } from '../database/user';
 import { getConfig } from '../config';
 import { Availability } from '../database/availability';
 import { Meeting } from '../database/meeting';
+import { AvailabilityStatistics, MeetingStatistics } from '../database/statistics';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -28,6 +29,11 @@ export type AdminApiContextType = {
      * @returns A list of meetings.
      */
     adminListMeetings: (startKey?: string) => Promise<Meeting[]>;
+
+    /**
+     * adminGetStatistics returns an AxiosResponse containing the GetStatisticsResponse object.
+     */
+    adminGetStatistics: () => Promise<AxiosResponse<GetStatisticsResponse, any>>;
 };
 
 interface ListUsersResponse {
@@ -121,4 +127,21 @@ export async function adminListMeetings(idToken: string, startKey?: string) {
     } while (params.startKey);
 
     return result;
+}
+
+export interface GetStatisticsResponse {
+    meetingStatistics: MeetingStatistics;
+    availabilityStatistics: AvailabilityStatistics;
+}
+
+/**
+ * adminGetStatistics returns an AxiosResponse containing the GetStatisticsResponse object.
+ * @param idToken The id token of the current signed-in user.
+ */
+export function adminGetStatistics(idToken: string) {
+    return axios.get<GetStatisticsResponse>(BASE_URL + '/admin/statistics', {
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
 }

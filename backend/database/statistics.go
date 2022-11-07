@@ -5,10 +5,11 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
-type AvailabilityStats struct {
+type AvailabilityStatistics struct {
 	// The total number of availabilities that have been created.
 	Created int `dynamodbav:"created" json:"created"`
 
@@ -31,7 +32,7 @@ type AvailabilityStats struct {
 	Types map[AvailabilityType]int `dynamodbav:"types" json:"types"`
 }
 
-type MeetingStats struct {
+type MeetingStatistics struct {
 	// The total number of meetings that have been created.
 	Created int `dynamodbav:"created" json:"created"`
 
@@ -49,6 +50,16 @@ type MeetingStats struct {
 
 	// The number of meetings that have been created by type.
 	Types map[AvailabilityType]int `dynamodbav:"types" json:"types"`
+}
+
+type AdminStatisticsGetter interface {
+	UserGetter
+
+	// GetAvailabilityStatistics gets the availability statistics from the database.
+	GetAvailabilityStatistics() (*AvailabilityStatistics, error)
+
+	// GetMeetingStatistics gets the meeting statistics from the database.
+	GetMeetingStatistics() (*MeetingStatistics, error)
 }
 
 // RecordAvailabilityCreation saves statistics on the created availability.
@@ -119,6 +130,36 @@ func (repo *dynamoRepository) RecordAvailabilityDeletion(availability *Availabil
 
 	_, err := repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed to update availabliity statistics record", err)
+}
+
+// GetAvailabilityStatistics gets the availability statistics from the database.
+func (repo *dynamoRepository) GetAvailabilityStatistics() (*AvailabilityStatistics, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {
+				S: aws.String("STATISTICS"),
+			},
+			"id": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		TableName: aws.String(availabilityTable),
+	}
+
+	result, err := repo.svc.GetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetAvailablityStatistics failure", err)
+	}
+
+	if result.Item == nil {
+		return nil, errors.New(500, "Meeting statistics not found", "GetAvailablityStatistics result.Item is nil")
+	}
+
+	availabilityStats := AvailabilityStatistics{}
+	if err = dynamodbattribute.UnmarshalMap(result.Item, &availabilityStats); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetAvailablityStatistics result", err)
+	}
+	return &availabilityStats, nil
 }
 
 // RecordMeetingCreation saves statistics on the created meeting.
@@ -194,4 +235,31 @@ func (repo *dynamoRepository) RecordMeetingCancelation(cancelerCohort DojoCohort
 	}
 	_, err := repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed to update meeting statistics record", err)
+}
+
+// GetMeetingStatistics gets the meeting statistics from the database.
+func (repo *dynamoRepository) GetMeetingStatistics() (*MeetingStatistics, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		TableName: aws.String(meetingTable),
+	}
+
+	result, err := repo.svc.GetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetMeetingStatistics failure", err)
+	}
+
+	if result.Item == nil {
+		return nil, errors.New(500, "Meeting statistics not found", "GetMeetingStatistics result.Item is nil")
+	}
+
+	meetingStats := MeetingStatistics{}
+	if err = dynamodbattribute.UnmarshalMap(result.Item, &meetingStats); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetMeetingStatistics result", err)
+	}
+	return &meetingStats, nil
 }

@@ -104,6 +104,25 @@ functions:
           - dynamodb:Scan
         Resource: !GetAtt MeetingsTable.Arn
 
+  adminGetStatistics:
+    handler: bin/admin/statistics/get
+    package:
+      patterns:
+        - ./bin/admin/statistics/get
+    events:
+      - httpApi:
+          path: /admin/statistics
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt UsersTable.Arn
+          - !GetAtt AvailabilitiesTable.Arn
+          - !GetAtt MeetingsTable.Arn
+
   ######### User Endpoints ###############
 
   createUser:

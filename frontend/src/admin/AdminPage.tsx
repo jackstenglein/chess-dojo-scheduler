@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/Auth';
 import AvailabilitiesTab from './AvailabilitiesTab';
 import MeetingsTab from './MeetingsTab';
+import StatisticsTab from './StatisticsTab';
 import UsersTab from './UsersTab';
 
 const AdminPage = () => {
@@ -28,6 +29,7 @@ const AdminPage = () => {
                             <Tab label='Users' value='users' />
                             <Tab label='Availabilities' value='availabilities' />
                             <Tab label='Meetings' value='meetings' />
+                            <Tab label='Statistics' value='statistics' />
                         </TabList>
                     </Box>
                     <TabPanel value='users'>
@@ -38,6 +40,9 @@ const AdminPage = () => {
                     </TabPanel>
                     <TabPanel value='meetings'>
                         <MeetingsTab />
+                    </TabPanel>
+                    <TabPanel value='statistics'>
+                        <StatisticsTab />
                     </TabPanel>
                 </TabContext>
             </Box>
