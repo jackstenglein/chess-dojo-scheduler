@@ -7,6 +7,8 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { Meeting } from '../database/meeting';
 import MeetingListItem from './MeetingListItem';
 
+const ONE_HOUR = 3600000;
+
 const ListMeetingsPage = () => {
     const api = useApi();
     const navigate = useNavigate();
@@ -30,8 +32,8 @@ const ListMeetingsPage = () => {
     }, [request, api]);
 
     const meetings = request.data ?? [];
-
     const requestLoading = request.isLoading() || !request.isSent();
+    const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
 
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>
@@ -54,9 +56,11 @@ const ListMeetingsPage = () => {
                     </>
                 )}
 
-                {meetings.map((meeting) => (
-                    <MeetingListItem key={meeting.id} meeting={meeting} />
-                ))}
+                {meetings
+                    .filter((m) => m.startTime >= filterTime)
+                    .map((meeting) => (
+                        <MeetingListItem key={meeting.id} meeting={meeting} />
+                    ))}
             </Stack>
         </Container>
     );
