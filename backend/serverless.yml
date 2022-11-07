@@ -174,6 +174,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:UpdateItem
         Resource: !GetAtt AvailabilitiesTable.Arn
 
   bookAvailability:

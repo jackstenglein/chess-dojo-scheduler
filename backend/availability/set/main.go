@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
@@ -102,6 +103,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if availability.Id == "" {
 		availability.Id = uuid.New().String()
+		if err = repository.RecordAvailabilityCreation(&availability); err != nil {
+			log.Error("Failed RecordAvailabilityCreation: ", err)
+		}
 	}
 
 	if strings.TrimSpace(availability.Location) == "" {

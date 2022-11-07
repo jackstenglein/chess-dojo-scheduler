@@ -87,6 +87,9 @@ type Availability struct {
 type AvailabilitySetter interface {
 	// SetAvailablity inserts the provided availability into the database.
 	SetAvailability(availability *Availability) error
+
+	// RecordAvailabilityCreation saves statistics on the created availability.
+	RecordAvailabilityCreation(availability *Availability) error
 }
 
 type AvailabilityBooker interface {
