@@ -216,6 +216,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
         Resource: !GetAtt AvailabilitiesTable.Arn
 
   getAvailability:

@@ -105,7 +105,10 @@ type AvailabilityBooker interface {
 
 type AvailabilityDeleter interface {
 	// DeleteAvailability deletes the given availability object. An error is returned if it does not exist.
-	DeleteAvailability(owner, id string) error
+	DeleteAvailability(owner, id string) (*Availability, error)
+
+	// RecordAvailabilityDeletion saves statistics on the deleted availability.
+	RecordAvailabilityDeletion(availability *Availability) error
 }
 
 type AvailabilitySearcher interface {
@@ -281,7 +284,7 @@ func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime stri
 }
 
 // DeleteAvailability deletes the given availability object. An error is returned if it does not exist.
-func (repo *dynamoRepository) DeleteAvailability(owner, id string) error {
+func (repo *dynamoRepository) DeleteAvailability(owner, id string) (*Availability, error) {
 	input := &dynamodb.DeleteItemInput{
 		ConditionExpression: aws.String("attribute_exists(id)"),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -292,16 +295,23 @@ func (repo *dynamoRepository) DeleteAvailability(owner, id string) error {
 				S: aws.String(id),
 			},
 		},
-		TableName: aws.String(availabilityTable),
+		ReturnValues: aws.String("ALL_OLD"),
+		TableName:    aws.String(availabilityTable),
 	}
 
-	if _, err := repo.svc.DeleteItem(input); err != nil {
+	result, err := repo.svc.DeleteItem(input)
+	if err != nil {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return errors.Wrap(404, "Invalid request: availability does not exist or is already booked", "DynamoDB conditional check failed", aerr)
+			return nil, errors.Wrap(404, "Invalid request: availability does not exist or is already booked", "DynamoDB conditional check failed", aerr)
 		}
-		return errors.Wrap(500, "Temporary server error", "Failed to unmarshal DeleteItem result", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal DeleteItem result", err)
 	}
-	return nil
+
+	availability := Availability{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &availability); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetAvailability result", err)
+	}
+	return &availability, nil
 }
 
 // BookAvailablity converts the provided Availability into the provided Meeting object. The Availability

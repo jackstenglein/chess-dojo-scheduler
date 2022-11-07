@@ -31,10 +31,15 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	err := repository.DeleteAvailability(info.Username, id)
+	availability, err := repository.DeleteAvailability(info.Username, id)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
+
+	if err = repository.RecordAvailabilityDeletion(availability); err != nil {
+		log.Error("Failed RecordAvailabilityDeletion: ", err)
+	}
+
 	return api.Success(funcName, nil), nil
 }
 

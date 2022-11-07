@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 type AvailabilityStats struct {
@@ -87,7 +86,36 @@ func (repo *dynamoRepository) RecordAvailabilityCreation(availability *Availabil
 		},
 		TableName: aws.String(availabilityTable),
 	}
-	log.Debug("RecordAvailabilityCreation: ", input)
+
+	_, err := repo.svc.UpdateItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed to update availabliity statistics record", err)
+}
+
+// RecordAvailabilityDeletion saves statistics on the deleted availability.
+func (repo *dynamoRepository) RecordAvailabilityDeletion(availability *Availability) error {
+	updateExpression := "SET deleted = deleted + :v, deleterCohorts.#dc = deleterCohorts.#dc + :v"
+	expressionAttributeNames := map[string]*string{
+		"#dc": aws.String(string(availability.OwnerCohort)),
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		UpdateExpression:         aws.String(updateExpression),
+		ExpressionAttributeNames: expressionAttributeNames,
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":v": {
+				N: aws.String("1"),
+			},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {
+				S: aws.String("STATISTICS"),
+			},
+			"id": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		TableName: aws.String(availabilityTable),
+	}
 
 	_, err := repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed to update availabliity statistics record", err)
