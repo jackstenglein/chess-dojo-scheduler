@@ -19,7 +19,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { TransitionProps } from '@mui/material/transitions';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react';
 
 import { useApi } from '../api/Api';
@@ -260,7 +260,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
                             Availabilities must be at least one hour long
                         </Typography>
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <TimePicker
+                            <DateTimePicker
                                 label='Start Time'
                                 value={start}
                                 onChange={(value) => {
@@ -278,7 +278,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
                                 )}
                             />
 
-                            <TimePicker
+                            <DateTimePicker
                                 label='End Time'
                                 value={end}
                                 onChange={(value) => setEnd(value)}
