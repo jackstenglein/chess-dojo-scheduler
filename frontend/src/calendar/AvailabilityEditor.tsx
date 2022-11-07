@@ -127,7 +127,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
         });
     };
 
-    let minEnd = null;
+    let minEnd: Date | null = null;
     if (start !== null) {
         minEnd = new Date();
         minEnd.setTime(start.getTime() + ONE_HOUR);
@@ -145,6 +145,8 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
             errors.end = 'This field is required';
         } else if (!isValidDate(end)) {
             errors.end = 'End time must be a valid time';
+        } else if (minEnd !== null && end < minEnd) {
+            errors.end = 'End time must be at least one hour after start time';
         }
 
         const selectedTypes: AvailabilityType[] = allTypes
@@ -290,7 +292,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
                                         helperText={errors.end}
                                     />
                                 )}
-                                minTime={minEnd}
+                                minDateTime={minEnd}
                             />
                         </LocalizationProvider>
                     </Stack>
