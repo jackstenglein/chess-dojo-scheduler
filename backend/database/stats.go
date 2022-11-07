@@ -120,3 +120,54 @@ func (repo *dynamoRepository) RecordAvailabilityDeletion(availability *Availabil
 	_, err := repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed to update availabliity statistics record", err)
 }
+
+// RecordMeetingCreation saves statistics on the created meeting.
+func (repo *dynamoRepository) RecordMeetingCreation(meeting *Meeting, ownerCohort, participantCohort DojoCohort) error {
+	updateExpression := "SET booked = booked + :v"
+	input := &dynamodb.UpdateItemInput{
+		UpdateExpression: aws.String(updateExpression),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":v": {
+				N: aws.String("1"),
+			},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {
+				S: aws.String("STATISTICS"),
+			},
+			"id": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		TableName: aws.String(availabilityTable),
+	}
+	if _, err := repo.svc.UpdateItem(input); err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to update availabliity statistics record", err)
+	}
+
+	updateExpression = "SET created = created + :v, #oc.#ockey = #oc.#ockey + :v, #pc.#pckey = #pc.#pckey + :v"
+	updateExpression += fmt.Sprintf(", types.%s = types.%s + :v", meeting.Type, meeting.Type)
+	input = &dynamodb.UpdateItemInput{
+		UpdateExpression: aws.String(updateExpression),
+		ExpressionAttributeNames: map[string]*string{
+			"#oc":    aws.String("ownerCohorts"),
+			"#ockey": aws.String(string(ownerCohort)),
+			"#pc":    aws.String("participantCohorts"),
+			"#pckey": aws.String(string(participantCohort)),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":v": {
+				N: aws.String("1"),
+			},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		TableName: aws.String(meetingTable),
+	}
+
+	_, err := repo.svc.UpdateItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed to update meeting statistics record", err)
+}

@@ -191,11 +191,13 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:UpdateItem
         Resource: !GetAtt MeetingsTable.Arn
       - Effect: Allow
         Action:
           - dynamodb:GetItem
           - dynamodb:PutItem
+          - dynamodb:UpdateItem
         Resource: !GetAtt AvailabilitiesTable.Arn
       - Effect: Allow
         Action:

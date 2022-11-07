@@ -101,6 +101,9 @@ type AvailabilityBooker interface {
 	// BookAvailablity converts the provided Availability into the provided Meeting object. The Availability
 	// object is deleted and the Meeting object is saved in its place.
 	BookAvailability(availability *Availability, request *Meeting) error
+
+	// RecordMeetingCreation saves statistics on the created meeting.
+	RecordMeetingCreation(meeting *Meeting, ownerCohort, participantCohort DojoCohort) error
 }
 
 type AvailabilityDeleter interface {

@@ -133,6 +133,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	if err := repository.RecordMeetingCreation(&meeting, availability.OwnerCohort, participant.DojoCohort); err != nil {
+		log.Error("Failed RecordMeetingCreation: ", err)
+	}
+
 	return api.Success(funcName, meeting), nil
 }
 
