@@ -1,5 +1,6 @@
 # Secret files
 oauth.yml
+discord.yml
 
 # Serverless directories
 .serverless

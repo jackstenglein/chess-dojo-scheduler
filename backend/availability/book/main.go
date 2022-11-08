@@ -12,6 +12,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 )
 
 var repository database.AvailabilityBooker = database.DynamoDB
@@ -135,6 +136,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if err := repository.RecordMeetingCreation(&meeting, availability.OwnerCohort, participant.DojoCohort); err != nil {
 		log.Error("Failed RecordMeetingCreation: ", err)
+	}
+
+	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it at https://www.chess-dojo-scheduler.com/meeting/%s", meeting.Id)
+	if err := discord.SendNotification(meeting.Owner, msg); err != nil {
+		log.Error("Failed to send Discord notification: ", err)
 	}
 
 	return api.Success(funcName, meeting), nil

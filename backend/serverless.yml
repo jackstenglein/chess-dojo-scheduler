@@ -30,6 +30,7 @@ provider:
   environment:
     stage: ${sls:stage}
     frontendHost: ${file(./config-${sls:stage}.yml):frontendHost}
+    discordAuth: ${file(./discord.yml):discordAuth}
   httpApi:
     cors: true
     authorizers:
