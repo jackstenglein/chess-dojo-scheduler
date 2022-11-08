@@ -369,7 +369,13 @@ func (repo *dynamoRepository) ScanAvailabilities(startKey string) ([]*Availabili
 
 	input := &dynamodb.ScanInput{
 		ExclusiveStartKey: exclusiveStartKey,
-		TableName:         aws.String(availabilityTable),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":statistics": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		FilterExpression: aws.String("id <> :statistics"),
+		TableName:        aws.String(availabilityTable),
 	}
 	result, err := repo.svc.Scan(input)
 	if err != nil {

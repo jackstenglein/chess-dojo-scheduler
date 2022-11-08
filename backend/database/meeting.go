@@ -296,7 +296,13 @@ func (repo *dynamoRepository) ScanMeetings(startKey string) ([]*Meeting, string,
 
 	input := &dynamodb.ScanInput{
 		ExclusiveStartKey: exclusiveStartKey,
-		TableName:         aws.String(meetingTable),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":statistics": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		FilterExpression: aws.String("id <> :statistics"),
+		TableName:        aws.String(meetingTable),
 	}
 	result, err := repo.svc.Scan(input)
 	if err != nil {
