@@ -9,6 +9,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 )
 
 var repository database.MeetingCanceler = database.DynamoDB
@@ -50,6 +51,14 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		log.Error("Failed GetUser: ", err)
 	} else if err := repository.RecordMeetingCancelation(user.DojoCohort); err != nil {
 		log.Error("Failed RecordMeetingCancelation: ", err)
+	}
+
+	var opponentUsername = meeting.Owner
+	if info.Username == meeting.Owner {
+		opponentUsername = meeting.Participant
+	}
+	if err := discord.SendCancellationNotification(opponentUsername, meeting.Id); err != nil {
+		log.Error("Failed SendCancellationNotification: ", err)
 	}
 
 	return api.Success(funcName, meeting), nil

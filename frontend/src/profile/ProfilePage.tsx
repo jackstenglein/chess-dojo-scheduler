@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+    Checkbox,
+    Container,
+    FormControlLabel,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 import { useAuth } from '../auth/Auth';
@@ -15,6 +23,11 @@ const ProfilePage = () => {
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [chesscomUsername, setChesscomUsername] = useState(user.chesscomUsername);
     const [lichessUsername, setLichessUsername] = useState(user.lichessUsername);
+    const [disableBookingNotifications, setDisableBookingNotifications] = useState(
+        user.disableBookingNotifications
+    );
+    const [disableCancellationNotifications, setDisableCancellationNotifications] =
+        useState(user.disableCancellationNotifications);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
@@ -45,6 +58,8 @@ const ProfilePage = () => {
             discordUsername,
             chesscomUsername,
             lichessUsername,
+            disableBookingNotifications,
+            disableCancellationNotifications,
         })
             .then(() => {
                 request.onSuccess('Profile updated');
@@ -59,7 +74,9 @@ const ProfilePage = () => {
         dojoCohort !== user.dojoCohort ||
         discordUsername !== user.discordUsername ||
         chesscomUsername !== user.chesscomUsername ||
-        lichessUsername !== user.lichessUsername;
+        lichessUsername !== user.lichessUsername ||
+        disableBookingNotifications !== user.disableBookingNotifications ||
+        disableCancellationNotifications !== user.disableCancellationNotifications;
 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
@@ -109,6 +126,35 @@ const ProfilePage = () => {
                     error={!!errors.lichessUsername}
                     helperText={errors.lichessUsername}
                 />
+
+                <Stack>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={!disableBookingNotifications}
+                                onChange={(event) =>
+                                    setDisableBookingNotifications(!event.target.checked)
+                                }
+                            />
+                        }
+                        label='Notify me via a Discord DM when my availability is booked'
+                        sx={{ mb: 1.5 }}
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={!disableCancellationNotifications}
+                                onChange={(event) =>
+                                    setDisableCancellationNotifications(
+                                        !event.target.checked
+                                    )
+                                }
+                            />
+                        }
+                        label='Notify me via a Discord DM when my meeting is cancelled'
+                    />
+                </Stack>
 
                 <LoadingButton
                     variant='contained'

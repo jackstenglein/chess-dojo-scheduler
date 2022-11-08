@@ -57,11 +57,12 @@ type User struct {
 	Name     string `dynamodbav:"name" json:"-"`
 
 	// Public attributes
-	DiscordUsername             string     `dynamodbav:"discordUsername" json:"discordUsername"`
-	ChesscomUsername            string     `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
-	LichessUsername             string     `dynamodbav:"lichessUsername" json:"lichessUsername"`
-	DojoCohort                  DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
-	DisableDiscordNotifications bool       `dynamodbav:"disableDiscordNotifications" json:"disableDiscordNotifications"`
+	DiscordUsername                  string     `dynamodbav:"discordUsername" json:"discordUsername"`
+	ChesscomUsername                 string     `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
+	LichessUsername                  string     `dynamodbav:"lichessUsername" json:"lichessUsername"`
+	DojoCohort                       DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
+	DisableBookingNotifications      bool       `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
+	DisableCancellationNotifications bool       `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
 
 	IsAdmin bool `dynamodbav:"isAdmin" json:"isAdmin"`
 }

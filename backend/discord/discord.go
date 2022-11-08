@@ -17,19 +17,40 @@ const guildId = "951958534113886238"
 
 var authToken = os.Getenv("discordAuth")
 
-// SendNotification sends a private message over Discord to the provided user.
-// The notification is not sent if the provided user has opted out of Discord
-// notifications.
-func SendNotification(username string, message string) error {
+// SendBookingNotification sends a notification of a newly booked meeting
+// to the provided user through Discord DM.
+func SendBookingNotification(username string, meetingId string) error {
 	user, err := repository.GetUser(username)
 	if err != nil {
 		return err
 	}
 
-	if user.DisableDiscordNotifications {
+	if user.DisableBookingNotifications {
 		return nil
 	}
 
+	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it at https://www.chess-dojo-scheduler.com/meeting/%s", meetingId)
+	return SendNotification(user, msg)
+}
+
+// SendCancellationNotification sends a notification of a cancelled meeting
+// to the provided user through Discord DM.
+func SendCancellationNotification(username string, meetingId string) error {
+	user, err := repository.GetUser(username)
+	if err != nil {
+		return err
+	}
+
+	if user.DisableCancellationNotifications {
+		return nil
+	}
+
+	msg := fmt.Sprintf("Hello, your opponent has cancelled your upcoming meeting. View it at https://www.chess-dojo-scheduler.com/meeting/%s", meetingId)
+	return SendNotification(user, msg)
+}
+
+// SendNotification sends the provided message over Discord DM to the provided user.
+func SendNotification(user *database.User, message string) error {
 	if user.DiscordUsername == "" {
 		return errors.New(400, "Cannot send discord notification to empty username", "")
 	}

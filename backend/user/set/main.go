@@ -35,6 +35,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	if user.Username != info.Username {
+		return api.Failure(funcName, errors.New(400, "Invalid request: username is immutable", "")), nil
+	}
+
 	if user.IsAdmin != originalIsAdmin {
 		return api.Failure(funcName, errors.New(400, "Invalid request: isAdmin is immutable", "")), nil
 	}

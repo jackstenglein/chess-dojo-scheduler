@@ -90,8 +90,6 @@ const MeetingPage = () => {
     const startDate = start.toLocaleDateString();
     const startTime = start.toLocaleTimeString();
 
-    const opponentIsOwner = meeting.owner === opponent.username;
-
     return (
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
             <Dialog open={isCanceling} onClose={() => setIsCanceling(false)}>
@@ -113,8 +111,7 @@ const MeetingPage = () => {
                 <DialogContent>
                     <DialogContentText>
                         Are you sure you want to cancel this meeting? You can't undo this
-                        action. If you continue, please message your opponent on discord
-                        and let them know you have canceled.
+                        action.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -125,14 +122,6 @@ const MeetingPage = () => {
             </Dialog>
 
             <Stack spacing={4}>
-                {opponentIsOwner && meeting.status !== MeetingStatus.Canceled && (
-                    <Alert severity='warning'>
-                        This website does not have notifications yet. Please message your
-                        opponent on discord and let them know you booked their meeting.
-                        Otherwise, they may not know they're supposed to play you.
-                    </Alert>
-                )}
-
                 {meeting.status === MeetingStatus.Canceled && (
                     <Alert severity='error'>This meeting has been canceled.</Alert>
                 )}

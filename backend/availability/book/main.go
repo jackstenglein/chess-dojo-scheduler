@@ -138,9 +138,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		log.Error("Failed RecordMeetingCreation: ", err)
 	}
 
-	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it at https://www.chess-dojo-scheduler.com/meeting/%s", meeting.Id)
-	if err := discord.SendNotification(meeting.Owner, msg); err != nil {
-		log.Error("Failed to send Discord notification: ", err)
+	if err := discord.SendBookingNotification(meeting.Owner, meeting.Id); err != nil {
+		log.Error("Failed SendBookingNotification: ", err)
 	}
 
 	return api.Success(funcName, meeting), nil

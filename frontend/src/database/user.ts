@@ -47,6 +47,8 @@ export class User {
         public chesscomUsername: string,
         public lichessUsername: string,
         public dojoCohort: string,
+        public disableBookingNotifications: boolean,
+        public disableCancellationNotifications: boolean,
 
         public isAdmin: boolean
     ) {}
@@ -59,6 +61,8 @@ export class User {
             apiResponse.chesscomUsername || '',
             apiResponse.lichessUsername || '',
             apiResponse.dojoCohort || '',
+            apiResponse.disableBookingNotifications || false,
+            apiResponse.disableCancellationNotifications || false,
             apiResponse.isAdmin || false
         );
     }
@@ -77,6 +81,8 @@ export class User {
             user.chesscomUsername || '',
             user.lichessUsername || '',
             user.dojoCohort || '',
+            user.disableBookingNotifications || false,
+            user.disableCancellationNotifications || false,
             user.isAdmin || false
         );
     }
@@ -101,6 +107,9 @@ export class User {
             update.chesscomUsername || this.chesscomUsername,
             update.lichessUsername || this.lichessUsername,
             update.dojoCohort || this.dojoCohort,
+            update.disableBookingNotifications ?? this.disableBookingNotifications,
+            update.disableCancellationNotifications ??
+                this.disableCancellationNotifications,
             update.isAdmin || this.isAdmin
         );
     }
