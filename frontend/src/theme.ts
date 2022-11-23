@@ -10,7 +10,7 @@ declare module '@mui/material/styles' {
 
 const theme = createTheme({
     zIndex: {
-        tooltip: 1300,
+        tooltip: 1299,
     },
 });
 
