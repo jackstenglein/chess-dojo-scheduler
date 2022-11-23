@@ -23,15 +23,12 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react';
 
 import { useApi } from '../api/Api';
-import {
-    Availability,
-    AvailabilityType,
-    getDisplayString,
-} from '../database/availability';
+import { AvailabilityType, getDisplayString } from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
 import React from 'react';
+import { useCache } from '../api/Cache';
 
 const ONE_HOUR = 60 * 60 * 1000;
 
@@ -50,13 +47,9 @@ const Transition = React.forwardRef(function Transition(
 
 interface AvailabilityEditorProps {
     scheduler: SchedulerHelpers;
-    onConfirm: (availability: Availability) => void;
 }
 
-const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
-    scheduler,
-    onConfirm,
-}) => {
+const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) => {
     const originalEvent = scheduler.edited;
     const defaultStart = scheduler.state.start.value as Date;
     const defaultEnd = scheduler.state.end.value as Date;
@@ -64,6 +57,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
     const api = useApi();
     const user = useAuth().user!;
 
+    const cache = useCache();
     const request = useRequest();
     const [start, setStart] = useState<Date | null>(defaultStart || null);
     const [end, setEnd] = useState<Date | null>(defaultEnd || null);
@@ -199,8 +193,8 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
                 availability,
             };
 
+            cache.putAvailability(availability);
             request.onSuccess();
-            onConfirm(availability);
             scheduler.onConfirm(event, originalEvent ? 'edit' : 'create');
             scheduler.close();
         } catch (err) {

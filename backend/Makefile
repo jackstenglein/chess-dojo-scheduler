@@ -21,6 +21,8 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/admin/meeting/list admin/meeting/list/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/admin/statistics/get admin/statistics/get/main.go
 
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/calendar/get calendar/get/main.go
+
 clean:
 	rm -rf ./bin ./vendor go.sum
 

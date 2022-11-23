@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
@@ -10,16 +9,12 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/meeting"
 )
 
 var repository database.MeetingLister = database.DynamoDB
 
 const funcName = "meeting-list-handler"
-
-type ListMeetingsResponse struct {
-	Meetings         []*database.Meeting `json:"meetings"`
-	LastEvaluatedKey string              `json:"lastEvaluatedKey,omitempty"`
-}
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
@@ -33,25 +28,12 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	startKey, _ := event.QueryStringParameters["startKey"]
 
-	var limit int = 100
-	var err error
-	if limitStr, ok := event.QueryStringParameters["limit"]; ok {
-		limit, err = strconv.Atoi(limitStr)
-		if err != nil {
-			err = errors.Wrap(400, "Invalid request: limit is not an integer", "Failed strconv.Atoi(limit)", err)
-			return api.Failure(funcName, err), nil
-		}
-	}
-
-	meetings, lastKey, err := repository.ListMeetings(info.Username, limit, startKey)
+	response, err := meeting.List(info.Username, startKey)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	return api.Success(funcName, &ListMeetingsResponse{
-		Meetings:         meetings,
-		LastEvaluatedKey: lastKey,
-	}), nil
+	return api.Success(funcName, response), nil
 }
 
 func main() {

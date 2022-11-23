@@ -18,6 +18,7 @@ import {
     getAvailabilitiesByTime,
     setAvailability,
 } from './availabilityApi';
+import { CalendarApiContextType, getCalendar } from './calendarApi';
 import {
     cancelMeeting,
     getMeeting,
@@ -32,7 +33,8 @@ import { UserApiContextType, getUser, updateUser } from './userApi';
 type ApiContextType = AdminApiContextType &
     UserApiContextType &
     AvailabilityApiContextType &
-    MeetingApiContextType;
+    MeetingApiContextType &
+    CalendarApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -82,6 +84,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             cancelMeeting: (id: string) => cancelMeeting(idToken, id),
             listMeetings: (limit?: number, startKey?: string) =>
                 listMeetings(idToken, limit, startKey),
+
+            getCalendar: (startTime: Date, startKey?: string) =>
+                getCalendar(idToken, startTime, startKey),
         };
     }, [idToken, auth.updateUser]);
 

@@ -75,7 +75,7 @@ type Availability struct {
 	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
 
 	// The status of the Availability.
-	Status SchedulingStatus `dynamodbav:"status" json:"-"`
+	Status SchedulingStatus `dynamodbav:"status" json:"status"`
 
 	// Contains either a zoom link, discord, discord classroom, etc.
 	Location string `dynamodbav:"location" json:"location"`
@@ -117,16 +117,16 @@ type AvailabilityDeleter interface {
 type AvailabilitySearcher interface {
 	UserGetter
 
-	// GetAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
-	// username and limit are required parameters. startKey is optional. The list of availabilities and
+	// ListAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
+	// username is required and startKey is optional. The list of availabilities and
 	// the next start key are returned.
-	GetAvailabilitiesByOwner(username string, limit int, startKey string) ([]*Availability, string, error)
+	ListAvailabilitiesByOwner(username, startKey string) ([]*Availability, string, error)
 
-	// GetAvailabilitiesByTime returns a list of Availabilities where the Availability endTime >= the startTime
-	// parameter. Availabilities owned by the calling username are filtered out of the result list. username,
-	// startTime and limit are required parameters. startKey is optional. The list of availabilities and
+	// ListAvailabilitiesByTime returns a list of Availabilities where the Availability endTime >= the startTime
+	// parameter. Availabilities owned by the calling username are filtered out of the result list. caller and
+	// startTime are required parameters. startKey is optional. The list of availabilities and
 	// the next start key are returned.
-	GetAvailabilitiesByTime(caller *User, startTime string, limit int, startKey string) ([]*Availability, string, error)
+	ListAvailabilitiesByTime(caller *User, startTime, startKey string) ([]*Availability, string, error)
 }
 
 type AdminAvailabilityLister interface {
@@ -222,10 +222,10 @@ func (repo *dynamoRepository) fetchAvailabilities(input *dynamodb.QueryInput, st
 	return availabilities, lastKey, nil
 }
 
-// GetAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
-// username and limit are required parameters. startKey is optional. The list of availabilities and
+// ListAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
+// username is required and startKey is optional. The list of availabilities and
 // the next start key are returned.
-func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit int, startKey string) ([]*Availability, string, error) {
+func (repo *dynamoRepository) ListAvailabilitiesByOwner(username, startKey string) ([]*Availability, string, error) {
 	input := &dynamodb.QueryInput{
 		ExpressionAttributeNames: map[string]*string{
 			"#owner":  aws.String("owner"),
@@ -241,18 +241,17 @@ func (repo *dynamoRepository) GetAvailabilitiesByOwner(username string, limit in
 		},
 		KeyConditionExpression: aws.String("#owner = :username"),
 		FilterExpression:       aws.String("#status = :scheduled"),
-		Limit:                  aws.Int64(int64(limit)),
 		TableName:              aws.String(availabilityTable),
 	}
 
 	return repo.fetchAvailabilities(input, startKey)
 }
 
-// GetAvailabilitiesByTime returns a list of Availabilities where the Availability endTime >= the startTime
-// parameter. Availabilities owned by the calling username are filtered out of the result list. username,
-// startTime and limit are required parameters. startKey is optional. The list of availabilities and
+// ListAvailabilitiesByTime returns a list of Availabilities where the Availability endTime >= the startTime
+// parameter. Availabilities owned by the calling username are filtered out of the result list. caller and
+// startTime are required parameters. startKey is optional. The list of availabilities and
 // the next start key are returned.
-func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime string, limit int, startKey string) ([]*Availability, string, error) {
+func (repo *dynamoRepository) ListAvailabilitiesByTime(user *User, startTime, startKey string) ([]*Availability, string, error) {
 	keyConditionExpression := "#status = :scheduled AND endTime >= :startTime"
 	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
 		":scheduled": {
@@ -278,7 +277,6 @@ func (repo *dynamoRepository) GetAvailabilitiesByTime(user *User, startTime stri
 		},
 		ExpressionAttributeValues: expressionAttributeValues,
 		FilterExpression:          aws.String("#owner <> :username AND contains(#cohorts, :callerCohort)"),
-		Limit:                     aws.Int64(int64(limit)),
 		IndexName:                 aws.String("EndSearchIndex"),
 		TableName:                 aws.String(availabilityTable),
 	}

@@ -52,9 +52,9 @@ type MeetingGetter interface {
 
 type MeetingLister interface {
 	// ListMeetings returns a list of Meetings matching the provided username.
-	// username and limit are required parameters. startKey is optional.
+	// username is required and startKey is optional.
 	// The list of meetings and the next start key are returned.
-	ListMeetings(username string, limit int, startKey string) ([]*Meeting, string, error)
+	ListMeetings(username, startKey string) ([]*Meeting, string, error)
 }
 
 type MeetingCanceler interface {
@@ -164,9 +164,9 @@ type listMeetingsStartKey struct {
 }
 
 // ListMeetings returns a list of Meetings matching the provided username.
-// username and limit are required parameters. startKey is optional.
+// username is required and startKey is optional.
 // The list of meetings and the next start key are returned.
-func (repo *dynamoRepository) ListMeetings(username string, limit int, startKey string) ([]*Meeting, string, error) {
+func (repo *dynamoRepository) ListMeetings(username, startKey string) ([]*Meeting, string, error) {
 
 	// We don't know if the calling user is the owner or participant in the meeting, so we have to query both indices
 	// and combine the results
@@ -193,7 +193,6 @@ func (repo *dynamoRepository) ListMeetings(username string, limit int, startKey 
 					S: aws.String(username),
 				},
 			},
-			Limit:     aws.Int64(int64(limit)),
 			IndexName: aws.String("OwnerIndex"),
 			TableName: aws.String(meetingTable),
 		}
@@ -217,7 +216,6 @@ func (repo *dynamoRepository) ListMeetings(username string, limit int, startKey 
 					S: aws.String(username),
 				},
 			},
-			Limit:     aws.Int64(int64(limit)),
 			IndexName: aws.String("ParticipantIndex"),
 			TableName: aws.String(meetingTable),
 		}

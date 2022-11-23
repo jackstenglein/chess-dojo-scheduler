@@ -3,7 +3,7 @@ import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/materi
 import { useNavigate } from 'react-router-dom';
 import { useMeetings } from '../api/Cache';
 import { AuthStatus, useAuth } from '../auth/Auth';
-import { Meeting } from '../database/meeting';
+import { Meeting, MeetingStatus } from '../database/meeting';
 
 const ONE_HOUR = 3600000;
 
@@ -14,9 +14,12 @@ const Navbar = () => {
 
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
     const { meetings } = useMeetings();
-    const meetingCount = meetings.filter(
-        (m: Meeting) => m.startTime >= filterTime
-    ).length;
+    const meetingCount = meetings.filter((m: Meeting) => {
+        if (m.owner !== auth.user?.username && m.participant !== auth.user?.username) {
+            return false;
+        }
+        return m.status !== MeetingStatus.Canceled && m.startTime >= filterTime;
+    }).length;
     const meetingText = meetingCount > 0 ? `Meetings (${meetingCount})` : `Meetings`;
 
     return (

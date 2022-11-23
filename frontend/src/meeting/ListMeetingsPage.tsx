@@ -2,6 +2,7 @@ import { Button, CircularProgress, Container, Stack, Typography } from '@mui/mat
 import { useNavigate } from 'react-router-dom';
 import { useMeetings } from '../api/Cache';
 import { RequestSnackbar } from '../api/Request';
+import { useAuth } from '../auth/Auth';
 
 import { Meeting } from '../database/meeting';
 import MeetingListItem from './MeetingListItem';
@@ -9,10 +10,16 @@ import MeetingListItem from './MeetingListItem';
 const ONE_HOUR = 3600000;
 
 const ListMeetingsPage = () => {
+    const user = useAuth().user!;
     const navigate = useNavigate();
 
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
-    const meetingFilter = (m: Meeting) => m.startTime >= filterTime;
+    const meetingFilter = (m: Meeting) => {
+        if (m.owner !== user.username && m.participant !== user.username) {
+            return false;
+        }
+        return m.startTime >= filterTime;
+    };
 
     const { meetings, request } = useMeetings();
     const requestLoading = request.isLoading() || !request.isSent();

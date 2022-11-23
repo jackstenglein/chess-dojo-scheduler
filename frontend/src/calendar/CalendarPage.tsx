@@ -1,75 +1,28 @@
-import { useEffect, useState } from 'react';
 import { Container, Grid } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
-import { Availability, getDisplayString } from '../database/availability';
+import { AvailabilityStatus, getDisplayString } from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { MeetingStatus } from '../database/meeting';
 import { CalendarFilters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
-import { useMeetings } from '../api/Cache';
+import { useCache, useCalendar } from '../api/Cache';
+import { useAuth } from '../auth/Auth';
 
 const ONE_HOUR = 3600000;
 
 export default function CalendarPage() {
+    const user = useAuth().user!;
     const api = useApi();
+    const cache = useCache();
 
-    const deleteRequest = useRequest();
-
-    const [ownedAvailabilities, setOwnedAvailabilties] = useState<Availability[]>([]);
-    const ownedAvailabilitiesRequest = useRequest<Availability[]>();
-    const otherAvailabilitiesRequest = useRequest<Availability[]>();
-    const { meetings, request: meetingsRequest } = useMeetings();
-
+    const { meetings, availabilities, request } = useCalendar();
     const filters = useFilters();
 
-    useEffect(() => {
-        if (!ownedAvailabilitiesRequest.isSent()) {
-            ownedAvailabilitiesRequest.onStart();
-            api.getAvailabilities()
-                .then((availabilities) => {
-                    setOwnedAvailabilties(availabilities);
-                    ownedAvailabilitiesRequest.onSuccess(availabilities);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    ownedAvailabilitiesRequest.onFailure(err);
-                });
-        }
-    }, [ownedAvailabilitiesRequest, api]);
-
-    useEffect(() => {
-        if (!otherAvailabilitiesRequest.isSent()) {
-            otherAvailabilitiesRequest.onStart();
-            const startIso = new Date().toISOString();
-            api.getAvailabilitiesByTime(startIso)
-                .then((availabilities) => {
-                    otherAvailabilitiesRequest.onSuccess(availabilities);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    otherAvailabilitiesRequest.onFailure(err);
-                });
-        }
-    }, [otherAvailabilitiesRequest, api]);
-
-    const onConfirm = (availability: Availability) => {
-        setOwnedAvailabilties((availabilities) => {
-            const index = availabilities.findIndex((a) => a.id === availability.id);
-            if (index >= 0) {
-                return [
-                    ...availabilities.slice(0, index),
-                    availability,
-                    ...availabilities.slice(index + 1),
-                ];
-            } else {
-                return availabilities.concat(availability);
-            }
-        });
-    };
+    const deleteRequest = useRequest();
 
     const deleteAvailability = async (id: string) => {
         try {
@@ -78,9 +31,8 @@ export default function CalendarPage() {
             // scheduler library
             await api.deleteAvailability(id);
             console.log(`Availability ${id} deleted`);
-            setOwnedAvailabilties((availabilities) =>
-                availabilities.filter((a) => a.id !== id)
-            );
+
+            cache.removeAvailability(id);
             deleteRequest.onSuccess('Availability deleted');
             return id;
         } catch (err) {
@@ -93,15 +45,21 @@ export default function CalendarPage() {
 
     if (filters.availabilities) {
         const ownedAvailabilityEvents: ProcessedEvent[] =
-            ownedAvailabilities.map((a) => ({
-                event_id: a.id,
-                title: 'Available',
-                start: new Date(a.startTime),
-                end: new Date(a.endTime),
-                availability: a,
-                draggable: false,
-                isOwner: true,
-            })) ?? [];
+            availabilities
+                .filter(
+                    (a) =>
+                        a.owner === user.username &&
+                        a.status === AvailabilityStatus.Scheduled
+                )
+                .map((a) => ({
+                    event_id: a.id,
+                    title: 'Available',
+                    start: new Date(a.startTime),
+                    end: new Date(a.endTime),
+                    availability: a,
+                    draggable: false,
+                    isOwner: true,
+                })) ?? [];
         events.push(...ownedAvailabilityEvents);
     }
 
@@ -118,13 +76,23 @@ export default function CalendarPage() {
                     editable: false,
                     deletable: false,
                     draggable: false,
+                    color:
+                        m.owner === user.username || m.participant === user.username
+                            ? undefined
+                            : '#66bb6a',
                 })) ?? [];
         events.push(...meetingEvents);
     }
 
     const otherAvailabilityEvents: ProcessedEvent[] =
-        otherAvailabilitiesRequest.data
-            ?.filter((a) => {
+        availabilities
+            .filter((a) => {
+                if (
+                    a.owner === user.username ||
+                    a.status !== AvailabilityStatus.Scheduled
+                ) {
+                    return false;
+                }
                 if (!filters.allTypes && a.types.every((t) => !filters.types[t])) {
                     return false;
                 }
@@ -150,9 +118,7 @@ export default function CalendarPage() {
 
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
-            <RequestSnackbar request={ownedAvailabilitiesRequest} />
-            <RequestSnackbar request={otherAvailabilitiesRequest} />
-            <RequestSnackbar request={meetingsRequest} />
+            <RequestSnackbar request={request} />
             <RequestSnackbar request={deleteRequest} showSuccess />
 
             <Grid container spacing={2}>
@@ -181,10 +147,7 @@ export default function CalendarPage() {
                             step: 60,
                         }}
                         customEditor={(scheduler) => (
-                            <AvailabilityEditor
-                                scheduler={scheduler}
-                                onConfirm={onConfirm}
-                            />
+                            <AvailabilityEditor scheduler={scheduler} />
                         )}
                         onDelete={deleteAvailability}
                         events={events}

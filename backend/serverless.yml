@@ -259,10 +259,6 @@ functions:
           - Fn::Join:
               - ''
               - - !GetAtt AvailabilitiesTable.Arn
-                - '/index/SearchIndex'
-          - Fn::Join:
-              - ''
-              - - !GetAtt AvailabilitiesTable.Arn
                 - '/index/EndSearchIndex'
           - !GetAtt AvailabilitiesTable.Arn
       - Effect: Allow
@@ -341,6 +337,47 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource:
+          - !GetAtt AvailabilitiesTable.Arn
+
+  ########## Calendar Endpoints ##############
+
+  getCalendar:
+    handler: bin/calendar/get
+    package:
+      patterns:
+        - ./bin/calendar/get
+    events:
+      - httpApi:
+          path: /calendar
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt MeetingsTable.Arn
+                - '/index/OwnerIndex'
+          - Fn::Join:
+              - ''
+              - - !GetAtt MeetingsTable.Arn
+                - '/index/ParticipantIndex'
+          - Fn::Join:
+              - ''
+              - - !GetAtt AvailabilitiesTable.Arn
+                - '/index/EndSearchIndex'
+          - !GetAtt AvailabilitiesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - !GetAtt MeetingsTable.Arn
           - !GetAtt AvailabilitiesTable.Arn
 
 resources:

@@ -9,6 +9,13 @@ export interface Availability {
     cohorts: string[];
     location: string;
     description: string;
+    status: AvailabilityStatus;
+}
+
+export enum AvailabilityStatus {
+    Scheduled = 'SCHEDULED',
+    Booked = 'BOOKED',
+    Canceled = 'CANCELED',
 }
 
 export enum AvailabilityType {

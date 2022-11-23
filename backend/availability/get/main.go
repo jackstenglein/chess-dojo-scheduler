@@ -2,41 +2,19 @@ package main
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/availability"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
 var repository database.AvailabilitySearcher = database.DynamoDB
 
 const funcName = "availability-get-handler"
-
-type GetAvailabilitiesResponse struct {
-	Availabilities   []*database.Availability `json:"availabilities"`
-	LastEvaluatedKey string                   `json:"lastEvaluatedKey,omitempty"`
-}
-
-// getSharedParameters returns the parameters that are shared between getByOwnerHandler
-// and getPublicHandler.
-func getSharedParameters(event api.Request) (limit int, startKey string, err error) {
-	limit = 100
-	limitStr, ok := event.QueryStringParameters["limit"]
-	if ok {
-		limit, err = strconv.Atoi(limitStr)
-		if err != nil {
-			err = errors.Wrap(400, "Invalid request: limit must be an int", "strconv.Atoi failure", err)
-			return
-		}
-	}
-
-	startKey, _ = event.QueryStringParameters["startKey"]
-	return
-}
 
 // getByOwnerHandler returns the Availabilities for which the caller is the owner.
 func getByOwnerHandler(info *api.UserInfo, event api.Request) api.Response {
@@ -45,20 +23,14 @@ func getByOwnerHandler(info *api.UserInfo, event api.Request) api.Response {
 		return api.Failure(funcName, err)
 	}
 
-	limit, startKey, err := getSharedParameters(event)
+	startKey, _ := event.QueryStringParameters["startKey"]
+
+	response, err := availability.ListByOwner(info.Username, startKey)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}
 
-	availabilities, lastKey, err := repository.GetAvailabilitiesByOwner(info.Username, limit, startKey)
-	if err != nil {
-		return api.Failure(funcName, err)
-	}
-
-	return api.Success(funcName, &GetAvailabilitiesResponse{
-		Availabilities:   availabilities,
-		LastEvaluatedKey: lastKey,
-	})
+	return api.Success(funcName, response)
 }
 
 // getByTimeHandler returns a list of all Availabilities matching the provided request.
@@ -79,20 +51,14 @@ func getByTimeHandler(info *api.UserInfo, event api.Request) api.Response {
 		return api.Failure(funcName, err)
 	}
 
-	limit, startKey, err := getSharedParameters(event)
+	startKey, _ := event.QueryStringParameters["startKey"]
+
+	response, err := availability.ListByTime(user, startTime, startKey)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}
 
-	availabilities, lastKey, err := repository.GetAvailabilitiesByTime(user, startTime, limit, startKey)
-	if err != nil {
-		return api.Failure(funcName, err)
-	}
-
-	return api.Success(funcName, &GetAvailabilitiesResponse{
-		Availabilities:   availabilities,
-		LastEvaluatedKey: lastKey,
-	})
+	return api.Success(funcName, response)
 }
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {

@@ -104,6 +104,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                 console.log('Book response: ', response);
                 request.onSuccess();
                 cache.putMeeting(response.data);
+                cache.removeAvailability(availability.id);
                 navigate(`/meeting/${response.data.id}`);
             })
             .catch((err) => {

@@ -82,7 +82,7 @@ interface ListMeetingsResponse {
  * @param idToken The id token of the current signed-in user.
  * @param limit The max amount of items to fetch per page.
  * @param startKey The first startKey to use when searching for meetings.
- * @returns
+ * @returns A list of the currently signed-in user's meetings.
  */
 export async function listMeetings(idToken: string, limit?: number, startKey?: string) {
     let params = { limit: limit || 100, startKey };

@@ -10,6 +10,7 @@ import {
 import { Meeting } from '../database/meeting';
 import { Request, useRequest } from '../api/Request';
 import { useApi } from './Api';
+import { Availability } from '../database/availability';
 
 /**
  * CacheContextType defines the type of the cache as available through CacheProvider
@@ -20,6 +21,11 @@ type CacheContextType = {
     filterMeetings: (filter: (meeting: Meeting) => boolean) => Meeting[];
     putMeeting: (meeting: Meeting) => void;
     putMeetings: (meetings: Meeting[]) => void;
+
+    getAvailabilities: () => Availability[];
+    putAvailability: (availability: Availability) => void;
+    putAvailabilities: (availabilities: Availability[]) => void;
+    removeAvailability: (id: string) => void;
 };
 
 const CacheContext = createContext<CacheContextType>(null!);
@@ -38,6 +44,9 @@ export function useCache() {
  */
 export function CacheProvider({ children }: { children: ReactNode }) {
     const [meetings, setMeetings] = useState<Record<string, Meeting>>({});
+    const [availabilities, setAvailabilities] = useState<Record<string, Availability>>(
+        {}
+    );
 
     const getMeeting = useCallback(
         (id: string) => {
@@ -82,12 +91,58 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         [setMeetings]
     );
 
+    const getAvailabilities = useCallback(
+        () => Object.values(availabilities),
+        [availabilities]
+    );
+
+    const putAvailability = useCallback(
+        (availability: Availability) => {
+            setAvailabilities((availabilities) => ({
+                ...availabilities,
+                [availability.id]: availability,
+            }));
+        },
+        [setAvailabilities]
+    );
+
+    const putAvailabilities = useCallback(
+        (a: Availability[]) => {
+            const newAvailabilityMap = a.reduce(
+                (map: Record<string, Availability>, availability: Availability) => {
+                    map[availability.id] = availability;
+                    return map;
+                },
+                {}
+            );
+            setAvailabilities((availabilities) => ({
+                ...availabilities,
+                ...newAvailabilityMap,
+            }));
+        },
+        [setAvailabilities]
+    );
+
+    const removeAvailability = useCallback(
+        (id: string) => {
+            setAvailabilities((availabilities) => {
+                const { [id]: removed, ...others } = availabilities;
+                return others;
+            });
+        },
+        [setAvailabilities]
+    );
+
     const value = {
         getMeeting,
         getMeetings,
         filterMeetings,
         putMeeting,
         putMeetings,
+        getAvailabilities,
+        putAvailability,
+        putAvailabilities,
+        removeAvailability,
     };
 
     return <CacheContext.Provider value={value}>{children}</CacheContext.Provider>;
@@ -124,6 +179,47 @@ export function useMeetings(): UseMeetingsResponse {
 
     return {
         meetings,
+        request,
+    };
+}
+
+interface UseCalendarResponse {
+    meetings: Meeting[];
+    availabilities: Availability[];
+    request: Request;
+}
+
+const TWO_DAYS = 24 * 60 * 60 * 1000 * 2;
+
+export function useCalendar(): UseCalendarResponse {
+    const api = useApi();
+    const cache = useCache();
+    const request = useRequest();
+
+    const meetings = cache.getMeetings();
+    const availabilities = cache.getAvailabilities();
+
+    useEffect(() => {
+        if (!request.isSent()) {
+            request.onStart();
+
+            const startTime = new Date(new Date().getTime() - TWO_DAYS);
+            api.getCalendar(startTime)
+                .then((result) => {
+                    request.onSuccess();
+                    cache.putMeetings(result.meetings);
+                    cache.putAvailabilities(result.availabilities);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    request.onFailure(err);
+                });
+        }
+    }, [request, api, cache]);
+
+    return {
+        meetings,
+        availabilities,
         request,
     };
 }
