@@ -133,6 +133,7 @@ export default function CalendarPage() {
                             weekStartOn: 0,
                             startHour: 0,
                             endHour: 23,
+                            navigation: true,
                         }}
                         week={{
                             weekDays: [0, 1, 2, 3, 4, 5, 6],
@@ -140,11 +141,13 @@ export default function CalendarPage() {
                             startHour: 0,
                             endHour: 23,
                             step: 60,
+                            navigation: true,
                         }}
                         day={{
                             startHour: 0,
                             endHour: 23,
                             step: 60,
+                            navigation: true,
                         }}
                         customEditor={(scheduler) => (
                             <AvailabilityEditor scheduler={scheduler} />
