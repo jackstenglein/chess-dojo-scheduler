@@ -75,10 +75,11 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
         }, {} as Record<AvailabilityType, boolean>)
     );
 
+    const userCohortIndex = dojoCohorts.findIndex((c) => c === user.dojoCohort);
     const [allCohorts, setAllCohorts] = useState(false);
     const [cohorts, setCohorts] = useState<Record<string, boolean>>(
-        dojoCohorts.reduce((map, cohort) => {
-            map[cohort] = cohort === user.dojoCohort;
+        dojoCohorts.reduce((map, cohort, index) => {
+            map[cohort] = userCohortIndex >= 0 && Math.abs(index - userCohortIndex) <= 1;
             return map;
         }, {} as Record<string, boolean>)
     );
