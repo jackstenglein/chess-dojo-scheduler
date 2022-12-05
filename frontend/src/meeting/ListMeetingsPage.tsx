@@ -1,10 +1,12 @@
 import { Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useMeetings } from '../api/Cache';
+import { useCalendar } from '../api/Cache';
 import { RequestSnackbar } from '../api/Request';
 import { useAuth } from '../auth/Auth';
+import { Availability } from '../database/availability';
 
 import { Meeting } from '../database/meeting';
+import GroupMeetingListItem from './GroupMeetingListItem';
 import MeetingListItem from './MeetingListItem';
 
 const ONE_HOUR = 3600000;
@@ -13,15 +15,34 @@ const ListMeetingsPage = () => {
     const user = useAuth().user!;
     const navigate = useNavigate();
 
+    const { meetings: allMeetings, availabilities, request } = useCalendar();
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
+
     const meetingFilter = (m: Meeting) => {
         if (m.owner !== user.username && m.participant !== user.username) {
             return false;
         }
         return m.startTime >= filterTime;
     };
+    const meetings: any[] = allMeetings.filter(meetingFilter);
 
-    const { meetings, request } = useMeetings();
+    const groupFilter = (a: Availability) => {
+        if (a.endTime < filterTime) {
+            return false;
+        }
+        if (a.owner === user.username && (a.participants?.length ?? 0) > 0) {
+            return true;
+        }
+        if (a.participants?.some((p) => p.username === user.username)) {
+            return true;
+        }
+        return false;
+    };
+    const groups = availabilities.filter(groupFilter);
+
+    const events: Array<Meeting | Availability> = meetings.concat(groups);
+    events.sort((lhs, rhs) => lhs.startTime.localeCompare(rhs.startTime));
+
     const requestLoading = request.isLoading() || !request.isSent();
 
     return (
@@ -31,9 +52,9 @@ const ListMeetingsPage = () => {
             <Stack spacing={2} alignItems='start'>
                 <Typography variant='h4'>Meetings</Typography>
 
-                {requestLoading && meetings.length === 0 && <CircularProgress />}
+                {requestLoading && events.length === 0 && <CircularProgress />}
 
-                {!requestLoading && meetings.length === 0 && (
+                {!requestLoading && events.length === 0 && (
                     <>
                         <Typography variant='body1'>
                             Looks like you don't have any meetings. Go to the calendar and
@@ -45,9 +66,18 @@ const ListMeetingsPage = () => {
                     </>
                 )}
 
-                {meetings.filter(meetingFilter).map((meeting) => (
-                    <MeetingListItem key={meeting.id} meeting={meeting} />
-                ))}
+                {events.map((e) => {
+                    if ((e as Availability).participants !== undefined) {
+                        return (
+                            <GroupMeetingListItem
+                                key={e.id}
+                                availability={e as Availability}
+                            />
+                        );
+                    }
+
+                    return <MeetingListItem key={e.id} meeting={e as Meeting} />;
+                })}
             </Stack>
         </Container>
     );

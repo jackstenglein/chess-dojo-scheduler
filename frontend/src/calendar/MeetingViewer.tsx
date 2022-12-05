@@ -10,12 +10,16 @@ interface MeetingViewerProps {
 const MeetingViewer: React.FC<MeetingViewerProps> = ({ event }) => {
     const navigate = useNavigate();
 
+    let path = '';
+    if (event.meeting) {
+        path = `/meeting/${event.meeting.id}`;
+    } else if (event.group) {
+        path = `/group/${event.group.id}`;
+    }
+
     return (
         <Stack sx={{ pt: 2 }}>
-            <Button
-                variant='contained'
-                onClick={() => navigate(`/meeting/${event.meeting.id}`)}
-            >
+            <Button variant='contained' onClick={() => navigate(path)}>
                 View Details
             </Button>
         </Stack>

@@ -13,7 +13,7 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({ event }) =>
         return <AvailabilityViewer event={event} />;
     }
 
-    if (event.meeting) {
+    if (event.meeting || event.group) {
         return <MeetingViewer event={event} />;
     }
 

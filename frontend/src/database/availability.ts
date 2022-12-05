@@ -10,6 +10,14 @@ export interface Availability {
     location: string;
     description: string;
     status: AvailabilityStatus;
+    maxParticipants: number;
+    participants: Participant[];
+}
+
+export interface Participant {
+    username: string;
+    discord: string;
+    cohort: string;
 }
 
 export enum AvailabilityStatus {
@@ -51,5 +59,26 @@ export function getDisplayString(type: AvailabilityType | null | undefined): str
             return 'Analyze Own Game';
         case AvailabilityType.BookStudy:
             return 'Book Study';
+    }
+}
+
+export function getDefaultNumberOfParticipants(type: AvailabilityType): number {
+    switch (type) {
+        case AvailabilityType.ClassicalGame:
+            return 1;
+        case AvailabilityType.OpeningSparring:
+            return 1;
+        case AvailabilityType.MiddlegameSparring:
+            return 1;
+        case AvailabilityType.EndgameSparring:
+            return 1;
+        case AvailabilityType.RookEndgameProgression:
+            return 1;
+        case AvailabilityType.ClassicAnalysis:
+            return 4;
+        case AvailabilityType.AnalyzeOwnGame:
+            return 4;
+        case AvailabilityType.BookStudy:
+            return 4;
     }
 }

@@ -92,6 +92,15 @@ func getUserCalendar(user *database.User, startTime, startKey string, startKeys 
 		lastKeys.MeetingKey = meetingResponse.LastEvaluatedKey
 	}
 
+	if startKey == "" || startKeys.ScanAvailabilityKey != "" {
+		groupAvailabilities, lastKey, err := repository.ListGroupAvailabilities(user, startTime, startKeys.ScanAvailabilityKey)
+		if err != nil {
+			return api.Failure(funcName, err), nil
+		}
+		availabilities = append(availabilities, groupAvailabilities...)
+		lastKeys.ScanAvailabilityKey = lastKey
+	}
+
 	if startKey == "" || startKeys.OwnedAvailabilityKey != "" {
 		ownedAvailabilityResponse, err := availability.ListByOwner(user.Username, startKeys.OwnedAvailabilityKey)
 		if err != nil {

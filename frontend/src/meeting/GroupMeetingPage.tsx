@@ -1,0 +1,111 @@
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    Container,
+    Stack,
+    Typography,
+} from '@mui/material';
+import { useParams } from 'react-router-dom';
+
+import { useCache } from '../api/Cache';
+import { getDisplayString } from '../database/availability';
+
+const GroupMeetingPage = () => {
+    const { availabilityId } = useParams();
+    const cache = useCache();
+
+    const availability = cache.getAvailability(availabilityId!);
+    if (!availability) {
+        return (
+            <Container sx={{ pt: 6, pb: 4 }}>
+                <Typography variant='subtitle2'>Meeting not found</Typography>
+            </Container>
+        );
+    }
+
+    const start = new Date(availability.startTime);
+    const startDate = start.toLocaleDateString();
+    const startTime = start.toLocaleTimeString();
+
+    const end = new Date(availability.endTime);
+    const endTime = end.toLocaleDateString();
+
+    return (
+        <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
+            <Stack spacing={4}>
+                <Card variant='outlined'>
+                    <CardHeader title='Meeting Details' />
+                    <CardContent>
+                        <Stack spacing={3}>
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Time
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {startDate} {startTime} - {endTime}
+                                </Typography>
+                            </Stack>
+
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Meeting Type(s)
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {availability.types
+                                        .map((t) => getDisplayString(t))
+                                        .join(', ')}
+                                </Typography>
+                            </Stack>
+
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Location
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {availability.location || 'Discord'}
+                                </Typography>
+                            </Stack>
+
+                            {availability.description && (
+                                <Stack>
+                                    <Typography
+                                        variant='subtitle2'
+                                        color='text.secondary'
+                                    >
+                                        Description
+                                    </Typography>
+                                    <Typography
+                                        variant='body1'
+                                        style={{ whiteSpace: 'pre-line' }}
+                                    >
+                                        {availability.description}
+                                    </Typography>
+                                </Stack>
+                            )}
+                        </Stack>
+                    </CardContent>
+                </Card>
+
+                <Card variant='outlined'>
+                    <CardHeader title='Participants' />
+                    <CardContent>
+                        <Stack spacing={2}>
+                            <Typography variant='body1'>
+                                {availability.ownerDiscord} ({availability.ownerCohort})
+                            </Typography>
+
+                            {availability.participants.map((p) => (
+                                <Typography variant='body1'>
+                                    {p.discord} ({p.cohort})
+                                </Typography>
+                            ))}
+                        </Stack>
+                    </CardContent>
+                </Card>
+            </Stack>
+        </Container>
+    );
+};
+
+export default GroupMeetingPage;

@@ -4,15 +4,157 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
-import { AvailabilityStatus, getDisplayString } from '../database/availability';
+import {
+    Availability,
+    AvailabilityStatus,
+    getDisplayString,
+} from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { MeetingStatus } from '../database/meeting';
-import { CalendarFilters, useFilters } from './CalendarFilters';
+import { Meeting } from '../database/meeting';
+import { CalendarFilters, Filters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
 import { useCache, useCalendar } from '../api/Cache';
 import { useAuth } from '../auth/Auth';
+import { User } from '../database/user';
 
 const ONE_HOUR = 3600000;
+
+function getEventFromAvailability(
+    user: User,
+    filters: Filters,
+    a: Availability
+): ProcessedEvent | null {
+    // This user's availabilities
+    if (a.owner === user.username) {
+        if (a.participants && a.participants.length > 0) {
+            if (filters.meetings) {
+                return {
+                    event_id: a.id,
+                    title: `Group Meeting (${a.participants.length}/${a.maxParticipants})`,
+                    start: new Date(a.startTime),
+                    end: new Date(a.endTime),
+                    group: a,
+                    draggable: false,
+                    isOwner: true,
+                    editable: a.participants.length < a.maxParticipants,
+                };
+            }
+            return null;
+        }
+
+        if (!filters.availabilities) {
+            return null;
+        }
+
+        if (a.status !== AvailabilityStatus.Scheduled) {
+            return null;
+        }
+
+        let title = 'Available - 1 on 1';
+        if (a.maxParticipants > 1) {
+            title = 'Available - Group';
+        }
+
+        return {
+            event_id: a.id,
+            title: title,
+            start: new Date(a.startTime),
+            end: new Date(a.endTime),
+            availability: a,
+            draggable: false,
+            isOwner: true,
+        };
+    }
+
+    // This users joined groups
+    if (a.participants?.some((p) => p.username === user.username)) {
+        if (!filters.meetings) {
+            return null;
+        }
+        return {
+            event_id: a.id,
+            title: `Group Meeting (${a.participants.length}/${a.maxParticipants})`,
+            start: new Date(a.startTime),
+            end: new Date(a.endTime),
+            group: a,
+            editable: false,
+            deletable: false,
+            draggable: false,
+            isOwner: false,
+        };
+    }
+
+    // Other users' bookable availabilities
+
+    if (!user.isAdmin && a.status !== AvailabilityStatus.Scheduled) {
+        return null;
+    }
+
+    if (!filters.allTypes && a.types.every((t) => !filters.types[t])) {
+        return null;
+    }
+
+    if (!filters.allCohorts && !filters.cohorts[a.ownerCohort]) {
+        return null;
+    }
+
+    return {
+        event_id: a.id,
+        title:
+            a.maxParticipants > 1
+                ? `Bookable - Group (${a.participants.length}/${a.maxParticipants})`
+                : `Bookable - ${a.ownerDiscord}`,
+        start: new Date(a.startTime),
+        end: new Date(a.endTime),
+        availability: a,
+        color: '#d32f2f',
+        editable: false,
+        deletable: false,
+        draggable: false,
+        isOwner: false,
+    };
+}
+
+function getEventFromMeeting(user: User, filters: Filters, m: Meeting): ProcessedEvent {
+    let color = undefined;
+    if (m.owner !== user.username && m.participant !== user.username) {
+        color = '#66bb6a';
+    }
+
+    return {
+        event_id: m.id,
+        title: getDisplayString(m.type),
+        start: new Date(m.startTime),
+        end: new Date(new Date(m.startTime).getTime() + ONE_HOUR),
+        meeting: m,
+        editable: false,
+        deletable: false,
+        draggable: false,
+        color: color,
+    };
+}
+
+function getEvents(
+    user: User,
+    filters: Filters,
+    meetings: Meeting[],
+    availabilities: Availability[]
+): ProcessedEvent[] {
+    const events: ProcessedEvent[] = [];
+
+    availabilities.forEach((a) => {
+        const event = getEventFromAvailability(user, filters, a);
+        if (event !== null) {
+            events.push(event);
+        }
+    });
+
+    if (filters.meetings) {
+        events.push(...meetings.map((m) => getEventFromMeeting(user, filters, m)));
+    }
+
+    return events;
+}
 
 export default function CalendarPage() {
     const user = useAuth().user!;
@@ -41,80 +183,7 @@ export default function CalendarPage() {
         }
     };
 
-    const events: ProcessedEvent[] = [];
-
-    if (filters.availabilities) {
-        const ownedAvailabilityEvents: ProcessedEvent[] =
-            availabilities
-                .filter(
-                    (a) =>
-                        a.owner === user.username &&
-                        a.status === AvailabilityStatus.Scheduled
-                )
-                .map((a) => ({
-                    event_id: a.id,
-                    title: 'Available',
-                    start: new Date(a.startTime),
-                    end: new Date(a.endTime),
-                    availability: a,
-                    draggable: false,
-                    isOwner: true,
-                })) ?? [];
-        events.push(...ownedAvailabilityEvents);
-    }
-
-    if (filters.meetings) {
-        const meetingEvents: ProcessedEvent[] =
-            meetings
-                ?.filter((m) => m.status !== MeetingStatus.Canceled)
-                .map((m) => ({
-                    event_id: m.id,
-                    title: getDisplayString(m.type),
-                    start: new Date(m.startTime),
-                    end: new Date(new Date(m.startTime).getTime() + ONE_HOUR),
-                    meeting: m,
-                    editable: false,
-                    deletable: false,
-                    draggable: false,
-                    color:
-                        m.owner === user.username || m.participant === user.username
-                            ? undefined
-                            : '#66bb6a',
-                })) ?? [];
-        events.push(...meetingEvents);
-    }
-
-    const otherAvailabilityEvents: ProcessedEvent[] =
-        availabilities
-            .filter((a) => {
-                if (
-                    a.owner === user.username ||
-                    a.status !== AvailabilityStatus.Scheduled
-                ) {
-                    return false;
-                }
-                if (!filters.allTypes && a.types.every((t) => !filters.types[t])) {
-                    return false;
-                }
-                if (!filters.allCohorts && !filters.cohorts[a.ownerCohort]) {
-                    return false;
-                }
-                return true;
-            })
-            .map((a) => ({
-                event_id: a.id,
-                title: `Bookable - ${a.ownerDiscord}`,
-                start: new Date(a.startTime),
-                end: new Date(a.endTime),
-                availability: a,
-                color: '#d32f2f',
-                editable: false,
-                deletable: false,
-                draggable: false,
-                isOwner: false,
-            })) ?? [];
-
-    events.push(...otherAvailabilityEvents);
+    const events = getEvents(user, filters, meetings, availabilities);
 
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>

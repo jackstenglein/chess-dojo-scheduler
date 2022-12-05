@@ -53,15 +53,15 @@ export type AvailabilityApiContextType = {
     /**
      * Books the provided availability at the provided start times.
      * @param availability The availability that the user wants to book.
-     * @param startTime The time the user wants the meeting to start.
-     * @param type The type of meeting the user wants to book.
+     * @param startTime The time the user wants the meeting to start. Required if the meeting is solo and optional otherwise.
+     * @param type The type of meeting the user wants to book. Required if the meeting is solo and optional otherwise.
      * @returns An AxiosResponse containing the created session.
      */
     bookAvailability: (
         availability: Availability,
-        startTime: Date,
-        type: string
-    ) => Promise<AxiosResponse<Meeting, any>>;
+        startTime?: Date,
+        type?: string
+    ) => Promise<AxiosResponse<Meeting | Availability, any>>;
 };
 
 /**
@@ -171,22 +171,22 @@ export async function getAvailabilitiesByTime(
  * Books the provided availability at the provided start time.
  * @param idToken The id token of the current signed-in user.
  * @param availability The availability that the user wants to book.
- * @param startTime The time the user wants the meeting to start.
- * @param type The type of meeting the user wants to book
+ * @param startTime The time the user wants the meeting to start. Required if the meeting is solo and optional otherwise.
+ * @param type The type of meeting the user wants to book. Required if the meeting is solo and optional otherwise.
  * @returns An AxiosResponse containing the created meeting.
  */
 export function bookAvailability(
     idToken: string,
     availability: Availability,
-    startTime: Date,
-    type: string
+    startTime?: Date,
+    type?: string
 ) {
-    return axios.put<Meeting>(
+    return axios.put<Meeting | Availability>(
         BASE_URL + '/availability/book',
         {
             owner: availability.owner,
             id: availability.id,
-            startTime: startTime.toISOString(),
+            startTime: startTime?.toISOString(),
             type: type,
         },
         {

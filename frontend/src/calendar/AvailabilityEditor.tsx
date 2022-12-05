@@ -23,7 +23,11 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react';
 
 import { useApi } from '../api/Api';
-import { AvailabilityType, getDisplayString } from '../database/availability';
+import {
+    AvailabilityType,
+    getDefaultNumberOfParticipants,
+    getDisplayString,
+} from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
@@ -75,6 +79,10 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
         }, {} as Record<AvailabilityType, boolean>)
     );
 
+    const [maxParticipants, setMaxParticipants] = useState(
+        originalEvent?.availability?.maxParticipants || ''
+    );
+
     const userCohortIndex = dojoCohorts.findIndex((c) => c === user.dojoCohort);
     const [allCohorts, setAllCohorts] = useState(false);
     const [cohorts, setCohorts] = useState<Record<string, boolean>>(
@@ -85,6 +93,20 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
     );
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    let defaultMaxParticipants = 1;
+    if (allTypes) {
+        defaultMaxParticipants = 4;
+    } else {
+        Object.entries(types).forEach(([type, enabled]) => {
+            if (enabled) {
+                defaultMaxParticipants = Math.max(
+                    defaultMaxParticipants,
+                    getDefaultNumberOfParticipants(type as AvailabilityType)
+                );
+            }
+        });
+    }
 
     useEffect(() => {
         const originalTypes: AvailabilityType[] = originalEvent?.availability?.types;
@@ -160,6 +182,14 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             errors.cohorts = 'At least one cohort is required';
         }
 
+        let participants = defaultMaxParticipants;
+        if (maxParticipants !== '') {
+            participants = parseInt(maxParticipants);
+            if (isNaN(participants)) {
+                errors.maxParticipants = 'You must specify a number';
+            }
+        }
+
         setErrors(errors);
         if (Object.entries(errors).length > 0) {
             return;
@@ -183,6 +213,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                 cohorts: selectedCohorts,
                 location,
                 description,
+                maxParticipants: participants,
             });
             console.log('Got setAvailability response: ', response);
             const availability = response.data;
@@ -372,6 +403,27 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                             </Stack>
                             <FormHelperText>{errors.types}</FormHelperText>
                         </FormControl>
+                    </Stack>
+
+                    <Stack>
+                        <Typography variant='h6'>Max Participants</Typography>
+                        <Typography
+                            variant='subtitle1'
+                            color='text.secondary'
+                            sx={{ mb: 1.5 }}
+                        >
+                            The number of people that can book your availability (not
+                            including yourself).
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            label='Max Participants'
+                            variant='outlined'
+                            value={maxParticipants}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                            onChange={(event) => setMaxParticipants(event.target.value)}
+                            helperText={`Defaults to ${defaultMaxParticipants} if left blank.`}
+                        />
                     </Stack>
 
                     <Stack>

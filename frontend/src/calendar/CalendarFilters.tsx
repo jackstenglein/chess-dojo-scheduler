@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { AvailabilityType, getDisplayString } from '../database/availability';
 import { dojoCohorts } from '../database/user';
 
-interface Filters {
+export interface Filters {
     availabilities: boolean;
     setAvailabilities: React.Dispatch<React.SetStateAction<boolean>>;
 

@@ -22,6 +22,7 @@ type CacheContextType = {
     putMeeting: (meeting: Meeting) => void;
     putMeetings: (meetings: Meeting[]) => void;
 
+    getAvailability: (id: string) => Availability | undefined;
     getAvailabilities: () => Availability[];
     putAvailability: (availability: Availability) => void;
     putAvailabilities: (availabilities: Availability[]) => void;
@@ -91,6 +92,13 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         [setMeetings]
     );
 
+    const getAvailability = useCallback(
+        (id: string) => {
+            return availabilities[id];
+        },
+        [availabilities]
+    );
+
     const getAvailabilities = useCallback(
         () => Object.values(availabilities),
         [availabilities]
@@ -139,6 +147,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         filterMeetings,
         putMeeting,
         putMeetings,
+        getAvailability,
         getAvailabilities,
         putAvailability,
         putAvailabilities,

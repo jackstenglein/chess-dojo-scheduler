@@ -18,6 +18,7 @@ import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import AdminPage from './admin/AdminPage';
 import theme from './theme';
 import { CacheProvider } from './api/Cache';
+import GroupMeetingPage from './meeting/GroupMeetingPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -72,6 +73,10 @@ function Router() {
                             <Route index element={<ListMeetingsPage />} />
                             <Route path=':meetingId' element={<MeetingPage />} />
                         </Route>
+                        <Route
+                            path='group/:availabilityId'
+                            element={<GroupMeetingPage />}
+                        />
                     </Route>
                 </Route>
                 {/* <Route path='*' element={<NotFoundPage />} /> */}

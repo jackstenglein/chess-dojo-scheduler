@@ -1,7 +1,7 @@
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 
 import { useNavigate } from 'react-router-dom';
-import { useMeetings } from '../api/Cache';
+import { useCalendar } from '../api/Cache';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { Meeting, MeetingStatus } from '../database/meeting';
 
@@ -13,14 +13,28 @@ const Navbar = () => {
     const isAdmin = auth.user?.isAdmin || false;
 
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
-    const { meetings } = useMeetings();
+    const { meetings, availabilities } = useCalendar();
+
     const meetingCount = meetings.filter((m: Meeting) => {
         if (m.owner !== auth.user?.username && m.participant !== auth.user?.username) {
             return false;
         }
         return m.status !== MeetingStatus.Canceled && m.startTime >= filterTime;
     }).length;
-    const meetingText = meetingCount > 0 ? `Meetings (${meetingCount})` : `Meetings`;
+
+    const groupCount = availabilities.filter((a) => {
+        if (a.owner === auth.user?.username && (a.participants?.length ?? 0) > 0) {
+            return true;
+        }
+        if (a.participants?.some((p) => p.username === auth.user?.username)) {
+            return true;
+        }
+
+        return false;
+    }).length;
+
+    const count = meetingCount + groupCount;
+    const meetingText = count > 0 ? `Meetings (${count})` : `Meetings`;
 
     return (
         <AppBar position='sticky' sx={{ zIndex: 1300 }}>

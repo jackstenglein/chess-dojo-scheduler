@@ -70,7 +70,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             setAvailability: (a: Availability) => setAvailability(idToken, a),
             deleteAvailability: (id: string) => deleteAvailability(idToken, id),
-            bookAvailability: (a: Availability, time: Date, type: string) =>
+            bookAvailability: (a: Availability, time?: Date, type?: string) =>
                 bookAvailability(idToken, a, time, type),
             getAvailabilities: (limit?: number, startKey?: string) =>
                 getAvailabilities(idToken, limit, startKey),

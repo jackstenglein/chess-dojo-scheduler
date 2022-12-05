@@ -69,6 +69,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	if availability.MaxParticipants < 1 {
+		err := errors.New(400, "Invalid request: maxParticipants must be at least one", "")
+		return api.Failure(funcName, err), nil
+	}
+
 	if !database.IsValidCohort(availability.OwnerCohort) {
 		err := errors.New(400, fmt.Sprintf("Invalid request: ownerCohort `%s` is invalid", availability.OwnerCohort), "")
 		return api.Failure(funcName, err), nil
@@ -106,6 +111,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		if err = repository.RecordAvailabilityCreation(&availability); err != nil {
 			log.Error("Failed RecordAvailabilityCreation: ", err)
 		}
+	}
+
+	if availability.Participants == nil {
+		availability.Participants = make([]*database.Participant, 0)
 	}
 
 	if strings.TrimSpace(availability.Location) == "" {

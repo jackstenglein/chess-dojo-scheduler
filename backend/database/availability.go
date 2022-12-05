@@ -2,6 +2,7 @@ package database
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -43,6 +44,17 @@ const (
 	Canceled  SchedulingStatus = "CANCELED"
 )
 
+type Participant struct {
+	// The Cognito username of the participant.
+	Username string `dynamodbav:"username" json:"username"`
+
+	// The Discord username of the participant.
+	Discord string `dynamodbav:"discord" json:"discord"`
+
+	// The Dojo cohort of the participant.
+	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
+}
+
 type Availability struct {
 	// The username of the creator of this availability.
 	Owner string `dynamodbav:"owner" json:"owner"`
@@ -82,6 +94,12 @@ type Availability struct {
 
 	// An optional description for sparring positions, etc.
 	Description string `dynamodbav:"description" json:"description"`
+
+	// The maximum number of people that can join the meeting.
+	MaxParticipants int `dynamodbav:"maxParticipants" json:"maxParticipants"`
+
+	// A list containing the participants in the availability
+	Participants []*Participant `dynamodbav:"participants" json:"participants"`
 }
 
 type AvailabilitySetter interface {
@@ -101,6 +119,10 @@ type AvailabilityBooker interface {
 	// BookAvailablity converts the provided Availability into the provided Meeting object. The Availability
 	// object is deleted and the Meeting object is saved in its place.
 	BookAvailability(availability *Availability, request *Meeting) error
+
+	// BookGroupAvailability adds the given user to the given group availability. The request only succeeds if the
+	// Availability is not fully booked.
+	BookGroupAvailability(availability *Availability, user *User) (*Availability, error)
 
 	// RecordMeetingCreation saves statistics on the created meeting.
 	RecordMeetingCreation(meeting *Meeting, ownerCohort, participantCohort DojoCohort) error
@@ -143,6 +165,12 @@ func (repo *dynamoRepository) SetAvailability(availability *Availability) error 
 	item, err := dynamodbattribute.MarshalMap(availability)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Unable to marshal availability", err)
+	}
+
+	// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
+	if len(availability.Participants) == 0 {
+		emptyList := make([]*dynamodb.AttributeValue, 0)
+		item["participants"] = &dynamodb.AttributeValue{L: emptyList}
 	}
 
 	input := &dynamodb.PutItemInput{
@@ -284,6 +312,71 @@ func (repo *dynamoRepository) ListAvailabilitiesByTime(user *User, startTime, st
 	return repo.fetchAvailabilities(input, startKey)
 }
 
+// ListGroupAvailabilities returns a list of Availabilities where the participants list contains the user.
+// user and startTime are required parameters. startKey is optional. The list of availabilities and the
+// next start key are returned.
+func (repo *dynamoRepository) ListGroupAvailabilities(user *User, startTime, startKey string) ([]*Availability, string, error) {
+	participant := &Participant{
+		Username: user.Username,
+		Discord:  user.DiscordUsername,
+		Cohort:   user.DojoCohort,
+	}
+	p, err := dynamodbattribute.MarshalMap(participant)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Unable to marshal participant", err)
+	}
+
+	input := &dynamodb.ScanInput{
+		ExpressionAttributeNames: map[string]*string{
+			"#p": aws.String("participants"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":statistics": {
+				S: aws.String("STATISTICS"),
+			},
+			":p": {
+				M: p,
+			},
+			":startTime": {
+				S: aws.String(startTime),
+			},
+		},
+		FilterExpression: aws.String("id <> :statistics AND attribute_exists(#p) AND contains(#p, :p) AND endTime >= :startTime"),
+		TableName:        aws.String(availabilityTable),
+	}
+
+	if startKey != "" {
+		var exclusiveStartKey map[string]*dynamodb.AttributeValue
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+		input.SetExclusiveStartKey(exclusiveStartKey)
+	}
+
+	result, err := repo.svc.Scan(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
+	}
+
+	var availabilities []*Availability
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &availabilities)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanAvailabilities result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanAvailabilities LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return availabilities, lastKey, nil
+}
+
 // DeleteAvailability deletes the given availability object. An error is returned if it does not exist.
 func (repo *dynamoRepository) DeleteAvailability(owner, id string) (*Availability, error) {
 	input := &dynamodb.DeleteItemInput{
@@ -351,6 +444,74 @@ func (repo *dynamoRepository) BookAvailability(availability *Availability, reque
 	// for the same availability object, so it is now safe to save the meeting.
 	err = repo.SetMeeting(request)
 	return err
+}
+
+// BookGroupAvailability adds the given user to the given group availability. The request only succeeds if the
+// Availability is not fully booked.
+func (repo *dynamoRepository) BookGroupAvailability(availability *Availability, user *User) (*Availability, error) {
+	participant := &Participant{
+		Username: user.Username,
+		Discord:  user.DiscordUsername,
+		Cohort:   user.DojoCohort,
+	}
+	p, err := dynamodbattribute.MarshalMap(participant)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal participant", err)
+	}
+
+	updateExpr := "SET #p = list_append(#p, :p)"
+	exprAttrNames := map[string]*string{
+		"#p": aws.String("participants"),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{
+		":p": {
+			L: []*dynamodb.AttributeValue{
+				{M: p},
+			},
+		},
+		":s": {
+			N: aws.String(strconv.Itoa(availability.MaxParticipants)),
+		},
+	}
+
+	if len(availability.Participants) == availability.MaxParticipants-1 {
+		updateExpr += ", #status = :booked"
+		exprAttrNames["#status"] = aws.String("status")
+		exprAttrValues[":booked"] = &dynamodb.AttributeValue{
+			S: aws.String(string(Booked)),
+		}
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression:       aws.String("attribute_exists(id) AND size(#p) < :s"),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {
+				S: aws.String(availability.Owner),
+			},
+			"id": {
+				S: aws.String(availability.Id),
+			},
+		},
+		UpdateExpression: aws.String(updateExpr),
+		ReturnValues:     aws.String("ALL_NEW"),
+		TableName:        aws.String(availabilityTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: availability no longer exists or was already fully booked", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+
+	a := Availability{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &a); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal BookGroupAvailability result", err)
+	}
+	return &a, nil
 }
 
 // ScanAvailabilities returns a list of all Availabilities in the database, up to 1MB of data.
