@@ -17,10 +17,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
     const availability: Availability = event.availability;
 
     const [isBooking, setIsBooking] = useState(false);
-
-    if (event.isOwner) {
-        return null!;
-    }
+    const isOwner = event.isOwner;
 
     const startBooking = () => {
         setIsBooking(true);
@@ -33,14 +30,16 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
     return (
         <>
             <Stack sx={{ pt: 2 }} spacing={2}>
-                <Stack>
-                    <Typography variant='subtitle2' color='text.secondary'>
-                        Owner
-                    </Typography>
-                    <Typography variant='body1'>
-                        {availability.ownerDiscord} ({availability.ownerCohort})
-                    </Typography>
-                </Stack>
+                {!isOwner && (
+                    <Stack>
+                        <Typography variant='subtitle2' color='text.secondary'>
+                            Owner
+                        </Typography>
+                        <Typography variant='body1'>
+                            {availability.ownerDiscord} ({availability.ownerCohort})
+                        </Typography>
+                    </Stack>
+                )}
 
                 {availability.maxParticipants > 1 && (
                     <Stack>
@@ -65,9 +64,11 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                     </Typography>
                 </Stack>
 
-                <Button variant='contained' onClick={startBooking}>
-                    Book
-                </Button>
+                {!isOwner && (
+                    <Button variant='contained' onClick={startBooking}>
+                        Book
+                    </Button>
+                )}
             </Stack>
 
             <AvailabilityBooker
