@@ -23,6 +23,9 @@ const Navbar = () => {
     }).length;
 
     const groupCount = availabilities.filter((a) => {
+        if (a.endTime <= filterTime) {
+            return false;
+        }
         if (a.owner === auth.user?.username && (a.participants?.length ?? 0) > 0) {
             return true;
         }
