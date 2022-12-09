@@ -33,6 +33,22 @@ func SendBookingNotification(username string, meetingId string) error {
 	return SendNotification(user, msg)
 }
 
+// SendGroupJoinNotification sends a notification of a new join to a
+// group meeting to the providied user through Discord DM.
+func SendGroupJoinNotification(username string, availabilityId string) error {
+	user, err := repository.GetUser(username)
+	if err != nil {
+		return err
+	}
+
+	if user.DisableBookingNotifications {
+		return nil
+	}
+
+	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it at https://www.chess-dojo-scheduler.com/group/%s", availabilityId)
+	return SendNotification(user, msg)
+}
+
 // SendCancellationNotification sends a notification of a cancelled meeting
 // to the provided user through Discord DM.
 func SendCancellationNotification(username string, meetingId string) error {

@@ -84,6 +84,10 @@ func handleGroupBooking(info *api.UserInfo, availability *database.Availability)
 		log.Error("Failed RecordGroupJoin: ", err)
 	}
 
+	if err := discord.SendGroupJoinNotification(availability.Owner, availability.Id); err != nil {
+		log.Error("Failed SendGroupJoinNotification: ", err)
+	}
+
 	return api.Success(funcName, a), nil
 }
 
