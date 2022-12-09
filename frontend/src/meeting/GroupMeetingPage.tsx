@@ -2,6 +2,7 @@ import {
     Card,
     CardContent,
     CardHeader,
+    CircularProgress,
     Container,
     Stack,
     Typography,
@@ -17,6 +18,14 @@ const GroupMeetingPage = () => {
 
     const availability = cache.getAvailability(availabilityId!);
     if (!availability) {
+        if (cache.isLoading) {
+            return (
+                <Container sx={{ pt: 6, pb: 4 }}>
+                    <CircularProgress />
+                </Container>
+            );
+        }
+
         return (
             <Container sx={{ pt: 6, pb: 4 }}>
                 <Typography variant='subtitle2'>Meeting not found</Typography>
@@ -96,7 +105,7 @@ const GroupMeetingPage = () => {
                             </Typography>
 
                             {availability.participants.map((p) => (
-                                <Typography variant='body1'>
+                                <Typography key={p.username} variant='body1'>
                                     {p.discord} ({p.cohort})
                                 </Typography>
                             ))}

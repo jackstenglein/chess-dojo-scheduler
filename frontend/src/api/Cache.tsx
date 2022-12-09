@@ -11,11 +11,15 @@ import { Meeting } from '../database/meeting';
 import { Request, useRequest } from '../api/Request';
 import { useApi } from './Api';
 import { Availability } from '../database/availability';
+import { AuthStatus, useAuth } from '../auth/Auth';
 
 /**
  * CacheContextType defines the type of the cache as available through CacheProvider
  */
 type CacheContextType = {
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+
     getMeeting: (id: string) => Meeting | undefined;
     getMeetings: () => Meeting[];
     filterMeetings: (filter: (meeting: Meeting) => boolean) => Meeting[];
@@ -44,6 +48,7 @@ export function useCache() {
  * @returns A CacheContext.Provider wrapping the provided children.
  */
 export function CacheProvider({ children }: { children: ReactNode }) {
+    const [isLoading, setIsLoading] = useState(false);
     const [meetings, setMeetings] = useState<Record<string, Meeting>>({});
     const [availabilities, setAvailabilities] = useState<Record<string, Availability>>(
         {}
@@ -142,6 +147,8 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     );
 
     const value = {
+        isLoading,
+        setIsLoading,
         getMeeting,
         getMeetings,
         filterMeetings,
@@ -201,6 +208,7 @@ interface UseCalendarResponse {
 const TWO_DAYS = 24 * 60 * 60 * 1000 * 2;
 
 export function useCalendar(): UseCalendarResponse {
+    const auth = useAuth();
     const api = useApi();
     const cache = useCache();
     const request = useRequest();
@@ -209,8 +217,9 @@ export function useCalendar(): UseCalendarResponse {
     const availabilities = cache.getAvailabilities();
 
     useEffect(() => {
-        if (!request.isSent()) {
+        if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
             request.onStart();
+            cache.setIsLoading(true);
 
             const startTime = new Date(new Date().getTime() - TWO_DAYS);
             api.getCalendar(startTime)
@@ -222,9 +231,12 @@ export function useCalendar(): UseCalendarResponse {
                 .catch((err) => {
                     console.error(err);
                     request.onFailure(err);
+                })
+                .finally(() => {
+                    cache.setIsLoading(false);
                 });
         }
-    }, [request, api, cache]);
+    }, [auth.status, request, api, cache]);
 
     return {
         meetings,
