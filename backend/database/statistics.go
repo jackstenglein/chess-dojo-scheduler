@@ -247,6 +247,32 @@ func (repo *dynamoRepository) RecordMeetingCancelation(cancelerCohort DojoCohort
 	return errors.Wrap(500, "Temporary server error", "Failed to update meeting statistics record", err)
 }
 
+// RecordGroupJoin saves statistics on a group meeting join.
+func (repo *dynamoRepository) RecordGroupJoin(cohort DojoCohort) error {
+	updateExpression := "SET groupCohorts.#c = groupCohorts.#c + :v"
+
+	input := &dynamodb.UpdateItemInput{
+		UpdateExpression: aws.String(updateExpression),
+		ExpressionAttributeNames: map[string]*string{
+			"#c": aws.String(string(cohort)),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":v": {
+				N: aws.String("1"),
+			},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		TableName: aws.String(meetingTable),
+	}
+
+	_, err := repo.svc.UpdateItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed to update meeting statistics record", err)
+}
+
 // GetMeetingStatistics gets the meeting statistics from the database.
 func (repo *dynamoRepository) GetMeetingStatistics() (*MeetingStatistics, error) {
 	input := &dynamodb.GetItemInput{

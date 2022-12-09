@@ -28,7 +28,7 @@ const MeetingStatisticsTable: React.FC<MeetingStatisticsTableProps> = ({ stats }
     return (
         <Stack>
             <Typography variant='h6' gutterBottom>
-                Meetings
+                1-on-1 Meetings
             </Typography>
             <Divider />
             <TableContainer>
@@ -48,7 +48,11 @@ const MeetingStatisticsTable: React.FC<MeetingStatisticsTableProps> = ({ stats }
                                     )}
                                 </IconButton>
                             </TableCell>
-                            <TableCell scope='row' align='left'>
+                            <TableCell
+                                scope='row'
+                                align='left'
+                                sx={{ borderBottom: 'unset' }}
+                            >
                                 Total Created
                             </TableCell>
                             <TableCell align='left' sx={{ borderBottom: 'unset' }}>
@@ -93,7 +97,11 @@ const MeetingStatisticsTable: React.FC<MeetingStatisticsTableProps> = ({ stats }
                                     )}
                                 </IconButton>
                             </TableCell>
-                            <TableCell scope='row' align='left'>
+                            <TableCell
+                                scope='row'
+                                align='left'
+                                sx={{ borderBottom: 'unset' }}
+                            >
                                 Total Canceled
                             </TableCell>
                             <TableCell align='left' sx={{ borderBottom: 'unset' }}>

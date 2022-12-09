@@ -6,6 +6,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { GetStatisticsResponse } from '../api/adminApi';
 import AvailabilityStatisticsTable from './AvailabilitiyStatisticsTable';
 import MeetingStatisticsTable from './MeetingStatisticsTable';
+import GroupStatisticsTable from './GroupStatisticsTable';
 
 const StatisticsTab = () => {
     const api = useApi();
@@ -45,6 +46,10 @@ const StatisticsTab = () => {
 
             <AvailabilityStatisticsTable stats={availabilityStats} />
             <MeetingStatisticsTable stats={meetingStats} />
+            <GroupStatisticsTable
+                availabilityStats={availabilityStats}
+                meetingStats={meetingStats}
+            />
         </Stack>
     );
 };

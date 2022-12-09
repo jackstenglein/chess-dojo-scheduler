@@ -14,23 +14,33 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import { useState } from 'react';
-import { AvailabilityStatistics } from '../database/statistics';
-import { ByCohortTable, ByTypeTable } from './StatisticsTable';
+import { AvailabilityStatistics, MeetingStatistics } from '../database/statistics';
+import { ByCohortTable } from './StatisticsTable';
 
-interface AvailabilityStatisticsTableProps {
-    stats: AvailabilityStatistics;
+interface GroupStatisticsTableProps {
+    availabilityStats: AvailabilityStatistics;
+    meetingStats: MeetingStatistics;
 }
 
-const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = ({
-    stats,
+const GroupStatisticsTable: React.FC<GroupStatisticsTableProps> = ({
+    availabilityStats,
+    meetingStats,
 }) => {
     const [createdOpen, setCreatedOpen] = useState(false);
-    const [deletedOpen, setDeletedOpen] = useState(false);
+    const [joinsOpen, setJoinsOpen] = useState(false);
+
+    const totalCreated = Object.values(availabilityStats.groupCohorts).reduce(
+        (sum, num) => sum + num
+    );
+
+    const totalJoins = Object.values(meetingStats.groupCohorts).reduce(
+        (sum, num) => sum + num
+    );
 
     return (
         <Stack>
             <Typography variant='h6' gutterBottom>
-                1-on-1 Availabilities
+                Groups
             </Typography>
             <Divider />
             <TableContainer>
@@ -58,7 +68,7 @@ const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = 
                                 Total Created
                             </TableCell>
                             <TableCell align='left' sx={{ borderBottom: 'unset' }}>
-                                {stats.created}
+                                {totalCreated}
                             </TableCell>
                         </TableRow>
 
@@ -71,12 +81,7 @@ const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = 
                                     <Stack spacing={3} sx={{ margin: 1 }}>
                                         <ByCohortTable
                                             title='By Owner Cohort'
-                                            data={stats.ownerCohorts}
-                                        />
-
-                                        <ByTypeTable
-                                            title='By Bookable Type'
-                                            data={stats.types}
+                                            data={availabilityStats.groupCohorts}
                                         />
                                     </Stack>
                                 </Collapse>
@@ -88,9 +93,9 @@ const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = 
                                 <IconButton
                                     aria-label='expand row'
                                     size='small'
-                                    onClick={() => setDeletedOpen(!deletedOpen)}
+                                    onClick={() => setJoinsOpen(!joinsOpen)}
                                 >
-                                    {deletedOpen ? (
+                                    {joinsOpen ? (
                                         <KeyboardArrowUpIcon />
                                     ) : (
                                         <KeyboardArrowDownIcon />
@@ -102,10 +107,10 @@ const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = 
                                 align='left'
                                 sx={{ borderBottom: 'unset' }}
                             >
-                                Total Deleted
+                                Total Joins
                             </TableCell>
                             <TableCell align='left' sx={{ borderBottom: 'unset' }}>
-                                {stats.deleted}
+                                {totalJoins}
                             </TableCell>
                         </TableRow>
 
@@ -114,23 +119,15 @@ const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = 
                                 style={{ paddingBottom: 0, paddingTop: 0 }}
                                 colSpan={3}
                             >
-                                <Collapse in={deletedOpen} timeout='auto' unmountOnExit>
+                                <Collapse in={joinsOpen} timeout='auto' unmountOnExit>
                                     <Stack spacing={3} sx={{ margin: 1 }}>
                                         <ByCohortTable
-                                            title='By Deleter Cohort'
-                                            data={stats.deleterCohorts}
+                                            title='By Joiner Cohort'
+                                            data={meetingStats.groupCohorts}
                                         />
                                     </Stack>
                                 </Collapse>
                             </TableCell>
-                        </TableRow>
-
-                        <TableRow>
-                            <TableCell />
-                            <TableCell scope='row' align='left'>
-                                Total Booked
-                            </TableCell>
-                            <TableCell align='left'>{stats.booked}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
@@ -139,4 +136,4 @@ const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = 
     );
 };
 
-export default AvailabilityStatisticsTable;
+export default GroupStatisticsTable;

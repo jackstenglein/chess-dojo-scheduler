@@ -126,6 +126,9 @@ type AvailabilityBooker interface {
 
 	// RecordMeetingCreation saves statistics on the created meeting.
 	RecordMeetingCreation(meeting *Meeting, ownerCohort, participantCohort DojoCohort) error
+
+	// RecordGroupJoin saves statistics on a group meeting join.
+	RecordGroupJoin(cohort DojoCohort) error
 }
 
 type AvailabilityDeleter interface {

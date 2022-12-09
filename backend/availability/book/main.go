@@ -80,6 +80,10 @@ func handleGroupBooking(info *api.UserInfo, availability *database.Availability)
 		return api.Failure(funcName, err), nil
 	}
 
+	if err := repository.RecordGroupJoin(participant.DojoCohort); err != nil {
+		log.Error("Failed RecordGroupJoin: ", err)
+	}
+
 	return api.Success(funcName, a), nil
 }
 

@@ -23,7 +23,7 @@ interface ByCohortTableProps {
 }
 
 export const ByCohortTable: React.FC<ByCohortTableProps> = ({ title, data }) => {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
 
     return (
         <Box>
@@ -62,7 +62,7 @@ interface ByTypeTableProps {
 }
 
 export const ByTypeTable: React.FC<ByTypeTableProps> = ({ title, data }) => {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
 
     return (
         <Box>
