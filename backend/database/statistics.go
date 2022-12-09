@@ -28,6 +28,9 @@ type AvailabilityStatistics struct {
 	// The number of availabilities that are bookable by the given cohort.
 	BookableCohorts map[string]int `dynamodbav:"bookableCohorts" json:"bookableCohorts"`
 
+	// The number of group availabilities created by owner cohort.
+	GroupCohorts map[string]int `dynamodbav:"groupCohorts" json:"groupCohorts"`
+
 	// The number of availabilities created that offer the given type
 	Types map[AvailabilityType]int `dynamodbav:"types" json:"types"`
 }
@@ -48,6 +51,9 @@ type MeetingStatistics struct {
 	// The number of meetings that have been canceled by canceler cohort.
 	CancelerCohorts map[string]int `dynamodbav:"cancelerCohorts" json:"cancelerCohorts"`
 
+	// The number of people that have joined a group created by joiner cohort.
+	GroupCohorts map[string]int `dynamodbav:"groupCohorts" json:"groupCohorts"`
+
 	// The number of meetings that have been created by type.
 	Types map[AvailabilityType]int `dynamodbav:"types" json:"types"`
 }
@@ -67,6 +73,10 @@ func (repo *dynamoRepository) RecordAvailabilityCreation(availability *Availabil
 	updateExpression := "SET created = created + :v, ownerCohorts.#oc = ownerCohorts.#oc + :v"
 	expressionAttributeNames := map[string]*string{
 		"#oc": aws.String(string(availability.OwnerCohort)),
+	}
+
+	if availability.MaxParticipants > 1 {
+		updateExpression += ", groupCohorts.#oc = groupCohorts.#oc + :v"
 	}
 
 	for i, c := range availability.Cohorts {

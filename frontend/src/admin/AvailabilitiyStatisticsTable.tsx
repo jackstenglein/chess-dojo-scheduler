@@ -25,7 +25,10 @@ const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = 
     stats,
 }) => {
     const [createdOpen, setCreatedOpen] = useState(false);
+    const [groupsOpen, setGroupsOpen] = useState(false);
     const [deletedOpen, setDeletedOpen] = useState(false);
+
+    const totalGroups = Object.values(stats.groupCohorts).reduce((sum, num) => sum + num);
 
     return (
         <Stack>
@@ -73,6 +76,44 @@ const AvailabilityStatisticsTable: React.FC<AvailabilityStatisticsTableProps> = 
                                         <ByTypeTable
                                             title='By Bookable Type'
                                             data={stats.types}
+                                        />
+                                    </Stack>
+                                </Collapse>
+                            </TableCell>
+                        </TableRow>
+
+                        <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+                            <TableCell sx={{ width: '16px', borderBottom: 'unset' }}>
+                                <IconButton
+                                    aria-label='expand row'
+                                    size='small'
+                                    onClick={() => setGroupsOpen(!groupsOpen)}
+                                >
+                                    {groupsOpen ? (
+                                        <KeyboardArrowUpIcon />
+                                    ) : (
+                                        <KeyboardArrowDownIcon />
+                                    )}
+                                </IconButton>
+                            </TableCell>
+                            <TableCell scope='row' align='left'>
+                                Total Groups Created
+                            </TableCell>
+                            <TableCell align='left' sx={{ borderBottom: 'unset' }}>
+                                {totalGroups}
+                            </TableCell>
+                        </TableRow>
+
+                        <TableRow>
+                            <TableCell
+                                style={{ paddingBottom: 0, paddingTop: 0 }}
+                                colSpan={3}
+                            >
+                                <Collapse in={groupsOpen} timeout='auto' unmountOnExit>
+                                    <Stack spacing={3} sx={{ margin: 1 }}>
+                                        <ByCohortTable
+                                            title='By Owner Cohort'
+                                            data={stats.groupCohorts}
                                         />
                                     </Stack>
                                 </Collapse>

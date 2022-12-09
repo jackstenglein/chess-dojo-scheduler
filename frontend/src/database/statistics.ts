@@ -7,6 +7,7 @@ export interface AvailabilityStatistics {
     ownerCohorts: Record<string, number>;
     deleterCohorts: Record<string, number>;
     bookableCohorts: Record<string, number>;
+    groupCohorts: Record<string, number>;
     types: Record<AvailabilityType, number>;
 }
 
@@ -16,5 +17,6 @@ export interface MeetingStatistics {
     ownerCohorts: Record<string, number>;
     participantCohorts: Record<string, number>;
     cancelerCohorts: Record<string, number>;
+    groupCohorts: Record<string, number>;
     types: Record<AvailabilityType, number>;
 }
