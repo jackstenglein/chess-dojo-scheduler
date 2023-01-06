@@ -217,17 +217,9 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             });
             console.log('Got setAvailability response: ', response);
             const availability = response.data;
-            const event = {
-                event_id: availability.id,
-                title: 'Available',
-                start: start!,
-                end: end!,
-                availability,
-            };
 
             cache.putAvailability(availability);
             request.onSuccess();
-            scheduler.onConfirm(event, originalEvent ? 'edit' : 'create');
             scheduler.close();
         } catch (err) {
             console.error(err);

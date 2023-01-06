@@ -1,3 +1,4 @@
+import { useCallback, useState, useEffect } from 'react';
 import { Container, Grid } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
@@ -61,7 +62,7 @@ function getEventFromAvailability(
             start: new Date(a.startTime),
             end: new Date(a.endTime),
             availability: a,
-            draggable: false,
+            draggable: true,
             isOwner: true,
         };
     }
@@ -164,24 +165,90 @@ export default function CalendarPage() {
     const { meetings, availabilities, request } = useCalendar();
     const filters = useFilters();
 
+    const [shiftHeld, setShiftHeld] = useState(false);
+    const copyAvailabilityRequest = useRequest();
+
     const deleteRequest = useRequest();
 
-    const deleteAvailability = async (id: string) => {
-        try {
-            console.log('Deleting availability with id: ', id);
-            // Don't use deleteRequest.onStart as it messes up the
-            // scheduler library
-            await api.deleteAvailability(id);
-            console.log(`Availability ${id} deleted`);
+    const downHandler = useCallback(
+        ({ key }: { key: string }) => {
+            if (key === 'Shift') {
+                setShiftHeld(true);
+            }
+        },
+        [setShiftHeld]
+    );
 
-            cache.removeAvailability(id);
-            deleteRequest.onSuccess('Availability deleted');
-            return id;
-        } catch (err) {
-            console.error(err);
-            deleteRequest.onFailure(err);
-        }
-    };
+    const upHandler = useCallback(
+        ({ key }: { key: string }) => {
+            if (key === 'Shift') {
+                setShiftHeld(false);
+            }
+        },
+        [setShiftHeld]
+    );
+
+    useEffect(() => {
+        window.addEventListener('keydown', downHandler);
+        window.addEventListener('keyup', upHandler);
+        return () => {
+            window.removeEventListener('keydown', downHandler);
+            window.removeEventListener('keyup', upHandler);
+        };
+    }, [downHandler, upHandler]);
+
+    const deleteAvailability = useCallback(
+        async (id: string) => {
+            try {
+                console.log('Deleting availability with id: ', id);
+                // Don't use deleteRequest.onStart as it messes up the
+                // scheduler library
+                await api.deleteAvailability(id);
+                console.log(`Availability ${id} deleted`);
+
+                cache.removeAvailability(id);
+                deleteRequest.onSuccess('Availability deleted');
+                return id;
+            } catch (err) {
+                console.error(err);
+                deleteRequest.onFailure(err);
+            }
+        },
+        [api, cache, deleteRequest]
+    );
+
+    const copyAvailability = useCallback(
+        async (
+            startDate: Date,
+            newEvent: ProcessedEvent,
+            originalEvent: ProcessedEvent
+        ) => {
+            try {
+                const startIso = newEvent.start.toISOString();
+                const endIso = newEvent.end.toISOString();
+
+                copyAvailabilityRequest.onStart();
+
+                // If shift is held, then set the id to undefinded in order to
+                // create a new availability
+                const id = shiftHeld ? undefined : originalEvent.availability?.id;
+                const response = await api.setAvailability({
+                    ...(originalEvent.availability ?? {}),
+                    startTime: startIso,
+                    endTime: endIso,
+                    id,
+                });
+                console.log('Got setAvailability response: ', response);
+                const availability = response.data;
+
+                cache.putAvailability(availability);
+                copyAvailabilityRequest.onSuccess();
+            } catch (err) {
+                copyAvailabilityRequest.onFailure(err);
+            }
+        },
+        [copyAvailabilityRequest, api, cache, shiftHeld]
+    );
 
     const events = getEvents(user, filters, meetings, availabilities);
 
@@ -189,6 +256,7 @@ export default function CalendarPage() {
         <Container sx={{ py: 3 }} maxWidth='xl'>
             <RequestSnackbar request={request} />
             <RequestSnackbar request={deleteRequest} showSuccess />
+            <RequestSnackbar request={copyAvailabilityRequest} />
 
             <Grid container spacing={2}>
                 <Grid item xs={2.5}>
@@ -222,6 +290,7 @@ export default function CalendarPage() {
                             <AvailabilityEditor scheduler={scheduler} />
                         )}
                         onDelete={deleteAvailability}
+                        onEventDrop={copyAvailability}
                         events={events}
                         viewerExtraComponent={(fields, event) => (
                             <ProcessedEventViewer event={event} />
