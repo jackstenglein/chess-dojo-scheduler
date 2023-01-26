@@ -7,6 +7,7 @@
         "@aws-amplify/auth": "^4.6.13",
         "@emotion/react": "^11.10.5",
         "@emotion/styled": "^11.10.5",
+        "@mliebelt/pgn-viewer": "^1.6.3",
         "@mui/icons-material": "^5.10.9",
         "@mui/lab": "^5.0.0-alpha.105",
         "@mui/material": "^5.10.11",
