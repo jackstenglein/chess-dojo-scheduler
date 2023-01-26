@@ -121,7 +121,7 @@ def handle_game(game) -> bool:
     table.put_item(
         Item={
             'cohort': cohort,
-            'id': date + '#' + str(uuid.uuid4()),
+            'id': date + '_' + str(uuid.uuid4()),
             'white': white,
             'black': black,
             'date': date,

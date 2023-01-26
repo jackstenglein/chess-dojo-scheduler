@@ -20,3 +20,4 @@ var DynamoDB = &dynamoRepository{
 var userTable = os.Getenv("stage") + "-users"
 var availabilityTable = os.Getenv("stage") + "-availabilities"
 var meetingTable = os.Getenv("stage") + "-meetings"
+var gameTable = os.Getenv("stage") + "-games"

@@ -380,6 +380,25 @@ functions:
           - !GetAtt MeetingsTable.Arn
           - !GetAtt AvailabilitiesTable.Arn
 
+  ########## Game Endpoints ##############
+
+  getGame:
+    handler: bin/game/get
+    package:
+      patterns:
+        - ./bin/game/get
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt GamesTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############
