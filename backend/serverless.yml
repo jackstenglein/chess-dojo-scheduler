@@ -548,3 +548,21 @@ resources:
         TimeToLiveSpecification:
           AttributeName: expirationTime
           Enabled: true
+
+    GamesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-games
+        AttributeDefinitions:
+          - AttributeName: cohort
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: cohort
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
