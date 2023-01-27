@@ -6,13 +6,13 @@ export enum GameResult {
 
 export interface PgnHeaders {
     White: string;
-    WhiteElo: string;
+    WhiteElo?: string;
     Black: string;
-    BlackElo: string;
+    BlackElo?: string;
     Date: string;
     Site: string;
     Result: GameResult;
-    [key: string]: string;
+    [key: string]: string | undefined;
 }
 
 export interface GameInfo {

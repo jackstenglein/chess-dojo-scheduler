@@ -26,6 +26,9 @@ type Game struct {
 	// The username of the owner of this game
 	Owner string `dynamodbav:"owner" json:"owner"`
 
+	// The PGN headers of the game
+	Headers map[string]string `dynamodbav:"headers" json:"headers"`
+
 	// The PGN text of the game
 	Pgn string `dynamodbav:"pgn" json:"pgn"`
 }

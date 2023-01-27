@@ -36,7 +36,7 @@ const GamePage = () => {
                 </Stack>
             )}
 
-            {request.data?.pgn && <PgnViewer pgn={request.data.pgn} />}
+            {request.data?.pgn && <PgnViewer game={request.data} />}
         </Container>
     );
 };

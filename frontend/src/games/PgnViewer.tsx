@@ -3,35 +3,20 @@ import { pgnView } from '@mliebelt/pgn-viewer';
 import { Grid, Link, Stack, Typography } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
-function getPgnData(pgn: string, key: string): string | undefined {
-    const query = `[${key} "`;
-    const index = pgn.indexOf(query);
-    if (index >= 0) {
-        const endIndex = pgn.indexOf(`"]`, index);
-        let result = pgn.substring(index + query.length, endIndex);
-        return result;
-    }
-}
+import { Game, PgnHeaders } from '../database/game';
 
 interface GameDataProps {
-    pgn: string;
+    headers: PgnHeaders;
 }
 
-const GameData: React.FC<GameDataProps> = ({ pgn }) => {
-    const whiteName = useMemo(() => getPgnData(pgn, 'White'), [pgn]);
-    const whiteElo = useMemo(() => getPgnData(pgn, 'WhiteElo'), [pgn]);
-    const blackName = useMemo(() => getPgnData(pgn, 'Black'), [pgn]);
-    const blackElo = useMemo(() => getPgnData(pgn, 'BlackElo'), [pgn]);
-    const result = useMemo(() => getPgnData(pgn, 'Result'), [pgn]);
-    const date = useMemo(() => getPgnData(pgn, 'Date'), [pgn]);
-
+const GameData: React.FC<GameDataProps> = ({ headers }) => {
     const lichessUrl = useMemo(() => {
-        const site = getPgnData(pgn, 'Site');
+        const site = headers.Site;
         if (site?.startsWith('https://lichess.org/') && !site?.endsWith('.org/')) {
             return site;
         }
         return undefined;
-    }, [pgn]);
+    }, [headers.Site]);
 
     return (
         <Grid container alignItems='center' sx={{ pt: 2 }}>
@@ -42,7 +27,7 @@ const GameData: React.FC<GameDataProps> = ({ pgn }) => {
             </Grid>
             <Grid item xs={10}>
                 <Typography variant='subtitle1'>
-                    {whiteName} ({whiteElo})
+                    {headers.White} ({headers.WhiteElo ?? '?'})
                 </Typography>
             </Grid>
 
@@ -53,7 +38,7 @@ const GameData: React.FC<GameDataProps> = ({ pgn }) => {
             </Grid>
             <Grid item xs={10}>
                 <Typography variant='subtitle1'>
-                    {blackName} ({blackElo})
+                    {headers.Black} ({headers.BlackElo ?? '?'})
                 </Typography>
             </Grid>
 
@@ -63,7 +48,7 @@ const GameData: React.FC<GameDataProps> = ({ pgn }) => {
                 </Typography>
             </Grid>
             <Grid item xs={10}>
-                <Typography variant='subtitle1'>{result}</Typography>
+                <Typography variant='subtitle1'>{headers.Result}</Typography>
             </Grid>
 
             <Grid item xs={2}>
@@ -72,7 +57,30 @@ const GameData: React.FC<GameDataProps> = ({ pgn }) => {
                 </Typography>
             </Grid>
             <Grid item xs={10}>
-                <Typography variant='subtitle1'>{date}</Typography>
+                <Typography variant='subtitle1'>{headers.Date}</Typography>
+            </Grid>
+
+            <Grid item xs={2}>
+                <Typography variant='subtitle2' color='text.secondary'>
+                    Site
+                </Typography>
+            </Grid>
+            <Grid item xs={10}>
+                <Stack direction='row'>
+                    <Typography variant='subtitle1'>{headers.Site}</Typography>
+                    {lichessUrl && (
+                        <Link href={lichessUrl} target='_blank' rel='noreferrer'>
+                            <OpenInNewIcon
+                                sx={{
+                                    fontSize: '1rem',
+                                    position: 'relative',
+                                    top: 2,
+                                    left: 4,
+                                }}
+                            />
+                        </Link>
+                    )}
+                </Stack>
             </Grid>
 
             {lichessUrl && (
@@ -95,27 +103,27 @@ const GameData: React.FC<GameDataProps> = ({ pgn }) => {
 };
 
 interface PgnViewerProps {
-    pgn: string;
+    game: Game;
 }
 
-const PgnViewer: React.FC<PgnViewerProps> = ({ pgn }) => {
+const PgnViewer: React.FC<PgnViewerProps> = ({ game }) => {
     const id = 'board';
 
     useLayoutEffect(() => {
         pgnView(id, {
-            pgn: pgn,
+            pgn: game.pgn,
             pieceStyle: 'wikipedia',
             theme: 'brown',
             showResult: true,
             notationLayout: 'list',
         });
-    }, [id, pgn]);
+    }, [id, game.pgn]);
 
     return (
         <Stack alignItems='center'>
             <Grid container rowSpacing={4}>
                 <Grid item sm={12} md={4} lg={3}>
-                    <GameData pgn={pgn} />
+                    <GameData headers={game.headers} />
                 </Grid>
 
                 <Grid item sm={12} md={8} lg={9}>
