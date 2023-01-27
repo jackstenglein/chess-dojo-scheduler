@@ -126,6 +126,7 @@ def handle_game(game) -> bool:
             'black': black,
             'date': date,
             'owner': 'admin',
+            'headers': headers,
             'pgn': str(game),
         }
     )

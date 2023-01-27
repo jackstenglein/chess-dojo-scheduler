@@ -1,19 +1,21 @@
-import { CircularProgress, Container } from '@mui/material';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { CircularProgress, Container, Stack } from '@mui/material';
+
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { Game } from '../database/game';
-
 import PgnViewer from './PgnViewer';
 
 const GamePage = () => {
     const api = useApi();
     const request = useRequest<Game>();
+    const { cohort, id } = useParams();
 
     useEffect(() => {
-        if (!request.isSent()) {
+        if (!request.isSent() && cohort && id) {
             request.onStart();
-            api.getGame('1800-1900', '2019.04.20_739a12ef-ec47-43e5-9d6e-fc3f0bd21f3a')
+            api.getGame(cohort, id)
                 .then((response) => {
                     request.onSuccess(response.data);
                 })
@@ -22,13 +24,17 @@ const GamePage = () => {
                     request.onFailure(err);
                 });
         }
-    }, [request, api]);
+    }, [request, api, cohort, id]);
 
     return (
         <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={request} />
 
-            {request.isLoading() && <CircularProgress />}
+            {request.isLoading() && (
+                <Stack justifyContent='center' alignItems='center'>
+                    <CircularProgress />
+                </Stack>
+            )}
 
             {request.data?.pgn && <PgnViewer pgn={request.data.pgn} />}
         </Container>
