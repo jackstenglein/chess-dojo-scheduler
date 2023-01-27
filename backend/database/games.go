@@ -1,6 +1,8 @@
 package database
 
 import (
+	"encoding/json"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -30,7 +32,7 @@ type Game struct {
 	Headers map[string]string `dynamodbav:"headers" json:"headers"`
 
 	// The PGN text of the game
-	Pgn string `dynamodbav:"pgn" json:"pgn"`
+	Pgn string `dynamodbav:"pgn" json:"pgn,omitempty"`
 }
 
 type GameGetter interface {
@@ -38,6 +40,13 @@ type GameGetter interface {
 	GetGame(cohort, id string) (*Game, error)
 }
 
+type GameLister interface {
+	// ListGamesByCohort returns a list of Games matching the provided cohort. The PGN text is excluded and must be
+	// fetched separately with a call to GetGame.
+	ListGamesByCohort(cohort, startDate, endDate, startKey string) ([]*Game, string, error)
+}
+
+// GetGame returns the game object with the provided cohort and id.
 func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
@@ -64,4 +73,89 @@ func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetGame result", err)
 	}
 	return &game, nil
+}
+
+// fetchGames performs the provided DynamoDB query. The startKey is unmarshalled and set on the query.
+func (repo *dynamoRepository) fetchGames(input *dynamodb.QueryInput, startKey string) ([]*Game, string, error) {
+	if startKey != "" {
+		var exclusiveStartKey map[string]*dynamodb.AttributeValue
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled", err)
+		}
+		input.SetExclusiveStartKey(exclusiveStartKey)
+	}
+
+	input.SetTableName(gameTable)
+	result, err := repo.svc.Query(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
+	}
+
+	var games []*Game
+	if err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &games); err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal fetchGames result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal fetchGames LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return games, lastKey, nil
+}
+
+// ListGamesByCohort returns a list of Games matching the provided cohort. The PGN text is excluded and must be
+// fetched separately with a call to GetGame.
+func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, startKey string) ([]*Game, string, error) {
+	keyConditionExpression := "#cohort = :cohort"
+	expressionAttributeNames := map[string]*string{
+		"#cohort":  aws.String("cohort"),
+		"#id":      aws.String("id"),
+		"#white":   aws.String("white"),
+		"#black":   aws.String("black"),
+		"#date":    aws.String("date"),
+		"#owner":   aws.String("owner"),
+		"#headers": aws.String("headers"),
+	}
+	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
+		":cohort": {
+			S: aws.String(string(cohort)),
+		},
+	}
+
+	if startDate != "" && endDate != "" {
+		keyConditionExpression += " AND #id BETWEEN :startId AND :endId"
+		expressionAttributeValues[":startId"] = &dynamodb.AttributeValue{
+			S: aws.String(startDate + "_00000000-0000-0000-0000-000000000000"),
+		}
+		expressionAttributeValues[":endId"] = &dynamodb.AttributeValue{
+			S: aws.String(endDate + "_ffffffff-ffff-ffff-ffff-ffffffffffff"),
+		}
+	} else if startDate != "" {
+		keyConditionExpression += " AND #id >= :startId"
+		expressionAttributeValues[":startId"] = &dynamodb.AttributeValue{
+			S: aws.String(startDate + "_00000000-0000-0000-0000-000000000000"),
+		}
+	} else if endDate != "" {
+		keyConditionExpression += " AND #id <= :endId"
+		expressionAttributeValues[":endId"] = &dynamodb.AttributeValue{
+			S: aws.String(endDate + "_ffffffff-ffff-ffff-ffff-ffffffffffff"),
+		}
+	}
+
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression:    aws.String(keyConditionExpression),
+		ExpressionAttributeNames:  expressionAttributeNames,
+		ExpressionAttributeValues: expressionAttributeValues,
+		ProjectionExpression:      aws.String("#cohort,#id,#white,#black,#date,#owner,#headers"),
+		ScanIndexForward:          aws.Bool(false),
+		TableName:                 aws.String(gameTable),
+	}
+
+	return repo.fetchGames(input, startKey)
 }

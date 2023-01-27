@@ -83,6 +83,13 @@ const Navbar = () => {
                                 >
                                     Profile
                                 </Button>
+
+                                <Button
+                                    onClick={() => navigate('/games')}
+                                    sx={{ color: 'white' }}
+                                >
+                                    Games
+                                </Button>
                             </Box>
 
                             {isAdmin && (

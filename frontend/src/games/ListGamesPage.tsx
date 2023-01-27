@@ -1,74 +1,58 @@
+import { useCallback, useEffect, useState } from 'react';
 import {
     Container,
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
+    TablePagination,
     TableRow,
 } from '@mui/material';
-import { GameInfo, GameResult } from '../database/game';
-import GameListItem from './GameListItem';
 
-const games: GameInfo[] = [
-    {
-        cohort: '1100-1200',
-        id: '2022.02.26_a0b47295-5cb7-4409-b121-8db07cac869d',
-        white: 'Jack Stenglein',
-        black: 'agedwhitecheddar',
-        date: '2022-01-01',
-        owner: 'admin',
-        headers: {
-            White: 'Jack Stenglein',
-            WhiteElo: '1700',
-            Black: 'agedwhitecheddar',
-            BlackElo: '2000',
-            Date: '2022-01-01',
-            Site: 'Lichess',
-            Result: GameResult.White,
-            PlyCount: '32',
-        },
-    },
-    {
-        cohort: '1300-1400',
-        id: '2',
-        white: 'Jack Stenglein',
-        black: 'agedwhitecheddar',
-        date: '2022-01-02',
-        owner: 'admin',
-        headers: {
-            White: 'Jack Stenglein',
-            WhiteElo: '1700',
-            Black: 'agedwhitecheddar',
-            BlackElo: '2000',
-            Date: '2022-01-01',
-            Site: 'Lichess',
-            Result: GameResult.Black,
-            PlyCount: '75',
-        },
-    },
-    {
-        cohort: '1500-1600',
-        id: '3',
-        white: 'Jack Stenglein',
-        black: 'agedwhitecheddar',
-        date: '2022-01-03',
-        owner: 'admin',
-        headers: {
-            White: 'Jack Stenglein',
-            WhiteElo: '1700',
-            Black: 'agedwhitecheddar',
-            BlackElo: '2000',
-            Date: '2022-01-01',
-            Site: 'Lichess',
-            Result: GameResult.Draw,
-            PlyCount: '86',
-        },
-    },
-];
+import { GameInfo } from '../database/game';
+import GameListItem from './GameListItem';
+import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
 
 const ListGamesPage = () => {
+    const api = useApi();
+    const request = useRequest();
+
+    const [games, setGames] = useState<GameInfo[]>([]);
+    const [startKey, setStartKey] = useState<string | undefined>('');
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const fetchGames = useCallback(() => {
+        if (startKey === undefined) {
+            return;
+        }
+
+        api.listGamesByCohort('1100-1200', startKey)
+            .then((response) => {
+                console.log('ListGamesByCohort: ', response);
+                request.onSuccess();
+                setGames((g) => g.concat(response.data.games));
+                setStartKey(response.data.lastEvaluatedKey);
+            })
+            .catch((err) => {
+                console.error('ListGamesByCohort: ', err);
+                request.onFailure(err);
+            });
+    }, [api, request, startKey]);
+
+    useEffect(() => {
+        if (!request.isSent()) {
+            fetchGames();
+        }
+    }, [request, fetchGames]);
+
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>
+            <RequestSnackbar request={request} />
+
             <Table>
                 <TableHead>
                     <TableRow>
@@ -84,6 +68,27 @@ const ListGamesPage = () => {
                         <GameListItem key={game.id} game={game} />
                     ))}
                 </TableBody>
+                <TableFooter>
+                    <TableRow>
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 25]}
+                            colSpan={5}
+                            count={games.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            SelectProps={{
+                                inputProps: {
+                                    'aria-label': 'rows per page',
+                                },
+                                native: true,
+                            }}
+                            onPageChange={(e, newPage) => setPage(newPage)}
+                            onRowsPerPageChange={(e) =>
+                                setRowsPerPage(parseInt(e.target.value))
+                            }
+                        />
+                    </TableRow>
+                </TableFooter>
             </Table>
         </Container>
     );

@@ -399,6 +399,23 @@ functions:
         Resource:
           - !GetAtt GamesTable.Arn
 
+  listGames:
+    handler: bin/game/list
+    package:
+      patterns:
+        - ./bin/game/list
+    events:
+      - httpApi:
+          path: /game/{cohort}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - !GetAtt GamesTable.Arn
+
 resources:
   Resources:
     ######### Cognito Resources ###############
