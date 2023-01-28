@@ -138,22 +138,35 @@ def handle_game(game) -> bool:
 
 def main():
     pgn = codecs.open('ChessDojoTrainingProgramDatabase.pgn', encoding='utf-8', errors='ignore')
+    invalid_output = open('invalid_games.pgn', 'w')
+    valid_output = open('valid_games.pgn', 'w')
 
     valid_games = 0
     invalid_games = 0
 
     game = True
-    while game is not None and valid_games < 50:
+    while game is not None and valid_games < 5000:
+        if valid_games % 100 == 0 or invalid_games % 100 == 0:
+            print('Valid Games: ', valid_games)
+            print('Invalid Games: ', invalid_games)
         try:
             game = chess.pgn.read_game(pgn)
             if game is not None:
                 if handle_game(game):
                     valid_games += 1
+                    
+                    print(game, file=valid_output, end='\n\n')
                 else:
                     invalid_games += 1
+                    print(game, file=invalid_output, end='\n\n')
         except Exception as e:
             invalid_games += 1
+            print(game, file=invalid_output, end='\n\n')
             print(e)
+
+    invalid_output.close()
+    valid_output.close()
+    pgn.close()
 
     print('Valid Games: ', valid_games)
     print('Invalid Games: ', invalid_games)
