@@ -160,7 +160,7 @@ const ListGamesPage = () => {
     );
 
     const { request, data, rowCount, page, pageSize, setPage, setPageSize, onSearch } =
-        usePagination(searchByCohort, 0, 5);
+        usePagination(searchByCohort, 0, 10);
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
         navigate(

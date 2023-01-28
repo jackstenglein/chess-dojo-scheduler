@@ -4,7 +4,7 @@ import boto3
 import uuid
 
 db = boto3.resource('dynamodb')
-table = db.Table('dev-games')
+table = db.Table('prod-games')
 
 def chesscomRatingToCohort(rating: int) -> str:
     if rating < 650:
@@ -138,14 +138,21 @@ def handle_game(game) -> bool:
 
 def main():
     pgn = codecs.open('ChessDojoTrainingProgramDatabase.pgn', encoding='utf-8', errors='ignore')
-    invalid_output = open('invalid_games.pgn', 'w')
-    valid_output = open('valid_games.pgn', 'w')
+    invalid_output = open('invalid_games_prod_2.pgn', 'w')
+    valid_output = open('valid_games_prod_2.pgn', 'w')
+
+    # 5000 valid, 1167 invalid
+    # 11245 valid, 2855 invalid
+    skip_games_count = 6167
+    for i in range(0, skip_games_count):
+        game = chess.pgn.read_game(pgn)
+    print('Starting after game: ', game.headers)
 
     valid_games = 0
     invalid_games = 0
 
     game = True
-    while game is not None and valid_games < 5000:
+    while game is not None:
         if valid_games % 100 == 0 or invalid_games % 100 == 0:
             print('Valid Games: ', valid_games)
             print('Invalid Games: ', invalid_games)
