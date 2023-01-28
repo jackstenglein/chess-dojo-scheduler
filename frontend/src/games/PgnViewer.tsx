@@ -3,7 +3,27 @@ import { pgnView } from '@mliebelt/pgn-viewer';
 import { Grid, Link, Stack, Typography } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
-import { Game, PgnHeaders } from '../database/game';
+import { Game, isDefaultHeader, PgnHeaders } from '../database/game';
+
+interface HeaderDisplayProps {
+    header: string;
+    value: string;
+}
+
+const HeaderDisplay: React.FC<HeaderDisplayProps> = ({ header, value }) => {
+    return (
+        <>
+            <Grid item xs={3}>
+                <Typography variant='subtitle2' color='text.secondary'>
+                    {header}
+                </Typography>
+            </Grid>
+            <Grid item xs={9}>
+                <Typography variant='subtitle1'>{value}</Typography>
+            </Grid>
+        </>
+    );
+};
 
 interface GameDataProps {
     headers: PgnHeaders;
@@ -20,52 +40,23 @@ const GameData: React.FC<GameDataProps> = ({ headers }) => {
 
     return (
         <Grid container alignItems='center' sx={{ pt: 2 }}>
-            <Grid item xs={2}>
-                <Typography variant='subtitle2' color='text.secondary'>
-                    White
-                </Typography>
-            </Grid>
-            <Grid item xs={10}>
-                <Typography variant='subtitle1'>
-                    {headers.White} ({headers.WhiteElo ?? '?'})
-                </Typography>
-            </Grid>
+            <HeaderDisplay
+                header='White'
+                value={`${headers.White} (${headers.WhiteElo ?? '?'})`}
+            />
+            <HeaderDisplay
+                header='Black'
+                value={`${headers.Black} (${headers.BlackElo ?? '?'})`}
+            />
+            <HeaderDisplay header='Result' value={headers.Result} />
+            <HeaderDisplay header='Date' value={headers.Date} />
 
-            <Grid item xs={2}>
-                <Typography variant='subtitle2' color='text.secondary'>
-                    Black
-                </Typography>
-            </Grid>
-            <Grid item xs={10}>
-                <Typography variant='subtitle1'>
-                    {headers.Black} ({headers.BlackElo ?? '?'})
-                </Typography>
-            </Grid>
-
-            <Grid item xs={2}>
-                <Typography variant='subtitle2' color='text.secondary'>
-                    Result
-                </Typography>
-            </Grid>
-            <Grid item xs={10}>
-                <Typography variant='subtitle1'>{headers.Result}</Typography>
-            </Grid>
-
-            <Grid item xs={2}>
-                <Typography variant='subtitle2' color='text.secondary'>
-                    Date
-                </Typography>
-            </Grid>
-            <Grid item xs={10}>
-                <Typography variant='subtitle1'>{headers.Date}</Typography>
-            </Grid>
-
-            <Grid item xs={2}>
+            <Grid item xs={3}>
                 <Typography variant='subtitle2' color='text.secondary'>
                     Site
                 </Typography>
             </Grid>
-            <Grid item xs={10}>
+            <Grid item xs={9}>
                 <Stack direction='row'>
                     <Typography variant='subtitle1'>{headers.Site}</Typography>
                     {lichessUrl && (
@@ -83,21 +74,12 @@ const GameData: React.FC<GameDataProps> = ({ headers }) => {
                 </Stack>
             </Grid>
 
-            {lichessUrl && (
-                <Grid item xs={12} sx={{ pt: 1 }}>
-                    <Link href={lichessUrl} target='_blank' rel='noreferrer'>
-                        View on Lichess
-                        <OpenInNewIcon
-                            sx={{
-                                fontSize: '1rem',
-                                position: 'relative',
-                                top: 2,
-                                left: 4,
-                            }}
-                        />
-                    </Link>
-                </Grid>
-            )}
+            {Object.entries(headers).map(([key, value]) => {
+                if (isDefaultHeader(key)) {
+                    return null;
+                }
+                return <HeaderDisplay key={key} header={key} value={value!} />;
+            })}
         </Grid>
     );
 };

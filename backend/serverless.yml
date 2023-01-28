@@ -389,7 +389,7 @@ functions:
         - ./bin/game/get
     events:
       - httpApi:
-          path: /game/{cohort}/{id}
+          path: /game
           method: get
           authorizer: serviceAuthorizer
     iamRoleStatements:
@@ -406,7 +406,7 @@ functions:
         - ./bin/game/list
     events:
       - httpApi:
-          path: /game/{cohort}
+          path: /games
           method: get
           authorizer: serviceAuthorizer
     iamRoleStatements:

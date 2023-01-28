@@ -28,3 +28,16 @@ export interface GameInfo {
 export type Game = GameInfo & {
     pgn: string;
 };
+
+export function isDefaultHeader(header: string): boolean {
+    return (
+        header === 'White' ||
+        header === 'WhiteElo' ||
+        header === 'Black' ||
+        header === 'BlackElo' ||
+        header === 'Date' ||
+        header === 'Site' ||
+        header === 'Result' ||
+        header === 'EventDate'
+    );
+}

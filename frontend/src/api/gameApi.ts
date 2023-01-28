@@ -40,9 +40,11 @@ export type GameApiContextType = {
  * @returns An AxiosResponse containing the requested game.
  */
 export function getGame(idToken: string, cohort: string, id: string) {
-    return axios.get<Game>(BASE_URL + `/game/${cohort}/${id}`, {
+    return axios.get<Game>(BASE_URL + `/game`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
+            'X-Dojo-Cohort': cohort.replaceAll('%2B', '+'),
+            'X-Dojo-Game-Id': id.replaceAll('%3F', '?'),
         },
     });
 }
@@ -70,10 +72,11 @@ export function listGamesByCohort(
     endDate?: string
 ) {
     let params = { startDate, endDate, startKey };
-    return axios.get<ListGamesResponse>(BASE_URL + `/game/${cohort}`, {
+    return axios.get<ListGamesResponse>(BASE_URL + `/games`, {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,
+            'X-Dojo-Cohort': cohort.replaceAll('%2B', '+'),
         },
     });
 }

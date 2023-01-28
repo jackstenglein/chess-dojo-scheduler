@@ -24,9 +24,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	cohort, ok := event.PathParameters["cohort"]
+	cohort, ok := event.Headers["x-dojo-cohort"]
 	if !ok {
-		err := errors.New(400, "Invalid request: cohort is required", "")
+		err := errors.New(400, "Invalid request: header x-dojo-cohort is required", "")
 		return api.Failure(funcName, err), nil
 	}
 	startDate, _ := event.QueryStringParameters["startDate"]
