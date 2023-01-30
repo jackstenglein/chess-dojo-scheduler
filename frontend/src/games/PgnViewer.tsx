@@ -18,12 +18,21 @@ const HeaderDisplay: React.FC<HeaderDisplayProps> = ({ header, value }) => {
                     {header}
                 </Typography>
             </Grid>
-            <Grid item xs={9}>
-                <Typography variant='subtitle1'>{value}</Typography>
+            <Grid item xs={8}>
+                <Typography variant='body2'>{value}</Typography>
             </Grid>
         </>
     );
 };
+
+function formatSite(site: string) {
+    if (site.includes('lichess.org')) {
+        return 'Lichess';
+    } else if (site.includes('chess.com')) {
+        return 'Chess.com';
+    }
+    return site;
+}
 
 interface GameDataProps {
     headers: PgnHeaders;
@@ -39,7 +48,7 @@ const GameData: React.FC<GameDataProps> = ({ headers }) => {
     }, [headers.Site]);
 
     return (
-        <Grid container alignItems='center' sx={{ pt: 2 }}>
+        <Grid container alignItems='center' sx={{ pt: 2 }} columnGap={1}>
             <HeaderDisplay
                 header='White'
                 value={`${headers.White} (${headers.WhiteElo ?? '?'})`}
@@ -56,16 +65,15 @@ const GameData: React.FC<GameDataProps> = ({ headers }) => {
                     Site
                 </Typography>
             </Grid>
-            <Grid item xs={9}>
-                <Stack direction='row'>
-                    <Typography variant='subtitle1'>{headers.Site}</Typography>
+            <Grid item xs={8}>
+                <Stack direction='row' alignItems='center'>
+                    <Typography variant='body2'>{formatSite(headers.Site)}</Typography>
                     {lichessUrl && (
                         <Link href={lichessUrl} target='_blank' rel='noreferrer'>
                             <OpenInNewIcon
                                 sx={{
                                     fontSize: '1rem',
                                     position: 'relative',
-                                    top: 2,
                                     left: 4,
                                 }}
                             />
