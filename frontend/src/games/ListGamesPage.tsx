@@ -9,9 +9,13 @@ import {
     MenuItem,
     Select,
     Stack,
+    TextField,
     Typography,
 } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AxiosResponse } from 'axios';
 
 import { GameInfo } from '../database/game';
@@ -156,9 +160,22 @@ const ListGamesPage = () => {
     const api = useApi();
 
     const [cohort, setCohort] = useState(user.dojoCohort);
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+
     const searchByCohort = useCallback(
-        (startKey: string) => api.listGamesByCohort(cohort, startKey),
-        [cohort, api]
+        (startKey: string) => {
+            const startDateStr = startDate
+                ?.toISOString()
+                .substring(0, 10)
+                .replaceAll('-', '.');
+            const endDateStr = endDate
+                ?.toISOString()
+                .substring(0, 10)
+                .replaceAll('-', '.');
+            return api.listGamesByCohort(cohort, startKey, startDateStr, endDateStr);
+        },
+        [cohort, api, startDate, endDate]
     );
 
     const { request, data, rowCount, page, pageSize, setPage, setPageSize, onSearch } =
@@ -224,6 +241,37 @@ const ListGamesPage = () => {
                                     ))}
                                 </Select>
                             </FormControl>
+
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                                    <Grid item xs={12} md={12} lg>
+                                        <DatePicker
+                                            label='Start Date'
+                                            value={startDate}
+                                            onChange={(newValue) => {
+                                                setStartDate(newValue);
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField {...params} fullWidth />
+                                            )}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={12} lg>
+                                        <DatePicker
+                                            label='End Date'
+                                            value={endDate}
+                                            onChange={(newValue) => {
+                                                setEndDate(newValue);
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField {...params} fullWidth />
+                                            )}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </LocalizationProvider>
+
                             <LoadingButton
                                 variant='outlined'
                                 loading={request.isLoading()}
