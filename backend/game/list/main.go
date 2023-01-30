@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
@@ -24,11 +25,13 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	cohort, ok := event.Headers["x-dojo-cohort"]
+	cohort, ok := event.PathParameters["cohort"]
 	if !ok {
-		err := errors.New(400, "Invalid request: header x-dojo-cohort is required", "")
+		err := errors.New(400, "Invalid request: header cohort is required", "")
 		return api.Failure(funcName, err), nil
 	}
+	cohort = strings.ReplaceAll(cohort, "%2B", "+")
+
 	startDate, _ := event.QueryStringParameters["startDate"]
 	endDate, _ := event.QueryStringParameters["endDate"]
 	startKey, _ := event.QueryStringParameters["startKey"]

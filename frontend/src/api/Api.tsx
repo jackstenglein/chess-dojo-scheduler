@@ -26,7 +26,13 @@ import {
     MeetingApiContextType,
 } from './meetingApi';
 import { UserApiContextType, getUser, updateUser } from './userApi';
-import { GameApiContextType, getGame, listGamesByCohort } from './gameApi';
+import {
+    GameApiContextType,
+    CreateGameRequest,
+    createGame,
+    getGame,
+    listGamesByCohort,
+} from './gameApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -90,6 +96,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getCalendar: (startTime: Date, startKey?: string) =>
                 getCalendar(idToken, startTime, startKey),
 
+            createGame: (req: CreateGameRequest) => createGame(idToken, req),
             getGame: (cohort: string, id: string) => getGame(idToken, cohort, id),
             listGamesByCohort: (
                 cohort: string,

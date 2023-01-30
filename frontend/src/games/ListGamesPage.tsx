@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+    Button,
     Container,
+    Divider,
     FormControl,
     Grid,
     InputLabel,
@@ -199,29 +201,37 @@ const ListGamesPage = () => {
                 </Grid>
 
                 <Grid item xs={12} md={3} lg={4} pr={2}>
-                    <Stack spacing={2}>
-                        <Typography variant='subtitle1'>Search by Cohort</Typography>
-                        <FormControl>
-                            <InputLabel>Cohort</InputLabel>
-                            <Select
-                                value={cohort}
-                                label='Cohort'
-                                onChange={(e) => setCohort(e.target.value)}
+                    <Stack spacing={4}>
+                        <Button variant='contained' onClick={() => navigate('submit')}>
+                            Submit a Game
+                        </Button>
+
+                        <Divider />
+
+                        <Stack spacing={2}>
+                            <Typography variant='subtitle1'>Search by Cohort</Typography>
+                            <FormControl>
+                                <InputLabel>Cohort</InputLabel>
+                                <Select
+                                    value={cohort}
+                                    label='Cohort'
+                                    onChange={(e) => setCohort(e.target.value)}
+                                >
+                                    {dojoCohorts.map((c) => (
+                                        <MenuItem key={c} value={c}>
+                                            {c}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <LoadingButton
+                                variant='outlined'
+                                loading={request.isLoading()}
+                                onClick={onSearchByCohort}
                             >
-                                {dojoCohorts.map((c) => (
-                                    <MenuItem key={c} value={c}>
-                                        {c}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <LoadingButton
-                            variant='contained'
-                            loading={request.isLoading()}
-                            onClick={onSearchByCohort}
-                        >
-                            Search
-                        </LoadingButton>
+                                Search
+                            </LoadingButton>
+                        </Stack>
                     </Stack>
                 </Grid>
             </Grid>

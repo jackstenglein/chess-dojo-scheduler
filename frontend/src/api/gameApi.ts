@@ -7,6 +7,13 @@ const BASE_URL = getConfig().api.baseUrl;
 
 export type GameApiContextType = {
     /**
+     * createGame saves the provided game in the database.
+     * @param req The CreateGameRequest.
+     * @returns The newly created Game.
+     */
+    createGame: (req: CreateGameRequest) => Promise<AxiosResponse<Game, any>>;
+
+    /**
      * getGame returns the requested game.
      * @param cohort The cohort the game is in.
      * @param id The id of the game.
@@ -32,6 +39,26 @@ export type GameApiContextType = {
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 };
 
+export interface CreateGameRequest {
+    type: 'lichess' | 'manual';
+    url?: string;
+    pgnText?: string;
+}
+
+/**
+ * createGame saves the provided game in the database.
+ * @param idToken The id token of the current signed-in user.
+ * @param req The CreateGameRequest.
+ * @returns The newly created Game.
+ */
+export function createGame(idToken: string, req: CreateGameRequest) {
+    return axios.post<Game>(BASE_URL + '/game', req, {
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+}
+
 /**
  * getGame returns the requested game.
  * @param idToken The id token of the current signed-in user.
@@ -40,11 +67,12 @@ export type GameApiContextType = {
  * @returns An AxiosResponse containing the requested game.
  */
 export function getGame(idToken: string, cohort: string, id: string) {
-    return axios.get<Game>(BASE_URL + `/game`, {
+    const urlCohort = cohort.replaceAll('+', '%2B');
+    const urlId = id.replaceAll('?', '%3F');
+
+    return axios.get<Game>(BASE_URL + `/game/${urlCohort}/${urlId}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
-            'X-Dojo-Cohort': cohort.replaceAll('%2B', '+'),
-            'X-Dojo-Game-Id': id.replaceAll('%3F', '?'),
         },
     });
 }
@@ -72,11 +100,11 @@ export function listGamesByCohort(
     endDate?: string
 ) {
     let params = { startDate, endDate, startKey };
-    return axios.get<ListGamesResponse>(BASE_URL + `/games`, {
+    const urlCohort = cohort.replaceAll('+', '%2B');
+    return axios.get<ListGamesResponse>(BASE_URL + `/game/${urlCohort}`, {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,
-            'X-Dojo-Cohort': cohort.replaceAll('%2B', '+'),
         },
     });
 }

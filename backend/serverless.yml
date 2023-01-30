@@ -382,6 +382,29 @@ functions:
 
   ########## Game Endpoints ##############
 
+  createGame:
+    handler: bin/game/create
+    package:
+      patterns:
+        - ./bin/game/create
+    events:
+      - httpApi:
+          path: /game
+          method: post
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt GamesTable.Arn
+
   getGame:
     handler: bin/game/get
     package:
@@ -389,7 +412,7 @@ functions:
         - ./bin/game/get
     events:
       - httpApi:
-          path: /game
+          path: /game/{cohort}/{id}
           method: get
           authorizer: serviceAuthorizer
     iamRoleStatements:
@@ -406,7 +429,7 @@ functions:
         - ./bin/game/list
     events:
       - httpApi:
-          path: /games
+          path: /game/{cohort}
           method: get
           authorizer: serviceAuthorizer
     iamRoleStatements:

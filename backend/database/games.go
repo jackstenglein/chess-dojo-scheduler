@@ -35,6 +35,16 @@ type Game struct {
 	Pgn string `dynamodbav:"pgn" json:"pgn,omitempty"`
 }
 
+type GamePutter interface {
+	UserGetter
+
+	// PutGame inserts the provided game into the database.
+	PutGame(game *Game) error
+
+	// RecordGameCreation updates the given user to increase their game creation stats.
+	RecordGameCreation(user *User) error
+}
+
 type GameGetter interface {
 	// GetGame returns the Game object with the provided cohort and id.
 	GetGame(cohort, id string) (*Game, error)
@@ -44,6 +54,22 @@ type GameLister interface {
 	// ListGamesByCohort returns a list of Games matching the provided cohort. The PGN text is excluded and must be
 	// fetched separately with a call to GetGame.
 	ListGamesByCohort(cohort, startDate, endDate, startKey string) ([]*Game, string, error)
+}
+
+// PutGame inserts the provided game into the database.
+func (repo *dynamoRepository) PutGame(game *Game) error {
+	item, err := dynamodbattribute.MarshalMap(game)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal game", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(gameTable),
+	}
+
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
 }
 
 // GetGame returns the game object with the provided cohort and id.

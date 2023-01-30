@@ -57,12 +57,13 @@ type User struct {
 	Name     string `dynamodbav:"name" json:"-"`
 
 	// Public attributes
-	DiscordUsername                  string     `dynamodbav:"discordUsername" json:"discordUsername"`
-	ChesscomUsername                 string     `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
-	LichessUsername                  string     `dynamodbav:"lichessUsername" json:"lichessUsername"`
-	DojoCohort                       DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
-	DisableBookingNotifications      bool       `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
-	DisableCancellationNotifications bool       `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
+	DiscordUsername                  string             `dynamodbav:"discordUsername" json:"discordUsername"`
+	ChesscomUsername                 string             `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
+	LichessUsername                  string             `dynamodbav:"lichessUsername" json:"lichessUsername"`
+	DojoCohort                       DojoCohort         `dynamodbav:"dojoCohort" json:"dojoCohort"`
+	DisableBookingNotifications      bool               `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
+	DisableCancellationNotifications bool               `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
+	GamesCreated                     map[DojoCohort]int `dynamodbav:"gamesCreated" json:"gamesCreated"`
 
 	IsAdmin bool `dynamodbav:"isAdmin" json:"isAdmin"`
 }
@@ -192,4 +193,15 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	}
 
 	return users, lastKey, nil
+}
+
+// RecordGameCreation updates the given user to increase their game creation stats.
+func (repo *dynamoRepository) RecordGameCreation(user *User) error {
+	if user.GamesCreated == nil {
+		user.GamesCreated = make(map[DojoCohort]int)
+	}
+
+	count, _ := user.GamesCreated[user.DojoCohort]
+	user.GamesCreated[user.DojoCohort] = count + 1
+	return repo.SetUser(user)
 }

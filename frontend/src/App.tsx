@@ -21,6 +21,7 @@ import { CacheProvider } from './api/Cache';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import GamePage from './games/GamePage';
 import ListGamesPage from './games/ListGamesPage';
+import SubmitGamePage from './games/SubmitGamePage';
 
 const config = getConfig();
 Amplify.configure({
@@ -81,6 +82,7 @@ function Router() {
                         />
                         <Route path='games'>
                             <Route index element={<ListGamesPage />} />
+                            <Route path='submit' element={<SubmitGamePage />} />
                             <Route path=':cohort/:id' element={<GamePage />} />
                         </Route>
                         {/* <Route path='games' element={<GamePage />} /> */}

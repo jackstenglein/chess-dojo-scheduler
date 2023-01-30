@@ -23,6 +23,7 @@ build: gomodgen
 
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/calendar/get calendar/get/main.go
 
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/create game/create/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/get game/get/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/list game/list/main.go
 
