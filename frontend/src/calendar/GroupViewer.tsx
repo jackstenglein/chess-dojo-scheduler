@@ -39,6 +39,24 @@ const GroupViewer: React.FC<GroupViewerProps> = ({ event }) => {
                 </Typography>
             </Stack>
 
+            {group.description && (
+                <Stack>
+                    <Typography variant='subtitle2' color='text.secondary'>
+                        Description
+                    </Typography>
+                    <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
+                        {group.description}
+                    </Typography>
+                </Stack>
+            )}
+
+            <Stack>
+                <Typography variant='subtitle2' color='text.secondary'>
+                    Cohorts
+                </Typography>
+                <Typography variant='body1'>{group.cohorts.join(', ')}</Typography>
+            </Stack>
+
             <Button variant='contained' onClick={() => navigate(`/group/${group.id}`)}>
                 View Details
             </Button>

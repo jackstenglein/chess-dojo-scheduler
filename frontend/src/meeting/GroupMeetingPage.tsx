@@ -92,6 +92,15 @@ const GroupMeetingPage = () => {
                                     </Typography>
                                 </Stack>
                             )}
+
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Cohorts
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {availability.cohorts.join(', ')}
+                                </Typography>
+                            </Stack>
                         </Stack>
                     </CardContent>
                 </Card>

@@ -212,6 +212,15 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({
 
                             <Stack>
                                 <Typography variant='subtitle2' color='text.secondary'>
+                                    Cohorts
+                                </Typography>
+                                <Typography variant='body1'>
+                                    {availability.cohorts.join(', ')}
+                                </Typography>
+                            </Stack>
+
+                            <Stack>
+                                <Typography variant='subtitle2' color='text.secondary'>
                                     Max Participants
                                 </Typography>
                                 <Typography variant='body1'>

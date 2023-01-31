@@ -64,6 +64,26 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                     </Typography>
                 </Stack>
 
+                {availability.description.length > 0 && (
+                    <Stack>
+                        <Typography variant='subtitle2' color='text.secondary'>
+                            Description
+                        </Typography>
+                        <Typography variant='body1'>
+                            {availability.description}
+                        </Typography>
+                    </Stack>
+                )}
+
+                <Stack>
+                    <Typography variant='subtitle2' color='text.secondary'>
+                        Cohorts
+                    </Typography>
+                    <Typography variant='body1'>
+                        {availability.cohorts.join(', ')}
+                    </Typography>
+                </Stack>
+
                 {!isOwner && (
                     <Button variant='contained' onClick={startBooking}>
                         Book

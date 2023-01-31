@@ -181,7 +181,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
 
         const selectedCohorts = allCohorts
             ? dojoCohorts
-            : Object.keys(cohorts).filter((c) => cohorts[c]);
+            : dojoCohorts.filter((c) => cohorts[c]);
         if (selectedCohorts.length === 0) {
             errors.cohorts = 'At least one cohort is required';
         }
