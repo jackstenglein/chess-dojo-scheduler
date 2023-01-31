@@ -121,11 +121,15 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
 
         const originalCohorts: string[] = originalEvent?.availability?.cohorts;
         if (originalCohorts) {
+            const allFalseCohorts = dojoCohorts.reduce((map, cohort) => {
+                map[cohort] = false;
+                return map;
+            }, {} as Record<string, boolean>);
             setCohorts((c) =>
                 originalCohorts.reduce((map, cohort) => {
                     map[cohort] = true;
                     return map;
-                }, Object.assign({}, c))
+                }, Object.assign({}, allFalseCohorts))
             );
         }
     }, [originalEvent, setTypes, setCohorts]);
