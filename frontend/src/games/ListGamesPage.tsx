@@ -1,32 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import {
-    Button,
-    Container,
-    Divider,
-    FormControl,
-    Grid,
-    InputLabel,
-    MenuItem,
-    Select,
-    Stack,
-    TextField,
-    Typography,
-} from '@mui/material';
+import { Button, Container, Divider, Grid, Stack } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AxiosResponse } from 'axios';
 
 import { GameInfo } from '../database/game';
 import { RenderPlayers, RenderResult } from './GameListItem';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
+import { RequestSnackbar } from '../api/Request';
 import { useNavigate } from 'react-router-dom';
-import { dojoCohorts } from '../database/user';
-import { useAuth } from '../auth/Auth';
-import { LoadingButton } from '@mui/lab';
-import { ListGamesResponse } from '../api/gameApi';
+import SearchFilters from './SearchFilters';
+
+import { usePagination } from './pagination';
 
 const columns: GridColDef<GameInfo>[] = [
     {
@@ -71,115 +52,11 @@ const columns: GridColDef<GameInfo>[] = [
     },
 ];
 
-type SearchFunc = (startKey: string) => Promise<AxiosResponse<ListGamesResponse, any>>;
-
-function usePagination(
-    initialSearchFunc: SearchFunc,
-    initialPage: number,
-    initialPageSize: number
-) {
-    const request = useRequest();
-
-    const [page, setPage] = useState(initialPage);
-    const [pageSize, setPageSize] = useState(initialPageSize);
-    const [games, setGames] = useState<GameInfo[]>([]);
-    const [startKey, setStartKey] = useState<string | undefined>('');
-    const [searchFunc, setSearchFunc] = useState<SearchFunc>(() => initialSearchFunc);
-
-    const onChangePage = (newPage: number) => {
-        request.reset();
-        setPage(newPage);
-    };
-
-    const onSearch = (searchFunc: SearchFunc) => {
-        request.reset();
-        setPage(0);
-        setGames([]);
-        setStartKey('');
-        setSearchFunc(() => searchFunc);
-    };
-
-    useEffect(() => {
-        // We have already fetched this page of data and don't need to refetch
-        if (games.length > page * pageSize) {
-            return;
-        }
-
-        // There are no more pages to fetch
-        if (startKey === undefined) {
-            return;
-        }
-
-        // The request is already sent and we don't want to duplicate it
-        if (request.isLoading() || request.status === RequestStatus.Failure) {
-            return;
-        }
-
-        // We need to fetch the next page
-        console.log('Fetching page: ', page);
-        request.onStart();
-
-        searchFunc(startKey)
-            .then((response) => {
-                console.log('ListGamesByCohort: ', response);
-                request.onSuccess();
-                setGames(games.concat(response.data.games));
-                setStartKey(response.data.lastEvaluatedKey);
-            })
-            .catch((err) => {
-                console.error('ListGamesByCohort: ', err);
-                request.onFailure(err);
-            });
-    }, [page, pageSize, games, startKey, searchFunc, request]);
-
-    let rowCount = games.length;
-    if (startKey !== undefined) {
-        rowCount += pageSize;
-    }
-
-    let data: GameInfo[] = [];
-    if (games.length > page * pageSize) {
-        data = games.slice(page * pageSize, page * pageSize + pageSize);
-    }
-
-    return {
-        page,
-        pageSize,
-        data,
-        request,
-        rowCount,
-        setPage: onChangePage,
-        setPageSize,
-        onSearch,
-    };
-}
-
 const ListGamesPage = () => {
-    const user = useAuth().user!;
     const navigate = useNavigate();
-    const api = useApi();
-
-    const [cohort, setCohort] = useState(user.dojoCohort);
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-
-    const searchByCohort = useCallback(
-        (startKey: string) => {
-            const startDateStr = startDate
-                ?.toISOString()
-                .substring(0, 10)
-                .replaceAll('-', '.');
-            const endDateStr = endDate
-                ?.toISOString()
-                .substring(0, 10)
-                .replaceAll('-', '.');
-            return api.listGamesByCohort(cohort, startKey, startDateStr, endDateStr);
-        },
-        [cohort, api, startDate, endDate]
-    );
 
     const { request, data, rowCount, page, pageSize, setPage, setPageSize, onSearch } =
-        usePagination(searchByCohort, 0, 10);
+        usePagination(null, 0, 10);
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
         navigate(
@@ -188,10 +65,6 @@ const ListGamesPage = () => {
                 '%3F'
             )}`
         );
-    };
-
-    const onSearchByCohort = () => {
-        onSearch(searchByCohort);
     };
 
     return (
@@ -225,61 +98,10 @@ const ListGamesPage = () => {
 
                         <Divider />
 
-                        <Stack spacing={2}>
-                            <Typography variant='subtitle1'>Search by Cohort</Typography>
-                            <FormControl>
-                                <InputLabel>Cohort</InputLabel>
-                                <Select
-                                    value={cohort}
-                                    label='Cohort'
-                                    onChange={(e) => setCohort(e.target.value)}
-                                >
-                                    {dojoCohorts.map((c) => (
-                                        <MenuItem key={c} value={c}>
-                                            {c}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                                    <Grid item xs={12} md={12} lg>
-                                        <DatePicker
-                                            label='Start Date'
-                                            value={startDate}
-                                            onChange={(newValue) => {
-                                                setStartDate(newValue);
-                                            }}
-                                            renderInput={(params) => (
-                                                <TextField {...params} fullWidth />
-                                            )}
-                                        />
-                                    </Grid>
-
-                                    <Grid item xs={12} md={12} lg>
-                                        <DatePicker
-                                            label='End Date'
-                                            value={endDate}
-                                            onChange={(newValue) => {
-                                                setEndDate(newValue);
-                                            }}
-                                            renderInput={(params) => (
-                                                <TextField {...params} fullWidth />
-                                            )}
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </LocalizationProvider>
-
-                            <LoadingButton
-                                variant='outlined'
-                                loading={request.isLoading()}
-                                onClick={onSearchByCohort}
-                            >
-                                Search
-                            </LoadingButton>
-                        </Stack>
+                        <SearchFilters
+                            isLoading={request.isLoading()}
+                            onSearch={onSearch}
+                        />
                     </Stack>
                 </Grid>
             </Grid>

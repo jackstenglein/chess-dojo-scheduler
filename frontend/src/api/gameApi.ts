@@ -37,6 +37,19 @@ export type GameApiContextType = {
         startDate?: string,
         endDate?: string
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+
+    /**
+     * listGamesByOnwer returns a list of GameInfo objects owned by the current user,
+     * as well as the next start key for pagination.
+     * @param startKey The optional startKey to use when searching.
+     * @param startDate The optional start date to limit the search to.
+     * @param endDate The optional end date to limit the search to.
+     */
+    listGamesByOwner: (
+        startKey?: string,
+        startDate?: string,
+        endDate?: string
+    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 };
 
 export interface CreateGameRequest {
@@ -102,6 +115,29 @@ export function listGamesByCohort(
     let params = { startDate, endDate, startKey };
     const urlCohort = cohort.replaceAll('+', '%2B');
     return axios.get<ListGamesResponse>(BASE_URL + `/game/${urlCohort}`, {
+        params,
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+}
+
+/**
+ * listGamesByOnwer returns a list of GameInfo objects owned by the current user,
+ * as well as the next start key for pagination.
+ * @param idToken The id token of the current signed-in user.
+ * @param startKey The optional startKey to use when searching.
+ * @param startDate The optional start date to limit the search to.
+ * @param endDate The optional end date to limit the search to.
+ */
+export function listGamesByOwner(
+    idToken: string,
+    startKey?: string,
+    startDate?: string,
+    endDate?: string
+) {
+    let params = { startKey, startDate, endDate };
+    return axios.get<ListGamesResponse>(BASE_URL + '/game', {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,

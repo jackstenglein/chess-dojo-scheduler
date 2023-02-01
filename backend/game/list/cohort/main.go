@@ -14,7 +14,7 @@ import (
 
 var repository database.GameLister = database.DynamoDB
 
-const funcName = "game-list-handler"
+const funcName = "game-list-cohort-handler"
 
 type ListGamesResponse struct {
 	Games            []*database.Game `json:"games"`

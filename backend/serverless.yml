@@ -422,11 +422,11 @@ functions:
         Resource:
           - !GetAtt GamesTable.Arn
 
-  listGames:
-    handler: bin/game/list
+  listGamesByCohort:
+    handler: bin/game/list/cohort
     package:
       patterns:
-        - ./bin/game/list
+        - ./bin/game/list/cohort
     events:
       - httpApi:
           path: /game/{cohort}
@@ -438,6 +438,26 @@ functions:
           - dynamodb:Query
         Resource:
           - !GetAtt GamesTable.Arn
+
+  listGamesByOwner:
+    handler: bin/game/list/owner
+    package:
+      patterns:
+        - ./bin/game/list/owner
+    events:
+      - httpApi:
+          path: /game
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt GamesTable.Arn
+                - '/index/OwnerIndex'
 
 resources:
   Resources:
@@ -617,11 +637,25 @@ resources:
             AttributeType: S
           - AttributeName: id
             AttributeType: S
+          - AttributeName: owner
+            AttributeType: S
         KeySchema:
           - AttributeName: cohort
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: OwnerIndex
+            KeySchema:
+              - AttributeName: owner
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1

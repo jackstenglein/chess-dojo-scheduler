@@ -54,6 +54,10 @@ type GameLister interface {
 	// ListGamesByCohort returns a list of Games matching the provided cohort. The PGN text is excluded and must be
 	// fetched separately with a call to GetGame.
 	ListGamesByCohort(cohort, startDate, endDate, startKey string) ([]*Game, string, error)
+
+	// ListGamesByOwner returns a list of Games matching the provided owner. The PGN text is excluded and must be
+	// fetched separately with a call to GetGame.
+	ListGamesByOwner(owner, startDate, endDate, startKey string) ([]*Game, string, error)
 }
 
 // PutGame inserts the provided game into the database.
@@ -135,25 +139,8 @@ func (repo *dynamoRepository) fetchGames(input *dynamodb.QueryInput, startKey st
 	return games, lastKey, nil
 }
 
-// ListGamesByCohort returns a list of Games matching the provided cohort. The PGN text is excluded and must be
-// fetched separately with a call to GetGame.
-func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, startKey string) ([]*Game, string, error) {
-	keyConditionExpression := "#cohort = :cohort"
-	expressionAttributeNames := map[string]*string{
-		"#cohort":  aws.String("cohort"),
-		"#id":      aws.String("id"),
-		"#white":   aws.String("white"),
-		"#black":   aws.String("black"),
-		"#date":    aws.String("date"),
-		"#owner":   aws.String("owner"),
-		"#headers": aws.String("headers"),
-	}
-	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
-		":cohort": {
-			S: aws.String(string(cohort)),
-		},
-	}
-
+// addDates adds the provided start and end dates to the given key condition expression and expression attribute maps.
+func addDates(keyConditionExpression string, expressionAttributeNames map[string]*string, expressionAttributeValues map[string]*dynamodb.AttributeValue, startDate, endDate string) string {
 	if startDate != "" && endDate != "" {
 		keyConditionExpression += " AND #id BETWEEN :startId AND :endId"
 		expressionAttributeValues[":startId"] = &dynamodb.AttributeValue{
@@ -173,6 +160,29 @@ func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, star
 			S: aws.String(endDate + "_ffffffff-ffff-ffff-ffff-ffffffffffff"),
 		}
 	}
+	return keyConditionExpression
+}
+
+// ListGamesByCohort returns a list of Games matching the provided cohort. The PGN text is excluded and must be
+// fetched separately with a call to GetGame.
+func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, startKey string) ([]*Game, string, error) {
+	keyConditionExpression := "#cohort = :cohort"
+	expressionAttributeNames := map[string]*string{
+		"#cohort":  aws.String("cohort"),
+		"#id":      aws.String("id"),
+		"#white":   aws.String("white"),
+		"#black":   aws.String("black"),
+		"#date":    aws.String("date"),
+		"#owner":   aws.String("owner"),
+		"#headers": aws.String("headers"),
+	}
+	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
+		":cohort": {
+			S: aws.String(string(cohort)),
+		},
+	}
+
+	keyConditionExpression = addDates(keyConditionExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
 
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression:    aws.String(keyConditionExpression),
@@ -180,6 +190,40 @@ func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, star
 		ExpressionAttributeValues: expressionAttributeValues,
 		ProjectionExpression:      aws.String("#cohort,#id,#white,#black,#date,#owner,#headers"),
 		ScanIndexForward:          aws.Bool(false),
+		TableName:                 aws.String(gameTable),
+	}
+
+	return repo.fetchGames(input, startKey)
+}
+
+// ListGamesByOwner returns a list of Games matching the provided owner. The PGN text is excluded and must be
+// fetched separately with a call to GetGame.
+func (repo *dynamoRepository) ListGamesByOwner(owner, startDate, endDate, startKey string) ([]*Game, string, error) {
+	keyConditionExpression := "#owner = :owner"
+	expressionAttributeNames := map[string]*string{
+		"#cohort":  aws.String("cohort"),
+		"#id":      aws.String("id"),
+		"#white":   aws.String("white"),
+		"#black":   aws.String("black"),
+		"#date":    aws.String("date"),
+		"#owner":   aws.String("owner"),
+		"#headers": aws.String("headers"),
+	}
+	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
+		":owner": {
+			S: aws.String(owner),
+		},
+	}
+
+	keyConditionExpression = addDates(keyConditionExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
+
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression:    aws.String(keyConditionExpression),
+		ExpressionAttributeNames:  expressionAttributeNames,
+		ExpressionAttributeValues: expressionAttributeValues,
+		ProjectionExpression:      aws.String("#cohort,#id,#white,#black,#date,#owner,#headers"),
+		ScanIndexForward:          aws.Bool(false),
+		IndexName:                 aws.String("OwnerIndex"),
 		TableName:                 aws.String(gameTable),
 	}
 
