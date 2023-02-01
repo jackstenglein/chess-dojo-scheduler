@@ -341,7 +341,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 onChange={onChangePanel('searchByCohort')}
             >
                 <AccordionSummary>
-                    <Typography>Search by Cohort</Typography>
+                    <Typography>Search By Cohort</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <SearchByCohort
@@ -361,7 +361,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 onChange={onChangePanel('searchByPlayer')}
             >
                 <AccordionSummary>
-                    <Typography>Search by Player</Typography>
+                    <Typography>Search By Player</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <SearchByPlayer
