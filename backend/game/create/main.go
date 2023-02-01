@@ -16,6 +16,8 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+
+	"github.com/malbrecht/chess/pgn"
 )
 
 type ImportType string
@@ -132,6 +134,14 @@ func saveGame(user *database.User, pgnText string) (*database.Game, error) {
 		return nil, errors.New(400, "Invalid request: PGN missing `Date` tag", "")
 	}
 
+	if _, ok := headers["PlyCount"]; !ok {
+		pgnText, err = addPlyCount(headers, pgnText)
+		if err != nil {
+			// Log this error only as this shouldn't prevent the game from being created
+			log.Warn("Failed to add PlyCount header: ", err)
+		}
+	}
+
 	game := database.Game{
 		Cohort:  user.DojoCohort,
 		Id:      date + "_" + uuid.New().String(),
@@ -172,6 +182,26 @@ func getHeaders(pgnText string) (map[string]string, error) {
 	}
 
 	return headers, nil
+}
+
+func addPlyCount(headers map[string]string, pgnText string) (string, error) {
+	pgnDB := pgn.DB{}
+	errs := pgnDB.Parse(pgnText)
+	if len(errs) > 0 {
+		return pgnText, errors.Wrap(500, "Failed to parse PGN Text", "", errs[0])
+	}
+
+	plies := pgnDB.Games[0].Plies()
+	headers["PlyCount"] = fmt.Sprintf("%d", plies)
+
+	headerEndIndex := strings.Index(pgnText, "\n\n")
+	if headerEndIndex < 0 {
+		return pgnText, errors.New(500, "Failed to find PGN header end", "")
+	}
+
+	plyCountHeader := fmt.Sprintf("[PlyCount \"%d\"]", plies)
+	newPgn := fmt.Sprintf("%s\n%s\n\n%s", pgnText[:headerEndIndex], plyCountHeader, pgnText[headerEndIndex+2:])
+	return newPgn, nil
 }
 
 func main() {
