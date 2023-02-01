@@ -182,6 +182,98 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
     );
 };
 
+type SearchByPlayerProps = BaseFilterProps & {
+    player: string;
+    color: string;
+    setPlayer: React.Dispatch<React.SetStateAction<string>>;
+    setColor: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
+    player,
+    color,
+    startDate,
+    endDate,
+    isLoading,
+    setPlayer,
+    setColor,
+    setStartDate,
+    setEndDate,
+    onSearch,
+}) => {
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const handleSearch = () => {
+        const errors: Record<string, string> = {};
+        if (player === '') {
+            errors.player = 'This field is required';
+        }
+        setErrors(errors);
+
+        if (Object.entries(errors).length > 0) {
+            return;
+        }
+
+        onSearch();
+    };
+
+    return (
+        <Stack spacing={2}>
+            <Typography gutterBottom>
+                Find games based on player name. Note this is the name as it was recorded
+                in the PGN file.
+            </Typography>
+            <TextField
+                label='Player Name'
+                value={player}
+                onChange={(e) => setPlayer(e.target.value)}
+                error={!!errors.player}
+                helperText={errors.player}
+            />
+
+            <Select
+                value={color}
+                label='Color'
+                onChange={(e) => setColor(e.target.value)}
+            >
+                <MenuItem value='either'>Either</MenuItem>
+                <MenuItem value='white'>White</MenuItem>
+                <MenuItem value='black'>Black</MenuItem>
+            </Select>
+
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                    <Grid item xs={12} md={12} lg>
+                        <DatePicker
+                            label='Start Date'
+                            value={startDate}
+                            onChange={(newValue) => {
+                                setStartDate(newValue);
+                            }}
+                            renderInput={(params) => <TextField {...params} fullWidth />}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={12} lg>
+                        <DatePicker
+                            label='End Date'
+                            value={endDate}
+                            onChange={(newValue) => {
+                                setEndDate(newValue);
+                            }}
+                            renderInput={(params) => <TextField {...params} fullWidth />}
+                        />
+                    </Grid>
+                </Grid>
+            </LocalizationProvider>
+
+            <LoadingButton variant='outlined' loading={isLoading} onClick={handleSearch}>
+                Search
+            </LoadingButton>
+        </Stack>
+    );
+};
+
 interface SearchFiltersProps {
     isLoading: boolean;
     onSearch: (searchFunc: SearchFunc) => void;
@@ -197,11 +289,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const api = useApi();
     const user = useAuth().user!;
     const [cohort, setCohort] = useState(user.dojoCohort);
+    const [player, setPlayer] = useState('');
+    const [color, setColor] = useState('either');
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+    const [firstSearch, setFirstSearch] = useState(false);
+
     const startDateStr = startDate?.toISOString().substring(0, 10).replaceAll('-', '.');
     const endDateStr = endDate?.toISOString().substring(0, 10).replaceAll('-', '.');
-    const [firstSearch, setFirstSearch] = useState(false);
 
     const searchByCohort = useCallback(
         (startKey: string) =>
@@ -212,6 +307,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(startKey, startDateStr, endDateStr),
         [api, startDateStr, endDateStr]
+    );
+
+    const searchByPlayer = useCallback(
+        (startKey: string) =>
+            api.listGamesByOwner(startKey, startDateStr, endDateStr, player, color),
+        [api, startDateStr, endDateStr, player, color]
     );
 
     useEffect(() => {
@@ -227,6 +328,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
 
     const onSearchByOwner = () => {
         onSearch(searchByOwner);
+    };
+
+    const onSearchByPlayer = () => {
+        onSearch(searchByPlayer);
     };
 
     return (
@@ -248,6 +353,28 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                         setEndDate={setEndDate}
                         isLoading={isLoading}
                         onSearch={onSearchByCohort}
+                    />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion
+                expanded={expanded === 'searchByPlayer'}
+                onChange={onChangePanel('searchByPlayer')}
+            >
+                <AccordionSummary>
+                    <Typography>Search by Player</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <SearchByPlayer
+                        player={player}
+                        setPlayer={setPlayer}
+                        color={color}
+                        setColor={setColor}
+                        startDate={startDate}
+                        setStartDate={setStartDate}
+                        endDate={endDate}
+                        setEndDate={setEndDate}
+                        isLoading={isLoading}
+                        onSearch={onSearchByPlayer}
                     />
                 </AccordionDetails>
             </Accordion>

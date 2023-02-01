@@ -458,6 +458,14 @@ functions:
               - ''
               - - !GetAtt GamesTable.Arn
                 - '/index/OwnerIndex'
+          - Fn::Join:
+              - ''
+              - - !GetAtt GamesTable.Arn
+                - '/index/WhiteIndex'
+          - Fn::Join:
+              - ''
+              - - !GetAtt GamesTable.Arn
+                - '/index/BlackIndex'
 
 resources:
   Resources:
@@ -639,11 +647,18 @@ resources:
             AttributeType: S
           - AttributeName: owner
             AttributeType: S
+          - AttributeName: white
+            AttributeType: S
+          - AttributeName: black
+            AttributeType: S
         KeySchema:
           - AttributeName: cohort
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
         GlobalSecondaryIndexes:
           - IndexName: OwnerIndex
             KeySchema:
@@ -652,10 +667,44 @@ resources:
               - AttributeName: id
                 KeyType: RANGE
             Projection:
-              ProjectionType: ALL
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - headers
             ProvisionedThroughput:
               ReadCapacityUnits: 1
               WriteCapacityUnits: 1
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+          - IndexName: WhiteIndex
+            KeySchema:
+              - AttributeName: white
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - black
+                - date
+                - owner
+                - headers
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          - IndexName: BlackIndex
+            KeySchema:
+              - AttributeName: black
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - date
+                - owner
+                - headers
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1

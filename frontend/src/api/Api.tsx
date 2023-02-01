@@ -105,8 +105,13 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 startDate?: string,
                 endDate?: string
             ) => listGamesByCohort(idToken, cohort, startKey, startDate, endDate),
-            listGamesByOwner: (startKey?: string, startDate?: string, endDate?: string) =>
-                listGamesByOwner(idToken, startKey, startDate, endDate),
+            listGamesByOwner: (
+                startKey?: string,
+                startDate?: string,
+                endDate?: string,
+                player?: string,
+                color?: string
+            ) => listGamesByOwner(idToken, startKey, startDate, endDate, player, color),
         };
     }, [idToken, auth.updateUser]);
 

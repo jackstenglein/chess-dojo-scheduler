@@ -40,15 +40,20 @@ export type GameApiContextType = {
 
     /**
      * listGamesByOnwer returns a list of GameInfo objects owned by the current user,
-     * as well as the next start key for pagination.
+     * as well as the next start key for pagination. If the optional player parameter
+     * is passed, that user's games will be searched instead of the current user's.
      * @param startKey The optional startKey to use when searching.
      * @param startDate The optional start date to limit the search to.
      * @param endDate The optional end date to limit the search to.
+     * @param player The optional player to search instead of the current user.
+     * @param color The color to use when searching for a specific player.
      */
     listGamesByOwner: (
         startKey?: string,
         startDate?: string,
-        endDate?: string
+        endDate?: string,
+        player?: string,
+        color?: string
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 };
 
@@ -129,14 +134,18 @@ export function listGamesByCohort(
  * @param startKey The optional startKey to use when searching.
  * @param startDate The optional start date to limit the search to.
  * @param endDate The optional end date to limit the search to.
+ * @param player The optional player to search instead of the current user.
+ * @param color The color to use when searching for a specific player.
  */
 export function listGamesByOwner(
     idToken: string,
     startKey?: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    player?: string,
+    color?: string
 ) {
-    let params = { startKey, startDate, endDate };
+    let params = { startKey, startDate, endDate, player, color };
     return axios.get<ListGamesResponse>(BASE_URL + '/game', {
         params,
         headers: {
