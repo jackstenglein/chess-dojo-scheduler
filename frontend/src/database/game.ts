@@ -18,8 +18,6 @@ export interface PgnHeaders {
 export interface GameInfo {
     cohort: string;
     id: string;
-    white: string;
-    black: string;
     date: string;
     owner: string;
     headers: PgnHeaders;

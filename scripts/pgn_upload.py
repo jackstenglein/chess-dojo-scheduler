@@ -122,8 +122,8 @@ def handle_game(game) -> bool:
         Item={
             'cohort': cohort,
             'id': date + '_' + str(uuid.uuid4()),
-            'white': white,
-            'black': black,
+            'white': white.lower(),
+            'black': black.lower(),
             'date': date,
             'owner': 'admin',
             'headers': headers,

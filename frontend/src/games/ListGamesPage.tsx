@@ -19,8 +19,8 @@ const columns: GridColDef<GameInfo>[] = [
         field: 'players',
         headerName: 'Players',
         valueGetter: (params) => ({
-            white: `${params.row.white} (${params.row.headers.WhiteElo ?? '??'})`,
-            black: `${params.row.black} (${params.row.headers.BlackElo ?? '??'})`,
+            white: `${params.row.headers.White} (${params.row.headers.WhiteElo ?? '??'})`,
+            black: `${params.row.headers.Black} (${params.row.headers.BlackElo ?? '??'})`,
         }),
         renderCell: RenderPlayers,
         flex: 1,
