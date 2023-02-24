@@ -224,6 +224,7 @@ export function useCalendar(): UseCalendarResponse {
             const startTime = new Date(new Date().getTime() - TWO_DAYS);
             api.getCalendar(startTime)
                 .then((result) => {
+                    console.log('Calendar result: ', result);
                     request.onSuccess();
                     cache.putMeetings(result.meetings);
                     cache.putAvailabilities(result.availabilities);

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     Dialog,
     AppBar,
@@ -16,6 +16,10 @@ import {
     FormHelperText,
     TextField,
     Slide,
+    Container,
+    CircularProgress,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { TransitionProps } from '@mui/material/transitions';
@@ -41,20 +45,12 @@ const Transition = React.forwardRef(function Transition(
     return <Slide direction='up' ref={ref} {...props} />;
 });
 
-interface AvailabilityBookerProps {
-    availability: Availability;
-    open: boolean;
-    onClose: () => void;
-}
+type AvailabilityBookerProps = {
+    id: string;
+};
 
-const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({
-    availability,
-    open,
-    onClose,
-}) => {
-    const isGroup = availability.maxParticipants > 1;
-    const minStartTime = new Date(availability.startTime);
-    const maxStartTime = new Date(availability.endTime);
+const AvailabilityBooker = () => {
+    const { id } = useParams<AvailabilityBookerProps>();
 
     const request = useRequest();
     const api = useApi();
@@ -62,8 +58,50 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({
     const cache = useCache();
 
     const [selectedType, setSelectedType] = useState<AvailabilityType | null>(null);
-    const [startTime, setStartTime] = useState<Date | null>(minStartTime);
+    const [startTime, setStartTime] = useState<Date | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const availability = cache.getAvailability(id!);
+
+    useEffect(() => {
+        if (availability) {
+            setStartTime(new Date(availability.startTime));
+        }
+    }, [availability, setStartTime]);
+
+    console.log('Availability: ', availability);
+
+    if (!availability) {
+        if (cache.isLoading) {
+            return (
+                <Container sx={{ pt: 6, pb: 4 }}>
+                    <CircularProgress />
+                </Container>
+            );
+        }
+
+        return (
+            <Snackbar
+                open
+                autoHideDuration={6000}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    variant='filled'
+                    severity='error'
+                    sx={{ width: '100%' }}
+                    onClose={() => navigate('/calendar')}
+                >
+                    This availability cannot be found. It is either fully booked, deleted
+                    by the owner or not available to your cohort.
+                </Alert>
+            </Snackbar>
+        );
+    }
+
+    const isGroup = availability.maxParticipants > 1;
+    const minStartTime = new Date(availability.startTime);
+    const maxStartTime = new Date(availability.endTime);
 
     const confirmSoloBooking = () => {
         const newErrors: Record<string, string> = {};
@@ -128,7 +166,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({
     };
 
     return (
-        <Dialog fullScreen open={open} onClose={onClose} TransitionComponent={Transition}>
+        <Dialog fullScreen open={true} TransitionComponent={Transition}>
             <RequestSnackbar request={request} />
 
             <AppBar sx={{ position: 'relative' }}>
@@ -138,7 +176,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({
                     </Typography>
                     <Button
                         color='inherit'
-                        onClick={onClose}
+                        onClick={() => navigate('/calendar')}
                         disabled={request.status === RequestStatus.Loading}
                     >
                         Cancel

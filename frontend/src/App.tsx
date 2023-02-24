@@ -22,6 +22,7 @@ import GroupMeetingPage from './meeting/GroupMeetingPage';
 import GamePage from './games/GamePage';
 import ListGamesPage from './games/ListGamesPage';
 import SubmitGamePage from './games/SubmitGamePage';
+import AvailabilityBooker from './calendar/AvailabilityBooker';
 
 const config = getConfig();
 Amplify.configure({
@@ -71,7 +72,12 @@ function Router() {
                     <Route path='admin' element={<AdminPage />} />
 
                     <Route element={<RequireProfile />}>
-                        <Route path='calendar' element={<CalendarPage />} />
+                        <Route path='calendar' element={<CalendarPage />}>
+                            <Route
+                                path='availability/:id'
+                                element={<AvailabilityBooker />}
+                            />
+                        </Route>
                         <Route path='meeting'>
                             <Route index element={<ListMeetingsPage />} />
                             <Route path=':meetingId' element={<MeetingPage />} />

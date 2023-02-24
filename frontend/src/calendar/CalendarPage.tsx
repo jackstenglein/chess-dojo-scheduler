@@ -11,12 +11,13 @@ import {
     getDisplayString,
 } from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { Meeting } from '../database/meeting';
+import { Meeting, MeetingStatus } from '../database/meeting';
 import { CalendarFilters, Filters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
 import { useCache, useCalendar } from '../api/Cache';
 import { useAuth } from '../auth/Auth';
 import { User } from '../database/user';
+import { Outlet } from 'react-router-dom';
 
 const ONE_HOUR = 3600000;
 
@@ -116,7 +117,14 @@ function getEventFromAvailability(
     };
 }
 
-function getEventFromMeeting(user: User, filters: Filters, m: Meeting): ProcessedEvent {
+function getEventFromMeeting(
+    user: User,
+    filters: Filters,
+    m: Meeting
+): ProcessedEvent | null {
+    if (m.status === MeetingStatus.Canceled) {
+        return null;
+    }
     let color = undefined;
     if (m.owner !== user.username && m.participant !== user.username) {
         color = '#66bb6a';
@@ -151,7 +159,12 @@ function getEvents(
     });
 
     if (filters.meetings) {
-        events.push(...meetings.map((m) => getEventFromMeeting(user, filters, m)));
+        meetings.forEach((m) => {
+            const event = getEventFromMeeting(user, filters, m);
+            if (event !== null) {
+                events.push(event);
+            }
+        });
     }
 
     return events;
@@ -298,6 +311,8 @@ export default function CalendarPage() {
                     />
                 </Grid>
             </Grid>
+
+            <Outlet />
         </Container>
     );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Stack, Typography, Button } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
@@ -7,7 +7,7 @@ import {
     AvailabilityType,
     getDisplayString,
 } from '../database/availability';
-import AvailabilityBooker from './AvailabilityBooker';
+import { useNavigate } from 'react-router-dom';
 
 interface AvailabilityViewerProps {
     event: ProcessedEvent;
@@ -15,88 +15,72 @@ interface AvailabilityViewerProps {
 
 const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
     const availability: Availability = event.availability;
+    const navigate = useNavigate();
 
-    const [isBooking, setIsBooking] = useState(false);
     const isOwner = event.isOwner;
 
     const startBooking = () => {
-        setIsBooking(true);
-    };
-
-    const stopBooking = () => {
-        setIsBooking(false);
+        navigate(`/calendar/availability/${availability.id}`);
     };
 
     return (
-        <>
-            <Stack sx={{ pt: 2 }} spacing={2}>
-                {!isOwner && (
-                    <Stack>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                            Owner
-                        </Typography>
-                        <Typography variant='body1'>
-                            {availability.ownerDiscord} ({availability.ownerCohort})
-                        </Typography>
-                    </Stack>
-                )}
-
-                {availability.maxParticipants > 1 && (
-                    <Stack>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                            Number of Participants
-                        </Typography>
-                        <Typography variant='body1'>
-                            {availability.participants?.length ?? 0} /{' '}
-                            {availability.maxParticipants}
-                        </Typography>
-                    </Stack>
-                )}
-
+        <Stack sx={{ pt: 2 }} spacing={2}>
+            {!isOwner && (
                 <Stack>
                     <Typography variant='subtitle2' color='text.secondary'>
-                        Available Types
+                        Owner
                     </Typography>
                     <Typography variant='body1'>
-                        {availability.types
-                            .map((t: AvailabilityType) => getDisplayString(t))
-                            .join(', ')}
+                        {availability.ownerDiscord} ({availability.ownerCohort})
                     </Typography>
                 </Stack>
+            )}
 
-                {availability.description.length > 0 && (
-                    <Stack>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                            Description
-                        </Typography>
-                        <Typography variant='body1'>
-                            {availability.description}
-                        </Typography>
-                    </Stack>
-                )}
-
+            {availability.maxParticipants > 1 && (
                 <Stack>
                     <Typography variant='subtitle2' color='text.secondary'>
-                        Cohorts
+                        Number of Participants
                     </Typography>
                     <Typography variant='body1'>
-                        {availability.cohorts.join(', ')}
+                        {availability.participants?.length ?? 0} /{' '}
+                        {availability.maxParticipants}
                     </Typography>
                 </Stack>
+            )}
 
-                {!isOwner && (
-                    <Button variant='contained' onClick={startBooking}>
-                        Book
-                    </Button>
-                )}
+            <Stack>
+                <Typography variant='subtitle2' color='text.secondary'>
+                    Available Types
+                </Typography>
+                <Typography variant='body1'>
+                    {availability.types
+                        .map((t: AvailabilityType) => getDisplayString(t))
+                        .join(', ')}
+                </Typography>
             </Stack>
 
-            <AvailabilityBooker
-                availability={availability}
-                open={isBooking}
-                onClose={stopBooking}
-            />
-        </>
+            {availability.description.length > 0 && (
+                <Stack>
+                    <Typography variant='subtitle2' color='text.secondary'>
+                        Description
+                    </Typography>
+                    <Typography variant='body1'>{availability.description}</Typography>
+                </Stack>
+            )}
+
+            <Stack>
+                <Typography variant='subtitle2' color='text.secondary'>
+                    Cohorts
+                </Typography>
+                <Typography variant='body1'>{availability.cohorts.join(', ')}</Typography>
+            </Stack>
+
+            {!isOwner && (
+                <Button variant='contained' onClick={startBooking}>
+                    Book
+                </Button>
+            )}
+        </Stack>
     );
 };
 
