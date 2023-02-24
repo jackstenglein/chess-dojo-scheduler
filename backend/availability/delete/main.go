@@ -9,6 +9,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 )
 
 var repository database.AvailabilityDeleter = database.DynamoDB
@@ -38,6 +39,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if err = repository.RecordAvailabilityDeletion(availability); err != nil {
 		log.Error("Failed RecordAvailabilityDeletion: ", err)
+	}
+
+	if err = discord.DeleteMessage(availability.DiscordMessageId); err != nil {
+		log.Error("Failed discord.DeleteMessage: ", err)
 	}
 
 	return api.Success(funcName, nil), nil
