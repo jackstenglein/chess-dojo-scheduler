@@ -12,6 +12,7 @@ export interface Availability {
     status: AvailabilityStatus;
     maxParticipants: number;
     participants: Participant[];
+    discordMessageId: string;
 }
 
 export interface Participant {

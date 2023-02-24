@@ -35,6 +35,37 @@ func IsValidAvailabilityType(t AvailabilityType) bool {
 	return false
 }
 
+func GetDisplayName(t AvailabilityType) string {
+	switch t {
+	case "CLASSICAL_GAME":
+		return "Classical Game"
+	case "OPENING_SPARRING":
+		return "Opening Sparring"
+	case "MIDDLEGAME_SPARRING":
+		return "Middlegame Sparring"
+	case "ENDGAME_SPARRING":
+		return "Endgame Sparring"
+	case "ROOK_ENDGAME_PROGRESSION":
+		return "Rook Endgame Progression"
+	case "CLASSIC_ANALYSIS":
+		return "Analyze Classic Game"
+	case "ANALYZE_OWN_GAME":
+		return "Analyze Own Game"
+	case "BOOK_STUDY":
+		return "Book Study"
+	default:
+		return "Unknown"
+	}
+}
+
+func GetDisplayNames(types []AvailabilityType) []string {
+	result := make([]string, 0, len(types))
+	for _, t := range types {
+		result = append(result, GetDisplayName(t))
+	}
+	return result
+}
+
 // Represents the scheduling status for availabilities and meetings.
 type SchedulingStatus string
 
@@ -100,6 +131,9 @@ type Availability struct {
 
 	// A list containing the participants in the availability
 	Participants []*Participant `dynamodbav:"participants" json:"participants"`
+
+	// The ID of the Discord notification message for this availability
+	DiscordMessageId string `dynamodbav:"discordMessageId" json:"discordMessageId"`
 }
 
 type AvailabilitySetter interface {

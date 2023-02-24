@@ -13,6 +13,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 )
 
 const funcName = "availability-set-handler"
@@ -123,6 +124,18 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if err := repository.SetAvailability(&availability); err != nil {
 		return api.Failure(funcName, err), nil
+	}
+
+	if msgId, err := discord.SendAvailabilityNotification(&availability); err != nil {
+		log.Error("Failed SendAvailabilityNotification: ", err)
+	} else if availability.DiscordMessageId != msgId {
+		// We have to save the availability a second time in order to avoid first
+		// sending the Discord notification and then failing to save the availability.
+		// If this save fails, we just log the error and return success since it is non-critical.
+		availability.DiscordMessageId = msgId
+		if err := repository.SetAvailability(&availability); err != nil {
+			log.Error("Failed to set availability.DiscordMessageId: ", err)
+		}
 	}
 
 	return api.Success(funcName, availability), nil

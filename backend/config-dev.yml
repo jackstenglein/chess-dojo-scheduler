@@ -1,2 +1,3 @@
 stage: dev
 frontendHost: 'http://localhost:3000'
+discordFindGameChannelId: '1078714829709262858'

@@ -30,6 +30,7 @@ provider:
   environment:
     stage: ${sls:stage}
     frontendHost: ${file(./config-${sls:stage}.yml):frontendHost}
+    discordFindGameChannelId: ${file(./config-${sls:stage}.yml):discordFindGameChannelId}
     discordAuth: ${file(./discord.yml):discordAuth}
   httpApi:
     cors: true
@@ -196,6 +197,10 @@ functions:
           - dynamodb:PutItem
           - dynamodb:UpdateItem
         Resource: !GetAtt AvailabilitiesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
 
   bookAvailability:
     handler: bin/availability/book
