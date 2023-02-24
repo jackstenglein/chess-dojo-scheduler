@@ -16,6 +16,7 @@ var repository database.UserGetter = database.DynamoDB
 
 const guildId = "951958534113886238"
 
+var frontendHost = os.Getenv("frontendHost")
 var findGameChannelId = os.Getenv("discordFindGameChannelId")
 var authToken = os.Getenv("discordAuth")
 
@@ -90,7 +91,7 @@ func SendBookingNotification(username string, meetingId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it at https://www.chess-dojo-scheduler.com/meeting/%s", meetingId)
+	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it at %s/meeting/%s", frontendHost, meetingId)
 	return SendNotification(user, msg)
 }
 
@@ -106,7 +107,7 @@ func SendGroupJoinNotification(username string, availabilityId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it at https://www.chess-dojo-scheduler.com/group/%s", availabilityId)
+	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it at %s/group/%s", frontendHost, availabilityId)
 	return SendNotification(user, msg)
 }
 
@@ -122,7 +123,7 @@ func SendCancellationNotification(username string, meetingId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, your opponent has cancelled your upcoming meeting. View it at https://www.chess-dojo-scheduler.com/meeting/%s", meetingId)
+	msg := fmt.Sprintf("Hello, your opponent has cancelled your upcoming meeting. View it at %s/meeting/%s", frontendHost, meetingId)
 	return SendNotification(user, msg)
 }
 
