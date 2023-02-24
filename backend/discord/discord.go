@@ -167,6 +167,7 @@ func SendAvailabilityNotification(availability *database.Availability) (string, 
 	}
 
 	sb.WriteString(fmt.Sprintf("\nCurrent Participants: %d/%d", len(availability.Participants), availability.MaxParticipants))
+	sb.WriteString(fmt.Sprintf("\n%s/calendar/availability/%s", frontendHost, availability.Id))
 
 	if availability.DiscordMessageId == "" {
 		msg, err := discord.ChannelMessageSend(findGameChannelId, sb.String())
