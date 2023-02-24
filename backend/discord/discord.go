@@ -179,9 +179,9 @@ func SendAvailabilityNotification(availability *database.Availability) (string, 
 	}
 }
 
-// deleteAvailabilityNotification deletes the Discord notification message associated with the given availability
-func deleteAvailabilityNotification(availability *database.Availability) error {
-	if availability.DiscordMessageId == "" {
+// DeleteMessage deletes the provided Discord notification message.
+func DeleteMessage(messageId string) error {
+	if messageId == "" {
 		return nil
 	}
 
@@ -190,15 +190,9 @@ func deleteAvailabilityNotification(availability *database.Availability) error {
 		return errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
 	}
 
-	err = discord.ChannelMessageDelete(findGameChannelId, availability.DiscordMessageId)
+	err = discord.ChannelMessageDelete(findGameChannelId, messageId)
 	return errors.Wrap(500, "Temporary server error", "Failed to delete Discord channel message", err)
 }
-
-// func HandleAvailability(availability *database.Availability) (string, error) {
-// 	if availability.Status == database.Booked {
-
-// 	}
-// }
 
 // SendNotification sends the provided message over Discord DM to the provided user.
 func SendNotification(user *database.User, message string) error {

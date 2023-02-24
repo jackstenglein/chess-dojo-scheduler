@@ -88,6 +88,14 @@ func handleGroupBooking(info *api.UserInfo, availability *database.Availability)
 		log.Error("Failed SendGroupJoinNotification: ", err)
 	}
 
+	if a.Status == database.Booked {
+		if err := discord.DeleteMessage(availability.DiscordMessageId); err != nil {
+			log.Error("Failed to delete Discord message: ", err)
+		}
+	} else if _, err := discord.SendAvailabilityNotification(a); err != nil {
+		log.Error("Failed SendAvailabilityNotification: ", err)
+	}
+
 	return api.Success(funcName, a), nil
 }
 
@@ -127,6 +135,10 @@ func handleSoloBooking(info *api.UserInfo, meeting *database.Meeting, availabili
 
 	if err := discord.SendBookingNotification(meeting.Owner, meeting.Id); err != nil {
 		log.Error("Failed SendBookingNotification: ", err)
+	}
+
+	if err := discord.DeleteMessage(availability.DiscordMessageId); err != nil {
+		log.Error("Failed to delete Discord message: ", err)
 	}
 
 	return api.Success(funcName, meeting), nil

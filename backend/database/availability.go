@@ -456,6 +456,10 @@ func (repo *dynamoRepository) BookAvailability(availability *Availability, reque
 		return errors.Wrap(500, "Temporary server error", "Unable to marshal availability", err)
 	}
 
+	// Manually set discordMessageId to empty string because the message will be deleted after
+	// the booking completes
+	item["discordMessageId"] = &dynamodb.AttributeValue{S: aws.String("")}
+
 	input := &dynamodb.PutItemInput{
 		ConditionExpression: aws.String("attribute_exists(id) AND #status = :scheduled"),
 		ExpressionAttributeNames: map[string]*string{
@@ -512,11 +516,13 @@ func (repo *dynamoRepository) BookGroupAvailability(availability *Availability, 
 	}
 
 	if len(availability.Participants) == availability.MaxParticipants-1 {
-		updateExpr += ", #status = :booked"
+		updateExpr += ", #status = :booked, #discordMessageId = :empty"
 		exprAttrNames["#status"] = aws.String("status")
 		exprAttrValues[":booked"] = &dynamodb.AttributeValue{
 			S: aws.String(string(Booked)),
 		}
+		exprAttrNames["#discordMessageId"] = aws.String("discordMessageId")
+		exprAttrValues[":empty"] = &dynamodb.AttributeValue{S: aws.String("")}
 	}
 
 	input := &dynamodb.UpdateItemInput{
