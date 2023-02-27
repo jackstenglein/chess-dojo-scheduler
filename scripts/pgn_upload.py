@@ -125,7 +125,7 @@ def handle_game(game) -> bool:
             'white': white.lower(),
             'black': black.lower(),
             'date': date,
-            'owner': 'admin',
+            'owner': 'admin2',
             'headers': headers,
             'pgn': str(game),
         }
@@ -133,20 +133,11 @@ def handle_game(game) -> bool:
 
     return True
 
-    
-
 
 def main():
-    pgn = codecs.open('ChessDojoTrainingProgramDatabase.pgn', encoding='utf-8', errors='ignore')
-    invalid_output = open('invalid_games_prod_2.pgn', 'w')
-    valid_output = open('valid_games_prod_2.pgn', 'w')
-
-    # 5000 valid, 1167 invalid
-    # 11245 valid, 2855 invalid
-    skip_games_count = 6167
-    for i in range(0, skip_games_count):
-        game = chess.pgn.read_game(pgn)
-    print('Starting after game: ', game.headers)
+    pgn = codecs.open('DojoTrainingDatabase.pgn', encoding='utf-8', errors='ignore')
+    invalid_output = open('invalid_games.pgn', 'w')
+    valid_output = open('valid_games.pgn', 'w')
 
     valid_games = 0
     invalid_games = 0
@@ -161,7 +152,6 @@ def main():
             if game is not None:
                 if handle_game(game):
                     valid_games += 1
-                    
                     print(game, file=valid_output, end='\n\n')
                 else:
                     invalid_games += 1
@@ -177,6 +167,7 @@ def main():
 
     print('Valid Games: ', valid_games)
     print('Invalid Games: ', invalid_games)
+
 
 if __name__ == '__main__':
     main()
