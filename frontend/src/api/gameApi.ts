@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
 import { Game, GameInfo } from '../database/game';
+import { User } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -24,7 +25,6 @@ export type GameApiContextType = {
     /**
      * listGamesByCohort returns a list of GameInfo objects corresponding to the provided cohort,
      * as well as the next start key for pagination.
-     * @param idToken The id token of the current signed-in user.
      * @param cohort The cohort to search for games in.
      * @param startKey The optional startKey to use when searching.
      * @param startDate The optional startDate to limit the search to.
@@ -55,6 +55,18 @@ export type GameApiContextType = {
         player?: string,
         color?: string
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+
+    /**
+     * createComment adds the given content as a comment on the given game.
+     * @param cohort The cohort the game is in.
+     * @param id The id of the game.
+     * @param content The text content of the game.
+     */
+    createComment: (
+        cohort: string,
+        id: string,
+        content: string
+    ) => Promise<AxiosResponse<Game, any>>;
 };
 
 export interface CreateGameRequest {
@@ -148,6 +160,33 @@ export function listGamesByOwner(
     let params = { startKey, startDate, endDate, player, color };
     return axios.get<ListGamesResponse>(BASE_URL + '/game', {
         params,
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+}
+
+/**
+ * createComment adds the given content as a comment on the given game.
+ * @param commenter The user posting the comment.
+ * @param cohort The cohort the game is in.
+ * @param id The id of the game.
+ * @param content The text content of the game.
+ */
+export function createComment(
+    idToken: string,
+    commenter: User,
+    cohort: string,
+    id: string,
+    content: string
+) {
+    const comment = {
+        owner: commenter.username,
+        ownerDiscord: commenter.discordUsername,
+        content: content,
+    };
+
+    return axios.post<Game>(BASE_URL + `/game/${cohort}/${id}/comment`, comment, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

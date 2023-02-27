@@ -36,6 +36,26 @@ func (s byDate) Less(i, j int) bool {
 	return s[i].Date > s[j].Date
 }
 
+type Comment struct {
+	// The Cognito username of the poster of the comment
+	Owner string `dynamodbav:"owner" json:"owner"`
+
+	// The discord username of the poster of the comment
+	OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
+
+	// A v4 UUID identifying the comment
+	Id string `dynamodbav:"id" json:"id"`
+
+	// The time the comment was created
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+
+	// The time the comment was updated
+	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+
+	// The content of the comment
+	Content string `dynamodbav:"content" json:"content"`
+}
+
 type Game struct {
 	// The Dojo cohort for the game
 	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
@@ -60,6 +80,9 @@ type Game struct {
 
 	// The PGN text of the game
 	Pgn string `dynamodbav:"pgn" json:"pgn,omitempty"`
+
+	// The comments left on the game
+	Comments []*Comment `dynamodbav:"comments" json:"comments"`
 }
 
 type GamePutter interface {
@@ -89,6 +112,11 @@ type GameLister interface {
 	// ListGamesByPlayer returns a list of Games matching the provided player. The PGN text is excluded and must
 	// be fetched separately with a call to GetGame.
 	ListGamesByPlayer(player string, color PlayerColor, startDate, endDate, startKey string) ([]*Game, string, error)
+}
+
+type GameCommenter interface {
+	// CreateComment appends the provided comment to the provided Game's comment list.
+	CreateComment(cohort, id string, comment *Comment) (*Game, error)
 }
 
 // PutGame inserts the provided game into the database.
@@ -334,4 +362,50 @@ func (repo *dynamoRepository) listColorGames(player, color, startDate, endDate, 
 	}
 
 	return repo.fetchGames(input, startKey)
+}
+
+func (repo *dynamoRepository) CreateComment(cohort, id string, comment *Comment) (*Game, error) {
+	item, err := dynamodbattribute.MarshalMap(comment)
+	if err != nil {
+		return nil, errors.Wrap(400, "Invalid request: comment cannot be marshaled", "", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("attribute_exists(cohort)"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"cohort": {
+				S: aws.String(cohort),
+			},
+			"id": {
+				S: aws.String(id),
+			},
+		},
+		UpdateExpression: aws.String("SET #c = list_append(#c, :c)"),
+		ExpressionAttributeNames: map[string]*string{
+			"#c": aws.String("comments"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":c": {
+				L: []*dynamodb.AttributeValue{
+					{M: item},
+				},
+			},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(gameTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: game not found", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
+	}
+
+	game := Game{}
+	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &game); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetGame result", err)
+	}
+	return &game, nil
 }

@@ -23,8 +23,18 @@ export interface GameInfo {
     headers: PgnHeaders;
 }
 
+export interface Comment {
+    owner: string;
+    ownerDiscord: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    content: string;
+}
+
 export type Game = GameInfo & {
     pgn: string;
+    comments: Comment[];
 };
 
 export function isDefaultHeader(header: string): boolean {

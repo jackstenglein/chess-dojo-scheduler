@@ -33,6 +33,7 @@ import {
     getGame,
     listGamesByCohort,
     listGamesByOwner,
+    createComment,
 } from './gameApi';
 
 /**
@@ -112,8 +113,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 player?: string,
                 color?: string
             ) => listGamesByOwner(idToken, startKey, startDate, endDate, player, color),
+            createComment: (cohort: string, id: string, content: string) =>
+                createComment(idToken, auth.user!, cohort, id, content),
         };
-    }, [idToken, auth.updateUser]);
+    }, [idToken, auth.user, auth.updateUser]);
 
     return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
 }

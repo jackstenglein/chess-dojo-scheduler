@@ -427,6 +427,23 @@ functions:
         Resource:
           - !GetAtt GamesTable.Arn
 
+  createGameComment:
+    handler: bin/game/comment/create
+    package:
+      patterns:
+        - ./bin/game/comment/create
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id}/comment
+          method: post
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt GamesTable.Arn
+
   listGamesByCohort:
     handler: bin/game/list/cohort
     package:
