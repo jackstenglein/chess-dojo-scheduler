@@ -86,6 +86,7 @@ const GamePage = () => {
                                 <TextField
                                     label='Add a Comment'
                                     fullWidth
+                                    multiline
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                 />

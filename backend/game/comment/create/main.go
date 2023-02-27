@@ -52,6 +52,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	if string(comment.OwnerCohort) == "" {
+		err := errors.New(400, "Invalid request: ownerCohort must not be empty", "")
+		return api.Failure(funcName, err), nil
+	}
+
 	if comment.Content == "" {
 		err := errors.New(400, "Invalid request: content must not be empty", "")
 		return api.Failure(funcName, err), nil

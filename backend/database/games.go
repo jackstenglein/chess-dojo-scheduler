@@ -43,6 +43,9 @@ type Comment struct {
 	// The discord username of the poster of the comment
 	OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
 
+	// The cohort of the poster of the comment
+	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
+
 	// A v4 UUID identifying the comment
 	Id string `dynamodbav:"id" json:"id"`
 

@@ -26,6 +26,7 @@ export interface GameInfo {
 export interface Comment {
     owner: string;
     ownerDiscord: string;
+    ownerCohort: string;
     id: string;
     createdAt: string;
     updatedAt: string;

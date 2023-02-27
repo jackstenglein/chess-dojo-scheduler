@@ -183,6 +183,7 @@ export function createComment(
     const comment = {
         owner: commenter.username,
         ownerDiscord: commenter.discordUsername,
+        ownerCohort: commenter.dojoCohort,
         content: content,
     };
 

@@ -11,9 +11,14 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
     return (
         <Stack>
             <Typography variant='subtitle1' color='text.secondary'>
-                {comment.ownerDiscord} • {createdAt.toLocaleString()}
+                {comment.ownerDiscord} ({comment.ownerCohort})
             </Typography>
-            <Typography variant='body1'>{comment.content}</Typography>
+            <Typography variant='subtitle2' color='text.secondary'>
+                {createdAt.toLocaleString()}
+            </Typography>
+            <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
+                {comment.content}
+            </Typography>
         </Stack>
     );
 };
