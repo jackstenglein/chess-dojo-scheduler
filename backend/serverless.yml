@@ -666,11 +666,15 @@ resources:
       Properties:
         TableName: ${sls:stage}-requirements
         AttributeDefinitions:
+          - AttributeName: status
+            AttributeType: S
           - AttributeName: id
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: status
             KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
         BillingMode: !If
           - IsProd
           - PROVISIONED

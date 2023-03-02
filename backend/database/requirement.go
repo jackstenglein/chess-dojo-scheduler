@@ -1,8 +1,21 @@
 package database
 
+type RequirementStatus string
+
+const (
+	Active   RequirementStatus = "ACTIVE"
+	Archived RequirementStatus = "ARCHIVED"
+)
+
 type Requirement struct {
-	// Uniquely identifies a requirement
+	// Uniquely identifies a requirement. The sort key for the table.
 	Id string `dynamodbav:"id" json:"id"`
+
+	// Identifies whether the requirement is active or not. The partition key for the table.
+	Status RequirementStatus `dynamodbav:"status" json:"status"`
+
+	// The category that the requirement is in (Ex: Tactics)
+	Category string `dynamodbav:"category" json:"category"`
 
 	// The display name of the requirement
 	Name string `dynamodbav:"name" json:"name"`
@@ -10,8 +23,8 @@ type Requirement struct {
 	// The description of the requirement
 	Description string `dynamodbav:"description" json:"description"`
 
-	// The total number of units in the requirement
-	Count int `dynamodbav:"count" json:"count"`
+	// The total number of units in the requirement, by cohort
+	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`
 
 	// The score per unit
 	UnitScore int `dynamodbav:"unitScore" json:"unitScore"`
@@ -21,6 +34,9 @@ type Requirement struct {
 
 	// The cohorts that the requirement applies to
 	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
+
+	// If true, hide the requirement from the scoreboard
+	HideFromScoreboard bool `dynamodbav:"hideFromScoreboard" json:"hideFromScoreboard"`
 
 	// The time the requirement was most recently updated
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
