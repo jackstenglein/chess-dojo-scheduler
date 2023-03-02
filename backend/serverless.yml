@@ -491,7 +491,7 @@ functions:
 
 resources:
   Conditions:
-    IsProd: !Equals ['${{self:provider.stage}}', 'prod']
+    IsProd: !Equals ['${sls:stage}', 'prod']
 
   Resources:
     ######### Cognito Resources ###############
