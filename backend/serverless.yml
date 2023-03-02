@@ -489,6 +489,26 @@ functions:
               - - !GetAtt GamesTable.Arn
                 - '/index/BlackIndex'
 
+  ########## Requirement Endpoints ##############
+
+  listRequirements:
+    handler: bin/requirement/list
+    package:
+      patterns:
+        - ./bin/requirement/list
+    events:
+      - httpApi:
+          path: /requirement/{cohort}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:Scan
+        Resource:
+          - !GetAtt RequirementsTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
