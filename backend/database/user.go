@@ -51,20 +51,49 @@ func IsValidCohort(c DojoCohort) bool {
 }
 
 type User struct {
-	// Cognito attributes
+	// The user's Cognito username. Uniquely identifies a user
 	Username string `dynamodbav:"username" json:"username"`
-	Email    string `dynamodbav:"email" json:"-"`
-	Name     string `dynamodbav:"name" json:"-"`
 
-	// Public attributes
-	DiscordUsername                  string             `dynamodbav:"discordUsername" json:"discordUsername"`
-	ChesscomUsername                 string             `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
-	LichessUsername                  string             `dynamodbav:"lichessUsername" json:"lichessUsername"`
-	DojoCohort                       DojoCohort         `dynamodbav:"dojoCohort" json:"dojoCohort"`
-	DisableBookingNotifications      bool               `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
-	DisableCancellationNotifications bool               `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
-	GamesCreated                     map[DojoCohort]int `dynamodbav:"gamesCreated" json:"gamesCreated"`
+	// The user's email address
+	Email string `dynamodbav:"email" json:"-"`
 
+	// The name of the user
+	Name string `dynamodbav:"name" json:"-"`
+
+	// The user's Discord username
+	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
+
+	// The user's Chess.com username
+	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
+
+	// The user's Lichess username
+	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
+
+	// The user's FIDE Id
+	FideId string `dynamodbav:"fideId" json:"fideId"`
+
+	// The user's USCF Id
+	UscfId string `dynamodbav:"uscfId" json:"uscfId"`
+
+	// The user's Dojo cohort
+	DojoCohort DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
+
+	// Maps requirement ids to RequirementProgress objects
+	Progress map[string]*RequirementProgress `dynamodbav:"progress" json:"progress"`
+
+	// A list of RequirementProgress objects forming the user's activity
+	Timeline []*RequirementProgress `dynamodbav:"timeline" json:"timeline"`
+
+	// Whether to disable notifications when a user's meeting is booked
+	DisableBookingNotifications bool `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
+
+	// Whether to disable notifications when a user's meeting is cancelled
+	DisableCancellationNotifications bool `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
+
+	// The number of games the user has created
+	GamesCreated map[DojoCohort]int `dynamodbav:"gamesCreated" json:"gamesCreated"`
+
+	// Whether the user is an admin or not
 	IsAdmin bool `dynamodbav:"isAdmin" json:"isAdmin"`
 }
 

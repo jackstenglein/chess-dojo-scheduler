@@ -490,6 +490,9 @@ functions:
                 - '/index/BlackIndex'
 
 resources:
+  Conditions:
+    IsProd: !Equals ['${{self:provider.stage}}', 'prod']
+
   Resources:
     ######### Cognito Resources ###############
 
@@ -657,6 +660,26 @@ resources:
         TimeToLiveSpecification:
           AttributeName: expirationTime
           Enabled: true
+
+    RequirementsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-requirements
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: !If
+          - IsProd
+          - PROVISIONED
+          - PAY_PER_REQUEST
+        ProvisionedThroughput: !If
+          - IsProd
+          - ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          - !Ref AWS::NoValue
 
     GamesTable:
       Type: AWS::DynamoDB::Table
