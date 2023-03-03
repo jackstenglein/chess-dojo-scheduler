@@ -7,7 +7,6 @@ import {
     ReactNode,
 } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { Stack, CircularProgress } from '@mui/material';
 import { Auth as AmplifyAuth } from 'aws-amplify';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CognitoUser, User } from '../database/user';
 import { getUser } from '../api/userApi';
 import ProfilePage from '../profile/ProfilePage';
+import LoadingPage from '../loading/LoadingPage';
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -197,11 +197,7 @@ export function RequireAuth() {
     const auth = useAuth();
 
     if (auth.status === AuthStatus.Loading) {
-        return (
-            <Stack sx={{ pt: 6, pb: 4 }} justifyContent='center' alignItems='center'>
-                <CircularProgress />
-            </Stack>
-        );
+        return <LoadingPage />;
     }
 
     if (auth.status === AuthStatus.Unauthenticated || !auth.user) {

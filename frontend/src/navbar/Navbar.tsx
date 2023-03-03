@@ -93,12 +93,20 @@ const Navbar = () => {
                             </Box>
 
                             {isAdmin && (
-                                <Button
-                                    onClick={() => navigate('/admin')}
-                                    sx={{ color: 'white' }}
-                                >
-                                    Admin Portal
-                                </Button>
+                                <Box>
+                                    <Button
+                                        onClick={() => navigate('/scoreboard')}
+                                        sx={{ color: 'white' }}
+                                    >
+                                        Scoreboard
+                                    </Button>
+                                    <Button
+                                        onClick={() => navigate('/admin')}
+                                        sx={{ color: 'white' }}
+                                    >
+                                        Admin Portal
+                                    </Button>
+                                </Box>
                             )}
 
                             <Button onClick={auth.signout} sx={{ color: 'white' }}>

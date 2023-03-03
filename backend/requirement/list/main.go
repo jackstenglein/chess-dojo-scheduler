@@ -29,7 +29,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
 	}
 
-	scoreboard, _ := event.QueryStringParameters["scoreboard"]
+	scoreboard, _ := event.QueryStringParameters["scoreboardOnly"]
 	scoreboardOnly := scoreboard == "true"
 	startKey, _ := event.QueryStringParameters["startKey"]
 

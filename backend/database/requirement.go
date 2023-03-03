@@ -36,19 +36,22 @@ type Requirement struct {
 	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`
 
 	// The score per unit
-	UnitScore int `dynamodbav:"unitScore" json:"unitScore"`
+	UnitScore float32 `dynamodbav:"unitScore" json:"unitScore"`
 
 	// The URLs of the videos describing the requirement, if any exist
 	VideoUrls []string `dynamodbav:"videoUrls" json:"videoUrls"`
 
-	// The cohorts that the requirement applies to
-	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
+	// The positions included in the requirement, if any exist
+	Positions []string `dynamodbav:"positions" json:"positions"`
 
 	// If true, hide the requirement from the scoreboard
 	HideFromScoreboard bool `dynamodbav:"hideFromScoreboard" json:"hideFromScoreboard"`
 
 	// The time the requirement was most recently updated
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+
+	// The priority in which to sort this requirement when displaying to the user
+	SortPriority string `dynamodbav:"sortPriority" json:"sortPriority"`
 }
 
 type RequirementProgress struct {
