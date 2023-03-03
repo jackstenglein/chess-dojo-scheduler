@@ -1,13 +1,27 @@
 import { useEffect, useMemo } from 'react';
 import { Container } from '@mui/material';
 import { useParams, Navigate } from 'react-router-dom';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    GridColDef,
+    GridRowModel,
+    GridValueFormatterParams,
+    GridValueGetterParams,
+} from '@mui/x-data-grid';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
 import { compareRequirements, Requirement } from '../database/requirement';
+import {
+    formatRatingSystem,
+    getColumnDefinition,
+    ratingIncreaseGetter,
+    ScoreboardUser,
+    testUser,
+} from './scoreboardData';
 
 interface ColumnGroupChild {
     field: string;
@@ -21,6 +35,49 @@ interface ColumnGroup {
 type ScoreboardPageParams = {
     cohort: string;
 };
+
+const defaultColumnGroups: ColumnGroup[] = [
+    {
+        groupId: 'User Info',
+        children: [
+            { field: 'discordUsername' },
+            { field: 'ratingSystem' },
+            { field: 'startRating' },
+            { field: 'currentRating' },
+            { field: 'ratingIncrease' },
+        ],
+    },
+];
+
+const defaultColumns: GridColDef[] = [
+    {
+        field: 'discordUsername',
+        headerName: 'Discord ID',
+        minWidth: 250,
+    },
+    {
+        field: 'ratingSystem',
+        headerName: 'Rating System',
+        minWidth: 250,
+        valueFormatter: formatRatingSystem,
+    },
+    {
+        field: 'startRating',
+        headerName: 'Start Rating',
+        minWidth: 250,
+    },
+    {
+        field: 'currentRating',
+        headerName: 'Current Rating',
+        minWidth: 250,
+    },
+    {
+        field: 'ratingIncrease',
+        headerName: 'Rating Increase',
+        minWidth: 250,
+        valueGetter: ratingIncreaseGetter,
+    },
+];
 
 const ScoreboardPage = () => {
     const user = useAuth().user!;
@@ -48,14 +105,8 @@ const ScoreboardPage = () => {
     }, [request.data]);
 
     const columns: GridColDef[] = useMemo(() => {
-        return (
-            requirements?.map((r) => ({
-                field: r.id,
-                headerName: r.name,
-                minWidth: 250,
-            })) ?? []
-        );
-    }, [requirements]);
+        return requirements?.map((r) => getColumnDefinition(r, cohort)) ?? [];
+    }, [requirements, cohort]);
 
     const columnGroups = useMemo(() => {
         const categories: Record<string, ColumnGroup> = {};
@@ -89,9 +140,10 @@ const ScoreboardPage = () => {
 
             <DataGrid
                 experimentalFeatures={{ columnGrouping: true }}
-                columns={columns}
-                columnGroupingModel={columnGroups}
-                rows={[]}
+                columns={defaultColumns.concat(columns)}
+                columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
+                rows={[testUser]}
+                getRowId={(row: GridRowModel<ScoreboardUser>) => row.username}
             />
         </Container>
     );
