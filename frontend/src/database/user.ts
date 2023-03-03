@@ -23,6 +23,26 @@ export function parseCognitoResponse(cognitoResponse: any) {
     };
 }
 
+export enum RatingSystem {
+    Chesscom = 'CHESSCOM',
+    Lichess = 'LICHESS',
+    Fide = 'FIDE',
+    Uscf = 'USCF',
+}
+
+export function formatRatingSystem(ratingSystem: RatingSystem): string {
+    switch (ratingSystem) {
+        case RatingSystem.Chesscom:
+            return 'Chess.com Rapid';
+        case RatingSystem.Lichess:
+            return 'Lichess Classical';
+        case RatingSystem.Fide:
+            return 'FIDE';
+        case RatingSystem.Uscf:
+            return 'USCF';
+    }
+}
+
 export interface User {
     cognitoUser?: CognitoUser;
 
@@ -35,7 +55,7 @@ export interface User {
     fideId: string;
     uscfId: string;
 
-    ratingSystem: 'chesscom' | 'lichess' | 'fide' | 'uscf';
+    ratingSystem: RatingSystem;
 
     startChesscomRating: number;
     currentChesscomRating: number;
