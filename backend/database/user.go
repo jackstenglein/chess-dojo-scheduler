@@ -63,6 +63,9 @@ type User struct {
 	// The user's Discord username
 	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
+	// The user's preferred rating system
+	RatingSystem string `dynamodbav:"ratingSystem" json:"ratingSystem"`
+
 	// The user's Chess.com username
 	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
 

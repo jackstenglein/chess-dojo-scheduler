@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { CognitoUser, parseCognitoResponse, parseUser, User } from '../database/user';
 import { getUser } from '../api/userApi';
-import ProfilePage from '../profile/ProfilePage';
+import ProfilePage from '../profile/ProfileEditorPage';
 import LoadingPage from '../loading/LoadingPage';
 
 export enum AuthStatus {

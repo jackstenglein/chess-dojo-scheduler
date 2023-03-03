@@ -8,7 +8,11 @@ import {
 import ScoreboardProgress from './ScoreboardProgress';
 import { Requirement, ScoreboardDisplay } from '../database/requirement';
 import ScoreboardCheck from './ScoreboardCheck';
-import { User } from '../database/user';
+import {
+    RatingSystem,
+    formatRatingSystem as formatRatingSystemEnum,
+    User,
+} from '../database/user';
 
 export const testUser: User = {
     username: 'asdfuniqueid',
@@ -25,7 +29,7 @@ export const testUser: User = {
     currentFideRating: 0,
     startUscfRating: 0,
     currentUscfRating: 0,
-    ratingSystem: 'chesscom',
+    ratingSystem: RatingSystem.Chesscom,
     dojoCohort: '1500-1600',
     progress: {
         '2472fef6-2799-44eb-ba3a-42a4bafc8dbe': {
@@ -101,34 +105,21 @@ export function getColumnDefinition(
     };
 }
 
-export function formatRatingSystem(params: GridValueFormatterParams<string>) {
-    if (params.value === 'chesscom') {
-        return 'Chess.com Rapid';
-    }
-    if (params.value === 'lichess') {
-        return 'Lichess Classical';
-    }
-    if (params.value === 'fide') {
-        return 'FIDE';
-    }
-    if (params.value === 'uscf') {
-        return 'USCF';
-    }
-
-    return 'Unknown';
+export function formatRatingSystem(params: GridValueFormatterParams<RatingSystem>) {
+    return formatRatingSystemEnum(params.value);
 }
 
 export function getStartRating(params: GridValueGetterParams<any, User>): number {
     const ratingSystem = params.row.ratingSystem;
 
     switch (ratingSystem) {
-        case 'chesscom':
+        case RatingSystem.Chesscom:
             return params.row.startChesscomRating;
-        case 'lichess':
+        case RatingSystem.Lichess:
             return params.row.startLichessRating;
-        case 'fide':
+        case RatingSystem.Fide:
             return params.row.startFideRating;
-        case 'uscf':
+        case RatingSystem.Uscf:
             return params.row.startUscfRating;
 
         default:
@@ -140,13 +131,13 @@ export function getCurrentRating(params: GridValueGetterParams<any, User>): numb
     const ratingSystem = params.row.ratingSystem;
 
     switch (ratingSystem) {
-        case 'chesscom':
+        case RatingSystem.Chesscom:
             return params.row.currentChesscomRating;
-        case 'lichess':
+        case RatingSystem.Lichess:
             return params.row.currentLichessRating;
-        case 'fide':
+        case RatingSystem.Fide:
             return params.row.currentFideRating;
-        case 'uscf':
+        case RatingSystem.Uscf:
             return params.row.currentUscfRating;
 
         default:
