@@ -46,7 +46,6 @@ const ScoreboardPage = () => {
     const requirements = useMemo(() => {
         return [...(request.data ?? [])].sort(compareRequirements);
     }, [request.data]);
-    console.log('Requirements: ', requirements);
 
     const columns: GridColDef[] = useMemo(() => {
         return (

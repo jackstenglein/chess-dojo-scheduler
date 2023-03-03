@@ -62,9 +62,6 @@ type RequirementProgress struct {
 	// The id of the requirement that the progress applies to
 	RequirementId string `dynamodbav:"requirementId" json:"requirementId"`
 
-	// The display name of the requirement that the progress applies to
-	RequirementName string `dynamodbav:"requirementName" json:"requirementName"`
-
 	// The current number of units completed in the requirement, by cohort
 	// If the requirement is not repeatable, then there is only one item
 	// for ALL_COHORTS.

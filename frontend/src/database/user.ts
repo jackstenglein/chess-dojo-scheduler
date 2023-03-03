@@ -1,3 +1,5 @@
+import { RequirementProgress } from './requirement';
+
 interface CognitoSession {
     idToken: {
         jwtToken: string;
@@ -46,7 +48,10 @@ export class User {
         public discordUsername: string,
         public chesscomUsername: string,
         public lichessUsername: string,
+        public fideId: string,
+        public uscfId: string,
         public dojoCohort: string,
+        public progress: { [requirementId: string]: RequirementProgress },
         public disableBookingNotifications: boolean,
         public disableCancellationNotifications: boolean,
 
@@ -60,7 +65,10 @@ export class User {
             apiResponse.discordUsername || '',
             apiResponse.chesscomUsername || '',
             apiResponse.lichessUsername || '',
+            apiResponse.fideId || '',
+            apiResponse.uscfId || '',
             apiResponse.dojoCohort || '',
+            apiResponse.progress || {},
             apiResponse.disableBookingNotifications || false,
             apiResponse.disableCancellationNotifications || false,
             apiResponse.isAdmin || false
@@ -80,7 +88,10 @@ export class User {
             user.discordUsername || '',
             user.chesscomUsername || '',
             user.lichessUsername || '',
+            user.fideId || '',
+            user.uscfId || '',
             user.dojoCohort || '',
+            user.progress || {},
             user.disableBookingNotifications || false,
             user.disableCancellationNotifications || false,
             user.isAdmin || false
@@ -106,7 +117,10 @@ export class User {
             update.discordUsername || this.discordUsername,
             update.chesscomUsername || this.chesscomUsername,
             update.lichessUsername || this.lichessUsername,
+            update.fideId || this.fideId,
+            update.uscfId || this.uscfId,
             update.dojoCohort || this.dojoCohort,
+            update.progress || this.progress,
             update.disableBookingNotifications ?? this.disableBookingNotifications,
             update.disableCancellationNotifications ??
                 this.disableCancellationNotifications,

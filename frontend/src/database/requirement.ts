@@ -20,6 +20,17 @@ export interface Requirement {
     sortPriority: string;
 }
 
+export interface RequirementProgress {
+    requirementId: string;
+    counts: {
+        [cohort: string]: number;
+    };
+    minutesSpent: {
+        [cohort: string]: number;
+    };
+    updatedAt: string;
+}
+
 export function compareRequirements(a: Requirement, b: Requirement) {
     if (a.sortPriority === undefined || b.sortPriority === undefined) {
         return 0;
