@@ -6,7 +6,12 @@ import {
 } from '@mui/x-data-grid';
 
 import ScoreboardProgress from './ScoreboardProgress';
-import { Requirement, RequirementProgress } from '../database/requirement';
+import {
+    Requirement,
+    RequirementProgress,
+    ScoreboardDisplay,
+} from '../database/requirement';
+import ScoreboardCheck from './ScoreboardCheck';
 
 export interface ScoreboardUser {
     username: string;
@@ -43,6 +48,16 @@ export const testUser: ScoreboardUser = {
             },
             updatedAt: '2022-03-02',
         },
+        '654c679f-9f61-4552-83ff-c04fe7f5e182': {
+            requirementId: '654c679f-9f61-4552-83ff-c04fe7f5e182',
+            counts: {
+                '1600-1700': 1,
+            },
+            minutesSpent: {
+                '1600-1700': 30,
+            },
+            updatedAt: '2022-03-02',
+        },
     },
 };
 
@@ -50,7 +65,7 @@ export function getColumnDefinition(
     requirement: Requirement,
     cohort?: string
 ): GridColDef {
-    const maxCount =
+    const totalCount =
         requirement.counts.ALL_COHORTS || requirement.counts[cohort ?? ''] || 1;
 
     const getScore = (user: ScoreboardUser) => {
@@ -73,7 +88,15 @@ export function getColumnDefinition(
 
     const renderCell = (params: GridRenderCellParams<number, ScoreboardUser>) => {
         const score = getScore(params.row);
-        return <ScoreboardProgress value={score} max={maxCount} min={0} />;
+        switch (requirement.scoreboardDisplay) {
+            case ScoreboardDisplay.Checkbox:
+                return <ScoreboardCheck value={score} total={totalCount} />;
+
+            case ScoreboardDisplay.Unspecified:
+            case ScoreboardDisplay.ProgressBar:
+            default:
+                return <ScoreboardProgress value={score} max={totalCount} min={0} />;
+        }
     };
 
     return {
