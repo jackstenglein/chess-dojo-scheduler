@@ -1,14 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Container } from '@mui/material';
 import { useParams, Navigate } from 'react-router-dom';
-import {
-    DataGrid,
-    GridColDef,
-    GridRowModel,
-    GridValueFormatterParams,
-    GridValueGetterParams,
-} from '@mui/x-data-grid';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { DataGrid, GridColDef, GridRowModel } from '@mui/x-data-grid';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -18,10 +11,12 @@ import { compareRequirements, Requirement } from '../database/requirement';
 import {
     formatRatingSystem,
     getColumnDefinition,
-    ratingIncreaseGetter,
-    ScoreboardUser,
+    getCurrentRating,
+    getRatingIncrease,
+    getStartRating,
     testUser,
 } from './scoreboardData';
+import { User } from '../database/user';
 
 interface ColumnGroupChild {
     field: string;
@@ -65,17 +60,19 @@ const defaultColumns: GridColDef[] = [
         field: 'startRating',
         headerName: 'Start Rating',
         minWidth: 250,
+        valueGetter: getStartRating,
     },
     {
         field: 'currentRating',
         headerName: 'Current Rating',
         minWidth: 250,
+        valueGetter: getCurrentRating,
     },
     {
         field: 'ratingIncrease',
         headerName: 'Rating Increase',
         minWidth: 250,
-        valueGetter: ratingIncreaseGetter,
+        valueGetter: getRatingIncrease,
     },
 ];
 
@@ -142,8 +139,8 @@ const ScoreboardPage = () => {
                 experimentalFeatures={{ columnGrouping: true }}
                 columns={defaultColumns.concat(columns)}
                 columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
-                rows={[testUser]}
-                getRowId={(row: GridRowModel<ScoreboardUser>) => row.username}
+                rows={[testUser, user]}
+                getRowId={(row: GridRowModel<User>) => row.username}
             />
         </Container>
     );

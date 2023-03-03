@@ -6,35 +6,25 @@ import {
 } from '@mui/x-data-grid';
 
 import ScoreboardProgress from './ScoreboardProgress';
-import {
-    Requirement,
-    RequirementProgress,
-    ScoreboardDisplay,
-} from '../database/requirement';
+import { Requirement, ScoreboardDisplay } from '../database/requirement';
 import ScoreboardCheck from './ScoreboardCheck';
+import { User } from '../database/user';
 
-export interface ScoreboardUser {
-    username: string;
-    discordUsername: string;
-    ratingSystem: 'chesscom' | 'lichess' | 'fide' | 'uscf';
-    startRating: number;
-    currentRating: number;
-    dojoCohort: string;
-    progress: {
-        [id: string]: RequirementProgress;
-    };
-    [x: string | number | symbol]: unknown;
-}
-
-export const testUser: ScoreboardUser = {
+export const testUser: User = {
     username: 'asdfuniqueid',
     discordUsername: 'Heh13#5117',
     chesscomUsername: 'JackStenglein',
     lichessUsername: 'JackStenglein',
     fideId: '12345678',
     uscfId: '12345678',
-    startRating: 1692,
-    currentRating: 1800,
+    startChesscomRating: 1682,
+    currentChesscomRating: 1800,
+    startLichessRating: 0,
+    currentLichessRating: 0,
+    startFideRating: 0,
+    currentFideRating: 0,
+    startUscfRating: 0,
+    currentUscfRating: 0,
     ratingSystem: 'chesscom',
     dojoCohort: '1500-1600',
     progress: {
@@ -59,6 +49,9 @@ export const testUser: ScoreboardUser = {
             updatedAt: '2022-03-02',
         },
     },
+    disableBookingNotifications: false,
+    disableCancellationNotifications: false,
+    isAdmin: false,
 };
 
 export function getColumnDefinition(
@@ -68,7 +61,7 @@ export function getColumnDefinition(
     const totalCount =
         requirement.counts.ALL_COHORTS || requirement.counts[cohort ?? ''] || 1;
 
-    const getScore = (user: ScoreboardUser) => {
+    const getScore = (user: User) => {
         const progress = user.progress[requirement.id];
         if (!progress) {
             return 0;
@@ -82,11 +75,11 @@ export function getColumnDefinition(
         return progress.counts[cohort] || 0;
     };
 
-    const valueGetter = (params: GridValueGetterParams<any, ScoreboardUser>) => {
+    const valueGetter = (params: GridValueGetterParams<any, User>) => {
         return getScore(params.row);
     };
 
-    const renderCell = (params: GridRenderCellParams<number, ScoreboardUser>) => {
+    const renderCell = (params: GridRenderCellParams<number, User>) => {
         const score = getScore(params.row);
         switch (requirement.scoreboardDisplay) {
             case ScoreboardDisplay.Checkbox:
@@ -121,8 +114,48 @@ export function formatRatingSystem(params: GridValueFormatterParams<string>) {
     if (params.value === 'uscf') {
         return 'USCF';
     }
+
+    return 'Unknown';
 }
 
-export function ratingIncreaseGetter(params: GridValueGetterParams<any, ScoreboardUser>) {
-    return params.row.currentRating - params.row.startRating;
+export function getStartRating(params: GridValueGetterParams<any, User>): number {
+    const ratingSystem = params.row.ratingSystem;
+
+    switch (ratingSystem) {
+        case 'chesscom':
+            return params.row.startChesscomRating;
+        case 'lichess':
+            return params.row.startLichessRating;
+        case 'fide':
+            return params.row.startFideRating;
+        case 'uscf':
+            return params.row.startUscfRating;
+
+        default:
+            return 0;
+    }
+}
+
+export function getCurrentRating(params: GridValueGetterParams<any, User>): number {
+    const ratingSystem = params.row.ratingSystem;
+
+    switch (ratingSystem) {
+        case 'chesscom':
+            return params.row.currentChesscomRating;
+        case 'lichess':
+            return params.row.currentLichessRating;
+        case 'fide':
+            return params.row.currentFideRating;
+        case 'uscf':
+            return params.row.currentUscfRating;
+
+        default:
+            return 0;
+    }
+}
+
+export function getRatingIncrease(params: GridValueGetterParams<any, User>) {
+    const startRating = getStartRating(params);
+    const currentRating = getCurrentRating(params);
+    return currentRating - startRating;
 }

@@ -11,7 +11,7 @@ import { Auth as AmplifyAuth } from 'aws-amplify';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { v4 as uuidv4 } from 'uuid';
 
-import { CognitoUser, User } from '../database/user';
+import { CognitoUser, parseCognitoResponse, parseUser, User } from '../database/user';
 import { getUser } from '../api/userApi';
 import ProfilePage from '../profile/ProfilePage';
 import LoadingPage from '../loading/LoadingPage';
@@ -109,9 +109,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
 
     const handleCognitoResponse = useCallback(async (cognitoResponse: any) => {
-        const cognitoUser = CognitoUser.from(cognitoResponse);
+        const cognitoUser = parseCognitoResponse(cognitoResponse);
         const apiResponse = await fetchUser(cognitoUser);
-        const user = User.from(apiResponse.data, cognitoUser);
+        const user = parseUser(apiResponse.data, cognitoUser);
         console.log('Got user: ', user);
         setUser(user);
         setStatus(AuthStatus.Authenticated);
@@ -136,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const updateUser = (update: Partial<User>) => {
         if (user) {
-            setUser(user.withUpdate(update));
+            setUser({ ...user, ...update });
         }
     };
 
