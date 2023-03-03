@@ -52,6 +52,10 @@ type Requirement struct {
 
 	// The priority in which to sort this requirement when displaying to the user
 	SortPriority string `dynamodbav:"sortPriority" json:"sortPriority"`
+
+	// True if the requirement resets when switching cohorts and false if
+	// the requirement carries over across cohorts.
+	Repeatable bool `dynamodbav:"repeatable" json:"repeatable"`
 }
 
 type RequirementProgress struct {
@@ -61,14 +65,13 @@ type RequirementProgress struct {
 	// The display name of the requirement that the progress applies to
 	RequirementName string `dynamodbav:"requirementName" json:"requirementName"`
 
-	// The current number of units completed in the requirement
-	CurrentCount int `dynamodbav:"currentCount" json:"currentCount"`
+	// The current number of units completed in the requirement, by cohort
+	// If the requirement is not repeatable, then there is only one item
+	// for ALL_COHORTS.
+	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`
 
-	// The total number of units in the requirement
-	TotalCount int `dynamodbav:"totalCount" json:"totalCount"`
-
-	// The number of minutes spent working on the requirement
-	MinutesSpent int `dynamodbav:"minutesSpent" json:"minutesSpent"`
+	// The number of minutes spent working on the requirement, by cohort
+	MinutesSpent map[DojoCohort]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
 
 	// The time the requirement was most recently updated
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
