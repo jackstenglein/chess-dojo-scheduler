@@ -35,6 +35,7 @@ import {
     listGamesByOwner,
     createComment,
 } from './gameApi';
+import { RequirementApiContextType, listRequirements } from './requirementApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -44,7 +45,8 @@ type ApiContextType = AdminApiContextType &
     AvailabilityApiContextType &
     MeetingApiContextType &
     CalendarApiContextType &
-    GameApiContextType;
+    GameApiContextType &
+    RequirementApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -115,6 +117,12 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             ) => listGamesByOwner(idToken, startKey, startDate, endDate, player, color),
             createComment: (cohort: string, id: string, content: string) =>
                 createComment(idToken, auth.user!, cohort, id, content),
+
+            listRequirements: (
+                cohort: string,
+                scoreboardOnly: boolean,
+                startKey?: string
+            ) => listRequirements(idToken, cohort, scoreboardOnly, startKey),
         };
     }, [idToken, auth.user, auth.updateUser]);
 
