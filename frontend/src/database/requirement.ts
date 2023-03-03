@@ -3,6 +3,13 @@ export enum RequirementStatus {
     Archived = 'ARCHIVED',
 }
 
+export enum ScoreboardDisplay {
+    Unspecified = '',
+    Hidden = 'HIDDEN',
+    Checkbox = 'CHECKBOX',
+    ProgressBar = 'PROGRESS_BAR',
+}
+
 export interface Requirement {
     id: string;
     status: RequirementStatus;
@@ -15,7 +22,7 @@ export interface Requirement {
     unitScore: number;
     videoUrls: string[];
     positions: string[];
-    hideFromScoreboard: boolean;
+    scoreboardDisplay: ScoreboardDisplay;
     updatedAt: string;
     sortPriority: string;
 }

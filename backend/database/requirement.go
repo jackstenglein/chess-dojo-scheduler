@@ -16,6 +16,15 @@ const (
 	Archived RequirementStatus = "ARCHIVED"
 )
 
+type ScoreboardDisplay string
+
+const (
+	Unspecified ScoreboardDisplay = ""
+	Hidden      ScoreboardDisplay = "HIDDEN"
+	Checkbox    ScoreboardDisplay = "CHECKBOX"
+	ProgressBar ScoreboardDisplay = "PROGRESS_BAR"
+)
+
 type Requirement struct {
 	// Uniquely identifies a requirement. The sort key for the table.
 	Id string `dynamodbav:"id" json:"id"`
@@ -44,8 +53,8 @@ type Requirement struct {
 	// The positions included in the requirement, if any exist
 	Positions []string `dynamodbav:"positions" json:"positions"`
 
-	// If true, hide the requirement from the scoreboard
-	HideFromScoreboard bool `dynamodbav:"hideFromScoreboard" json:"hideFromScoreboard"`
+	// How the requirement should be displayed on the scoreboard.
+	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`
 
 	// The time the requirement was most recently updated
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
@@ -121,16 +130,16 @@ func (repo *dynamoRepository) fetchScoreboardRequirements(cohort DojoCohort, sta
 		KeyConditionExpression: aws.String("#status = :active"),
 		ExpressionAttributeNames: map[string]*string{
 			"#status":     aws.String("status"),
-			"#hide":       aws.String("hideFromScoreboard"),
+			"#display":    aws.String("scoreboardDisplay"),
 			"#counts":     aws.String("counts"),
 			"#cohort":     aws.String(string(cohort)),
 			"#allcohorts": aws.String("ALL_COHORTS"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":active": {S: aws.String(string(Active))},
-			":hide":   {BOOL: aws.Bool(true)},
+			":hidden": {S: aws.String(string(Hidden))},
 		},
-		FilterExpression: aws.String("#hide <> :hide AND (attribute_exists(#counts.#cohort) OR attribute_exists(#counts.#allcohorts))"),
+		FilterExpression: aws.String("#display <> :hidden AND (attribute_exists(#counts.#cohort) OR attribute_exists(#counts.#allcohorts))"),
 		TableName:        aws.String(requirementTable),
 	}
 
