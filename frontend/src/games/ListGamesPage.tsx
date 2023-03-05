@@ -9,7 +9,7 @@ import SearchFilters from './SearchFilters';
 
 import { usePagination } from './pagination';
 
-const columns: GridColDef<GameInfo>[] = [
+export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
@@ -74,7 +74,7 @@ const ListGamesPage = () => {
             <Grid container spacing={5} wrap='wrap-reverse'>
                 <Grid item xs={12} md={9} lg={8}>
                     <DataGrid
-                        columns={columns}
+                        columns={gameTableColumns}
                         rows={data}
                         rowCount={rowCount}
                         rowsPerPageOptions={[5, 10, 25]}
