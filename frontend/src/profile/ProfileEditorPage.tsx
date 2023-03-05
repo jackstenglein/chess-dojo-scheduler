@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Button,
     Checkbox,
@@ -20,9 +21,11 @@ import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 const ProfileEditorPage = () => {
     const user = useAuth().user!;
     const api = useApi();
+    const navigate = useNavigate();
 
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [dojoCohort, setDojoCohort] = useState(user.dojoCohort);
+    const [bio, setBio] = useState(user.bio);
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
     const [chesscomUsername, setChesscomUsername] = useState(user.chesscomUsername);
     const [lichessUsername, setLichessUsername] = useState(user.lichessUsername);
@@ -71,6 +74,7 @@ const ProfileEditorPage = () => {
         api.updateUser({
             discordUsername,
             dojoCohort,
+            bio,
             ratingSystem,
             chesscomUsername,
             lichessUsername,
@@ -81,6 +85,7 @@ const ProfileEditorPage = () => {
         })
             .then(() => {
                 request.onSuccess('Profile updated');
+                navigate('..');
             })
             .catch((err) => {
                 console.error(err);
@@ -91,6 +96,7 @@ const ProfileEditorPage = () => {
     const changesMade =
         discordUsername !== user.discordUsername ||
         dojoCohort !== user.dojoCohort ||
+        bio !== user.bio ||
         ratingSystem !== user.ratingSystem ||
         chesscomUsername !== user.chesscomUsername ||
         lichessUsername !== user.lichessUsername ||
@@ -117,7 +123,12 @@ const ProfileEditorPage = () => {
                             Save
                         </LoadingButton>
 
-                        <Button variant='contained' color='error' disableElevation>
+                        <Button
+                            variant='contained'
+                            color='error'
+                            disableElevation
+                            onClick={() => navigate('..')}
+                        >
                             Cancel
                         </Button>
                     </Stack>
@@ -136,6 +147,17 @@ const ProfileEditorPage = () => {
                         onChange={(event) => setDiscordUsername(event.target.value)}
                         error={!!errors.discordUsername}
                         helperText={errors.discordUsername}
+                    />
+
+                    <TextField
+                        label='Bio'
+                        multiline
+                        minRows={3}
+                        maxRows={6}
+                        value={bio}
+                        onChange={(event) => setBio(event.target.value)}
+                        error={!!errors.bio}
+                        helperText={errors.bio}
                     />
                 </Stack>
 
@@ -212,7 +234,7 @@ const ProfileEditorPage = () => {
                     />
                 </Stack>
 
-                <Stack spacing={4}>
+                <Stack spacing={2}>
                     <Stack>
                         <Typography variant='h6'>Notifications</Typography>
                         <Divider />
