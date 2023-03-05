@@ -1,14 +1,16 @@
-import { Button, Container, Stack, Typography } from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Box, Button, Container, Stack, Tab, Typography } from '@mui/material';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
-
 import { useAuth } from '../auth/Auth';
 import { RatingSystem, User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import RatingCard from './RatingCard';
+import GamesTab from './GamesTab';
 
 type ProfilePageProps = {
     username: string;
@@ -20,6 +22,8 @@ const ProfilePage = () => {
     const api = useApi();
     const currentUser = useAuth().user!;
     const request = useRequest<User>();
+    const [tab, setTab] = useState('games');
+
     const currentUserProfile = !username || username === currentUser.username;
 
     useEffect(() => {
@@ -108,6 +112,26 @@ const ProfilePage = () => {
                         />
                     )}
                 </Stack>
+
+                <Box sx={{ width: '100%', typography: 'body1' }}>
+                    <TabContext value={tab}>
+                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                            <TabList
+                                onChange={(_, t) => setTab(t)}
+                                aria-label='profile tabs'
+                            >
+                                <Tab label='Progress' value='progress' />
+                                <Tab label='Activity' value='activity' />
+                                <Tab label='Games' value='games' />
+                            </TabList>
+                        </Box>
+                        <TabPanel value='progress'>Progress Tab</TabPanel>
+                        <TabPanel value='activity'>Activity Tab: Coming Soon</TabPanel>
+                        <TabPanel value='games'>
+                            <GamesTab user={user} />
+                        </TabPanel>
+                    </TabContext>
+                </Box>
             </Stack>
         </Container>
     );

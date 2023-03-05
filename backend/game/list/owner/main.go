@@ -27,14 +27,19 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	info := api.GetUserInfo(event)
 
+	owner, ownerSpecified := event.QueryStringParameters["owner"]
 	player, _ := event.QueryStringParameters["player"]
 	color, _ := event.QueryStringParameters["color"]
 	startDate, _ := event.QueryStringParameters["startDate"]
 	endDate, _ := event.QueryStringParameters["endDate"]
 	startKey, _ := event.QueryStringParameters["startKey"]
 
-	if player == "" {
-		games, lastKey, err := repository.ListGamesByOwner(info.Username, startDate, endDate, startKey)
+	if ownerSpecified || player == "" {
+		searchUsername := info.Username
+		if ownerSpecified {
+			searchUsername = owner
+		}
+		games, lastKey, err := repository.ListGamesByOwner(searchUsername, startDate, endDate, startKey)
 		if err != nil {
 			return api.Failure(funcName, err), nil
 		}

@@ -39,9 +39,10 @@ export type GameApiContextType = {
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 
     /**
-     * listGamesByOnwer returns a list of GameInfo objects owned by the current user,
+     * listGamesByOwner returns a list of GameInfo objects owned by the provided user,
      * as well as the next start key for pagination. If the optional player parameter
      * is passed, that user's games will be searched instead of the current user's.
+     * @param owner The optional owner to search for. If not specified, the current user is used.
      * @param startKey The optional startKey to use when searching.
      * @param startDate The optional start date to limit the search to.
      * @param endDate The optional end date to limit the search to.
@@ -49,6 +50,7 @@ export type GameApiContextType = {
      * @param color The color to use when searching for a specific player.
      */
     listGamesByOwner: (
+        owner?: string,
         startKey?: string,
         startDate?: string,
         endDate?: string,
@@ -140,9 +142,10 @@ export function listGamesByCohort(
 }
 
 /**
- * listGamesByOnwer returns a list of GameInfo objects owned by the current user,
+ * listGamesByOnwer returns a list of GameInfo objects owned by the provided user,
  * as well as the next start key for pagination.
  * @param idToken The id token of the current signed-in user.
+ * @param owner The optional owner to search for. If not specified, the current user is used.
  * @param startKey The optional startKey to use when searching.
  * @param startDate The optional start date to limit the search to.
  * @param endDate The optional end date to limit the search to.
@@ -151,13 +154,14 @@ export function listGamesByCohort(
  */
 export function listGamesByOwner(
     idToken: string,
+    owner?: string,
     startKey?: string,
     startDate?: string,
     endDate?: string,
     player?: string,
     color?: string
 ) {
-    let params = { startKey, startDate, endDate, player, color };
+    let params = { owner, startKey, startDate, endDate, player, color };
     return axios.get<ListGamesResponse>(BASE_URL + '/game', {
         params,
         headers: {
