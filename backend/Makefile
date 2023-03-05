@@ -8,6 +8,8 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/update user/update/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/get user/get/main.go
 	
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/ratings/update user/ratings/update/main.go
+
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/set availability/set/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/book availability/book/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/delete availability/delete/main.go
