@@ -1,13 +1,48 @@
 import { Button, Container, Stack, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useApi } from '../api/Api';
+import { useRequest } from '../api/Request';
 
 import { useAuth } from '../auth/Auth';
-import { RatingSystem } from '../database/user';
+import { RatingSystem, User } from '../database/user';
+import LoadingPage from '../loading/LoadingPage';
+import NotFoundPage from '../NotFoundPage';
 import RatingCard from './RatingCard';
 
+type ProfilePageProps = {
+    username: string;
+};
+
 const ProfilePage = () => {
-    const user = useAuth().user!;
+    const { username } = useParams<ProfilePageProps>();
     const navigate = useNavigate();
+    const api = useApi();
+    const currentUser = useAuth().user!;
+    const request = useRequest<User>();
+    const currentUserProfile = !username || username === currentUser.username;
+
+    useEffect(() => {
+        if (!currentUserProfile && !request.isSent()) {
+            request.onStart();
+            api.getUserPublic(username)
+                .then((response) => {
+                    request.onSuccess(response.data);
+                })
+                .catch((err) => {
+                    console.error('Failed to get user profile: ', err);
+                    request.onFailure(err);
+                });
+        }
+    }, [api, currentUserProfile, request, username]);
+
+    const user = currentUserProfile ? currentUser : request.data;
+
+    if (!user && request.isLoading()) {
+        return <LoadingPage />;
+    } else if (!user) {
+        return <NotFoundPage />;
+    }
 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
@@ -20,9 +55,14 @@ const ProfilePage = () => {
                         </Typography>
                     </Stack>
 
-                    <Button variant='contained' onClick={() => navigate('edit')}>
-                        Edit Profile
-                    </Button>
+                    {currentUserProfile && (
+                        <Button
+                            variant='contained'
+                            onClick={() => navigate('/profile/edit')}
+                        >
+                            Edit Profile
+                        </Button>
+                    )}
                 </Stack>
 
                 {user.bio !== '' && (

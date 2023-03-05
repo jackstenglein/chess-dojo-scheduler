@@ -25,7 +25,7 @@ import {
     listMeetings,
     MeetingApiContextType,
 } from './meetingApi';
-import { UserApiContextType, getUser, updateUser } from './userApi';
+import { UserApiContextType, getUser, getUserPublic, updateUser } from './userApi';
 import {
     GameApiContextType,
     CreateGameRequest,
@@ -77,6 +77,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             adminGetStatistics: () => adminGetStatistics(idToken),
 
             getUser: () => getUser(idToken),
+            getUserPublic: (username: string) => getUserPublic(username),
             updateUser: (update: Partial<User>) =>
                 updateUser(idToken, update, auth.updateUser),
 
