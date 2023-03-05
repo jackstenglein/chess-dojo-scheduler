@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"regexp"
+	"strconv"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
@@ -19,6 +22,9 @@ type Event events.CloudWatchEvent
 const funcName = "user-ratings-update-handler"
 
 var repository = database.DynamoDB
+
+var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
+var uscfRegexp, _ = regexp.Compile("<input type=text name=rating1 size=20 readonly maxlength=20 tabindex=120 value='(\\d+)")
 
 type ChesscomResponse struct {
 	Rapid struct {
@@ -80,24 +86,106 @@ func fetchLichessRating(lichessUsername string) (int, error) {
 	return rating.Performances.Classical.Rating, nil
 }
 
+func findRating(body []byte, regex *regexp.Regexp) (int, error) {
+	groups := regex.FindSubmatch(body)
+	if len(groups) < 2 {
+		err := errors.New(400, "Invalid request: unable to find rating regexp ", "")
+		return 0, err
+	}
+
+	rating, err := strconv.Atoi(string(groups[1]))
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to convert rating to int", err)
+		return 0, err
+	}
+	return rating, nil
+}
+
+func fetchFideRating(fideId string) (int, error) {
+	resp, err := http.Get(fmt.Sprintf("https://ratings.fide.com/profile/%s", fideId))
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to get Fide page", err)
+		return 0, err
+	}
+
+	if resp.StatusCode != 200 {
+		err = errors.New(400, fmt.Sprintf("Invalid request: FIDE returned status `%d`", resp.StatusCode), "")
+		return 0, err
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to read FIDE response", err)
+		return 0, err
+	}
+	return findRating(b, fideRegexp)
+}
+
+func fetchUscfRating(uscfId string) (int, error) {
+	resp, err := http.Get(fmt.Sprintf("https://www.uschess.org/msa/thin3.php?%s", uscfId))
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to get lichess stats", err)
+		return 0, err
+	}
+
+	if resp.StatusCode != 200 {
+		err = errors.New(400, fmt.Sprintf("Invalid request: USCF returned status `%d`", resp.StatusCode), "")
+		return 0, err
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to read USCF response", err)
+		return 0, err
+	}
+	return findRating(b, uscfRegexp)
+}
+
 func updateUsers(users []*database.User) {
+	var chesscomRating int
+	var lichessRating int
+	var fideRating int
+	var uscfRating int
+	var err error
+
 	var updatedUsers []*database.User
 	for _, user := range users {
-		chesscomRating, err := fetchChesscomRating(user.ChesscomUsername)
-		if err != nil {
+		if chesscomRating, err = fetchChesscomRating(user.ChesscomUsername); err != nil {
 			log.Errorf("Failed to get Chess.com rating for %s: %v", user.ChesscomUsername, err)
 			chesscomRating = user.CurrentChesscomRating
 		}
 
-		lichessRating, err := fetchLichessRating(user.LichessUsername)
-		if err != nil {
+		if lichessRating, err = fetchLichessRating(user.LichessUsername); err != nil {
 			log.Errorf("Failed to get Lichess rating for %s: %v", user.LichessUsername, err)
 			lichessRating = user.CurrentLichessRating
 		}
 
-		if user.CurrentChesscomRating != chesscomRating || user.CurrentLichessRating != lichessRating {
+		if user.FideId != "" {
+			if fideRating, err = fetchFideRating(user.FideId); err != nil {
+				log.Errorf("Failed to get FIDE rating for %s: %v", user.FideId, err)
+				fideRating = user.CurrentFideRating
+			}
+		} else {
+			fideRating = user.CurrentFideRating
+		}
+
+		if user.UscfId != "" {
+			if uscfRating, err = fetchUscfRating(user.UscfId); err != nil {
+				log.Errorf("Failed to get USCF rating for %s: %v", user.UscfId, err)
+				uscfRating = user.CurrentUscfRating
+			}
+		} else {
+			uscfRating = user.CurrentUscfRating
+		}
+
+		if user.CurrentChesscomRating != chesscomRating || user.CurrentLichessRating != lichessRating ||
+			user.CurrentFideRating != fideRating || user.CurrentUscfRating != uscfRating {
 			user.CurrentChesscomRating = chesscomRating
 			user.CurrentLichessRating = lichessRating
+			user.CurrentFideRating = fideRating
+			user.CurrentUscfRating = uscfRating
 			updatedUsers = append(updatedUsers, user)
 		}
 

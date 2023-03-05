@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"chess-dojo-scheduler/backend/src/github.com/aws/aws-sdk-go/service/dynamodb/expression"
 
@@ -333,20 +334,33 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		return errors.New(500, "Temporary server error", "UpdateUserRatings has max limit of 25 users")
 	}
 
+	var sb strings.Builder
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		st := fmt.Sprintf("UPDATE \"%s\" SET currentChesscomRating=%d SET currentLichessRating=%d", userTable, user.CurrentChesscomRating, user.CurrentLichessRating)
+		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
+		sb.WriteString(fmt.Sprintf(" SET currentChesscomRating=%d SET currentLichessRating=%d", user.CurrentChesscomRating, user.CurrentLichessRating))
+		sb.WriteString(fmt.Sprintf(" SET currentFideRating=%d SET currentUscfRating=%d", user.CurrentFideRating, user.CurrentUscfRating))
+
 		if user.StartChesscomRating == 0 {
-			st += fmt.Sprintf(" SET startChesscomRating=%d", user.CurrentChesscomRating)
+			sb.WriteString(fmt.Sprintf(" SET startChesscomRating=%d", user.CurrentChesscomRating))
 		}
 		if user.StartLichessRating == 0 {
-			st += fmt.Sprintf(" SET startLichessRating=%d", user.CurrentLichessRating)
+			sb.WriteString(fmt.Sprintf(" SET startLichessRating=%d", user.CurrentLichessRating))
 		}
-		st += fmt.Sprintf(" WHERE username='%s'", user.Username)
+		if user.StartFideRating == 0 {
+			sb.WriteString(fmt.Sprintf(" SET startFideRating=%d", user.CurrentFideRating))
+		}
+		if user.StartUscfRating == 0 {
+			sb.WriteString(fmt.Sprintf(" SET startUscfRating=%d", user.CurrentUscfRating))
+		}
+		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
+
 		statement := &dynamodb.BatchStatementRequest{
-			Statement: aws.String(st),
+			Statement: aws.String(sb.String()),
 		}
 		statements = append(statements, statement)
+
+		sb.Reset()
 	}
 
 	input := &dynamodb.BatchExecuteStatementInput{
