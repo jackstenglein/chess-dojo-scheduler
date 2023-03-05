@@ -179,6 +179,20 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
+  updateRatings:
+    handler: bin/user/ratings/update
+    package:
+      patterns:
+        - ./bin/user/ratings/update
+    events:
+      - schedule: cron(0 0 * * ? *)
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+          - dynamodb:PartiQLUpdate
+        Resource: !GetAtt UsersTable.Arn
+
   ########## Availability Endpoints ##############
 
   setAvailability:
