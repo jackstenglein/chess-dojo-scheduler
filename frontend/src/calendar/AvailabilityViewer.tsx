@@ -7,7 +7,7 @@ import {
     AvailabilityType,
     getDisplayString,
 } from '../database/availability';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface AvailabilityViewerProps {
     event: ProcessedEvent;
@@ -30,9 +30,11 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                     <Typography variant='subtitle2' color='text.secondary'>
                         Owner
                     </Typography>
-                    <Typography variant='body1'>
-                        {availability.ownerDiscord} ({availability.ownerCohort})
-                    </Typography>
+                    <Link to={`/profile/${availability.owner}`}>
+                        <Typography variant='body1'>
+                            {availability.ownerDiscord} ({availability.ownerCohort})
+                        </Typography>
+                    </Link>
                 </Stack>
             )}
 

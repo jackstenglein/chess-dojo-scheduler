@@ -16,6 +16,12 @@ export type UserApiContextType = {
     getUser: () => Promise<AxiosResponse<User, any>>;
 
     /**
+     * getUserPublic returns the user with the provided username.
+     * @returns An AxiosResponse containing the provided user in the data field.
+     */
+    getUserPublic: (username: string) => Promise<AxiosResponse<User, any>>;
+
+    /**
      * updateUser applies the given updates to the current signed-in user.
      * @param update The updates to apply.
      * @returns An AxiosResponse containing the updated user in the data field.

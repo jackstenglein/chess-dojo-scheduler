@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
     Dialog,
     AppBar,
@@ -207,9 +207,11 @@ const AvailabilityBooker = () => {
                         <Typography variant='subtitle2' color='text.secondary'>
                             Owner
                         </Typography>
-                        <Typography variant='body1'>
-                            {availability.ownerDiscord} ({availability.ownerCohort})
-                        </Typography>
+                        <Link to={`/profile/${availability.owner}`}>
+                            <Typography variant='body1'>
+                                {availability.ownerDiscord} ({availability.ownerCohort})
+                            </Typography>
+                        </Link>
                     </Stack>
 
                     <Stack>
@@ -277,9 +279,11 @@ const AvailabilityBooker = () => {
                                 )}
 
                                 {availability.participants?.map((p) => (
-                                    <Typography variant='body1'>
-                                        {p.discord} ({p.cohort})
-                                    </Typography>
+                                    <Link key={p.username} to={`/profile/${p.username}`}>
+                                        <Typography variant='body1'>
+                                            {p.discord} ({p.cohort})
+                                        </Typography>
+                                    </Link>
                                 ))}
                             </Stack>
                         </>

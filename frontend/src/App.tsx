@@ -25,6 +25,7 @@ import ListGamesPage from './games/ListGamesPage';
 import SubmitGamePage from './games/SubmitGamePage';
 import AvailabilityBooker from './calendar/AvailabilityBooker';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
+import NotFoundPage from './NotFoundPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -73,6 +74,7 @@ function Router() {
                     <Route path='profile'>
                         <Route index element={<ProfilePage />} />
                         <Route path='edit' element={<ProfileEditorPage />} />
+                        <Route path=':username' element={<ProfilePage />} />
                     </Route>
                     <Route path='admin' element={<AdminPage />} />
 
@@ -103,7 +105,7 @@ function Router() {
                         </Route>
                     </Route>
                 </Route>
-                {/* <Route path='*' element={<NotFoundPage />} /> */}
+                <Route path='*' element={<NotFoundPage />} />
             </Route>
         </Routes>
     );

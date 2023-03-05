@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
     CircularProgress,
     Container,
@@ -198,9 +198,11 @@ const MeetingPage = () => {
                                 <Typography variant='subtitle2' color='text.secondary'>
                                     Discord Username
                                 </Typography>
-                                <Typography variant='body1'>
-                                    {opponent.discordUsername}
-                                </Typography>
+                                <Link to={`/profile/${opponent.username}`}>
+                                    <Typography variant='body1'>
+                                        {opponent.discordUsername}
+                                    </Typography>
+                                </Link>
                             </Stack>
 
                             <Stack>

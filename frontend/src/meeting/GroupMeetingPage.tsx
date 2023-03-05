@@ -7,7 +7,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import { useCache } from '../api/Cache';
 import { getDisplayString } from '../database/availability';
@@ -109,14 +109,19 @@ const GroupMeetingPage = () => {
                     <CardHeader title='Participants' />
                     <CardContent>
                         <Stack spacing={2}>
-                            <Typography variant='body1'>
-                                {availability.ownerDiscord} ({availability.ownerCohort})
-                            </Typography>
+                            <Link to={`/profile/${availability.owner}`}>
+                                <Typography variant='body1'>
+                                    {availability.ownerDiscord} (
+                                    {availability.ownerCohort})
+                                </Typography>
+                            </Link>
 
                             {availability.participants.map((p) => (
-                                <Typography key={p.username} variant='body1'>
-                                    {p.discord} ({p.cohort})
-                                </Typography>
+                                <Link key={p.username} to={`/profile/${p.username}`}>
+                                    <Typography variant='body1'>
+                                        {p.discord} ({p.cohort})
+                                    </Typography>
+                                </Link>
                             ))}
                         </Stack>
                     </CardContent>
