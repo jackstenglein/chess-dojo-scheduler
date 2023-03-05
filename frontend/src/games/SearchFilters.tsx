@@ -307,7 +307,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const searchByOwner = useCallback(
         (startKey: string) =>
             api.listGamesByOwner(user.username, startKey, startDateStr, endDateStr),
-        [api, startDateStr, endDateStr]
+        [api, user.username, startDateStr, endDateStr]
     );
 
     const searchByPlayer = useCallback(
