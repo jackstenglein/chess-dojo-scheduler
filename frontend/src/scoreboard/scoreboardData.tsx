@@ -17,6 +17,7 @@ import {
 export const testUser: User = {
     username: 'asdfuniqueid',
     discordUsername: 'Heh13#5117',
+    bio: 'test data',
     chesscomUsername: 'JackStenglein',
     lichessUsername: 'JackStenglein',
     fideId: '12345678',

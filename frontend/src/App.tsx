@@ -5,6 +5,7 @@ import { ThemeProvider } from '@mui/system';
 import { getConfig } from './config';
 import { AuthProvider, RequireAuth, RequireProfile } from './auth/Auth';
 import LandingPage from './home/LandingPage';
+import ProfilePage from './profile/ProfilePage';
 import ProfileEditorPage from './profile/ProfileEditorPage';
 import { ApiProvider } from './api/Api';
 import CalendarPage from './calendar/CalendarPage';
@@ -69,7 +70,10 @@ function Router() {
                 <Route path='forgot-password' element={<ForgotPasswordPage />} />
 
                 <Route element={<RequireAuth />}>
-                    <Route path='profile/edit' element={<ProfileEditorPage />} />
+                    <Route path='profile'>
+                        <Route index element={<ProfilePage />} />
+                        <Route path='edit' element={<ProfileEditorPage />} />
+                    </Route>
                     <Route path='admin' element={<AdminPage />} />
 
                     <Route element={<RequireProfile />}>

@@ -49,6 +49,7 @@ export interface User {
     username: string;
     discordUsername: string;
     dojoCohort: string;
+    bio: string;
 
     chesscomUsername: string;
     lichessUsername: string;
