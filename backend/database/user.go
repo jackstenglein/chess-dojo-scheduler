@@ -59,13 +59,13 @@ type User struct {
 	Username string `dynamodbav:"username" json:"username"`
 
 	// The user's email address
-	Email string `dynamodbav:"email,omitempty" json:"-"`
+	Email string `dynamodbav:"email" json:"-"`
 
 	// The name of the user
-	Name string `dynamodbav:"name,omitempty" json:"-"`
+	Name string `dynamodbav:"name" json:"-"`
 
 	// The user's Discord username
-	DiscordUsername string `dynamodbav:"discordUsername,omitempty" json:"discordUsername,omitempty"`
+	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
 	// The user's bio
 	Bio string `dynamodbav:"bio" json:"bio"`
@@ -74,16 +74,16 @@ type User struct {
 	RatingSystem string `dynamodbav:"ratingSystem" json:"ratingSystem"`
 
 	// The user's Chess.com username
-	ChesscomUsername string `dynamodbav:"chesscomUsername,omitempty" json:"chesscomUsername,omitempty"`
+	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
 
 	// The user's Lichess username
-	LichessUsername string `dynamodbav:"lichessUsername,omitempty" json:"lichessUsername,omitempty"`
+	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
 
 	// The user's FIDE Id
-	FideId string `dynamodbav:"fideId,omitempty" json:"fideId,omitempty"`
+	FideId string `dynamodbav:"fideId" json:"fideId"`
 
 	// The user's USCF Id
-	UscfId string `dynamodbav:"uscfId,omitempty" json:"uscfId,omitempty"`
+	UscfId string `dynamodbav:"uscfId" json:"uscfId"`
 
 	// The user's starting Chess.com rating
 	StartChesscomRating int `dynamodbav:"startChesscomRating" json:"startChesscomRating"`
@@ -110,13 +110,13 @@ type User struct {
 	CurrentUscfRating int `dynamodbav:"currentUscfRating" json:"currentUscfRating"`
 
 	// The user's Dojo cohort
-	DojoCohort DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort,omitempty"`
+	DojoCohort DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
 
 	// Maps requirement ids to RequirementProgress objects
-	Progress map[string]*RequirementProgress `dynamodbav:"progress,omitempty" json:"progress,omitempty"`
+	Progress map[string]*RequirementProgress `dynamodbav:"progress" json:"progress"`
 
 	// A list of RequirementProgress objects forming the user's activity
-	Timeline []*RequirementProgress `dynamodbav:"timeline,omitempty" json:"timeline,omitempty"`
+	Timeline []*RequirementProgress `dynamodbav:"timeline" json:"timeline"`
 
 	// Whether to disable notifications when a user's meeting is booked
 	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
@@ -127,10 +127,59 @@ type User struct {
 	DisableCancellationNotifications bool `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
 
 	// The number of games the user has created
-	GamesCreated map[DojoCohort]int `dynamodbav:"gamesCreated,omitempty" json:"gamesCreated,omitempty"`
+	GamesCreated map[DojoCohort]int `dynamodbav:"gamesCreated" json:"gamesCreated"`
 
 	// Whether the user is an admin or not
-	IsAdmin bool `dynamodbav:"isAdmin,omitempty" json:"isAdmin,omitempty"`
+	IsAdmin bool `dynamodbav:"isAdmin" json:"isAdmin"`
+}
+
+// UserUpdate contains pointers to fields included in the update of a user record. If a field
+// should not be updated in a particular request, then it is set to nil.
+// Some fields from the User type are removed as they cannot be manually updated by the user.
+type UserUpdate struct {
+	// The user's Discord username
+	DiscordUsername *string `dynamodbav:"discordUsername,omitempty" json:"discordUsername,omitempty"`
+
+	// The user's bio
+	Bio *string `dynamodbav:"bio,omitempty" json:"bio,omitempty"`
+
+	// The user's preferred rating system
+	RatingSystem *string `dynamodbav:"ratingSystem,omitempty" json:"ratingSystem,omitempty"`
+
+	// The user's Chess.com username
+	ChesscomUsername *string `dynamodbav:"chesscomUsername,omitempty" json:"chesscomUsername,omitempty"`
+
+	// The user's Lichess username
+	LichessUsername *string `dynamodbav:"lichessUsername,omitempty" json:"lichessUsername,omitempty"`
+
+	// The user's FIDE Id
+	FideId *string `dynamodbav:"fideId,omitempty" json:"fideId,omitempty"`
+
+	// The user's USCF Id
+	UscfId *string `dynamodbav:"uscfId,omitempty" json:"uscfId,omitempty"`
+
+	// The user's starting Chess.com rating
+	StartChesscomRating *int `dynamodbav:"startChesscomRating,omitempty" json:"startChesscomRating,omitempty"`
+
+	// The user's starting Lichess rating
+	StartLichessRating *int `dynamodbav:"startLichessRating,omitempty" json:"startLichessRating,omitempty"`
+
+	// The user's starting FIDE rating
+	StartFideRating *int `dynamodbav:"startFideRating,omitempty" json:"startFideRating,omitempty"`
+
+	// The user's starting USCF rating
+	StartUscfRating *int `dynamodbav:"startUscfRating,omitempty" json:"startUscfRating,omitempty"`
+
+	// The user's Dojo cohort
+	DojoCohort *DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort,omitempty"`
+
+	// Whether to disable notifications when a user's meeting is booked
+	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
+	DisableBookingNotifications *bool `dynamodbav:"disableBookingNotifications,omitempty" json:"disableBookingNotifications,omitempty"`
+
+	// Whether to disable notifications when a user's meeting is cancelled
+	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
+	DisableCancellationNotifications *bool `dynamodbav:"disableCancellationNotifications,omitempty" json:"disableCancellationNotifications,omitempty"`
 }
 
 type UserCreator interface {
@@ -153,8 +202,8 @@ type UserSetter interface {
 type UserUpdater interface {
 	UserGetter
 
-	// UpdateUser saves the provided partial User object into the database
-	UpdateUser(user *User) error
+	// UpdateUser applies the specified update to the user with the provided username.
+	UpdateUser(username string, update *UserUpdate) error
 }
 
 type AdminUserLister interface {
@@ -200,41 +249,36 @@ func (repo *dynamoRepository) setUserConditional(user *User, condition *string) 
 	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
 }
 
-// updateUser updates the User object in the database.
-// empty struct fields potentially get passed as empty strings during the update, so we have to dynamically build the UpdateExpression below.
-func (repo *dynamoRepository) UpdateUser(user *User) error {
-	av, err := dynamodbattribute.MarshalMap(user)
+// UpdateUser applies the specified update to the user with the provided username.
+func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) error {
+	av, err := dynamodbattribute.MarshalMap(update)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
 	}
-	// https://stackoverflow.com/questions/74806198/how-to-only-update-a-single-field-in-dynamodb-using-aws-go-sdk
-	// https://gist.github.com/antklim/551ac2f7ab69ae3f44507198c01a1d61#file-go-dynamodb-updateitem-go
 
-	update := expression.UpdateBuilder{}
+	builder := expression.UpdateBuilder{}
 	for k, v := range av {
-		if k == "username" {
-			continue
-		} else {
-			update = update.Set(expression.Name(k), expression.Value(v))
-		}
+		builder = builder.Set(expression.Name(k), expression.Value(v))
 	}
 
-	expr, err := expression.NewBuilder().WithUpdate(update).Build()
+	expr, err := expression.NewBuilder().WithUpdate(builder).Build()
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "DynamoDB expression building error", err)
 	}
 
 	input := &dynamodb.UpdateItemInput{
-		Key:                       map[string]*dynamodb.AttributeValue{"username": {S: aws.String(user.Username)}},
-		TableName:                 aws.String(userTable),
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {
+				S: aws.String(username),
+			},
+		},
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		UpdateExpression:          expr.Update(),
-		ReturnValues:              aws.String("UPDATED_NEW"),
+		TableName:                 aws.String(userTable),
 	}
-	// Send update request to Dynamo
 	_, err = repo.svc.UpdateItem(input)
-	return errors.Wrap(500, "Temporary cant do updateitem error", "DynamoDB UpdateItem failure", err)
+	return errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 }
 
 // GetUser returns the User object with the provided username.

@@ -11,11 +11,9 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-set-handler"
+const funcName = "user-update-handler"
 
 var repository database.UserUpdater = database.DynamoDB
-
-// var repository database.UserSetter = database.DynamoDB
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
@@ -25,38 +23,16 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
-	// user now contains DB user data
-	user, err := repository.GetUser(info.Username)
+	update := &database.UserUpdate{}
+	if err := json.Unmarshal([]byte(event.Body), update); err != nil {
+		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+	}
+
+	err := repository.UpdateUser(info.Username, update)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
-	originalIsAdmin := user.IsAdmin
-
-	// generates a new struct with Username populated by the resolved username
-	// we will then populate this struct with what was sent from the client which allows for a granular update from the client
-	update := &database.User{
-		Username: user.Username,
-	}
-	err = json.Unmarshal([]byte(event.Body), &update)
-
-	if err != nil {
-		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
-		return api.Failure(funcName, err), nil
-	}
-
-	if user.Username != info.Username {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is immutable", "")), nil
-	}
-
-	if user.IsAdmin != originalIsAdmin {
-		return api.Failure(funcName, errors.New(400, "Invalid request: isAdmin is immutable", "")), nil
-	}
-
-	err = repository.UpdateUser(update)
-	if err != nil {
-		return api.Failure(funcName, err), nil
-	}
-	return api.Success(funcName, user), nil
+	return api.Success(funcName, nil), nil
 }
 
 func main() {
