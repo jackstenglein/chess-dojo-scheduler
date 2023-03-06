@@ -143,11 +143,11 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
 
-  setUser:
-    handler: bin/user/set
+  updateUser:
+    handler: bin/user/update
     package:
       patterns:
-        - ./bin/user/set
+        - ./bin/user/update
     events:
       - httpApi:
           path: /user
@@ -156,7 +156,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
+          - dynamodb:UpdateItem
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
