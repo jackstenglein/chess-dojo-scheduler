@@ -3,6 +3,8 @@ package database
 import (
 	"encoding/json"
 
+	"chess-dojo-scheduler/backend/src/github.com/aws/aws-sdk-go/service/dynamodb/expression"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -55,46 +57,48 @@ type User struct {
 	Username string `dynamodbav:"username" json:"username"`
 
 	// The user's email address
-	Email string `dynamodbav:"email" json:"-"`
+	Email string `dynamodbav:"email,omitempty" json:"-"`
 
 	// The name of the user
-	Name string `dynamodbav:"name" json:"-"`
+	Name string `dynamodbav:"name,omitempty" json:"-"`
 
 	// The user's Discord username
-	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
+	DiscordUsername string `dynamodbav:"discordUsername,omitempty" json:"discordUsername,omitempty"`
 
 	// The user's Chess.com username
-	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
+	ChesscomUsername string `dynamodbav:"chesscomUsername,omitempty" json:"chesscomUsername,omitempty"`
 
 	// The user's Lichess username
-	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
+	LichessUsername string `dynamodbav:"lichessUsername,omitempty" json:"lichessUsername,omitempty"`
 
 	// The user's FIDE Id
-	FideId string `dynamodbav:"fideId" json:"fideId"`
+	FideId string `dynamodbav:"fideId,omitempty" json:"fideId,omitempty"`
 
 	// The user's USCF Id
-	UscfId string `dynamodbav:"uscfId" json:"uscfId"`
+	UscfId string `dynamodbav:"uscfId,omitempty" json:"uscfId,omitempty"`
 
 	// The user's Dojo cohort
-	DojoCohort DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
+	DojoCohort DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort,omitempty"`
 
 	// Maps requirement ids to RequirementProgress objects
-	Progress map[string]*RequirementProgress `dynamodbav:"progress" json:"progress"`
+	Progress map[string]*RequirementProgress `dynamodbav:"progress,omitempty" json:"progress,omitempty"`
 
 	// A list of RequirementProgress objects forming the user's activity
-	Timeline []*RequirementProgress `dynamodbav:"timeline" json:"timeline"`
+	Timeline []*RequirementProgress `dynamodbav:"timeline,omitempty" json:"timeline,omitempty"`
 
 	// Whether to disable notifications when a user's meeting is booked
+	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
 	DisableBookingNotifications bool `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
 
 	// Whether to disable notifications when a user's meeting is cancelled
+	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
 	DisableCancellationNotifications bool `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
 
 	// The number of games the user has created
-	GamesCreated map[DojoCohort]int `dynamodbav:"gamesCreated" json:"gamesCreated"`
+	GamesCreated map[DojoCohort]int `dynamodbav:"gamesCreated,omitempty" json:"gamesCreated,omitempty"`
 
 	// Whether the user is an admin or not
-	IsAdmin bool `dynamodbav:"isAdmin" json:"isAdmin"`
+	IsAdmin bool `dynamodbav:"isAdmin,omitempty" json:"isAdmin,omitempty"`
 }
 
 type UserCreator interface {
@@ -112,6 +116,13 @@ type UserSetter interface {
 
 	// SetUser saves the provided User object into the database.
 	SetUser(user *User) error
+}
+
+type UserUpdater interface {
+	UserGetter
+
+	// UpdateUser saves the provided partial User object into the database
+	UpdateUser(user *User) error
 }
 
 type AdminUserLister interface {
@@ -155,6 +166,43 @@ func (repo *dynamoRepository) setUserConditional(user *User, condition *string) 
 
 	_, err = repo.svc.PutItem(input)
 	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+}
+
+// updateUser updates the User object in the database.
+// empty struct fields potentially get passed as empty strings during the update, so we have to dynamically build the UpdateExpression below.
+func (repo *dynamoRepository) UpdateUser(user *User) error {
+	av, err := dynamodbattribute.MarshalMap(user)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
+	}
+	// https://stackoverflow.com/questions/74806198/how-to-only-update-a-single-field-in-dynamodb-using-aws-go-sdk
+	// https://gist.github.com/antklim/551ac2f7ab69ae3f44507198c01a1d61#file-go-dynamodb-updateitem-go
+
+	update := expression.UpdateBuilder{}
+	for k, v := range av {
+		if k == "username" {
+			continue
+		} else {
+			update = update.Set(expression.Name(k), expression.Value(v))
+		}
+	}
+
+	expr, err := expression.NewBuilder().WithUpdate(update).Build()
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "DynamoDB expression building error", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key:                       map[string]*dynamodb.AttributeValue{"username": {S: aws.String(user.Username)}},
+		TableName:                 aws.String(userTable),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
+		ReturnValues:              aws.String("UPDATED_NEW"),
+	}
+	// Send update request to Dynamo
+	_, err = repo.svc.UpdateItem(input)
+	return errors.Wrap(500, "Temporary cant do updateitem error", "DynamoDB UpdateItem failure", err)
 }
 
 // GetUser returns the User object with the provided username.
