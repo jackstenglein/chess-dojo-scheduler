@@ -119,11 +119,9 @@ type User struct {
 	Timeline []*RequirementProgress `dynamodbav:"timeline" json:"timeline"`
 
 	// Whether to disable notifications when a user's meeting is booked
-	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
 	DisableBookingNotifications bool `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
 
 	// Whether to disable notifications when a user's meeting is cancelled
-	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
 	DisableCancellationNotifications bool `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
 
 	// The number of games the user has created
