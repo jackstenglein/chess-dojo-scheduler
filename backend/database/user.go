@@ -7,6 +7,7 @@ import (
 
 	"chess-dojo-scheduler/backend/src/github.com/aws/aws-sdk-go/service/dynamodb/expression"
 
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -74,6 +75,12 @@ type User struct {
 	// The user's preferred rating system
 	RatingSystem string `dynamodbav:"ratingSystem" json:"ratingSystem"`
 
+	// The user's bio
+	Bio string `dynamodbav:"bio" json:"bio"`
+
+	// The user's preferred rating system
+	RatingSystem string `dynamodbav:"ratingSystem" json:"ratingSystem"`
+
 	// The user's Chess.com username
 	ChesscomUsername string `dynamodbav:"chesscomUsername,omitempty" json:"chesscomUsername,omitempty"`
 
@@ -85,6 +92,30 @@ type User struct {
 
 	// The user's USCF Id
 	UscfId string `dynamodbav:"uscfId,omitempty" json:"uscfId,omitempty"`
+
+	// The user's starting Chess.com rating
+	StartChesscomRating int `dynamodbav:"startChesscomRating" json:"startChesscomRating"`
+
+	// The user's current Chess.com rating
+	CurrentChesscomRating int `dynamodbav:"currentChesscomRating" json:"currentChesscomRating"`
+
+	// The user's starting Lichess rating
+	StartLichessRating int `dynamodbav:"startLichessRating" json:"startLichessRating"`
+
+	// The user's current Lichess rating
+	CurrentLichessRating int `dynamodbav:"currentLichessRating" json:"currentLichessRating"`
+
+	// The user's starting FIDE rating
+	StartFideRating int `dynamodbav:"startFideRating" json:"startFideRating"`
+
+	// The user's current FIDE rating
+	CurrentFideRating int `dynamodbav:"currentFideRating" json:"currentFideRating"`
+
+	// The user's starting USCF rating
+	StartUscfRating int `dynamodbav:"startUscfRating" json:"startUscfRating"`
+
+	// The user's current Uscf rating
+	CurrentUscfRating int `dynamodbav:"currentUscfRating" json:"currentUscfRating"`
 
 	// The user's starting Chess.com rating
 	StartChesscomRating int `dynamodbav:"startChesscomRating" json:"startChesscomRating"`
