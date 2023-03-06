@@ -11,6 +11,7 @@ import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import RatingCard from './RatingCard';
 import GamesTab from './GamesTab';
+import ProgressTab from './ProgressTab';
 
 type ProfilePageProps = {
     username: string;
@@ -125,7 +126,9 @@ const ProfilePage = () => {
                                 <Tab label='Games' value='games' />
                             </TabList>
                         </Box>
-                        <TabPanel value='progress'>Progress Tab</TabPanel>
+                        <TabPanel value='progress'>
+                            <ProgressTab user={user} />
+                        </TabPanel>
                         <TabPanel value='activity'>Activity Tab: Coming Soon</TabPanel>
                         <TabPanel value='games'>
                             <GamesTab user={user} />

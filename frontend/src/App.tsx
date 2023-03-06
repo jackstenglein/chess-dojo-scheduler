@@ -26,6 +26,7 @@ import SubmitGamePage from './games/SubmitGamePage';
 import AvailabilityBooker from './calendar/AvailabilityBooker';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import NotFoundPage from './NotFoundPage';
+import RequirementPage from './requirements/RequirementPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -103,6 +104,8 @@ function Router() {
                             <Route index element={<ScoreboardPage />} />
                             <Route path=':cohort' element={<ScoreboardPage />} />
                         </Route>
+
+                        <Route path='requirements/:id' element={<RequirementPage />} />
                     </Route>
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />

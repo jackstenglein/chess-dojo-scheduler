@@ -9,7 +9,6 @@ export enum RequestStatus {
     Loading = 'LOADING',
     Success = 'SUCCESS',
     Failure = 'FAILURE',
-    Reset = 'RESET',
 }
 
 /**
@@ -58,7 +57,7 @@ export function useRequest<T = any>(): Request<T> {
     );
 
     const reset = useCallback(() => {
-        setStatus(RequestStatus.Reset);
+        setStatus(RequestStatus.NotSent);
         setData(undefined);
         setError(undefined);
     }, [setStatus, setData, setError]);

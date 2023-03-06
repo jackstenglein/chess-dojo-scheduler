@@ -1,4 +1,4 @@
-import { RequirementProgress } from './requirement';
+import { Requirement, RequirementProgress } from './requirement';
 
 interface CognitoSession {
     idToken: {
@@ -106,3 +106,20 @@ export const dojoCohorts: string[] = [
     '2300-2400',
     '2400+',
 ];
+
+export const ALL_COHORTS = 'ALL_COHORTS';
+
+export function isRequirementComplete(
+    user: User,
+    requirement: Requirement,
+    cohort: string
+): boolean {
+    const progress = user.progress[requirement.id];
+    if (!progress) {
+        return false;
+    }
+
+    const totalCount = requirement.counts[cohort] || requirement.counts[ALL_COHORTS];
+    const currentCount = progress.counts[cohort] || progress.counts[ALL_COHORTS];
+    return currentCount >= totalCount;
+}
