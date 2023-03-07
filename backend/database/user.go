@@ -190,18 +190,17 @@ type UserGetter interface {
 	GetUser(username string) (*User, error)
 }
 
-type UserSetter interface {
-	UserGetter
-
-	// SetUser saves the provided User object into the database.
-	SetUser(user *User) error
-}
-
 type UserUpdater interface {
-	UserGetter
-
 	// UpdateUser applies the specified update to the user with the provided username.
 	UpdateUser(username string, update *UserUpdate) error
+}
+
+type UserProgressUpdater interface {
+	UserGetter
+
+	// UpdateUserProgress sets the given progress entry in the user's progress map and appends
+	// the given timeline entry to the user's timeline.
+	UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *RequirementProgress) (*User, error)
 }
 
 type AdminUserLister interface {
@@ -273,10 +272,59 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) er
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		UpdateExpression:          expr.Update(),
+		ConditionExpression:       aws.String("attribute_exists(username)"),
 		TableName:                 aws.String(userTable),
 	}
 	_, err = repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+}
+
+// UpdateUserProgress sets the given progress entry in the user's progress map and appends
+// the given timeline entry to the user's timeline.
+func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *RequirementProgress) (*User, error) {
+	pav, err := dynamodbattribute.Marshal(progressEntry)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal progress entry", err)
+	}
+
+	tav, err := dynamodbattribute.Marshal(timelineEntry)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal timeline entry", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {
+				S: aws.String(username),
+			},
+		},
+		UpdateExpression: aws.String("SET #p.#id = :p, #t = list_append(#t, :t)"),
+		ExpressionAttributeNames: map[string]*string{
+			"#p":  aws.String("progress"),
+			"#id": aws.String(progressEntry.RequirementId),
+			"#t":  aws.String("timeline"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":p": pav,
+			":t": {L: []*dynamodb.AttributeValue{tav}},
+		},
+		ConditionExpression: aws.String("attribute_exists(username)"),
+		ReturnValues:        aws.String("ALL_NEW"),
+		TableName:           aws.String(userTable),
+	}
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(404, "Invalid request: user does not exist", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+	}
+
+	user := User{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &user); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &user, nil
 }
 
 // GetUser returns the User object with the provided username.

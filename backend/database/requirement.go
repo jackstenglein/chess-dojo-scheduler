@@ -71,9 +71,7 @@ type RequirementProgress struct {
 	// The id of the requirement that the progress applies to
 	RequirementId string `dynamodbav:"requirementId" json:"requirementId"`
 
-	// The current number of units completed in the requirement, by cohort
-	// If the requirement is not repeatable, then there is only one item
-	// for ALL_COHORTS.
+	// The current number of units completed in the requirement, by cohort.
 	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`
 
 	// The number of minutes spent working on the requirement, by cohort
