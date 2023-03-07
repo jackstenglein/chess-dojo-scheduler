@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -129,6 +130,9 @@ type User struct {
 
 	// Whether the user is an admin or not
 	IsAdmin bool `dynamodbav:"isAdmin" json:"isAdmin"`
+
+	// When the user first created their account
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 }
 
 // UserUpdate contains pointers to fields included in the update of a user record. If a field
@@ -215,9 +219,10 @@ type AdminUserLister interface {
 // CreateUser creates a new User object with the provided information.
 func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, error) {
 	user := &User{
-		Username: username,
-		Email:    email,
-		Name:     name,
+		Username:  username,
+		Email:     email,
+		Name:      name,
+		CreatedAt: time.Now().Format(time.RFC3339),
 	}
 
 	err := repo.setUserConditional(user, aws.String("attribute_not_exists(username)"))
@@ -234,6 +239,16 @@ func (repo *dynamoRepository) setUserConditional(user *User, condition *string) 
 	item, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Unable to marshal user", err)
+	}
+
+	// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
+	if len(user.Progress) == 0 {
+		emptyMap := make(map[string]*dynamodb.AttributeValue)
+		item["progress"] = &dynamodb.AttributeValue{M: emptyMap}
+	}
+	if len(user.Timeline) == 0 {
+		emptyList := make([]*dynamodb.AttributeValue, 0)
+		item["timeline"] = &dynamodb.AttributeValue{L: emptyList}
 	}
 
 	input := &dynamodb.PutItemInput{
