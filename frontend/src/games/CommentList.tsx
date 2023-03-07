@@ -11,6 +11,9 @@ const CommentList: React.FC<CommentListProps> = ({ comments }) => {
     const [sortOrder, setSortOrder] = useState('DESC');
 
     const sortedComments = useMemo(() => {
+        if (!comments) {
+            return [];
+        }
         if (sortOrder === 'ASC') {
             return comments;
         }

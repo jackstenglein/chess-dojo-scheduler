@@ -129,6 +129,12 @@ func (repo *dynamoRepository) PutGame(game *Game) error {
 		return errors.Wrap(500, "Temporary server error", "Unable to marshal game", err)
 	}
 
+	// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
+	if len(game.Comments) == 0 {
+		emptyList := make([]*dynamodb.AttributeValue, 0)
+		item["comments"] = &dynamodb.AttributeValue{L: emptyList}
+	}
+
 	input := &dynamodb.PutItemInput{
 		Item:      item,
 		TableName: aws.String(gameTable),
@@ -403,12 +409,12 @@ func (repo *dynamoRepository) CreateComment(cohort, id string, comment *Comment)
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
 			return nil, errors.Wrap(400, "Invalid request: game not found", "DynamoDB conditional check failed", aerr)
 		}
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 	}
 
 	game := Game{}
 	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &game); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetGame result", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal CreateComment result", err)
 	}
 	return &game, nil
 }
