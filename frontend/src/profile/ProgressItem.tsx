@@ -27,6 +27,7 @@ import ScoreboardProgress from '../scoreboard/ScoreboardProgress';
 import { ALL_COHORTS } from '../database/user';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
+import InputSlider from './InputSlider';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -35,21 +36,30 @@ interface UpdateDialogProps {
     onClose: () => void;
     requirement: Requirement;
     cohort: string;
+    totalCount: number;
+    currentCount: number;
 }
 
-const CheckboxUpdateDialog: React.FC<UpdateDialogProps> = ({
+const UpdateDialog: React.FC<UpdateDialogProps> = ({
     open,
     onClose,
     requirement,
     cohort,
+    totalCount,
+    currentCount,
 }) => {
     const api = useApi();
+    const [value, setValue] = useState<number>(currentCount);
     const [hours, setHours] = useState('');
     const [minutes, setMinutes] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
-    const onComplete = () => {
+    const isSlider =
+        requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
+        requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
+
+    const onSubmit = () => {
         let hoursInt = 0;
         let minutesInt = 0;
         const errors: Record<string, string> = {};
@@ -73,17 +83,21 @@ const CheckboxUpdateDialog: React.FC<UpdateDialogProps> = ({
             return;
         }
 
+        const updatedValue = isSlider ? value - currentCount : totalCount;
+
         request.onStart();
-        const totalCount = requirement.counts[cohort] || requirement.counts[ALL_COHORTS];
         api.updateUserProgress(
             cohort,
             requirement.id,
-            totalCount,
+            updatedValue,
             hoursInt * 60 + minutesInt
         )
             .then((response) => {
                 console.log('updateUserProgress: ', response);
                 onClose();
+                setHours('');
+                setMinutes('');
+                request.reset();
             })
             .catch((err) => {
                 console.error('updateUserProgress: ', err);
@@ -92,15 +106,19 @@ const CheckboxUpdateDialog: React.FC<UpdateDialogProps> = ({
 
     return (
         <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
-            <DialogTitle>Complete {requirement.name}?</DialogTitle>
+            <DialogTitle>Update {requirement.name}?</DialogTitle>
             <DialogContent>
                 <Stack spacing={2}>
+                    {isSlider && (
+                        <InputSlider value={value} setValue={setValue} max={totalCount} />
+                    )}
                     <DialogContentText>
-                        Optionally add how long it took to complete this requirement in
-                        order for it to be added to your activity breakdown.
+                        Optionally add how long it took to{' '}
+                        {isSlider ? 'update' : 'complete'} this requirement in order for
+                        it to be added to your activity breakdown.
                     </DialogContentText>
                     <Grid container width={1}>
-                        <Grid item xs={12} sm={5.5}>
+                        <Grid item xs={12} sm>
                             <TextField
                                 label='Hours'
                                 value={hours}
@@ -111,7 +129,7 @@ const CheckboxUpdateDialog: React.FC<UpdateDialogProps> = ({
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={12} sm={5.5} pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
+                        <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
                             <TextField
                                 label='Minutes'
                                 value={minutes}
@@ -129,8 +147,12 @@ const CheckboxUpdateDialog: React.FC<UpdateDialogProps> = ({
                 <Button onClick={onClose} disabled={request.isLoading()}>
                     Cancel
                 </Button>
-                <LoadingButton loading={request.isLoading()} onClick={onComplete}>
-                    Complete
+                <LoadingButton
+                    loading={request.isLoading()}
+                    onClick={onSubmit}
+                    disabled={isSlider ? value === currentCount : false}
+                >
+                    {isSlider ? 'Update' : 'Complete'}
                 </LoadingButton>
             </DialogActions>
         </Dialog>
@@ -152,7 +174,6 @@ const ProgressItem: React.FC<ProgressItemProps> = ({ progress, requirement, coho
 
     let DescriptionElement = null;
     let UpdateElement = null;
-    let ModalElement = null;
 
     switch (requirement.scoreboardDisplay) {
         case ScoreboardDisplay.Hidden:
@@ -165,7 +186,6 @@ const ProgressItem: React.FC<ProgressItemProps> = ({ progress, requirement, coho
                     disabled={currentCount >= totalCount}
                 />
             );
-            ModalElement = CheckboxUpdateDialog;
             break;
 
         case ScoreboardDisplay.ProgressBar:
@@ -173,25 +193,29 @@ const ProgressItem: React.FC<ProgressItemProps> = ({ progress, requirement, coho
             DescriptionElement = (
                 <ScoreboardProgress value={currentCount} max={totalCount} min={0} />
             );
-            UpdateElement = (
-                <IconButton
-                    aria-label={`Update ${requirement.name}`}
-                    onClick={() => setShowUpdateModal(true)}
-                >
-                    <EditIcon />
-                </IconButton>
-            );
-            ModalElement = CheckboxUpdateDialog;
+            UpdateElement =
+                currentCount >= totalCount ? (
+                    <Checkbox checked disabled />
+                ) : (
+                    <IconButton
+                        aria-label={`Update ${requirement.name}`}
+                        onClick={() => setShowUpdateModal(true)}
+                    >
+                        <EditIcon />
+                    </IconButton>
+                );
             break;
     }
 
     return (
         <Stack spacing={2} mt={2}>
-            <ModalElement
+            <UpdateDialog
                 open={showUpdateModal}
                 onClose={() => setShowUpdateModal(false)}
                 requirement={requirement}
                 cohort={cohort}
+                totalCount={totalCount}
+                currentCount={currentCount}
             />
             <Grid
                 container
