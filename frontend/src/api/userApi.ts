@@ -27,6 +27,21 @@ export type UserApiContextType = {
      * @returns An AxiosResponse containing the updated user in the data field.
      */
     updateUser: (update: Partial<User>) => Promise<AxiosResponse<User, any>>;
+
+    /**
+     * updateUserProgress updates the current user's progress on the provided requirement.
+     * @param cohort The cohort the user is making progress in.
+     * @param requirementId The id of the requirement to update.
+     * @param incrementalCount The amount by which the user is increasing their count.
+     * @param incrementalMinutesSpent The amount by which the user is increasing their time spent.
+     * @returns An AxiosResponse containing the updated user in the data field.
+     */
+    updateUserProgress: (
+        cohort: string,
+        requirementId: string,
+        incrementalCount: number,
+        incrementalMinutesSpent: number
+    ) => Promise<AxiosResponse<User, any>>;
 };
 
 /**
@@ -58,19 +73,52 @@ export function getUserPublic(username: string) {
  * @param callback A callback function to invoke with the update after it has succeeded on the backend.
  * @returns An AxiosResponse containing the updated user in the data field.
  */
-export function updateUser(
+export async function updateUser(
     idToken: string,
     update: Partial<User>,
     callback: (update: Partial<User>) => void
 ) {
-    return axios
-        .put<User>(BASE_URL + '/user', update, {
+    const result = await axios.put<User>(BASE_URL + '/user', update, {
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+    callback(update);
+    return result;
+}
+
+/**
+ * updateUserProgress updates the current user's progress on the provided requirement.
+ * @param idToken The id token of the current signed-in user.
+ * @param cohort The cohort the user is making progress in.
+ * @param requirementId The id of the requirement to update.
+ * @param incrementalCount The amount by which the user is increasing their count.
+ * @param incrementalMinutesSpent The amount by which the user is increasing their time spent.
+ * @param callback A callback function to invoke with the update after it has succeeded on the backend.
+ * @returns An AxiosResponse containing the updated user in the data field.
+ */
+export async function updateUserProgress(
+    idToken: string,
+    cohort: string,
+    requirementId: string,
+    incrementalCount: number,
+    incrementalMinutesSpent: number,
+    callback: (update: Partial<User>) => void
+) {
+    const result = await axios.post<User>(
+        BASE_URL + '/user/progress',
+        {
+            cohort,
+            requirementId,
+            incrementalCount,
+            incrementalMinutesSpent,
+        },
+        {
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        })
-        .then((result) => {
-            callback(update);
-            return result;
-        });
+        }
+    );
+    callback(result.data);
+    return result;
 }

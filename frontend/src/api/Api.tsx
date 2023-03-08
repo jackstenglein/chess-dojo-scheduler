@@ -25,7 +25,13 @@ import {
     listMeetings,
     MeetingApiContextType,
 } from './meetingApi';
-import { UserApiContextType, getUser, getUserPublic, updateUser } from './userApi';
+import {
+    UserApiContextType,
+    getUser,
+    getUserPublic,
+    updateUser,
+    updateUserProgress,
+} from './userApi';
 import {
     GameApiContextType,
     CreateGameRequest,
@@ -80,6 +86,20 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getUserPublic: (username: string) => getUserPublic(username),
             updateUser: (update: Partial<User>) =>
                 updateUser(idToken, update, auth.updateUser),
+            updateUserProgress: (
+                cohort: string,
+                requirementId: string,
+                incrementalCount: number,
+                incrementalMinutesSpent: number
+            ) =>
+                updateUserProgress(
+                    idToken,
+                    cohort,
+                    requirementId,
+                    incrementalCount,
+                    incrementalMinutesSpent,
+                    auth.updateUser
+                ),
 
             setAvailability: (a: Availability) => setAvailability(idToken, a),
             deleteAvailability: (id: string) => deleteAvailability(idToken, id),

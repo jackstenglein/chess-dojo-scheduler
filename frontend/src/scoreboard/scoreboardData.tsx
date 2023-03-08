@@ -54,6 +54,7 @@ export const testUser: User = {
             updatedAt: '2022-03-02',
         },
     },
+    timeline: [],
     disableBookingNotifications: false,
     disableCancellationNotifications: false,
     isAdmin: false,

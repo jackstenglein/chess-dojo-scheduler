@@ -71,6 +71,7 @@ export interface User {
     currentUscfRating: number;
 
     progress: { [requirementId: string]: RequirementProgress };
+    timeline: RequirementProgress[];
     disableBookingNotifications: boolean;
     disableCancellationNotifications: boolean;
     isAdmin: boolean;
