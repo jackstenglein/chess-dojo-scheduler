@@ -38,7 +38,7 @@ const GroupMeetingPage = () => {
     const startTime = start.toLocaleTimeString();
 
     const end = new Date(availability.endTime);
-    const endTime = end.toLocaleDateString();
+    const endTime = end.toLocaleTimeString();
 
     return (
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
