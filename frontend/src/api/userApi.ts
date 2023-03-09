@@ -22,6 +22,14 @@ export type UserApiContextType = {
     getUserPublic: (username: string) => Promise<AxiosResponse<User, any>>;
 
     /**
+     * listUsersByCohort returns a list of users in the provided cohort.
+     * @param cohort The cohort to get users in.
+     * @param startKey The optional start key to use when searching.
+     * @returns A list of users in the provided cohort.
+     */
+    listUsersByCohort: (cohort: string, startKey?: string) => Promise<User[]>;
+
+    /**
      * updateUser applies the given updates to the current signed-in user.
      * @param update The updates to apply.
      * @returns An AxiosResponse containing the updated user in the data field.
@@ -64,6 +72,38 @@ export function getUser(idToken: string) {
  */
 export function getUserPublic(username: string) {
     return axios.get<User>(BASE_URL + '/public/user/' + username);
+}
+
+interface ListUsersResponse {
+    users: User[];
+    lastEvaluatedKey: string;
+}
+
+/**
+ * listUsersByCohort returns a list of users in the provided cohort.
+ * @param idToken The id token of the current signed-in user.
+ * @param cohort The cohort to search for users.
+ * @param startKey The optional startKey to use when searching.
+ * @returns A list of users in the provided cohort.
+ */
+export async function listUsersByCohort(
+    idToken: string,
+    cohort: string,
+    startKey?: string
+) {
+    let params = { startKey };
+    const result: User[] = [];
+    do {
+        const resp = await axios.get<ListUsersResponse>(BASE_URL + `/user/${cohort}`, {
+            params,
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        });
+        result.push(...resp.data.users);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+    return result;
 }
 
 /**

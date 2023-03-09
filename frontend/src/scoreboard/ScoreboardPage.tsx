@@ -14,7 +14,6 @@ import {
     getCurrentRating,
     getRatingIncrease,
     getStartRating,
-    testUser,
 } from './scoreboardData';
 import { User } from '../database/user';
 
@@ -79,27 +78,40 @@ const defaultColumns: GridColDef[] = [
 const ScoreboardPage = () => {
     const user = useAuth().user!;
     const { cohort } = useParams<ScoreboardPageParams>();
-    const request = useRequest<Requirement[]>();
+    const requirementRequest = useRequest<Requirement[]>();
+    const usersRequest = useRequest<User[]>();
     const api = useApi();
 
     useEffect(() => {
-        if (cohort && cohort !== '' && !request.isSent()) {
-            request.onStart();
+        if (cohort && cohort !== '' && !requirementRequest.isSent()) {
+            requirementRequest.onStart();
 
             api.listRequirements(cohort, true)
                 .then((requirements) => {
-                    request.onSuccess(requirements);
+                    requirementRequest.onSuccess(requirements);
                 })
                 .catch((err) => {
                     console.error('listRequirements: ', err);
-                    request.onFailure(err);
+                    requirementRequest.onFailure(err);
                 });
         }
-    }, [cohort, request, api]);
+        if (cohort && cohort !== '' && !usersRequest.isSent()) {
+            console.log('Sending user request');
+            usersRequest.onStart();
+            api.listUsersByCohort(cohort)
+                .then((users) => {
+                    usersRequest.onSuccess(users);
+                })
+                .catch((err) => {
+                    console.error('listUsersByCohort: ', err);
+                    usersRequest.onFailure(err);
+                });
+        }
+    }, [cohort, requirementRequest, usersRequest, api]);
 
     const requirements = useMemo(() => {
-        return [...(request.data ?? [])].sort(compareRequirements);
-    }, [request.data]);
+        return [...(requirementRequest.data ?? [])].sort(compareRequirements);
+    }, [requirementRequest.data]);
 
     const columns: GridColDef[] = useMemo(() => {
         return requirements?.map((r) => getColumnDefinition(r, cohort)) ?? [];
@@ -125,21 +137,25 @@ const ScoreboardPage = () => {
     }
 
     if (
-        request.isLoading() &&
+        requirementRequest.isLoading() &&
         (requirements === undefined || requirements.length === 0)
     ) {
         return <LoadingPage />;
     }
 
+    console.log('Scoreboard users: ', usersRequest.data);
+
     return (
         <Container maxWidth='xl' className='full-height' sx={{ pt: 4, pb: 4 }}>
-            <RequestSnackbar request={request} />
+            <RequestSnackbar request={requirementRequest} />
+            <RequestSnackbar request={usersRequest} />
 
             <DataGrid
                 experimentalFeatures={{ columnGrouping: true }}
                 columns={defaultColumns.concat(columns)}
                 columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
-                rows={[testUser, user]}
+                rows={usersRequest.data ?? []}
+                loading={usersRequest.isLoading()}
                 getRowId={(row: GridRowModel<User>) => row.username}
             />
         </Container>

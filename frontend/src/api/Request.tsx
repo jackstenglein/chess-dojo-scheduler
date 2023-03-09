@@ -134,15 +134,9 @@ export function RequestSnackbar<T = any>({
             <Snackbar
                 open={displayError}
                 autoHideDuration={6000}
-                onClose={request.reset}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert
-                    variant='filled'
-                    severity='error'
-                    sx={{ width: '100%' }}
-                    onClose={request.reset}
-                >
+                <Alert variant='filled' severity='error' sx={{ width: '100%' }}>
                     {errorMessage}
                 </Alert>
             </Snackbar>

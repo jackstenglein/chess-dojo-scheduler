@@ -199,6 +199,26 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
+  listUsers:
+    handler: bin/user/list
+    package:
+      patterns:
+        - ./bin/user/list
+    events:
+      - httpApi:
+          path: /user/{cohort}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt UsersTable.Arn
+                - '/index/CohortIndex'
+
   updateRatings:
     handler: bin/user/ratings/update
     package:
@@ -645,6 +665,8 @@ resources:
         AttributeDefinitions:
           - AttributeName: username
             AttributeType: S
+          - AttributeName: dojoCohort
+            AttributeType: S
         KeySchema:
           - AttributeName: username
             KeyType: HASH
@@ -657,6 +679,33 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+        GlobalSecondaryIndexes:
+          - IndexName: CohortIndex
+            KeySchema:
+              - AttributeName: dojoCohort
+                KeyType: HASH
+              - AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - discordUsername
+                - ratingSystem
+                - startChesscomRating
+                - currentChesscomRating
+                - startLichessRating
+                - currentLichessRating
+                - startFideRating
+                - currentFideRating
+                - startUscfRating
+                - currentUscfRating
+                - progress
+                - createdAt
+            ProvisionedThroughput: !If
+              - IsProd
+              - ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+              - !Ref AWS::NoValue
 
     AvailabilitiesTable:
       Type: AWS::DynamoDB::Table

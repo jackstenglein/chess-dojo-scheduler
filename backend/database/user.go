@@ -194,6 +194,13 @@ type UserGetter interface {
 	GetUser(username string) (*User, error)
 }
 
+type UserLister interface {
+	// ListUsersByCohort returns a list of Users in the provided cohort, up to 1MB of data.
+	// startKey is an optional parameter that can be used to perform pagination.
+	// The list of users and the next start key are returned.
+	ListUsersByCohort(cohort DojoCohort, startKey string) ([]*User, string, error)
+}
+
 type UserUpdater interface {
 	// UpdateUser applies the specified update to the user with the provided username.
 	UpdateUser(username string, update *UserUpdate) error
@@ -369,6 +376,54 @@ func (repo *dynamoRepository) GetUser(username string) (*User, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetUser result", err)
 	}
 	return &user, nil
+}
+
+// ListUsersByCohort returns a list of Users in the provided cohort, up to 1MB of data.
+// startKey is an optional parameter that can be used to perform pagination.
+// The list of users and the next start key are returned.
+func (repo *dynamoRepository) ListUsersByCohort(cohort DojoCohort, startKey string) ([]*User, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#cohort = :cohort"),
+		ExpressionAttributeNames: map[string]*string{
+			"#cohort": aws.String("dojoCohort"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":cohort": {S: aws.String(string(cohort))},
+		},
+		IndexName: aws.String("CohortIndex"),
+		TableName: aws.String(userTable),
+	}
+
+	if startKey != "" {
+		var exclusiveStartKey map[string]*dynamodb.AttributeValue
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+		input.SetExclusiveStartKey(exclusiveStartKey)
+	}
+
+	result, err := repo.svc.Query(input)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
+	}
+
+	var users []*User
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &users)
+	if err != nil {
+		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal Query result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal Query LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+
+	return users, lastKey, nil
 }
 
 // ScanUsers returns a list of all Users in the database, up to 1MB of data.

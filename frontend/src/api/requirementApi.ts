@@ -51,6 +51,7 @@ interface ListRequirementsResponse {
  * @param cohort The cohort to search for when matching requirements.
  * @param scoreboardOnly Whether to exclude results that are hidden from the scoreboard.
  * @param startKey The optional startKey to use when searching.
+ * @returns A list of requirements matching the provided cohort.
  */
 export async function listRequirements(
     idToken: string,

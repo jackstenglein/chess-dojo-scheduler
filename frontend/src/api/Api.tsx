@@ -29,6 +29,7 @@ import {
     UserApiContextType,
     getUser,
     getUserPublic,
+    listUsersByCohort,
     updateUser,
     updateUserProgress,
 } from './userApi';
@@ -88,6 +89,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             getUser: () => getUser(idToken),
             getUserPublic: (username: string) => getUserPublic(username),
+            listUsersByCohort: (cohort: string, startKey?: string) =>
+                listUsersByCohort(idToken, cohort, startKey),
             updateUser: (update: Partial<User>) =>
                 updateUser(idToken, update, auth.updateUser),
             updateUserProgress: (

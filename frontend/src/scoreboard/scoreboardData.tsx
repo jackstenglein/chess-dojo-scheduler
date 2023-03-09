@@ -14,53 +14,6 @@ import {
     User,
 } from '../database/user';
 
-export const testUser: User = {
-    username: 'asdfuniqueid',
-    discordUsername: 'Heh13#5117',
-    bio: 'test data',
-    chesscomUsername: 'JackStenglein',
-    lichessUsername: 'JackStenglein',
-    fideId: '12345678',
-    uscfId: '12345678',
-    startChesscomRating: 1682,
-    currentChesscomRating: 1800,
-    startLichessRating: 0,
-    currentLichessRating: 0,
-    startFideRating: 0,
-    currentFideRating: 0,
-    startUscfRating: 0,
-    currentUscfRating: 0,
-    ratingSystem: RatingSystem.Chesscom,
-    dojoCohort: '1500-1600',
-    progress: {
-        '2472fef6-2799-44eb-ba3a-42a4bafc8dbe': {
-            requirementId: '2472fef6-2799-44eb-ba3a-42a4bafc8dbe',
-            counts: {
-                ALL_COHORTS: 3672,
-            },
-            minutesSpent: {
-                '1500-1600': 180,
-            },
-            updatedAt: '2022-03-02',
-        },
-        '654c679f-9f61-4552-83ff-c04fe7f5e182': {
-            requirementId: '654c679f-9f61-4552-83ff-c04fe7f5e182',
-            counts: {
-                '1600-1700': 1,
-            },
-            minutesSpent: {
-                '1600-1700': 30,
-            },
-            updatedAt: '2022-03-02',
-        },
-    },
-    timeline: [],
-    disableBookingNotifications: false,
-    disableCancellationNotifications: false,
-    isAdmin: false,
-    createdAt: '2022-11-10',
-};
-
 export function getColumnDefinition(
     requirement: Requirement,
     cohort?: string
