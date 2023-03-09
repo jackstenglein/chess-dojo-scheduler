@@ -40,11 +40,11 @@ var cohorts = []DojoCohort{
 	"2400+",
 }
 
-const allCohorts = "ALL_COHORTS"
+const AllCohorts = "ALL_COHORTS"
 
 // IsValidCohort returns true if the provided cohort is valid.
 func IsValidCohort(c DojoCohort) bool {
-	if c == allCohorts {
+	if c == AllCohorts {
 		return true
 	}
 	for _, c2 := range cohorts {
@@ -117,7 +117,7 @@ type User struct {
 	Progress map[string]*RequirementProgress `dynamodbav:"progress" json:"progress"`
 
 	// A list of RequirementProgress objects forming the user's activity
-	Timeline []*RequirementProgress `dynamodbav:"timeline" json:"timeline"`
+	Timeline []*TimelineEntry `dynamodbav:"timeline" json:"timeline"`
 
 	// Whether to disable notifications when a user's meeting is booked
 	DisableBookingNotifications bool `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
@@ -201,10 +201,11 @@ type UserUpdater interface {
 
 type UserProgressUpdater interface {
 	UserGetter
+	RequirementGetter
 
 	// UpdateUserProgress sets the given progress entry in the user's progress map and appends
 	// the given timeline entry to the user's timeline.
-	UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *RequirementProgress) (*User, error)
+	UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *TimelineEntry) (*User, error)
 }
 
 type AdminUserLister interface {
@@ -296,7 +297,7 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) er
 
 // UpdateUserProgress sets the given progress entry in the user's progress map and appends
 // the given timeline entry to the user's timeline.
-func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *RequirementProgress) (*User, error) {
+func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *TimelineEntry) (*User, error) {
 	pav, err := dynamodbattribute.Marshal(progressEntry)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal progress entry", err)

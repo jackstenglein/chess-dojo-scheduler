@@ -81,6 +81,38 @@ type RequirementProgress struct {
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
 }
 
+type TimelineEntry struct {
+	// The id of the requirement that the timeline entry applies to
+	RequirementId string `dynamodbav:"requirementId" json:"requirementId"`
+
+	// The name of the requirement that the timeline entry applies to
+	RequirementName string `dynamodbav:"requirementName" json:"requirementName"`
+
+	// The category of the requirement that the timeline entry applies to
+	RequirementCategory string `dynamodbav:"requirementCategory" json:"requirementCategory"`
+
+	// How the requirement should be displayed on the scoreboard.
+	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`
+
+	// The cohort the timeline entry applies to
+	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
+
+	// The total value of the requirement
+	TotalCount int `dynamodbav:"totalCount" json:"totalCount"`
+
+	// The value of the user's progress prior to the timeline entry
+	PreviousCount int `dynamodbav:"previousCount" json:"previousCount"`
+
+	// The value of the user's progress after the timeline entry
+	NewCount int `dynamodbav:"newCount" json:"newCount"`
+
+	// The number of minutes spent on the timeline entry
+	MinutesSpent int `dynamodbav:"minutesSpent" json:"minutesSpent"`
+
+	// The time the timeline entry was created
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+}
+
 type Graduation struct {
 	// The Cognito username of the graduating user
 	Username string `dynamodbav:"username"`

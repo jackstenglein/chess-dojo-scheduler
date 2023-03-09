@@ -1,4 +1,4 @@
-import { Requirement, RequirementProgress } from './requirement';
+import { Requirement, RequirementProgress, TimelineEntry } from './requirement';
 
 interface CognitoSession {
     idToken: {
@@ -71,7 +71,7 @@ export interface User {
     currentUscfRating: number;
 
     progress: { [requirementId: string]: RequirementProgress };
-    timeline: RequirementProgress[];
+    timeline: TimelineEntry[];
     disableBookingNotifications: boolean;
     disableCancellationNotifications: boolean;
     isAdmin: boolean;

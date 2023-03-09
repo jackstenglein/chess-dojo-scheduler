@@ -10,13 +10,10 @@ import {
 } from '@mui/lab';
 import { Typography } from '@mui/material';
 import { useMemo } from 'react';
-import {
-    Requirement,
-    RequirementProgress,
-    ScoreboardDisplay,
-} from '../../database/requirement';
+import { ScoreboardDisplay, TimelineEntry } from '../../database/requirement';
 
 import { User } from '../../database/user';
+import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import { CategoryColors } from './activity';
 
 const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
@@ -25,63 +22,70 @@ const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
     year: '2-digit',
 };
 
-function getTimeSpent(timelineItem: RequirementProgress): string {
-    if (timelineItem.minutesSpent.length === 0) {
+function getTimeSpent(timelineItem: TimelineEntry): string {
+    if (timelineItem.minutesSpent === 0) {
         return '';
     }
-    const minutesSpent = Object.values(timelineItem.minutesSpent)[0];
-    const hours = Math.floor(minutesSpent / 60);
-    const minutes = minutesSpent % 60;
+    const hours = Math.floor(timelineItem.minutesSpent / 60);
+    const minutes = timelineItem.minutesSpent % 60;
     if (hours === 0 && minutes === 0) {
         return '';
     }
     return `${hours}h ${minutes}m`;
 }
 
-interface ActivityTimelineProps {
-    user: User;
-    requirements: Record<string, Requirement>;
+function getTimelineItem(timelineEntry: TimelineEntry, showConnector: boolean) {
+    const date = new Date(timelineEntry.createdAt);
+    const isCheckbox =
+        timelineEntry.scoreboardDisplay === ScoreboardDisplay.Checkbox ||
+        timelineEntry.scoreboardDisplay === ScoreboardDisplay.Hidden;
+    const isComplete = timelineEntry.newCount >= timelineEntry.totalCount;
+    const timeSpent = getTimeSpent(timelineEntry);
+
+    return (
+        <TimelineItem>
+            <TimelineOppositeContent>
+                {date.toLocaleDateString(undefined, DATE_OPTIONS)}
+            </TimelineOppositeContent>
+            <TimelineSeparator>
+                <TimelineDot
+                    sx={{
+                        backgroundColor:
+                            CategoryColors[timelineEntry.requirementCategory],
+                    }}
+                />
+                {showConnector && <TimelineConnector />}
+            </TimelineSeparator>
+            <TimelineContent>
+                <Typography variant='subtitle1' component='span'>
+                    {isCheckbox || isComplete ? 'Completed' : 'Updated'}{' '}
+                    {timelineEntry.requirementName}
+                </Typography>
+                {!isCheckbox && (
+                    <ScoreboardProgress
+                        value={timelineEntry.newCount}
+                        min={0}
+                        max={timelineEntry.totalCount}
+                    />
+                )}
+                {timeSpent && <Typography variant='subtitle2'>{timeSpent}</Typography>}
+            </TimelineContent>
+        </TimelineItem>
+    );
 }
 
-const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, requirements }) => {
+interface ActivityTimelineProps {
+    user: User;
+}
+
+const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user }) => {
     console.log('Timeline: ', user.timeline);
 
     const timeline = useMemo(() => {
         const result = [];
         for (let i = user.timeline.length - 1; i >= 0; i--) {
-            const date = new Date(user.timeline[i].updatedAt);
-            const requirement = requirements[user.timeline[i].requirementId];
-
-            if (!requirement) {
-                continue;
-            }
-
-            const isCheckbox =
-                requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox ||
-                requirement.scoreboardDisplay === ScoreboardDisplay.Hidden;
-
-            const timeSpent = getTimeSpent(user.timeline[i]);
-
             result.push(
-                <TimelineItem>
-                    <TimelineOppositeContent>
-                        {date.toLocaleDateString(undefined, DATE_OPTIONS)}
-                    </TimelineOppositeContent>
-                    <TimelineSeparator>
-                        <TimelineDot
-                            sx={{ backgroundColor: CategoryColors[requirement.category] }}
-                        />
-                        {(i > 0 || user.createdAt) && <TimelineConnector />}
-                    </TimelineSeparator>
-                    <TimelineContent>
-                        <Typography variant='subtitle1' component='span'>
-                            {isCheckbox ? 'Completed' : 'Updated'} {requirement.name}
-                        </Typography>
-                        {timeSpent && (
-                            <Typography variant='subtitle2'>{timeSpent}</Typography>
-                        )}
-                    </TimelineContent>
-                </TimelineItem>
+                getTimelineItem(user.timeline[i], i > 0 || user.createdAt !== '')
             );
         }
         if (user.createdAt) {
@@ -104,7 +108,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, requirements 
         }
 
         return result;
-    }, [user.timeline, user.createdAt, requirements]);
+    }, [user.timeline, user.createdAt]);
 
     if (user.timeline.length === 0) {
         return null;

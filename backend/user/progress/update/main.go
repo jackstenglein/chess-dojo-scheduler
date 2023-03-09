@@ -42,6 +42,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
 	}
 
+	requirement, err := repository.GetRequirement(request.RequirementId)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
 		return api.Failure(funcName, err), nil
@@ -55,19 +60,28 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 			MinutesSpent:  make(map[database.DojoCohort]int),
 		}
 	}
+	originalCount := progress.Counts[request.Cohort]
+
 	progress.Counts[request.Cohort] += request.IncrementalCount
 	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
 	progress.UpdatedAt = time.Now().Format(time.RFC3339)
 
-	timelineEntry := &database.RequirementProgress{
-		RequirementId: request.RequirementId,
-		Counts: map[database.DojoCohort]int{
-			request.Cohort: request.IncrementalCount,
-		},
-		MinutesSpent: map[database.DojoCohort]int{
-			request.Cohort: request.IncrementalMinutesSpent,
-		},
-		UpdatedAt: time.Now().Format(time.RFC3339),
+	totalCount, ok := requirement.Counts[request.Cohort]
+	if !ok {
+		totalCount, _ = requirement.Counts[database.AllCohorts]
+	}
+
+	timelineEntry := &database.TimelineEntry{
+		RequirementId:       request.RequirementId,
+		RequirementName:     requirement.Name,
+		RequirementCategory: requirement.Category,
+		ScoreboardDisplay:   requirement.ScoreboardDisplay,
+		Cohort:              request.Cohort,
+		TotalCount:          totalCount,
+		PreviousCount:       originalCount,
+		NewCount:            originalCount + request.IncrementalCount,
+		MinutesSpent:        request.IncrementalMinutesSpent,
+		CreatedAt:           time.Now().Format(time.RFC3339),
 	}
 
 	user, err = repository.UpdateUserProgress(info.Username, progress, timelineEntry)

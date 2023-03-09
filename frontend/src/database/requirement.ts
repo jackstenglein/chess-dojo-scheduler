@@ -38,6 +38,19 @@ export interface RequirementProgress {
     updatedAt: string;
 }
 
+export interface TimelineEntry {
+    requirementId: string;
+    requirementName: string;
+    requirementCategory: string;
+    cohort: string;
+    totalCount: number;
+    previousCount: number;
+    newCount: number;
+    minutesSpent: number;
+    scoreboardDisplay: ScoreboardDisplay;
+    createdAt: string;
+}
+
 export function compareRequirements(a: Requirement, b: Requirement) {
     if (a.sortPriority === undefined || b.sortPriority === undefined) {
         return 0;
