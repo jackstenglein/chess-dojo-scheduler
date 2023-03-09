@@ -120,6 +120,11 @@ type RequirementLister interface {
 	ListRequirements(cohort DojoCohort, scoreboardOnly bool, startKey string) ([]*Requirement, string, error)
 }
 
+type RequirementGetter interface {
+	// GetRequirement returns the requirement with the provided id.
+	GetRequirement(id string) (*Requirement, error)
+}
+
 // fetchScoreboardRequirements returns a list of requirements matching the provided cohort that should be displayed
 // on the scoreboard. The next startKey is returned as well.
 func (repo *dynamoRepository) fetchScoreboardRequirements(cohort DojoCohort, startKey string) ([]*Requirement, string, error) {
@@ -224,4 +229,33 @@ func (repo *dynamoRepository) ListRequirements(cohort DojoCohort, scoreboardOnly
 		return repo.fetchScoreboardRequirements(cohort, startKey)
 	}
 	return repo.scanRequirements(cohort, startKey)
+}
+
+// GetRequirement returns the requirement with the provided id.
+func (repo *dynamoRepository) GetRequirement(id string) (*Requirement, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"status": {
+				S: aws.String(string(Active)),
+			},
+			"id": {
+				S: aws.String(id),
+			},
+		},
+		TableName: aws.String(requirementTable),
+	}
+
+	result, err := repo.svc.GetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
+	}
+	if result.Item == nil {
+		return nil, errors.New(404, "Invalid request: requirement not found", "GetItem result is nil")
+	}
+
+	requirement := Requirement{}
+	if err := dynamodbattribute.UnmarshalMap(result.Item, &requirement); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetItem result", err)
+	}
+	return &requirement, nil
 }

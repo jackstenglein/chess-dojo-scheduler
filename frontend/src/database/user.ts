@@ -110,6 +110,15 @@ export const dojoCohorts: string[] = [
 
 export const ALL_COHORTS = 'ALL_COHORTS';
 
+export function compareCohorts(a: string, b: string): number {
+    const aInt = parseInt(a);
+    const bInt = parseInt(b);
+    if (aInt < bInt) {
+        return -1;
+    }
+    return 1;
+}
+
 export function isRequirementComplete(
     user: User,
     requirement: Requirement,

@@ -522,6 +522,23 @@ functions:
 
   ########## Requirement Endpoints ##############
 
+  getRequirements:
+    handler: bin/requirement/get
+    package:
+      patterns:
+        - ./bin/requirement/get
+    events:
+      - httpApi:
+          path: /requirement/{id}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt RequirementsTable.Arn
+
   listRequirements:
     handler: bin/requirement/list
     package:
@@ -529,7 +546,7 @@ functions:
         - ./bin/requirement/list
     events:
       - httpApi:
-          path: /requirement/{cohort}
+          path: /requirements/{cohort}
           method: get
           authorizer: serviceAuthorizer
     iamRoleStatements:

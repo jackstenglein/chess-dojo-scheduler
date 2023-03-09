@@ -41,7 +41,11 @@ import {
     listGamesByOwner,
     createComment,
 } from './gameApi';
-import { RequirementApiContextType, listRequirements } from './requirementApi';
+import {
+    RequirementApiContextType,
+    getRequirement,
+    listRequirements,
+} from './requirementApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -149,6 +153,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             createComment: (cohort: string, id: string, content: string) =>
                 createComment(idToken, auth.user!, cohort, id, content),
 
+            getRequirement: (id: string) => getRequirement(idToken, id),
             listRequirements: (
                 cohort: string,
                 scoreboardOnly: boolean,

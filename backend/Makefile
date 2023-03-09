@@ -31,6 +31,7 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/list/owner game/list/owner/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/comment/create game/comment/create/main.go
 
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/requirement/get requirement/get/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/requirement/list requirement/list/main.go
 
 clean:
