@@ -58,6 +58,7 @@ export const testUser: User = {
     disableBookingNotifications: false,
     disableCancellationNotifications: false,
     isAdmin: false,
+    createdAt: '2022-11-10',
 };
 
 export function getColumnDefinition(

@@ -75,6 +75,7 @@ export interface User {
     disableBookingNotifications: boolean;
     disableCancellationNotifications: boolean;
     isAdmin: boolean;
+    createdAt: string;
 }
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser) {

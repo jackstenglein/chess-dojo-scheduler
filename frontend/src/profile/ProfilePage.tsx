@@ -12,7 +12,7 @@ import NotFoundPage from '../NotFoundPage';
 import RatingCard from './RatingCard';
 import GamesTab from './GamesTab';
 import ProgressTab from './ProgressTab';
-import ActivityTab from './ActivityTab';
+import ActivityTab from './activity/ActivityTab';
 
 type ProfilePageProps = {
     username: string;
