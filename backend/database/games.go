@@ -157,18 +157,10 @@ func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 		},
 		TableName: aws.String(gameTable),
 	}
-
-	result, err := repo.svc.GetItem(input)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
-	}
-	if result.Item == nil {
-		return nil, errors.New(404, "Invalid request: the specified game does not exist", "GetGame result.Item is nil")
-	}
-
 	game := Game{}
-	if err = dynamodbattribute.UnmarshalMap(result.Item, &game); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetGame result", err)
+
+	if err := repo.getItem(input, &game); err != nil {
+		return nil, err
 	}
 	return &game, nil
 }

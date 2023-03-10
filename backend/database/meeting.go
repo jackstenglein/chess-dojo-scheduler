@@ -2,7 +2,6 @@ package database
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -103,21 +102,10 @@ func (repo *dynamoRepository) GetMeeting(id string) (*Meeting, error) {
 		},
 		TableName: aws.String(meetingTable),
 	}
-
-	result, err := repo.svc.GetItem(input)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetMeeting failure", err)
-	}
-
-	if result.Item == nil {
-		return nil, errors.New(404,
-			fmt.Sprintf("Invalid request: meeting id `%s` not found", id),
-			"GetMeeting result.Item is nil")
-	}
-
 	meeting := Meeting{}
-	if err = dynamodbattribute.UnmarshalMap(result.Item, &meeting); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetMeeting result", err)
+
+	if err := repo.getItem(input, &meeting); err != nil {
+		return nil, err
 	}
 	return &meeting, nil
 }

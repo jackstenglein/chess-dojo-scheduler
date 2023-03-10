@@ -360,20 +360,10 @@ func (repo *dynamoRepository) GetUser(username string) (*User, error) {
 		},
 		TableName: aws.String(userTable),
 	}
-
-	result, err := repo.svc.GetItem(input)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
-	}
-
-	if result.Item == nil {
-		return nil, errors.New(404, "Invalid request: user not found", "GetUser result.Item is nil")
-	}
-
 	user := User{}
-	err = dynamodbattribute.UnmarshalMap(result.Item, &user)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetUser result", err)
+
+	if err := repo.getItem(input, &user); err != nil {
+		return nil, err
 	}
 	return &user, nil
 }

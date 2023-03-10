@@ -155,19 +155,10 @@ func (repo *dynamoRepository) GetAvailabilityStatistics() (*AvailabilityStatisti
 		},
 		TableName: aws.String(availabilityTable),
 	}
-
-	result, err := repo.svc.GetItem(input)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetAvailablityStatistics failure", err)
-	}
-
-	if result.Item == nil {
-		return nil, errors.New(500, "Meeting statistics not found", "GetAvailablityStatistics result.Item is nil")
-	}
-
 	availabilityStats := AvailabilityStatistics{}
-	if err = dynamodbattribute.UnmarshalMap(result.Item, &availabilityStats); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetAvailablityStatistics result", err)
+
+	if err := repo.getItem(input, &availabilityStats); err != nil {
+		return nil, err
 	}
 	return &availabilityStats, nil
 }

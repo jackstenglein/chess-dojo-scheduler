@@ -276,18 +276,10 @@ func (repo *dynamoRepository) GetRequirement(id string) (*Requirement, error) {
 		},
 		TableName: aws.String(requirementTable),
 	}
-
-	result, err := repo.svc.GetItem(input)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
-	}
-	if result.Item == nil {
-		return nil, errors.New(404, "Invalid request: requirement not found", "GetItem result is nil")
-	}
-
 	requirement := Requirement{}
-	if err := dynamodbattribute.UnmarshalMap(result.Item, &requirement); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetItem result", err)
+
+	if err := repo.getItem(input, &requirement); err != nil {
+		return nil, err
 	}
 	return &requirement, nil
 }

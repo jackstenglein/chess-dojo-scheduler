@@ -232,20 +232,10 @@ func (repo *dynamoRepository) GetAvailability(owner, id string) (*Availability, 
 		},
 		TableName: aws.String(availabilityTable),
 	}
-
-	result, err := repo.svc.GetItem(input)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
-	}
-
-	if result.Item == nil {
-		return nil, errors.New(404, "Invalid request: availability not found or already booked", "GetAvailability result.Item is nil")
-	}
-
 	availability := Availability{}
-	err = dynamodbattribute.UnmarshalMap(result.Item, &availability)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetAvailability result", err)
+
+	if err := repo.getItem(input, &availability); err != nil {
+		return nil, err
 	}
 	return &availability, nil
 }

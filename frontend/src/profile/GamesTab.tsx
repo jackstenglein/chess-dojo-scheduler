@@ -28,10 +28,10 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
         navigate(
-            `${params.row.cohort.replaceAll('+', '%2B')}/${params.row.id.replaceAll(
-                '?',
-                '%3F'
-            )}`
+            `/games/${params.row.cohort.replaceAll(
+                '+',
+                '%2B'
+            )}/${params.row.id.replaceAll('?', '%3F')}`
         );
     };
 
