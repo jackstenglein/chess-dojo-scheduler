@@ -61,6 +61,53 @@ export function getColumnDefinition(
     };
 }
 
+export function getCohortScore(
+    params: GridValueGetterParams<any, User>,
+    cohort: string | undefined,
+    requirements: Requirement[]
+): number {
+    if (!cohort) {
+        return 0;
+    }
+
+    const user = params.row;
+    let score = 0;
+    for (const requirement of requirements) {
+        const progress = user.progress[requirement.id];
+        if (!progress) {
+            continue;
+        }
+        const count = progress.counts[cohort] || 0;
+        score += count * requirement.unitScore;
+    }
+
+    return score;
+}
+
+export function getPercentComplete(
+    params: GridValueGetterParams<any, User>,
+    cohort: string | undefined,
+    requirements: Requirement[]
+): number {
+    if (!cohort) {
+        return 0;
+    }
+
+    const totalScore = requirements.reduce((sum, r) => {
+        const count = r.counts.ALL_COHORTS || r.counts[cohort] || 1;
+        return sum + count * r.unitScore;
+    }, 0);
+
+    console.log('Total score: ', totalScore);
+
+    const userScore = getCohortScore(params, cohort, requirements);
+    return (userScore / totalScore) * 100;
+}
+
+export function formatPercentComplete(params: GridValueFormatterParams<number>) {
+    return `${Math.round(params.value)}%`;
+}
+
 export function formatRatingSystem(params: GridValueFormatterParams<RatingSystem>) {
     return formatRatingSystemEnum(params.value);
 }
@@ -101,7 +148,7 @@ export function getCurrentRating(params: GridValueGetterParams<any, User>): numb
     }
 }
 
-export function getRatingIncrease(params: GridValueGetterParams<any, User>) {
+export function getRatingChange(params: GridValueGetterParams<any, User>) {
     const startRating = getStartRating(params);
     const currentRating = getCurrentRating(params);
     return currentRating - startRating;

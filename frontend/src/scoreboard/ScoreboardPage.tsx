@@ -1,7 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { Container } from '@mui/material';
 import { useParams, Navigate } from 'react-router-dom';
-import { DataGrid, GridColDef, GridRowModel } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    GridColDef,
+    GridRowModel,
+    GridValueGetterParams,
+} from '@mui/x-data-grid';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -9,10 +14,13 @@ import { useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
 import { compareRequirements, Requirement } from '../database/requirement';
 import {
+    formatPercentComplete,
     formatRatingSystem,
+    getCohortScore,
     getColumnDefinition,
     getCurrentRating,
-    getRatingIncrease,
+    getPercentComplete,
+    getRatingChange,
     getStartRating,
 } from './scoreboardData';
 import { User } from '../database/user';
@@ -35,20 +43,25 @@ const defaultColumnGroups: ColumnGroup[] = [
         groupId: 'User Info',
         children: [
             { field: 'discordUsername' },
+            { field: 'cohortScore' },
+            { field: 'percentComplete' },
             { field: 'ratingSystem' },
             { field: 'startRating' },
             { field: 'currentRating' },
-            { field: 'ratingIncrease' },
+            { field: 'ratingChange' },
         ],
     },
 ];
 
-const defaultColumns: GridColDef[] = [
+const usernameColumns: GridColDef[] = [
     {
         field: 'discordUsername',
         headerName: 'Discord ID',
         minWidth: 250,
     },
+];
+
+const userInfoColumns: GridColDef[] = [
     {
         field: 'ratingSystem',
         headerName: 'Rating System',
@@ -68,10 +81,10 @@ const defaultColumns: GridColDef[] = [
         valueGetter: getCurrentRating,
     },
     {
-        field: 'ratingIncrease',
-        headerName: 'Rating Increase',
+        field: 'ratingChange',
+        headerName: 'Rating Change',
         minWidth: 250,
-        valueGetter: getRatingIncrease,
+        valueGetter: getRatingChange,
     },
 ];
 
@@ -113,7 +126,28 @@ const ScoreboardPage = () => {
         return [...(requirementRequest.data ?? [])].sort(compareRequirements);
     }, [requirementRequest.data]);
 
-    const columns: GridColDef[] = useMemo(() => {
+    const cohortScoreColumns: GridColDef[] = useMemo(
+        () => [
+            {
+                field: 'cohortScore',
+                headerName: 'Cohort Score',
+                minWidth: 150,
+                valueGetter: (params: GridValueGetterParams<any, User>) =>
+                    getCohortScore(params, cohort, requirements),
+            },
+            {
+                field: 'percentComplete',
+                headerName: 'Percent Complete',
+                minWidth: 175,
+                valueGetter: (params: GridValueGetterParams<any, User>) =>
+                    getPercentComplete(params, cohort, requirements),
+                valueFormatter: formatPercentComplete,
+            },
+        ],
+        [requirements, cohort]
+    );
+
+    const requirementColumns: GridColDef[] = useMemo(() => {
         return requirements?.map((r) => getColumnDefinition(r, cohort)) ?? [];
     }, [requirements, cohort]);
 
@@ -143,8 +177,6 @@ const ScoreboardPage = () => {
         return <LoadingPage />;
     }
 
-    console.log('Scoreboard users: ', usersRequest.data);
-
     return (
         <Container maxWidth='xl' className='full-height' sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={requirementRequest} />
@@ -152,7 +184,11 @@ const ScoreboardPage = () => {
 
             <DataGrid
                 experimentalFeatures={{ columnGrouping: true }}
-                columns={defaultColumns.concat(columns)}
+                columns={usernameColumns.concat(
+                    cohortScoreColumns,
+                    userInfoColumns,
+                    requirementColumns
+                )}
                 columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
                 rows={usersRequest.data ?? []}
                 loading={usersRequest.isLoading()}
