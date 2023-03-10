@@ -157,8 +157,8 @@ func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 		},
 		TableName: aws.String(gameTable),
 	}
-	game := Game{}
 
+	game := Game{}
 	if err := repo.getItem(input, &game); err != nil {
 		return nil, err
 	}

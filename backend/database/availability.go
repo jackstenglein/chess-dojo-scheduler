@@ -1,7 +1,6 @@
 package database
 
 import (
-	"encoding/json"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -231,8 +230,8 @@ func (repo *dynamoRepository) GetAvailability(owner, id string) (*Availability, 
 		},
 		TableName: aws.String(availabilityTable),
 	}
-	availability := Availability{}
 
+	availability := Availability{}
 	if err := repo.getItem(input, &availability); err != nil {
 		return nil, err
 	}
@@ -344,35 +343,11 @@ func (repo *dynamoRepository) ListGroupAvailabilities(user *User, startTime, sta
 		TableName:        aws.String(availabilityTable),
 	}
 
-	if startKey != "" {
-		var exclusiveStartKey map[string]*dynamodb.AttributeValue
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
-		}
-		input.SetExclusiveStartKey(exclusiveStartKey)
-	}
-
-	result, err := repo.svc.Scan(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
-	}
-
 	var availabilities []*Availability
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &availabilities)
+	lastKey, err := repo.scan(input, startKey, &availabilities)
 	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanAvailabilities result", err)
+		return nil, "", err
 	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanAvailabilities LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
 	return availabilities, lastKey, nil
 }
 
@@ -523,16 +498,7 @@ func (repo *dynamoRepository) BookGroupAvailability(availability *Availability, 
 // startKey is an optional parameter that can be used to perform pagination.
 // The list of availabilities and the next start key are returned.
 func (repo *dynamoRepository) ScanAvailabilities(startKey string) ([]*Availability, string, error) {
-	var exclusiveStartKey map[string]*dynamodb.AttributeValue
-	if startKey != "" {
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
-		}
-	}
-
 	input := &dynamodb.ScanInput{
-		ExclusiveStartKey: exclusiveStartKey,
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":statistics": {
 				S: aws.String("STATISTICS"),
@@ -541,25 +507,11 @@ func (repo *dynamoRepository) ScanAvailabilities(startKey string) ([]*Availabili
 		FilterExpression: aws.String("id <> :statistics"),
 		TableName:        aws.String(availabilityTable),
 	}
-	result, err := repo.svc.Scan(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
-	}
 
 	var availabilities []*Availability
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &availabilities)
+	lastKey, err := repo.scan(input, startKey, &availabilities)
 	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanAvailabilities result", err)
+		return nil, "", err
 	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanAvailabilities LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
 	return availabilities, lastKey, nil
 }

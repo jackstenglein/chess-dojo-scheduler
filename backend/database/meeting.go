@@ -102,8 +102,8 @@ func (repo *dynamoRepository) GetMeeting(id string) (*Meeting, error) {
 		},
 		TableName: aws.String(meetingTable),
 	}
-	meeting := Meeting{}
 
+	meeting := Meeting{}
 	if err := repo.getItem(input, &meeting); err != nil {
 		return nil, err
 	}
@@ -245,16 +245,7 @@ func (repo *dynamoRepository) CancelMeeting(meeting *Meeting) (*Meeting, error) 
 // startKey is an optional parameter that can be used to perform pagination.
 // The list of meetings and the next start key are returned.
 func (repo *dynamoRepository) ScanMeetings(startKey string) ([]*Meeting, string, error) {
-	var exclusiveStartKey map[string]*dynamodb.AttributeValue
-	if startKey != "" {
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
-		}
-	}
-
 	input := &dynamodb.ScanInput{
-		ExclusiveStartKey: exclusiveStartKey,
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":statistics": {
 				S: aws.String("STATISTICS"),
@@ -263,25 +254,11 @@ func (repo *dynamoRepository) ScanMeetings(startKey string) ([]*Meeting, string,
 		FilterExpression: aws.String("id <> :statistics"),
 		TableName:        aws.String(meetingTable),
 	}
-	result, err := repo.svc.Scan(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
-	}
 
 	var meetings []*Meeting
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &meetings)
+	lastKey, err := repo.scan(input, startKey, &meetings)
 	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanMeetings result", err)
+		return nil, "", err
 	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanMeetings LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
 	return meetings, lastKey, nil
 }

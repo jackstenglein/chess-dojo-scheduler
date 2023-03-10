@@ -1,12 +1,8 @@
 package database
 
 import (
-	"encoding/json"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
 type RequirementStatus string
@@ -199,34 +195,11 @@ func (repo *dynamoRepository) scanRequirements(cohort DojoCohort, startKey strin
 		TableName:        aws.String(requirementTable),
 	}
 
-	if startKey != "" {
-		var exclusiveStartKey map[string]*dynamodb.AttributeValue
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled", err)
-		}
-		input.SetExclusiveStartKey(exclusiveStartKey)
-	}
-
-	result, err := repo.svc.Scan(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB scan failure", err)
-	}
-
 	var requirements []*Requirement
-	if err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &requirements); err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal Scan result", err)
+	lastKey, err := repo.scan(input, startKey, &requirements)
+	if err != nil {
+		return nil, "", err
 	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal scanRequirements LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
 	return requirements, lastKey, nil
 }
 
@@ -253,8 +226,8 @@ func (repo *dynamoRepository) GetRequirement(id string) (*Requirement, error) {
 		},
 		TableName: aws.String(requirementTable),
 	}
-	requirement := Requirement{}
 
+	requirement := Requirement{}
 	if err := repo.getItem(input, &requirement); err != nil {
 		return nil, err
 	}

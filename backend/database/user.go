@@ -1,7 +1,6 @@
 package database
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -360,8 +359,8 @@ func (repo *dynamoRepository) GetUser(username string) (*User, error) {
 		},
 		TableName: aws.String(userTable),
 	}
-	user := User{}
 
+	user := User{}
 	if err := repo.getItem(input, &user); err != nil {
 		return nil, err
 	}
@@ -399,7 +398,13 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	input := &dynamodb.ScanInput{
 		TableName: aws.String(userTable),
 	}
-	return repo.scanUsersWithInput(input, startKey)
+
+	var users []*User
+	lastKey, err := repo.scan(input, startKey, &users)
+	if err != nil {
+		return nil, "", err
+	}
+	return users, lastKey, nil
 }
 
 const ratingsProjection = "username, chesscomUsername, lichessUsername, fideId, uscfId, startChesscomRating, " +
@@ -415,43 +420,12 @@ func (repo *dynamoRepository) ScanUserRatings(startKey string) ([]*User, string,
 		ProjectionExpression: aws.String(ratingsProjection),
 		TableName:            aws.String(userTable),
 	}
-	return repo.scanUsersWithInput(input, startKey)
-}
-
-// scanUsersWithInput returns a list of all Users in the database, with up to 1MB of data in each page.
-// input is required and is the ScanInput to run.
-// startKey is an optional parameter that can be used to perform pagination.
-// The list of users and the next start key is returned.
-func (repo *dynamoRepository) scanUsersWithInput(input *dynamodb.ScanInput, startKey string) ([]*User, string, error) {
-	if startKey != "" {
-		var exclusiveStartKey map[string]*dynamodb.AttributeValue
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
-		}
-		input.SetExclusiveStartKey(exclusiveStartKey)
-	}
-
-	result, err := repo.svc.Scan(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Scan failure", err)
-	}
 
 	var users []*User
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &users)
+	lastKey, err := repo.scan(input, startKey, &users)
 	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal ScanUsers result", err)
+		return nil, "", err
 	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal ScanUsers LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
 	return users, lastKey, nil
 }
 
