@@ -98,8 +98,6 @@ export function getPercentComplete(
         return sum + count * r.unitScore;
     }, 0);
 
-    console.log('Total score: ', totalScore);
-
     const userScore = getCohortScore(params, cohort, requirements);
     return (userScore / totalScore) * 100;
 }

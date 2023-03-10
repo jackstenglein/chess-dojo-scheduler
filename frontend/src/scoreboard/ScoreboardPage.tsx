@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from 'react';
-import { Container } from '@mui/material';
-import { useParams, Navigate } from 'react-router-dom';
+import { Container, MenuItem, TextField } from '@mui/material';
+import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import {
     DataGrid,
     GridColDef,
+    GridRenderCellParams,
     GridRowModel,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
@@ -23,7 +24,7 @@ import {
     getRatingChange,
     getStartRating,
 } from './scoreboardData';
-import { User } from '../database/user';
+import { dojoCohorts, User } from '../database/user';
 
 interface ColumnGroupChild {
     field: string;
@@ -58,6 +59,9 @@ const usernameColumns: GridColDef[] = [
         field: 'discordUsername',
         headerName: 'Discord ID',
         minWidth: 250,
+        renderCell: (params: GridRenderCellParams<string, User>) => {
+            return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;
+        },
     },
 ];
 
@@ -65,25 +69,25 @@ const userInfoColumns: GridColDef[] = [
     {
         field: 'ratingSystem',
         headerName: 'Rating System',
-        minWidth: 250,
+        minWidth: 175,
         valueFormatter: formatRatingSystem,
     },
     {
         field: 'startRating',
         headerName: 'Start Rating',
-        minWidth: 250,
+        minWidth: 150,
         valueGetter: getStartRating,
     },
     {
         field: 'currentRating',
         headerName: 'Current Rating',
-        minWidth: 250,
+        minWidth: 150,
         valueGetter: getCurrentRating,
     },
     {
         field: 'ratingChange',
         headerName: 'Rating Change',
-        minWidth: 250,
+        minWidth: 150,
         valueGetter: getRatingChange,
     },
 ];
@@ -94,6 +98,7 @@ const ScoreboardPage = () => {
     const requirementRequest = useRequest<Requirement[]>();
     const usersRequest = useRequest<User[]>();
     const api = useApi();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (cohort && cohort !== '' && !requirementRequest.isSent()) {
@@ -166,6 +171,12 @@ const ScoreboardPage = () => {
         return Object.values(categories);
     }, [requirements]);
 
+    const onChangeCohort = (cohort: string) => {
+        navigate(`../${cohort}`);
+        usersRequest.reset();
+        requirementRequest.reset();
+    };
+
     if (cohort === undefined || cohort === '') {
         return <Navigate to={`./${user.dojoCohort}`} replace />;
     }
@@ -181,6 +192,20 @@ const ScoreboardPage = () => {
         <Container maxWidth='xl' className='full-height' sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={requirementRequest} />
             <RequestSnackbar request={usersRequest} />
+            <TextField
+                select
+                label='Cohort'
+                value={cohort}
+                onChange={(event) => onChangeCohort(event.target.value)}
+                sx={{ mb: 3 }}
+                fullWidth
+            >
+                {dojoCohorts.map((option) => (
+                    <MenuItem key={option} value={option}>
+                        {option}
+                    </MenuItem>
+                ))}
+            </TextField>
 
             <DataGrid
                 experimentalFeatures={{ columnGrouping: true }}
