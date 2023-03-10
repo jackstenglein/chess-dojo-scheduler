@@ -178,34 +178,11 @@ func (repo *dynamoRepository) fetchScoreboardRequirements(cohort DojoCohort, sta
 		TableName:        aws.String(requirementTable),
 	}
 
-	if startKey != "" {
-		var exclusiveStartKey map[string]*dynamodb.AttributeValue
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled", err)
-		}
-		input.SetExclusiveStartKey(exclusiveStartKey)
-	}
-
-	result, err := repo.svc.Query(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB query failure", err)
-	}
-
 	var requirements []*Requirement
-	if err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &requirements); err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal Query result", err)
+	lastKey, err := repo.query(input, startKey, &requirements)
+	if err != nil {
+		return nil, "", err
 	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal fetchScoreboardRequirements LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
 	return requirements, lastKey, nil
 }
 

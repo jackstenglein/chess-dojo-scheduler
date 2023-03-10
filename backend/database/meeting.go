@@ -111,38 +111,11 @@ func (repo *dynamoRepository) GetMeeting(id string) (*Meeting, error) {
 }
 
 func (repo *dynamoRepository) fetchMeetings(input *dynamodb.QueryInput, startKey string) ([]*Meeting, string, error) {
-	if startKey != "" {
-		var exclusiveStartKey map[string]*dynamodb.AttributeValue
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
-		}
-		input.SetExclusiveStartKey(exclusiveStartKey)
-	}
-
-	log.Debugf("Meeting Query input: %v", input)
-
-	result, err := repo.svc.Query(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
-	}
-	log.Debugf("Meeting query result: %v", result)
-
 	var meetings []*Meeting
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &meetings)
+	lastKey, err := repo.query(input, startKey, &meetings)
 	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal DynamoDB Query result", err)
+		return nil, "", err
 	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal DynamoDB Query LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
 	return meetings, lastKey, nil
 }
 

@@ -5,7 +5,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
@@ -155,8 +154,8 @@ func (repo *dynamoRepository) GetAvailabilityStatistics() (*AvailabilityStatisti
 		},
 		TableName: aws.String(availabilityTable),
 	}
-	availabilityStats := AvailabilityStatistics{}
 
+	availabilityStats := AvailabilityStatistics{}
 	if err := repo.getItem(input, &availabilityStats); err != nil {
 		return nil, err
 	}
@@ -275,18 +274,9 @@ func (repo *dynamoRepository) GetMeetingStatistics() (*MeetingStatistics, error)
 		TableName: aws.String(meetingTable),
 	}
 
-	result, err := repo.svc.GetItem(input)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB GetMeetingStatistics failure", err)
-	}
-
-	if result.Item == nil {
-		return nil, errors.New(500, "Meeting statistics not found", "GetMeetingStatistics result.Item is nil")
-	}
-
 	meetingStats := MeetingStatistics{}
-	if err = dynamodbattribute.UnmarshalMap(result.Item, &meetingStats); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetMeetingStatistics result", err)
+	if err := repo.getItem(input, &meetingStats); err != nil {
+		return nil, err
 	}
 	return &meetingStats, nil
 }

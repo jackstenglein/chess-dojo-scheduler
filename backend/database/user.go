@@ -384,35 +384,11 @@ func (repo *dynamoRepository) ListUsersByCohort(cohort DojoCohort, startKey stri
 		TableName: aws.String(userTable),
 	}
 
-	if startKey != "" {
-		var exclusiveStartKey map[string]*dynamodb.AttributeValue
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
-		}
-		input.SetExclusiveStartKey(exclusiveStartKey)
-	}
-
-	result, err := repo.svc.Query(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
-	}
-
 	var users []*User
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &users)
+	lastKey, err := repo.query(input, startKey, &users)
 	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal Query result", err)
+		return nil, "", err
 	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal Query LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
 	return users, lastKey, nil
 }
 

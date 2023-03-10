@@ -165,40 +165,6 @@ func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 	return &game, nil
 }
 
-// fetchGames performs the provided DynamoDB query. The startKey is unmarshalled and set on the query.
-func (repo *dynamoRepository) fetchGames(input *dynamodb.QueryInput, startKey string) ([]*Game, string, error) {
-	if startKey != "" {
-		var exclusiveStartKey map[string]*dynamodb.AttributeValue
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled", err)
-		}
-		input.SetExclusiveStartKey(exclusiveStartKey)
-	}
-
-	input.SetTableName(gameTable)
-	result, err := repo.svc.Query(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
-	}
-
-	var games []*Game
-	if err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &games); err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal fetchGames result", err)
-	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal fetchGames LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
-	return games, lastKey, nil
-}
-
 // addDates adds the provided start and end dates to the given key condition expression and expression attribute maps.
 func addDates(keyConditionExpression string, expressionAttributeNames map[string]*string, expressionAttributeValues map[string]*dynamodb.AttributeValue, startDate, endDate string) string {
 	if startDate != "" && endDate != "" {
@@ -256,7 +222,12 @@ func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, star
 		TableName:                 aws.String(gameTable),
 	}
 
-	return repo.fetchGames(input, startKey)
+	var games []*Game
+	lastKey, err := repo.query(input, startKey, &games)
+	if err != nil {
+		return nil, "", err
+	}
+	return games, lastKey, nil
 }
 
 // ListGamesByOwner returns a list of Games matching the provided owner. The PGN text is excluded and must be
@@ -283,7 +254,12 @@ func (repo *dynamoRepository) ListGamesByOwner(owner, startDate, endDate, startK
 		TableName:                 aws.String(gameTable),
 	}
 
-	return repo.fetchGames(input, startKey)
+	var games []*Game
+	lastKey, err := repo.query(input, startKey, &games)
+	if err != nil {
+		return nil, "", err
+	}
+	return games, lastKey, nil
 }
 
 type listGamesByPlayerStartKey struct {
@@ -362,7 +338,12 @@ func (repo *dynamoRepository) listColorGames(player, color, startDate, endDate, 
 		TableName:                 aws.String(gameTable),
 	}
 
-	return repo.fetchGames(input, startKey)
+	var games []*Game
+	lastKey, err := repo.query(input, startKey, &games)
+	if err != nil {
+		return nil, "", err
+	}
+	return games, lastKey, nil
 }
 
 func (repo *dynamoRepository) CreateComment(cohort, id string, comment *Comment) (*Game, error) {

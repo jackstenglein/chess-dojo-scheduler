@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 type AvailabilityType string
@@ -240,43 +239,6 @@ func (repo *dynamoRepository) GetAvailability(owner, id string) (*Availability, 
 	return &availability, nil
 }
 
-// fetchAvailabilities performs the provided DynamoDB query. The startKey is unmarshalled and set on the query.
-func (repo *dynamoRepository) fetchAvailabilities(input *dynamodb.QueryInput, startKey string) ([]*Availability, string, error) {
-	if startKey != "" {
-		var exclusiveStartKey map[string]*dynamodb.AttributeValue
-		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
-		if err != nil {
-			return nil, "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
-		}
-		input.SetExclusiveStartKey(exclusiveStartKey)
-	}
-
-	log.Debugf("Availability Query input: %v", input)
-
-	result, err := repo.svc.Query(input)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
-	}
-	log.Debugf("Availability query result: %v", result)
-
-	var availabilities []*Availability
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &availabilities)
-	if err != nil {
-		return nil, "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal GetAvailabilities result", err)
-	}
-
-	var lastKey string
-	if len(result.LastEvaluatedKey) > 0 {
-		b, err := json.Marshal(result.LastEvaluatedKey)
-		if err != nil {
-			return nil, "", errors.Wrap(500, "Temporary server error", "Failed to marshal GetAvailabilities LastEvaluatedKey", err)
-		}
-		lastKey = string(b)
-	}
-
-	return availabilities, lastKey, nil
-}
-
 // ListAvailabilitiesByOwner returns a list of Availabilities matching the provided owner username.
 // username is required and startKey is optional. The list of availabilities and
 // the next start key are returned.
@@ -299,7 +261,12 @@ func (repo *dynamoRepository) ListAvailabilitiesByOwner(username, startKey strin
 		TableName:              aws.String(availabilityTable),
 	}
 
-	return repo.fetchAvailabilities(input, startKey)
+	var availabilities []*Availability
+	lastKey, err := repo.query(input, startKey, &availabilities)
+	if err != nil {
+		return nil, "", err
+	}
+	return availabilities, lastKey, nil
 }
 
 // ListAvailabilitiesByTime returns a list of Availabilities where the Availability endTime >= the startTime
@@ -336,7 +303,12 @@ func (repo *dynamoRepository) ListAvailabilitiesByTime(user *User, startTime, st
 		TableName:                 aws.String(availabilityTable),
 	}
 
-	return repo.fetchAvailabilities(input, startKey)
+	var availabilities []*Availability
+	lastKey, err := repo.query(input, startKey, &availabilities)
+	if err != nil {
+		return nil, "", err
+	}
+	return availabilities, lastKey, nil
 }
 
 // ListGroupAvailabilities returns a list of Availabilities where the participants list contains the user.

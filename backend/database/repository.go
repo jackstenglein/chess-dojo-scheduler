@@ -1,6 +1,7 @@
 package database
 
 import (
+	"encoding/json"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -41,4 +42,38 @@ func (repo *dynamoRepository) getItem(input *dynamodb.GetItemInput, out interfac
 
 	err = dynamodbattribute.UnmarshalMap(result.Item, out)
 	return errors.Wrap(500, "Temporary server error", "Failed to unmarshal DynamoDB GetItem result", err)
+}
+
+// query handles sending a DynamoDB Query request and unmarshals the result into the provided output value,
+// which must be a non-nil pointer to a slice. startKey is an optional parameter that can be used to perform
+// pagination. The next startKey is returned. If startKey cannot be unmarshalled, a 400 error is returned.
+// All other errors result in a 500.
+func (repo *dynamoRepository) query(input *dynamodb.QueryInput, startKey string, out interface{}) (string, error) {
+	if startKey != "" {
+		var exclusiveStartKey map[string]*dynamodb.AttributeValue
+		err := json.Unmarshal([]byte(startKey), &exclusiveStartKey)
+		if err != nil {
+			return "", errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled from json", err)
+		}
+		input.SetExclusiveStartKey(exclusiveStartKey)
+	}
+
+	result, err := repo.svc.Query(input)
+	if err != nil {
+		return "", errors.Wrap(500, "Temporary server error", "DynamoDB Query failure", err)
+	}
+
+	if err := dynamodbattribute.UnmarshalListOfMaps(result.Items, out); err != nil {
+		return "", errors.Wrap(500, "Temporary server error", "Failed to unmarshal Query result", err)
+	}
+
+	var lastKey string
+	if len(result.LastEvaluatedKey) > 0 {
+		b, err := json.Marshal(result.LastEvaluatedKey)
+		if err != nil {
+			return "", errors.Wrap(500, "Temporary server error", "Failed to marshal Query LastEvaluatedKey", err)
+		}
+		lastKey = string(b)
+	}
+	return lastKey, nil
 }
