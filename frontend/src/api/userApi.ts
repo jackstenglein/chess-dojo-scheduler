@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 
 import { User } from '../database/user';
 import { getConfig } from '../config';
+import { Graduation } from '../database/graduation';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -50,6 +51,13 @@ export type UserApiContextType = {
         incrementalCount: number,
         incrementalMinutesSpent: number
     ) => Promise<AxiosResponse<User, any>>;
+
+    /**
+     * graduate creates a new graduation object for the given user and updates them to the next cohort.
+     * @param comments The comments the user wants to add to their graduation object.
+     * @returns An AxiosResponse containing the new graduation object and the user update.
+     */
+    graduate: (comments: string) => Promise<AxiosResponse<GraduationResponse, any>>;
 };
 
 /**
@@ -160,5 +168,36 @@ export async function updateUserProgress(
         }
     );
     callback(result.data);
+    return result;
+}
+
+interface GraduationResponse {
+    graduation: Graduation;
+    userUpdate: Partial<User>;
+}
+
+/**
+ * graduate creates a new graduation object for the current user. If successful,
+ * the current user is updated to match the effects of the graduation.
+ * @param idToken The id token of the current signed-in user.
+ * @param comments The comments the user wants to add to their graduation.
+ * @param callback A callback function to invoke with the user update upon success.
+ * @returns An AxiosResponse containing the new graduation object and the user update.
+ */
+export async function graduate(
+    idToken: string,
+    comments: string,
+    callback: (update: Partial<User>) => void
+) {
+    const result = await axios.post<GraduationResponse>(
+        BASE_URL + '/user/graduate',
+        { comments },
+        {
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        }
+    );
+    callback(result.data.userUpdate);
     return result;
 }

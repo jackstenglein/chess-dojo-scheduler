@@ -11,7 +11,7 @@ import { Requirement, ScoreboardDisplay } from '../database/requirement';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
-import ProgressUpdateDialog from '../profile/ProgressUpdateDialog';
+import ProgressUpdateDialog from '../profile/progress/ProgressUpdateDialog';
 import Position from './Position';
 
 type RequirementPageProps = {

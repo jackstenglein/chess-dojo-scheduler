@@ -234,6 +234,31 @@ functions:
           - dynamodb:PartiQLUpdate
         Resource: !GetAtt UsersTable.Arn
 
+  graduate:
+    handler: bin/user/graduate
+    package:
+      patterns:
+        - ./bin/user/graduate
+    events:
+      - httpApi:
+          path: /user/graduate
+          method: post
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt RequirementsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt GraduationsTable.Arn
+
   ########## Availability Endpoints ##############
 
   setAvailability:
@@ -809,6 +834,30 @@ resources:
           - AttributeName: status
             KeyType: HASH
           - AttributeName: id
+            KeyType: RANGE
+        BillingMode: !If
+          - IsProd
+          - PROVISIONED
+          - PAY_PER_REQUEST
+        ProvisionedThroughput: !If
+          - IsProd
+          - ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          - !Ref AWS::NoValue
+
+    GraduationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-graduations
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: previousCohort
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+          - AttributeName: previousCohort
             KeyType: RANGE
         BillingMode: !If
           - IsProd

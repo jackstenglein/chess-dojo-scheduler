@@ -39,7 +39,9 @@ var cohorts = []DojoCohort{
 	"2400+",
 }
 
-const AllCohorts = "ALL_COHORTS"
+const AllCohorts DojoCohort = "ALL_COHORTS"
+
+const NoCohort DojoCohort = ""
 
 // IsValidCohort returns true if the provided cohort is valid.
 func IsValidCohort(c DojoCohort) bool {
@@ -53,6 +55,26 @@ func IsValidCohort(c DojoCohort) bool {
 	}
 	return false
 }
+
+// GetNextCohort returns the cohort after the provided one or
+// NoCohort if none exist.
+func (c DojoCohort) GetNextCohort() DojoCohort {
+	for i, c2 := range cohorts[:len(cohorts)-2] {
+		if c == c2 {
+			return cohorts[i+1]
+		}
+	}
+	return NoCohort
+}
+
+type RatingSystem string
+
+const (
+	Chesscom RatingSystem = "CHESSCOM"
+	Lichess  RatingSystem = "LICHESS"
+	Fide     RatingSystem = "FIDE"
+	Uscf     RatingSystem = "USCF"
+)
 
 type User struct {
 	// The user's Cognito username. Uniquely identifies a user
@@ -71,7 +93,7 @@ type User struct {
 	Bio string `dynamodbav:"bio" json:"bio"`
 
 	// The user's preferred rating system
-	RatingSystem string `dynamodbav:"ratingSystem" json:"ratingSystem"`
+	RatingSystem RatingSystem `dynamodbav:"ratingSystem" json:"ratingSystem"`
 
 	// The user's Chess.com username
 	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
@@ -132,11 +154,52 @@ type User struct {
 
 	// When the user first created their account
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+
+	// The number of times the user has graduated
+	NumberOfGraduations int `dynamodbav:"numberOfGraduations" json:"numberOfGraduations"`
+
+	// When the user most recently graduated
+	LastGraduatedAt string `dynamodbav:"lastGraduatedAt" json:"lastGraduatedAt"`
+}
+
+// GetRatings returns the start and current ratings in the user's preferred rating system.
+func (u *User) GetRatings() (int, int) {
+	if u == nil {
+		return 0, 0
+	}
+
+	switch u.RatingSystem {
+	case Chesscom:
+		return u.StartChesscomRating, u.CurrentChesscomRating
+	case Lichess:
+		return u.StartLichessRating, u.CurrentLichessRating
+	case Fide:
+		return u.StartFideRating, u.CurrentFideRating
+	case Uscf:
+		return u.StartUscfRating, u.CurrentUscfRating
+	default:
+		return 0, 0
+	}
+}
+
+// CalculateScore returns the user's score for the given list of requirements. The
+// user's current cohort is used when calculating the score.
+func (u *User) CalculateScore(requirements []*Requirement) float32 {
+	if u == nil {
+		return 0
+	}
+	var score float32 = 0
+	for _, requirement := range requirements {
+		p, _ := u.Progress[requirement.Id]
+		score += requirement.CalculateScore(u.DojoCohort, p)
+	}
+	return score
 }
 
 // UserUpdate contains pointers to fields included in the update of a user record. If a field
 // should not be updated in a particular request, then it is set to nil.
-// Some fields from the User type are removed as they cannot be manually updated by the user.
+// Some fields from the User type are removed as they cannot be updated. Other fields
+// are ignored by the json encoder because they cannot be manually updated by the user.
 type UserUpdate struct {
 	// The user's Discord username
 	DiscordUsername *string `dynamodbav:"discordUsername,omitempty" json:"discordUsername,omitempty"`
@@ -145,7 +208,7 @@ type UserUpdate struct {
 	Bio *string `dynamodbav:"bio,omitempty" json:"bio,omitempty"`
 
 	// The user's preferred rating system
-	RatingSystem *string `dynamodbav:"ratingSystem,omitempty" json:"ratingSystem,omitempty"`
+	RatingSystem *RatingSystem `dynamodbav:"ratingSystem,omitempty" json:"ratingSystem,omitempty"`
 
 	// The user's Chess.com username
 	ChesscomUsername *string `dynamodbav:"chesscomUsername,omitempty" json:"chesscomUsername,omitempty"`
@@ -181,6 +244,14 @@ type UserUpdate struct {
 	// Whether to disable notifications when a user's meeting is cancelled
 	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
 	DisableCancellationNotifications *bool `dynamodbav:"disableCancellationNotifications,omitempty" json:"disableCancellationNotifications,omitempty"`
+
+	// The number of times the user has graduated.
+	// Cannot be manually passed by the user. The user should instead call the user/graduate function
+	NumberOfGraduations *int `dynamodbav:"numberOfGraduations,omitempty" json:"-"`
+
+	// When the user most recently graduated
+	// Cannot be manually passed by the user. The user should instead call the user/graduate function
+	LastGraduatedAt *string `dynamodbav:"lastGraduatedAt,omitempty" json:"-"`
 }
 
 type UserCreator interface {

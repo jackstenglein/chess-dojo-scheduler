@@ -67,7 +67,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	var originalCount int
-	if requirement.NumberOfCohorts == 1 {
+	if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
 		originalCount = progress.Counts[database.AllCohorts]
 		progress.Counts[database.AllCohorts] += request.IncrementalCount
 	} else {

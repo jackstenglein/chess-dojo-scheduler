@@ -11,11 +11,11 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { compareRequirements, isComplete, Requirement } from '../database/requirement';
-import { dojoCohorts, User } from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { compareRequirements, isComplete, Requirement } from '../../database/requirement';
+import { dojoCohorts, User } from '../../database/user';
+import LoadingPage from '../../loading/LoadingPage';
 import ProgressItem from './ProgressItem';
 
 interface Category {
@@ -34,10 +34,16 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
     const [cohort, setCohort] = useState(user.dojoCohort);
 
     useEffect(() => {
+        setCohort(user.dojoCohort);
+        request.reset();
+    }, [user.dojoCohort]);
+
+    useEffect(() => {
         if (!request.isSent()) {
             api.listRequirements(cohort, false)
                 .then((requirements) => {
                     request.onSuccess(requirements);
+                    console.log('requirements: ', requirements);
                 })
                 .catch((err) => {
                     console.error('listRequirements: ', err);

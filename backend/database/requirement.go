@@ -64,6 +64,32 @@ type Requirement struct {
 	SortPriority string `dynamodbav:"sortPriority" json:"sortPriority"`
 }
 
+// CalculateScore returns the score for the given requirement based on the provided
+// cohort and progress.
+func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32 {
+	if r == nil || progress == nil {
+		return 0
+	}
+	if _, ok := r.Counts[cohort]; !ok {
+		return 0
+	}
+	if r.NumberOfCohorts == 1 || r.NumberOfCohorts == 0 {
+		count, _ := progress.Counts[AllCohorts]
+		return r.UnitScore * float32(count)
+	}
+	if r.NumberOfCohorts > 1 && len(progress.Counts) >= r.NumberOfCohorts {
+		var maxCount int = 0
+		for _, count := range progress.Counts {
+			if count > maxCount {
+				maxCount = count
+			}
+		}
+		return r.UnitScore * float32(maxCount)
+	}
+	count, _ := progress.Counts[cohort]
+	return r.UnitScore * float32(count)
+}
+
 type RequirementProgress struct {
 	// The id of the requirement that the progress applies to
 	RequirementId string `dynamodbav:"requirementId" json:"requirementId"`
@@ -110,38 +136,9 @@ type TimelineEntry struct {
 
 	// The time the timeline entry was created
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
-}
 
-type Graduation struct {
-	// The Cognito username of the graduating user
-	Username string `dynamodbav:"username"`
-
-	// The Discord username of the graduating user
-	DiscordUsername string `dynamodbav:"discordUsername"`
-
-	// The cohort the user is graduating from
-	PreviousCohort DojoCohort `dynamodbav:"previousCohort" json:"previousCohort"`
-
-	// The cohort the user is entering
-	NewCohort DojoCohort `dynamodbav:"newCohort" json:"newCohort"`
-
-	// The user's cohort score at the time of graduation
-	Score int `dynamodbav:"score" json:"score"`
-
-	// The rating the user started with
-	StartRating int `dynamodbav:"startRating" json:"startRating"`
-
-	// The user's rating at the time of graduation
-	CurrentRating int `dynamodbav:"currentRating" json:"currentRating"`
-
-	// The user's comments on graduating
-	Comments string `dynamodbav:"comments" json:"comments"`
-
-	// The time the user started the cohort
-	StartedAt string `dynamodbav:"startedAt" json:"startedAt"`
-
-	// The time that the user graduated
-	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+	// The time the user most recently graduated
+	LastGraduatedAt string `dynamodbav:"lastGraduatedAt" json:"lastGraduatedAt"`
 }
 
 type RequirementLister interface {

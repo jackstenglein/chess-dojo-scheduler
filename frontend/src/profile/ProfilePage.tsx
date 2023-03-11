@@ -11,8 +11,9 @@ import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import RatingCard from './RatingCard';
 import GamesTab from './GamesTab';
-import ProgressTab from './ProgressTab';
+import ProgressTab from './progress/ProgressTab';
 import ActivityTab from './activity/ActivityTab';
+import GraduationDialog from './GraduationDialog';
 
 type ProfilePageProps = {
     username: string;
@@ -25,6 +26,7 @@ const ProfilePage = () => {
     const currentUser = useAuth().user!;
     const request = useRequest<User>();
     const [tab, setTab] = useState('progress');
+    const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     const currentUserProfile = !username || username === currentUser.username;
 
@@ -53,7 +55,13 @@ const ProfilePage = () => {
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
             <Stack spacing={5}>
-                <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    flexWrap='wrap'
+                    rowGap={2}
+                >
                     <Stack>
                         <Typography variant='h4'>{user.discordUsername}</Typography>
                         <Typography variant='h5' color='text.secondary'>
@@ -62,12 +70,21 @@ const ProfilePage = () => {
                     </Stack>
 
                     {currentUserProfile && (
-                        <Button
-                            variant='contained'
-                            onClick={() => navigate('/profile/edit')}
-                        >
-                            Edit Profile
-                        </Button>
+                        <Stack direction='row' spacing={2}>
+                            <Button
+                                variant='contained'
+                                color='success'
+                                onClick={() => setShowGraduationDialog(true)}
+                            >
+                                Graduate
+                            </Button>
+                            <Button
+                                variant='contained'
+                                onClick={() => navigate('/profile/edit')}
+                            >
+                                Edit Profile
+                            </Button>
+                        </Stack>
                     )}
                 </Stack>
 
@@ -139,6 +156,14 @@ const ProfilePage = () => {
                     </TabContext>
                 </Box>
             </Stack>
+
+            {currentUserProfile && (
+                <GraduationDialog
+                    open={showGraduationDialog}
+                    onClose={() => setShowGraduationDialog(false)}
+                    cohort={user.dojoCohort}
+                />
+            )}
         </Container>
     );
 };

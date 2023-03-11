@@ -64,6 +64,9 @@ export function getCurrentCount(
     requirement: Requirement,
     progress?: RequirementProgress
 ): number {
+    if (requirement.id === '6b7966fd-4ea3-4075-939a-69e5811bc340') {
+        console.log('Progress: ', progress);
+    }
     if (!progress) {
         return 0;
     }

@@ -32,6 +32,7 @@ import {
     listUsersByCohort,
     updateUser,
     updateUserProgress,
+    graduate,
 } from './userApi';
 import {
     GameApiContextType,
@@ -107,6 +108,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     incrementalMinutesSpent,
                     auth.updateUser
                 ),
+            graduate: (comments: string) => graduate(idToken, comments, auth.updateUser),
 
             setAvailability: (a: Availability) => setAvailability(idToken, a),
             deleteAvailability: (id: string) => deleteAvailability(idToken, id),

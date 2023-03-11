@@ -13,16 +13,16 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-import { useApi } from '../api/Api';
-import { useRequest } from '../api/Request';
+import { useApi } from '../../api/Api';
+import { useRequest } from '../../api/Request';
 import {
     getCurrentCount,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
-} from '../database/requirement';
-import InputSlider from './InputSlider';
-import { compareCohorts, dojoCohorts } from '../database/user';
+} from '../../database/requirement';
+import InputSlider from '../InputSlider';
+import { compareCohorts, dojoCohorts } from '../../database/user';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -47,7 +47,6 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
         ? dojoCohorts
         : Object.keys(requirement.counts).sort(compareCohorts);
     const initialCohort = cohortOptions.includes(cohort) ? cohort : cohortOptions[0];
-    console.log('Initial cohort: ', initialCohort);
 
     const api = useApi();
     const [selectedCohort, setSelectedCohort] = useState(initialCohort);
