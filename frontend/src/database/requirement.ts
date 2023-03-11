@@ -22,7 +22,7 @@ export interface Requirement {
     numberOfCohorts: number;
     unitScore: number;
     videoUrls: string[];
-    positions: string[];
+    positionUrls: string[];
     scoreboardDisplay: ScoreboardDisplay;
     updatedAt: string;
     sortPriority: string;
@@ -69,12 +69,12 @@ export function getCurrentCount(
     }
 
     if (requirement.numberOfCohorts === 1 || requirement.numberOfCohorts === 0) {
-        return progress.counts.ALL_COHORTS;
+        return progress.counts.ALL_COHORTS || 0;
     }
 
     if (
         requirement.numberOfCohorts > 1 &&
-        progress.counts.length >= requirement.numberOfCohorts
+        Object.keys(progress.counts).length >= requirement.numberOfCohorts
     ) {
         return Math.max(...Object.values(progress.counts));
     }
@@ -83,6 +83,21 @@ export function getCurrentCount(
         cohort = Object.keys(requirement.counts)[0];
     }
     return progress.counts[cohort] || 0;
+}
+
+export function getTotalCount(cohort: string, requirement: Requirement): number {
+    return requirement.counts[cohort] || 0;
+}
+
+export function isComplete(
+    cohort: string,
+    requirement: Requirement,
+    progress?: RequirementProgress
+): boolean {
+    return (
+        getCurrentCount(cohort, requirement, progress) >=
+        getTotalCount(cohort, requirement)
+    );
 }
 
 export function getCurrentScore(

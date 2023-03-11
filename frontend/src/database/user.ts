@@ -1,4 +1,4 @@
-import { Requirement, RequirementProgress, TimelineEntry } from './requirement';
+import { RequirementProgress, TimelineEntry } from './requirement';
 
 interface CognitoSession {
     idToken: {
@@ -118,19 +118,4 @@ export function compareCohorts(a: string, b: string): number {
         return -1;
     }
     return 1;
-}
-
-export function isRequirementComplete(
-    user: User,
-    requirement: Requirement,
-    cohort: string
-): boolean {
-    const progress = user.progress[requirement.id];
-    if (!progress) {
-        return false;
-    }
-
-    const totalCount = requirement.counts[cohort] || requirement.counts[ALL_COHORTS];
-    const currentCount = progress.counts[cohort] || progress.counts[ALL_COHORTS];
-    return currentCount >= totalCount;
 }

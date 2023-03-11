@@ -13,8 +13,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { compareRequirements, Requirement } from '../database/requirement';
-import { dojoCohorts, isRequirementComplete, User } from '../database/user';
+import { compareRequirements, isComplete, Requirement } from '../database/requirement';
+import { dojoCohorts, User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import ProgressItem from './ProgressItem';
 
@@ -54,7 +54,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
         const categories: Category[] = [];
         requirements?.forEach((r) => {
             const c = categories.find((c) => c.name === r.category);
-            const complete = isRequirementComplete(user, r, cohort);
+            const complete = isComplete(cohort, r, user.progress[r.id]);
             if (c === undefined) {
                 categories.push({
                     name: r.category,
