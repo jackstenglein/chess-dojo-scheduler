@@ -6,7 +6,12 @@ import {
 } from '@mui/x-data-grid';
 
 import ScoreboardProgress from './ScoreboardProgress';
-import { Requirement, ScoreboardDisplay } from '../database/requirement';
+import {
+    getCurrentCount,
+    getCurrentScore,
+    Requirement,
+    ScoreboardDisplay,
+} from '../database/requirement';
 import ScoreboardCheck from './ScoreboardCheck';
 import {
     RatingSystem,
@@ -16,31 +21,20 @@ import {
 
 export function getColumnDefinition(
     requirement: Requirement,
-    cohort?: string
+    cohort: string
 ): GridColDef {
-    const totalCount =
-        requirement.counts.ALL_COHORTS || requirement.counts[cohort ?? ''] || 1;
-
-    const getScore = (user: User) => {
-        const progress = user.progress[requirement.id];
-        if (!progress) {
-            return 0;
-        }
-        if (progress.counts.ALL_COHORTS) {
-            return progress.counts.ALL_COHORTS;
-        }
-        if (!cohort) {
-            return 0;
-        }
-        return progress.counts[cohort] || 0;
-    };
+    const totalCount = requirement.counts[cohort] || 0;
 
     const valueGetter = (params: GridValueGetterParams<any, User>) => {
-        return getScore(params.row);
+        return getCurrentCount(cohort, requirement, params.row.progress[requirement.id]);
     };
 
     const renderCell = (params: GridRenderCellParams<number, User>) => {
-        const score = getScore(params.row);
+        const score = getCurrentCount(
+            cohort,
+            requirement,
+            params.row.progress[requirement.id]
+        );
         switch (requirement.scoreboardDisplay) {
             case ScoreboardDisplay.Checkbox:
                 return <ScoreboardCheck value={score} total={totalCount} />;
@@ -73,14 +67,8 @@ export function getCohortScore(
     const user = params.row;
     let score = 0;
     for (const requirement of requirements) {
-        const progress = user.progress[requirement.id];
-        if (!progress) {
-            continue;
-        }
-        const count = progress.counts[cohort] || 0;
-        score += count * requirement.unitScore;
+        score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
     }
-
     return score;
 }
 
@@ -94,7 +82,7 @@ export function getPercentComplete(
     }
 
     const totalScore = requirements.reduce((sum, r) => {
-        const count = r.counts.ALL_COHORTS || r.counts[cohort] || 1;
+        const count = r.counts[cohort] || 0;
         return sum + count * r.unitScore;
     }, 0);
 

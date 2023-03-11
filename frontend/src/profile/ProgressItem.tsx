@@ -5,12 +5,12 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 
 import {
+    getCurrentCount,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
 } from '../database/requirement';
 import ScoreboardProgress from '../scoreboard/ScoreboardProgress';
-import { ALL_COHORTS } from '../database/user';
 import ProgressUpdateDialog from './ProgressUpdateDialog';
 
 interface ProgressItemProps {
@@ -23,8 +23,8 @@ const DESCRIPTION_MAX_LENGTH = 90;
 
 const ProgressItem: React.FC<ProgressItemProps> = ({ progress, requirement, cohort }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-    const totalCount = requirement.counts[cohort] || requirement.counts[ALL_COHORTS];
-    const currentCount = progress?.counts[cohort] || progress?.counts[ALL_COHORTS] || 0;
+    const totalCount = requirement.counts[cohort] || 0;
+    const currentCount = getCurrentCount(cohort, requirement, progress);
 
     let DescriptionElement = null;
     let UpdateElement = null;

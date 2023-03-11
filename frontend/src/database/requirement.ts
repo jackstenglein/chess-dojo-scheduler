@@ -19,6 +19,7 @@ export interface Requirement {
     counts: {
         [cohort: string]: number;
     };
+    numberOfCohorts: number;
     unitScore: number;
     videoUrls: string[];
     positions: string[];
@@ -56,4 +57,42 @@ export function compareRequirements(a: Requirement, b: Requirement) {
         return 0;
     }
     return a.sortPriority.localeCompare(b.sortPriority);
+}
+
+export function getCurrentCount(
+    cohort: string,
+    requirement: Requirement,
+    progress?: RequirementProgress
+): number {
+    if (!progress) {
+        return 0;
+    }
+
+    if (requirement.numberOfCohorts === 1 || requirement.numberOfCohorts === 0) {
+        return progress.counts.ALL_COHORTS;
+    }
+
+    if (
+        requirement.numberOfCohorts > 1 &&
+        progress.counts.length >= requirement.numberOfCohorts
+    ) {
+        return Math.max(...Object.values(progress.counts));
+    }
+
+    if (!requirement.counts[cohort]) {
+        cohort = Object.keys(requirement.counts)[0];
+    }
+    return progress.counts[cohort] || 0;
+}
+
+export function getCurrentScore(
+    cohort: string,
+    requirement: Requirement,
+    progress?: RequirementProgress
+) {
+    if (!progress) {
+        return 0;
+    }
+    const currentCount = getCurrentCount(cohort, requirement, progress);
+    return currentCount * requirement.unitScore;
 }

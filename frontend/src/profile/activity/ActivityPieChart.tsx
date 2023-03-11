@@ -49,7 +49,7 @@ function getPieChartData(
             data[categoryName] = {
                 requirementId: requirement.id,
                 name: categoryName,
-                value: progress.minutesSpent[cohort] || 0,
+                value: progress.minutesSpent[cohort],
                 color: CategoryColors[requirement.category],
             };
         }

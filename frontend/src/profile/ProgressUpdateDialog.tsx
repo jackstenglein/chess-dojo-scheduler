@@ -16,12 +16,13 @@ import { LoadingButton } from '@mui/lab';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import {
+    getCurrentCount,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
 } from '../database/requirement';
 import InputSlider from './InputSlider';
-import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
+import { compareCohorts, dojoCohorts } from '../database/user';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -51,10 +52,8 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
     const api = useApi();
     const [selectedCohort, setSelectedCohort] = useState(initialCohort);
 
-    const totalCount =
-        requirement.counts[selectedCohort] || requirement.counts[ALL_COHORTS];
-    const currentCount =
-        progress?.counts[selectedCohort] || progress?.counts[ALL_COHORTS] || 0;
+    const totalCount = requirement.counts[selectedCohort] || 0;
+    const currentCount = getCurrentCount(selectedCohort, requirement, progress);
 
     const [value, setValue] = useState<number>(currentCount);
     const [hours, setHours] = useState('');

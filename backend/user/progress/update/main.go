@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -18,9 +19,9 @@ var repository database.UserProgressUpdater = database.DynamoDB
 
 type ProgressUpdateRequest struct {
 	RequirementId           string              `json:"requirementId"`
+	Cohort                  database.DojoCohort `json:"cohort"`
 	IncrementalCount        int                 `json:"incrementalCount"`
 	IncrementalMinutesSpent int                 `json:"incrementalMinutesSpent"`
-	Cohort                  database.DojoCohort `json:"cohort"`
 }
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
@@ -46,6 +47,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
+	totalCount, ok := requirement.Counts[request.Cohort]
+	if !ok {
+		return api.Failure(funcName, errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` does not apply to this requirement", request.Cohort), "")), nil
+	}
 
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
@@ -60,16 +65,17 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 			MinutesSpent:  make(map[database.DojoCohort]int),
 		}
 	}
-	originalCount := progress.Counts[request.Cohort]
 
-	progress.Counts[request.Cohort] += request.IncrementalCount
+	var originalCount int
+	if requirement.NumberOfCohorts == 1 {
+		originalCount = progress.Counts[database.AllCohorts]
+		progress.Counts[database.AllCohorts] += request.IncrementalCount
+	} else {
+		originalCount = progress.Counts[request.Cohort]
+		progress.Counts[request.Cohort] += request.IncrementalCount
+	}
 	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
 	progress.UpdatedAt = time.Now().Format(time.RFC3339)
-
-	totalCount, ok := requirement.Counts[request.Cohort]
-	if !ok {
-		totalCount, _ = requirement.Counts[database.AllCohorts]
-	}
 
 	timelineEntry := &database.TimelineEntry{
 		RequirementId:       request.RequirementId,

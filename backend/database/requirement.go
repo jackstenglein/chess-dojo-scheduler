@@ -38,7 +38,12 @@ type Requirement struct {
 	Description string `dynamodbav:"description" json:"description"`
 
 	// The total number of units in the requirement, by cohort
+	// ALL_COHORTS is *not* a valid value.
 	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`
+
+	// The number of cohorts the requirement must be completed in before completion
+	// is "carried over" to new cohorts
+	NumberOfCohorts int `dynamodbav:"numberOfCohorts" json:"numberOfCohorts"`
 
 	// The score per unit
 	UnitScore float32 `dynamodbav:"unitScore" json:"unitScore"`
@@ -57,10 +62,6 @@ type Requirement struct {
 
 	// The priority in which to sort this requirement when displaying to the user
 	SortPriority string `dynamodbav:"sortPriority" json:"sortPriority"`
-
-	// True if the requirement resets when switching cohorts and false if
-	// the requirement carries over across cohorts.
-	Repeatable bool `dynamodbav:"repeatable" json:"repeatable"`
 }
 
 type RequirementProgress struct {
@@ -68,9 +69,11 @@ type RequirementProgress struct {
 	RequirementId string `dynamodbav:"requirementId" json:"requirementId"`
 
 	// The current number of units completed in the requirement, by cohort.
+	// ALL_COHORTS *is* a valid value.
 	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`
 
-	// The number of minutes spent working on the requirement, by cohort
+	// The number of minutes spent working on the requirement, by cohort.
+	// ALL_COHORTS is *not* a valid value.
 	MinutesSpent map[DojoCohort]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
 
 	// The time the requirement was most recently updated

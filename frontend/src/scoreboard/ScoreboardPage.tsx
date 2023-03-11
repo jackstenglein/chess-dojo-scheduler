@@ -153,7 +153,7 @@ const ScoreboardPage = () => {
     );
 
     const requirementColumns: GridColDef[] = useMemo(() => {
-        return requirements?.map((r) => getColumnDefinition(r, cohort)) ?? [];
+        return requirements?.map((r) => getColumnDefinition(r, cohort!)) ?? [];
     }, [requirements, cohort]);
 
     const columnGroups = useMemo(() => {
