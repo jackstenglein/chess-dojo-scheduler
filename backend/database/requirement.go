@@ -52,7 +52,7 @@ type Requirement struct {
 	VideoUrls []string `dynamodbav:"videoUrls" json:"videoUrls"`
 
 	// The positions included in the requirement, if any exist
-	Positions []string `dynamodbav:"positions" json:"positions"`
+	PositionUrls []string `dynamodbav:"positionUrls" json:"positionUrls"`
 
 	// How the requirement should be displayed on the scoreboard.
 	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`

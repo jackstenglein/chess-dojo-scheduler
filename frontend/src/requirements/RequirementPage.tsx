@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Button, Chip, Container, Stack, Typography } from '@mui/material';
+import Carousel from 'react-material-ui-carousel';
 import CheckIcon from '@mui/icons-material/Check';
 
 import { useApi } from '../api/Api';
@@ -11,6 +12,7 @@ import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import ProgressUpdateDialog from '../profile/ProgressUpdateDialog';
+import Position from './Position';
 
 type RequirementPageProps = {
     id: string;
@@ -97,6 +99,18 @@ const RequirementPage = () => {
                 <Typography variant='body1' sx={{ whiteSpace: 'pre-line', mt: 3 }}>
                     {requirement.description}
                 </Typography>
+
+                {requirement.positionUrls.length === 1 && (
+                    <Position url={requirement.positionUrls[0]} />
+                )}
+
+                {requirement.positionUrls.length > 1 && (
+                    <Carousel autoPlay={false} navButtonsAlwaysVisible>
+                        {requirement.positionUrls.map((url, idx) => (
+                            <Position key={url} url={url} title={`Position ${idx + 1}`} />
+                        ))}
+                    </Carousel>
+                )}
 
                 {requirement.videoUrls.map((url, idx) => (
                     <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }} key={url}>
