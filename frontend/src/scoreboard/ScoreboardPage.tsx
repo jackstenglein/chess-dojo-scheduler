@@ -208,6 +208,7 @@ const ScoreboardPage = () => {
             </TextField>
 
             <DataGrid
+                sx={{ mb: 4 }}
                 experimentalFeatures={{ columnGrouping: true }}
                 columns={usernameColumns.concat(
                     cohortScoreColumns,

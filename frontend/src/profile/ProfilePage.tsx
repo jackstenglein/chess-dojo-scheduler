@@ -24,7 +24,7 @@ const ProfilePage = () => {
     const api = useApi();
     const currentUser = useAuth().user!;
     const request = useRequest<User>();
-    const [tab, setTab] = useState('games');
+    const [tab, setTab] = useState('progress');
 
     const currentUserProfile = !username || username === currentUser.username;
 

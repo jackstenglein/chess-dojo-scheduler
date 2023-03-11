@@ -95,9 +95,10 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
         return Object.values(user.progress)
             .map((v) => Object.keys(v.minutesSpent))
             .flat()
+            .concat(user.dojoCohort)
             .sort(compareCohorts)
             .filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
-    }, [user.progress]);
+    }, [user.progress, user.dojoCohort]);
 
     const onChangeCohort = (cohort: string) => {
         setCohort(cohort);
@@ -105,7 +106,22 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
     };
 
     return (
-        <Stack spacing={2} justifyContent='center' alignItems='center'>
+        <Stack
+            spacing={2}
+            justifyContent='center'
+            alignItems='center'
+            position={{
+                xs: 'static',
+                sm: 'sticky',
+            }}
+            top={{
+                xs: 0,
+                sm: '88px',
+            }}
+        >
+            <Typography variant='h6' alignSelf='start'>
+                Time Breakdown
+            </Typography>
             <TextField
                 select
                 label='Cohort'
@@ -121,7 +137,9 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
                 ))}
             </TextField>
 
-            {data.length === 0 && <Typography>No data</Typography>}
+            {data.length === 0 && (
+                <Typography sx={{ paddingTop: 2 }}>No time data</Typography>
+            )}
 
             {data.length > 0 && (
                 <Container maxWidth='sm'>

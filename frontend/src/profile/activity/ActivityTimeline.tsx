@@ -8,7 +8,7 @@ import {
     timelineOppositeContentClasses,
     TimelineOppositeContent,
 } from '@mui/lab';
-import { Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { ScoreboardDisplay, TimelineEntry } from '../../database/requirement';
 
@@ -115,16 +115,23 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user }) => {
     }
 
     return (
-        <Timeline
-            sx={{
-                [`& .${timelineOppositeContentClasses.root}`]: {
-                    paddingLeft: 0,
-                    flex: 0,
-                },
-            }}
-        >
-            {timeline}
-        </Timeline>
+        <Stack>
+            <Typography variant='h6' alignSelf='start'>
+                Timeline
+            </Typography>
+            <Timeline
+                sx={{
+                    [`& .${timelineOppositeContentClasses.root}`]: {
+                        paddingLeft: 0,
+                        flex: 0,
+                    },
+                    marginTop: 0,
+                    paddingTop: '8px',
+                }}
+            >
+                {timeline}
+            </Timeline>
+        </Stack>
     );
 };
 
