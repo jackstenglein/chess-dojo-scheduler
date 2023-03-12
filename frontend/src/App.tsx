@@ -27,6 +27,7 @@ import AvailabilityBooker from './calendar/AvailabilityBooker';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import NotFoundPage from './NotFoundPage';
 import RequirementPage from './requirements/RequirementPage';
+import { GraduationPrompt } from './profile/GraduationPrompt';
 
 const config = getConfig();
 Amplify.configure({
@@ -72,40 +73,45 @@ function Router() {
                 <Route path='forgot-password' element={<ForgotPasswordPage />} />
 
                 <Route element={<RequireAuth />}>
-                    <Route path='profile'>
-                        <Route index element={<ProfilePage />} />
-                        <Route path='edit' element={<ProfileEditorPage />} />
-                        <Route path=':username' element={<ProfilePage />} />
-                    </Route>
-                    <Route path='admin' element={<AdminPage />} />
+                    <Route element={<GraduationPrompt />}>
+                        <Route path='profile'>
+                            <Route index element={<ProfilePage />} />
+                            <Route path='edit' element={<ProfileEditorPage />} />
+                            <Route path=':username' element={<ProfilePage />} />
+                        </Route>
+                        <Route path='admin' element={<AdminPage />} />
 
-                    <Route element={<RequireProfile />}>
-                        <Route path='calendar' element={<CalendarPage />}>
+                        <Route element={<RequireProfile />}>
+                            <Route path='calendar' element={<CalendarPage />}>
+                                <Route
+                                    path='availability/:id'
+                                    element={<AvailabilityBooker />}
+                                />
+                            </Route>
+                            <Route path='meeting'>
+                                <Route index element={<ListMeetingsPage />} />
+                                <Route path=':meetingId' element={<MeetingPage />} />
+                            </Route>
                             <Route
-                                path='availability/:id'
-                                element={<AvailabilityBooker />}
+                                path='group/:availabilityId'
+                                element={<GroupMeetingPage />}
+                            />
+                            <Route path='games'>
+                                <Route index element={<ListGamesPage />} />
+                                <Route path='submit' element={<SubmitGamePage />} />
+                                <Route path=':cohort/:id' element={<GamePage />} />
+                            </Route>
+
+                            <Route path='scoreboard'>
+                                <Route index element={<ScoreboardPage />} />
+                                <Route path=':cohort' element={<ScoreboardPage />} />
+                            </Route>
+
+                            <Route
+                                path='requirements/:id'
+                                element={<RequirementPage />}
                             />
                         </Route>
-                        <Route path='meeting'>
-                            <Route index element={<ListMeetingsPage />} />
-                            <Route path=':meetingId' element={<MeetingPage />} />
-                        </Route>
-                        <Route
-                            path='group/:availabilityId'
-                            element={<GroupMeetingPage />}
-                        />
-                        <Route path='games'>
-                            <Route index element={<ListGamesPage />} />
-                            <Route path='submit' element={<SubmitGamePage />} />
-                            <Route path=':cohort/:id' element={<GamePage />} />
-                        </Route>
-
-                        <Route path='scoreboard'>
-                            <Route index element={<ScoreboardPage />} />
-                            <Route path=':cohort' element={<ScoreboardPage />} />
-                        </Route>
-
-                        <Route path='requirements/:id' element={<RequirementPage />} />
                     </Route>
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />

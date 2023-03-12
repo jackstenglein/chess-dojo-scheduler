@@ -21,7 +21,7 @@ import {
     RequirementProgress,
     ScoreboardDisplay,
 } from '../../database/requirement';
-import InputSlider from '../InputSlider';
+import InputSlider from './InputSlider';
 import { compareCohorts, dojoCohorts } from '../../database/user';
 
 const NUMBER_REGEX = /^[0-9]*$/;
