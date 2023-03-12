@@ -36,9 +36,10 @@ const Tooltip = styled(({ className, ...props }: TooltipProps) => (
 interface GraduationIconProps {
     cohort?: string;
     size?: number;
+    sx?: React.CSSProperties;
 }
 
-const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40 }) => {
+const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40, sx }) => {
     if (!cohort) {
         return null;
     }
@@ -50,7 +51,7 @@ const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40 }) =>
 
     return (
         <Tooltip title={`Graduated from ${cohort}`}>
-            <img src={url} alt='' width={size} height={size} />
+            <img src={url} alt='' width={size} height={size} style={sx} />
         </Tooltip>
     );
 };

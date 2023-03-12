@@ -8,6 +8,7 @@ import {
     Divider,
     TextField,
     MenuItem,
+    Chip,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -17,6 +18,8 @@ import { compareRequirements, isComplete, Requirement } from '../../database/req
 import { dojoCohorts, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import ProgressItem from './ProgressItem';
+import { Graduation } from '../../database/graduation';
+import GraduationIcon from '../../scoreboard/GraduationIcon';
 
 interface Category {
     name: string;
@@ -31,6 +34,7 @@ interface ProgressTabProps {
 const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
     const api = useApi();
     const request = useRequest<Requirement[]>();
+    const graduationsRequest = useRequest<Graduation[]>();
     const [cohort, setCohort] = useState(user.dojoCohort);
 
     const reset = request.reset;
@@ -49,6 +53,15 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
                 .catch((err) => {
                     console.error('listRequirements: ', err);
                     request.onFailure(err);
+                });
+        }
+        if (!graduationsRequest.isSent()) {
+            graduationsRequest.onStart();
+            api.listGraduationsByOwner(user.username)
+                .then((graduations) => graduationsRequest.onSuccess(graduations))
+                .catch((err) => {
+                    console.error('listGraduationsByOwner: ', err);
+                    graduationsRequest.onFailure(err);
                 });
         }
     }, [request, api, cohort]);
@@ -88,7 +101,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
     };
 
     return (
-        <Stack>
+        <Stack alignItems='start'>
             <RequestSnackbar request={request} />
 
             <TextField
@@ -97,6 +110,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
                 value={cohort}
                 onChange={(event) => onChangeCohort(event.target.value)}
                 sx={{ mb: 3 }}
+                fullWidth
             >
                 {dojoCohorts.map((option) => (
                     <MenuItem key={option} value={option}>
@@ -105,8 +119,24 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
                 ))}
             </TextField>
 
+            {graduationsRequest.data?.some((g) => g.previousCohort === cohort) && (
+                <Chip
+                    variant='filled'
+                    color='success'
+                    label='Graduated'
+                    sx={{ mb: 3 }}
+                    icon={
+                        <GraduationIcon
+                            cohort={cohort}
+                            size={24}
+                            sx={{ marginLeft: '4px', marginRight: '-6px' }}
+                        />
+                    }
+                />
+            )}
+
             {categories.map((c) => (
-                <Accordion key={c.name}>
+                <Accordion key={c.name} sx={{ width: 1 }}>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls={`${c.name}-content`}
