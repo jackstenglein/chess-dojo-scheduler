@@ -4,16 +4,20 @@ import { Stack, Typography, Card, CardHeader, CardContent, Divider } from '@mui/
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Carousel from 'react-material-ui-carousel';
 
-import GraduationIcon from '../../scoreboard/GraduationIcon';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Graduation } from '../../database/graduation';
+import GraduationIcon from '../scoreboard/GraduationIcon';
+import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { Graduation } from '../database/graduation';
+import LoadingPage from '../loading/LoadingPage';
 
 interface GraduationCardProps {
     graduation: Graduation;
 }
 
 const GraduationCard: React.FC<GraduationCardProps> = ({ graduation }) => {
+    const startDate = new Date(graduation.startedAt).toLocaleDateString();
+    const endDate = new Date(graduation.createdAt).toLocaleDateString();
+
     return (
         <Card variant='outlined'>
             <CardHeader
@@ -28,10 +32,21 @@ const GraduationCard: React.FC<GraduationCardProps> = ({ graduation }) => {
                     </Stack>
                 }
                 subheader={
-                    <Stack direction='row' alignItems='start'>
-                        <Typography variant='h6'>{graduation.previousCohort}</Typography>
-                        <ArrowForwardIcon sx={{ position: 'relative', top: '2px' }} />
-                        <Typography variant='h6'>{graduation.newCohort}</Typography>
+                    <Stack>
+                        <Stack direction='row' alignItems='start'>
+                            <Typography variant='h5'>
+                                {graduation.previousCohort}
+                            </Typography>
+                            <ArrowForwardIcon sx={{ position: 'relative', top: '2px' }} />
+                            <Typography variant='h5'>{graduation.newCohort}</Typography>
+                        </Stack>
+                        <Stack direction='row' alignItems='start'>
+                            <Typography variant='h6'>
+                                {graduation.startedAt ? startDate : '??'}
+                            </Typography>
+                            <ArrowForwardIcon sx={{ position: 'relative', top: '2px' }} />
+                            <Typography variant='h6'>{endDate}</Typography>
+                        </Stack>
                     </Stack>
                 }
             />
@@ -73,10 +88,14 @@ const RecentGraduates = () => {
             </Stack>
 
             {graduations.length === 0 ? (
-                <Typography>No graduations in the past month</Typography>
+                request.isLoading() ? (
+                    <LoadingPage />
+                ) : (
+                    <Typography>No graduations in the past month</Typography>
+                )
             ) : (
                 <Carousel
-                    sx={{ overflow: 'visible', px: '60px' }}
+                    sx={{ overflow: 'visible', px: '70px' }}
                     navButtonsAlwaysVisible
                     autoPlay={false}
                 >

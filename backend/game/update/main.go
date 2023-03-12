@@ -49,7 +49,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	featuredAt := ""
+	featuredAt := "NOT_FEATURED"
 	if isFeatured == "true" {
 		featuredAt = time.Now().Format(time.RFC3339)
 	}

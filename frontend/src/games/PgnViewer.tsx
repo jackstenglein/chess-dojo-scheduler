@@ -8,6 +8,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 import { Game, isDefaultHeader } from '../database/game';
 import { useAuth } from '../auth/Auth';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 interface HeaderDisplayProps {
     header: string;
@@ -62,9 +63,14 @@ const GameData: React.FC<GameDataProps> = ({ game }) => {
                         </Typography>
                     </Grid>
                     <Grid item xs={8}>
-                        <Link to={`/profile/${game.owner}`}>
-                            <Typography variant='body2'>{game.ownerDiscord}</Typography>
-                        </Link>
+                        <Stack direction='row' spacing={1} alignItems='center'>
+                            <Link to={`/profile/${game.owner}`}>
+                                <Typography variant='body2'>
+                                    {game.ownerDiscord}
+                                </Typography>
+                            </Link>
+                            <GraduationIcon cohort={game.ownerPreviousCohort} size={20} />
+                        </Stack>
                     </Grid>
                 </>
             )}

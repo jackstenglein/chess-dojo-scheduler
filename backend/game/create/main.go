@@ -152,6 +152,8 @@ func saveGame(user *database.User, pgnText string) (*database.Game, error) {
 		OwnerDiscord:        user.DiscordUsername,
 		OwnerPreviousCohort: user.PreviousCohort,
 		Headers:             headers,
+		IsFeatured:          "false",
+		FeaturedAt:          "NOT_FEATURED",
 		Pgn:                 pgnText,
 	}
 

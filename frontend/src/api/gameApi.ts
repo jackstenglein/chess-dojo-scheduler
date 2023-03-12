@@ -61,6 +61,7 @@ export type GameApiContextType = {
      * @param endDate The optional end date to limit the search to.
      * @param player The optional player to search instead of the current user.
      * @param color The color to use when searching for a specific player.
+     * @returns A list of games matching the provided owner.
      */
     listGamesByOwner: (
         owner?: string,
@@ -70,6 +71,13 @@ export type GameApiContextType = {
         player?: string,
         color?: string
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+
+    /**
+     * listFeaturedGames returns a list of games featured in the past month.
+     * @param startKey The optional startKey to use when searching.
+     * @returns A list of featured games.
+     */
+    listFeaturedGames: (startKey?: string) => Promise<GameInfo[]>;
 
     /**
      * createComment adds the given content as a comment on the given game.
@@ -210,6 +218,31 @@ export function listGamesByOwner(
             Authorization: 'Bearer ' + idToken,
         },
     });
+}
+
+/**
+ * listFeaturedGames returns a list of games featured in the past month.
+ * @param idToken The id token of the current signed-in user.
+ * @param startKey The optional startKey to use when searching.
+ * @returns A list of featured games.
+ */
+export async function listFeaturedGames(idToken: string, startKey?: string) {
+    let params = { startKey };
+    const result: GameInfo[] = [];
+
+    do {
+        const resp = await axios.get<ListGamesResponse>(BASE_URL + '/game/featured', {
+            params,
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        });
+
+        result.push(...resp.data.games);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+
+    return result;
 }
 
 /**

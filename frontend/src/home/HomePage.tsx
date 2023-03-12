@@ -1,13 +1,13 @@
-import { Container, Stack, Typography } from '@mui/material';
-import RecentGraduates from './graduates/RecentGraduates';
+import { Container, Stack } from '@mui/material';
+import FeaturedGames from './FeaturedGames';
+import RecentGraduates from './RecentGraduates';
 
 const HomePage = () => {
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
             <Stack spacing={5}>
                 <RecentGraduates />
-                <Typography variant='h6'>Featured Games</Typography>
-                <Typography>Coming Soon</Typography>
+                <FeaturedGames />
             </Stack>
         </Container>
     );

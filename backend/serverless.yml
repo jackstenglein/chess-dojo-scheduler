@@ -1063,6 +1063,7 @@ resources:
                 - date
                 - owner
                 - ownerDiscord
+                - ownerPreviousCohort
                 - headers
             ProvisionedThroughput: !If
               - IsProd

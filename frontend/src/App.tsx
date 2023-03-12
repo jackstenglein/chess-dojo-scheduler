@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/system';
 
 import { getConfig } from './config';
 import { AuthProvider, RequireAuth, RequireProfile } from './auth/Auth';
-import LandingPage from './home/LandingPage';
+import LandingPage from './landing/LandingPage';
 import ProfilePage from './profile/ProfilePage';
 import ProfileEditorPage from './profile/ProfileEditorPage';
 import { ApiProvider } from './api/Api';

@@ -41,6 +41,7 @@ import {
     getGame,
     listGamesByCohort,
     listGamesByOwner,
+    listFeaturedGames,
     createComment,
     updateGame,
 } from './gameApi';
@@ -165,6 +166,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     player,
                     color
                 ),
+            listFeaturedGames: (startKey?: string) =>
+                listFeaturedGames(idToken, startKey),
             createComment: (cohort: string, id: string, content: string) =>
                 createComment(idToken, auth.user!, cohort, id, content),
 

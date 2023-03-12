@@ -1,5 +1,8 @@
 import { Stack, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
+
 import { Comment as CommentModel } from '../database/game';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 interface CommentProps {
     comment: CommentModel;
@@ -10,9 +13,14 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
 
     return (
         <Stack>
-            <Typography variant='subtitle1' color='text.secondary'>
-                {comment.ownerDiscord} ({comment.ownerCohort})
-            </Typography>
+            <Stack direction='row' spacing={1} alignItems='center'>
+                <Link to={`/profile/${comment.owner}`}>
+                    <Typography variant='subtitle1' color='text.secondary'>
+                        {comment.ownerDiscord} ({comment.ownerCohort})
+                    </Typography>
+                </Link>
+                <GraduationIcon cohort={comment.ownerPreviousCohort} size={20} />
+            </Stack>
             <Typography variant='subtitle2' color='text.secondary'>
                 {createdAt.toLocaleString()}
             </Typography>
