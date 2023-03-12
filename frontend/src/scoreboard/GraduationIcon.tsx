@@ -1,4 +1,5 @@
-import { Tooltip } from '@mui/material';
+import { Tooltip as MuiTooltip, TooltipProps, tooltipClasses } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 export const cohortIcons: Record<string, string> = {
     '0-400': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_0-400.png',
@@ -23,6 +24,14 @@ export const cohortIcons: Record<string, string> = {
     '2300-2400': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_2300-2400.png',
     '2400+': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_2400%2B.png',
 };
+
+const Tooltip = styled(({ className, ...props }: TooltipProps) => (
+    <MuiTooltip {...props} arrow classes={{ popper: className }} />
+))(() => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+        zIndex: 1301,
+    },
+}));
 
 interface GraduationIconProps {
     cohort?: string;

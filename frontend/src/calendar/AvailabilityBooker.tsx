@@ -35,6 +35,7 @@ import {
     getDisplayString,
 } from '../database/availability';
 import { Meeting } from '../database/meeting';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -207,11 +208,18 @@ const AvailabilityBooker = () => {
                         <Typography variant='subtitle2' color='text.secondary'>
                             Owner
                         </Typography>
-                        <Link to={`/profile/${availability.owner}`}>
-                            <Typography variant='body1'>
-                                {availability.ownerDiscord} ({availability.ownerCohort})
-                            </Typography>
-                        </Link>
+                        <Stack direction='row' spacing={2} alignItems='center'>
+                            <Link to={`/profile/${availability.owner}`}>
+                                <Typography variant='body1'>
+                                    {availability.ownerDiscord} (
+                                    {availability.ownerCohort})
+                                </Typography>
+                            </Link>
+                            <GraduationIcon
+                                cohort={availability.ownerPreviousCohort}
+                                size={25}
+                            />
+                        </Stack>
                     </Stack>
 
                     <Stack>
@@ -279,11 +287,25 @@ const AvailabilityBooker = () => {
                                 )}
 
                                 {availability.participants?.map((p) => (
-                                    <Link key={p.username} to={`/profile/${p.username}`}>
-                                        <Typography variant='body1'>
-                                            {p.discord} ({p.cohort})
-                                        </Typography>
-                                    </Link>
+                                    <Stack
+                                        key={p.username}
+                                        direction='row'
+                                        spacing={2}
+                                        alignItems='center'
+                                    >
+                                        <Link
+                                            key={p.username}
+                                            to={`/profile/${p.username}`}
+                                        >
+                                            <Typography variant='body1'>
+                                                {p.discord} ({p.cohort})
+                                            </Typography>
+                                        </Link>
+                                        <GraduationIcon
+                                            cohort={p.previousCohort}
+                                            size={25}
+                                        />
+                                    </Stack>
                                 ))}
                             </Stack>
                         </>

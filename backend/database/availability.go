@@ -82,6 +82,9 @@ type Participant struct {
 
 	// The Dojo cohort of the participant.
 	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
+
+	// The cohort the participant most recently graduated from
+	PreviousCohort DojoCohort `dynamodbav:"previousCohort" json:"previousCohort"`
 }
 
 type Availability struct {
@@ -93,6 +96,9 @@ type Availability struct {
 
 	// The cohort of the owner.
 	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
+
+	// The cohort the owner most recently graduated from.
+	OwnerPreviousCohort DojoCohort `dynamodbav:"ownerPreviousCohort" json:"ownerPreviousCohort"`
 
 	// A v4 UUID identifying this availability
 	Id string `dynamodbav:"id" json:"id"`
@@ -428,9 +434,10 @@ func (repo *dynamoRepository) BookAvailability(availability *Availability, reque
 // Availability is not fully booked.
 func (repo *dynamoRepository) BookGroupAvailability(availability *Availability, user *User) (*Availability, error) {
 	participant := &Participant{
-		Username: user.Username,
-		Discord:  user.DiscordUsername,
-		Cohort:   user.DojoCohort,
+		Username:       user.Username,
+		Discord:        user.DiscordUsername,
+		Cohort:         user.DojoCohort,
+		PreviousCohort: user.PreviousCohort,
 	}
 	p, err := dynamodbattribute.MarshalMap(participant)
 	if err != nil {

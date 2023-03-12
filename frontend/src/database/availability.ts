@@ -2,6 +2,7 @@ export interface Availability {
     owner: string;
     ownerDiscord: string;
     ownerCohort: string;
+    ownerPreviousCohort: string;
     id: string;
     startTime: string;
     endTime: string;
@@ -19,6 +20,7 @@ export interface Participant {
     username: string;
     discord: string;
     cohort: string;
+    previousCohort: string;
 }
 
 export enum AvailabilityStatus {

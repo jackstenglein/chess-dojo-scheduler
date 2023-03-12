@@ -11,6 +11,7 @@ import { Link, useParams } from 'react-router-dom';
 
 import { useCache } from '../api/Cache';
 import { getDisplayString } from '../database/availability';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 const GroupMeetingPage = () => {
     const { availabilityId } = useParams();
@@ -109,19 +110,33 @@ const GroupMeetingPage = () => {
                     <CardHeader title='Participants' />
                     <CardContent>
                         <Stack spacing={2}>
-                            <Link to={`/profile/${availability.owner}`}>
-                                <Typography variant='body1'>
-                                    {availability.ownerDiscord} (
-                                    {availability.ownerCohort})
-                                </Typography>
-                            </Link>
-
-                            {availability.participants.map((p) => (
-                                <Link key={p.username} to={`/profile/${p.username}`}>
+                            <Stack direction='row' spacing={2} alignItems='center'>
+                                <Link to={`/profile/${availability.owner}`}>
                                     <Typography variant='body1'>
-                                        {p.discord} ({p.cohort})
+                                        {availability.ownerDiscord} (
+                                        {availability.ownerCohort})
                                     </Typography>
                                 </Link>
+                                <GraduationIcon
+                                    cohort={availability.ownerPreviousCohort}
+                                    size={25}
+                                />
+                            </Stack>
+
+                            {availability.participants.map((p) => (
+                                <Stack
+                                    key={p.username}
+                                    direction='row'
+                                    spacing={2}
+                                    alignItems='center'
+                                >
+                                    <Link to={`/profile/${p.username}`}>
+                                        <Typography variant='body1'>
+                                            {p.discord} ({p.cohort})
+                                        </Typography>
+                                    </Link>
+                                    <GraduationIcon cohort={p.previousCohort} size={25} />
+                                </Stack>
                             ))}
                         </Stack>
                     </CardContent>

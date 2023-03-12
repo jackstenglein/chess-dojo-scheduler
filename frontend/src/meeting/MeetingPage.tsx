@@ -25,6 +25,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { getDisplayString } from '../database/availability';
 import { GetMeetingResponse } from '../api/meetingApi';
 import { MeetingStatus } from '../database/meeting';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 const MeetingPage = () => {
     const api = useApi();
@@ -198,11 +199,17 @@ const MeetingPage = () => {
                                 <Typography variant='subtitle2' color='text.secondary'>
                                     Discord Username
                                 </Typography>
-                                <Link to={`/profile/${opponent.username}`}>
-                                    <Typography variant='body1'>
-                                        {opponent.discordUsername}
-                                    </Typography>
-                                </Link>
+                                <Stack direction='row' spacing={2} alignItems='center'>
+                                    <Link to={`/profile/${opponent.username}`}>
+                                        <Typography variant='body1'>
+                                            {opponent.discordUsername}
+                                        </Typography>
+                                    </Link>
+                                    <GraduationIcon
+                                        cohort={opponent.previousCohort}
+                                        size={25}
+                                    />
+                                </Stack>
                             </Stack>
 
                             <Stack>

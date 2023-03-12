@@ -74,8 +74,6 @@ const usernameColumns: GridColDef<ScoreboardRow>[] = [
             return '';
         },
         renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
-            console.log('Render cell value: ', params.value);
-            console.log('Render cell row: ', params.row);
             return <GraduationIcon cohort={params.value} size={35} />;
         },
         align: 'center',

@@ -8,6 +8,7 @@ import {
     getDisplayString,
 } from '../database/availability';
 import { Link, useNavigate } from 'react-router-dom';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 interface AvailabilityViewerProps {
     event: ProcessedEvent;
@@ -30,11 +31,17 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                     <Typography variant='subtitle2' color='text.secondary'>
                         Owner
                     </Typography>
-                    <Link to={`/profile/${availability.owner}`}>
-                        <Typography variant='body1'>
-                            {availability.ownerDiscord} ({availability.ownerCohort})
-                        </Typography>
-                    </Link>
+                    <Stack direction='row' spacing={2} alignItems='center'>
+                        <Link to={`/profile/${availability.owner}`}>
+                            <Typography variant='body1'>
+                                {availability.ownerDiscord} ({availability.ownerCohort})
+                            </Typography>
+                        </Link>
+                        <GraduationIcon
+                            cohort={availability.ownerPreviousCohort}
+                            size={25}
+                        />
+                    </Stack>
                 </Stack>
             )}
 

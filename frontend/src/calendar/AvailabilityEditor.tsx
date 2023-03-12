@@ -211,6 +211,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                 owner: user.username,
                 ownerDiscord: user.discordUsername,
                 ownerCohort: user.dojoCohort,
+                ownerPreviousCohort: user.previousCohort,
                 startTime: startIso,
                 endTime: endIso,
                 types: selectedTypes,
