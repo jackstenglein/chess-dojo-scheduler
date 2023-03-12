@@ -640,6 +640,22 @@ functions:
           - dynamodb:Query
         Resource: !GetAtt GraduationsTable.Arn
 
+  listGraduationsByDate:
+    handler: bin/graduation/list
+    package:
+      patterns:
+        - ./bin/graduation/list
+    events:
+      - httpApi:
+          path: /graduations
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt GraduationsTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

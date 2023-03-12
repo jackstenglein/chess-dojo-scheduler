@@ -66,6 +66,9 @@ type GraduationLister interface {
 
 	// ListGraduationsByOwner returns a list of graduations matching the provided username.
 	ListGraduationsByOwner(username, startKey string) ([]*Graduation, string, error)
+
+	// ListGraduationsByDate returns a list of graduations more recent than the provided date.
+	ListGraduationsByDate(date, startKey string) ([]*Graduation, string, error)
 }
 
 // PutGraduation saves the provided Graduation in the database.
@@ -124,6 +127,26 @@ func (repo *dynamoRepository) ListGraduationsByOwner(username, startKey string) 
 
 	var graduations []*Graduation
 	lastKey, err := repo.query(input, startKey, &graduations)
+	if err != nil {
+		return nil, "", err
+	}
+	return graduations, lastKey, nil
+}
+
+func (repo *dynamoRepository) ListGraduationsByDate(date, startKey string) ([]*Graduation, string, error) {
+	input := &dynamodb.ScanInput{
+		FilterExpression: aws.String("#date >= :date"),
+		ExpressionAttributeNames: map[string]*string{
+			"#date": aws.String("createdAt"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":date": {S: aws.String(date)},
+		},
+		TableName: aws.String(graduationTable),
+	}
+
+	var graduations []*Graduation
+	lastKey, err := repo.scan(input, startKey, &graduations)
 	if err != nil {
 		return nil, "", err
 	}

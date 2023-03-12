@@ -24,11 +24,40 @@ export type GraduationApiContextType = {
         username: string,
         startKey?: string
     ) => Promise<Graduation[]>;
+
+    /**
+     * listGraduationsByDate returns a list of all graduations in the past month.
+     * @param startKey The optional startKey to use when searching.
+     * @returns A list of graduations.
+     */
+    listGraduationsByDate: (startKey?: string) => Promise<Graduation[]>;
 };
 
 interface ListGraduationsResponse {
     graduations: Graduation[];
     lastEvaluatedKey: string;
+}
+
+async function listGraduations(
+    url: string,
+    params: Record<string, string | undefined>,
+    idToken: string
+) {
+    const result: Graduation[] = [];
+
+    do {
+        const resp = await axios.get<ListGraduationsResponse>(url, {
+            params,
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        });
+
+        result.push(...resp.data.graduations);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+
+    return result;
 }
 
 /**
@@ -44,24 +73,7 @@ export async function listGraduationsByCohort(
     startKey?: string
 ) {
     let params = { startKey };
-    const result: Graduation[] = [];
-
-    do {
-        const resp = await axios.get<ListGraduationsResponse>(
-            BASE_URL + `/graduations/${cohort}`,
-            {
-                params,
-                headers: {
-                    Authorization: 'Bearer ' + idToken,
-                },
-            }
-        );
-
-        result.push(...resp.data.graduations);
-        params.startKey = resp.data.lastEvaluatedKey;
-    } while (params.startKey);
-
-    return result;
+    return listGraduations(BASE_URL + `/graduations/${cohort}`, params, idToken);
 }
 
 /**
@@ -77,22 +89,16 @@ export async function listGraduationsByOwner(
     startKey?: string
 ) {
     let params = { startKey };
-    const result: Graduation[] = [];
+    return listGraduations(BASE_URL + `/graduations/owner/${username}`, params, idToken);
+}
 
-    do {
-        const resp = await axios.get<ListGraduationsResponse>(
-            BASE_URL + `/graduations/owner/${username}`,
-            {
-                params,
-                headers: {
-                    Authorization: 'Bearer ' + idToken,
-                },
-            }
-        );
-
-        result.push(...resp.data.graduations);
-        params.startKey = resp.data.lastEvaluatedKey;
-    } while (params.startKey);
-
-    return result;
+/**
+ * listGraduationsByDate returns a list of all graduations in the past month.
+ * @param idToken The id token of the current signed-in user.
+ * @param startKey The optional startKey to use when searching.
+ * @returns A list of graduations.
+ */
+export async function listGraduationsByDate(idToken: string, startKey?: string) {
+    let params = { startKey };
+    return listGraduations(BASE_URL + `/graduations`, params, idToken);
 }

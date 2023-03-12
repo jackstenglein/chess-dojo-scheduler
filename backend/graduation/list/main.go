@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
@@ -47,6 +47,19 @@ func byOwnerHandler(event api.Request) (api.Response, error) {
 	}), nil
 }
 
+func byDateHandler(event api.Request) (api.Response, error) {
+	startKey, _ := event.QueryStringParameters["startKey"]
+	monthAgo := time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
+	graduations, lastKey, err := repository.ListGraduationsByDate(monthAgo, startKey)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+	return api.Success(funcName, &ListGraduationsResponse{
+		Graduations:      graduations,
+		LastEvaluatedKey: lastKey,
+	}), nil
+}
+
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -59,8 +72,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return byOwnerHandler(event)
 	}
 
-	err := errors.New(400, "Invalid request: either cohort or username is required", "")
-	return api.Failure(funcName, err), nil
+	return byDateHandler(event)
 }
 
 func main() {

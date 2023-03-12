@@ -28,6 +28,7 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import NotFoundPage from './NotFoundPage';
 import RequirementPage from './requirements/RequirementPage';
 import { GraduationPrompt } from './profile/GraduationPrompt';
+import HomePage from './home/HomePage';
 
 const config = getConfig();
 Amplify.configure({
@@ -82,6 +83,7 @@ function Router() {
                         <Route path='admin' element={<AdminPage />} />
 
                         <Route element={<RequireProfile />}>
+                            <Route path='home' element={<HomePage />} />
                             <Route path='calendar' element={<CalendarPage />}>
                                 <Route
                                     path='availability/:id'

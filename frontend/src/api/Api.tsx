@@ -52,6 +52,7 @@ import {
     GraduationApiContextType,
     listGraduationsByCohort,
     listGraduationsByOwner,
+    listGraduationsByDate,
 } from './graduationApi';
 
 /**
@@ -175,6 +176,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listGraduationsByCohort(idToken, cohort, startKey),
             listGraduationsByOwner: (username: string, startKey?: string) =>
                 listGraduationsByOwner(idToken, username, startKey),
+            listGraduationsByDate: (startKey?: string) =>
+                listGraduationsByDate(idToken, startKey),
         };
     }, [idToken, auth.user, auth.updateUser]);
 
