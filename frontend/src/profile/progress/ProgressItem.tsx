@@ -17,11 +17,17 @@ interface ProgressItemProps {
     progress?: RequirementProgress;
     requirement: Requirement;
     cohort: string;
+    isCurrentUser: boolean;
 }
 
 const DESCRIPTION_MAX_LENGTH = 90;
 
-const ProgressItem: React.FC<ProgressItemProps> = ({ progress, requirement, cohort }) => {
+const ProgressItem: React.FC<ProgressItemProps> = ({
+    progress,
+    requirement,
+    cohort,
+    isCurrentUser,
+}) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
@@ -42,7 +48,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({ progress, requirement, coho
                     aria-label={`Checkbox ${requirement.name}`}
                     checked={currentCount >= totalCount}
                     onClick={() => setShowUpdateDialog(true)}
-                    disabled={currentCount >= totalCount}
+                    disabled={currentCount >= totalCount || !isCurrentUser}
                 />
             );
             break;
@@ -55,7 +61,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({ progress, requirement, coho
             UpdateElement =
                 currentCount >= totalCount ? (
                     <Checkbox checked disabled />
-                ) : (
+                ) : !isCurrentUser ? null : (
                     <IconButton
                         aria-label={`Update ${requirement.name}`}
                         onClick={() => setShowUpdateDialog(true)}

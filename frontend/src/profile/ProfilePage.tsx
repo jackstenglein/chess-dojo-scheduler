@@ -151,7 +151,7 @@ const ProfilePage = () => {
                             </TabList>
                         </Box>
                         <TabPanel value='progress'>
-                            <ProgressTab user={user} />
+                            <ProgressTab user={user} isCurrentUser={currentUserProfile} />
                         </TabPanel>
                         <TabPanel value='activity'>
                             <ActivityTab user={user} />

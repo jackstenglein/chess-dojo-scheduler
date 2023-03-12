@@ -29,9 +29,10 @@ interface Category {
 
 interface ProgressTabProps {
     user: User;
+    isCurrentUser: boolean;
 }
 
-const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
+const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     const api = useApi();
     const request = useRequest<Requirement[]>();
     const graduationsRequest = useRequest<Graduation[]>();
@@ -64,7 +65,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
                     graduationsRequest.onFailure(err);
                 });
         }
-    }, [request, api, cohort]);
+    }, [request, api, cohort, graduationsRequest, user.username]);
 
     const requirements = useMemo(() => {
         return [...(request.data ?? [])].sort(compareRequirements);
@@ -161,6 +162,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
                                 requirement={r}
                                 progress={user.progress[r.id]}
                                 cohort={cohort}
+                                isCurrentUser={isCurrentUser}
                             />
                         ))}
                     </AccordionDetails>
