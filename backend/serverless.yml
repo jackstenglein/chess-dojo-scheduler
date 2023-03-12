@@ -761,6 +761,7 @@ resources:
                 - progress
                 - createdAt
                 - previousCohort
+                - updatedAt
             ProvisionedThroughput: !If
               - IsProd
               - ReadCapacityUnits: 1

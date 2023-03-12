@@ -163,6 +163,9 @@ type User struct {
 
 	// When the user most recently graduated
 	LastGraduatedAt string `dynamodbav:"lastGraduatedAt" json:"lastGraduatedAt"`
+
+	// When the user was most recently updated (not including nightly rating updates)
+	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
 }
 
 // GetRatings returns the start and current ratings in the user's preferred rating system.
@@ -259,6 +262,10 @@ type UserUpdate struct {
 	// When the user most recently graduated
 	// Cannot be manually passed by the user. The user should instead call the user/graduate function
 	LastGraduatedAt *string `dynamodbav:"lastGraduatedAt,omitempty" json:"-"`
+
+	// When the user was most recently updated (not including nightly rating updates)
+	// Cannot be manually passed by the user and is updated automatically by the server
+	UpdatedAt *string `dynamodbav:"updatedAt,omitempty" json:"-"`
 }
 
 type UserCreator interface {
@@ -314,13 +321,9 @@ func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, e
 	return user, err
 }
 
-// SetUser saves the provided User object in the database.
-func (repo *dynamoRepository) SetUser(user *User) error {
-	return repo.setUserConditional(user, nil)
-}
-
 // setUserConditional saves the provided User object in the database using an optional condition statement.
 func (repo *dynamoRepository) setUserConditional(user *User, condition *string) error {
+	user.UpdatedAt = time.Now().Format(time.RFC3339)
 	item, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Unable to marshal user", err)
@@ -348,6 +351,7 @@ func (repo *dynamoRepository) setUserConditional(user *User, condition *string) 
 
 // UpdateUser applies the specified update to the user with the provided username.
 func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*User, error) {
+	update.UpdatedAt = aws.String(time.Now().Format(time.RFC3339))
 	av, err := dynamodbattribute.MarshalMap(update)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
@@ -401,21 +405,24 @@ func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry 
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal timeline entry", err)
 	}
 
+	updatedAt := time.Now().Format(time.RFC3339)
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"username": {
 				S: aws.String(username),
 			},
 		},
-		UpdateExpression: aws.String("SET #p.#id = :p, #t = list_append(#t, :t)"),
+		UpdateExpression: aws.String("SET #p.#id = :p, #t = list_append(#t, :t), #u = :u"),
 		ExpressionAttributeNames: map[string]*string{
 			"#p":  aws.String("progress"),
 			"#id": aws.String(progressEntry.RequirementId),
 			"#t":  aws.String("timeline"),
+			"#u":  aws.String("updatedAt"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":p": pav,
 			":t": {L: []*dynamodb.AttributeValue{tav}},
+			":u": {S: aws.String(updatedAt)},
 		},
 		ConditionExpression: aws.String("attribute_exists(username)"),
 		ReturnValues:        aws.String("ALL_NEW"),
@@ -454,20 +461,27 @@ func (repo *dynamoRepository) GetUser(username string) (*User, error) {
 	return &user, nil
 }
 
+const ONE_MONTH_AGO = -time.Hour * 24 * 31
+
 // ListUsersByCohort returns a list of Users in the provided cohort, up to 1MB of data.
-// startKey is an optional parameter that can be used to perform pagination.
+// startKey is an optional parameter that can be used to perform pagination. Only active
+// users are returned (updated within the past month).
 // The list of users and the next start key are returned.
 func (repo *dynamoRepository) ListUsersByCohort(cohort DojoCohort, startKey string) ([]*User, string, error) {
+	monthAgo := time.Now().Add(ONE_MONTH_AGO).Format(time.RFC3339)
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#cohort = :cohort"),
 		ExpressionAttributeNames: map[string]*string{
 			"#cohort": aws.String("dojoCohort"),
+			"#u":      aws.String("updatedAt"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":cohort": {S: aws.String(string(cohort))},
+			":u":      {S: aws.String(monthAgo)},
 		},
-		IndexName: aws.String("CohortIndex"),
-		TableName: aws.String(userTable),
+		FilterExpression: aws.String("#u >= :u"),
+		IndexName:        aws.String("CohortIndex"),
+		TableName:        aws.String(userTable),
 	}
 
 	var users []*User
@@ -567,5 +581,5 @@ func (repo *dynamoRepository) RecordGameCreation(user *User) error {
 
 	count, _ := user.GamesCreated[user.DojoCohort]
 	user.GamesCreated[user.DojoCohort] = count + 1
-	return repo.SetUser(user)
+	return repo.setUserConditional(user, nil)
 }
