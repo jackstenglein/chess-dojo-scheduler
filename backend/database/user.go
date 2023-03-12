@@ -158,6 +158,9 @@ type User struct {
 	// The number of times the user has graduated
 	NumberOfGraduations int `dynamodbav:"numberOfGraduations" json:"numberOfGraduations"`
 
+	// The cohort the user most recently graduated from
+	PreviousCohort DojoCohort `dynamodbav:"previousCohort" json:"previousCohort"`
+
 	// When the user most recently graduated
 	LastGraduatedAt string `dynamodbav:"lastGraduatedAt" json:"lastGraduatedAt"`
 }
@@ -249,6 +252,10 @@ type UserUpdate struct {
 	// Cannot be manually passed by the user. The user should instead call the user/graduate function
 	NumberOfGraduations *int `dynamodbav:"numberOfGraduations,omitempty" json:"-"`
 
+	// The cohort the user most recently graduated from.
+	// Cannot be manually passed by the user. The user should instead call the user/graduate function
+	PreviousCohort *DojoCohort `dynamodbav:"previousCohort,omitempty" json:"-"`
+
 	// When the user most recently graduated
 	// Cannot be manually passed by the user. The user should instead call the user/graduate function
 	LastGraduatedAt *string `dynamodbav:"lastGraduatedAt,omitempty" json:"-"`
@@ -273,7 +280,7 @@ type UserLister interface {
 
 type UserUpdater interface {
 	// UpdateUser applies the specified update to the user with the provided username.
-	UpdateUser(username string, update *UserUpdate) error
+	UpdateUser(username string, update *UserUpdate) (*User, error)
 }
 
 type UserProgressUpdater interface {
@@ -340,10 +347,10 @@ func (repo *dynamoRepository) setUserConditional(user *User, condition *string) 
 }
 
 // UpdateUser applies the specified update to the user with the provided username.
-func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) error {
+func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*User, error) {
 	av, err := dynamodbattribute.MarshalMap(update)
 	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
 	}
 
 	builder := expression.UpdateBuilder{}
@@ -353,7 +360,7 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) er
 
 	expr, err := expression.NewBuilder().WithUpdate(builder).Build()
 	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "DynamoDB expression building error", err)
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB expression building error", err)
 	}
 
 	input := &dynamodb.UpdateItemInput{
@@ -367,9 +374,18 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) er
 		UpdateExpression:          expr.Update(),
 		ConditionExpression:       aws.String("attribute_exists(username)"),
 		TableName:                 aws.String(userTable),
+		ReturnValues:              aws.String("ALL_NEW"),
 	}
-	_, err = repo.svc.UpdateItem(input)
-	return errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+
+	user := User{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &user); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &user, nil
 }
 
 // UpdateUserProgress sets the given progress entry in the user's progress map and appends

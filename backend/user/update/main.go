@@ -28,7 +28,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
-	err := repository.UpdateUser(info.Username, update)
+	_, err := repository.UpdateUser(info.Username, update)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}

@@ -48,6 +48,7 @@ import {
     getRequirement,
     listRequirements,
 } from './requirementApi';
+import { GraduationApiContextType, listGraduations } from './graduationApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -58,7 +59,8 @@ type ApiContextType = AdminApiContextType &
     MeetingApiContextType &
     CalendarApiContextType &
     GameApiContextType &
-    RequirementApiContextType;
+    RequirementApiContextType &
+    GraduationApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -164,6 +166,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 scoreboardOnly: boolean,
                 startKey?: string
             ) => listRequirements(idToken, cohort, scoreboardOnly, startKey),
+
+            listGraduations: (cohort: string, startKey?: string) =>
+                listGraduations(idToken, cohort, startKey),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

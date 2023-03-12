@@ -76,6 +76,9 @@ export interface User {
     disableCancellationNotifications: boolean;
     isAdmin: boolean;
     createdAt: string;
+    numberOfGraduations: number;
+    previousCohort: string;
+    lastGraduatedAt: string;
 }
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser) {

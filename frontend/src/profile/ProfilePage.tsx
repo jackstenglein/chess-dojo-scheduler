@@ -14,6 +14,7 @@ import GamesTab from './GamesTab';
 import ProgressTab from './progress/ProgressTab';
 import ActivityTab from './activity/ActivityTab';
 import GraduationDialog from './GraduationDialog';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 type ProfilePageProps = {
     username: string;
@@ -63,7 +64,12 @@ const ProfilePage = () => {
                     rowGap={2}
                 >
                     <Stack>
-                        <Typography variant='h4'>{user.discordUsername}</Typography>
+                        <Stack direction='row' spacing={2}>
+                            <Typography variant='h4'>{user.discordUsername}</Typography>
+                            {user.previousCohort && (
+                                <GraduationIcon cohort={user.previousCohort} />
+                            )}
+                        </Stack>
                         <Typography variant='h5' color='text.secondary'>
                             {user.dojoCohort}
                         </Typography>

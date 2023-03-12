@@ -18,18 +18,21 @@ import {
     formatRatingSystem as formatRatingSystemEnum,
     User,
 } from '../database/user';
+import { Graduation, isGraduation } from '../database/graduation';
+
+export type ScoreboardRow = User | Graduation;
 
 export function getColumnDefinition(
     requirement: Requirement,
     cohort: string
-): GridColDef {
+): GridColDef<ScoreboardRow> {
     const totalCount = requirement.counts[cohort] || 0;
 
-    const valueGetter = (params: GridValueGetterParams<any, User>) => {
+    const valueGetter = (params: GridValueGetterParams<any, ScoreboardRow>) => {
         return getCurrentCount(cohort, requirement, params.row.progress[requirement.id]);
     };
 
-    const renderCell = (params: GridRenderCellParams<number, User>) => {
+    const renderCell = (params: GridRenderCellParams<number, ScoreboardRow>) => {
         const score = getCurrentCount(
             cohort,
             requirement,
@@ -56,7 +59,7 @@ export function getColumnDefinition(
 }
 
 export function getCohortScore(
-    params: GridValueGetterParams<any, User>,
+    params: GridValueGetterParams<any, ScoreboardRow>,
     cohort: string | undefined,
     requirements: Requirement[]
 ): number {
@@ -73,7 +76,7 @@ export function getCohortScore(
 }
 
 export function getPercentComplete(
-    params: GridValueGetterParams<any, User>,
+    params: GridValueGetterParams<any, ScoreboardRow>,
     cohort: string | undefined,
     requirements: Requirement[]
 ): number {
@@ -98,9 +101,14 @@ export function formatRatingSystem(params: GridValueFormatterParams<RatingSystem
     return formatRatingSystemEnum(params.value);
 }
 
-export function getStartRating(params: GridValueGetterParams<any, User>): number {
-    const ratingSystem = params.row.ratingSystem;
+export function getStartRating(
+    params: GridValueGetterParams<any, ScoreboardRow>
+): number {
+    if (isGraduation(params.row)) {
+        return params.row.startRating;
+    }
 
+    const ratingSystem = params.row.ratingSystem;
     switch (ratingSystem) {
         case RatingSystem.Chesscom:
             return params.row.startChesscomRating;
@@ -116,9 +124,14 @@ export function getStartRating(params: GridValueGetterParams<any, User>): number
     }
 }
 
-export function getCurrentRating(params: GridValueGetterParams<any, User>): number {
-    const ratingSystem = params.row.ratingSystem;
+export function getCurrentRating(
+    params: GridValueGetterParams<any, ScoreboardRow>
+): number {
+    if (isGraduation(params.row)) {
+        return params.row.currentRating;
+    }
 
+    const ratingSystem = params.row.ratingSystem;
     switch (ratingSystem) {
         case RatingSystem.Chesscom:
             return params.row.currentChesscomRating;
@@ -134,7 +147,7 @@ export function getCurrentRating(params: GridValueGetterParams<any, User>): numb
     }
 }
 
-export function getRatingChange(params: GridValueGetterParams<any, User>) {
+export function getRatingChange(params: GridValueGetterParams<any, ScoreboardRow>) {
     const startRating = getStartRating(params);
     const currentRating = getCurrentRating(params);
     return currentRating - startRating;

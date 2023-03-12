@@ -72,7 +72,6 @@ export async function listRequirements(
                 },
             }
         );
-        console.log('Raw response: ', resp);
 
         result.push(...resp.data.requirements);
         params.startKey = resp.data.lastEvaluatedKey;

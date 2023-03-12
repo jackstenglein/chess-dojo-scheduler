@@ -33,10 +33,11 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user }) => {
     const request = useRequest<Requirement[]>();
     const [cohort, setCohort] = useState(user.dojoCohort);
 
+    const reset = request.reset;
     useEffect(() => {
         setCohort(user.dojoCohort);
-        request.reset();
-    }, [user.dojoCohort]);
+        reset();
+    }, [user.dojoCohort, reset]);
 
     useEffect(() => {
         if (!request.isSent()) {

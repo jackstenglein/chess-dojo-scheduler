@@ -23,7 +23,7 @@ type GraduationRequest struct {
 
 type GraduationResponse struct {
 	Graduation *database.Graduation `json:"graduation"`
-	UserUpdate *database.UserUpdate `json:"userUpdate"`
+	UserUpdate *database.User       `json:"userUpdate"`
 }
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
@@ -69,18 +69,19 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	startRating, currentRating := user.GetRatings()
 
 	graduation := database.Graduation{
-		Username:        info.Username,
-		DiscordUsername: user.DiscordUsername,
-		PreviousCohort:  user.DojoCohort,
-		NewCohort:       nextCohort,
-		Score:           user.CalculateScore(requirements),
-		RatingSystem:    user.RatingSystem,
-		StartRating:     startRating,
-		CurrentRating:   currentRating,
-		Comments:        request.Comments,
-		Progress:        user.Progress,
-		StartedAt:       startedAt,
-		UpdatedAt:       updatedAt,
+		Username:            info.Username,
+		DiscordUsername:     user.DiscordUsername,
+		PreviousCohort:      user.DojoCohort,
+		NewCohort:           nextCohort,
+		Score:               user.CalculateScore(requirements),
+		RatingSystem:        user.RatingSystem,
+		StartRating:         startRating,
+		CurrentRating:       currentRating,
+		Comments:            request.Comments,
+		Progress:            user.Progress,
+		StartedAt:           startedAt,
+		UpdatedAt:           updatedAt,
+		NumberOfGraduations: user.NumberOfGraduations + 1,
 	}
 	if err := repository.PutGraduation(&graduation); err != nil {
 		return api.Failure(funcName, err), nil
@@ -91,12 +92,14 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		NumberOfGraduations: &numberOfGraduations,
 		LastGraduatedAt:     &updatedAt,
 		DojoCohort:          &nextCohort,
+		PreviousCohort:      &user.DojoCohort,
 	}
-	if err := repository.UpdateUser(info.Username, &update); err != nil {
+	user, err = repository.UpdateUser(info.Username, &update)
+	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	return api.Success(funcName, &GraduationResponse{Graduation: &graduation, UserUpdate: &update}), nil
+	return api.Success(funcName, &GraduationResponse{Graduation: &graduation, UserUpdate: user}), nil
 }
 
 func main() {

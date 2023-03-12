@@ -17,3 +17,7 @@ export interface Graduation {
     startedAt: string;
     updatedAt: string;
 }
+
+export function isGraduation(obj: any): obj is Graduation {
+    return obj.newCohort !== undefined;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Container, MenuItem, TextField } from '@mui/material';
+import { Container, MenuItem, TextField, Typography } from '@mui/material';
 import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import {
     DataGrid,
@@ -23,8 +23,11 @@ import {
     getPercentComplete,
     getRatingChange,
     getStartRating,
+    ScoreboardRow,
 } from './scoreboardData';
 import { dojoCohorts, User } from '../database/user';
+import { Graduation } from '../database/graduation';
+import GraduationIcon from './GraduationIcon';
 
 interface ColumnGroupChild {
     field: string;
@@ -44,6 +47,7 @@ const defaultColumnGroups: ColumnGroup[] = [
         groupId: 'User Info',
         children: [
             { field: 'discordUsername' },
+            { field: 'previousCohort' },
             { field: 'cohortScore' },
             { field: 'percentComplete' },
             { field: 'ratingSystem' },
@@ -54,18 +58,31 @@ const defaultColumnGroups: ColumnGroup[] = [
     },
 ];
 
-const usernameColumns: GridColDef[] = [
+const usernameColumns: GridColDef<ScoreboardRow>[] = [
     {
         field: 'discordUsername',
         headerName: 'Discord ID',
         minWidth: 250,
-        renderCell: (params: GridRenderCellParams<string, User>) => {
+        renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
             return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;
         },
     },
+    {
+        field: 'previousCohort',
+        headerName: 'Graduation',
+        renderHeader: () => {
+            return '';
+        },
+        renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
+            console.log('Render cell value: ', params.value);
+            console.log('Render cell row: ', params.row);
+            return <GraduationIcon cohort={params.value} size={35} />;
+        },
+        align: 'center',
+    },
 ];
 
-const userInfoColumns: GridColDef[] = [
+const userInfoColumns: GridColDef<ScoreboardRow>[] = [
     {
         field: 'ratingSystem',
         headerName: 'Rating System',
@@ -97,6 +114,7 @@ const ScoreboardPage = () => {
     const { cohort } = useParams<ScoreboardPageParams>();
     const requirementRequest = useRequest<Requirement[]>();
     const usersRequest = useRequest<User[]>();
+    const graduationsRequest = useRequest<Graduation[]>();
     const api = useApi();
     const navigate = useNavigate();
 
@@ -114,7 +132,6 @@ const ScoreboardPage = () => {
                 });
         }
         if (cohort && cohort !== '' && !usersRequest.isSent()) {
-            console.log('Sending user request');
             usersRequest.onStart();
             api.listUsersByCohort(cohort)
                 .then((users) => {
@@ -125,26 +142,37 @@ const ScoreboardPage = () => {
                     usersRequest.onFailure(err);
                 });
         }
-    }, [cohort, requirementRequest, usersRequest, api]);
+        if (cohort && cohort !== '' && !graduationsRequest.isSent()) {
+            graduationsRequest.onStart();
+            api.listGraduations(cohort)
+                .then((graduations) => {
+                    graduationsRequest.onSuccess(graduations);
+                })
+                .catch((err) => {
+                    console.error('listGraduations: ', err);
+                    graduationsRequest.onFailure(err);
+                });
+        }
+    }, [cohort, requirementRequest, usersRequest, graduationsRequest, api]);
 
     const requirements = useMemo(() => {
         return [...(requirementRequest.data ?? [])].sort(compareRequirements);
     }, [requirementRequest.data]);
 
-    const cohortScoreColumns: GridColDef[] = useMemo(
+    const cohortScoreColumns: GridColDef<ScoreboardRow>[] = useMemo(
         () => [
             {
                 field: 'cohortScore',
                 headerName: 'Cohort Score',
                 minWidth: 150,
-                valueGetter: (params: GridValueGetterParams<any, User>) =>
+                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
                     getCohortScore(params, cohort, requirements),
             },
             {
                 field: 'percentComplete',
                 headerName: 'Percent Complete',
                 minWidth: 175,
-                valueGetter: (params: GridValueGetterParams<any, User>) =>
+                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
                     getPercentComplete(params, cohort, requirements),
                 valueFormatter: formatPercentComplete,
             },
@@ -152,7 +180,7 @@ const ScoreboardPage = () => {
         [requirements, cohort]
     );
 
-    const requirementColumns: GridColDef[] = useMemo(() => {
+    const requirementColumns: GridColDef<ScoreboardRow>[] = useMemo(() => {
         return requirements?.map((r) => getColumnDefinition(r, cohort!)) ?? [];
     }, [requirements, cohort]);
 
@@ -175,6 +203,7 @@ const ScoreboardPage = () => {
         navigate(`../${cohort}`);
         usersRequest.reset();
         requirementRequest.reset();
+        graduationsRequest.reset();
     };
 
     if (cohort === undefined || cohort === '') {
@@ -207,6 +236,7 @@ const ScoreboardPage = () => {
                 ))}
             </TextField>
 
+            <Typography variant='h6'>Current Members</Typography>
             <DataGrid
                 sx={{ mb: 4 }}
                 experimentalFeatures={{ columnGrouping: true }}
@@ -218,7 +248,22 @@ const ScoreboardPage = () => {
                 columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
                 rows={usersRequest.data ?? []}
                 loading={usersRequest.isLoading()}
-                getRowId={(row: GridRowModel<User>) => row.username}
+                getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
+            />
+
+            <Typography variant='h6'>Graduations</Typography>
+            <DataGrid
+                sx={{ mb: 4 }}
+                experimentalFeatures={{ columnGrouping: true }}
+                columns={usernameColumns.concat(
+                    cohortScoreColumns,
+                    userInfoColumns,
+                    requirementColumns
+                )}
+                columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
+                rows={graduationsRequest.data ?? []}
+                loading={graduationsRequest.isLoading()}
+                getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
             />
         </Container>
     );

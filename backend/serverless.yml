@@ -606,6 +606,24 @@ functions:
         Resource:
           - !GetAtt RequirementsTable.Arn
 
+  ########## Graduation Endpoints ##############
+
+  listGraduations:
+    handler: bin/graduation/list
+    package:
+      patterns:
+        - ./bin/graduation/list
+    events:
+      - httpApi:
+          path: /graduations/{cohort}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt GraduationsTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -726,6 +744,7 @@ resources:
                 - currentUscfRating
                 - progress
                 - createdAt
+                - previousCohort
             ProvisionedThroughput: !If
               - IsProd
               - ReadCapacityUnits: 1

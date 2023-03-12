@@ -11,10 +11,10 @@ import (
 type Graduation struct {
 	// The Cognito username of the graduating user.
 	// The hash key of the table.
-	Username string `dynamodbav:"username"`
+	Username string `dynamodbav:"username" json:"username"`
 
 	// The Discord username of the graduating user.
-	DiscordUsername string `dynamodbav:"discordUsername"`
+	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
 	// The cohort the user is graduating from.
 	// The range key of the table.
@@ -41,6 +41,9 @@ type Graduation struct {
 	// The user's progress at the time of graduation.
 	Progress map[string]*RequirementProgress `dynamodbav:"progress" json:"progress"`
 
+	// The number of times the user has graduated, including this graduation.
+	NumberOfGraduations int `dynamodbav:"numberOfGraduations" json:"numberOfGraduations"`
+
 	// The time the user started the cohort.
 	StartedAt string `dynamodbav:"startedAt" json:"startedAt"`
 
@@ -55,6 +58,11 @@ type GraduationCreator interface {
 
 	// PutGraduation saves the provided Graduation in the database.
 	PutGraduation(graduation *Graduation) error
+}
+
+type GraduationLister interface {
+	// ListGraduations returns a list of graduations matching the provided cohort.
+	ListGraduations(cohort DojoCohort, startKey string) ([]*Graduation, string, error)
 }
 
 // PutGraduation saves the provided Graduation in the database.
@@ -75,4 +83,25 @@ func (repo *dynamoRepository) PutGraduation(graduation *Graduation) error {
 	}
 	_, err = repo.svc.PutItem(input)
 	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+}
+
+// ListGraduations returns a list of graduations matching the provided cohort.
+func (repo *dynamoRepository) ListGraduations(cohort DojoCohort, startKey string) ([]*Graduation, string, error) {
+	input := &dynamodb.ScanInput{
+		FilterExpression: aws.String("#previousCohort = :cohort"),
+		ExpressionAttributeNames: map[string]*string{
+			"#previousCohort": aws.String("previousCohort"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":cohort": {S: aws.String(string(cohort))},
+		},
+		TableName: aws.String(graduationTable),
+	}
+
+	var graduations []*Graduation
+	lastKey, err := repo.scan(input, startKey, &graduations)
+	if err != nil {
+		return nil, "", err
+	}
+	return graduations, lastKey, nil
 }
