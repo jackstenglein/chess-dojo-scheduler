@@ -1,9 +1,13 @@
 import { useLayoutEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { pgnView } from '@mliebelt/pgn-viewer';
-import { Grid, Link, Stack, Typography } from '@mui/material';
+import { Grid, IconButton, Link as MuiLink, Stack, Typography } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
-import { Game, isDefaultHeader, PgnHeaders } from '../database/game';
+import { Game, isDefaultHeader } from '../database/game';
+import { useAuth } from '../auth/Auth';
 
 interface HeaderDisplayProps {
     header: string;
@@ -35,10 +39,11 @@ function formatSite(site: string) {
 }
 
 interface GameDataProps {
-    headers: PgnHeaders;
+    game: Game;
 }
 
-const GameData: React.FC<GameDataProps> = ({ headers }) => {
+const GameData: React.FC<GameDataProps> = ({ game }) => {
+    const headers = game.headers;
     const lichessUrl = useMemo(() => {
         const site = headers.Site;
         if (site?.startsWith('https://lichess.org/') && !site?.endsWith('.org/')) {
@@ -49,6 +54,20 @@ const GameData: React.FC<GameDataProps> = ({ headers }) => {
 
     return (
         <Grid container alignItems='center' sx={{ pt: 2 }} columnGap={1}>
+            {game.ownerDiscord !== '' && (
+                <>
+                    <Grid item xs={3}>
+                        <Typography variant='subtitle2' color='text.secondary'>
+                            Uploaded By
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                        <Link to={`/profile/${game.owner}`}>
+                            <Typography variant='body2'>{game.ownerDiscord}</Typography>
+                        </Link>
+                    </Grid>
+                </>
+            )}
             <HeaderDisplay
                 header='White'
                 value={`${headers.White} (${headers.WhiteElo ?? '?'})`}
@@ -69,7 +88,7 @@ const GameData: React.FC<GameDataProps> = ({ headers }) => {
                 <Stack direction='row' alignItems='center'>
                     <Typography variant='body2'>{formatSite(headers.Site)}</Typography>
                     {lichessUrl && (
-                        <Link href={lichessUrl} target='_blank' rel='noreferrer'>
+                        <MuiLink href={lichessUrl} target='_blank' rel='noreferrer'>
                             <OpenInNewIcon
                                 sx={{
                                     fontSize: '1rem',
@@ -77,7 +96,7 @@ const GameData: React.FC<GameDataProps> = ({ headers }) => {
                                     left: 4,
                                 }}
                             />
-                        </Link>
+                        </MuiLink>
                     )}
                 </Stack>
             </Grid>
@@ -94,9 +113,12 @@ const GameData: React.FC<GameDataProps> = ({ headers }) => {
 
 interface PgnViewerProps {
     game: Game;
+    onFeature: () => void;
 }
 
-const PgnViewer: React.FC<PgnViewerProps> = ({ game }) => {
+const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
+    const user = useAuth().user!;
+
     const id = 'board';
 
     useLayoutEffect(() => {
@@ -113,7 +135,19 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game }) => {
         <Stack alignItems='center'>
             <Grid container rowSpacing={4}>
                 <Grid item sm={12} md={4} lg={3}>
-                    <GameData headers={game.headers} />
+                    {user.isAdmin && (
+                        <Stack direction='row' alignItems='center' spacing={2}>
+                            <Typography>Feature Game?</Typography>
+                            <IconButton onClick={onFeature}>
+                                {game.isFeatured === 'true' ? (
+                                    <CheckBoxIcon color='primary' />
+                                ) : (
+                                    <CheckBoxOutlineBlankIcon />
+                                )}
+                            </IconButton>
+                        </Stack>
+                    )}
+                    <GameData game={game} />
                 </Grid>
 
                 <Grid item sm={12} md={8} lg={9}>

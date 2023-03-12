@@ -23,6 +23,19 @@ export type GameApiContextType = {
     getGame: (cohort: string, id: string) => Promise<AxiosResponse<Game, any>>;
 
     /**
+     * updateGame sets the featured status of the provided game.
+     * @param cohort The cohort the game is in.
+     * @param id The id of the game.
+     * @param featured Whether the game is featured or not.
+     * @returns An AxiosResponse containing the updated game.
+     */
+    updateGame: (
+        cohort: string,
+        id: string,
+        featured: string
+    ) => Promise<AxiosResponse<Game, any>>;
+
+    /**
      * listGamesByCohort returns a list of GameInfo objects corresponding to the provided cohort,
      * as well as the next start key for pagination.
      * @param cohort The cohort to search for games in.
@@ -109,6 +122,35 @@ export function getGame(idToken: string, cohort: string, id: string) {
     });
 }
 
+/**
+ * updateGame sets the featured status of the provided game.
+ * @param idToken The id token of the current signed-in user.
+ * @param cohort The cohort the game is in.
+ * @param id The id of the game.
+ * @param featured Whether the game is featured or not.
+ * @returns An AxiosResponse containing the updated game.
+ */
+export function updateGame(
+    idToken: string,
+    cohort: string,
+    id: string,
+    featured: string
+) {
+    const urlCohort = cohort.replaceAll('+', '%2B');
+    const urlId = id.replaceAll('?', '%3F');
+
+    return axios.put<Game>(
+        BASE_URL + `/game/${urlCohort}/${urlId}`,
+        {},
+        {
+            params: {
+                featured,
+            },
+            headers: { Authorization: 'Bearer ' + idToken },
+        }
+    );
+}
+
 export interface ListGamesResponse {
     games: GameInfo[];
     lastEvaluatedKey?: string;
@@ -188,6 +230,7 @@ export function createComment(
         owner: commenter.username,
         ownerDiscord: commenter.discordUsername,
         ownerCohort: commenter.dojoCohort,
+        ownerPreviousCohort: commenter.previousCohort,
         content: content,
     };
 

@@ -42,6 +42,7 @@ import {
     listGamesByCohort,
     listGamesByOwner,
     createComment,
+    updateGame,
 } from './gameApi';
 import {
     RequirementApiContextType,
@@ -139,6 +140,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             createGame: (req: CreateGameRequest) => createGame(idToken, req),
             getGame: (cohort: string, id: string) => getGame(idToken, cohort, id),
+            updateGame: (cohort: string, id: string, featured: string) =>
+                updateGame(idToken, cohort, id, featured),
             listGamesByCohort: (
                 cohort: string,
                 startKey?: string,

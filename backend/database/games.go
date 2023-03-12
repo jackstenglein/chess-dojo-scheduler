@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
@@ -46,6 +47,9 @@ type Comment struct {
 	// The cohort of the poster of the comment
 	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
 
+	// The cohort the owner most recently graduated from
+	OwnerPreviousCohort DojoCohort `dynamodbav:"ownerPreviousCohort" json:"ownerPreviousCohort"`
+
 	// A v4 UUID identifying the comment
 	Id string `dynamodbav:"id" json:"id"`
 
@@ -78,14 +82,34 @@ type Game struct {
 	// The username of the owner of this game
 	Owner string `dynamodbav:"owner" json:"owner"`
 
+	// The discord username of the owner of this game
+	OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
+
+	// The cohort the owner most recently graduated from
+	OwnerPreviousCohort DojoCohort `dynamodbav:"ownerPreviousCohort" json:"ownerPreviousCohort"`
+
 	// The PGN headers of the game
 	Headers map[string]string `dynamodbav:"headers" json:"headers"`
+
+	// Whether the game has been featured by the sensei
+	IsFeatured string `dynamodbav:"isFeatured" json:"isFeatured"`
+
+	// The date the game was marked as featured
+	FeaturedAt string `dynamodbav:"featuredAt" json:"featuredAt"`
 
 	// The PGN text of the game
 	Pgn string `dynamodbav:"pgn" json:"pgn,omitempty"`
 
 	// The comments left on the game
 	Comments []*Comment `dynamodbav:"comments" json:"comments"`
+}
+
+type GameUpdate struct {
+	// Whether the game has been featured by the sensei
+	IsFeatured *string `dynamodbav:"isFeatured,omitempty" json:"isFeatured"`
+
+	// The date the game was marked as featured
+	FeaturedAt *string `dynamodbav:"featuredAt,omitempty" json:"featuredAt"`
 }
 
 type GamePutter interface {
@@ -96,6 +120,13 @@ type GamePutter interface {
 
 	// RecordGameCreation updates the given user to increase their game creation stats.
 	RecordGameCreation(user *User) error
+}
+
+type GameUpdater interface {
+	UserGetter
+
+	// UpdateGame applies the specified update to the specified game.
+	UpdateGame(cohort, id string, update *GameUpdate) (*Game, error)
 }
 
 type GameGetter interface {
@@ -115,6 +146,9 @@ type GameLister interface {
 	// ListGamesByPlayer returns a list of Games matching the provided player. The PGN text is excluded and must
 	// be fetched separately with a call to GetGame.
 	ListGamesByPlayer(player string, color PlayerColor, startDate, endDate, startKey string) ([]*Game, string, error)
+
+	// ListFeaturedGames returns a list of Games featured more recently than the provided date.
+	ListFeaturedGames(date, startKey string) ([]*Game, string, error)
 }
 
 type GameCommenter interface {
@@ -161,6 +195,50 @@ func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 	game := Game{}
 	if err := repo.getItem(input, &game); err != nil {
 		return nil, err
+	}
+	return &game, nil
+}
+
+func (repo *dynamoRepository) UpdateGame(cohort, id string, update *GameUpdate) (*Game, error) {
+	av, err := dynamodbattribute.MarshalMap(update)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
+	}
+
+	builder := expression.UpdateBuilder{}
+	for k, v := range av {
+		builder = builder.Set(expression.Name(k), expression.Value(v))
+	}
+
+	expr, err := expression.NewBuilder().WithUpdate(builder).Build()
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB expression building error", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"cohort": {
+				S: aws.String(cohort),
+			},
+			"id": {
+				S: aws.String(id),
+			},
+		},
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
+		ConditionExpression:       aws.String("attribute_exists(id)"),
+		TableName:                 aws.String(gameTable),
+		ReturnValues:              aws.String("ALL_NEW"),
+	}
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+
+	game := Game{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &game); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
 	}
 	return &game, nil
 }
@@ -346,6 +424,31 @@ func (repo *dynamoRepository) listColorGames(player, color, startDate, endDate, 
 	return games, lastKey, nil
 }
 
+// ListFeaturedGames returns a list of Games featured more recently than the provided date.
+func (repo *dynamoRepository) ListFeaturedGames(date, startKey string) ([]*Game, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#f = :true AND #d >= :d"),
+		ExpressionAttributeNames: map[string]*string{
+			"#f": aws.String("isFeatured"),
+			"#d": aws.String("featuredAt"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":true": {S: aws.String("true")},
+			":d":    {S: aws.String(date)},
+		},
+		IndexName: aws.String("FeaturedIndex"),
+		TableName: aws.String(gameTable),
+	}
+
+	var games []*Game
+	lastKey, err := repo.query(input, startKey, &games)
+	if err != nil {
+		return nil, "", err
+	}
+	return games, lastKey, nil
+}
+
+// CreateComment appends the provided comment to the provided Game's comment list.
 func (repo *dynamoRepository) CreateComment(cohort, id string, comment *Comment) (*Game, error) {
 	item, err := dynamodbattribute.MarshalMap(comment)
 	if err != nil {

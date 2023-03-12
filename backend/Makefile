@@ -30,8 +30,10 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/create game/create/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/get game/get/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/list/cohort game/list/cohort/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/list/featured game/list/featured/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/list/owner game/list/owner/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/comment/create game/comment/create/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/update game/update/main.go
 
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/graduation/list graduation/list/main.go
 

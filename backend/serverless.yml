@@ -490,6 +490,26 @@ functions:
         Resource:
           - !GetAtt GamesTable.Arn
 
+  updateGame:
+    handler: bin/game/update
+    package:
+      patterns:
+        - ./bin/game/update
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id}
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt GamesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+
   getGame:
     handler: bin/game/get
     package:
@@ -568,6 +588,26 @@ functions:
               - ''
               - - !GetAtt GamesTable.Arn
                 - '/index/BlackIndex'
+
+  listFeaturedGames:
+    handler: bin/game/list/featured
+    package:
+      patterns:
+        - ./bin/game/list/featured
+    events:
+      - httpApi:
+          path: /game/featured
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt GamesTable.Arn
+                - '/index/FeaturedIndex'
 
   ########## Requirement Endpoints ##############
 
@@ -936,6 +976,10 @@ resources:
             AttributeType: S
           - AttributeName: black
             AttributeType: S
+          - AttributeName: isFeatured
+            AttributeType: S
+          - AttributeName: featuredAt
+            AttributeType: S
         KeySchema:
           - AttributeName: cohort
             KeyType: HASH
@@ -999,6 +1043,26 @@ resources:
                 - white
                 - date
                 - owner
+                - headers
+            ProvisionedThroughput: !If
+              - IsProd
+              - ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+              - !Ref AWS::NoValue
+          - IndexName: FeaturedIndex
+            KeySchema:
+              - AttributeName: isFeatured
+                KeyType: HASH
+              - AttributeName: featuredAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - owner
+                - ownerDiscord
                 - headers
             ProvisionedThroughput: !If
               - IsProd

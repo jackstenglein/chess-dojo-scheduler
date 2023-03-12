@@ -20,6 +20,7 @@ const GamePage = () => {
     const api = useApi();
     const request = useRequest<Game>();
     const commentRequest = useRequest();
+    const featureRequest = useRequest();
     const { cohort, id } = useParams();
 
     const [comment, setComment] = useState('');
@@ -58,6 +59,28 @@ const GamePage = () => {
             });
     };
 
+    const onFeature = () => {
+        if (!request.data) {
+            return;
+        }
+
+        featureRequest.onStart();
+        const game = request.data;
+        api.updateGame(
+            game.cohort,
+            game.id,
+            game.isFeatured === 'true' ? 'false' : 'true'
+        )
+            .then((response) => {
+                featureRequest.onSuccess('Game featured');
+                request.onSuccess(response.data);
+            })
+            .catch((err) => {
+                console.error('updateGame: ', err);
+                featureRequest.onFailure(err);
+            });
+    };
+
     if (request.isLoading()) {
         return (
             <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
@@ -74,8 +97,9 @@ const GamePage = () => {
         <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={request} />
             <RequestSnackbar request={commentRequest} showSuccess />
+            <RequestSnackbar request={featureRequest} showSuccess />
 
-            {request.data?.pgn && <PgnViewer game={request.data} />}
+            {request.data?.pgn && <PgnViewer game={request.data} onFeature={onFeature} />}
 
             {request.data?.pgn && (
                 <Grid container rowSpacing={4} justifyContent='flex-end'>

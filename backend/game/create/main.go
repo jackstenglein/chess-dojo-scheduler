@@ -143,14 +143,16 @@ func saveGame(user *database.User, pgnText string) (*database.Game, error) {
 	}
 
 	game := database.Game{
-		Cohort:  user.DojoCohort,
-		Id:      date + "_" + uuid.New().String(),
-		White:   white,
-		Black:   black,
-		Date:    date,
-		Owner:   user.Username,
-		Headers: headers,
-		Pgn:     pgnText,
+		Cohort:              user.DojoCohort,
+		Id:                  date + "_" + uuid.New().String(),
+		White:               white,
+		Black:               black,
+		Date:                date,
+		Owner:               user.Username,
+		OwnerDiscord:        user.DiscordUsername,
+		OwnerPreviousCohort: user.PreviousCohort,
+		Headers:             headers,
+		Pgn:                 pgnText,
 	}
 
 	if err := repository.PutGame(&game); err != nil {

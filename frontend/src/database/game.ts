@@ -20,13 +20,18 @@ export interface GameInfo {
     id: string;
     date: string;
     owner: string;
+    ownerDiscord: string;
+    ownerPreviousCohort: string;
     headers: PgnHeaders;
+    isFeatured: string;
+    featuredAt: string;
 }
 
 export interface Comment {
     owner: string;
     ownerDiscord: string;
     ownerCohort: string;
+    ownerPreviousCohort: string;
     id: string;
     createdAt: string;
     updatedAt: string;
