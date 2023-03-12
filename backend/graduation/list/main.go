@@ -20,18 +20,10 @@ type ListGraduationsResponse struct {
 	LastEvaluatedKey string                 `json:"lastEvaluatedKey,omitempty"`
 }
 
-func Handler(ctx context.Context, event api.Request) (api.Response, error) {
-	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
-
-	cohort, ok := event.PathParameters["cohort"]
-	if !ok {
-		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
-	}
-
+func byCohortHandler(event api.Request) (api.Response, error) {
+	cohort, _ := event.PathParameters["cohort"]
 	startKey, _ := event.QueryStringParameters["startKey"]
-
-	graduations, lastKey, err := repository.ListGraduations(database.DojoCohort(cohort), startKey)
+	graduations, lastKey, err := repository.ListGraduationsByCohort(database.DojoCohort(cohort), startKey)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
@@ -40,6 +32,35 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		Graduations:      graduations,
 		LastEvaluatedKey: lastKey,
 	}), nil
+}
+
+func byOwnerHandler(event api.Request) (api.Response, error) {
+	username, _ := event.PathParameters["username"]
+	startKey, _ := event.QueryStringParameters["startKey"]
+	graduations, lastKey, err := repository.ListGraduationsByOwner(username, startKey)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+	return api.Success(funcName, &ListGraduationsResponse{
+		Graduations:      graduations,
+		LastEvaluatedKey: lastKey,
+	}), nil
+}
+
+func Handler(ctx context.Context, event api.Request) (api.Response, error) {
+	log.SetRequestId(event.RequestContext.RequestID)
+	log.Debugf("Event: %#v", event)
+
+	if _, ok := event.PathParameters["cohort"]; ok {
+		return byCohortHandler(event)
+	}
+
+	if _, ok := event.PathParameters["username"]; ok {
+		return byOwnerHandler(event)
+	}
+
+	err := errors.New(400, "Invalid request: either cohort or username is required", "")
+	return api.Failure(funcName, err), nil
 }
 
 func main() {

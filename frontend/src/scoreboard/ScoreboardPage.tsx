@@ -142,7 +142,7 @@ const ScoreboardPage = () => {
         }
         if (cohort && cohort !== '' && !graduationsRequest.isSent()) {
             graduationsRequest.onStart();
-            api.listGraduations(cohort)
+            api.listGraduationsByCohort(cohort)
                 .then((graduations) => {
                     graduationsRequest.onSuccess(graduations);
                 })

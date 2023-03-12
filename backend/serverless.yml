@@ -608,7 +608,7 @@ functions:
 
   ########## Graduation Endpoints ##############
 
-  listGraduations:
+  listGraduationsByCohort:
     handler: bin/graduation/list
     package:
       patterns:
@@ -622,6 +622,22 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Scan
+        Resource: !GetAtt GraduationsTable.Arn
+
+  listGraduationsByOwner:
+    handler: bin/graduation/list
+    package:
+      patterns:
+        - ./bin/graduation/list
+    events:
+      - httpApi:
+          path: /graduations/owner/{username}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
         Resource: !GetAtt GraduationsTable.Arn
 
 resources:

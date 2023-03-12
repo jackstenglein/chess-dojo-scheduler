@@ -48,7 +48,7 @@ type Graduation struct {
 	StartedAt string `dynamodbav:"startedAt" json:"startedAt"`
 
 	// The time that the user graduated.
-	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 }
 
 type GraduationCreator interface {
@@ -61,8 +61,11 @@ type GraduationCreator interface {
 }
 
 type GraduationLister interface {
-	// ListGraduations returns a list of graduations matching the provided cohort.
-	ListGraduations(cohort DojoCohort, startKey string) ([]*Graduation, string, error)
+	// ListGraduationsByCohort returns a list of graduations matching the provided cohort.
+	ListGraduationsByCohort(cohort DojoCohort, startKey string) ([]*Graduation, string, error)
+
+	// ListGraduationsByOwner returns a list of graduations matching the provided username.
+	ListGraduationsByOwner(username, startKey string) ([]*Graduation, string, error)
 }
 
 // PutGraduation saves the provided Graduation in the database.
@@ -85,8 +88,8 @@ func (repo *dynamoRepository) PutGraduation(graduation *Graduation) error {
 	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
 }
 
-// ListGraduations returns a list of graduations matching the provided cohort.
-func (repo *dynamoRepository) ListGraduations(cohort DojoCohort, startKey string) ([]*Graduation, string, error) {
+// ListGraduationsByCohort returns a list of graduations matching the provided cohort.
+func (repo *dynamoRepository) ListGraduationsByCohort(cohort DojoCohort, startKey string) ([]*Graduation, string, error) {
 	input := &dynamodb.ScanInput{
 		FilterExpression: aws.String("#previousCohort = :cohort"),
 		ExpressionAttributeNames: map[string]*string{
@@ -100,6 +103,27 @@ func (repo *dynamoRepository) ListGraduations(cohort DojoCohort, startKey string
 
 	var graduations []*Graduation
 	lastKey, err := repo.scan(input, startKey, &graduations)
+	if err != nil {
+		return nil, "", err
+	}
+	return graduations, lastKey, nil
+}
+
+// ListGraduationsByOwner returns a list of graduations matching the provided username.
+func (repo *dynamoRepository) ListGraduationsByOwner(username, startKey string) ([]*Graduation, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#username = :username"),
+		ExpressionAttributeNames: map[string]*string{
+			"#username": aws.String("username"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":username": {S: aws.String(username)},
+		},
+		TableName: aws.String(graduationTable),
+	}
+
+	var graduations []*Graduation
+	lastKey, err := repo.query(input, startKey, &graduations)
 	if err != nil {
 		return nil, "", err
 	}

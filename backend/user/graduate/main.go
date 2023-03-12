@@ -64,7 +64,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if startedAt == "" {
 		startedAt = user.CreatedAt
 	}
-	updatedAt := time.Now().Format(time.RFC3339)
+	createdAt := time.Now().Format(time.RFC3339)
 
 	startRating, currentRating := user.GetRatings()
 
@@ -80,7 +80,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		Comments:            request.Comments,
 		Progress:            user.Progress,
 		StartedAt:           startedAt,
-		UpdatedAt:           updatedAt,
+		CreatedAt:           createdAt,
 		NumberOfGraduations: user.NumberOfGraduations + 1,
 	}
 	if err := repository.PutGraduation(&graduation); err != nil {
@@ -90,7 +90,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	var numberOfGraduations = user.NumberOfGraduations + 1
 	update := database.UserUpdate{
 		NumberOfGraduations: &numberOfGraduations,
-		LastGraduatedAt:     &updatedAt,
+		LastGraduatedAt:     &createdAt,
 		DojoCohort:          &nextCohort,
 		PreviousCohort:      &user.DojoCohort,
 	}

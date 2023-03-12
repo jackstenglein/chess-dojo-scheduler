@@ -4,4 +4,5 @@ export const CategoryColors: Record<string, string> = {
     Tactics: '#ff9800', // orange
     Middlegames: '#2196f3', // blue
     Endgames: '#795548', // brown
+    Graduation: '#f44336', // red
 };

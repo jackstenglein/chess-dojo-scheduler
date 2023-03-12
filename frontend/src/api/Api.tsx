@@ -48,7 +48,11 @@ import {
     getRequirement,
     listRequirements,
 } from './requirementApi';
-import { GraduationApiContextType, listGraduations } from './graduationApi';
+import {
+    GraduationApiContextType,
+    listGraduationsByCohort,
+    listGraduationsByOwner,
+} from './graduationApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -167,8 +171,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 startKey?: string
             ) => listRequirements(idToken, cohort, scoreboardOnly, startKey),
 
-            listGraduations: (cohort: string, startKey?: string) =>
-                listGraduations(idToken, cohort, startKey),
+            listGraduationsByCohort: (cohort: string, startKey?: string) =>
+                listGraduationsByCohort(idToken, cohort, startKey),
+            listGraduationsByOwner: (username: string, startKey?: string) =>
+                listGraduationsByOwner(idToken, username, startKey),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

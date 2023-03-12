@@ -15,7 +15,7 @@ export interface Graduation {
         [id: string]: RequirementProgress;
     };
     startedAt: string;
-    updatedAt: string;
+    createdAt: string;
 }
 
 export function isGraduation(obj: any): obj is Graduation {
