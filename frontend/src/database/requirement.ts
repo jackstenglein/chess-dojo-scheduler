@@ -22,7 +22,7 @@ export interface Requirement {
     numberOfCohorts: number;
     unitScore: number;
     videoUrls: string[];
-    positionUrls: string[];
+    positionUrls?: string[];
     scoreboardDisplay: ScoreboardDisplay;
     updatedAt: string;
     sortPriority: string;

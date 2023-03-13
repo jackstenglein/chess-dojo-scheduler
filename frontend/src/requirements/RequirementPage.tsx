@@ -100,11 +100,11 @@ const RequirementPage = () => {
                     {requirement.description}
                 </Typography>
 
-                {requirement.positionUrls.length === 1 && (
+                {requirement.positionUrls?.length === 1 && (
                     <Position url={requirement.positionUrls[0]} />
                 )}
 
-                {requirement.positionUrls.length > 1 && (
+                {requirement.positionUrls && requirement.positionUrls.length > 1 && (
                     <Carousel autoPlay={false} navButtonsAlwaysVisible>
                         {requirement.positionUrls.map((url, idx) => (
                             <Position key={url} url={url} title={`Position ${idx + 1}`} />
