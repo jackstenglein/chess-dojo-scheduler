@@ -112,18 +112,19 @@ const RequirementPage = () => {
                     </Carousel>
                 )}
 
-                {requirement.videoUrls.map((url, idx) => (
-                    <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }} key={url}>
-                        <iframe
-                            src={url}
-                            title={`${requirement.name} Video ${idx + 1}`}
-                            allow='accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share'
-                            allowFullScreen={true}
-                            style={{ width: '100%', height: '100%' }}
-                            frameBorder={0}
-                        />
-                    </Box>
-                ))}
+                {requirement.videoUrls &&
+                    requirement.videoUrls.map((url, idx) => (
+                        <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }} key={url}>
+                            <iframe
+                                src={url}
+                                title={`${requirement.name} Video ${idx + 1}`}
+                                allow='accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share'
+                                allowFullScreen={true}
+                                style={{ width: '100%', height: '100%' }}
+                                frameBorder={0}
+                            />
+                        </Box>
+                    ))}
             </Stack>
 
             <ProgressUpdateDialog
