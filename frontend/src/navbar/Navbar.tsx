@@ -1,7 +1,7 @@
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 
 import { useNavigate } from 'react-router-dom';
-import { useCalendar } from '../api/Cache';
+import { useCalendar } from '../api/cache/Cache';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { Meeting, MeetingStatus } from '../database/meeting';
 

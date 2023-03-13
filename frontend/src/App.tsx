@@ -18,7 +18,7 @@ import VerifyEmailPage from './auth/VerifyEmailPage';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import AdminPage from './admin/AdminPage';
 import theme from './theme';
-import { CacheProvider } from './api/Cache';
+import { CacheProvider } from './api/cache/Cache';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import GamePage from './games/GamePage';
 import ListGamesPage from './games/ListGamesPage';

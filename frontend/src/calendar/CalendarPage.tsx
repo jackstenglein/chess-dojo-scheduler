@@ -14,7 +14,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { Meeting, MeetingStatus } from '../database/meeting';
 import { CalendarFilters, Filters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
-import { useCache, useCalendar } from '../api/Cache';
+import { useCache, useCalendar } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
 import { User } from '../database/user';
 import { Outlet } from 'react-router-dom';
@@ -219,7 +219,7 @@ export default function CalendarPage() {
                 await api.deleteAvailability(id);
                 console.log(`Availability ${id} deleted`);
 
-                cache.removeAvailability(id);
+                cache.availabilities.remove(id);
                 deleteRequest.onSuccess('Availability deleted');
                 return id;
             } catch (err) {
@@ -254,7 +254,7 @@ export default function CalendarPage() {
                 console.log('Got setAvailability response: ', response);
                 const availability = response.data;
 
-                cache.putAvailability(availability);
+                cache.availabilities.put(availability);
                 copyAvailabilityRequest.onSuccess();
             } catch (err) {
                 copyAvailabilityRequest.onFailure(err);

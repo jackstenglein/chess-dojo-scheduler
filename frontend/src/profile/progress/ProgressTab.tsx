@@ -14,12 +14,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { compareRequirements, isComplete, Requirement } from '../../database/requirement';
+import { isComplete, Requirement } from '../../database/requirement';
 import { dojoCohorts, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import ProgressItem from './ProgressItem';
 import { Graduation } from '../../database/graduation';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
+import { useRequirements } from '../../api/cache/requirements';
 
 interface Category {
     name: string;
@@ -34,28 +35,15 @@ interface ProgressTabProps {
 
 const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     const api = useApi();
-    const request = useRequest<Requirement[]>();
     const graduationsRequest = useRequest<Graduation[]>();
     const [cohort, setCohort] = useState(user.dojoCohort);
+    const { requirements, request: requirementRequest } = useRequirements(cohort, false);
 
-    const reset = request.reset;
     useEffect(() => {
         setCohort(user.dojoCohort);
-        reset();
-    }, [user.dojoCohort, reset]);
+    }, [user.dojoCohort]);
 
     useEffect(() => {
-        if (!request.isSent()) {
-            api.listRequirements(cohort, false)
-                .then((requirements) => {
-                    request.onSuccess(requirements);
-                    console.log('requirements: ', requirements);
-                })
-                .catch((err) => {
-                    console.error('listRequirements: ', err);
-                    request.onFailure(err);
-                });
-        }
         if (!graduationsRequest.isSent()) {
             graduationsRequest.onStart();
             api.listGraduationsByOwner(user.username)
@@ -65,11 +53,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     graduationsRequest.onFailure(err);
                 });
         }
-    }, [request, api, cohort, graduationsRequest, user.username]);
-
-    const requirements = useMemo(() => {
-        return [...(request.data ?? [])].sort(compareRequirements);
-    }, [request.data]);
+    }, [api, cohort, graduationsRequest, user.username]);
 
     const categories = useMemo(() => {
         const categories: Category[] = [];
@@ -92,18 +76,17 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         return categories;
     }, [requirements, user, cohort]);
 
-    if (request.isLoading() || categories.length === 0) {
+    if (requirementRequest.isLoading() || categories.length === 0) {
         return <LoadingPage />;
     }
 
     const onChangeCohort = (cohort: string) => {
         setCohort(cohort);
-        request.reset();
     };
 
     return (
         <Stack alignItems='start'>
-            <RequestSnackbar request={request} />
+            <RequestSnackbar request={requirementRequest} />
 
             <TextField
                 select

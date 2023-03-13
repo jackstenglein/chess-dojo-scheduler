@@ -49,7 +49,9 @@ function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boole
     const timeSpent = getTimeSpent(timelineEntry);
 
     return (
-        <TimelineItem>
+        <TimelineItem
+            key={`${timelineEntry.requirementId}-${timelineEntry.createdAt}-${timelineEntry.newCount}`}
+        >
             <TimelineOppositeContent>
                 {date.toLocaleDateString(undefined, DATE_OPTIONS)}
             </TimelineOppositeContent>
@@ -84,7 +86,7 @@ function getGraduationItem(graduation: Graduation, showConnector: boolean) {
     const date = new Date(graduation.createdAt);
 
     return (
-        <TimelineItem>
+        <TimelineItem key={graduation.createdAt}>
             <TimelineOppositeContent>
                 {date.toLocaleDateString(undefined, DATE_OPTIONS)}
             </TimelineOppositeContent>
@@ -124,7 +126,7 @@ function getCreatedAtItem(createdAt: string) {
     const date = new Date(createdAt);
 
     return (
-        <TimelineItem>
+        <TimelineItem key={createdAt}>
             <TimelineOppositeContent>
                 {date.toLocaleDateString(undefined, DATE_OPTIONS)}
             </TimelineOppositeContent>
@@ -145,7 +147,6 @@ interface ActivityTimelineProps {
 }
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user }) => {
-    console.log('Timeline: ', user.timeline);
     const graduationRequest = useRequest<Graduation[]>();
     const api = useApi();
 

@@ -13,7 +13,6 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
-import { compareRequirements, Requirement } from '../database/requirement';
 import {
     formatPercentComplete,
     formatRatingSystem,
@@ -28,6 +27,7 @@ import {
 import { dojoCohorts, User } from '../database/user';
 import { Graduation } from '../database/graduation';
 import GraduationIcon from './GraduationIcon';
+import { useRequirements } from '../api/cache/requirements';
 
 interface ColumnGroupChild {
     field: string;
@@ -110,25 +110,16 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
 const ScoreboardPage = () => {
     const user = useAuth().user!;
     const { cohort } = useParams<ScoreboardPageParams>();
-    const requirementRequest = useRequest<Requirement[]>();
     const usersRequest = useRequest<User[]>();
     const graduationsRequest = useRequest<Graduation[]>();
     const api = useApi();
     const navigate = useNavigate();
+    const { requirements, request: requirementRequest } = useRequirements(
+        cohort || '',
+        true
+    );
 
     useEffect(() => {
-        if (cohort && cohort !== '' && !requirementRequest.isSent()) {
-            requirementRequest.onStart();
-
-            api.listRequirements(cohort, true)
-                .then((requirements) => {
-                    requirementRequest.onSuccess(requirements);
-                })
-                .catch((err) => {
-                    console.error('listRequirements: ', err);
-                    requirementRequest.onFailure(err);
-                });
-        }
         if (cohort && cohort !== '' && !usersRequest.isSent()) {
             usersRequest.onStart();
             api.listUsersByCohort(cohort)
@@ -151,11 +142,7 @@ const ScoreboardPage = () => {
                     graduationsRequest.onFailure(err);
                 });
         }
-    }, [cohort, requirementRequest, usersRequest, graduationsRequest, api]);
-
-    const requirements = useMemo(() => {
-        return [...(requirementRequest.data ?? [])].sort(compareRequirements);
-    }, [requirementRequest.data]);
+    }, [cohort, usersRequest, graduationsRequest, api]);
 
     const cohortScoreColumns: GridColDef<ScoreboardRow>[] = useMemo(
         () => [
@@ -200,7 +187,6 @@ const ScoreboardPage = () => {
     const onChangeCohort = (cohort: string) => {
         navigate(`../${cohort}`);
         usersRequest.reset();
-        requirementRequest.reset();
         graduationsRequest.reset();
     };
 

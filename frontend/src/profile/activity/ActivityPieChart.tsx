@@ -1,14 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Stack, TextField, MenuItem, Typography, Container, Box } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 import { PieChart } from 'react-minimal-pie-chart';
 import Tooltip from 'react-tooltip';
 
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
 import { Requirement } from '../../database/requirement';
 import { compareCohorts, User } from '../../database/user';
 import { CategoryColors } from './activity';
+import { useRequirements } from '../../api/cache/requirements';
 
 const defaultLabelStyle = {
     fontSize: '5px',
@@ -69,27 +68,13 @@ interface ActivityPieChartProps {
 }
 
 const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
-    const request = useRequest<Requirement[]>();
     const [cohort, setCohort] = useState(user.dojoCohort);
     const [hovered, setHovered] = useState<number | null>(null);
-    const api = useApi();
-
-    useEffect(() => {
-        if (!request.isSent()) {
-            api.listRequirements(cohort, false)
-                .then((requirements) => {
-                    request.onSuccess(requirements);
-                })
-                .catch((err) => {
-                    console.error('listRequirements: ', err);
-                    request.onFailure(err);
-                });
-        }
-    }, [request, api, cohort]);
+    const { requirements } = useRequirements(cohort, false);
 
     const data = useMemo(() => {
-        return getPieChartData(request.data || [], user, cohort);
-    }, [request.data, user, cohort]);
+        return getPieChartData(requirements, user, cohort);
+    }, [requirements, user, cohort]);
 
     const cohortOptions = useMemo(() => {
         return Object.values(user.progress)
@@ -102,7 +87,6 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
 
     const onChangeCohort = (cohort: string) => {
         setCohort(cohort);
-        request.reset();
     };
 
     return (

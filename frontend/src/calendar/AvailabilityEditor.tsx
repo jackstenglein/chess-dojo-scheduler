@@ -32,7 +32,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
 import React from 'react';
-import { useCache } from '../api/Cache';
+import { useCache } from '../api/cache/Cache';
 
 const ONE_HOUR = 60 * 60 * 1000;
 
@@ -223,7 +223,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             console.log('Got setAvailability response: ', response);
             const availability = response.data;
 
-            cache.putAvailability(availability);
+            cache.availabilities.put(availability);
             request.onSuccess();
             scheduler.close();
         } catch (err) {

@@ -27,7 +27,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 
 import { useApi } from '../api/Api';
-import { useCache } from '../api/Cache';
+import { useCache } from '../api/cache/Cache';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import {
     Availability,
@@ -62,7 +62,7 @@ const AvailabilityBooker = () => {
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const availability = cache.getAvailability(id!);
+    const availability = cache.availabilities.get(id!);
 
     useEffect(() => {
         if (availability) {
@@ -134,8 +134,8 @@ const AvailabilityBooker = () => {
             .then((response) => {
                 console.log('Book response: ', response);
                 request.onSuccess();
-                cache.putMeeting(response.data as Meeting);
-                cache.removeAvailability(availability.id);
+                cache.meetings.put(response.data as Meeting);
+                cache.availabilities.remove(availability.id);
                 navigate(`/meeting/${response.data.id}`);
             })
             .catch((err) => {
@@ -150,7 +150,7 @@ const AvailabilityBooker = () => {
             .then((response) => {
                 console.log('Book response: ', response);
                 request.onSuccess();
-                cache.putAvailability(response.data as Availability);
+                cache.availabilities.put(response.data as Availability);
                 navigate(`/group/${response.data.id}`);
             })
             .catch((err) => {

@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 
-import { useCache } from '../api/Cache';
+import { useCache } from '../api/cache/Cache';
 import { getDisplayString } from '../database/availability';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 
@@ -17,7 +17,7 @@ const GroupMeetingPage = () => {
     const { availabilityId } = useParams();
     const cache = useCache();
 
-    const availability = cache.getAvailability(availabilityId!);
+    const availability = cache.availabilities.get(availabilityId!);
     if (!availability) {
         if (cache.isLoading) {
             return (

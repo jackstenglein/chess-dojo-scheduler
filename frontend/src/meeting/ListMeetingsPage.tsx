@@ -1,6 +1,6 @@
 import { Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useCalendar } from '../api/Cache';
+import { useCalendar } from '../api/cache/Cache';
 import { RequestSnackbar } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { Availability } from '../database/availability';
