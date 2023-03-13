@@ -280,6 +280,5 @@ export function shouldPromptGraduation(user?: User): boolean {
         return false;
     }
 
-    console.log('Rating boundary: ', ratingBoundary);
     return getCurrentRating(user) >= ratingBoundary;
 }

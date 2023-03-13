@@ -35,7 +35,6 @@ export function useRequirements(
 
     useEffect(() => {
         if (cohort !== '' && !cache.requirements.isFetched(cohort) && !request.isSent()) {
-            console.log('Sending listRequirements network request');
             request.onStart();
             api.listRequirements(cohort, false)
                 .then((requirements) => {

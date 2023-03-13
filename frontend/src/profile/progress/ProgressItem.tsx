@@ -32,11 +32,6 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
 
-    if (requirement.id === '6b7966fd-4ea3-4075-939a-69e5811bc340') {
-        console.log('Total Count: ', totalCount);
-        console.log('Current count: ', currentCount);
-    }
-
     let DescriptionElement = null;
     let UpdateElement = null;
 

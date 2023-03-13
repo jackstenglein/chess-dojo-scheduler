@@ -14,7 +14,6 @@ export function GraduationPrompt() {
 
     useEffect(() => {
         const promptGraduation = shouldPromptGraduation(user);
-        console.log('Prompt graduation: ', promptGraduation);
         if (promptGraduation) {
             setShowPrompt(true);
         }
