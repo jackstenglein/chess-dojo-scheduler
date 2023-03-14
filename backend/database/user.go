@@ -569,7 +569,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		Statements: statements,
 	}
 	output, err := repo.svc.BatchExecuteStatement(input)
-	log.Debugf("Batch execute statement output: ", output)
+	log.Debugf("Batch execute statement output: %v", output)
 
 	return errors.Wrap(500, "Temporary server error", "Failed BatchExecuteStatement", err)
 }
