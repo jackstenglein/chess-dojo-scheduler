@@ -3,16 +3,22 @@ package log
 import (
 	"fmt"
 	stdlog "log"
+	"os"
 	"strings"
 )
+
+var isTest = os.Getenv("IS_TEST") == "true"
 
 type logLevel int
 
 type any = interface{}
 
 const (
+	// Log level for testing.
+	TestLevel logLevel = iota
+
 	// Log level for critical application failures.
-	ErrorLevel logLevel = iota
+	ErrorLevel
 
 	// Log level for non-critical failures.
 	WarnLevel
@@ -34,6 +40,12 @@ var defaultLogger = logger{
 	requestId: "",
 }
 
+func init() {
+	if isTest {
+		defaultLogger.level = TestLevel
+	}
+}
+
 // SetLevel sets the current logging level.
 func SetLevel(level logLevel) {
 	defaultLogger.level = level
@@ -48,7 +60,9 @@ func SetRequestId(requestId string) {
 // and the current request id.
 func levelPrint(level string, v ...any) {
 	result := fmt.Sprint(v...)
-	result = strings.ReplaceAll(result, "\n", "\r")
+	if !isTest {
+		result = strings.ReplaceAll(result, "\n", "\r")
+	}
 	stdlog.Printf("[%s] - [%s]: %s", defaultLogger.requestId, level, result)
 }
 
@@ -56,7 +70,9 @@ func levelPrint(level string, v ...any) {
 // and the current request id.
 func levelPrintf(level, format string, v ...any) {
 	result := fmt.Sprintf(format, v...)
-	result = strings.ReplaceAll(result, "\n", "\r")
+	if !isTest {
+		result = strings.ReplaceAll(result, "\n", "\r")
+	}
 	stdlog.Printf("[%s] - [%s]: %s", defaultLogger.requestId, level, result)
 }
 

@@ -26,12 +26,12 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 	log.Debugf("Event: %#v", event)
 
 	if event.TriggerSource != triggerSource {
-		log.Debugf("Invalid trigger source: ", event.TriggerSource)
+		log.Debugf("Invalid trigger source: %s\n", event.TriggerSource)
 		return event, nil
 	}
 
-	email, ok := event.Request.UserAttributes["email"]
-	if !ok {
+	email, _ := event.Request.UserAttributes["email"]
+	if email == "" {
 		return handleError(event, errors.New("Invalid request: email field is required"))
 	}
 
@@ -40,8 +40,8 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 		return handleError(event, errors.New("Invalid request: cognitoUsername field is required"))
 	}
 
-	name, ok := event.Request.UserAttributes["name"]
-	if !ok {
+	name, _ := event.Request.UserAttributes["name"]
+	if name == "" {
 		return handleError(event, errors.New("Invalid request: name field is required"))
 	}
 

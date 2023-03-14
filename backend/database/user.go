@@ -41,7 +41,7 @@ var cohorts = []DojoCohort{
 
 const AllCohorts DojoCohort = "ALL_COHORTS"
 
-const NoCohort DojoCohort = ""
+const NoCohort DojoCohort = "NO_COHORT"
 
 // IsValidCohort returns true if the provided cohort is valid.
 func IsValidCohort(c DojoCohort) bool {
@@ -311,10 +311,11 @@ type AdminUserLister interface {
 // CreateUser creates a new User object with the provided information.
 func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, error) {
 	user := &User{
-		Username:  username,
-		Email:     email,
-		Name:      name,
-		CreatedAt: time.Now().Format(time.RFC3339),
+		Username:   username,
+		Email:      email,
+		Name:       name,
+		CreatedAt:  time.Now().Format(time.RFC3339),
+		DojoCohort: NoCohort,
 	}
 
 	err := repo.setUserConditional(user, aws.String("attribute_not_exists(username)"))
@@ -582,4 +583,17 @@ func (repo *dynamoRepository) RecordGameCreation(user *User) error {
 	count, _ := user.GamesCreated[user.DojoCohort]
 	user.GamesCreated[user.DojoCohort] = count + 1
 	return repo.setUserConditional(user, nil)
+}
+
+// DeleteUser deletes the user with the given username
+func (repo *dynamoRepository) DeleteUser(username string) error {
+	input := &dynamodb.DeleteItemInput{
+		ConditionExpression: aws.String("attribute_exists(username)"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {S: aws.String(username)},
+		},
+		TableName: aws.String(userTable),
+	}
+	_, err := repo.svc.DeleteItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed DynamoDB DeleteItem", err)
 }
