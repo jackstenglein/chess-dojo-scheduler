@@ -24,7 +24,7 @@ const LandingPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/home' />;
+        return <Navigate to='/calendar' />;
     }
 
     const onGoogleSignIn = () => {
