@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { DataGrid, GridRowParams } from '@mui/x-data-grid';
+import { DataGrid, GridPaginationModel, GridRowParams } from '@mui/x-data-grid';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -35,6 +35,11 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         );
     };
 
+    const setPaginationModel = ({ page, pageSize }: GridPaginationModel) => {
+        setPage(page);
+        setPageSize(pageSize);
+    };
+
     return (
         <Stack spacing={2}>
             <RequestSnackbar request={request} />
@@ -47,12 +52,10 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 columns={gameTableColumns}
                 rows={data}
                 rowCount={rowCount}
-                rowsPerPageOptions={[5, 10, 25]}
-                pageSize={pageSize}
+                pageSizeOptions={[5, 10, 25]}
+                paginationModel={{ page, pageSize }}
+                onPaginationModelChange={setPaginationModel}
                 paginationMode='server'
-                onPageChange={(page) => setPage(page)}
-                onPageSizeChange={(size) => setPageSize(size)}
-                page={page}
                 loading={request.isLoading()}
                 autoHeight
                 rowHeight={70}

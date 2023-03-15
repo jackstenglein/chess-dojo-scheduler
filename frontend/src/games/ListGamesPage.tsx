@@ -1,5 +1,10 @@
 import { Button, Container, Divider, Grid, Stack } from '@mui/material';
-import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    GridColDef,
+    GridPaginationModel,
+    GridRowParams,
+} from '@mui/x-data-grid';
 
 import { GameInfo } from '../database/game';
 import { RenderPlayers, RenderResult } from './GameListItem';
@@ -67,6 +72,11 @@ const ListGamesPage = () => {
         );
     };
 
+    const setPaginationModel = ({ page, pageSize }: GridPaginationModel) => {
+        setPage(page);
+        setPageSize(pageSize);
+    };
+
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
@@ -77,12 +87,10 @@ const ListGamesPage = () => {
                         columns={gameTableColumns}
                         rows={data}
                         rowCount={rowCount}
-                        rowsPerPageOptions={[5, 10, 25]}
-                        pageSize={pageSize}
+                        pageSizeOptions={[5, 10, 25]}
+                        paginationModel={{ page, pageSize }}
+                        onPaginationModelChange={setPaginationModel}
                         paginationMode='server'
-                        onPageChange={(page) => setPage(page)}
-                        onPageSizeChange={(size) => setPageSize(size)}
-                        page={page}
                         loading={request.isLoading()}
                         autoHeight
                         rowHeight={70}

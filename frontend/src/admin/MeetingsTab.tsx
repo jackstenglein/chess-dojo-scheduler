@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { CircularProgress } from '@mui/material';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 
@@ -33,7 +33,6 @@ const columns: GridColDef[] = [
 const MeetingsTab = () => {
     const api = useApi();
     const request = useRequest<Meeting[]>();
-    const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -61,9 +60,10 @@ const MeetingsTab = () => {
                 autoHeight
                 columns={columns}
                 rows={request.data ?? []}
-                pageSize={pageSize}
-                onPageSizeChange={(newSize) => setPageSize(newSize)}
-                rowsPerPageOptions={[5, 10, 20, 50]}
+                initialState={{
+                    pagination: { paginationModel: { pageSize: 10 } },
+                }}
+                pageSizeOptions={[5, 10, 20, 50]}
             />
         </>
     );

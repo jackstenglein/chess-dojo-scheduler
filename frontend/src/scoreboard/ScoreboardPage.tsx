@@ -63,7 +63,7 @@ const usernameColumns: GridColDef<ScoreboardRow>[] = [
         field: 'discordUsername',
         headerName: 'Discord ID',
         minWidth: 250,
-        renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
+        renderCell: (params: GridRenderCellParams<ScoreboardRow, string>) => {
             return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;
         },
     },
@@ -73,7 +73,7 @@ const usernameColumns: GridColDef<ScoreboardRow>[] = [
         renderHeader: () => {
             return '';
         },
-        renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
+        renderCell: (params: GridRenderCellParams<ScoreboardRow, string>) => {
             return <GraduationIcon cohort={params.value} size={35} />;
         },
         align: 'center',
