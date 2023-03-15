@@ -133,8 +133,6 @@ func TestGetUser(t *testing.T) {
 			if !tc.wantErr {
 				gotUser := &database.User{}
 				json.Unmarshal([]byte(got.Body), gotUser)
-				gotUser.CreatedAt = ""
-				gotUser.UpdatedAt = ""
 
 				if diff := cmp.Diff(tc.wantUser, gotUser, cmpopts.IgnoreFields(database.User{}, "CreatedAt", "UpdatedAt")); diff != "" {
 					t.Errorf("GetUser(%v) diff (-want +got):\n%s", event, diff)
