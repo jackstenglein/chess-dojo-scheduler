@@ -223,3 +223,99 @@ func TestGetRatings(t *testing.T) {
 		})
 	}
 }
+
+func TestCalculateScoreUser(t *testing.T) {
+	table := []struct {
+		name         string
+		user         *User
+		requirements []*Requirement
+		want         float32
+	}{
+		{
+			name: "NilUser",
+		},
+		{
+			name: "EmptyRequirements",
+			user: &User{
+				DojoCohort: "1500-1600",
+				Progress: map[string]*RequirementProgress{
+					"test-requirement": {
+						RequirementId: "test-requirement",
+						Counts: map[DojoCohort]int{
+							"1400-1500": 7,
+							"1500-1600": 10,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "EmptyProgress",
+			user: &User{
+				DojoCohort: "1500-1600",
+			},
+			requirements: []*Requirement{
+				{
+					Id: "test-requirement",
+					Counts: map[DojoCohort]int{
+						"1400-1500": 7,
+						"1500-1600": 10,
+					},
+					UnitScore:       0.5,
+					NumberOfCohorts: 2,
+				},
+			},
+		},
+		{
+			name: "TwoRequirements",
+			user: &User{
+				DojoCohort: "1500-1600",
+				Progress: map[string]*RequirementProgress{
+					"test-requirement": {
+						RequirementId: "test-requirement",
+						Counts: map[DojoCohort]int{
+							"ALL_COHORTS": 7,
+						},
+					},
+					"test-requirement-2": {
+						RequirementId: "test-requirement",
+						Counts: map[DojoCohort]int{
+							"1500-1600": 4,
+						},
+					},
+				},
+			},
+			requirements: []*Requirement{
+				{
+					Id: "test-requirement",
+					Counts: map[DojoCohort]int{
+						"1400-1500": 7,
+						"1500-1600": 10,
+					},
+					UnitScore:       0.5,
+					NumberOfCohorts: 1,
+				},
+				{
+					Id: "test-requirement-2",
+					Counts: map[DojoCohort]int{
+						"1400-1500": 7,
+						"1500-1600": 10,
+					},
+					UnitScore:       1,
+					NumberOfCohorts: 2,
+				},
+			},
+			want: 7.5,
+		},
+	}
+
+	for _, tc := range table {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.user.CalculateScore(tc.requirements)
+
+			if got != tc.want {
+				t.Errorf("CalculateScore(%v, %v) got: %f; want: %f", tc.user, tc.requirements, got, tc.want)
+			}
+		})
+	}
+}
