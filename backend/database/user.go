@@ -59,7 +59,7 @@ func IsValidCohort(c DojoCohort) bool {
 // GetNextCohort returns the cohort after the provided one or
 // NoCohort if none exist.
 func (c DojoCohort) GetNextCohort() DojoCohort {
-	for i, c2 := range cohorts[:len(cohorts)-2] {
+	for i, c2 := range cohorts[:len(cohorts)-1] {
 		if c == c2 {
 			return cohorts[i+1]
 		}
@@ -318,12 +318,12 @@ func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, e
 		DojoCohort: NoCohort,
 	}
 
-	err := repo.setUserConditional(user, aws.String("attribute_not_exists(username)"))
+	err := repo.SetUserConditional(user, aws.String("attribute_not_exists(username)"))
 	return user, err
 }
 
-// setUserConditional saves the provided User object in the database using an optional condition statement.
-func (repo *dynamoRepository) setUserConditional(user *User, condition *string) error {
+// SetUserConditional saves the provided User object in the database using an optional condition statement.
+func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) error {
 	user.UpdatedAt = time.Now().Format(time.RFC3339)
 	item, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
@@ -569,7 +569,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		Statements: statements,
 	}
 	output, err := repo.svc.BatchExecuteStatement(input)
-	log.Debugf("Batch execute statement output: ", output)
+	log.Debugf("Batch execute statement output: %v", output)
 
 	return errors.Wrap(500, "Temporary server error", "Failed BatchExecuteStatement", err)
 }
@@ -582,7 +582,7 @@ func (repo *dynamoRepository) RecordGameCreation(user *User) error {
 
 	count, _ := user.GamesCreated[user.DojoCohort]
 	user.GamesCreated[user.DojoCohort] = count + 1
-	return repo.setUserConditional(user, nil)
+	return repo.SetUserConditional(user, nil)
 }
 
 // DeleteUser deletes the user with the given username

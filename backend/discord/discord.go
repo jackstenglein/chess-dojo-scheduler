@@ -154,6 +154,10 @@ func SendAvailabilityNotification(availability *database.Availability) (string, 
 	sb.WriteString(fmt.Sprintf("\nStart Time: <t:%d:f>", startTime.Unix()))
 	sb.WriteString(fmt.Sprintf("\nEnd Time: <t:%d:f>", endTime.Unix()))
 
+	if availability.Description != "" {
+		sb.WriteString(fmt.Sprintf("\nDescription: %s", availability.Description))
+	}
+
 	sb.WriteString("\nTypes: ")
 	sb.WriteString(strings.Join(database.GetDisplayNames(availability.Types), ", "))
 
