@@ -8,7 +8,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const testUsername = "test-username"
+const testUsername = "test-createUser"
 
 func setupTest(t *testing.T) func(t *testing.T) {
 	return func(t *testing.T) {
