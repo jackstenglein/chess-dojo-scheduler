@@ -10,7 +10,7 @@
         "@mliebelt/pgn-viewer": "^1.6.3",
         "@mui/icons-material": "^5.10.9",
         "@mui/lab": "^5.0.0-alpha.105",
-        "@mui/material": "^5.10.11",
+        "@mui/material": "^5.11.13",
         "@mui/x-data-grid": "^5.17.10",
         "@mui/x-date-pickers": "^5.0.6",
         "@testing-library/jest-dom": "^5.16.5",
