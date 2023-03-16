@@ -20,7 +20,7 @@
         "@types/node": "^16.18.2",
         "@types/react": "^18.0.24",
         "@types/react-dom": "^18.0.8",
-        "aws-amplify": "^5.0.19",
+        "aws-amplify": "^4.3.42",
         "date-fns": "^2.29.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
