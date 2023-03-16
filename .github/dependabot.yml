@@ -5,11 +5,13 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/frontend" # Location of package manifests
+  - package-ecosystem: 'npm' # See documentation for possible values
+    directory: '/frontend' # Location of package manifests
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/backend" # Location of package manifests
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+  - package-ecosystem: 'npm' # See documentation for possible values
+    directory: '/backend' # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
+    open-pull-requests-limit: 10
