@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Amplify from 'aws-amplify';
+import { Amplify } from 'aws-amplify';
 import { ThemeProvider } from '@mui/system';
 
 import { getConfig } from './config';
