@@ -250,8 +250,8 @@ export default function CalendarPage() {
                     startTime: startIso,
                     endTime: endIso,
                     id,
+                    discordMessageId: '',
                 });
-                console.log('Got setAvailability response: ', response);
                 const availability = response.data;
 
                 cache.availabilities.put(availability);
