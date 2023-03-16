@@ -70,9 +70,6 @@ const usernameColumns: GridColDef<ScoreboardRow>[] = [
     {
         field: 'previousCohort',
         headerName: 'Graduation',
-        renderHeader: () => {
-            return '';
-        },
         renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
             return <GraduationIcon cohort={params.value} size={35} />;
         },
@@ -201,8 +198,10 @@ const ScoreboardPage = () => {
         return <LoadingPage />;
     }
 
+    console.log('Column groups: ', defaultColumnGroups.concat(columnGroups));
+
     return (
-        <Container maxWidth='xl' className='full-height' sx={{ pt: 4, pb: 4 }}>
+        <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={requirementRequest} />
             <RequestSnackbar request={usersRequest} />
             <TextField
@@ -222,7 +221,7 @@ const ScoreboardPage = () => {
 
             <Typography variant='h6'>Current Members</Typography>
             <DataGrid
-                sx={{ mb: 4 }}
+                sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
                 experimentalFeatures={{ columnGrouping: true }}
                 columns={usernameColumns.concat(
                     cohortScoreColumns,
@@ -237,7 +236,7 @@ const ScoreboardPage = () => {
 
             <Typography variant='h6'>Graduations</Typography>
             <DataGrid
-                sx={{ mb: 4 }}
+                sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
                 experimentalFeatures={{ columnGrouping: true }}
                 columns={usernameColumns.concat(
                     cohortScoreColumns,

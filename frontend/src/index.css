@@ -71,7 +71,3 @@ div #board #boardButton {
         grid-template-rows: 0px auto calc((min(1536px, 100vw) - 48px) * 0.4725) 37px !important;
     }
 }
-
-.full-height {
-    height: calc(100vh - 64px);
-}
