@@ -18,11 +18,7 @@ import { dojoCohorts, formatRatingSystem, RatingSystem } from '../database/user'
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 
-interface ProfileEditorPageProps {
-    hideCancel?: boolean;
-}
-
-const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => {
+const ProfileEditorPage = () => {
     const user = useAuth().user!;
     const api = useApi();
     const navigate = useNavigate();
@@ -135,16 +131,14 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                             Save
                         </LoadingButton>
 
-                        {!hideCancel && (
-                            <Button
-                                variant='contained'
-                                color='error'
-                                disableElevation
-                                onClick={() => navigate('..')}
-                            >
-                                Cancel
-                            </Button>
-                        )}
+                        <Button
+                            variant='contained'
+                            color='error'
+                            disableElevation
+                            onClick={() => navigate('..')}
+                        >
+                            Cancel
+                        </Button>
                     </Stack>
                 </Stack>
 
