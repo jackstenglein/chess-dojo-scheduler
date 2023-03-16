@@ -8,14 +8,21 @@ import { GridRenderCellParams } from '@mui/x-data-grid';
 export function RenderPlayers(params: GridRenderCellParams) {
     return (
         <Stack>
-            <Stack direction='row' spacing={1}>
-                <CircleOutlinedIcon />
-                <Typography>{params.value.white}</Typography>
+            <Stack direction='row' spacing={1} alignItems='center'>
+                <CircleOutlinedIcon sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }} />
+                <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
+                    {params.value.white}
+                </Typography>
             </Stack>
 
-            <Stack direction='row' spacing={1}>
-                <CircleIcon htmlColor='black' />
-                <Typography>{params.value.black}</Typography>
+            <Stack direction='row' spacing={1} alignItems='center'>
+                <CircleIcon
+                    htmlColor='black'
+                    sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }}
+                />
+                <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
+                    {params.value.black}
+                </Typography>
             </Stack>
         </Stack>
     );
@@ -24,12 +31,12 @@ export function RenderPlayers(params: GridRenderCellParams) {
 export function RenderResult(params: GridRenderCellParams) {
     return (
         <Stack alignItems='center'>
-            <Typography>
+            <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
                 {params.value === GameResult.White && '1'}
                 {params.value === GameResult.Black && '0'}
                 {params.value === GameResult.Draw && '½'}
             </Typography>
-            <Typography>
+            <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
                 {params.value === GameResult.White && '0'}
                 {params.value === GameResult.Black && '1'}
                 {params.value === GameResult.Draw && '½'}

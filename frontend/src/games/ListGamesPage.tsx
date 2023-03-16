@@ -29,6 +29,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         }),
         renderCell: RenderPlayers,
         flex: 1,
+        minWidth: 150,
     },
     {
         field: 'result',
