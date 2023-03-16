@@ -18,13 +18,19 @@ import { dojoCohorts, formatRatingSystem, RatingSystem } from '../database/user'
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 
-const ProfileEditorPage = () => {
+interface ProfileEditorPageProps {
+    hideCancel?: boolean;
+}
+
+const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => {
     const user = useAuth().user!;
     const api = useApi();
     const navigate = useNavigate();
 
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
-    const [dojoCohort, setDojoCohort] = useState(user.dojoCohort);
+    const [dojoCohort, setDojoCohort] = useState(
+        user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : ''
+    );
     const [bio, setBio] = useState(user.bio);
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
     const [chesscomUsername, setChesscomUsername] = useState(user.chesscomUsername);
@@ -131,14 +137,16 @@ const ProfileEditorPage = () => {
                             Save
                         </LoadingButton>
 
-                        <Button
-                            variant='contained'
-                            color='error'
-                            disableElevation
-                            onClick={() => navigate('..')}
-                        >
-                            Cancel
-                        </Button>
+                        {!hideCancel && (
+                            <Button
+                                variant='contained'
+                                color='error'
+                                disableElevation
+                                onClick={() => navigate('..')}
+                            >
+                                Cancel
+                            </Button>
+                        )}
                     </Stack>
                 </Stack>
 
