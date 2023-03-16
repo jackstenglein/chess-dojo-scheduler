@@ -110,8 +110,16 @@ const ProfileEditorPage = () => {
             <RequestSnackbar request={request} showSuccess />
 
             <Stack spacing={5}>
-                <Stack direction='row' alignItems='center' justifyContent='space-between'>
-                    <Typography variant='h4'>Edit Profile</Typography>
+                <Stack
+                    direction='row'
+                    alignItems='center'
+                    justifyContent='space-between'
+                    flexWrap='wrap'
+                    rowGap={2}
+                >
+                    <Typography variant='h4' mr={2}>
+                        Edit Profile
+                    </Typography>
 
                     <Stack direction='row' spacing={2}>
                         <LoadingButton

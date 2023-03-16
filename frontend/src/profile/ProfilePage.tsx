@@ -150,13 +150,13 @@ const ProfilePage = () => {
                                 <Tab label='Games' value='games' />
                             </TabList>
                         </Box>
-                        <TabPanel value='progress'>
+                        <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
                             <ProgressTab user={user} isCurrentUser={currentUserProfile} />
                         </TabPanel>
-                        <TabPanel value='activity'>
+                        <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
                             <ActivityTab user={user} />
                         </TabPanel>
-                        <TabPanel value='games'>
+                        <TabPanel value='games' sx={{ px: { xs: 0, sm: 3 } }}>
                             <GamesTab user={user} />
                         </TabPanel>
                     </TabContext>
