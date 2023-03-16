@@ -242,15 +242,18 @@ export default function CalendarPage() {
 
                 copyAvailabilityRequest.onStart();
 
-                // If shift is held, then set the id to undefinded in order to
-                // create a new availability
+                // If shift is held, then set the id and discordMessagedId to
+                // undefinded in order to create a new availability
                 const id = shiftHeld ? undefined : originalEvent.availability?.id;
+                const discordMessageId = shiftHeld
+                    ? undefined
+                    : originalEvent.availability?.discordMessageId;
                 const response = await api.setAvailability({
                     ...(originalEvent.availability ?? {}),
                     startTime: startIso,
                     endTime: endIso,
                     id,
-                    discordMessageId: '',
+                    discordMessageId,
                 });
                 const availability = response.data;
 
