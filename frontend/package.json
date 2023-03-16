@@ -6,7 +6,7 @@
         "@aldabil/react-scheduler": "^2.5.13",
         "@aws-amplify/auth": "^5.1.13",
         "@emotion/react": "^11.10.5",
-        "@emotion/styled": "^11.10.5",
+        "@emotion/styled": "^11.10.6",
         "@mliebelt/pgn-viewer": "^1.6.3",
         "@mui/icons-material": "^5.10.9",
         "@mui/lab": "^5.0.0-alpha.123",
