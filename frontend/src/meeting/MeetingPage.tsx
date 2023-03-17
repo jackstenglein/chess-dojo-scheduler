@@ -129,17 +129,27 @@ const MeetingPage = () => {
 
                 <Card variant='outlined'>
                     <CardHeader
-                        title='Meeting Details'
-                        action={
-                            meeting.status !== MeetingStatus.Canceled ? (
-                                <Button
-                                    variant='contained'
-                                    color='error'
-                                    onClick={() => setIsCanceling(true)}
-                                >
-                                    Cancel Meeting
-                                </Button>
-                            ) : undefined
+                        title={
+                            <Stack
+                                direction='row'
+                                justifyContent='space-between'
+                                flexWrap='wrap'
+                                rowGap={1}
+                            >
+                                <Typography variant='h5' mr={1}>
+                                    Meeting Details
+                                </Typography>
+
+                                {meeting.status !== MeetingStatus.Canceled && (
+                                    <Button
+                                        variant='contained'
+                                        color='error'
+                                        onClick={() => setIsCanceling(true)}
+                                    >
+                                        Cancel Meeting
+                                    </Button>
+                                )}
+                            </Stack>
                         }
                     />
                     <CardContent>

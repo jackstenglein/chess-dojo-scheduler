@@ -275,10 +275,10 @@ export default function CalendarPage() {
             <RequestSnackbar request={copyAvailabilityRequest} />
 
             <Grid container spacing={2}>
-                <Grid item xs={2.5}>
+                <Grid item xs={12} md={2.5}>
                     <CalendarFilters filters={filters} />
                 </Grid>
-                <Grid item xs={9.5}>
+                <Grid item xs={12} md={9.5}>
                     <Scheduler
                         view='week'
                         month={{

@@ -1,7 +1,62 @@
-import { Stack, Typography, Divider, FormControlLabel, Checkbox } from '@mui/material';
+import {
+    Stack,
+    Typography,
+    Divider,
+    FormControlLabel,
+    Checkbox,
+    useMediaQuery,
+} from '@mui/material';
 import { useState } from 'react';
 import { AvailabilityType, getDisplayString } from '../database/availability';
 import { dojoCohorts } from '../database/user';
+
+import { styled } from '@mui/material/styles';
+import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
+import MuiAccordionSummary, {
+    AccordionSummaryProps,
+} from '@mui/material/AccordionSummary';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
+
+const Accordion = styled((props: AccordionProps) => (
+    <MuiAccordion disableGutters elevation={0} square {...props} />
+))(() => ({
+    '&:before': {
+        display: 'none',
+    },
+}));
+
+const AccordionSummary = styled(
+    (props: AccordionSummaryProps & { forceExpansion: boolean }) => (
+        <MuiAccordionSummary
+            expandIcon={
+                !props.forceExpansion && (
+                    <ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />
+                )
+            }
+            {...props}
+        />
+    )
+)(({ theme }) => ({
+    paddingLeft: 0,
+    border: 0,
+    minHeight: 0,
+    flexDirection: 'row-reverse',
+    '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
+        transform: 'rotate(90deg)',
+    },
+    '& .MuiAccordionSummary-content': {
+        marginLeft: theme.spacing(1),
+        marginTop: 0,
+        marginBottom: 0,
+    },
+}));
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+    borderTop: '1px solid rgba(0, 0, 0, .125)',
+    padding: 0,
+    paddingLeft: theme.spacing(1),
+}));
 
 export interface Filters {
     availabilities: boolean;
@@ -64,6 +119,16 @@ interface CalendarFiltersProps {
 }
 
 export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => {
+    const [expanded, setExpanded] = useState<string | boolean>(false);
+    const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+
+    const handleChange =
+        (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+            if (!forceExpansion) {
+                setExpanded(newExpanded ? panel : false);
+            }
+        };
+
     const onChangeType = (type: AvailabilityType, value: boolean) => {
         filters.setTypes({
             ...filters.types,
@@ -85,114 +150,137 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
 
     return (
-        <Stack sx={{ pt: 0.5 }} spacing={4}>
+        <Stack sx={{ pt: 0.5, pb: 2 }} spacing={{ xs: 3, sm: 4 }}>
             <Stack>
-                <Typography variant='h6' color='text.secondary'>
+                <Typography variant='h6' color='text.secondary' ml={1}>
                     Current Timezone
                 </Typography>
                 <Divider />
-                <Typography variant='body1' pt={1}>
+                <Typography variant='body1' pt={1} ml={1}>
                     {timezone}
                 </Typography>
             </Stack>
-            <Stack>
-                <Typography variant='h6' color='text.secondary'>
-                    My Calendar (Blue)
-                </Typography>
-                <Divider />
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={filters.availabilities}
-                            onChange={(event) =>
-                                filters.setAvailabilities(event.target.checked)
-                            }
-                        />
-                    }
-                    label='Availabilities'
-                />
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={filters.meetings}
-                            onChange={(event) =>
-                                filters.setMeetings(event.target.checked)
-                            }
-                        />
-                    }
-                    label='Meetings'
-                />
-            </Stack>
-            <Stack>
-                <Typography variant='h6' color='text.secondary'>
-                    Dojo Calendar (Red)
-                </Typography>
-                <Divider />
-                <Stack pt={2}>
-                    <Typography variant='subtitle2' color='text.secondary'>
-                        Meeting Types
+            <Accordion
+                expanded={forceExpansion || expanded === 'myCalendar'}
+                onChange={handleChange('myCalendar')}
+            >
+                <AccordionSummary
+                    aria-controls='mycalendar-content'
+                    id='mycalendar-header'
+                    forceExpansion={forceExpansion}
+                >
+                    <Typography variant='h6' color='text.secondary'>
+                        My Calendar (Blue)
                     </Typography>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={filters.allTypes}
-                                onChange={(event) =>
-                                    filters.setAllTypes(event.target.checked)
-                                }
-                            />
-                        }
-                        label='All Types'
-                    />
-                    {Object.values(AvailabilityType).map((type) => (
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Stack>
                         <FormControlLabel
-                            key={type}
                             control={
                                 <Checkbox
-                                    checked={filters.allTypes || filters.types[type]}
+                                    checked={filters.availabilities}
                                     onChange={(event) =>
-                                        onChangeType(type, event.target.checked)
+                                        filters.setAvailabilities(event.target.checked)
                                     }
                                 />
                             }
-                            disabled={filters.allTypes}
-                            label={getDisplayString(type)}
+                            label='Availabilities'
                         />
-                    ))}
-                </Stack>
-                <Stack pt={2}>
-                    <Typography variant='subtitle2' color='text.secondary'>
-                        Cohorts
-                    </Typography>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={filters.allCohorts}
-                                onChange={(event) =>
-                                    filters.setAllCohorts(event.target.checked)
-                                }
-                            />
-                        }
-                        label='All Cohorts'
-                    />
-                    {dojoCohorts.map((cohort) => (
                         <FormControlLabel
-                            key={cohort}
                             control={
                                 <Checkbox
-                                    checked={
-                                        filters.allCohorts || filters.cohorts[cohort]
-                                    }
+                                    checked={filters.meetings}
                                     onChange={(event) =>
-                                        onChangeCohort(cohort, event.target.checked)
+                                        filters.setMeetings(event.target.checked)
                                     }
                                 />
                             }
-                            disabled={filters.allCohorts}
-                            label={cohort}
+                            label='Meetings'
                         />
-                    ))}
-                </Stack>
-            </Stack>
+                    </Stack>
+                </AccordionDetails>
+            </Accordion>
+
+            <Accordion
+                expanded={forceExpansion || expanded === 'dojoCalendar'}
+                onChange={handleChange('dojoCalendar')}
+            >
+                <AccordionSummary
+                    aria-controls='dojocalendar-content'
+                    id='dojocalendar-header'
+                    forceExpansion={forceExpansion}
+                >
+                    <Typography variant='h6' color='text.secondary'>
+                        Dojo Calendar (Red)
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Stack pt={2}>
+                        <Typography variant='subtitle2' color='text.secondary'>
+                            Meeting Types
+                        </Typography>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={filters.allTypes}
+                                    onChange={(event) =>
+                                        filters.setAllTypes(event.target.checked)
+                                    }
+                                />
+                            }
+                            label='All Types'
+                        />
+                        {Object.values(AvailabilityType).map((type) => (
+                            <FormControlLabel
+                                key={type}
+                                control={
+                                    <Checkbox
+                                        checked={filters.allTypes || filters.types[type]}
+                                        onChange={(event) =>
+                                            onChangeType(type, event.target.checked)
+                                        }
+                                    />
+                                }
+                                disabled={filters.allTypes}
+                                label={getDisplayString(type)}
+                            />
+                        ))}
+                    </Stack>
+                    <Stack pt={2}>
+                        <Typography variant='subtitle2' color='text.secondary'>
+                            Cohorts
+                        </Typography>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={filters.allCohorts}
+                                    onChange={(event) =>
+                                        filters.setAllCohorts(event.target.checked)
+                                    }
+                                />
+                            }
+                            label='All Cohorts'
+                        />
+                        {dojoCohorts.map((cohort) => (
+                            <FormControlLabel
+                                key={cohort}
+                                control={
+                                    <Checkbox
+                                        checked={
+                                            filters.allCohorts || filters.cohorts[cohort]
+                                        }
+                                        onChange={(event) =>
+                                            onChangeCohort(cohort, event.target.checked)
+                                        }
+                                    />
+                                }
+                                disabled={filters.allCohorts}
+                                label={cohort}
+                            />
+                        ))}
+                    </Stack>
+                </AccordionDetails>
+            </Accordion>
         </Stack>
     );
 };
