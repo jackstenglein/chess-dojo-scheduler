@@ -103,7 +103,7 @@ const GamePage = () => {
 
             {request.data?.pgn && (
                 <Grid container rowSpacing={4} justifyContent='flex-end'>
-                    <Grid item sm={12} md={8} lg={9}>
+                    <Grid item xs={12} md={8} lg={9} mt={{ xs: 3, md: 1 }}>
                         <Stack spacing={2}>
                             <Typography variant='h6'>Comments</Typography>
                             <Stack spacing={1} alignItems='flex-end'>

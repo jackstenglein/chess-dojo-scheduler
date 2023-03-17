@@ -11,10 +11,9 @@ code {
 }
 
 div #board {
-    justify-content: center;
     width: 100% !important;
     grid-template-columns: calc(min(500px, 100%)) !important;
-    grid-template-rows: 0px auto calc(min(500px, 100vw - 48px)) 37px 200px !important;
+    grid-template-rows: 0px auto calc(min(500px, 100vw - 32px)) 37px 200px !important;
     grid-template-areas:
         'gameSelect'
         'error'
@@ -52,6 +51,12 @@ div #board #boardMoves {
 
 div #board #boardButton {
     grid-area: button;
+}
+
+@media screen and (min-width: 600px) {
+    div #board {
+        grid-template-rows: 0px auto calc(min(500px, 100vw - 48px)) 37px 200px !important;
+    }
 }
 
 @media screen and (min-width: 900px) {
