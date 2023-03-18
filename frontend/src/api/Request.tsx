@@ -1,5 +1,5 @@
 import { Snackbar, Alert } from '@mui/material';
-import { useState, useCallback, ReactNode } from 'react';
+import { useState, useCallback, ReactNode, useMemo } from 'react';
 
 /**
  * RequestStatus defines the different status types that an API request can have.
@@ -70,17 +70,20 @@ export function useRequest<T = any>(): Request<T> {
         return status !== RequestStatus.NotSent;
     }, [status]);
 
-    return {
-        status,
-        data,
-        error,
-        onStart,
-        onSuccess,
-        onFailure,
-        reset,
-        isLoading,
-        isSent,
-    };
+    return useMemo(
+        () => ({
+            status,
+            data,
+            error,
+            onStart,
+            onSuccess,
+            onFailure,
+            reset,
+            isLoading,
+            isSent,
+        }),
+        [status, data, error, onStart, onSuccess, onFailure, reset, isLoading, isSent]
+    );
 }
 
 function isReactNode(node: any | ReactNode): node is ReactNode {

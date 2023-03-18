@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useMemo } from 'react';
 import { Container, Grid } from '@mui/material';
-import { Scheduler } from '@aldabil/react-scheduler';
+import { Scheduler, useScheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
@@ -14,7 +14,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { Meeting, MeetingStatus } from '../database/meeting';
 import { CalendarFilters, Filters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
-import { useCache, useCalendar } from '../api/cache/Cache';
+import { useCalendar } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
 import { User } from '../database/user';
 import { Outlet } from 'react-router-dom';
@@ -173,13 +173,14 @@ function getEvents(
 export default function CalendarPage() {
     const user = useAuth().user!;
     const api = useApi();
-    const cache = useCache();
 
-    const { meetings, availabilities, request } = useCalendar();
+    const { meetings, availabilities, putAvailability, removeAvailability, request } =
+        useCalendar();
     const filters = useFilters();
 
+    const { view } = useScheduler();
     const [shiftHeld, setShiftHeld] = useState(false);
-    const copyAvailabilityRequest = useRequest();
+    const copyRequest = useRequest();
 
     const deleteRequest = useRequest();
 
@@ -219,7 +220,7 @@ export default function CalendarPage() {
                 await api.deleteAvailability(id);
                 console.log(`Availability ${id} deleted`);
 
-                cache.availabilities.remove(id);
+                removeAvailability(id);
                 deleteRequest.onSuccess('Availability deleted');
                 return id;
             } catch (err) {
@@ -227,7 +228,7 @@ export default function CalendarPage() {
                 deleteRequest.onFailure(err);
             }
         },
-        [api, cache, deleteRequest]
+        [api, removeAvailability, deleteRequest]
     );
 
     const copyAvailability = useCallback(
@@ -237,10 +238,23 @@ export default function CalendarPage() {
             originalEvent: ProcessedEvent
         ) => {
             try {
-                const startIso = newEvent.start.toISOString();
-                const endIso = newEvent.end.toISOString();
+                let startIso = newEvent.start.toISOString();
+                let endIso = newEvent.end.toISOString();
 
-                copyAvailabilityRequest.onStart();
+                if (view === 'month') {
+                    // In month view, we force the time when dragging to be the same as the
+                    // original event because the user can't drag to individual time slots
+                    const originalStartIso = originalEvent.start.toISOString();
+                    const originalEndIso = originalEvent.end.toISOString();
+                    startIso =
+                        startIso.substring(0, startIso.indexOf('T')) +
+                        originalStartIso.substring(originalStartIso.indexOf('T'));
+                    endIso =
+                        endIso.substring(0, endIso.indexOf('T')) +
+                        originalEndIso.substring(originalEndIso.indexOf('T'));
+                }
+
+                copyRequest.onStart();
 
                 // If shift is held, then set the id and discordMessagedId to
                 // undefinded in order to create a new availability
@@ -257,25 +271,25 @@ export default function CalendarPage() {
                 });
                 const availability = response.data;
 
-                cache.availabilities.put(availability);
-                copyAvailabilityRequest.onSuccess();
+                putAvailability(availability);
+                copyRequest.onSuccess();
             } catch (err) {
-                copyAvailabilityRequest.onFailure(err);
+                copyRequest.onFailure(err);
             }
         },
-        [copyAvailabilityRequest, api, cache, shiftHeld]
+        [copyRequest, api, shiftHeld, view, putAvailability]
     );
 
-    const events = useMemo(
-        () => getEvents(user, filters, meetings, availabilities),
-        [user, filters, meetings, availabilities]
-    );
+    const events = useMemo(() => {
+        console.log('Getting events');
+        return getEvents(user, filters, meetings, availabilities);
+    }, [user, filters, meetings, availabilities]);
 
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
             <RequestSnackbar request={request} />
             <RequestSnackbar request={deleteRequest} showSuccess />
-            <RequestSnackbar request={copyAvailabilityRequest} />
+            <RequestSnackbar request={copyRequest} />
 
             <Grid container spacing={2}>
                 <Grid item xs={12} md={2.5}>
@@ -283,7 +297,6 @@ export default function CalendarPage() {
                 </Grid>
                 <Grid item xs={12} md={9.5}>
                     <Scheduler
-                        view='week'
                         month={{
                             weekDays: [0, 1, 2, 3, 4, 5, 6],
                             weekStartOn: 0,
@@ -310,10 +323,10 @@ export default function CalendarPage() {
                         )}
                         onDelete={deleteAvailability}
                         onEventDrop={copyAvailability}
-                        events={events}
                         viewerExtraComponent={(fields, event) => (
                             <ProcessedEventViewer event={event} />
                         )}
+                        events={events}
                         renderDeps={[events, deleteAvailability, copyAvailability]}
                     />
                 </Grid>

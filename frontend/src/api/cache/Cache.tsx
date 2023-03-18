@@ -5,6 +5,7 @@ import {
     useState,
     useCallback,
     useEffect,
+    useMemo,
 } from 'react';
 
 import { Meeting } from '../../database/meeting';
@@ -194,6 +195,8 @@ export function useMeetings(): UseMeetingsResponse {
 interface UseCalendarResponse {
     meetings: Meeting[];
     availabilities: Availability[];
+    putAvailability: (a: Availability) => void;
+    removeAvailability: (id: string) => void;
     request: Request;
 }
 
@@ -205,8 +208,11 @@ export function useCalendar(): UseCalendarResponse {
     const cache = useCache();
     const request = useRequest();
 
-    const meetings = cache.meetings.list();
-    const availabilities = cache.availabilities.list();
+    const meetings = useMemo(() => cache.meetings.list(), [cache.meetings]);
+    const availabilities = useMemo(
+        () => cache.availabilities.list(),
+        [cache.availabilities]
+    );
 
     useEffect(() => {
         if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
@@ -234,6 +240,8 @@ export function useCalendar(): UseCalendarResponse {
     return {
         meetings,
         availabilities,
+        putAvailability: cache.availabilities.put,
+        removeAvailability: cache.availabilities.remove,
         request,
     };
 }

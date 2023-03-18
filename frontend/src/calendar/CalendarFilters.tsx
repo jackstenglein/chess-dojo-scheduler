@@ -6,7 +6,7 @@ import {
     Checkbox,
     useMediaQuery,
 } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AvailabilityType, getDisplayString } from '../database/availability';
 import { dojoCohorts } from '../database/user';
 
@@ -101,20 +101,38 @@ export function useFilters(): Filters {
         }, {} as Record<string, boolean>)
     );
 
-    return {
-        availabilities,
-        setAvailabilities,
-        meetings,
-        setMeetings,
-        allTypes,
-        setAllTypes,
-        types,
-        setTypes,
-        allCohorts,
-        setAllCohorts,
-        cohorts,
-        setCohorts,
-    };
+    const result = useMemo(
+        () => ({
+            availabilities,
+            setAvailabilities,
+            meetings,
+            setMeetings,
+            allTypes,
+            setAllTypes,
+            types,
+            setTypes,
+            allCohorts,
+            setAllCohorts,
+            cohorts,
+            setCohorts,
+        }),
+        [
+            availabilities,
+            setAvailabilities,
+            meetings,
+            setMeetings,
+            allTypes,
+            setAllTypes,
+            types,
+            setTypes,
+            allCohorts,
+            setAllCohorts,
+            cohorts,
+            setCohorts,
+        ]
+    );
+
+    return result;
 }
 
 interface CalendarFiltersProps {
