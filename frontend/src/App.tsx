@@ -29,6 +29,7 @@ import NotFoundPage from './NotFoundPage';
 import RequirementPage from './requirements/RequirementPage';
 import { GraduationPrompt } from './profile/GraduationPrompt';
 import HomePage from './home/HomePage';
+import HelpPage from './help/HelpPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -72,6 +73,7 @@ function Router() {
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
                 <Route path='forgot-password' element={<ForgotPasswordPage />} />
+                <Route path='help' element={<HelpPage />} />
 
                 <Route element={<RequireAuth />}>
                     <Route element={<GraduationPrompt />}>
