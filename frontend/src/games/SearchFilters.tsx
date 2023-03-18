@@ -110,7 +110,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                             onChange={(newValue) => {
                                 setStartDate(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth />}
+                            slotProps={{ textField: { fullWidth: true } }}
                         />
                     </Grid>
 
@@ -121,7 +121,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth />}
+                            slotProps={{ textField: { fullWidth: true } }}
                         />
                     </Grid>
                 </Grid>
@@ -158,7 +158,7 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                             onChange={(newValue) => {
                                 setStartDate(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth />}
+                            slotProps={{ textField: { fullWidth: true } }}
                         />
                     </Grid>
 
@@ -169,7 +169,7 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth />}
+                            slotProps={{ textField: { fullWidth: true } }}
                         />
                     </Grid>
                 </Grid>
@@ -250,7 +250,7 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                             onChange={(newValue) => {
                                 setStartDate(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth />}
+                            slotProps={{ textField: { fullWidth: true } }}
                         />
                     </Grid>
 
@@ -261,7 +261,7 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth />}
+                            slotProps={{ textField: { fullWidth: true } }}
                         />
                     </Grid>
                 </Grid>

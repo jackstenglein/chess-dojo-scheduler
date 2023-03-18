@@ -292,29 +292,27 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                     console.log(value);
                                     setStart(value);
                                 }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        fullWidth
-                                        error={!!errors.start}
-                                        helperText={errors.start}
-                                        sx={{ mb: 3 }}
-                                    />
-                                )}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        error: !!errors.start,
+                                        helperText: errors.start,
+                                        sx: { mb: 3 },
+                                    },
+                                }}
                             />
 
                             <DateTimePicker
                                 label='End Time'
                                 value={end}
                                 onChange={(value) => setEnd(value)}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        fullWidth
-                                        error={!!errors.end}
-                                        helperText={errors.end}
-                                    />
-                                )}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        error: !!errors.end,
+                                        helperText: errors.end,
+                                    },
+                                }}
                                 minDateTime={minEnd}
                             />
                         </LocalizationProvider>

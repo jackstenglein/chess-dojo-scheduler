@@ -14,7 +14,6 @@ import {
     FormControlLabel,
     Radio,
     FormHelperText,
-    TextField,
     Slide,
     Container,
     CircularProgress,
@@ -343,19 +342,17 @@ const AvailabilityBooker = () => {
                                     onChange={(value) =>
                                         setStartTime(value as unknown as Date)
                                     }
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            fullWidth
-                                            error={!!errors.time}
-                                            helperText={
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            error: !!errors.time,
+                                            helperText:
                                                 errors.time ||
-                                                `Must be between ${minStartTime.toLocaleTimeString()} and ${maxStartTime.toLocaleTimeString()}`
-                                            }
-                                        />
-                                    )}
-                                    minTime={availability.startTime}
-                                    maxTime={availability.endTime}
+                                                `Must be between ${minStartTime.toLocaleTimeString()} and ${maxStartTime.toLocaleTimeString()}`,
+                                        },
+                                    }}
+                                    minTime={new Date(availability.startTime)}
+                                    maxTime={new Date(availability.endTime)}
                                 />
                             </LocalizationProvider>
                         </>
