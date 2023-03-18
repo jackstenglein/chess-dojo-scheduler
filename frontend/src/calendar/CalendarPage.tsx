@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import { Container, Grid } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
@@ -266,7 +266,10 @@ export default function CalendarPage() {
         [copyAvailabilityRequest, api, cache, shiftHeld]
     );
 
-    const events = getEvents(user, filters, meetings, availabilities);
+    const events = useMemo(
+        () => getEvents(user, filters, meetings, availabilities),
+        [user, filters, meetings, availabilities]
+    );
 
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
@@ -311,6 +314,7 @@ export default function CalendarPage() {
                         viewerExtraComponent={(fields, event) => (
                             <ProcessedEventViewer event={event} />
                         )}
+                        renderDeps={[events, deleteAvailability, copyAvailability]}
                     />
                 </Grid>
             </Grid>
