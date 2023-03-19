@@ -1,9 +1,14 @@
 import csv
 import matplotlib.pyplot as plt
 
+def get_bin_name(bin_size: int, games_played: int):
+    bin_start = games_played - (games_played % bin_size)
+    bin_end = bin_start + bin_size
+    return f
 
-def get_data(filepath: str):
-    data = [None for i in range(0, 108)]
+
+def get_data(filepath: str, max_games: int):
+    data = [None for i in range(0, max_games)]
 
     with open(filepath) as csvfile:
         reader = csv.DictReader(csvfile)
@@ -33,24 +38,31 @@ def get_data(filepath: str):
     return data
 
 
-def convert_data_to_linechart(data):
-    games_played = []
+def convert_data_to_linechart(data, bin_size: int, max_games: int):
+    bin_names = []
     average_rating_gain = []
-    for i in range(len(data)):
-        games_data = data[i]
-        if games_data == None:
-            continue
-        games_played.append(i)
-        average_rating_gain.append(games_data['total_rating_change']/games_data['number_of_users'])
-    
-    return games_played, average_rating_gain
-            
-            
 
+    i = 0
+    while i < max_games:
+        games_data = data[i : i+bin_size]
+        total_rating_change = sum([d['total_rating_change'] for d in games_data if d is not None])
+        number_of_users = sum([d['number_of_users'] for d in games_data if d is not None])
+        if number_of_users == 0:
+            i += bin_size
+            continue
+
+        bin_names.append(f'{i}-{i+bin_size}')
+        average_rating_gain.append(float(total_rating_change)/number_of_users)
+        i += bin_size
+    
+    return bin_names, average_rating_gain
+            
 
 def main():
-    data = get_data('members.csv')
-    x_axis, y_axis = convert_data_to_linechart(data)
+    max_games = 110
+    bin_size = 10
+    data = get_data('members.csv', max_games)
+    x_axis, y_axis = convert_data_to_linechart(data, bin_size, max_games)
 
     plt.plot(x_axis, y_axis)
     plt.title('Classical Games Played vs Average Rating Gain')
