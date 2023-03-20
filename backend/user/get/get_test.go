@@ -127,7 +127,8 @@ func TestGetUser(t *testing.T) {
 			}
 
 			if got.StatusCode != tc.wantCode {
-				t.Errorf("GetUser(%v) got status: %d; want status: %d", event, got.StatusCode, tc.wantCode)
+				t.Errorf("GetUser(%v) response: %v", event, got)
+				t.Fatalf("GetUser(%v) got status: %d; want status: %d", event, got.StatusCode, tc.wantCode)
 			}
 
 			if !tc.wantErr {
