@@ -7,7 +7,8 @@ import {
     ReactNode,
 } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { Auth as AmplifyAuth, CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
+import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
+import { Auth as AmplifyAuth } from 'aws-amplify';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CognitoUser, parseCognitoResponse, parseUser, User } from '../database/user';
