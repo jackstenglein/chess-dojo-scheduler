@@ -5,7 +5,7 @@
     "dependencies": {
         "@aldabil/react-scheduler": "^2.7.0",
         "@aws-amplify/auth": "^5.1.13",
-        "@emotion/react": "^11.10.5",
+        "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
         "@mliebelt/pgn-viewer": "^1.6.3",
         "@mui/base": "^5.0.0-alpha.121",
