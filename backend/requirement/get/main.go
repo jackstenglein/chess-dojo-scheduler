@@ -19,8 +19,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	id, ok := event.PathParameters["id"]
-	if !ok {
+	id, _ := event.PathParameters["id"]
+	if id == "" {
 		return api.Failure(funcName, errors.New(400, "Invalid request: id is required", "")), nil
 	}
 
