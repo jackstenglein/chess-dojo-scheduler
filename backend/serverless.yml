@@ -611,7 +611,7 @@ functions:
 
   ########## Requirement Endpoints ##############
 
-  getRequirements:
+  getRequirement:
     handler: bin/requirement/get
     package:
       patterns:
@@ -645,6 +645,26 @@ functions:
           - dynamodb:Scan
         Resource:
           - !GetAtt RequirementsTable.Arn
+
+  setRequirement:
+    handler: bin/requirement/set
+    package:
+      patterns:
+        - ./bin/requirement/set
+    events:
+      - httpApi:
+          path: /requirement
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt RequirementsTable.Arn
 
   ########## Graduation Endpoints ##############
 

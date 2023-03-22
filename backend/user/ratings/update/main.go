@@ -152,19 +152,27 @@ func updateUsers(users []*database.User) {
 
 	var updatedUsers []*database.User
 	for _, user := range users {
-		if chesscomRating, err = fetchChesscomRating(user.ChesscomUsername); err != nil {
-			log.Errorf("Failed to get Chess.com rating for %s: %v", user.ChesscomUsername, err)
+		if user.ChesscomUsername != "" {
+			if chesscomRating, err = fetchChesscomRating(user.ChesscomUsername); err != nil {
+				log.Errorf("Failed to get Chess.com rating for %q: %v", user.ChesscomUsername, err)
+				chesscomRating = user.CurrentChesscomRating
+			}
+		} else {
 			chesscomRating = user.CurrentChesscomRating
 		}
 
-		if lichessRating, err = fetchLichessRating(user.LichessUsername); err != nil {
-			log.Errorf("Failed to get Lichess rating for %s: %v", user.LichessUsername, err)
+		if user.LichessUsername != "" {
+			if lichessRating, err = fetchLichessRating(user.LichessUsername); err != nil {
+				log.Errorf("Failed to get Lichess rating for %q: %v", user.LichessUsername, err)
+				lichessRating = user.CurrentLichessRating
+			}
+		} else {
 			lichessRating = user.CurrentLichessRating
 		}
 
 		if user.FideId != "" {
 			if fideRating, err = fetchFideRating(user.FideId); err != nil {
-				log.Errorf("Failed to get FIDE rating for %s: %v", user.FideId, err)
+				log.Errorf("Failed to get FIDE rating for %q: %v", user.FideId, err)
 				fideRating = user.CurrentFideRating
 			}
 		} else {
@@ -173,7 +181,7 @@ func updateUsers(users []*database.User) {
 
 		if user.UscfId != "" {
 			if uscfRating, err = fetchUscfRating(user.UscfId); err != nil {
-				log.Errorf("Failed to get USCF rating for %s: %v", user.UscfId, err)
+				log.Errorf("Failed to get USCF rating for %q: %v", user.UscfId, err)
 				uscfRating = user.CurrentUscfRating
 			}
 		} else {

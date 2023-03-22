@@ -39,6 +39,7 @@ build: gomodgen
 
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/requirement/get requirement/get/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/requirement/list requirement/list/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/requirement/set requirement/set/main.go
 
 clean:
 	rm -rf ./bin ./vendor go.sum

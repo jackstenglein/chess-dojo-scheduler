@@ -3,6 +3,9 @@ package database
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
 type RequirementStatus string
@@ -20,6 +23,10 @@ const (
 	Checkbox    ScoreboardDisplay = "CHECKBOX"
 	ProgressBar ScoreboardDisplay = "PROGRESS_BAR"
 )
+
+func (s ScoreboardDisplay) IsValid() bool {
+	return s == Hidden || s == Checkbox || s == ProgressBar
+}
 
 type Requirement struct {
 	// Uniquely identifies a requirement. The sort key for the table.
@@ -153,6 +160,13 @@ type RequirementGetter interface {
 	GetRequirement(id string) (*Requirement, error)
 }
 
+type RequirementSetter interface {
+	UserGetter
+
+	// SetRequirement saves the provided requirement in the database.
+	SetRequirement(requirement *Requirement) error
+}
+
 // fetchScoreboardRequirements returns a list of requirements matching the provided cohort that should be displayed
 // on the scoreboard. The next startKey is returned as well.
 func (repo *dynamoRepository) fetchScoreboardRequirements(cohort DojoCohort, startKey string) ([]*Requirement, string, error) {
@@ -230,4 +244,20 @@ func (repo *dynamoRepository) GetRequirement(id string) (*Requirement, error) {
 		return nil, err
 	}
 	return &requirement, nil
+}
+
+// SetRequirement saves the provided requirement in the database.
+func (repo *dynamoRepository) SetRequirement(requirement *Requirement) error {
+	item, err := dynamodbattribute.MarshalMap(requirement)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal requirement", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(requirementTable),
+	}
+
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
 }
