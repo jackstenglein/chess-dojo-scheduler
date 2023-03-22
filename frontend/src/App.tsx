@@ -30,6 +30,7 @@ import RequirementPage from './requirements/RequirementPage';
 import { GraduationPrompt } from './profile/GraduationPrompt';
 import HomePage from './home/HomePage';
 import HelpPage from './help/HelpPage';
+import RequirementEditorPage from './requirements/RequirementEditorPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -111,10 +112,10 @@ function Router() {
                                 <Route path=':cohort' element={<ScoreboardPage />} />
                             </Route>
 
-                            <Route
-                                path='requirements/:id'
-                                element={<RequirementPage />}
-                            />
+                            <Route path='requirements/:id'>
+                                <Route index element={<RequirementPage />} />
+                                <Route path='edit' element={<RequirementEditorPage />} />
+                            </Route>
                         </Route>
                     </Route>
                 </Route>

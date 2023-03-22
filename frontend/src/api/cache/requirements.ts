@@ -64,20 +64,23 @@ interface UseRequirementResponse {
     request: Request;
 }
 
-export function useRequirement(id: string): UseRequirementResponse {
+export function useRequirement(id?: string): UseRequirementResponse {
     const api = useApi();
     const cache = useCache();
     const request = useRequest();
 
     const requirement = useMemo(() => {
-        return cache.requirements.get(id);
+        if (id) {
+            return cache.requirements.get(id);
+        }
+        return undefined;
     }, [cache.requirements, id]);
 
     useEffect(() => {
-        if (requirement === undefined && !request.isSent()) {
+        if (requirement === undefined && id && !request.isSent()) {
             console.log('Sending getRequirement network request');
             request.onStart();
-            api.getRequirement(id!)
+            api.getRequirement(id)
                 .then((response) => {
                     cache.requirements.put(response.data);
                     request.onSuccess();
