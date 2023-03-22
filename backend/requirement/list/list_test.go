@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
@@ -32,60 +33,70 @@ var goldenRequirement = &database.Requirement{
 	SortPriority:      "0.0.0",
 }
 
-func getEvent(testName, id string) api.Request {
+func getEvent(testName, cohort, scoreboardOnly string) api.Request {
 	return api.Request{
 		RequestContext: events.APIGatewayProxyRequestContext{
 			RequestID: testName,
 		},
 		PathParameters: map[string]string{
-			"id": id,
+			"cohort": cohort,
+		},
+		QueryStringParameters: map[string]string{
+			"scoreboardOnly": scoreboardOnly,
 		},
 	}
 }
 
-func TestGetRequirement(t *testing.T) {
+func TestListRequirements(t *testing.T) {
 	ctx := context.Background()
 
 	table := []struct {
-		name            string
-		requirementId   string
-		wantCode        int
-		wantErr         bool
-		wantRequirement *database.Requirement
+		name           string
+		cohort         string
+		scoreboardOnly string
+		wantCode       int
+		wantErr        bool
+		wantReqs       []*database.Requirement
 	}{
 		{
-			name:     "MissingId",
+			name:     "MissingCohort",
 			wantCode: 400,
 			wantErr:  true,
 		},
 		{
-			name:            "SuccessfulRequest",
-			requirementId:   testRequirementId,
-			wantCode:        200,
-			wantRequirement: goldenRequirement,
+			name:           "ScoreboardOnly",
+			cohort:         "testCohort1",
+			scoreboardOnly: "true",
+			wantCode:       200,
+		},
+		{
+			name:     "HiddenRequirements",
+			cohort:   "testCohort1",
+			wantCode: 200,
+			wantReqs: []*database.Requirement{goldenRequirement},
 		},
 	}
 
 	for _, tc := range table {
 		t.Run(tc.name, func(t *testing.T) {
-			event := getEvent(tc.name, tc.requirementId)
+			event := getEvent(tc.name, tc.cohort, tc.scoreboardOnly)
 			got, err := Handler(ctx, event)
 
 			if err != nil {
-				t.Errorf("GetRequirement(%v) got err: %v", event, err)
+				t.Errorf("ListRequirements(%v) got err: %v", event, err)
 			}
 
 			if got.StatusCode != tc.wantCode {
-				t.Errorf("GetRequirement(%v) response: %v", event, got)
-				t.Fatalf("GetRequirement(%v) got status: %d; want status: %d", event, got.StatusCode, tc.wantCode)
+				t.Errorf("ListRequirements(%v) response: %v", event, got)
+				t.Fatalf("ListRequirements(%v) got status: %d; want status: %d", event, got.StatusCode, tc.wantCode)
 			}
 
 			if !tc.wantErr {
-				gotReq := &database.Requirement{}
-				json.Unmarshal([]byte(got.Body), gotReq)
+				gotResp := &ListRequirementsResponse{}
+				json.Unmarshal([]byte(got.Body), gotResp)
 
-				if diff := cmp.Diff(tc.wantRequirement, gotReq); diff != "" {
-					t.Errorf("GetRequirement(%v) diff (-want +got):\n%s", event, diff)
+				if diff := cmp.Diff(tc.wantReqs, gotResp.Requirements, cmpopts.EquateEmpty()); diff != "" {
+					t.Errorf("ListRequirements(%v) diff (-want +got):\n%s", event, diff)
 				}
 			}
 		})

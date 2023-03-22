@@ -160,17 +160,16 @@ func (repo *dynamoRepository) fetchScoreboardRequirements(cohort DojoCohort, sta
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#status = :active"),
 		ExpressionAttributeNames: map[string]*string{
-			"#status":     aws.String("status"),
-			"#display":    aws.String("scoreboardDisplay"),
-			"#counts":     aws.String("counts"),
-			"#cohort":     aws.String(string(cohort)),
-			"#allcohorts": aws.String("ALL_COHORTS"),
+			"#status":  aws.String("status"),
+			"#display": aws.String("scoreboardDisplay"),
+			"#counts":  aws.String("counts"),
+			"#cohort":  aws.String(string(cohort)),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":active": {S: aws.String(string(Active))},
 			":hidden": {S: aws.String(string(Hidden))},
 		},
-		FilterExpression: aws.String("#display <> :hidden AND (attribute_exists(#counts.#cohort) OR attribute_exists(#counts.#allcohorts))"),
+		FilterExpression: aws.String("#display <> :hidden AND attribute_exists(#counts.#cohort)"),
 		TableName:        aws.String(requirementTable),
 	}
 
@@ -187,11 +186,10 @@ func (repo *dynamoRepository) fetchScoreboardRequirements(cohort DojoCohort, sta
 func (repo *dynamoRepository) scanRequirements(cohort DojoCohort, startKey string) ([]*Requirement, string, error) {
 	input := &dynamodb.ScanInput{
 		ExpressionAttributeNames: map[string]*string{
-			"#counts":     aws.String("counts"),
-			"#cohort":     aws.String(string(cohort)),
-			"#allcohorts": aws.String("ALL_COHORTS"),
+			"#counts": aws.String("counts"),
+			"#cohort": aws.String(string(cohort)),
 		},
-		FilterExpression: aws.String("attribute_exists(#counts.#cohort) OR attribute_exists(#counts.#allcohorts)"),
+		FilterExpression: aws.String("attribute_exists(#counts.#cohort)"),
 		TableName:        aws.String(requirementTable),
 	}
 

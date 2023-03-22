@@ -24,8 +24,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	cohort, ok := event.PathParameters["cohort"]
-	if !ok {
+	cohort, _ := event.PathParameters["cohort"]
+	if cohort == "" {
 		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
 	}
 
