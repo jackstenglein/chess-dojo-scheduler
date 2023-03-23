@@ -10,14 +10,18 @@ import {
     Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRequirement } from '../api/cache/requirements';
 import { useAuth } from '../auth/Auth';
 import { RequirementStatus, ScoreboardDisplay } from '../database/requirement';
 import NotFoundPage from '../NotFoundPage';
 import RequirementDisplay from './RequirementDisplay';
-import { dojoCohorts } from '../database/user';
+import { compareCohorts, dojoCohorts } from '../database/user';
+import { useApi } from '../api/Api';
+import { useCache } from '../api/cache/Cache';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { LoadingButton } from '@mui/lab';
 
 const vimeoRegex = /^https:\/\/player.vimeo.com\/video\/\d*$/;
 const youtubeRegex = /^https:\/\/www.youtube.com\/embed\/[a-zA-Z0-9]*$/;
@@ -52,10 +56,12 @@ function getEditorCounts(
     if (counts === undefined) {
         return [];
     }
-    return Object.entries(counts).map(([cohort, count]) => ({
-        cohort,
-        count: `${count}`,
-    }));
+    return Object.entries(counts)
+        .map(([cohort, count]) => ({
+            cohort,
+            count: `${count}`,
+        }))
+        .sort((lhs, rhs) => compareCohorts(lhs.cohort, rhs.cohort));
 }
 
 interface RequirementEditorErrors {
@@ -104,6 +110,11 @@ const RequirementEditorPage = () => {
     const { requirement } = useRequirement(id);
     const user = useAuth().user!;
     const navigate = useNavigate();
+    const api = useApi();
+    const cache = useCache();
+    const request = useRequest();
+
+    const isNew = id === undefined;
 
     const [category, setCategory] = useState(requirement?.category ?? '');
     const [name, setName] = useState(requirement?.name ?? '');
@@ -123,6 +134,21 @@ const RequirementEditorPage = () => {
     const [errors, setErrors] = useState<RequirementEditorErrors>({});
     const [showPreview, setShowPreview] = useState(false);
 
+    useEffect(() => {
+        if (requirement) {
+            setCategory(requirement.category);
+            setName(requirement.name);
+            setDescription(requirement.description);
+            setCounts(getEditorCounts(requirement.counts));
+            setNumberOfCohorts(`${requirement.numberOfCohorts}`);
+            setUnitScore(`${requirement.unitScore}`);
+            setVideoUrls(requirement.videoUrls ?? []);
+            setPositionUrls(requirement.positionUrls ?? []);
+            setScoreboardDisplay(requirement.scoreboardDisplay);
+            setSortPriority(requirement.sortPriority);
+        }
+    }, [requirement]);
+
     if (!user.isAdmin) {
         return <NotFoundPage />;
     }
@@ -135,7 +161,7 @@ const RequirementEditorPage = () => {
     const newRequirement = {
         ...requirement,
         status: RequirementStatus.Active,
-        id: requirement?.id || 'preview',
+        id: requirement?.id || '',
         category,
         name,
         description,
@@ -209,6 +235,24 @@ const RequirementEditorPage = () => {
         }
 
         setErrors(errors);
+        if (Object.entries(errors).length > 0) {
+            return;
+        }
+
+        request.onStart();
+        api.setRequirement(newRequirement)
+            .then((response) => {
+                cache.requirements.put(response.data);
+                if (isNew) {
+                    navigate(`/requirements/${response.data.id}`);
+                } else {
+                    navigate(-1);
+                }
+            })
+            .catch((err) => {
+                console.error('setRequirement: ', err);
+                request.onFailure(err);
+            });
     };
 
     const onAddCount = () => {
@@ -270,24 +314,33 @@ const RequirementEditorPage = () => {
                     Please fix the errors below and then save again
                 </Alert>
             )}
+            <RequestSnackbar request={request} />
 
             <Stack direction='row' justifyContent='space-between'>
-                <Typography variant='h4'>Edit Requirement</Typography>
+                <Typography variant='h4'>
+                    {isNew ? 'Create' : 'Edit'} Requirement
+                </Typography>
                 <Stack direction='row' spacing={2}>
                     <Button
                         variant='contained'
                         onClick={() => setShowPreview(!showPreview)}
+                        disabled={request.isLoading()}
                     >
                         {showPreview ? 'Hide Preview' : 'Show Preview'}
                     </Button>
-                    <Button variant='contained' onClick={onSave}>
+                    <LoadingButton
+                        variant='contained'
+                        onClick={onSave}
+                        loading={request.isLoading()}
+                    >
                         Save
-                    </Button>
+                    </LoadingButton>
 
                     <Button
                         variant='contained'
                         color='error'
                         onClick={() => navigate(-1)}
+                        disabled={request.isLoading()}
                     >
                         Cancel
                     </Button>
@@ -382,7 +435,11 @@ const RequirementEditorPage = () => {
                     <Stack>
                         <Stack direction='row' justifyContent='space-between'>
                             <Typography variant='subtitle1'>Counts by Cohort</Typography>
-                            <Button variant='text' onClick={onAddCount}>
+                            <Button
+                                variant='text'
+                                onClick={onAddCount}
+                                disabled={counts.length === dojoCohorts.length}
+                            >
                                 Add Cohort
                             </Button>
                         </Stack>
@@ -435,7 +492,7 @@ const RequirementEditorPage = () => {
                                     onChange={(event) =>
                                         onUpdateCountValue(idx, event.target.value)
                                     }
-                                    sx={{ flexGrow: 0.5, ml: 2 }}
+                                    sx={{ flexGrow: 0.5, ml: 2, maxWidth: '300px' }}
                                     error={errors.counts && !!errors.counts[idx]}
                                     helperText={errors.counts && errors.counts[idx]}
                                 />

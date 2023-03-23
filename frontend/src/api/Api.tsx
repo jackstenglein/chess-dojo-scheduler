@@ -49,6 +49,7 @@ import {
     RequirementApiContextType,
     getRequirement,
     listRequirements,
+    setRequirement,
 } from './requirementApi';
 import {
     GraduationApiContextType,
@@ -56,6 +57,7 @@ import {
     listGraduationsByOwner,
     listGraduationsByDate,
 } from './graduationApi';
+import { Requirement } from '../database/requirement';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -177,6 +179,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 scoreboardOnly: boolean,
                 startKey?: string
             ) => listRequirements(idToken, cohort, scoreboardOnly, startKey),
+            setRequirement: (requirement: Requirement) =>
+                setRequirement(idToken, requirement),
 
             listGraduationsByCohort: (cohort: string, startKey?: string) =>
                 listGraduationsByCohort(idToken, cohort, startKey),

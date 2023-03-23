@@ -24,6 +24,15 @@ export type RequirementApiContextType = {
         scoreboardOnly: boolean,
         startKey?: string
     ) => Promise<Requirement[]>;
+
+    /**
+     * setRequirement saves the given requirement. This function can only be called by admins.
+     * @param requirement The requirement to save.
+     * @returns An AxiosResponse containing the updated Requirement.
+     */
+    setRequirement: (
+        requirement: Requirement
+    ) => Promise<AxiosResponse<Requirement, any>>;
 };
 
 /**
@@ -78,4 +87,18 @@ export async function listRequirements(
     } while (params.startKey);
 
     return result;
+}
+
+/**
+ * setRequirement saves the given requirement. This function can only be called by admins.
+ * @param idToken The id token of the current signed-in user.
+ * @param requirement The requirement to save.
+ * @returns An AxiosResponse containing the updated Requirement.
+ */
+export function setRequirement(idToken: string, requirement: Requirement) {
+    return axios.put<Requirement>(BASE_URL + `/requirement`, requirement, {
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
 }
