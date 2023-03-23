@@ -2,8 +2,10 @@ import { Tooltip as MuiTooltip, TooltipProps, tooltipClasses } from '@mui/materi
 import { styled } from '@mui/material/styles';
 
 export const cohortIcons: Record<string, string> = {
-    '0-400': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_0-400.png',
-    '400-600': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_400-600.png',
+    '0-300': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_0-300.png',
+    '300-400': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_0-300.png',
+    '400-500': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_0-300.png',
+    '500-600': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_500-600.png',
     '600-700': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_600-700.png',
     '700-800': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_700-800.png',
     '800-900': 'https://chess-dojo-images.s3.amazonaws.com/icons/cohort_800-900.png',

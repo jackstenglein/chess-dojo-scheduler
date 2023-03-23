@@ -109,8 +109,10 @@ export function getCurrentRating(user?: User): number {
 }
 
 export const dojoCohorts: string[] = [
-    '0-400',
-    '400-600',
+    '0-300',
+    '300-400',
+    '400-500',
+    '500-600',
     '600-700',
     '700-800',
     '800-900',
@@ -144,13 +146,25 @@ export function compareCohorts(a: string, b: string): number {
 }
 
 const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
-    '0-400': {
+    '0-300': {
+        [RatingSystem.Chesscom]: 550,
+        [RatingSystem.Lichess]: 1035,
+        [RatingSystem.Fide]: 300,
+        [RatingSystem.Uscf]: 350,
+    },
+    '300-400': {
         [RatingSystem.Chesscom]: 650,
         [RatingSystem.Lichess]: 1100,
         [RatingSystem.Fide]: 400,
         [RatingSystem.Uscf]: 450,
     },
-    '400-600': {
+    '400-500': {
+        [RatingSystem.Chesscom]: 750,
+        [RatingSystem.Lichess]: 1165,
+        [RatingSystem.Fide]: 500,
+        [RatingSystem.Uscf]: 550,
+    },
+    '500-600': {
         [RatingSystem.Chesscom]: 850,
         [RatingSystem.Lichess]: 1225,
         [RatingSystem.Fide]: 600,

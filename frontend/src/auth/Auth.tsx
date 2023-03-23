@@ -11,7 +11,13 @@ import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { Auth as AmplifyAuth } from 'aws-amplify';
 import { v4 as uuidv4 } from 'uuid';
 
-import { CognitoUser, parseCognitoResponse, parseUser, User } from '../database/user';
+import {
+    CognitoUser,
+    dojoCohorts,
+    parseCognitoResponse,
+    parseUser,
+    User,
+} from '../database/user';
 import { getUser } from '../api/userApi';
 import ProfileEditorPage from '../profile/ProfileEditorPage';
 import LoadingPage from '../loading/LoadingPage';
@@ -226,6 +232,10 @@ export function RequireProfile() {
         user.chesscomUsername === '' ||
         user.lichessUsername === ''
     ) {
+        return <ProfileEditorPage hideCancel />;
+    }
+
+    if (!dojoCohorts.includes(user.dojoCohort)) {
         return <ProfileEditorPage hideCancel />;
     }
 

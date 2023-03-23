@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+    Alert,
     Button,
     Checkbox,
     Container,
@@ -114,6 +115,13 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
             <RequestSnackbar request={request} showSuccess />
+
+            {user.dojoCohort !== '' && !dojoCohorts.includes(user.dojoCohort) && (
+                <Alert severity='error' sx={{ mb: 3 }}>
+                    Invalid cohort: The dojo is phasing out the 0-400 and 400-600 cohorts
+                    in favor of more specific cohorts. Please choose a new cohort below.
+                </Alert>
+            )}
 
             <Stack spacing={5}>
                 <Stack

@@ -25,7 +25,23 @@ func TestGetNextCohort(t *testing.T) {
 	}{
 		{
 			cohort: "0-400",
-			want:   "400-600",
+			want:   "NO_COHORT",
+		},
+		{
+			cohort: "0-300",
+			want:   "300-400",
+		},
+		{
+			cohort: "300-400",
+			want:   "400-500",
+		},
+		{
+			cohort: "400-500",
+			want:   "500-600",
+		},
+		{
+			cohort: "500-600",
+			want:   "600-700",
 		},
 		{
 			cohort: "600-700",
