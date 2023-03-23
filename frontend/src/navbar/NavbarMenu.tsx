@@ -24,23 +24,11 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
 
     return (
         <>
-            <Typography
-                variant='h6'
-                noWrap
-                onClick={() => navigate('/calendar')}
-                sx={{
-                    mr: 3,
-                    ml: 1,
-                    display: { sm: 'none', md: 'flex' },
-                    fontWeight: 700,
-                    color: 'inherit',
-                    textDecoration: 'none',
-                    cursor: 'pointer',
-                }}
-            >
-                Chess Dojo Scheduler
-            </Typography>
             <Box sx={{ flexGrow: 1 }}>
+                <Button onClick={() => navigate('/home')} sx={{ color: 'white' }}>
+                    Home
+                </Button>
+
                 <Button onClick={() => navigate('/calendar')} sx={{ color: 'white' }}>
                     Calendar
                 </Button>
@@ -118,6 +106,9 @@ const SmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
+                <MenuItem onClick={handleClick(() => navigate('/home'))}>
+                    <Typography textAlign='center'>Home</Typography>
+                </MenuItem>
                 <MenuItem onClick={handleClick(() => navigate('/calendar'))}>
                     <Typography textAlign='center'>Calendar</Typography>
                 </MenuItem>
