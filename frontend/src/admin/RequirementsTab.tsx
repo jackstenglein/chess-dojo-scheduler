@@ -1,5 +1,10 @@
 import { Button, Container } from '@mui/material';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    GridColDef,
+    GridRowParams,
+    GridValueGetterParams,
+} from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -88,6 +93,10 @@ const RequirementsTab = () => {
         }
     }, [request, api]);
 
+    const onClickRow = (params: GridRowParams<Requirement>) => {
+        navigate(`/requirements/${params.row.id}`);
+    };
+
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
     }
@@ -112,6 +121,7 @@ const RequirementsTab = () => {
                 onPageSizeChange={(newSize) => setPageSize(newSize)}
                 rowsPerPageOptions={[5, 10, 20, 50]}
                 sx={{ width: 1, mb: 4, height: 'calc(100vh - 120px)' }}
+                onRowClick={onClickRow}
             />
         </Container>
     );
