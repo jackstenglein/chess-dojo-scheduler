@@ -167,6 +167,14 @@ type RequirementSetter interface {
 	SetRequirement(requirement *Requirement) error
 }
 
+type RequirementScanner interface {
+	UserGetter
+
+	// ScanRequirements fetches a list of requirements matching the provided cohort, if provided, and a list
+	// of all requirements if not provided.
+	ScanRequirements(cohort DojoCohort, startKey string) ([]*Requirement, string, error)
+}
+
 // fetchScoreboardRequirements returns a list of requirements matching the provided cohort that should be displayed
 // on the scoreboard. The next startKey is returned as well.
 func (repo *dynamoRepository) fetchScoreboardRequirements(cohort DojoCohort, startKey string) ([]*Requirement, string, error) {
@@ -195,16 +203,19 @@ func (repo *dynamoRepository) fetchScoreboardRequirements(cohort DojoCohort, sta
 	return requirements, lastKey, nil
 }
 
-// scanRequirements returns a list of requirements matching the provided cohort. Archived requirements and requirements
+// ScanRequirements returns a list of requirements matching the provided cohort. Archived requirements and requirements
 // hidden from the scoreboard are returned.
-func (repo *dynamoRepository) scanRequirements(cohort DojoCohort, startKey string) ([]*Requirement, string, error) {
+func (repo *dynamoRepository) ScanRequirements(cohort DojoCohort, startKey string) ([]*Requirement, string, error) {
 	input := &dynamodb.ScanInput{
-		ExpressionAttributeNames: map[string]*string{
+		TableName: aws.String(requirementTable),
+	}
+
+	if cohort != "" {
+		input.SetExpressionAttributeNames(map[string]*string{
 			"#counts": aws.String("counts"),
 			"#cohort": aws.String(string(cohort)),
-		},
-		FilterExpression: aws.String("attribute_exists(#counts.#cohort)"),
-		TableName:        aws.String(requirementTable),
+		})
+		input.SetFilterExpression("attribute_exists(#counts.#cohort)")
 	}
 
 	var requirements []*Requirement
@@ -222,7 +233,7 @@ func (repo *dynamoRepository) ListRequirements(cohort DojoCohort, scoreboardOnly
 	if scoreboardOnly {
 		return repo.fetchScoreboardRequirements(cohort, startKey)
 	}
-	return repo.scanRequirements(cohort, startKey)
+	return repo.ScanRequirements(cohort, startKey)
 }
 
 // GetRequirement returns the requirement with the provided id.

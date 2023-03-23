@@ -5,6 +5,7 @@ import { getConfig } from '../config';
 import { Availability } from '../database/availability';
 import { Meeting } from '../database/meeting';
 import { AvailabilityStatistics, MeetingStatistics } from '../database/statistics';
+import { Requirement } from '../database/requirement';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -34,6 +35,13 @@ export type AdminApiContextType = {
      * adminGetStatistics returns an AxiosResponse containing the GetStatisticsResponse object.
      */
     adminGetStatistics: () => Promise<AxiosResponse<GetStatisticsResponse, any>>;
+
+    /**
+     * adminListRequirements returns all requirements in the database.
+     * @param startKey The optional start key to use when searching.
+     * @returns A list of requirements.
+     */
+    adminListRequirements: (startKey?: string) => Promise<Requirement[]>;
 };
 
 interface ListUsersResponse {
@@ -144,4 +152,31 @@ export function adminGetStatistics(idToken: string) {
             Authorization: 'Bearer ' + idToken,
         },
     });
+}
+
+interface ListRequirementsResponse {
+    requirements: Requirement[];
+    lastEvaluatedKey: string;
+}
+
+export async function adminListRequirements(idToken: string, startKey?: string) {
+    let params = { startKey };
+    const result: Requirement[] = [];
+
+    do {
+        const resp = await axios.get<ListRequirementsResponse>(
+            BASE_URL + '/admin/requirement',
+            {
+                params,
+                headers: {
+                    Authorization: 'Bearer ' + idToken,
+                },
+            }
+        );
+
+        result.push(...resp.data.requirements);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+
+    return result;
 }

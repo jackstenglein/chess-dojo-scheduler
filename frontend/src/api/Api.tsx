@@ -9,6 +9,7 @@ import {
     adminListUsers,
     adminListMeetings,
     adminGetStatistics,
+    adminListRequirements,
 } from './adminApi';
 import {
     AvailabilityApiContextType,
@@ -98,6 +99,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             adminListMeetings: (startKey?: string) =>
                 adminListMeetings(idToken, startKey),
             adminGetStatistics: () => adminGetStatistics(idToken),
+            adminListRequirements: (startKey?: string) =>
+                adminListRequirements(idToken, startKey),
 
             getUser: () => getUser(idToken),
             getUserPublic: (username: string) => getUserPublic(username),

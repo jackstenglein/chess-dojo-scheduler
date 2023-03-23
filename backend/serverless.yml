@@ -125,6 +125,26 @@ functions:
           - !GetAtt AvailabilitiesTable.Arn
           - !GetAtt MeetingsTable.Arn
 
+  adminListRequirements:
+    handler: bin/admin/requirement/list
+    package:
+      patterns:
+        - ./bin/admin/requirement/list
+    events:
+      - httpApi:
+          path: /admin/requirement
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt RequirementsTable.Arn
+
   ######### User Endpoints ###############
 
   createUser:

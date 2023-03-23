@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/Auth';
 import AvailabilitiesTab from './AvailabilitiesTab';
 import MeetingsTab from './MeetingsTab';
+import RequirementsTab from './RequirementsTab';
 import StatisticsTab from './StatisticsTab';
 import UsersTab from './UsersTab';
 
@@ -17,7 +18,7 @@ const AdminPage = () => {
     }
 
     return (
-        <Container maxWidth='lg' sx={{ py: 5 }}>
+        <Container maxWidth='xl' sx={{ py: 5 }}>
             <Typography variant='h4' sx={{ mb: 4 }}>
                 Admin Portal
             </Typography>
@@ -29,6 +30,7 @@ const AdminPage = () => {
                             <Tab label='Users' value='users' />
                             <Tab label='Availabilities' value='availabilities' />
                             <Tab label='Meetings' value='meetings' />
+                            <Tab label='Requirements' value='requirements' />
                             <Tab label='Statistics' value='statistics' />
                         </TabList>
                     </Box>
@@ -40,6 +42,9 @@ const AdminPage = () => {
                     </TabPanel>
                     <TabPanel value='meetings'>
                         <MeetingsTab />
+                    </TabPanel>
+                    <TabPanel value='requirements'>
+                        <RequirementsTab />
                     </TabPanel>
                     <TabPanel value='statistics'>
                         <StatisticsTab />
