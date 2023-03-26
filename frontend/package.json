@@ -24,6 +24,7 @@
         "aws-amplify": "^5.0.20",
         "date-fns": "^2.29.3",
         "react": "^18.2.0",
+        "react-copy-to-clipboard": "^5.1.0",
         "react-dom": "^18.2.0",
         "react-google-button": "^0.7.2",
         "react-material-ui-carousel": "^3.4.2",
@@ -60,6 +61,7 @@
         ]
     },
     "devDependencies": {
+        "@types/react-copy-to-clipboard": "^5.0.4",
         "@types/uuid": "^9.0.1"
     }
 }

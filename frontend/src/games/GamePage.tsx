@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
+    Button,
     CircularProgress,
     Container,
     Grid,
@@ -8,6 +9,10 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import CheckIcon from '@mui/icons-material/Check';
+import LinkIcon from '@mui/icons-material/Link';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -24,6 +29,7 @@ const GamePage = () => {
     const { cohort, id } = useParams();
 
     const [comment, setComment] = useState('');
+    const [copied, setCopied] = useState('');
 
     useEffect(() => {
         if (!request.isSent() && cohort && id) {
@@ -81,6 +87,13 @@ const GamePage = () => {
             });
     };
 
+    const onCopy = (name: string) => {
+        setCopied(name);
+        setTimeout(() => {
+            setCopied('');
+        }, 3000);
+    };
+
     if (request.isLoading()) {
         return (
             <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
@@ -105,6 +118,42 @@ const GamePage = () => {
                 <Grid container rowSpacing={4} justifyContent='flex-end'>
                     <Grid item xs={12} md={8} lg={9} mt={{ xs: 3, md: 1 }}>
                         <Stack spacing={2}>
+                            <Stack direction='row' my={2} spacing={2}>
+                                <CopyToClipboard
+                                    text={window.location.href}
+                                    onCopy={() => onCopy('link')}
+                                >
+                                    <Button
+                                        variant='contained'
+                                        startIcon={
+                                            copied === 'link' ? (
+                                                <CheckIcon />
+                                            ) : (
+                                                <LinkIcon />
+                                            )
+                                        }
+                                    >
+                                        {copied === 'link' ? 'Copied' : 'Copy Link'}
+                                    </Button>
+                                </CopyToClipboard>
+                                <CopyToClipboard
+                                    text={request.data.pgn}
+                                    onCopy={() => onCopy('pgn')}
+                                >
+                                    <Button
+                                        variant='contained'
+                                        startIcon={
+                                            copied === 'pgn' ? (
+                                                <CheckIcon />
+                                            ) : (
+                                                <ContentPasteIcon />
+                                            )
+                                        }
+                                    >
+                                        {copied === 'pgn' ? 'Copied' : 'Copy PGN'}
+                                    </Button>
+                                </CopyToClipboard>
+                            </Stack>
                             <Typography variant='h6'>Comments</Typography>
                             <Stack spacing={1} alignItems='flex-end'>
                                 <TextField
