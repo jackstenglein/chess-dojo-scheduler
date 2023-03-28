@@ -44,6 +44,7 @@ import {
     listGamesByOwner,
     listFeaturedGames,
     createComment,
+    featureGame,
     updateGame,
 } from './gameApi';
 import {
@@ -146,8 +147,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             createGame: (req: CreateGameRequest) => createGame(idToken, req),
             getGame: (cohort: string, id: string) => getGame(idToken, cohort, id),
-            updateGame: (cohort: string, id: string, featured: string) =>
-                updateGame(idToken, cohort, id, featured),
+            featureGame: (cohort: string, id: string, featured: string) =>
+                featureGame(idToken, cohort, id, featured),
+            updateGame: (cohort: string, id: string, req: CreateGameRequest) =>
+                updateGame(idToken, cohort, id, req),
             listGamesByCohort: (
                 cohort: string,
                 startKey?: string,

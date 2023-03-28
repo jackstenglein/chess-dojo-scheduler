@@ -34,7 +34,7 @@ func GetLichessPgn(url string) (string, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		err = errors.New(400, fmt.Sprintf("Invalid request: lichess returned status `%d`", resp.StatusCode), "")
+		err = errors.New(400, fmt.Sprintf("Invalid request: lichess returned status `%d`. The study must be public.", resp.StatusCode), "")
 		return "", err
 	}
 

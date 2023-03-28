@@ -1,7 +1,14 @@
 import { useLayoutEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { pgnView } from '@mliebelt/pgn-viewer';
-import { Grid, IconButton, Link as MuiLink, Stack, Typography } from '@mui/material';
+import {
+    Button,
+    Grid,
+    IconButton,
+    Link as MuiLink,
+    Stack,
+    Typography,
+} from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -124,6 +131,7 @@ interface PgnViewerProps {
 
 const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
     const user = useAuth().user!;
+    const navigate = useNavigate();
 
     const id = 'board';
 
@@ -141,6 +149,15 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
         <Stack alignItems='center'>
             <Grid container rowSpacing={4}>
                 <Grid item sm={12} md={4} lg={3}>
+                    {game.owner === user.username && (
+                        <Button
+                            variant='contained'
+                            sx={{ mb: 2 }}
+                            onClick={() => navigate('edit')}
+                        >
+                            Update PGN
+                        </Button>
+                    )}
                     {user.isAdmin && (
                         <Stack direction='row' alignItems='center' spacing={2}>
                             <Typography>Feature Game?</Typography>
