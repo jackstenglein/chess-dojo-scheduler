@@ -10,10 +10,7 @@ import {
     Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useNavigate } from 'react-router-dom';
-
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
+import { CreateGameRequest } from '../api/gameApi';
 
 const lichessStudyRegex = new RegExp('^https://lichess.org/study/.{8}/.{8}$');
 
@@ -34,17 +31,25 @@ enum SubmissionType {
     Manual = 'manual',
 }
 
-const SubmitGamePage = () => {
-    const api = useApi();
-    const request = useRequest();
-    const navigate = useNavigate();
+interface GameSubmissionFormProps {
+    title: string;
+    description?: string;
+    loading: boolean;
+    onSubmit: (req: CreateGameRequest) => void;
+}
 
+const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
+    title,
+    description,
+    loading,
+    onSubmit,
+}) => {
     const [type, setType] = useState<SubmissionType>(SubmissionType.Lichess);
     const [lichessUrl, setLichessUrl] = useState('');
     const [pgnText, setPgnText] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const onSubmit = () => {
+    const handleSubmit = () => {
         const errors: Record<string, string> = {};
         if (type === SubmissionType.Lichess && !lichessStudyRegex.test(lichessUrl)) {
             errors.lichessUrl = 'Does not match the Lichess study URL format';
@@ -57,34 +62,18 @@ const SubmitGamePage = () => {
             return;
         }
 
-        request.onStart();
-        api.createGame({
+        onSubmit({
             type,
             url: type === SubmissionType.Lichess ? lichessUrl : undefined,
             pgnText: type === SubmissionType.Manual ? pgnText : undefined,
-        })
-            .then((response) => {
-                console.log('CreateGame: ', response);
-                navigate(
-                    `../${response.data.cohort.replaceAll(
-                        '+',
-                        '%2B'
-                    )}/${response.data.id.replaceAll('?', '%3F')}`
-                );
-                request.onSuccess();
-            })
-            .catch((err) => {
-                console.error('CreateGame ', err);
-                request.onFailure(err);
-            });
+        });
     };
 
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>
-            <RequestSnackbar request={request} />
-
             <Stack spacing={2}>
-                <Typography variant='h6'>Submit Game</Typography>
+                <Typography variant='h6'>{title}</Typography>
+                {description && <Typography variant='body1'>{description}</Typography>}
 
                 <FormControl>
                     <RadioGroup
@@ -130,8 +119,8 @@ const SubmitGamePage = () => {
 
                 <LoadingButton
                     variant='contained'
-                    loading={request.isLoading()}
-                    onClick={onSubmit}
+                    loading={loading}
+                    onClick={handleSubmit}
                 >
                     Submit
                 </LoadingButton>
@@ -140,4 +129,4 @@ const SubmitGamePage = () => {
     );
 };
 
-export default SubmitGamePage;
+export default GameSubmissionForm;
