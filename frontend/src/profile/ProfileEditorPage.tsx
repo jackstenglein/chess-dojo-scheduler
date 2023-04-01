@@ -116,12 +116,15 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
             <RequestSnackbar request={request} showSuccess />
 
-            {user.dojoCohort !== '' && !dojoCohorts.includes(user.dojoCohort) && (
-                <Alert severity='error' sx={{ mb: 3 }}>
-                    Invalid cohort: The dojo is phasing out the 0-400 and 400-600 cohorts
-                    in favor of more specific cohorts. Please choose a new cohort below.
-                </Alert>
-            )}
+            {user.dojoCohort !== 'NO_COHORT' &&
+                user.dojoCohort !== '' &&
+                !dojoCohorts.includes(user.dojoCohort) && (
+                    <Alert severity='error' sx={{ mb: 3 }}>
+                        Invalid cohort: The dojo is phasing out the 0-400 and 400-600
+                        cohorts in favor of more specific cohorts. Please choose a new
+                        cohort below.
+                    </Alert>
+                )}
 
             <Stack spacing={5}>
                 <Stack
