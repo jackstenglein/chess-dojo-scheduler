@@ -142,8 +142,13 @@ const HelpPage = () => {
                         </HelpItem>
 
                         <HelpItem title='How do I update my game?'>
-                            This feature is currently not implemented yet, but coming
-                            soon.
+                            Go to the page for the game you want to update. On the top
+                            left of the page, you will see a button labeled Update PGN.
+                            Click this button to update the PGN data of your game. This
+                            will not remove any comments that have been left on your game.
+                            Note that you can only do this through games submitted on the
+                            new site. Games submitted through the old site cannot be
+                            updated in this way.
                         </HelpItem>
 
                         <HelpItem title="Why can't I find a game I am searching for?">

@@ -23,16 +23,30 @@ export type GameApiContextType = {
     getGame: (cohort: string, id: string) => Promise<AxiosResponse<Game, any>>;
 
     /**
-     * updateGame sets the featured status of the provided game.
+     * featureGame sets the featured status of the provided game.
      * @param cohort The cohort the game is in.
      * @param id The id of the game.
      * @param featured Whether the game is featured or not.
      * @returns An AxiosResponse containing the updated game.
      */
-    updateGame: (
+    featureGame: (
         cohort: string,
         id: string,
         featured: string
+    ) => Promise<AxiosResponse<Game, any>>;
+
+    /**
+     * updateGame overwrites the PGN data of the provided game.
+     * @param idToken The id token of the current signed-in user.
+     * @param cohort The cohort the game is in.
+     * @param id The id of the game.
+     * @param req The CreateGameRequest.
+     * @returns The updated Game.
+     */
+    updateGame: (
+        cohort: string,
+        id: string,
+        req: CreateGameRequest
     ) => Promise<AxiosResponse<Game, any>>;
 
     /**
@@ -131,14 +145,14 @@ export function getGame(idToken: string, cohort: string, id: string) {
 }
 
 /**
- * updateGame sets the featured status of the provided game.
+ * featureGame sets the featured status of the provided game.
  * @param idToken The id token of the current signed-in user.
  * @param cohort The cohort the game is in.
  * @param id The id of the game.
  * @param featured Whether the game is featured or not.
  * @returns An AxiosResponse containing the updated game.
  */
-export function updateGame(
+export function featureGame(
     idToken: string,
     cohort: string,
     id: string,
@@ -157,6 +171,28 @@ export function updateGame(
             headers: { Authorization: 'Bearer ' + idToken },
         }
     );
+}
+
+/**
+ * updateGame overwrites the PGN data of the provided game.
+ * @param idToken The id token of the current signed-in user.
+ * @param cohort The cohort the game is in.
+ * @param id The id of the game.
+ * @param req The CreateGameRequest.
+ * @returns The updated Game.
+ */
+export function updateGame(
+    idToken: string,
+    cohort: string,
+    id: string,
+    req: CreateGameRequest
+) {
+    const urlCohort = cohort.replaceAll('+', '%2B');
+    const urlId = id.replaceAll('?', '%3F');
+
+    return axios.put<Game>(BASE_URL + `/game/${urlCohort}/${urlId}`, req, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
 }
 
 export interface ListGamesResponse {
