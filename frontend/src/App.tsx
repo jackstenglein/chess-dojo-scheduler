@@ -22,7 +22,6 @@ import { CacheProvider } from './api/cache/Cache';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import GamePage from './games/GamePage';
 import ListGamesPage from './games/ListGamesPage';
-import SubmitGamePage from './games/SubmitGamePage';
 import AvailabilityBooker from './calendar/AvailabilityBooker';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import NotFoundPage from './NotFoundPage';
@@ -31,6 +30,7 @@ import { GraduationPrompt } from './profile/GraduationPrompt';
 import HomePage from './home/HomePage';
 import HelpPage from './help/HelpPage';
 import RequirementEditorPage from './requirements/RequirementEditorPage';
+import EditGamePage from './games/EditGamePage';
 
 const config = getConfig();
 Amplify.configure({
@@ -103,8 +103,11 @@ function Router() {
                             />
                             <Route path='games'>
                                 <Route index element={<ListGamesPage />} />
-                                <Route path='submit' element={<SubmitGamePage />} />
-                                <Route path=':cohort/:id' element={<GamePage />} />
+                                <Route path='submit' element={<EditGamePage />} />
+                                <Route path=':cohort/:id'>
+                                    <Route index element={<GamePage />} />
+                                    <Route path='edit' element={<EditGamePage />} />
+                                </Route>
                             </Route>
 
                             <Route path='scoreboard'>

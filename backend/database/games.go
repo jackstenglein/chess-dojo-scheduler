@@ -105,6 +105,18 @@ type Game struct {
 }
 
 type GameUpdate struct {
+	// The player with the white pieces
+	White *string `dynamodbav:"white,omitempty" json:"white"`
+
+	// The player with the black pieces
+	Black *string `dynamodbav:"black,omitempty" json:"black"`
+
+	// The PGN headers of the game
+	Headers map[string]string `dynamodbav:"headers,omitempty" json:"headers"`
+
+	// The PGN text of the game
+	Pgn *string `dynamodbav:"pgn,omitempty" json:"pgn,omitempty"`
+
 	// Whether the game has been featured by the sensei
 	IsFeatured *string `dynamodbav:"isFeatured,omitempty" json:"isFeatured"`
 
@@ -126,7 +138,7 @@ type GameUpdater interface {
 	UserGetter
 
 	// UpdateGame applies the specified update to the specified game.
-	UpdateGame(cohort, id string, update *GameUpdate) (*Game, error)
+	UpdateGame(cohort, id, owner string, update *GameUpdate) (*Game, error)
 }
 
 type GameGetter interface {
@@ -199,7 +211,8 @@ func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 	return &game, nil
 }
 
-func (repo *dynamoRepository) UpdateGame(cohort, id string, update *GameUpdate) (*Game, error) {
+// UpdateGame applies the specified update to the specified game.
+func (repo *dynamoRepository) UpdateGame(cohort, id, owner string, update *GameUpdate) (*Game, error) {
 	av, err := dynamodbattribute.MarshalMap(update)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
@@ -231,8 +244,18 @@ func (repo *dynamoRepository) UpdateGame(cohort, id string, update *GameUpdate) 
 		TableName:                 aws.String(gameTable),
 		ReturnValues:              aws.String("ALL_NEW"),
 	}
+
+	if owner != "" {
+		input.SetConditionExpression("attribute_exists(id) AND #owner = :owner")
+		input.ExpressionAttributeNames["#owner"] = aws.String("owner")
+		input.ExpressionAttributeValues[":owner"] = &dynamodb.AttributeValue{S: aws.String(owner)}
+	}
+
 	result, err := repo.svc.UpdateItem(input)
 	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: game not found or you do not have permission to update it", "DynamoDB conditional check failed", aerr)
+		}
 		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 	}
 
