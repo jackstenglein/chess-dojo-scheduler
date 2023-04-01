@@ -72,7 +72,7 @@ const GamePage = () => {
 
         featureRequest.onStart();
         const game = request.data;
-        api.updateGame(
+        api.featureGame(
             game.cohort,
             game.id,
             game.isFeatured === 'true' ? 'false' : 'true'
