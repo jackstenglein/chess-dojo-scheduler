@@ -13,7 +13,7 @@
         "@mui/lab": "^5.0.0-alpha.124",
         "@mui/material": "^5.11.14",
         "@mui/x-data-grid": "^5.17.26",
-        "@mui/x-date-pickers": "^6.0.2",
+        "@mui/x-date-pickers": "^6.0.4",
         "@testing-library/jest-dom": "^5.16.5",
         "@testing-library/react": "^14.0.0",
         "@testing-library/user-event": "^14.4.3",
