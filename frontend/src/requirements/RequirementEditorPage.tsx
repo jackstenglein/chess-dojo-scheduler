@@ -70,6 +70,8 @@ interface RequirementEditorErrors {
     description?: string;
     numberOfCohorts?: string;
     unitScore?: string;
+    totalScore?: string;
+    startCount?: string;
     counts?: {
         [idx: number]: string;
     };
@@ -124,6 +126,8 @@ const RequirementEditorPage = () => {
         `${requirement?.numberOfCohorts ?? 1}`
     );
     const [unitScore, setUnitScore] = useState(`${requirement?.unitScore ?? 0}`);
+    const [totalScore, setTotalScore] = useState(`${requirement?.totalScore ?? 0}`);
+    const [startCount, setStartCount] = useState(`${requirement?.startCount ?? 0}`);
     const [videoUrls, setVideoUrls] = useState(requirement?.videoUrls ?? []);
     const [positionUrls, setPositionUrls] = useState(requirement?.positionUrls ?? []);
     const [scoreboardDisplay, setScoreboardDisplay] = useState(
@@ -142,6 +146,8 @@ const RequirementEditorPage = () => {
             setCounts(getEditorCounts(requirement.counts));
             setNumberOfCohorts(`${requirement.numberOfCohorts}`);
             setUnitScore(`${requirement.unitScore}`);
+            setTotalScore(`${requirement.totalScore}`);
+            setStartCount(`${requirement.startCount}`);
             setVideoUrls(requirement.videoUrls ?? []);
             setPositionUrls(requirement.positionUrls ?? []);
             setScoreboardDisplay(requirement.scoreboardDisplay);
@@ -168,6 +174,8 @@ const RequirementEditorPage = () => {
         counts: newCounts,
         numberOfCohorts: parseInt(numberOfCohorts),
         unitScore: parseFloat(unitScore),
+        totalScore: parseFloat(totalScore),
+        startCount: parseInt(startCount),
         videoUrls,
         positionUrls,
         scoreboardDisplay,
@@ -411,7 +419,25 @@ const RequirementEditorPage = () => {
                         value={unitScore}
                         onChange={(event) => setUnitScore(event.target.value)}
                         error={!!errors.unitScore}
-                        helperText={errors.unitScore}
+                        helperText='The dojo score received per unit completed'
+                    />
+
+                    <TextField
+                        required
+                        label='Total Score'
+                        value={totalScore}
+                        onChange={(event) => setTotalScore(event.target.value)}
+                        error={!!errors.totalScore}
+                        helperText='The dojo score received only when the requirement is fully complete. Overrides Unit Score if non-zero.'
+                    />
+
+                    <TextField
+                        required
+                        label='Start Count'
+                        value={startCount}
+                        onChange={(event) => setStartCount(event.target.value)}
+                        error={!!errors.startCount}
+                        helperText='The starting count applied to all cohorts. For example, Polgar M2s start at 306 instead of 0.'
                     />
 
                     <TextField

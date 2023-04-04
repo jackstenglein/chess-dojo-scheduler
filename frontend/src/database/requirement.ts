@@ -19,8 +19,10 @@ export interface Requirement {
     counts: {
         [cohort: string]: number;
     };
+    startCount: number;
     numberOfCohorts: number;
     unitScore: number;
+    totalScore: number;
     videoUrls?: string[];
     positionUrls?: string[];
     scoreboardDisplay: ScoreboardDisplay;
@@ -108,6 +110,30 @@ export function getCurrentScore(
     if (!progress) {
         return 0;
     }
+
+    if (requirement.totalScore) {
+        if (isComplete(cohort, requirement, progress)) {
+            return requirement.totalScore;
+        }
+        return 0;
+    }
+
     const currentCount = getCurrentCount(cohort, requirement, progress);
-    return currentCount * requirement.unitScore;
+    return Math.max(currentCount - requirement.startCount, 0) * requirement.unitScore;
+}
+
+export function getTotalScore(cohort: string | undefined, requirements: Requirement[]) {
+    if (!cohort) {
+        return 0;
+    }
+
+    const totalScore = requirements.reduce((sum, r) => {
+        if (r.totalScore) {
+            return sum + r.totalScore;
+        }
+        const count = r.counts[cohort] || 0;
+        return sum + (count - r.startCount) * r.unitScore;
+    }, 0);
+
+    return totalScore;
 }

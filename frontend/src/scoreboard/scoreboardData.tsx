@@ -9,6 +9,7 @@ import ScoreboardProgress from './ScoreboardProgress';
 import {
     getCurrentCount,
     getCurrentScore,
+    getTotalScore,
     Requirement,
     ScoreboardDisplay,
 } from '../database/requirement';
@@ -45,7 +46,13 @@ export function getColumnDefinition(
             case ScoreboardDisplay.Unspecified:
             case ScoreboardDisplay.ProgressBar:
             default:
-                return <ScoreboardProgress value={score} max={totalCount} min={0} />;
+                return (
+                    <ScoreboardProgress
+                        value={score}
+                        max={totalCount}
+                        min={requirement.startCount}
+                    />
+                );
         }
     };
 
@@ -84,11 +91,7 @@ export function getPercentComplete(
         return 0;
     }
 
-    const totalScore = requirements.reduce((sum, r) => {
-        const count = r.counts[cohort] || 0;
-        return sum + count * r.unitScore;
-    }, 0);
-
+    const totalScore = getTotalScore(cohort, requirements);
     const userScore = getCohortScore(params, cohort, requirements);
     return (userScore / totalScore) * 100;
 }

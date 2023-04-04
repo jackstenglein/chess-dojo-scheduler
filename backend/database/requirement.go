@@ -1,6 +1,8 @@
 package database
 
 import (
+	"math"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -48,12 +50,18 @@ type Requirement struct {
 	// ALL_COHORTS is *not* a valid value.
 	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`
 
+	// The minimum starting value, applied to all cohorts. For example, the M2s start at 307
+	StartCount int `dynamodbav:"startCount" json:"startCount"`
+
 	// The number of cohorts the requirement must be completed in before completion
 	// is "carried over" to new cohorts
 	NumberOfCohorts int `dynamodbav:"numberOfCohorts" json:"numberOfCohorts"`
 
 	// The score per unit
 	UnitScore float32 `dynamodbav:"unitScore" json:"unitScore"`
+
+	// The total score received after completing the requirement. Overrides UnitScore if non-zero
+	TotalScore float32 `dynamodbav:"totalScore" json:"totalScore"`
 
 	// The URLs of the videos describing the requirement, if any exist
 	VideoUrls []string `dynamodbav:"videoUrls" json:"videoUrls"`
@@ -80,21 +88,28 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 	if _, ok := r.Counts[cohort]; !ok {
 		return 0
 	}
+
+	var count int
 	if r.NumberOfCohorts == 1 || r.NumberOfCohorts == 0 {
-		count, _ := progress.Counts[AllCohorts]
-		return r.UnitScore * float32(count)
-	}
-	if r.NumberOfCohorts > 1 && len(progress.Counts) >= r.NumberOfCohorts {
-		var maxCount int = 0
-		for _, count := range progress.Counts {
-			if count > maxCount {
-				maxCount = count
+		count, _ = progress.Counts[AllCohorts]
+	} else if r.NumberOfCohorts > 1 && len(progress.Counts) >= r.NumberOfCohorts {
+		for _, c := range progress.Counts {
+			if c > count {
+				count = c
 			}
 		}
-		return r.UnitScore * float32(maxCount)
+	} else {
+		count, _ = progress.Counts[cohort]
 	}
-	count, _ := progress.Counts[cohort]
-	return r.UnitScore * float32(count)
+
+	if r.TotalScore > 0 {
+		if count >= r.Counts[cohort] {
+			return r.TotalScore
+		}
+		return 0
+	}
+
+	return float32(math.Max(float64(count-r.StartCount), 0)) * r.UnitScore
 }
 
 type RequirementProgress struct {

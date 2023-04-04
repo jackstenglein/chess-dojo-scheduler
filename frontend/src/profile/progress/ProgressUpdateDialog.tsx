@@ -132,7 +132,12 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
                         </TextField>
                     )}
                     {isSlider && (
-                        <InputSlider value={value} setValue={setValue} max={totalCount} />
+                        <InputSlider
+                            value={value}
+                            setValue={setValue}
+                            max={totalCount}
+                            min={requirement.startCount}
+                        />
                     )}
                     <DialogContentText>
                         Optionally add how long it took to{' '}

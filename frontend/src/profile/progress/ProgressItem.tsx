@@ -51,7 +51,11 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
         case ScoreboardDisplay.ProgressBar:
         case ScoreboardDisplay.Unspecified:
             DescriptionElement = (
-                <ScoreboardProgress value={currentCount} max={totalCount} min={0} />
+                <ScoreboardProgress
+                    value={currentCount}
+                    max={totalCount}
+                    min={requirement.startCount}
+                />
             );
             UpdateElement =
                 currentCount >= totalCount ? (

@@ -4,9 +4,10 @@ interface InputSliderProps {
     value: number;
     setValue: React.Dispatch<React.SetStateAction<number>>;
     max: number;
+    min: number;
 }
 
-const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max }) => {
+const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max, min }) => {
     const handleSliderChange = (event: Event, newValue: number | number[]) => {
         setValue(newValue as number);
     };
@@ -16,8 +17,8 @@ const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max }) => {
     };
 
     const handleBlur = () => {
-        if (value < 0) {
-            setValue(0);
+        if (value < min) {
+            setValue(min);
         } else if (value > max) {
             setValue(max);
         }
@@ -38,6 +39,7 @@ const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max }) => {
                     aria-labelledby='input-slider'
                     step={1}
                     max={max}
+                    min={min}
                 />
             </Grid>
             <Grid item xs={2}>
@@ -48,7 +50,7 @@ const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max }) => {
                     onBlur={handleBlur}
                     inputProps={{
                         step: 1,
-                        min: 0,
+                        min: min,
                         max: max,
                         type: 'number',
                         'aria-labelledby': 'input-slider',
