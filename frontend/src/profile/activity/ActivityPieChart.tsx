@@ -1,27 +1,38 @@
 import { useState, useMemo } from 'react';
-import { Stack, TextField, MenuItem, Typography, Container, Box } from '@mui/material';
-import CircleIcon from '@mui/icons-material/Circle';
-import { PieChart } from 'react-minimal-pie-chart';
-import Tooltip from 'react-tooltip';
+import { Stack, TextField, MenuItem } from '@mui/material';
 
-import { Requirement } from '../../database/requirement';
 import { compareCohorts, User } from '../../database/user';
-import { CategoryColors } from './activity';
 import { useRequirements } from '../../api/cache/requirements';
+import { getCurrentScore, Requirement } from '../../database/requirement';
+import PieChart, { PieChartData } from './PieChart';
+import { CategoryColors } from './activity';
 
-const defaultLabelStyle = {
-    fontSize: '5px',
-    fontFamily: 'sans-serif',
-};
+function getScoreChartData(
+    requirements: Requirement[],
+    user: User,
+    cohort: string
+): PieChartData[] {
+    const data: Record<string, PieChartData> = {};
 
-interface PieChartData {
-    requirementId: string;
-    name: string;
-    value: number;
-    color: string;
+    for (const requirement of requirements) {
+        const category = requirement.category;
+        const score = getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+
+        if (data[category]) {
+            data[category].value += score;
+        } else if (score > 0) {
+            data[category] = {
+                name: category,
+                value: score,
+                color: CategoryColors[category],
+            };
+        }
+    }
+
+    return Object.values(data);
 }
 
-function getPieChartData(
+function getTimeChartData(
     requirements: Requirement[],
     user: User,
     cohort: string
@@ -46,7 +57,6 @@ function getPieChartData(
             data[categoryName].value += progress.minutesSpent[cohort];
         } else {
             data[categoryName] = {
-                requirementId: requirement.id,
                 name: categoryName,
                 value: progress.minutesSpent[cohort],
                 color: CategoryColors[requirement.category],
@@ -57,7 +67,7 @@ function getPieChartData(
     return Object.values(data);
 }
 
-function getPieChartTooltip(entry: PieChartData) {
+function getTimeChartTooltip(entry: PieChartData) {
     const hours = Math.floor(entry.value / 60);
     const minutes = entry.value % 60;
     return `${entry.name} - ${hours}h ${minutes}m`;
@@ -69,12 +79,7 @@ interface ActivityPieChartProps {
 
 const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
     const [cohort, setCohort] = useState(user.dojoCohort);
-    const [hovered, setHovered] = useState<number | null>(null);
     const { requirements } = useRequirements(cohort, false);
-
-    const data = useMemo(() => {
-        return getPieChartData(requirements, user, cohort);
-    }, [requirements, user, cohort]);
 
     const cohortOptions = useMemo(() => {
         return Object.values(user.progress)
@@ -85,27 +90,28 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
             .filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
     }, [user.progress, user.dojoCohort]);
 
+    const scoreChartData = useMemo(() => {
+        return getScoreChartData(requirements, user, cohort);
+    }, [requirements, user, cohort]);
+
+    const cohortScore = useMemo(() => {
+        let score = 0;
+        for (const requirement of requirements) {
+            score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+        }
+        return Math.round(score * 100) / 100;
+    }, [requirements, user, cohort]);
+
+    const timeChartData = useMemo(() => {
+        return getTimeChartData(requirements, user, cohort);
+    }, [requirements, user, cohort]);
+
     const onChangeCohort = (cohort: string) => {
         setCohort(cohort);
     };
 
     return (
-        <Stack
-            spacing={2}
-            justifyContent='center'
-            alignItems='center'
-            position={{
-                xs: 'static',
-                sm: 'sticky',
-            }}
-            top={{
-                xs: 0,
-                sm: '88px',
-            }}
-        >
-            <Typography variant='h6' alignSelf='start'>
-                Time Breakdown
-            </Typography>
+        <Stack spacing={3} justifyContent='center' alignItems='center'>
             <TextField
                 select
                 label='Cohort'
@@ -121,53 +127,20 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
                 ))}
             </TextField>
 
-            {data.length === 0 && (
-                <Typography sx={{ paddingTop: 2 }}>No time data</Typography>
-            )}
+            <PieChart
+                id='score-chart'
+                title='Score Breakdown'
+                subtitle={`Total Cohort Score: ${cohortScore}`}
+                data={scoreChartData}
+                getTooltip={(entry) => `${entry.name} - ${entry.value}`}
+            />
 
-            {data.length > 0 && (
-                <Container maxWidth='sm'>
-                    <Box data-tip='' data-for='chart'>
-                        <PieChart
-                            label={({ dataEntry }) =>
-                                `${Math.round(dataEntry.percentage)}%`
-                            }
-                            labelStyle={defaultLabelStyle}
-                            labelPosition={65}
-                            data={data}
-                            onMouseOver={(_, index) => {
-                                setHovered(index);
-                            }}
-                            onMouseOut={() => {
-                                setHovered(null);
-                            }}
-                        />
-                        <Tooltip
-                            id='chart'
-                            getContent={() =>
-                                hovered === null
-                                    ? undefined
-                                    : getPieChartTooltip(data[hovered])
-                            }
-                        />
-                    </Box>
-                    <Stack
-                        direction='row'
-                        spacing={2}
-                        justifyContent='center'
-                        mt={2}
-                        flexWrap='wrap'
-                        rowGap={1}
-                    >
-                        {data.map((d) => (
-                            <Stack key={d.name} direction='row' alignItems='center'>
-                                <CircleIcon sx={{ color: d.color }} />
-                                <Typography ml={'2px'}>{d.name}</Typography>
-                            </Stack>
-                        ))}
-                    </Stack>
-                </Container>
-            )}
+            <PieChart
+                id='time-chart'
+                title='Time Breakdown'
+                data={timeChartData}
+                getTooltip={getTimeChartTooltip}
+            />
         </Stack>
     );
 };

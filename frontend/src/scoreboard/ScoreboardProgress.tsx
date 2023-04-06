@@ -1,7 +1,12 @@
 import { Box, LinearProgress, LinearProgressProps, Typography } from '@mui/material';
 
 function ScoreboardProgress(
-    props: LinearProgressProps & { value: number; max: number; min: number }
+    props: LinearProgressProps & {
+        value: number;
+        max: number;
+        min: number;
+        label?: string;
+    }
 ) {
     const normalized = ((props.value - props.min) * 100) / (props.max - props.min);
 
@@ -11,10 +16,9 @@ function ScoreboardProgress(
                 <LinearProgress variant='determinate' {...props} value={normalized} />
             </Box>
             <Box>
-                <Typography
-                    variant='body2'
-                    color='text.secondary'
-                >{`${props.value}/${props.max}`}</Typography>
+                <Typography variant='body2' color='text.secondary'>
+                    {props.label ? props.label : `${props.value}/${props.max}`}
+                </Typography>
             </Box>
         </Box>
     );

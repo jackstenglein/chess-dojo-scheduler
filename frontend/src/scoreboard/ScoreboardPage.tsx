@@ -16,6 +16,7 @@ import LoadingPage from '../loading/LoadingPage';
 import {
     formatPercentComplete,
     formatRatingSystem,
+    getCategoryScore,
     getCohortScore,
     getColumnDefinition,
     getCurrentRating,
@@ -28,6 +29,7 @@ import { dojoCohorts, User } from '../database/user';
 import { Graduation } from '../database/graduation';
 import GraduationIcon from './GraduationIcon';
 import { useRequirements } from '../api/cache/requirements';
+import ScoreboardProgress from './ScoreboardProgress';
 
 interface ColumnGroupChild {
     field: string;
@@ -48,17 +50,27 @@ const defaultColumnGroups: ColumnGroup[] = [
         children: [
             { field: 'discordUsername' },
             { field: 'previousCohort' },
-            { field: 'cohortScore' },
-            { field: 'percentComplete' },
             { field: 'ratingSystem' },
             { field: 'startRating' },
             { field: 'currentRating' },
             { field: 'ratingChange' },
         ],
     },
+    {
+        groupId: 'Progress',
+        children: [
+            { field: 'cohortScore' },
+            { field: 'gamesAndAnalysisScore' },
+            { field: 'middlegamesAndStrategyScore' },
+            { field: 'tacticsScore' },
+            { field: 'endgamesScore' },
+            { field: 'openingsScore' },
+            { field: 'percentComplete' },
+        ],
+    },
 ];
 
-const usernameColumns: GridColDef<ScoreboardRow>[] = [
+const userInfoColumns: GridColDef<ScoreboardRow>[] = [
     {
         field: 'discordUsername',
         headerName: 'Discord ID',
@@ -75,9 +87,6 @@ const usernameColumns: GridColDef<ScoreboardRow>[] = [
         },
         align: 'center',
     },
-];
-
-const userInfoColumns: GridColDef<ScoreboardRow>[] = [
     {
         field: 'ratingSystem',
         headerName: 'Rating System',
@@ -89,18 +98,21 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
         headerName: 'Start Rating',
         minWidth: 150,
         valueGetter: getStartRating,
+        align: 'center',
     },
     {
         field: 'currentRating',
         headerName: 'Current Rating',
         minWidth: 150,
         valueGetter: getCurrentRating,
+        align: 'center',
     },
     {
         field: 'ratingChange',
         headerName: 'Rating Change',
         minWidth: 150,
         valueGetter: getRatingChange,
+        align: 'center',
     },
 ];
 
@@ -149,6 +161,52 @@ const ScoreboardPage = () => {
                 minWidth: 150,
                 valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
                     getCohortScore(params, cohort, requirements),
+                align: 'center',
+            },
+            {
+                field: 'gamesAndAnalysisScore',
+                headerName: 'Games + Analysis Score',
+                minWidth: 200,
+                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                    getCategoryScore(params, cohort, 'Games + Analysis', requirements),
+                align: 'center',
+            },
+            {
+                field: 'middlegamesAndStrategyScore',
+                headerName: 'Middlegames + Strategy Score',
+                minWidth: 225,
+                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                    getCategoryScore(
+                        params,
+                        cohort,
+                        'Middlegames + Strategy',
+                        requirements
+                    ),
+                align: 'center',
+            },
+            {
+                field: 'tacticsScore',
+                headerName: 'Tactics Score',
+                minWidth: 150,
+                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                    getCategoryScore(params, cohort, 'Tactics', requirements),
+                align: 'center',
+            },
+            {
+                field: 'endgamesScore',
+                headerName: 'Endgames Score',
+                minWidth: 150,
+                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                    getCategoryScore(params, cohort, 'Endgames', requirements),
+                align: 'center',
+            },
+            {
+                field: 'openingsScore',
+                headerName: 'Openings Score',
+                minWidth: 150,
+                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                    getCategoryScore(params, cohort, 'Openings', requirements),
+                align: 'center',
             },
             {
                 field: 'percentComplete',
@@ -156,7 +214,15 @@ const ScoreboardPage = () => {
                 minWidth: 175,
                 valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
                     getPercentComplete(params, cohort, requirements),
-                valueFormatter: formatPercentComplete,
+                renderCell: (params: GridRenderCellParams<number, ScoreboardRow>) => (
+                    <ScoreboardProgress
+                        value={params.value ?? 0}
+                        max={100}
+                        min={0}
+                        label={formatPercentComplete(params.value ?? 0)}
+                    />
+                ),
+                align: 'center',
             },
         ],
         [requirements, cohort]
@@ -223,11 +289,7 @@ const ScoreboardPage = () => {
             <DataGrid
                 sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
                 experimentalFeatures={{ columnGrouping: true }}
-                columns={usernameColumns.concat(
-                    cohortScoreColumns,
-                    userInfoColumns,
-                    requirementColumns
-                )}
+                columns={userInfoColumns.concat(cohortScoreColumns, requirementColumns)}
                 columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
                 rows={usersRequest.data ?? []}
                 loading={usersRequest.isLoading()}
@@ -238,11 +300,7 @@ const ScoreboardPage = () => {
             <DataGrid
                 sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
                 experimentalFeatures={{ columnGrouping: true }}
-                columns={usernameColumns.concat(
-                    cohortScoreColumns,
-                    userInfoColumns,
-                    requirementColumns
-                )}
+                columns={userInfoColumns.concat(cohortScoreColumns, requirementColumns)}
                 columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
                 rows={graduationsRequest.data ?? []}
                 loading={graduationsRequest.isLoading()}

@@ -79,7 +79,27 @@ export function getCohortScore(
     for (const requirement of requirements) {
         score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
     }
-    return score;
+    return Math.round(score * 100) / 100;
+}
+
+export function getCategoryScore(
+    params: GridValueGetterParams<any, ScoreboardRow>,
+    cohort: string | undefined,
+    category: string,
+    requirements: Requirement[]
+): number {
+    if (!cohort) {
+        return 0;
+    }
+
+    const user = params.row;
+    let score = 0;
+    for (const requirement of requirements) {
+        if (requirement.category === category) {
+            score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+        }
+    }
+    return Math.round(score * 100) / 100;
 }
 
 export function getPercentComplete(
@@ -96,8 +116,8 @@ export function getPercentComplete(
     return (userScore / totalScore) * 100;
 }
 
-export function formatPercentComplete(params: GridValueFormatterParams<number>) {
-    return `${Math.round(params.value)}%`;
+export function formatPercentComplete(value: number) {
+    return `${Math.round(value)}%`;
 }
 
 export function formatRatingSystem(params: GridValueFormatterParams<RatingSystem>) {
