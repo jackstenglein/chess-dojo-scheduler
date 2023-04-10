@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@aldabil/react-scheduler": "^2.7.2",
-        "@aws-amplify/auth": "^5.2.0",
+        "@aws-amplify/auth": "^5.2.3",
         "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
         "@mliebelt/pgn-viewer": "^1.6.3",
