@@ -20,6 +20,7 @@ interface MenuProps {
 const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const auth = useAuth();
     const isAdmin = auth.user?.isAdmin;
+    const isBetaTester = auth.user?.isBetaTester;
     const navigate = useNavigate();
 
     return (
@@ -37,27 +38,36 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                     {meetingText}
                 </Button>
 
-                <Button onClick={() => navigate('/profile')} sx={{ color: 'white' }}>
-                    Profile
-                </Button>
-
                 <Button onClick={() => navigate('/games')} sx={{ color: 'white' }}>
                     Games
                 </Button>
-            </Box>
 
-            {isAdmin && (
-                <Box>
+                {(isAdmin || isBetaTester) && (
                     <Button
                         onClick={() => navigate('/scoreboard')}
                         sx={{ color: 'white' }}
                     >
                         Scoreboard
                     </Button>
+                )}
+
+                <Button onClick={() => navigate('/profile')} sx={{ color: 'white' }}>
+                    Profile
+                </Button>
+            </Box>
+
+            {isAdmin && (
+                <Box>
                     <Button onClick={() => navigate('/admin')} sx={{ color: 'white' }}>
                         Admin Portal
                     </Button>
                 </Box>
+            )}
+
+            {(isAdmin || isBetaTester) && (
+                <Button onClick={() => navigate('/help')} sx={{ color: 'white' }}>
+                    Help
+                </Button>
             )}
 
             <Button onClick={auth.signout} sx={{ color: 'white' }}>
@@ -72,6 +82,7 @@ const SmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const isAdmin = auth.user?.isAdmin;
+    const isBetaTester = auth.user?.isBetaTester;
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -118,20 +129,24 @@ const SmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                 <MenuItem onClick={handleClick(() => navigate('/games'))}>
                     <Typography textAlign='center'>Game Database</Typography>
                 </MenuItem>
+                {(isAdmin || isBetaTester) && (
+                    <MenuItem onClick={handleClick(() => navigate('/scoreboard'))}>
+                        <Typography textAlign='center'>Scoreboard</Typography>
+                    </MenuItem>
+                )}
                 <MenuItem onClick={handleClick(() => navigate('/profile'))}>
                     <Typography textAlign='center'>Profile</Typography>
                 </MenuItem>
-                {isAdmin && [
-                    <MenuItem
-                        key='scoreboard'
-                        onClick={handleClick(() => navigate('/scoreboard'))}
-                    >
-                        <Typography textAlign='center'>Scoreboard</Typography>
-                    </MenuItem>,
-                    <MenuItem key='admin' onClick={handleClick(() => navigate('/admin'))}>
+                {isAdmin && (
+                    <MenuItem onClick={handleClick(() => navigate('/admin'))}>
                         <Typography textAlign='center'>Admin Portal</Typography>
-                    </MenuItem>,
-                ]}
+                    </MenuItem>
+                )}
+                {(isAdmin || isBetaTester) && (
+                    <MenuItem onClick={handleClick(() => navigate('/help'))}>
+                        <Typography textAlign='center'>Help</Typography>
+                    </MenuItem>
+                )}
                 <MenuItem onClick={handleClick(auth.signout)}>
                     <Typography textAlign='center' color='error'>
                         Sign Out

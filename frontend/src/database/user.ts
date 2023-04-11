@@ -75,6 +75,7 @@ export interface User {
     disableBookingNotifications: boolean;
     disableCancellationNotifications: boolean;
     isAdmin: boolean;
+    isBetaTester: boolean;
     createdAt: string;
     numberOfGraduations: number;
     previousCohort: string;
