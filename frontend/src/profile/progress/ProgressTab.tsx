@@ -9,6 +9,7 @@ import {
     TextField,
     MenuItem,
     Chip,
+    Button,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -38,6 +39,14 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     const graduationsRequest = useRequest<Graduation[]>();
     const [cohort, setCohort] = useState(user.dojoCohort);
     const { requirements, request: requirementRequest } = useRequirements(cohort, false);
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({
+        'Welcome to the Dojo': false,
+        'Games + Analysis': false,
+        Tactics: false,
+        'Middlegames + Strategy': false,
+        Endgame: false,
+        Opening: false,
+    });
 
     useEffect(() => {
         setCohort(user.dojoCohort);
@@ -84,6 +93,35 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         setCohort(cohort);
     };
 
+    const toggleExpand = (category: string) => {
+        setExpanded({
+            ...expanded,
+            [category]: !expanded[category],
+        });
+    };
+
+    const onExpandAll = () => {
+        setExpanded({
+            'Welcome to the Dojo': true,
+            'Games + Analysis': true,
+            Tactics: true,
+            'Middlegames + Strategy': true,
+            Endgame: true,
+            Opening: true,
+        });
+    };
+
+    const onCollapseAll = () => {
+        setExpanded({
+            'Welcome to the Dojo': false,
+            'Games + Analysis': false,
+            Tactics: false,
+            'Middlegames + Strategy': false,
+            Endgame: false,
+            Opening: false,
+        });
+    };
+
     return (
         <Stack alignItems='start'>
             <RequestSnackbar request={requirementRequest} />
@@ -119,8 +157,18 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                 />
             )}
 
+            <Stack direction='row' spacing={1} width={1} justifyContent='end'>
+                <Button onClick={onExpandAll}>Expand All</Button>
+                <Button onClick={onCollapseAll}>Collapse All</Button>
+            </Stack>
+
             {categories.map((c) => (
-                <Accordion key={c.name} sx={{ width: 1 }}>
+                <Accordion
+                    key={c.name}
+                    expanded={expanded[c.name]}
+                    onChange={() => toggleExpand(c.name)}
+                    sx={{ width: 1 }}
+                >
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls={`${c.name}-content`}

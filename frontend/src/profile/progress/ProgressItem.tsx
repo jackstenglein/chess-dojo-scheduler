@@ -20,7 +20,7 @@ interface ProgressItemProps {
     isCurrentUser: boolean;
 }
 
-const DESCRIPTION_MAX_LENGTH = 90;
+const DESCRIPTION_MAX_LENGTH = 180;
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
     progress,
