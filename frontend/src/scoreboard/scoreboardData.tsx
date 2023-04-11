@@ -1,9 +1,12 @@
+import { Link } from 'react-router-dom';
 import {
     GridColDef,
     GridRenderCellParams,
     GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { IconButton } from '@mui/material';
 
 import ScoreboardProgress from './ScoreboardProgress';
 import {
@@ -64,6 +67,19 @@ export function getColumnDefinition(
     return {
         field: requirement.id,
         headerName: headerName,
+        renderHeader: () => (
+            <>
+                {headerName}
+                <Link to={`/requirements/${requirement.id}`}>
+                    <IconButton aria-label={`Info ${requirement.name}`}>
+                        <InfoOutlinedIcon
+                            sx={{ color: 'text.secondary' }}
+                            fontSize='small'
+                        />
+                    </IconButton>
+                </Link>
+            </>
+        ),
         minWidth: 250,
         valueGetter,
         renderCell,
