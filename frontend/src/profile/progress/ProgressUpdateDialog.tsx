@@ -109,10 +109,15 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
             });
     };
 
+    let requirementName = requirement.name;
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
+        requirementName += ` (${totalCount})`;
+    }
+
     return (
         <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
             <DialogTitle>
-                {isSlider ? 'Update' : 'Complete'} {requirement.name}?
+                {isSlider ? 'Update' : 'Complete'} {requirementName}?
             </DialogTitle>
             <DialogContent>
                 <Stack spacing={2}>

@@ -1,5 +1,5 @@
 export const CategoryColors: Record<string, string> = {
-    'Welcome to the Dojo': '#673ab7', // deep purple
+    'Welcome to the Dojo': '#c27ba0', // light magenta 1
     'Games + Analysis': '#ff9900', // orange
     Tactics: '#38761d', // dark green 2
     'Middlegames + Strategy': '#0000ff', // blue

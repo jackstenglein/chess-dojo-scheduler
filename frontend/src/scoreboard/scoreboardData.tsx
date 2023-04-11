@@ -56,9 +56,14 @@ export function getColumnDefinition(
         }
     };
 
+    let headerName = requirement.name;
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
+        headerName += ` (${totalCount})`;
+    }
+
     return {
         field: requirement.id,
-        headerName: requirement.name,
+        headerName: headerName,
         minWidth: 250,
         valueGetter,
         renderCell,

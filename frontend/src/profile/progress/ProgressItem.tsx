@@ -71,6 +71,11 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             break;
     }
 
+    let requirementName = requirement.name;
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
+        requirementName += ` (${totalCount})`;
+    }
+
     return (
         <Stack spacing={2} mt={2}>
             <ProgressUpdateDialog
@@ -87,7 +92,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 justifyContent='space-between'
             >
                 <Grid item xs={9} xl={10}>
-                    <Typography>{requirement.name}</Typography>
+                    <Typography>{requirementName}</Typography>
                     <Typography color='text.secondary'>
                         {`${requirement.description.substring(
                             0,

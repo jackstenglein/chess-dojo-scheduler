@@ -45,12 +45,17 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
     const currentCount = progress?.counts[cohort] || progress?.counts[ALL_COHORTS] || 0;
     const isComplete = currentCount >= totalCount;
 
+    let requirementName = requirement.name;
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
+        requirementName += ` (${totalCount})`;
+    }
+
     return (
         <>
             <Stack spacing={3}>
                 <Stack direction='row' justifyContent='space-between' alignItems='center'>
                     <Stack>
-                        <Typography variant='h4'>{requirement.name}</Typography>
+                        <Typography variant='h4'>{requirementName}</Typography>
                         <Typography variant='h5' color='text.secondary'>
                             {requirement.category}
                         </Typography>

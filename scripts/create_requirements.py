@@ -2,6 +2,7 @@ import boto3
 import csv
 import uuid
 import datetime
+from decimal import Decimal
 
 db = boto3.resource('dynamodb')
 table = db.Table('dev-requirements')
@@ -59,6 +60,7 @@ def getStartCount(row: dict):
 def main():
     items = []
     categories = {
+        'Welcome to the Dojo': [],
         'Games + Analysis': [],
         'Tactics': [],
         'Middlegames + Strategy': [],
@@ -68,7 +70,7 @@ def main():
     updatedAt = datetime.datetime.utcnow().isoformat('T') + 'Z'
 
     with open('requirements.csv', newline='') as infile:
-        with open('out_requirements.csv', newline='') as outfile:
+        with open('out_requirements.csv', 'w') as outfile:
             reader = csv.DictReader(infile)
             writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames)
             writer.writeheader()
@@ -82,7 +84,7 @@ def main():
                 startCount = getStartCount(row)
 
                 if not row['ID']:
-                    row['ID'] = uuid.uuid4()
+                    row['ID'] = str(uuid.uuid4())
 
                 writer.writerow(row)
                 item = {
@@ -94,8 +96,8 @@ def main():
                     'counts': counts,
                     'startCount': startCount,
                     'numberOfCohorts': int(row['# of Cohorts']) if row['# of Cohorts'] else 1,
-                    'unitScore': float(row['Unit Score']) if row['Unit Score'] else 0,
-                    'totalScore': float(row['Total Score']) if row['Total Score'] else 0,
+                    'unitScore': Decimal(row['Unit Score']) if row['Unit Score'] else 0,
+                    'totalScore': Decimal(row['Total Score']) if row['Total Score'] else 0,
                     'videoUrls': row['Videos'].split(',') if row['Videos'] else [],
                     'positionUrls': row['Positions'].split(',') if row['Positions'] else [],
                     'scoreboardDisplay': row['Scoreboard Display'],
