@@ -63,8 +63,8 @@ const defaultColumnGroups: ColumnGroup[] = [
             { field: 'gamesAndAnalysisScore' },
             { field: 'middlegamesAndStrategyScore' },
             { field: 'tacticsScore' },
-            { field: 'endgamesScore' },
-            { field: 'openingsScore' },
+            { field: 'endgameScore' },
+            { field: 'openingScore' },
             { field: 'percentComplete' },
         ],
     },
@@ -193,19 +193,19 @@ const ScoreboardPage = () => {
                 align: 'center',
             },
             {
-                field: 'endgamesScore',
-                headerName: 'Endgames Score',
+                field: 'endgameScore',
+                headerName: 'Endgame Score',
                 minWidth: 150,
                 valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
-                    getCategoryScore(params, cohort, 'Endgames', requirements),
+                    getCategoryScore(params, cohort, 'Endgame', requirements),
                 align: 'center',
             },
             {
-                field: 'openingsScore',
-                headerName: 'Openings Score',
+                field: 'openingScore',
+                headerName: 'Opening Score',
                 minWidth: 150,
                 valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
-                    getCategoryScore(params, cohort, 'Openings', requirements),
+                    getCategoryScore(params, cohort, 'Opening', requirements),
                 align: 'center',
             },
             {
