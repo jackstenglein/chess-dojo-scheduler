@@ -89,9 +89,11 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                     )}
                 </Stack>
 
-                <Typography variant='body1' sx={{ whiteSpace: 'pre-line', mt: 3 }}>
-                    {requirement.description}
-                </Typography>
+                <Typography
+                    variant='body1'
+                    sx={{ whiteSpace: 'pre-line', mt: 3 }}
+                    dangerouslySetInnerHTML={{ __html: requirement.description }}
+                />
 
                 {requirement.positionUrls?.length === 1 && (
                     <Position url={requirement.positionUrls[0]} />

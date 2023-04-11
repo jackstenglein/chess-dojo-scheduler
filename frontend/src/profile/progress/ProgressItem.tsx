@@ -93,16 +93,18 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             >
                 <Grid item xs={9} xl={10}>
                     <Typography>{requirementName}</Typography>
-                    <Typography color='text.secondary'>
-                        {`${requirement.description.substring(
-                            0,
-                            DESCRIPTION_MAX_LENGTH
-                        )}${
-                            requirement.description.length > DESCRIPTION_MAX_LENGTH
-                                ? '...'
-                                : ''
-                        }`}
-                    </Typography>
+                    <Typography
+                        color='text.secondary'
+                        dangerouslySetInnerHTML={{
+                            __html: requirement.description,
+                        }}
+                        sx={{
+                            WebkitLineClamp: 3,
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                        }}
+                    />
                     {DescriptionElement}
                 </Grid>
                 <Grid item xs={2} xl={1}>
