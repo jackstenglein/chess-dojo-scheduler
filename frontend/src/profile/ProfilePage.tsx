@@ -26,10 +26,11 @@ const ProfilePage = () => {
     const api = useApi();
     const currentUser = useAuth().user!;
     const request = useRequest<User>();
-    const [tab, setTab] = useState('progress');
-    const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     const currentUserProfile = !username || username === currentUser.username;
+
+    const [tab, setTab] = useState(currentUserProfile ? 'progress' : 'activity');
+    const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     useEffect(() => {
         if (!currentUserProfile && !request.isSent()) {
