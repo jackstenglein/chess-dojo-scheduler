@@ -42,14 +42,9 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                     Games
                 </Button>
 
-                {(isAdmin || isBetaTester) && (
-                    <Button
-                        onClick={() => navigate('/scoreboard')}
-                        sx={{ color: 'white' }}
-                    >
-                        Scoreboard
-                    </Button>
-                )}
+                <Button onClick={() => navigate('/scoreboard')} sx={{ color: 'white' }}>
+                    Scoreboard
+                </Button>
 
                 <Button onClick={() => navigate('/profile')} sx={{ color: 'white' }}>
                     Profile
@@ -129,11 +124,9 @@ const SmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                 <MenuItem onClick={handleClick(() => navigate('/games'))}>
                     <Typography textAlign='center'>Game Database</Typography>
                 </MenuItem>
-                {(isAdmin || isBetaTester) && (
-                    <MenuItem onClick={handleClick(() => navigate('/scoreboard'))}>
-                        <Typography textAlign='center'>Scoreboard</Typography>
-                    </MenuItem>
-                )}
+                <MenuItem onClick={handleClick(() => navigate('/scoreboard'))}>
+                    <Typography textAlign='center'>Scoreboard</Typography>
+                </MenuItem>
                 <MenuItem onClick={handleClick(() => navigate('/profile'))}>
                     <Typography textAlign='center'>Profile</Typography>
                 </MenuItem>
