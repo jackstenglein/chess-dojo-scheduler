@@ -101,6 +101,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                             display: '-webkit-box',
                             WebkitBoxOrient: 'vertical',
                             overflow: 'hidden',
+                            whiteSpace: 'pre-wrap',
                         }}
                     />
                     {DescriptionElement}
