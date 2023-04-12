@@ -12,7 +12,6 @@ const EditGamePage = () => {
 
     const onCreate = (req: CreateGameRequest) => {
         request.onStart();
-        request.onStart();
         api.createGame(req)
             .then((response) => {
                 navigate(

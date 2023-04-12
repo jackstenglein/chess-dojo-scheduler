@@ -91,6 +91,8 @@ func AddPlyCount(headers map[string]string, pgnText string) (string, error) {
 	return newPgn, nil
 }
 
+var dateRegex, _ = regexp.Compile(`^\d{4}\.\d{2}\.\d{2}$`)
+
 func GetGame(user *database.User, pgnText string) (*database.Game, error) {
 	headers, err := GetHeaders(pgnText)
 	if err != nil {
@@ -110,6 +112,10 @@ func GetGame(user *database.User, pgnText string) (*database.Game, error) {
 	date, ok := headers["Date"]
 	if !ok {
 		return nil, errors.New(400, "Invalid request: PGN missing `Date` tag", "")
+	}
+
+	if !dateRegex.MatchString(date) {
+		return nil, errors.New(400, "Invalid request: PGN `Date` tag must be in YYYY.MM.DD format", "")
 	}
 
 	if _, ok := headers["PlyCount"]; !ok {
