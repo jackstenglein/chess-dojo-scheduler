@@ -115,8 +115,8 @@ const GamePage = () => {
             {request.data?.pgn && <PgnViewer game={request.data} onFeature={onFeature} />}
 
             {request.data?.pgn && (
-                <Grid container rowSpacing={4} justifyContent='flex-end'>
-                    <Grid item xs={12} md={8} lg={9} mt={{ xs: 3, md: 1 }}>
+                <Grid container justifyContent='flex-end' sx={{ mt: 0 }}>
+                    <Grid item xs={12} md={8} lg={9} mt={{ xs: 3, md: 2 }}>
                         <Stack spacing={2}>
                             <Stack direction='row' my={2} spacing={2}>
                                 <CopyToClipboard
