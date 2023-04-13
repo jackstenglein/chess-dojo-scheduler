@@ -41,7 +41,6 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     aria-label={`Checkbox ${requirement.name}`}
                     checked={currentCount >= totalCount}
                     onClick={() => setShowUpdateDialog(true)}
-                    disabled={currentCount >= totalCount || !isCurrentUser}
                 />
             );
             break;
@@ -57,7 +56,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             );
             UpdateElement =
                 currentCount >= totalCount ? (
-                    <Checkbox checked disabled />
+                    <Checkbox checked onClick={() => setShowUpdateDialog(true)} />
                 ) : !isCurrentUser ? null : (
                     <IconButton
                         aria-label={`Update ${requirement.name}`}

@@ -60,6 +60,8 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
+    const isComplete = currentCount >= totalCount;
+
     const isSlider =
         requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
         requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
@@ -88,7 +90,11 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
             return;
         }
 
-        const updatedValue = isSlider ? value - currentCount : totalCount;
+        const updatedValue = isSlider
+            ? value - currentCount
+            : isComplete
+            ? -totalCount
+            : totalCount;
 
         request.onStart();
         api.updateUserProgress(
@@ -117,7 +123,8 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
     return (
         <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
             <DialogTitle>
-                {isSlider ? 'Update' : 'Complete'} {requirementName}?
+                {isSlider ? 'Update' : isComplete ? 'Uncheck' : 'Complete'}{' '}
+                {requirementName}?
             </DialogTitle>
             <DialogContent>
                 <Stack spacing={2}>
@@ -144,35 +151,60 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
                             min={requirement.startCount}
                         />
                     )}
-                    <DialogContentText>
-                        Optionally add how long it took to{' '}
-                        {isSlider ? 'update' : 'complete'} this requirement in order for
-                        it to be added to your activity breakdown.
-                    </DialogContentText>
-                    <Grid container width={1}>
-                        <Grid item xs={12} sm>
-                            <TextField
-                                label='Hours'
-                                value={hours}
-                                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                onChange={(event) => setHours(event.target.value)}
-                                error={!!errors.hours}
-                                helperText={errors.hours}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
-                            <TextField
-                                label='Minutes'
-                                value={minutes}
-                                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                onChange={(event) => setMinutes(event.target.value)}
-                                error={!!errors.minutes}
-                                helperText={errors.minutes}
-                                fullWidth
-                            />
-                        </Grid>
-                    </Grid>
+                    {isComplete ? (
+                        <DialogContentText>
+                            Your progress on this requirement will be{' '}
+                            {isSlider ? 'updated' : 'reset'}, but any time you previously
+                            entered and associated activity entries for this requirement
+                            will remain.
+                        </DialogContentText>
+                    ) : (
+                        <>
+                            <DialogContentText>
+                                Optionally add how long it took to{' '}
+                                {isSlider ? 'update' : 'complete'} this requirement in
+                                order for it to be added to your activity breakdown.
+                            </DialogContentText>
+                            <Grid container width={1}>
+                                <Grid item xs={12} sm>
+                                    <TextField
+                                        label='Hours'
+                                        value={hours}
+                                        inputProps={{
+                                            inputMode: 'numeric',
+                                            pattern: '[0-9]*',
+                                        }}
+                                        onChange={(event) => setHours(event.target.value)}
+                                        error={!!errors.hours}
+                                        helperText={errors.hours}
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid
+                                    item
+                                    xs={12}
+                                    sm
+                                    pl={{ sm: 2 }}
+                                    pt={{ xs: 2, sm: 0 }}
+                                >
+                                    <TextField
+                                        label='Minutes'
+                                        value={minutes}
+                                        inputProps={{
+                                            inputMode: 'numeric',
+                                            pattern: '[0-9]*',
+                                        }}
+                                        onChange={(event) =>
+                                            setMinutes(event.target.value)
+                                        }
+                                        error={!!errors.minutes}
+                                        helperText={errors.minutes}
+                                        fullWidth
+                                    />
+                                </Grid>
+                            </Grid>
+                        </>
+                    )}
                 </Stack>
             </DialogContent>
             <DialogActions>
@@ -184,7 +216,7 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
                     onClick={onSubmit}
                     disabled={isSlider ? value === currentCount : false}
                 >
-                    {isSlider ? 'Update' : 'Complete'}
+                    {isSlider ? 'Update' : isComplete ? 'Uncheck' : 'Complete'}
                 </LoadingButton>
             </DialogActions>
         </Dialog>

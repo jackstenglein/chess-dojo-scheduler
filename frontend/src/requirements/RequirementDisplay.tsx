@@ -67,6 +67,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                                     icon={<CheckIcon />}
                                     label='Completed'
                                     color='success'
+                                    onClick={() => setShowUpdateDialog(true)}
                                 />
                             )}
                             {!isComplete && (

@@ -48,6 +48,13 @@ function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boole
     const isComplete = timelineEntry.newCount >= timelineEntry.totalCount;
     const timeSpent = getTimeSpent(timelineEntry);
 
+    let description = 'Updated';
+    if (isComplete) {
+        description = 'Completed';
+    } else if (isCheckbox) {
+        description = 'Unchecked';
+    }
+
     return (
         <TimelineItem
             key={`${timelineEntry.requirementId}-${timelineEntry.createdAt}-${timelineEntry.newCount}`}
@@ -66,8 +73,7 @@ function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boole
             </TimelineSeparator>
             <TimelineContent>
                 <Typography variant='subtitle1' component='span'>
-                    {isCheckbox || isComplete ? 'Completed' : 'Updated'}{' '}
-                    {timelineEntry.requirementName}
+                    {description} {timelineEntry.requirementName}
                 </Typography>
                 {!isCheckbox && (
                     <ScoreboardProgress
