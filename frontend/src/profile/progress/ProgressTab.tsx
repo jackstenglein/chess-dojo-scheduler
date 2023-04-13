@@ -16,7 +16,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { isComplete, Requirement } from '../../database/requirement';
-import { dojoCohorts, User } from '../../database/user';
+import {
+    dojoCohorts,
+    formatRatingSystem,
+    ratingBoundaries,
+    RatingSystem,
+    User,
+} from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import ProgressItem from './ProgressItem';
 import { Graduation } from '../../database/graduation';
@@ -141,7 +147,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                 ))}
             </TextField>
 
-            {graduationsRequest.data?.some((g) => g.previousCohort === cohort) && (
+            {graduationsRequest.data?.some((g) => g.previousCohort === cohort) ? (
                 <Chip
                     variant='filled'
                     color='success'
@@ -155,6 +161,19 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                         />
                     }
                 />
+            ) : (
+                <Stack direction='row' alignItems='center' spacing={1} mb={2}>
+                    <Typography>Graduation:</Typography>
+
+                    {Object.values(RatingSystem).map((rs) => (
+                        <Chip
+                            key={rs}
+                            label={`${ratingBoundaries[cohort][rs]} ${formatRatingSystem(
+                                rs
+                            )}`}
+                        />
+                    ))}
+                </Stack>
             )}
 
             <Stack direction='row' spacing={1} width={1} justifyContent='end'>

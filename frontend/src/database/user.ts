@@ -149,7 +149,7 @@ export function compareCohorts(a: string, b: string): number {
     return 1;
 }
 
-const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
+export const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
     '0-300': {
         [RatingSystem.Chesscom]: 550,
         [RatingSystem.Lichess]: 1035,

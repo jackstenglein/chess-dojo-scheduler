@@ -104,6 +104,7 @@ const ProfilePage = () => {
                 <Stack spacing={4}>
                     <RatingCard
                         system={RatingSystem.Chesscom}
+                        cohort={user.dojoCohort}
                         username={user.chesscomUsername}
                         usernameHidden={user.hideChesscomUsername}
                         currentRating={user.currentChesscomRating}
@@ -113,6 +114,7 @@ const ProfilePage = () => {
 
                     <RatingCard
                         system={RatingSystem.Lichess}
+                        cohort={user.dojoCohort}
                         username={user.lichessUsername}
                         usernameHidden={user.hideLichessUsername}
                         currentRating={user.currentLichessRating}
@@ -123,6 +125,7 @@ const ProfilePage = () => {
                     {user.currentFideRating > 0 && (
                         <RatingCard
                             system={RatingSystem.Fide}
+                            cohort={user.dojoCohort}
                             username={user.fideId}
                             usernameHidden={user.hideFideId}
                             currentRating={user.currentFideRating}
@@ -134,6 +137,7 @@ const ProfilePage = () => {
                     {user.currentUscfRating > 0 && (
                         <RatingCard
                             system={RatingSystem.Uscf}
+                            cohort={user.dojoCohort}
                             username={user.uscfId}
                             usernameHidden={user.hideUscfId}
                             currentRating={user.currentUscfRating}
