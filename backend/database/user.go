@@ -100,14 +100,8 @@ type User struct {
 	// The user's Chess.com username
 	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
 
-	// The user's Lichess username
-	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
-
-	// The user's FIDE Id
-	FideId string `dynamodbav:"fideId" json:"fideId"`
-
-	// The user's USCF Id
-	UscfId string `dynamodbav:"uscfId" json:"uscfId"`
+	// Whether to hide the user's Chess.com username from other users
+	HideChesscomUsername bool `dynamodbav:"hideChesscomUsername" json:"hideChesscomUsername"`
 
 	// The user's starting Chess.com rating
 	StartChesscomRating int `dynamodbav:"startChesscomRating" json:"startChesscomRating"`
@@ -115,17 +109,35 @@ type User struct {
 	// The user's current Chess.com rating
 	CurrentChesscomRating int `dynamodbav:"currentChesscomRating" json:"currentChesscomRating"`
 
+	// The user's Lichess username
+	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
+
+	// Whether to hide the user's Lichess username from other users
+	HideLichessUsername bool `dynamodbav:"hideLichessUsername" json:"hideLichessUsername"`
+
 	// The user's starting Lichess rating
 	StartLichessRating int `dynamodbav:"startLichessRating" json:"startLichessRating"`
 
 	// The user's current Lichess rating
 	CurrentLichessRating int `dynamodbav:"currentLichessRating" json:"currentLichessRating"`
 
+	// The user's FIDE Id
+	FideId string `dynamodbav:"fideId" json:"fideId"`
+
+	// Whether to hide the user's FIDE ID from other users
+	HideFideId bool `dynamodbav:"hideFideId" json:"hideFideId"`
+
 	// The user's starting FIDE rating
 	StartFideRating int `dynamodbav:"startFideRating" json:"startFideRating"`
 
 	// The user's current FIDE rating
 	CurrentFideRating int `dynamodbav:"currentFideRating" json:"currentFideRating"`
+
+	// The user's USCF Id
+	UscfId string `dynamodbav:"uscfId" json:"uscfId"`
+
+	// Whether to hide the user's USCF ID from other users
+	HideUscfId bool `dynamodbav:"hideUscfId" json:"hideUscfId"`
 
 	// The user's starting USCF rating
 	StartUscfRating int `dynamodbav:"startUscfRating" json:"startUscfRating"`
@@ -224,23 +236,35 @@ type UserUpdate struct {
 	// The user's Chess.com username
 	ChesscomUsername *string `dynamodbav:"chesscomUsername,omitempty" json:"chesscomUsername,omitempty"`
 
-	// The user's Lichess username
-	LichessUsername *string `dynamodbav:"lichessUsername,omitempty" json:"lichessUsername,omitempty"`
-
-	// The user's FIDE Id
-	FideId *string `dynamodbav:"fideId,omitempty" json:"fideId,omitempty"`
-
-	// The user's USCF Id
-	UscfId *string `dynamodbav:"uscfId,omitempty" json:"uscfId,omitempty"`
+	// Whether to hide the user's Chess.com username from other users
+	HideChesscomUsername *bool `dynamodbav:"hideChesscomUsername,omitempty" json:"hideChesscomUsername,omitempty"`
 
 	// The user's starting Chess.com rating
 	StartChesscomRating *int `dynamodbav:"startChesscomRating,omitempty" json:"startChesscomRating,omitempty"`
 
+	// The user's Lichess username
+	LichessUsername *string `dynamodbav:"lichessUsername,omitempty" json:"lichessUsername,omitempty"`
+
+	// Whether to hide the user's Lichess username from other users
+	HideLichessUsername *bool `dynamodbav:"hideLichessUsername,omitempty" json:"hideLichessUsername,omitempty"`
+
 	// The user's starting Lichess rating
 	StartLichessRating *int `dynamodbav:"startLichessRating,omitempty" json:"startLichessRating,omitempty"`
 
+	// The user's FIDE Id
+	FideId *string `dynamodbav:"fideId,omitempty" json:"fideId,omitempty"`
+
+	// Whether to hide the user's FIDE ID from other users
+	HideFideId *bool `dynamodbav:"hideFideId,omitempty" json:"hideFideId,omitempty"`
+
 	// The user's starting FIDE rating
 	StartFideRating *int `dynamodbav:"startFideRating,omitempty" json:"startFideRating,omitempty"`
+
+	// The user's USCF Id
+	UscfId *string `dynamodbav:"uscfId,omitempty" json:"uscfId,omitempty"`
+
+	// Whether to hide the user's USCF ID from other users
+	HideUscfId *bool `dynamodbav:"hideUscfId,omitempty" json:"hideUscfId,omitempty"`
 
 	// The user's starting USCF rating
 	StartUscfRating *int `dynamodbav:"startUscfRating,omitempty" json:"startUscfRating,omitempty"`

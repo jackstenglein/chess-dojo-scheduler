@@ -7,6 +7,7 @@ import {
     Container,
     Divider,
     FormControlLabel,
+    Grid,
     MenuItem,
     Stack,
     TextField,
@@ -18,6 +19,22 @@ import { useAuth } from '../auth/Auth';
 import { dojoCohorts, formatRatingSystem, RatingSystem } from '../database/user';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
+
+function getStartRating(rating: string): number {
+    rating = rating.trim();
+    if (!rating) {
+        return 0;
+    }
+    rating = rating.replace(/^0+/, '') || '0';
+    let n = Math.floor(Number(rating));
+    if (n === Infinity) {
+        return -1;
+    }
+    if (String(n) === rating && n >= 0) {
+        return n;
+    }
+    return -1;
+}
 
 interface ProfileEditorPageProps {
     hideCancel?: boolean;
@@ -33,11 +50,32 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
         user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : ''
     );
     const [bio, setBio] = useState(user.bio);
+
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
+
     const [chesscomUsername, setChesscomUsername] = useState(user.chesscomUsername);
+    const [startChesscomRating, setStartChesscomRating] = useState(
+        `${user.startChesscomRating}`
+    );
+    const [hideChesscomUsername, setHideChesscomUsername] = useState(
+        user.hideChesscomUsername
+    );
+
     const [lichessUsername, setLichessUsername] = useState(user.lichessUsername);
+    const [startLichessRating, setStartLichessRating] = useState(
+        `${user.startLichessRating}`
+    );
+    const [hideLichessUsername, setHideLichessUsername] = useState(
+        user.hideLichessUsername
+    );
+
     const [fideId, setFideId] = useState(user.fideId);
+    const [startFideRating, setStartFideRating] = useState(`${user.startFideRating}`);
+    const [hideFideId, setHideFideId] = useState(user.hideFideId);
+
     const [uscfId, setUscfId] = useState(user.uscfId);
+    const [startUscfRating, setStartUscfRating] = useState(`${user.startUscfRating}`);
+    const [hideUscfId, setHideUscfId] = useState(user.hideUscfId);
 
     const [disableBookingNotifications, setDisableBookingNotifications] = useState(
         user.disableBookingNotifications
@@ -58,17 +96,33 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
         if ((ratingSystem as string) === '') {
             newErrors.ratingSystem = 'This field is required';
         }
+
         if (chesscomUsername === '') {
             newErrors.chesscomUsername = 'This field is required';
         }
+        if (getStartRating(startChesscomRating) < 0) {
+            newErrors.startChesscomRating = 'Rating must be an integer >= 0';
+        }
+
         if (lichessUsername === '') {
             newErrors.lichessUsername = 'This field is required';
         }
+        if (getStartRating(startLichessRating) < 0) {
+            newErrors.startLichessRating = 'Rating must be an integer >= 0';
+        }
+
         if (ratingSystem === RatingSystem.Fide && fideId === '') {
             newErrors.fideId = 'This field is required when using FIDE rating system.';
         }
+        if (getStartRating(startFideRating) < 0) {
+            newErrors.startFideRating = 'Rating must be an integer >= 0';
+        }
+
         if (ratingSystem === RatingSystem.Uscf && uscfId === '') {
             newErrors.uscfId = 'This field is required when using USCF rating system.';
+        }
+        if (getStartRating(startUscfRating) < 0) {
+            newErrors.startUscfRating = 'Rating must be an integer >= 0';
         }
 
         setErrors(newErrors);
@@ -83,10 +137,23 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
             dojoCohort,
             bio,
             ratingSystem,
+
             chesscomUsername,
+            startChesscomRating: getStartRating(startChesscomRating),
+            hideChesscomUsername,
+
             lichessUsername,
+            startLichessRating: getStartRating(startLichessRating),
+            hideLichessUsername,
+
             fideId,
+            startFideRating: getStartRating(startFideRating),
+            hideFideId,
+
             uscfId,
+            startUscfRating: getStartRating(startUscfRating),
+            hideUscfId,
+
             disableBookingNotifications,
             disableCancellationNotifications,
         })
@@ -106,11 +173,74 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
         bio !== user.bio ||
         ratingSystem !== user.ratingSystem ||
         chesscomUsername !== user.chesscomUsername ||
+        parseInt(startChesscomRating) !== user.startChesscomRating ||
+        hideChesscomUsername !== user.hideChesscomUsername ||
         lichessUsername !== user.lichessUsername ||
+        parseInt(startLichessRating) !== user.startLichessRating ||
+        hideLichessUsername !== user.hideLichessUsername ||
         fideId !== user.fideId ||
+        parseInt(startFideRating) !== user.startFideRating ||
+        hideFideId !== user.hideFideId ||
         uscfId !== user.uscfId ||
+        parseInt(startUscfRating) !== user.startUscfRating ||
+        hideUscfId !== user.hideUscfId ||
         disableBookingNotifications !== user.disableBookingNotifications ||
         disableCancellationNotifications !== user.disableCancellationNotifications;
+
+    const ratingSystems = [
+        {
+            required: true,
+            label: 'Chess.com Username',
+            hideLabel: 'Hide Username',
+            username: chesscomUsername,
+            setUsername: setChesscomUsername,
+            startRating: startChesscomRating,
+            setStartRating: setStartChesscomRating,
+            hidden: hideChesscomUsername,
+            setHidden: setHideChesscomUsername,
+            usernameError: errors.chesscomUsername,
+            startRatingError: errors.startChesscomRating,
+        },
+        {
+            required: true,
+            label: 'Lichess Username',
+            hideLabel: 'Hide Username',
+            username: lichessUsername,
+            setUsername: setLichessUsername,
+            startRating: startLichessRating,
+            setStartRating: setStartLichessRating,
+            hidden: hideLichessUsername,
+            setHidden: setHideLichessUsername,
+            usernameError: errors.lichessUsername,
+            startRatingError: errors.startLichessRating,
+        },
+        {
+            required: false,
+            label: 'FIDE ID',
+            hideLabel: 'Hide ID',
+            username: fideId,
+            setUsername: setFideId,
+            startRating: startFideRating,
+            setStartRating: setStartFideRating,
+            hidden: hideFideId,
+            setHidden: setHideFideId,
+            usernameError: errors.fideId,
+            startRatingError: errors.startFideRating,
+        },
+        {
+            required: false,
+            label: 'USCF ID',
+            hideLabel: 'Hide ID',
+            username: uscfId,
+            setUsername: setUscfId,
+            startRating: startUscfRating,
+            setStartRating: setStartUscfRating,
+            hidden: hideUscfId,
+            setHidden: setHideUscfId,
+            usernameError: errors.uscfId,
+            startRatingError: errors.startUscfRating,
+        },
+    ];
 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
@@ -226,39 +356,50 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                         ))}
                     </TextField>
 
-                    <TextField
-                        required
-                        label='Chess.com Username'
-                        value={chesscomUsername}
-                        onChange={(event) => setChesscomUsername(event.target.value)}
-                        error={!!errors.chesscomUsername}
-                        helperText={errors.chesscomUsername}
-                    />
+                    {ratingSystems.map((rs) => (
+                        <Grid key={rs.label} container columnGap={2} alignItems='center'>
+                            <Grid item xs>
+                                <TextField
+                                    required={rs.required}
+                                    label={rs.label}
+                                    value={rs.username}
+                                    onChange={(event) =>
+                                        rs.setUsername(event.target.value)
+                                    }
+                                    error={!!rs.usernameError}
+                                    helperText={rs.usernameError}
+                                    sx={{ width: 1 }}
+                                />
+                            </Grid>
 
-                    <TextField
-                        required
-                        label='Lichess Username'
-                        value={lichessUsername}
-                        onChange={(event) => setLichessUsername(event.target.value)}
-                        error={!!errors.lichessUsername}
-                        helperText={errors.lichessUsername}
-                    />
+                            <Grid item xs>
+                                <TextField
+                                    label='Start Rating'
+                                    value={rs.startRating}
+                                    onChange={(event) =>
+                                        rs.setStartRating(event.target.value)
+                                    }
+                                    error={!!rs.startRatingError}
+                                    helperText={rs.startRatingError}
+                                    sx={{ width: 1 }}
+                                />
+                            </Grid>
 
-                    <TextField
-                        label='FIDE ID'
-                        value={fideId}
-                        onChange={(event) => setFideId(event.target.value)}
-                        error={!!errors.fideId}
-                        helperText={errors.fideId}
-                    />
-
-                    <TextField
-                        label='USCF ID'
-                        value={uscfId}
-                        onChange={(event) => setUscfId(event.target.value)}
-                        error={!!errors.uscfId}
-                        helperText={errors.uscfId}
-                    />
+                            <Grid item xs>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={rs.hidden}
+                                            onChange={(event) =>
+                                                rs.setHidden(event.target.checked)
+                                            }
+                                        />
+                                    }
+                                    label={rs.hideLabel}
+                                />
+                            </Grid>
+                        </Grid>
+                    ))}
                 </Stack>
 
                 <Stack spacing={2}>

@@ -51,22 +51,25 @@ export interface User {
     dojoCohort: string;
     bio: string;
 
-    chesscomUsername: string;
-    lichessUsername: string;
-    fideId: string;
-    uscfId: string;
-
     ratingSystem: RatingSystem;
 
+    chesscomUsername: string;
+    hideChesscomUsername: boolean;
     startChesscomRating: number;
     currentChesscomRating: number;
 
+    lichessUsername: string;
+    hideLichessUsername: boolean;
     startLichessRating: number;
     currentLichessRating: number;
 
+    fideId: string;
+    hideFideId: boolean;
     startFideRating: number;
     currentFideRating: number;
 
+    uscfId: string;
+    hideUscfId: boolean;
     startUscfRating: number;
     currentUscfRating: number;
 

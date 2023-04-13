@@ -22,6 +22,7 @@ function getMemberLink(ratingSystem: RatingSystem, username: string): string {
 interface RatingCardProps {
     system: RatingSystem;
     username: string;
+    usernameHidden: boolean;
     currentRating: number;
     startRating: number;
     isPreferred?: boolean;
@@ -30,6 +31,7 @@ interface RatingCardProps {
 const RatingCard: React.FC<RatingCardProps> = ({
     system,
     username,
+    usernameHidden,
     currentRating,
     startRating,
     isPreferred,
@@ -43,19 +45,26 @@ const RatingCard: React.FC<RatingCardProps> = ({
                     <Stack>
                         <Typography variant='h6'>{formatRatingSystem(system)}</Typography>
                         <Stack direction='row' alignItems='center' sx={{ mb: 2 }}>
-                            <Typography variant='subtitle1' color='text.secondary'>
-                                {username}
-                            </Typography>
-                            <a
-                                target='_blank'
-                                rel='noopener noreferrer'
-                                href={getMemberLink(system, username)}
-                            >
-                                <OpenInNewIcon
-                                    color='primary'
-                                    sx={{ fontSize: '1rem', ml: '3px' }}
-                                />
-                            </a>
+                            {!usernameHidden && (
+                                <>
+                                    <Typography
+                                        variant='subtitle1'
+                                        color='text.secondary'
+                                    >
+                                        {username}
+                                    </Typography>
+                                    <a
+                                        target='_blank'
+                                        rel='noopener noreferrer'
+                                        href={getMemberLink(system, username)}
+                                    >
+                                        <OpenInNewIcon
+                                            color='primary'
+                                            sx={{ fontSize: '1rem', ml: '3px' }}
+                                        />
+                                    </a>
+                                </>
+                            )}
                         </Stack>
                     </Stack>
 

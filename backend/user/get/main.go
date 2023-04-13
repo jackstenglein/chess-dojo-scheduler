@@ -19,9 +19,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
+	info := api.GetUserInfo(event)
 	username, public := event.PathParameters["username"]
 	if !public {
-		info := api.GetUserInfo(event)
 		username = info.Username
 	}
 
@@ -34,6 +34,22 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
+
+	if user.Username != info.Username {
+		if user.HideChesscomUsername {
+			user.ChesscomUsername = ""
+		}
+		if user.HideLichessUsername {
+			user.LichessUsername = ""
+		}
+		if user.HideFideId {
+			user.FideId = ""
+		}
+		if user.HideUscfId {
+			user.UscfId = ""
+		}
+	}
+
 	return api.Success(funcName, user), err
 }
 

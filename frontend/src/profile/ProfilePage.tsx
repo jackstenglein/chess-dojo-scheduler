@@ -105,6 +105,7 @@ const ProfilePage = () => {
                     <RatingCard
                         system={RatingSystem.Chesscom}
                         username={user.chesscomUsername}
+                        usernameHidden={user.hideChesscomUsername}
                         currentRating={user.currentChesscomRating}
                         startRating={user.startChesscomRating}
                         isPreferred={user.ratingSystem === RatingSystem.Chesscom}
@@ -113,25 +114,28 @@ const ProfilePage = () => {
                     <RatingCard
                         system={RatingSystem.Lichess}
                         username={user.lichessUsername}
+                        usernameHidden={user.hideLichessUsername}
                         currentRating={user.currentLichessRating}
                         startRating={user.startLichessRating}
                         isPreferred={user.ratingSystem === RatingSystem.Lichess}
                     />
 
-                    {user.fideId !== '' && (
+                    {user.currentFideRating > 0 && (
                         <RatingCard
                             system={RatingSystem.Fide}
                             username={user.fideId}
+                            usernameHidden={user.hideFideId}
                             currentRating={user.currentFideRating}
                             startRating={user.startFideRating}
                             isPreferred={user.ratingSystem === RatingSystem.Fide}
                         />
                     )}
 
-                    {user.uscfId !== '' && (
+                    {user.currentUscfRating > 0 && (
                         <RatingCard
                             system={RatingSystem.Uscf}
                             username={user.uscfId}
+                            usernameHidden={user.hideUscfId}
                             currentRating={user.currentUscfRating}
                             startRating={user.startUscfRating}
                             isPreferred={user.ratingSystem === RatingSystem.Uscf}
