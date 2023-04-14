@@ -163,7 +163,9 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
                             <DialogContentText>
                                 Optionally add how long it took to{' '}
                                 {isSlider ? 'update' : 'complete'} this requirement in
-                                order for it to be added to your activity breakdown.
+                                order for it to be added to your activity breakdown. This
+                                time will be added to any time you previously entered for
+                                this requirement.
                             </DialogContentText>
                             <Grid container width={1}>
                                 <Grid item xs={12} sm>
