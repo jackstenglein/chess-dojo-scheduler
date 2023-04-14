@@ -1,12 +1,10 @@
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import {
     GridColDef,
     GridRenderCellParams,
     GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { IconButton } from '@mui/material';
 
 import ScoreboardProgress from './ScoreboardProgress';
 import {
@@ -23,8 +21,35 @@ import {
     User,
 } from '../database/user';
 import { Graduation, isGraduation } from '../database/graduation';
+import RequirementModal from '../requirements/RequirementModal';
 
 export type ScoreboardRow = User | Graduation;
+
+interface HeaderProps {
+    requirement: Requirement;
+    cohort: string;
+}
+
+const Header: React.FC<HeaderProps> = ({ requirement, cohort }) => {
+    const [showReqModal, setShowReqModal] = useState(false);
+
+    const totalCount = requirement.counts[cohort] || 0;
+    let headerName = requirement.name;
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
+        headerName += ` (${totalCount})`;
+    }
+
+    return (
+        <>
+            <div onClick={() => setShowReqModal(true)}>{headerName}</div>
+            <RequirementModal
+                open={showReqModal}
+                onClose={() => setShowReqModal(false)}
+                requirement={requirement}
+            />
+        </>
+    );
+};
 
 export function getColumnDefinition(
     requirement: Requirement,
@@ -67,19 +92,7 @@ export function getColumnDefinition(
     return {
         field: requirement.id,
         headerName: headerName,
-        renderHeader: () => (
-            <>
-                {headerName}
-                <Link to={`/requirements/${requirement.id}`}>
-                    <IconButton aria-label={`Info ${requirement.name}`}>
-                        <InfoOutlinedIcon
-                            sx={{ color: 'text.secondary' }}
-                            fontSize='small'
-                        />
-                    </IconButton>
-                </Link>
-            </>
-        ),
+        renderHeader: () => <Header requirement={requirement} cohort={cohort} />,
         minWidth: 250,
         valueGetter,
         renderCell,

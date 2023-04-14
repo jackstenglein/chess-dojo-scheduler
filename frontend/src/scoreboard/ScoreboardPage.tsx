@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Chip, Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Container, MenuItem, TextField, Typography } from '@mui/material';
 import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import {
     DataGrid,
@@ -25,17 +25,12 @@ import {
     getStartRating,
     ScoreboardRow,
 } from './scoreboardData';
-import {
-    dojoCohorts,
-    ratingBoundaries,
-    RatingSystem,
-    User,
-    formatRatingSystem as printRatingSystem,
-} from '../database/user';
+import { dojoCohorts, User } from '../database/user';
 import { Graduation } from '../database/graduation';
 import GraduationIcon from './GraduationIcon';
 import { useRequirements } from '../api/cache/requirements';
 import ScoreboardProgress from './ScoreboardProgress';
+import GraduationChips from './GraduationChips';
 
 interface ColumnGroupChild {
     field: string;
@@ -291,16 +286,7 @@ const ScoreboardPage = () => {
                 ))}
             </TextField>
 
-            <Stack direction='row' alignItems='center' spacing={1} mb={2}>
-                <Typography>Graduation:</Typography>
-
-                {Object.values(RatingSystem).map((rs) => (
-                    <Chip
-                        key={rs}
-                        label={`${ratingBoundaries[cohort][rs]} ${printRatingSystem(rs)}`}
-                    />
-                ))}
-            </Stack>
+            <GraduationChips cohort={cohort} />
 
             <Typography variant='h6'>Current Members</Typography>
             <DataGrid

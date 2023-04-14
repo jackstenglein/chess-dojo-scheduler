@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Typography, Stack, Checkbox, Divider, IconButton, Grid } from '@mui/material';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 
 import {
@@ -12,6 +10,7 @@ import {
 } from '../../database/requirement';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import ProgressUpdateDialog from './ProgressUpdateDialog';
+import RequirementModal from '../../requirements/RequirementModal';
 
 interface ProgressItemProps {
     progress?: RequirementProgress;
@@ -27,6 +26,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     isCurrentUser,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+    const [showReqModal, setShowReqModal] = useState(false);
+
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
 
@@ -88,7 +89,13 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 alignItems='center'
                 justifyContent='space-between'
             >
-                <Grid item xs={9} xl={10}>
+                <Grid
+                    item
+                    xs={9}
+                    xl={10}
+                    onClick={() => setShowReqModal(true)}
+                    sx={{ cursor: 'pointer' }}
+                >
                     <Typography>{requirementName}</Typography>
                     <Typography
                         color='text.secondary'
@@ -108,15 +115,16 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 <Grid item xs={2} xl={1}>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
                         {UpdateElement}
-                        <Link to={`/requirements/${requirement.id}`}>
-                            <IconButton aria-label={`Info ${requirement.name}`}>
-                                <InfoOutlinedIcon sx={{ color: 'text.secondary' }} />
-                            </IconButton>
-                        </Link>
                     </Stack>
                 </Grid>
             </Grid>
             <Divider />
+
+            <RequirementModal
+                open={showReqModal}
+                onClose={() => setShowReqModal(false)}
+                requirement={requirement}
+            />
         </Stack>
     );
 };
