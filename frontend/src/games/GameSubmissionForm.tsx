@@ -52,7 +52,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
     const handleSubmit = () => {
         const errors: Record<string, string> = {};
         if (type === SubmissionType.Lichess && !lichessStudyRegex.test(lichessUrl)) {
-            errors.lichessUrl = 'Does not match the Lichess study URL format';
+            errors.lichessUrl = 'Does not match the Lichess study chapter URL format';
         } else if (type === SubmissionType.Manual && pgnText === '') {
             errors.pgnText = 'This field is required';
         }
@@ -83,7 +83,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                         <FormControlLabel
                             value={SubmissionType.Lichess}
                             control={<Radio />}
-                            label='Import from Lichess Study'
+                            label='Import from Lichess Study (Single Chapter Only)'
                         />
                         <FormControlLabel
                             value={SubmissionType.Manual}
@@ -95,7 +95,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
 
                 {type === SubmissionType.Lichess && (
                     <TextField
-                        label='Lichess Study URL'
+                        label='Lichess Study Chapter URL'
                         placeholder='https://lichess.org/study/abcd1234/abcd1234'
                         value={lichessUrl}
                         onChange={(e) => setLichessUrl(e.target.value)}
