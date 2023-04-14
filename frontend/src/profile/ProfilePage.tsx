@@ -6,15 +6,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
-import { RatingSystem, User } from '../database/user';
+import { User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
-import RatingCard from './RatingCard';
 import GamesTab from './GamesTab';
 import ProgressTab from './progress/ProgressTab';
 import ActivityTab from './activity/ActivityTab';
 import GraduationDialog from './GraduationDialog';
 import GraduationIcon from '../scoreboard/GraduationIcon';
+import StatsTab from './StatsTab';
 
 type ProfilePageProps = {
     username: string;
@@ -29,7 +29,7 @@ const ProfilePage = () => {
 
     const currentUserProfile = !username || username === currentUser.username;
 
-    const [tab, setTab] = useState(currentUserProfile ? 'progress' : 'activity');
+    const [tab, setTab] = useState(currentUserProfile ? 'progress' : 'stats');
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     useEffect(() => {
@@ -101,52 +101,6 @@ const ProfilePage = () => {
                     </Typography>
                 )}
 
-                <Stack spacing={4}>
-                    <RatingCard
-                        system={RatingSystem.Chesscom}
-                        cohort={user.dojoCohort}
-                        username={user.chesscomUsername}
-                        usernameHidden={user.hideChesscomUsername}
-                        currentRating={user.currentChesscomRating}
-                        startRating={user.startChesscomRating}
-                        isPreferred={user.ratingSystem === RatingSystem.Chesscom}
-                    />
-
-                    <RatingCard
-                        system={RatingSystem.Lichess}
-                        cohort={user.dojoCohort}
-                        username={user.lichessUsername}
-                        usernameHidden={user.hideLichessUsername}
-                        currentRating={user.currentLichessRating}
-                        startRating={user.startLichessRating}
-                        isPreferred={user.ratingSystem === RatingSystem.Lichess}
-                    />
-
-                    {(user.currentFideRating > 0 || user.startFideRating > 0) && (
-                        <RatingCard
-                            system={RatingSystem.Fide}
-                            cohort={user.dojoCohort}
-                            username={user.fideId}
-                            usernameHidden={user.hideFideId}
-                            currentRating={user.currentFideRating}
-                            startRating={user.startFideRating}
-                            isPreferred={user.ratingSystem === RatingSystem.Fide}
-                        />
-                    )}
-
-                    {(user.currentUscfRating > 0 || user.startUscfRating > 0) && (
-                        <RatingCard
-                            system={RatingSystem.Uscf}
-                            cohort={user.dojoCohort}
-                            username={user.uscfId}
-                            usernameHidden={user.hideUscfId}
-                            currentRating={user.currentUscfRating}
-                            startRating={user.startUscfRating}
-                            isPreferred={user.ratingSystem === RatingSystem.Uscf}
-                        />
-                    )}
-                </Stack>
-
                 {(currentUser.isAdmin || currentUser.isBetaTester) && (
                     <Box sx={{ width: '100%', typography: 'body1' }}>
                         <TabContext value={tab}>
@@ -155,11 +109,15 @@ const ProfilePage = () => {
                                     onChange={(_, t) => setTab(t)}
                                     aria-label='profile tabs'
                                 >
+                                    <Tab label='Ratings' value='stats' />
                                     <Tab label='Progress' value='progress' />
                                     <Tab label='Activity' value='activity' />
                                     <Tab label='Games' value='games' />
                                 </TabList>
                             </Box>
+                            <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
+                                <StatsTab user={user} />
+                            </TabPanel>
                             <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
                                 <ProgressTab
                                     user={user}

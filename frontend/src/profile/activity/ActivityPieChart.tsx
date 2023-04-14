@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Stack, TextField, MenuItem } from '@mui/material';
 
-import { compareCohorts, User } from '../../database/user';
+import { compareCohorts, dojoCohorts, User } from '../../database/user';
 import { useRequirements } from '../../api/cache/requirements';
 import { getCurrentScore, Requirement } from '../../database/requirement';
 import PieChart, { PieChartData } from './PieChart';
@@ -45,7 +45,7 @@ function getTimeChartData(
 
     const data: Record<string, PieChartData> = {};
     Object.values(user.progress).forEach((progress) => {
-        if (!progress.minutesSpent[cohort]) {
+        if (!progress.minutesSpent || !progress.minutesSpent[cohort]) {
             return;
         }
         const requirement = requirementMap[progress.requirementId];
@@ -82,8 +82,11 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
     const { requirements } = useRequirements(cohort, false);
 
     const cohortOptions = useMemo(() => {
+        if (!user.progress) {
+            return [user.dojoCohort];
+        }
         return Object.values(user.progress)
-            .map((v) => Object.keys(v.minutesSpent))
+            .map((v) => Object.keys(v.minutesSpent ?? {}))
             .flat()
             .concat(user.dojoCohort)
             .sort(compareCohorts)
