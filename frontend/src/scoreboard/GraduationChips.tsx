@@ -1,13 +1,15 @@
 import { Stack, Typography, Chip } from '@mui/material';
 
-import { RatingSystem, formatRatingSystem, ratingBoundaries } from '../database/user';
+import { RatingSystem, formatRatingSystem, getRatingBoundary } from '../database/user';
 
 interface GraduationChipsProps {
     cohort: string;
 }
 
 const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
-    if (!ratingBoundaries[cohort]) {
+    const ratingBoundary = getRatingBoundary(cohort, RatingSystem.Fide);
+
+    if (!ratingBoundary) {
         return null;
     }
 
@@ -25,7 +27,7 @@ const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
             {Object.values(RatingSystem).map((rs) => (
                 <Chip
                     key={rs}
-                    label={`${ratingBoundaries[cohort][rs]} ${formatRatingSystem(rs)}`}
+                    label={`${getRatingBoundary(cohort, rs)} ${formatRatingSystem(rs)}`}
                 />
             ))}
         </Stack>

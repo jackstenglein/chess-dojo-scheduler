@@ -83,6 +83,8 @@ export interface User {
     numberOfGraduations: number;
     previousCohort: string;
     lastGraduatedAt: string;
+
+    enableDarkMode: boolean;
 }
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser) {
@@ -149,7 +151,7 @@ export function compareCohorts(a: string, b: string): number {
     return 1;
 }
 
-export const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
+const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
     '0-300': {
         [RatingSystem.Chesscom]: 550,
         [RatingSystem.Lichess]: 1035,
@@ -283,6 +285,18 @@ export const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2600,
     },
 };
+
+export function getRatingBoundary(
+    cohort: string,
+    ratingSystem: RatingSystem
+): number | undefined {
+    const cohortBoundaries = ratingBoundaries[cohort];
+    if (!cohortBoundaries) {
+        return undefined;
+    }
+
+    return cohortBoundaries[ratingSystem];
+}
 
 export function shouldPromptGraduation(user?: User): boolean {
     if (!user || !user.dojoCohort || !user.ratingSystem) {

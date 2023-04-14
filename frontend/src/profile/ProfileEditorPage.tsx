@@ -98,6 +98,9 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
     );
     const [disableCancellationNotifications, setDisableCancellationNotifications] =
         useState(user.disableCancellationNotifications);
+
+    const [enableDarkMode, setEnableDarkMode] = useState(user.enableDarkMode);
+
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
@@ -125,6 +128,8 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
 
         disableBookingNotifications,
         disableCancellationNotifications,
+
+        enableDarkMode,
     });
     const changesMade = update !== undefined;
 
@@ -438,6 +443,28 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                                 />
                             }
                             label='Notify me via a Discord DM when my meeting is cancelled'
+                        />
+                    </Stack>
+                </Stack>
+
+                <Stack spacing={2}>
+                    <Stack>
+                        <Typography variant='h6'>UI</Typography>
+                        <Divider />
+                    </Stack>
+
+                    <Stack>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={enableDarkMode}
+                                    onChange={(event) =>
+                                        setEnableDarkMode(event.target.checked)
+                                    }
+                                />
+                            }
+                            label='Enable Dark Mode (Warning: experimental, some UI elements may be hard to view)'
+                            sx={{ mb: 1.5 }}
                         />
                     </Stack>
                 </Stack>

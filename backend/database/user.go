@@ -183,6 +183,9 @@ type User struct {
 
 	// When the user was most recently updated (not including nightly rating updates)
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+
+	// Whether to enable dark mode on the site
+	EnableDarkMode bool `dynamodbav:"enableDarkMode" json:"enableDarkMode"`
 }
 
 // GetRatings returns the start and current ratings in the user's preferred rating system.
@@ -309,6 +312,9 @@ type UserUpdate struct {
 	// When the user was most recently updated (not including nightly rating updates)
 	// Cannot be manually passed by the user and is updated automatically by the server
 	UpdatedAt *string `dynamodbav:"updatedAt,omitempty" json:"-"`
+
+	// Whether to enable dark mode on the site
+	EnableDarkMode *bool `dynamodbav:"enableDarkMode,omitempty" json:"enableDarkMode,omitempty"`
 }
 
 type UserCreator interface {

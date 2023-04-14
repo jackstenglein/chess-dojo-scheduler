@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Amplify } from 'aws-amplify';
-import { ThemeProvider } from '@mui/system';
 
 import { getConfig } from './config';
 import { AuthProvider, RequireAuth, RequireProfile } from './auth/Auth';
@@ -17,7 +16,6 @@ import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import AdminPage from './admin/AdminPage';
-import theme from './theme';
 import { CacheProvider } from './api/cache/Cache';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import GamePage from './games/GamePage';
@@ -31,6 +29,7 @@ import HomePage from './home/HomePage';
 import HelpPage from './help/HelpPage';
 import RequirementEditorPage from './requirements/RequirementEditorPage';
 import EditGamePage from './games/EditGamePage';
+import ThemeProvider from './ThemeProvider';
 
 const config = getConfig();
 Amplify.configure({
@@ -50,18 +49,18 @@ Amplify.configure({
 
 function App() {
     return (
-        <ThemeProvider theme={theme}>
-            <BrowserRouter>
-                <AuthProvider>
+        <AuthProvider>
+            <ThemeProvider>
+                <BrowserRouter>
                     <ApiProvider>
                         <CacheProvider>
                             <Navbar />
                             <Router />
                         </CacheProvider>
                     </ApiProvider>
-                </AuthProvider>
-            </BrowserRouter>
-        </ThemeProvider>
+                </BrowserRouter>
+            </ThemeProvider>
+        </AuthProvider>
     );
 }
 
