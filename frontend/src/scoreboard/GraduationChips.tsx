@@ -7,6 +7,10 @@ interface GraduationChipsProps {
 }
 
 const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
+    if (!ratingBoundaries[cohort]) {
+        return null;
+    }
+
     return (
         <Stack
             direction='row'
