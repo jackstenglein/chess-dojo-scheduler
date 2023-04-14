@@ -35,10 +35,9 @@ const categories = [
     'Welcome to the Dojo',
     'Games + Analysis',
     'Tactics',
-    'Middlegames',
-    'Endgames',
-    'Material to Study',
-    'Openings',
+    'Middlegames + Strategy',
+    'Endgame',
+    'Opening',
 ];
 
 interface EditorCount {
