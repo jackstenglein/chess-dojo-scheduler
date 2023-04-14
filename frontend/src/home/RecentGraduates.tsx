@@ -24,9 +24,7 @@ const GraduationCard: React.FC<GraduationCardProps> = ({ graduation }) => {
                 title={
                     <Stack direction='row' spacing={2}>
                         <Link to={`/profile/${graduation.username}`}>
-                            <Typography variant='h4'>
-                                {graduation.discordUsername}
-                            </Typography>
+                            <Typography variant='h4'>{graduation.displayName}</Typography>
                         </Link>
                         <GraduationIcon cohort={graduation.previousCohort} />
                     </Stack>
@@ -53,7 +51,7 @@ const GraduationCard: React.FC<GraduationCardProps> = ({ graduation }) => {
             {graduation.comments && (
                 <CardContent>
                     <Typography sx={{ whiteSpace: 'pre-line' }}>
-                        "{graduation.comments}"{`\n- ${graduation.discordUsername}`}
+                        "{graduation.comments}"{`\n- ${graduation.displayName}`}
                     </Typography>
                 </CardContent>
             )}

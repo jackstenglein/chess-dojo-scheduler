@@ -297,7 +297,7 @@ export function createComment(
 ) {
     const comment = {
         owner: commenter.username,
-        ownerDiscord: commenter.discordUsername,
+        ownerDisplayName: commenter.displayName,
         ownerCohort: commenter.dojoCohort,
         ownerPreviousCohort: commenter.previousCohort,
         content: content,

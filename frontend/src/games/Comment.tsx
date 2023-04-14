@@ -16,7 +16,7 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
             <Stack direction='row' spacing={1} alignItems='center'>
                 <Link to={`/profile/${comment.owner}`}>
                     <Typography variant='subtitle1' color='text.secondary'>
-                        {comment.ownerDiscord} ({comment.ownerCohort})
+                        {comment.ownerDisplayName} ({comment.ownerCohort})
                     </Typography>
                 </Link>
                 <GraduationIcon cohort={comment.ownerPreviousCohort} size={20} />

@@ -49,7 +49,7 @@ const defaultColumnGroups: ColumnGroup[] = [
     {
         groupId: 'User Info',
         children: [
-            { field: 'discordUsername' },
+            { field: 'displayName' },
             { field: 'previousCohort' },
             { field: 'ratingSystem' },
             { field: 'startRating' },
@@ -73,8 +73,8 @@ const defaultColumnGroups: ColumnGroup[] = [
 
 const userInfoColumns: GridColDef<ScoreboardRow>[] = [
     {
-        field: 'discordUsername',
-        headerName: 'Discord ID',
+        field: 'displayName',
+        headerName: 'Name',
         minWidth: 250,
         renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
             return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;

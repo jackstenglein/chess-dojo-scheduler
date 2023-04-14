@@ -88,6 +88,9 @@ type User struct {
 	// The name of the user
 	Name string `dynamodbav:"name" json:"-"`
 
+	// The user's preferred display name on the site
+	DisplayName string `dynamodbav:"displayName" json:"displayName"`
+
 	// The user's Discord username
 	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
@@ -227,6 +230,9 @@ func (u *User) CalculateScore(requirements []*Requirement) float32 {
 // Some fields from the User type are removed as they cannot be updated. Other fields
 // are ignored by the json encoder because they cannot be manually updated by the user.
 type UserUpdate struct {
+	// The user's preferred display name on the site
+	DisplayName *string `dynamodbav:"displayName,omitempty" json:"displayName,omitempty"`
+
 	// The user's Discord username
 	DiscordUsername *string `dynamodbav:"discordUsername,omitempty" json:"discordUsername,omitempty"`
 

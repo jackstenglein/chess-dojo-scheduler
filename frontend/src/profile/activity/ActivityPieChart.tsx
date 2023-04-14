@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Stack, TextField, MenuItem } from '@mui/material';
 
-import { compareCohorts, dojoCohorts, User } from '../../database/user';
+import { compareCohorts, User } from '../../database/user';
 import { useRequirements } from '../../api/cache/requirements';
 import { getCurrentScore, Requirement } from '../../database/requirement';
 import PieChart, { PieChartData } from './PieChart';

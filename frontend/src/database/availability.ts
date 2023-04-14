@@ -1,6 +1,7 @@
 export interface Availability {
     owner: string;
-    ownerDiscord: string;
+    ownerDisplayName: string;
+    // ownerDiscord: string;
     ownerCohort: string;
     ownerPreviousCohort: string;
     id: string;
@@ -18,7 +19,7 @@ export interface Availability {
 
 export interface Participant {
     username: string;
-    discord: string;
+    displayName: string;
     cohort: string;
     previousCohort: string;
 }

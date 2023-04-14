@@ -5,7 +5,7 @@ import datetime
 from decimal import Decimal
 
 db = boto3.resource('dynamodb')
-table = db.Table('dev-requirements')
+table = db.Table('prod-requirements')
 
 cohorts = [
 	"0-300",

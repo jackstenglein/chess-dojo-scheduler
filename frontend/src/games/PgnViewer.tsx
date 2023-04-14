@@ -62,7 +62,7 @@ const GameData: React.FC<GameDataProps> = ({ game }) => {
 
     return (
         <Grid container alignItems='center' sx={{ pt: 2 }} columnGap={1}>
-            {game.ownerDiscord !== '' && (
+            {game.ownerDisplayName !== '' && (
                 <>
                     <Grid item xs={3}>
                         <Typography variant='subtitle2' color='text.secondary'>
@@ -73,7 +73,7 @@ const GameData: React.FC<GameDataProps> = ({ game }) => {
                         <Stack direction='row' spacing={1} alignItems='center'>
                             <Link to={`/profile/${game.owner}`}>
                                 <Typography variant='body2'>
-                                    {game.ownerDiscord}
+                                    {game.ownerDisplayName}
                                 </Typography>
                             </Link>
                             <GraduationIcon cohort={game.ownerPreviousCohort} size={20} />

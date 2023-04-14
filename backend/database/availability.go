@@ -77,8 +77,11 @@ type Participant struct {
 	// The Cognito username of the participant.
 	Username string `dynamodbav:"username" json:"username"`
 
+	// The display name of the participant.
+	DisplayName string `dynamodbav:"displayName" json:"displayName"`
+
 	// The Discord username of the participant.
-	Discord string `dynamodbav:"discord" json:"discord"`
+	// Discord string `dynamodbav:"discord" json:"discord"`
 
 	// The Dojo cohort of the participant.
 	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
@@ -92,7 +95,10 @@ type Availability struct {
 	Owner string `dynamodbav:"owner" json:"owner"`
 
 	// The discord username of the owner.
-	OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
+	// OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
+
+	// The display name of the owner.
+	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
 
 	// The cohort of the owner.
 	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
@@ -321,9 +327,9 @@ func (repo *dynamoRepository) ListAvailabilitiesByTime(user *User, startTime, st
 // next start key are returned.
 func (repo *dynamoRepository) ListGroupAvailabilities(user *User, startTime, startKey string) ([]*Availability, string, error) {
 	participant := &Participant{
-		Username: user.Username,
-		Discord:  user.DiscordUsername,
-		Cohort:   user.DojoCohort,
+		Username:    user.Username,
+		DisplayName: user.DisplayName,
+		Cohort:      user.DojoCohort,
 	}
 	p, err := dynamodbattribute.MarshalMap(participant)
 	if err != nil {
@@ -435,7 +441,7 @@ func (repo *dynamoRepository) BookAvailability(availability *Availability, reque
 func (repo *dynamoRepository) BookGroupAvailability(availability *Availability, user *User) (*Availability, error) {
 	participant := &Participant{
 		Username:       user.Username,
-		Discord:        user.DiscordUsername,
+		DisplayName:    user.DisplayName,
 		Cohort:         user.DojoCohort,
 		PreviousCohort: user.PreviousCohort,
 	}

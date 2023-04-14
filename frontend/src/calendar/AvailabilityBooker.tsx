@@ -210,7 +210,7 @@ const AvailabilityBooker = () => {
                         <Stack direction='row' spacing={2} alignItems='center'>
                             <Link to={`/profile/${availability.owner}`}>
                                 <Typography variant='body1'>
-                                    {availability.ownerDiscord} (
+                                    {availability.ownerDisplayName} (
                                     {availability.ownerCohort})
                                 </Typography>
                             </Link>
@@ -297,7 +297,7 @@ const AvailabilityBooker = () => {
                                             to={`/profile/${p.username}`}
                                         >
                                             <Typography variant='body1'>
-                                                {p.discord} ({p.cohort})
+                                                {p.displayName} ({p.cohort})
                                             </Typography>
                                         </Link>
                                         <GraduationIcon

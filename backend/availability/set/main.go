@@ -65,8 +65,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if availability.OwnerDiscord == "" {
-		err := errors.New(400, "Invalid request: ownerDiscord is required", "")
+	if availability.OwnerDisplayName == "" {
+		err := errors.New(400, "Invalid request: ownerDisplayName is required", "")
 		return api.Failure(funcName, err), nil
 	}
 

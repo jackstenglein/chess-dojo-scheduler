@@ -41,8 +41,11 @@ type Comment struct {
 	// The Cognito username of the poster of the comment
 	Owner string `dynamodbav:"owner" json:"owner"`
 
+	// The display name of the poster of the comment
+	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
+
 	// The discord username of the poster of the comment
-	OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
+	// OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
 
 	// The cohort of the poster of the comment
 	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
@@ -82,8 +85,11 @@ type Game struct {
 	// The username of the owner of this game
 	Owner string `dynamodbav:"owner" json:"owner"`
 
+	// The display name of the owner of this game
+	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
+
 	// The discord username of the owner of this game
-	OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
+	// OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
 
 	// The cohort the owner most recently graduated from
 	OwnerPreviousCohort DojoCohort `dynamodbav:"ownerPreviousCohort" json:"ownerPreviousCohort"`

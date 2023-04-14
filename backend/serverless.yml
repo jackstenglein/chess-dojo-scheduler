@@ -863,6 +863,34 @@ resources:
               - ReadCapacityUnits: 1
                 WriteCapacityUnits: 1
               - !Ref AWS::NoValue
+          - IndexName: CohortIdx
+            KeySchema:
+              - AttributeName: dojoCohort
+                KeyType: HASH
+              - AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - displayName
+                - ratingSystem
+                - startChesscomRating
+                - currentChesscomRating
+                - startLichessRating
+                - currentLichessRating
+                - startFideRating
+                - currentFideRating
+                - startUscfRating
+                - currentUscfRating
+                - progress
+                - createdAt
+                - previousCohort
+                - updatedAt
+            ProvisionedThroughput: !If
+              - IsProd
+              - ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+              - !Ref AWS::NoValue
 
     AvailabilitiesTable:
       Type: AWS::DynamoDB::Table
@@ -1103,6 +1131,27 @@ resources:
                 - date
                 - owner
                 - ownerDiscord
+                - ownerPreviousCohort
+                - headers
+            ProvisionedThroughput: !If
+              - IsProd
+              - ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+              - !Ref AWS::NoValue
+          - IndexName: FeaturedIdx
+            KeySchema:
+              - AttributeName: isFeatured
+                KeyType: HASH
+              - AttributeName: featuredAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - owner
+                - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
             ProvisionedThroughput: !If

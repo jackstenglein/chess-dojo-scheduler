@@ -63,12 +63,12 @@ const GameInfoCard: React.FC<GameInfoCardProps> = ({ game }) => {
                         <Stack direction='row' spacing={2}>
                             <Typography variant='h4'>
                                 {'Annotation by '}
-                                {game.ownerDiscord ? (
+                                {game.ownerDisplayName ? (
                                     <Link
                                         to={`/profile/${game.owner}`}
                                         onClick={onClickLink}
                                     >
-                                        {game.ownerDiscord}
+                                        {game.ownerDisplayName}
                                     </Link>
                                 ) : (
                                     'Unknown'

@@ -66,7 +66,7 @@ const ProfilePage = () => {
                 >
                     <Stack>
                         <Stack direction='row' spacing={2}>
-                            <Typography variant='h4'>{user.discordUsername}</Typography>
+                            <Typography variant='h4'>{user.displayName}</Typography>
                             {user.previousCohort && (
                                 <GraduationIcon cohort={user.previousCohort} />
                             )}

@@ -209,7 +209,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             const response = await api.setAvailability({
                 ...(originalEvent?.availability ?? {}),
                 owner: user.username,
-                ownerDiscord: user.discordUsername,
+                ownerDisplayName: user.displayName,
                 ownerCohort: user.dojoCohort,
                 ownerPreviousCohort: user.previousCohort,
                 startTime: startIso,

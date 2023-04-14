@@ -19,6 +19,7 @@ var testUser = &database.User{
 	Username:              testUsername,
 	Email:                 "test@chess-dojo-scheduler.com",
 	Name:                  "Test Name",
+	DisplayName:           "testDisplayName",
 	DiscordUsername:       "testDiscord",
 	RatingSystem:          database.Chesscom,
 	ChesscomUsername:      "testChesscom",
@@ -30,8 +31,8 @@ var testUser = &database.User{
 	NumberOfGraduations:   2,
 	PreviousCohort:        "2200-2300",
 	Progress: map[string]*database.RequirementProgress{
-		"5942704e-e164-48a5-aba6-bf0cb99773be": {
-			RequirementId: "5942704e-e164-48a5-aba6-bf0cb99773be",
+		"38f46441-7a4e-4506-8632-166bcbe78baf": {
+			RequirementId: "38f46441-7a4e-4506-8632-166bcbe78baf",
 			Counts: map[database.DojoCohort]int{
 				"2300-2400": 25,
 			},
@@ -41,6 +42,7 @@ var testUser = &database.User{
 
 var testUserAfterGraduation = &database.User{
 	Username:              testUsername,
+	DisplayName:           "testDisplayName",
 	DiscordUsername:       "testDiscord",
 	RatingSystem:          database.Chesscom,
 	ChesscomUsername:      "testChesscom",
@@ -52,8 +54,8 @@ var testUserAfterGraduation = &database.User{
 	NumberOfGraduations:   3,
 	PreviousCohort:        "2300-2400",
 	Progress: map[string]*database.RequirementProgress{
-		"5942704e-e164-48a5-aba6-bf0cb99773be": {
-			RequirementId: "5942704e-e164-48a5-aba6-bf0cb99773be",
+		"38f46441-7a4e-4506-8632-166bcbe78baf": {
+			RequirementId: "38f46441-7a4e-4506-8632-166bcbe78baf",
 			Counts: map[database.DojoCohort]int{
 				"2300-2400": 25,
 			},
@@ -120,7 +122,7 @@ func TestGraduate(t *testing.T) {
 			wantCode: 200,
 			wantGraduation: &database.Graduation{
 				Username:            testUsername,
-				DiscordUsername:     testUser.DiscordUsername,
+				DisplayName:         testUser.DisplayName,
 				PreviousCohort:      testUser.DojoCohort,
 				NewCohort:           "2400+",
 				Score:               25,

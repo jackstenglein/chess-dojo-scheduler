@@ -24,9 +24,9 @@ var goldenUser1 = &database.User{
 	CurrentLichessRating:  1300,
 	CurrentFideRating:     1200,
 	CurrentUscfRating:     1100,
-	DojoCohort:            "2300-2400",
+	DojoCohort:            "2200-2300",
 	CreatedAt:             "2023-03-16T19:09:30Z",
-	PreviousCohort:        "2200-2300",
+	PreviousCohort:        "2100-2200",
 	UpdatedAt:             "2023-03-16T19:11:03Z",
 }
 
@@ -42,7 +42,7 @@ var goldenUser2 = &database.User{
 	CurrentLichessRating:  1400,
 	CurrentFideRating:     1300,
 	CurrentUscfRating:     1200,
-	DojoCohort:            "2300-2400",
+	DojoCohort:            "2200-2300",
 	CreatedAt:             "2023-03-16T19:09:30Z",
 	UpdatedAt:             "2023-03-16T19:11:03Z",
 }
@@ -84,7 +84,7 @@ func TestListUser(t *testing.T) {
 		},
 		{
 			name:      "Success",
-			cohort:    "2300-2400",
+			cohort:    "2200-2300",
 			wantCode:  200,
 			wantUsers: []*database.User{goldenUser1, goldenUser2},
 		},

@@ -207,12 +207,12 @@ const MeetingPage = () => {
                         <Stack spacing={3}>
                             <Stack>
                                 <Typography variant='subtitle2' color='text.secondary'>
-                                    Discord Username
+                                    Name
                                 </Typography>
                                 <Stack direction='row' spacing={2} alignItems='center'>
                                     <Link to={`/profile/${opponent.username}`}>
                                         <Typography variant='body1'>
-                                            {opponent.discordUsername}
+                                            {opponent.displayName}
                                         </Typography>
                                     </Link>
                                     <GraduationIcon

@@ -20,7 +20,8 @@ export interface GameInfo {
     id: string;
     date: string;
     owner: string;
-    ownerDiscord: string;
+    // ownerDiscord: string;
+    ownerDisplayName: string;
     ownerPreviousCohort: string;
     headers: PgnHeaders;
     isFeatured: string;
@@ -29,7 +30,8 @@ export interface GameInfo {
 
 export interface Comment {
     owner: string;
-    ownerDiscord: string;
+    ownerDisplayName: string;
+    // ownerDiscord: string;
     ownerCohort: string;
     ownerPreviousCohort: string;
     id: string;

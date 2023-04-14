@@ -70,7 +70,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	graduation := database.Graduation{
 		Username:            info.Username,
-		DiscordUsername:     user.DiscordUsername,
+		DisplayName:         user.DisplayName,
 		PreviousCohort:      user.DojoCohort,
 		NewCohort:           nextCohort,
 		Score:               user.CalculateScore(requirements),

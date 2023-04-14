@@ -34,7 +34,8 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                     <Stack direction='row' spacing={2} alignItems='center'>
                         <Link to={`/profile/${availability.owner}`}>
                             <Typography variant='body1'>
-                                {availability.ownerDiscord} ({availability.ownerCohort})
+                                {availability.ownerDisplayName} (
+                                {availability.ownerCohort})
                             </Typography>
                         </Link>
                         <GraduationIcon

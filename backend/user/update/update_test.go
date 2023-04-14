@@ -72,13 +72,13 @@ func TestUpdateUser(t *testing.T) {
 			name:     "SuccessfulRequest",
 			username: testUsername,
 			update: &database.UserUpdate{
-				DiscordUsername:                  aws.String("testDiscordUsername"),
+				DisplayName:                      aws.String("testDisplayName"),
 				Bio:                              aws.String("testBio"),
 				RatingSystem:                     (*database.RatingSystem)(aws.String(string(database.Fide))),
-				ChesscomUsername:                 aws.String("testChesscomUsername"),
-				LichessUsername:                  aws.String("testLichessUsername"),
-				FideId:                           aws.String("testFideId"),
-				UscfId:                           aws.String("testUscfId"),
+				ChesscomUsername:                 aws.String("JackStenglein"),
+				LichessUsername:                  aws.String("JackStenglein"),
+				FideId:                           aws.String("1503014"),
+				UscfId:                           aws.String("31005525"),
 				StartChesscomRating:              aws.Int(1),
 				StartLichessRating:               aws.Int(2),
 				StartFideRating:                  aws.Int(3),
@@ -92,13 +92,13 @@ func TestUpdateUser(t *testing.T) {
 				Username:                         testUsername,
 				Email:                            testEmail,
 				Name:                             testName,
-				DiscordUsername:                  "testDiscordUsername",
+				DisplayName:                      "testDisplayName",
 				Bio:                              "testBio",
 				RatingSystem:                     database.Fide,
-				ChesscomUsername:                 "testChesscomUsername",
-				LichessUsername:                  "testLichessUsername",
-				FideId:                           "testFideId",
-				UscfId:                           "testUscfId",
+				ChesscomUsername:                 "JackStenglein",
+				LichessUsername:                  "JackStenglein",
+				FideId:                           "1503014",
+				UscfId:                           "31005525",
 				StartChesscomRating:              1,
 				StartLichessRating:               2,
 				StartFideRating:                  3,
@@ -130,7 +130,7 @@ func TestUpdateUser(t *testing.T) {
 					t.Errorf("GetUser(%s) got err: %v", tc.username, err)
 				}
 
-				if diff := cmp.Diff(tc.wantUser, gotUser, cmpopts.EquateEmpty(), cmpopts.IgnoreFields(database.User{}, "CreatedAt", "UpdatedAt")); diff != "" {
+				if diff := cmp.Diff(tc.wantUser, gotUser, cmpopts.EquateEmpty(), cmpopts.IgnoreFields(database.User{}, "CreatedAt", "UpdatedAt", "CurrentChesscomRating", "CurrentLichessRating", "CurrentFideRating", "CurrentUscfRating")); diff != "" {
 					t.Errorf("GetUser(%v) diff (-want +got):\n%s", event, diff)
 				}
 			}

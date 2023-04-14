@@ -61,6 +61,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
     const api = useApi();
     const navigate = useNavigate();
 
+    const [displayName, setDisplayName] = useState(user.displayName);
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [dojoCohort, setDojoCohort] = useState(
         user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : ''
@@ -105,6 +106,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
     const request = useRequest();
 
     const update = getUpdate(user, {
+        displayName,
         discordUsername,
         dojoCohort,
         bio,
@@ -138,8 +140,8 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
             return;
         }
         const newErrors: Record<string, string> = {};
-        if (discordUsername === '') {
-            newErrors.discordUsername = 'This field is required';
+        if (!displayName) {
+            newErrors.displayName = 'This field is required';
         }
         if (dojoCohort === '') {
             newErrors.dojoCohort = 'This field is required';
@@ -306,6 +308,17 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
 
                     <TextField
                         required
+                        label='Display Name'
+                        value={displayName}
+                        onChange={(event) => setDisplayName(event.target.value)}
+                        error={!!errors.displayName}
+                        helperText={
+                            errors.displayName ||
+                            'This is how other users will identify you'
+                        }
+                    />
+
+                    <TextField
                         label='Discord Username (with # number)'
                         value={discordUsername}
                         onChange={(event) => setDiscordUsername(event.target.value)}

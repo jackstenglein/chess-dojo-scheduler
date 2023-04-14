@@ -47,8 +47,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if comment.OwnerDiscord == "" {
-		err := errors.New(400, "Invalid request: ownerDiscord must not be empty", "")
+	if comment.OwnerDisplayName == "" {
+		err := errors.New(400, "Invalid request: ownerDisplayName must not be empty", "")
 		return api.Failure(funcName, err), nil
 	}
 

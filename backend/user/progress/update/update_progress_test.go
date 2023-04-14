@@ -18,13 +18,13 @@ const testName = "Test Name"
 
 const repeatableReqId = "df074603-53f6-4d46-bd64-a207e8a0e289"
 const repeatableReqName = "Algorithm 2"
-const repeatableReqCategory = "Endgames"
+const repeatableReqCategory = "Endgame"
 const repeatableReqDisplay = database.Checkbox
 
-const nonRepeatableReqId = "6b7966fd-4ea3-4075-939a-69e5811bc340"
-const nonRepeatableReqName = "Polgar Mate-in-1s"
+const nonRepeatableReqId = "917be358-e6d9-47e6-9cad-66fc2fdb5da6"
+const nonRepeatableReqName = "Polgar Mates in 1"
 const nonRepeatableReqCategory = "Tactics"
-const nonRepeatableReqDisplay = database.Unspecified
+const nonRepeatableReqDisplay = database.ProgressBar
 
 func setupSuite(t *testing.T) func(t *testing.T) {
 	_, err := database.DynamoDB.CreateUser(testUsername, testEmail, testName)
@@ -83,7 +83,7 @@ func TestUpdateUser(t *testing.T) {
 			wantErr:  true,
 			username: testUsername,
 			update: &ProgressUpdateRequest{
-				Cohort:                  "1000-1100",
+				Cohort:                  "800-900",
 				IncrementalCount:        1,
 				IncrementalMinutesSpent: 15,
 			},
@@ -116,7 +116,7 @@ func TestUpdateUser(t *testing.T) {
 			username: testUsername,
 			update: &ProgressUpdateRequest{
 				RequirementId:           repeatableReqId,
-				Cohort:                  "1000-1100",
+				Cohort:                  "800-900",
 				IncrementalCount:        1,
 				IncrementalMinutesSpent: 15,
 			},
@@ -128,10 +128,10 @@ func TestUpdateUser(t *testing.T) {
 					repeatableReqId: {
 						RequirementId: repeatableReqId,
 						Counts: map[database.DojoCohort]int{
-							"1000-1100": 1,
+							"800-900": 1,
 						},
 						MinutesSpent: map[database.DojoCohort]int{
-							"1000-1100": 15,
+							"800-900": 15,
 						},
 					},
 				},
@@ -141,7 +141,7 @@ func TestUpdateUser(t *testing.T) {
 						RequirementName:     repeatableReqName,
 						RequirementCategory: repeatableReqCategory,
 						ScoreboardDisplay:   repeatableReqDisplay,
-						Cohort:              "1000-1100",
+						Cohort:              "800-900",
 						TotalCount:          1,
 						PreviousCount:       0,
 						NewCount:            1,
@@ -155,7 +155,7 @@ func TestUpdateUser(t *testing.T) {
 			username: testUsername,
 			update: &ProgressUpdateRequest{
 				RequirementId:           nonRepeatableReqId,
-				Cohort:                  "1100-1200",
+				Cohort:                  "900-1000",
 				IncrementalCount:        50,
 				IncrementalMinutesSpent: 100,
 			},
@@ -167,10 +167,10 @@ func TestUpdateUser(t *testing.T) {
 					repeatableReqId: {
 						RequirementId: repeatableReqId,
 						Counts: map[database.DojoCohort]int{
-							"1000-1100": 1,
+							"800-900": 1,
 						},
 						MinutesSpent: map[database.DojoCohort]int{
-							"1000-1100": 15,
+							"800-900": 15,
 						},
 					},
 					nonRepeatableReqId: {
@@ -179,7 +179,7 @@ func TestUpdateUser(t *testing.T) {
 							database.AllCohorts: 50,
 						},
 						MinutesSpent: map[database.DojoCohort]int{
-							"1100-1200": 100,
+							"900-1000": 100,
 						},
 					},
 				},
@@ -189,7 +189,7 @@ func TestUpdateUser(t *testing.T) {
 						RequirementName:     repeatableReqName,
 						RequirementCategory: repeatableReqCategory,
 						ScoreboardDisplay:   repeatableReqDisplay,
-						Cohort:              "1000-1100",
+						Cohort:              "800-900",
 						TotalCount:          1,
 						PreviousCount:       0,
 						NewCount:            1,
@@ -200,7 +200,7 @@ func TestUpdateUser(t *testing.T) {
 						RequirementName:     nonRepeatableReqName,
 						RequirementCategory: nonRepeatableReqCategory,
 						ScoreboardDisplay:   nonRepeatableReqDisplay,
-						Cohort:              "1100-1200",
+						Cohort:              "900-1000",
 						TotalCount:          306,
 						PreviousCount:       0,
 						NewCount:            50,

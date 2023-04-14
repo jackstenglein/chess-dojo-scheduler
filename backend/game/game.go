@@ -133,7 +133,7 @@ func GetGame(user *database.User, pgnText string) (*database.Game, error) {
 		Black:               black,
 		Date:                date,
 		Owner:               user.Username,
-		OwnerDiscord:        user.DiscordUsername,
+		OwnerDisplayName:    user.DisplayName,
 		OwnerPreviousCohort: user.PreviousCohort,
 		Headers:             headers,
 		IsFeatured:          "false",

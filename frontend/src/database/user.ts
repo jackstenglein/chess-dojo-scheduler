@@ -47,6 +47,7 @@ export interface User {
     cognitoUser?: CognitoUser;
 
     username: string;
+    displayName: string;
     discordUsername: string;
     dojoCohort: string;
     bio: string;

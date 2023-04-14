@@ -13,8 +13,8 @@ type Graduation struct {
 	// The hash key of the table.
 	Username string `dynamodbav:"username" json:"username"`
 
-	// The Discord username of the graduating user.
-	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
+	// The display name of the graduating user.
+	DisplayName string `dynamodbav:"displayName" json:"displayName"`
 
 	// The cohort the user is graduating from.
 	// The range key of the table.

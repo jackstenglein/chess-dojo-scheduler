@@ -105,7 +105,7 @@ function getEventFromAvailability(
         title:
             a.maxParticipants > 1
                 ? `Bookable - Group (${a.participants.length}/${a.maxParticipants})`
-                : `Bookable - ${a.ownerDiscord}`,
+                : `Bookable - ${a.ownerDisplayName}`,
         start: new Date(a.startTime),
         end: new Date(a.endTime),
         availability: a,

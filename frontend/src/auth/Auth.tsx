@@ -228,7 +228,7 @@ export function RequireProfile() {
 
     if (
         user.dojoCohort === '' ||
-        user.discordUsername === '' ||
+        user.displayName === '' ||
         user.chesscomUsername === '' ||
         user.lichessUsername === ''
     ) {
