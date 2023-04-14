@@ -41,14 +41,15 @@ func getDiscordIdByUser(discord *discordgo.Session, user *database.User) (string
 // getDiscordIdByDiscordUsername returns the discord ID of the user with the given discord username.
 func getDiscordIdByDiscordUsername(discord *discordgo.Session, discordUsername string) (string, error) {
 	discordTokens := strings.Split(discordUsername, "#")
-	if len(discordTokens) == 0 {
-		return "", errors.New(400, fmt.Sprintf("Cannot send discord notification to username `%s`", discordUsername), "")
+	if len(discordTokens) != 2 {
+		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is not in username#id format", discordUsername), "")
 	}
 
-	var discordDiscriminator string
 	discordUsername = discordTokens[0]
-	if len(discordTokens) > 1 {
-		discordDiscriminator = discordTokens[1]
+	discordDiscriminator := discordTokens[1]
+
+	if discordDiscriminator == "" {
+		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is not in username#id format", discordUsername), "")
 	}
 
 	discordUsers, err := discord.GuildMembersSearch(guildId, discordUsername, 1000)
@@ -56,27 +57,28 @@ func getDiscordIdByDiscordUsername(discord *discordgo.Session, discordUsername s
 		return "", errors.Wrap(500, "Temporary server error", "Failed to search for guild members", err)
 	}
 	if len(discordUsers) == 0 {
-		return "", errors.New(404, fmt.Sprintf("Cannot find discord username `%s`", discordUsername), "")
+		return "", errors.New(404, fmt.Sprintf("Discord username `%s` not found", discordUsername), "")
 	}
 
-	var discordUser *discordgo.Member
-	if len(discordUsers) == 1 {
-		discordUser = discordUsers[0]
-	} else if discordDiscriminator == "" {
-		return "", errors.New(400, fmt.Sprintf("Discord username `%s` does not contain # number and there are multiple users found", discordUsername), "")
-	} else {
-		for _, u := range discordUsers {
-			if u.User.Discriminator == discordDiscriminator {
-				discordUser = u
-				break
-			}
-		}
-		if discordUser == nil {
-			return "", errors.New(404, fmt.Sprintf("Discord search returned users, but cannot find matching discriminator for discord username `%s`", discordUsername), "")
+	for _, u := range discordUsers {
+		if u.User.Discriminator == discordDiscriminator {
+			return u.User.ID, nil
 		}
 	}
 
-	return discordUser.User.ID, nil
+	return "", errors.New(404, fmt.Sprintf("Cannot find matching # number for discord username `%s`", discordUsername), "")
+}
+
+// CheckDiscordUsername verifies that the provided discord username can be found in the server.
+// An error is returned if the username cannot be found.
+func CheckDiscordUsername(discordUsername string) error {
+	discord, err := discordgo.New("Bot " + authToken)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+	}
+
+	_, err = getDiscordIdByDiscordUsername(discord, discordUsername)
+	return err
 }
 
 // SendBookingNotification sends a notification of a newly booked meeting

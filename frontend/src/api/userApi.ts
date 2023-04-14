@@ -131,7 +131,7 @@ export async function updateUser(
             Authorization: 'Bearer ' + idToken,
         },
     });
-    callback(update);
+    callback(result.data);
     return result;
 }
 

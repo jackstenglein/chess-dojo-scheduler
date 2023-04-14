@@ -242,6 +242,10 @@ type UserUpdate struct {
 	// The user's starting Chess.com rating
 	StartChesscomRating *int `dynamodbav:"startChesscomRating,omitempty" json:"startChesscomRating,omitempty"`
 
+	// The user's current Chess.com rating
+	// Cannot be manually passed by the user and is updated automatically by the server.
+	CurrentChesscomRating *int `dynamodbav:"currentChesscomRating,omitempty" json:"-"`
+
 	// The user's Lichess username
 	LichessUsername *string `dynamodbav:"lichessUsername,omitempty" json:"lichessUsername,omitempty"`
 
@@ -250,6 +254,10 @@ type UserUpdate struct {
 
 	// The user's starting Lichess rating
 	StartLichessRating *int `dynamodbav:"startLichessRating,omitempty" json:"startLichessRating,omitempty"`
+
+	// The user's current Lichess rating
+	// Cannot be manually passed by the user and is updated automatically by the server.
+	CurrentLichessRating *int `dynamodbav:"currentLichessRating,omitempty" json:"-"`
 
 	// The user's FIDE Id
 	FideId *string `dynamodbav:"fideId,omitempty" json:"fideId,omitempty"`
@@ -260,6 +268,10 @@ type UserUpdate struct {
 	// The user's starting FIDE rating
 	StartFideRating *int `dynamodbav:"startFideRating,omitempty" json:"startFideRating,omitempty"`
 
+	// The user's current FIDE rating
+	// Cannot be manually passed by the user and is updated automatically by the server.
+	CurrentFideRating *int `dynamodbav:"currentFideRating,omitempty" json:"-"`
+
 	// The user's USCF Id
 	UscfId *string `dynamodbav:"uscfId,omitempty" json:"uscfId,omitempty"`
 
@@ -269,15 +281,17 @@ type UserUpdate struct {
 	// The user's starting USCF rating
 	StartUscfRating *int `dynamodbav:"startUscfRating,omitempty" json:"startUscfRating,omitempty"`
 
+	// The user's current USCF rating
+	// Cannot be manually passed by the user and is updated automatically by the server.
+	CurrentUscfRating *int `dynamodbav:"currentUscfRating,omitempty" json:"-"`
+
 	// The user's Dojo cohort
 	DojoCohort *DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort,omitempty"`
 
 	// Whether to disable notifications when a user's meeting is booked
-	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
 	DisableBookingNotifications *bool `dynamodbav:"disableBookingNotifications,omitempty" json:"disableBookingNotifications,omitempty"`
 
 	// Whether to disable notifications when a user's meeting is cancelled
-	// if omitempty is added it will stop false booleans from getting picked up during marshalmap
 	DisableCancellationNotifications *bool `dynamodbav:"disableCancellationNotifications,omitempty" json:"disableCancellationNotifications,omitempty"`
 
 	// The number of times the user has graduated.

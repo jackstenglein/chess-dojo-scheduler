@@ -122,7 +122,7 @@ const ProfilePage = () => {
                         isPreferred={user.ratingSystem === RatingSystem.Lichess}
                     />
 
-                    {user.currentFideRating > 0 && (
+                    {(user.currentFideRating > 0 || user.startFideRating > 0) && (
                         <RatingCard
                             system={RatingSystem.Fide}
                             cohort={user.dojoCohort}
@@ -134,7 +134,7 @@ const ProfilePage = () => {
                         />
                     )}
 
-                    {user.currentUscfRating > 0 && (
+                    {(user.currentUscfRating > 0 || user.startUscfRating > 0) && (
                         <RatingCard
                             system={RatingSystem.Uscf}
                             cohort={user.dojoCohort}

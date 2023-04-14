@@ -16,7 +16,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 
 import { useAuth } from '../auth/Auth';
-import { dojoCohorts, formatRatingSystem, RatingSystem } from '../database/user';
+import { dojoCohorts, formatRatingSystem, RatingSystem, User } from '../database/user';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 
@@ -34,6 +34,22 @@ function getStartRating(rating: string): number {
         return n;
     }
     return -1;
+}
+
+function getUpdate(user: User, formFields: Partial<User>): Partial<User> | undefined {
+    const update: Partial<User> = {};
+
+    for (const [key, value] of Object.entries(formFields)) {
+        if ((user as any)[key] !== value) {
+            (update as any)[key] = value;
+        }
+    }
+
+    if (Object.entries(update).length === 0) {
+        return undefined;
+    }
+
+    return update;
 }
 
 interface ProfileEditorPageProps {
@@ -85,7 +101,37 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
+    const update = getUpdate(user, {
+        discordUsername,
+        dojoCohort,
+        bio,
+        ratingSystem,
+
+        chesscomUsername,
+        startChesscomRating: getStartRating(startChesscomRating),
+        hideChesscomUsername,
+
+        lichessUsername,
+        startLichessRating: getStartRating(startLichessRating),
+        hideLichessUsername,
+
+        fideId,
+        startFideRating: getStartRating(startFideRating),
+        hideFideId,
+
+        uscfId,
+        startUscfRating: getStartRating(startUscfRating),
+        hideUscfId,
+
+        disableBookingNotifications,
+        disableCancellationNotifications,
+    });
+    const changesMade = update !== undefined;
+
     const onSave = () => {
+        if (update === undefined) {
+            return;
+        }
         const newErrors: Record<string, string> = {};
         if (discordUsername === '') {
             newErrors.discordUsername = 'This field is required';
@@ -132,31 +178,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
 
         request.onStart();
 
-        api.updateUser({
-            discordUsername,
-            dojoCohort,
-            bio,
-            ratingSystem,
-
-            chesscomUsername,
-            startChesscomRating: getStartRating(startChesscomRating),
-            hideChesscomUsername,
-
-            lichessUsername,
-            startLichessRating: getStartRating(startLichessRating),
-            hideLichessUsername,
-
-            fideId,
-            startFideRating: getStartRating(startFideRating),
-            hideFideId,
-
-            uscfId,
-            startUscfRating: getStartRating(startUscfRating),
-            hideUscfId,
-
-            disableBookingNotifications,
-            disableCancellationNotifications,
-        })
+        api.updateUser(update)
             .then(() => {
                 request.onSuccess('Profile updated');
                 navigate('..');
@@ -166,26 +188,6 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                 request.onFailure(err);
             });
     };
-
-    const changesMade =
-        discordUsername !== user.discordUsername ||
-        dojoCohort !== user.dojoCohort ||
-        bio !== user.bio ||
-        ratingSystem !== user.ratingSystem ||
-        chesscomUsername !== user.chesscomUsername ||
-        parseInt(startChesscomRating) !== user.startChesscomRating ||
-        hideChesscomUsername !== user.hideChesscomUsername ||
-        lichessUsername !== user.lichessUsername ||
-        parseInt(startLichessRating) !== user.startLichessRating ||
-        hideLichessUsername !== user.hideLichessUsername ||
-        fideId !== user.fideId ||
-        parseInt(startFideRating) !== user.startFideRating ||
-        hideFideId !== user.hideFideId ||
-        uscfId !== user.uscfId ||
-        parseInt(startUscfRating) !== user.startUscfRating ||
-        hideUscfId !== user.hideUscfId ||
-        disableBookingNotifications !== user.disableBookingNotifications ||
-        disableCancellationNotifications !== user.disableCancellationNotifications;
 
     const ratingSystems = [
         {
