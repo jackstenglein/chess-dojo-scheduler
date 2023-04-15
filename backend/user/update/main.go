@@ -19,6 +19,7 @@ var repository database.UserUpdater = database.DynamoDB
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
+	log.Debugf("Event: %#v", event)
 
 	info := api.GetUserInfo(event)
 	if info.Username == "" {

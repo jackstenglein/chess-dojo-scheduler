@@ -74,6 +74,25 @@ const ProfilePage = () => {
                         <Typography variant='h5' color='text.secondary'>
                             {user.dojoCohort}
                         </Typography>
+
+                        {user.createdAt && (
+                            <Typography mt={1}>
+                                Dojo Member Since{' '}
+                                {new Date(user.createdAt).toLocaleDateString()}
+                            </Typography>
+                        )}
+
+                        {user.discordUsername && (
+                            <Stack direction='row' spacing={1} alignItems='center' mt={1}>
+                                <img
+                                    alt=''
+                                    src='/discord-icon.svg'
+                                    width='24px'
+                                    height='24px'
+                                />
+                                <Typography>{user.discordUsername}</Typography>
+                            </Stack>
+                        )}
                     </Stack>
 
                     {currentUserProfile && (
