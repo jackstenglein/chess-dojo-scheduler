@@ -96,6 +96,7 @@ export function getColumnDefinition(
         minWidth: 250,
         valueGetter,
         renderCell,
+        headerAlign: 'center',
     };
 }
 

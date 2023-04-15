@@ -16,7 +16,6 @@ import LoadingPage from '../loading/LoadingPage';
 import {
     formatPercentComplete,
     formatRatingSystem,
-    getCategoryScore,
     getCohortScore,
     getColumnDefinition,
     getCurrentRating,
@@ -82,7 +81,7 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
     },
     {
         field: 'previousCohort',
-        headerName: 'Graduation',
+        headerName: 'Graduated',
         renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
             return <GraduationIcon cohort={params.value} size={35} />;
         },
@@ -162,51 +161,6 @@ const ScoreboardPage = () => {
                 minWidth: 150,
                 valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
                     getCohortScore(params, cohort, requirements),
-                align: 'center',
-            },
-            {
-                field: 'gamesAndAnalysisScore',
-                headerName: 'Games + Analysis Score',
-                minWidth: 200,
-                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
-                    getCategoryScore(params, cohort, 'Games + Analysis', requirements),
-                align: 'center',
-            },
-            {
-                field: 'middlegamesAndStrategyScore',
-                headerName: 'Middlegames + Strategy Score',
-                minWidth: 225,
-                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
-                    getCategoryScore(
-                        params,
-                        cohort,
-                        'Middlegames + Strategy',
-                        requirements
-                    ),
-                align: 'center',
-            },
-            {
-                field: 'tacticsScore',
-                headerName: 'Tactics Score',
-                minWidth: 150,
-                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
-                    getCategoryScore(params, cohort, 'Tactics', requirements),
-                align: 'center',
-            },
-            {
-                field: 'endgameScore',
-                headerName: 'Endgame Score',
-                minWidth: 150,
-                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
-                    getCategoryScore(params, cohort, 'Endgame', requirements),
-                align: 'center',
-            },
-            {
-                field: 'openingScore',
-                headerName: 'Opening Score',
-                minWidth: 150,
-                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
-                    getCategoryScore(params, cohort, 'Opening', requirements),
                 align: 'center',
             },
             {

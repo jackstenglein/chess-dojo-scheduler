@@ -94,7 +94,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     xs={9}
                     xl={10}
                     onClick={() => setShowReqModal(true)}
-                    sx={{ cursor: 'pointer' }}
+                    sx={{ cursor: 'pointer', position: 'relative' }}
                 >
                     <Typography>{requirementName}</Typography>
                     <Typography
@@ -110,6 +110,9 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                             whiteSpace: 'pre-wrap',
                         }}
                     />
+                    <Typography color='primary' variant='caption'>
+                        View More
+                    </Typography>
                     {DescriptionElement}
                 </Grid>
                 <Grid item xs={2} xl={1}>
