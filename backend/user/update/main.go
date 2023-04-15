@@ -31,6 +31,22 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
+	if update.DisplayName != nil && *update.DisplayName == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: displayName cannot be empty", "")), nil
+	}
+	if update.RatingSystem != nil && *update.RatingSystem == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem cannot be empty", "")), nil
+	}
+	if update.ChesscomUsername != nil && *update.ChesscomUsername == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: chesscomUsername cannot be empty", "")), nil
+	}
+	if update.LichessUsername != nil && *update.LichessUsername == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: lichessUsername cannot be empty", "")), nil
+	}
+	if update.DojoCohort != nil && *update.DojoCohort == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: dojoCohort cannot be empty", "")), nil
+	}
+
 	if update.DiscordUsername != nil && *update.DiscordUsername != "" {
 		if err := discord.CheckDiscordUsername(*update.DiscordUsername); err != nil {
 			return api.Failure(funcName, err), nil

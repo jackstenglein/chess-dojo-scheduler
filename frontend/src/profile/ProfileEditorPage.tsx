@@ -345,6 +345,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                     </Stack>
 
                     <TextField
+                        required
                         select
                         label='Chess Dojo Cohort'
                         value={dojoCohort}
@@ -360,6 +361,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                     </TextField>
 
                     <TextField
+                        required
                         select
                         label='Preferred Rating System'
                         value={ratingSystem}

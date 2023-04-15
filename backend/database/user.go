@@ -408,13 +408,16 @@ func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) 
 // UpdateUser applies the specified update to the user with the provided username.
 func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*User, error) {
 	update.UpdatedAt = aws.String(time.Now().Format(time.RFC3339))
-	av, err := dynamodbattribute.MarshalMap(update)
+
+	encoder := dynamodbattribute.NewEncoder()
+	encoder.NullEmptyString = false
+	av, err := encoder.Encode(update)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
 	}
 
 	builder := expression.UpdateBuilder{}
-	for k, v := range av {
+	for k, v := range av.M {
 		builder = builder.Set(expression.Name(k), expression.Value(v))
 	}
 
