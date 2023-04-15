@@ -8,6 +8,13 @@ import { User } from '../database/user';
 
 const columns: GridColDef[] = [
     {
+        field: 'displayName',
+        headerName: 'Display Name',
+        valueGetter: (params: GridValueGetterParams<any, User>) =>
+            params.row.displayName || 'N/A',
+        flex: 1,
+    },
+    {
         field: 'discordUsername',
         headerName: 'Discord Username',
         valueGetter: (params: GridValueGetterParams<any, User>) =>

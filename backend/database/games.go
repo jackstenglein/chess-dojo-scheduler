@@ -465,7 +465,7 @@ func (repo *dynamoRepository) ListFeaturedGames(date, startKey string) ([]*Game,
 			":true": {S: aws.String("true")},
 			":d":    {S: aws.String(date)},
 		},
-		IndexName: aws.String("FeaturedIndex"),
+		IndexName: aws.String("FeaturedIdx"),
 		TableName: aws.String(gameTable),
 	}
 

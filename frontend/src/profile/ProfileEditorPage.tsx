@@ -323,7 +323,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                         value={discordUsername}
                         onChange={(event) => setDiscordUsername(event.target.value)}
                         error={!!errors.discordUsername}
-                        helperText={errors.discordUsername}
+                        helperText={errors.discordUsername || 'username#id'}
                     />
 
                     <TextField

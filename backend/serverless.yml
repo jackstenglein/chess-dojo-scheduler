@@ -237,7 +237,7 @@ functions:
           - Fn::Join:
               - ''
               - - !GetAtt UsersTable.Arn
-                - '/index/CohortIndex'
+                - '/index/CohortIdx'
 
   updateRatings:
     handler: bin/user/ratings/update
@@ -627,7 +627,7 @@ functions:
           - Fn::Join:
               - ''
               - - !GetAtt GamesTable.Arn
-                - '/index/FeaturedIndex'
+                - '/index/FeaturedIdx'
 
   ########## Requirement Endpoints ##############
 

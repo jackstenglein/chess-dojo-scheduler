@@ -3,7 +3,6 @@ import { RatingSystem } from './user';
 
 export interface Graduation {
     username: string;
-    // discordUsername: string;
     displayName: string;
     previousCohort: string;
     newCohort: string;
