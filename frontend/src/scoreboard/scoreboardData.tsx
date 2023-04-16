@@ -69,7 +69,15 @@ export function getColumnDefinition(
         );
         switch (requirement.scoreboardDisplay) {
             case ScoreboardDisplay.Checkbox:
-                return <ScoreboardCheck value={score} total={totalCount} />;
+                return (
+                    <ScoreboardCheck
+                        value={score}
+                        total={totalCount}
+                        username={params.row.username}
+                        cohort={cohort}
+                        requirement={requirement}
+                    />
+                );
 
             case ScoreboardDisplay.Unspecified:
             case ScoreboardDisplay.ProgressBar:
@@ -79,6 +87,9 @@ export function getColumnDefinition(
                         value={score}
                         max={totalCount}
                         min={requirement.startCount}
+                        username={params.row.username}
+                        cohort={cohort}
+                        requirement={requirement}
                     />
                 );
         }

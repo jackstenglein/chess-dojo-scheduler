@@ -202,6 +202,15 @@ const ScoreboardPage = () => {
         return Object.values(categories);
     }, [requirements]);
 
+    const usersList = useMemo(() => {
+        if (cohort === user.dojoCohort) {
+            return [user].concat(
+                usersRequest.data?.filter((u) => u.username !== user.username) ?? []
+            );
+        }
+        return usersRequest.data ?? [];
+    }, [user, usersRequest.data, cohort]);
+
     const onChangeCohort = (cohort: string) => {
         navigate(`../${cohort}`);
         usersRequest.reset();
@@ -248,7 +257,7 @@ const ScoreboardPage = () => {
                 experimentalFeatures={{ columnGrouping: true }}
                 columns={userInfoColumns.concat(cohortScoreColumns, requirementColumns)}
                 columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
-                rows={usersRequest.data ?? []}
+                rows={usersList}
                 loading={usersRequest.isLoading()}
                 getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
             />
