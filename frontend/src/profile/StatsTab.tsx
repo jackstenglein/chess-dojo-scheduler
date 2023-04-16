@@ -2,6 +2,7 @@ import { Stack } from '@mui/material';
 
 import { RatingSystem, User } from '../database/user';
 import RatingCard from './RatingCard';
+import DojoScoreCard from './DojoScoreCard';
 
 interface StatsTabProps {
     user: User;
@@ -10,6 +11,8 @@ interface StatsTabProps {
 const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
     return (
         <Stack spacing={4}>
+            <DojoScoreCard user={user} />
+
             <RatingCard
                 system={RatingSystem.Chesscom}
                 cohort={user.dojoCohort}

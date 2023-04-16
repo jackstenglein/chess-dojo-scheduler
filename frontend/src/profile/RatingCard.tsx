@@ -76,15 +76,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                     )}
                 </Stack>
 
-                <Grid
-                    container
-                    justifyContent='space-around'
-                    // direction='row'
-                    // justifyContent='space-around'
-                    // alignItems='start'
-                    // flexWrap='wrap'
-                    rowGap={2}
-                >
+                <Grid container justifyContent='space-around' rowGap={2}>
                     <Grid item xs={6} sm={3} display='flex' justifyContent='center'>
                         <Stack direction='row' alignItems='end' width='82px'>
                             <Stack alignItems='end'>

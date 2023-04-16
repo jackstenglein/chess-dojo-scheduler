@@ -1,3 +1,5 @@
+import { User } from './user';
+
 export enum RequirementStatus {
     Active = 'ACTIVE',
     Archived = 'ARCHIVED',
@@ -136,4 +138,54 @@ export function getTotalScore(cohort: string | undefined, requirements: Requirem
     }, 0);
 
     return totalScore;
+}
+
+export function getCohortScore(
+    user: User,
+    cohort: string | undefined,
+    requirements: Requirement[]
+): number {
+    if (!cohort) {
+        return 0;
+    }
+
+    let score = 0;
+    for (const requirement of requirements) {
+        score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+    }
+    return Math.round(score * 100) / 100;
+}
+
+export function getCategoryScore(
+    user: User,
+    cohort: string | undefined,
+    category: string,
+    requirements: Requirement[]
+): number {
+    if (!cohort) {
+        return 0;
+    }
+
+    let score = 0;
+    for (const requirement of requirements) {
+        if (requirement.category === category) {
+            score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+        }
+    }
+    return Math.round(score * 100) / 100;
+}
+
+export function getTotalCategoryScore(
+    cohort: string | undefined,
+    category: string,
+    requirements: Requirement[]
+) {
+    if (!cohort) {
+        return 0;
+    }
+
+    return getTotalScore(
+        cohort,
+        requirements.filter((r) => r.category === category)
+    );
 }
