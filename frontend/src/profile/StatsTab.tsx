@@ -13,25 +13,29 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
         <Stack spacing={4}>
             <DojoScoreCard user={user} />
 
-            <RatingCard
-                system={RatingSystem.Chesscom}
-                cohort={user.dojoCohort}
-                username={user.chesscomUsername}
-                usernameHidden={user.hideChesscomUsername}
-                currentRating={user.currentChesscomRating}
-                startRating={user.startChesscomRating}
-                isPreferred={user.ratingSystem === RatingSystem.Chesscom}
-            />
+            {(user.chesscomUsername !== '' || user.currentChesscomRating > 0) && (
+                <RatingCard
+                    system={RatingSystem.Chesscom}
+                    cohort={user.dojoCohort}
+                    username={user.chesscomUsername}
+                    usernameHidden={user.hideChesscomUsername}
+                    currentRating={user.currentChesscomRating}
+                    startRating={user.startChesscomRating}
+                    isPreferred={user.ratingSystem === RatingSystem.Chesscom}
+                />
+            )}
 
-            <RatingCard
-                system={RatingSystem.Lichess}
-                cohort={user.dojoCohort}
-                username={user.lichessUsername}
-                usernameHidden={user.hideLichessUsername}
-                currentRating={user.currentLichessRating}
-                startRating={user.startLichessRating}
-                isPreferred={user.ratingSystem === RatingSystem.Lichess}
-            />
+            {(user.lichessUsername !== '' || user.currentLichessRating > 0) && (
+                <RatingCard
+                    system={RatingSystem.Lichess}
+                    cohort={user.dojoCohort}
+                    username={user.lichessUsername}
+                    usernameHidden={user.hideLichessUsername}
+                    currentRating={user.currentLichessRating}
+                    startRating={user.startLichessRating}
+                    isPreferred={user.ratingSystem === RatingSystem.Lichess}
+                />
+            )}
 
             {(user.currentFideRating > 0 || user.startFideRating > 0) && (
                 <RatingCard

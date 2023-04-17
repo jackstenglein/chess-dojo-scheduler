@@ -106,25 +106,25 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
     const request = useRequest();
 
     const update = getUpdate(user, {
-        displayName,
-        discordUsername,
+        displayName: displayName.trim(),
+        discordUsername: discordUsername.trim(),
         dojoCohort,
         bio,
         ratingSystem,
 
-        chesscomUsername,
+        chesscomUsername: chesscomUsername.trim(),
         startChesscomRating: getStartRating(startChesscomRating),
         hideChesscomUsername,
 
-        lichessUsername,
+        lichessUsername: lichessUsername.trim(),
         startLichessRating: getStartRating(startLichessRating),
         hideLichessUsername,
 
-        fideId,
+        fideId: fideId.trim(),
         startFideRating: getStartRating(startFideRating),
         hideFideId,
 
-        uscfId,
+        uscfId: uscfId.trim(),
         startUscfRating: getStartRating(startUscfRating),
         hideUscfId,
 
@@ -140,7 +140,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
             return;
         }
         const newErrors: Record<string, string> = {};
-        if (!displayName) {
+        if (!displayName.trim()) {
             newErrors.displayName = 'This field is required';
         }
         if (dojoCohort === '') {
@@ -150,28 +150,30 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
             newErrors.ratingSystem = 'This field is required';
         }
 
-        if (chesscomUsername === '') {
-            newErrors.chesscomUsername = 'This field is required';
+        if (ratingSystem === RatingSystem.Chesscom && !chesscomUsername.trim()) {
+            newErrors.chesscomUsername =
+                'This field is required when using Chess.com rating system.';
         }
         if (getStartRating(startChesscomRating) < 0) {
             newErrors.startChesscomRating = 'Rating must be an integer >= 0';
         }
 
-        if (lichessUsername === '') {
-            newErrors.lichessUsername = 'This field is required';
+        if (ratingSystem === RatingSystem.Lichess && !lichessUsername.trim()) {
+            newErrors.lichessUsername =
+                'This field is required when using Lichess rating system.';
         }
         if (getStartRating(startLichessRating) < 0) {
             newErrors.startLichessRating = 'Rating must be an integer >= 0';
         }
 
-        if (ratingSystem === RatingSystem.Fide && fideId === '') {
+        if (ratingSystem === RatingSystem.Fide && !fideId.trim()) {
             newErrors.fideId = 'This field is required when using FIDE rating system.';
         }
         if (getStartRating(startFideRating) < 0) {
             newErrors.startFideRating = 'Rating must be an integer >= 0';
         }
 
-        if (ratingSystem === RatingSystem.Uscf && uscfId === '') {
+        if (ratingSystem === RatingSystem.Uscf && !uscfId.trim()) {
             newErrors.uscfId = 'This field is required when using USCF rating system.';
         }
         if (getStartRating(startUscfRating) < 0) {
@@ -198,7 +200,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
 
     const ratingSystems = [
         {
-            required: true,
+            required: ratingSystem === RatingSystem.Chesscom,
             label: 'Chess.com Username',
             hideLabel: 'Hide Username',
             username: chesscomUsername,
@@ -211,7 +213,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
             startRatingError: errors.startChesscomRating,
         },
         {
-            required: true,
+            required: ratingSystem === RatingSystem.Lichess,
             label: 'Lichess Username',
             hideLabel: 'Hide Username',
             username: lichessUsername,
@@ -224,7 +226,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
             startRatingError: errors.startLichessRating,
         },
         {
-            required: false,
+            required: ratingSystem === RatingSystem.Fide,
             label: 'FIDE ID',
             hideLabel: 'Hide ID',
             username: fideId,
@@ -237,7 +239,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
             startRatingError: errors.startFideRating,
         },
         {
-            required: false,
+            required: ratingSystem === RatingSystem.Uscf,
             label: 'USCF ID',
             hideLabel: 'Hide ID',
             username: uscfId,
@@ -389,7 +391,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                                         rs.setUsername(event.target.value)
                                     }
                                     error={!!rs.usernameError}
-                                    helperText={rs.usernameError}
+                                    helperText={
+                                        rs.usernameError ||
+                                        "Leave blank if you don't have an account"
+                                    }
                                     sx={{ width: 1 }}
                                 />
                             </Grid>
@@ -402,7 +407,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                                         rs.setStartRating(event.target.value)
                                     }
                                     error={!!rs.startRatingError}
-                                    helperText={rs.startRatingError}
+                                    helperText={
+                                        rs.startRatingError ||
+                                        "Leave blank if you don't have an account"
+                                    }
                                     sx={{ width: 1 }}
                                 />
                             </Grid>

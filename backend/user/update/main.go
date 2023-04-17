@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
@@ -16,6 +18,23 @@ import (
 const funcName = "user-update-handler"
 
 var repository database.UserUpdater = database.DynamoDB
+
+type ratingFetchFunc func(username string) (int, error)
+
+func fetchCurrentRating(username **string, currentRating **int, fetcher ratingFetchFunc) error {
+	if *username == nil {
+		return nil
+	}
+	trimmedUsername := strings.TrimSpace(**username)
+	*username = &trimmedUsername
+	if trimmedUsername == "" {
+		*currentRating = aws.Int(0)
+		return nil
+	}
+	rating, err := fetcher(trimmedUsername)
+	*currentRating = &rating
+	return err
+}
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
@@ -31,54 +50,60 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
-	if update.DisplayName != nil && *update.DisplayName == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: displayName cannot be empty", "")), nil
+	if update.DisplayName != nil {
+		displayName := strings.TrimSpace(*update.DisplayName)
+		update.DisplayName = &displayName
+		if *update.DisplayName == "" {
+			return api.Failure(funcName, errors.New(400, "Invalid request: displayName cannot be empty", "")), nil
+		}
 	}
-	if update.RatingSystem != nil && *update.RatingSystem == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem cannot be empty", "")), nil
+	if update.RatingSystem != nil {
+		ratingSystem := strings.TrimSpace(string(*update.RatingSystem))
+		update.RatingSystem = (*database.RatingSystem)(&ratingSystem)
+		if *update.RatingSystem == "" {
+			return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem cannot be empty", "")), nil
+		}
 	}
-	if update.ChesscomUsername != nil && *update.ChesscomUsername == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: chesscomUsername cannot be empty", "")), nil
-	}
-	if update.LichessUsername != nil && *update.LichessUsername == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: lichessUsername cannot be empty", "")), nil
-	}
-	if update.DojoCohort != nil && *update.DojoCohort == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: dojoCohort cannot be empty", "")), nil
-	}
-
-	if update.DiscordUsername != nil && *update.DiscordUsername != "" {
-		if err := discord.CheckDiscordUsername(*update.DiscordUsername); err != nil {
-			return api.Failure(funcName, err), nil
+	if update.DojoCohort != nil {
+		cohort := strings.TrimSpace(string(*update.DojoCohort))
+		update.DojoCohort = (*database.DojoCohort)(&cohort)
+		if *update.DojoCohort == "" {
+			return api.Failure(funcName, errors.New(400, "Invalid request: dojoCohort cannot be empty", "")), nil
 		}
 	}
 
-	if update.ChesscomUsername != nil && *update.ChesscomUsername != "" {
-		if chesscomRating, err := ratings.FetchChesscomRating(*update.ChesscomUsername); err != nil {
-			return api.Failure(funcName, err), nil
-		} else {
-			update.CurrentChesscomRating = &chesscomRating
+	if update.DiscordUsername != nil {
+		username := strings.TrimSpace(*update.DiscordUsername)
+		update.DiscordUsername = &username
+		if *update.DiscordUsername != "" {
+			if err := discord.CheckDiscordUsername(*update.DiscordUsername); err != nil {
+				return api.Failure(funcName, err), nil
+			}
 		}
 	}
-	if update.LichessUsername != nil && *update.LichessUsername != "" {
-		if lichessRating, err := ratings.FetchLichessRating(*update.LichessUsername); err != nil {
+
+	if update.ChesscomUsername != nil {
+		err := fetchCurrentRating(&update.ChesscomUsername, &update.CurrentChesscomRating, ratings.FetchChesscomRating)
+		if err != nil {
 			return api.Failure(funcName, err), nil
-		} else {
-			update.CurrentLichessRating = &lichessRating
 		}
 	}
-	if update.FideId != nil && *update.FideId != "" {
-		if fideRating, err := ratings.FetchFideRating(*update.FideId); err != nil {
+	if update.LichessUsername != nil {
+		err := fetchCurrentRating(&update.LichessUsername, &update.CurrentLichessRating, ratings.FetchLichessRating)
+		if err != nil {
 			return api.Failure(funcName, err), nil
-		} else {
-			update.CurrentFideRating = &fideRating
 		}
 	}
-	if update.UscfId != nil && *update.UscfId != "" {
-		if uscfRating, err := ratings.FetchUscfRating(*update.UscfId); err != nil {
+	if update.FideId != nil {
+		err := fetchCurrentRating(&update.FideId, &update.CurrentFideRating, ratings.FetchFideRating)
+		if err != nil {
 			return api.Failure(funcName, err), nil
-		} else {
-			update.CurrentUscfRating = &uscfRating
+		}
+	}
+	if update.UscfId != nil {
+		err := fetchCurrentRating(&update.UscfId, &update.CurrentUscfRating, ratings.FetchUscfRating)
+		if err != nil {
+			return api.Failure(funcName, err), nil
 		}
 	}
 

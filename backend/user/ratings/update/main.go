@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
@@ -26,8 +27,8 @@ func updateUsers(users []*database.User) {
 
 	var updatedUsers []*database.User
 	for _, user := range users {
-		if user.ChesscomUsername != "" {
-			if chesscomRating, err = ratings.FetchChesscomRating(user.ChesscomUsername); err != nil {
+		if chesscomUsername := strings.TrimSpace(user.ChesscomUsername); chesscomUsername != "" {
+			if chesscomRating, err = ratings.FetchChesscomRating(chesscomUsername); err != nil {
 				log.Errorf("Failed to get Chess.com rating for %q: %v", user.ChesscomUsername, err)
 				chesscomRating = user.CurrentChesscomRating
 			}
@@ -35,8 +36,8 @@ func updateUsers(users []*database.User) {
 			chesscomRating = user.CurrentChesscomRating
 		}
 
-		if user.LichessUsername != "" {
-			if lichessRating, err = ratings.FetchLichessRating(user.LichessUsername); err != nil {
+		if lichessUsername := strings.TrimSpace(user.LichessUsername); lichessUsername != "" {
+			if lichessRating, err = ratings.FetchLichessRating(lichessUsername); err != nil {
 				log.Errorf("Failed to get Lichess rating for %q: %v", user.LichessUsername, err)
 				lichessRating = user.CurrentLichessRating
 			}
@@ -44,8 +45,8 @@ func updateUsers(users []*database.User) {
 			lichessRating = user.CurrentLichessRating
 		}
 
-		if user.FideId != "" {
-			if fideRating, err = ratings.FetchFideRating(user.FideId); err != nil {
+		if fideId := strings.TrimSpace(user.FideId); fideId != "" {
+			if fideRating, err = ratings.FetchFideRating(fideId); err != nil {
 				log.Errorf("Failed to get FIDE rating for %q: %v", user.FideId, err)
 				fideRating = user.CurrentFideRating
 			}
@@ -53,8 +54,8 @@ func updateUsers(users []*database.User) {
 			fideRating = user.CurrentFideRating
 		}
 
-		if user.UscfId != "" {
-			if uscfRating, err = ratings.FetchUscfRating(user.UscfId); err != nil {
+		if uscfId := strings.TrimSpace(user.UscfId); uscfId != "" {
+			if uscfRating, err = ratings.FetchUscfRating(uscfId); err != nil {
 				log.Errorf("Failed to get USCF rating for %q: %v", user.UscfId, err)
 				uscfRating = user.CurrentUscfRating
 			}
