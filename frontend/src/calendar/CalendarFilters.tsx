@@ -5,6 +5,9 @@ import {
     FormControlLabel,
     Checkbox,
     useMediaQuery,
+    Select,
+    MenuItem,
+    FormControl,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { AvailabilityType, getDisplayString } from '../database/availability';
@@ -17,6 +20,10 @@ import MuiAccordionSummary, {
     AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
+import { useAuth } from '../auth/Auth';
+import { useApi } from '../api/Api';
+
+export const DefaultTimezone = 'DEFAULT';
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -62,6 +69,9 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 }));
 
 export interface Filters {
+    timezone: string;
+    setTimezone: React.Dispatch<React.SetStateAction<string>>;
+
     availabilities: boolean;
     setAvailabilities: React.Dispatch<React.SetStateAction<boolean>>;
 
@@ -82,6 +92,9 @@ export interface Filters {
 }
 
 export function useFilters(): Filters {
+    const user = useAuth().user!;
+
+    const [timezone, setTimezone] = useState(user.timezoneOverride || DefaultTimezone);
     const [availabilities, setAvailabilities] = useState(true);
     const [meetings, setMeetings] = useState(true);
 
@@ -103,6 +116,8 @@ export function useFilters(): Filters {
 
     const result = useMemo(
         () => ({
+            timezone,
+            setTimezone,
             availabilities,
             setAvailabilities,
             meetings,
@@ -117,6 +132,8 @@ export function useFilters(): Filters {
             setCohorts,
         }),
         [
+            timezone,
+            setTimezone,
             availabilities,
             setAvailabilities,
             meetings,
@@ -135,11 +152,27 @@ export function useFilters(): Filters {
     return result;
 }
 
+function getTimezoneOptions() {
+    const options = [];
+    for (let i = -12; i <= 14; i++) {
+        const displayLabel = i < 0 ? `UTC${i}` : `UTC+${i}`;
+        const value = i <= 0 ? `Etc/GMT+${Math.abs(i)}` : `Etc/GMT-${i}`;
+        options.push(
+            <MenuItem key={i} value={value}>
+                {displayLabel}
+            </MenuItem>
+        );
+    }
+    return options;
+}
+
 interface CalendarFiltersProps {
     filters: Filters;
 }
 
 export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => {
+    const api = useApi();
+
     const [expanded, setExpanded] = useState<string | boolean>(false);
     const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
 
@@ -164,10 +197,15 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         });
     };
 
+    const onChangeTimezone = (timezone: string) => {
+        filters.setTimezone(timezone);
+        api.updateUser({ timezoneOverride: timezone });
+    };
+
     // Time in hours between UTC and local. The value is positive if the local time zone is
     // behind UTC and negative if the local time zone is ahead of UTC.
     const timezoneOffset = new Date().getTimezoneOffset() / 60;
-    const timezone =
+    const browserDefaultLabel =
         timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
 
     return (
@@ -176,10 +214,17 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                 <Typography variant='h6' color='text.secondary' ml={1}>
                     Current Timezone
                 </Typography>
-                <Divider />
-                <Typography variant='body1' pt={1} ml={1}>
-                    {timezone}
-                </Typography>
+                <FormControl size='small'>
+                    <Select
+                        value={filters.timezone}
+                        onChange={(e) => onChangeTimezone(e.target.value)}
+                    >
+                        <MenuItem value={DefaultTimezone}>
+                            Browser Default ({browserDefaultLabel})
+                        </MenuItem>
+                        {getTimezoneOptions()}
+                    </Select>
+                </FormControl>
             </Stack>
             <Accordion
                 expanded={forceExpansion || expanded === 'myCalendar'}

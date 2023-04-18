@@ -86,6 +86,7 @@ export interface User {
     lastGraduatedAt: string;
 
     enableDarkMode: boolean;
+    timezoneOverride: string;
 }
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser) {

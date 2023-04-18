@@ -1,6 +1,7 @@
-import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { Container, Grid } from '@mui/material';
-import { Scheduler, useScheduler } from '@aldabil/react-scheduler';
+import { Scheduler } from '@aldabil/react-scheduler';
+import type { SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
@@ -12,7 +13,7 @@ import {
 } from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { Meeting, MeetingStatus } from '../database/meeting';
-import { CalendarFilters, Filters, useFilters } from './CalendarFilters';
+import { CalendarFilters, DefaultTimezone, Filters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
 import { useCalendar } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
@@ -178,7 +179,9 @@ export default function CalendarPage() {
         useCalendar();
     const filters = useFilters();
 
-    const { view } = useScheduler();
+    const calendarRef = useRef<SchedulerRef>(null);
+    const view = calendarRef.current?.scheduler.view;
+
     const [shiftHeld, setShiftHeld] = useState(false);
     const copyRequest = useRequest();
 
@@ -285,6 +288,17 @@ export default function CalendarPage() {
         return getEvents(user, filters, meetings, availabilities);
     }, [user, filters, meetings, availabilities]);
 
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(events, 'events');
+    }, [events, calendarRef]);
+
+    useEffect(() => {
+        const timezone =
+            filters.timezone === DefaultTimezone ? undefined : filters.timezone;
+        console.log('Setting timezone: ', timezone);
+        calendarRef.current?.scheduler.handleState(timezone, 'timeZone');
+    }, [calendarRef, filters.timezone]);
+
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
             <RequestSnackbar request={request} />
@@ -297,6 +311,7 @@ export default function CalendarPage() {
                 </Grid>
                 <Grid item xs={12} md={9.5}>
                     <Scheduler
+                        ref={calendarRef}
                         month={{
                             weekDays: [0, 1, 2, 3, 4, 5, 6],
                             weekStartOn: 0,
@@ -327,7 +342,11 @@ export default function CalendarPage() {
                             <ProcessedEventViewer event={event} />
                         )}
                         events={events}
-                        renderDeps={[events, deleteAvailability, copyAvailability]}
+                        timeZone={
+                            filters.timezone === DefaultTimezone
+                                ? undefined
+                                : filters.timezone
+                        }
                     />
                 </Grid>
             </Grid>

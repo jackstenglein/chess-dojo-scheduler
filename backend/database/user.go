@@ -189,6 +189,9 @@ type User struct {
 
 	// Whether to enable dark mode on the site
 	EnableDarkMode bool `dynamodbav:"enableDarkMode" json:"enableDarkMode"`
+
+	// The user's preferred timezone on the calendar
+	TimezoneOverride string `dynamodbav:"timezoneOverride" json:"timezoneOverride"`
 }
 
 // GetRatings returns the start and current ratings in the user's preferred rating system.
@@ -321,6 +324,9 @@ type UserUpdate struct {
 
 	// Whether to enable dark mode on the site
 	EnableDarkMode *bool `dynamodbav:"enableDarkMode,omitempty" json:"enableDarkMode,omitempty"`
+
+	// The user's preferred timezone on the calendar
+	TimezoneOverride *string `dynamodbav:"timezoneOverride,omitempty" json:"timezoneOverride,omitempty"`
 }
 
 type UserCreator interface {
