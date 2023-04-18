@@ -1,17 +1,22 @@
 import { useState, useMemo } from 'react';
-import { Stack, TextField, MenuItem } from '@mui/material';
+import { Stack, TextField, MenuItem, Typography, Button } from '@mui/material';
 
 import { compareCohorts, User } from '../../database/user';
 import { useRequirements } from '../../api/cache/requirements';
 import { getCurrentScore, Requirement } from '../../database/requirement';
 import PieChart, { PieChartData } from './PieChart';
-import { CategoryColors } from './activity';
+import { CategoryColors, RequirementColors } from './activity';
 
 function getScoreChartData(
     requirements: Requirement[],
     user: User,
-    cohort: string
+    cohort: string,
+    category: string
 ): PieChartData[] {
+    if (category) {
+        return getCategoryScoreChartData(requirements, user, cohort, category);
+    }
+
     const data: Record<string, PieChartData> = {};
 
     for (const requirement of requirements) {
@@ -32,11 +37,45 @@ function getScoreChartData(
     return Object.values(data);
 }
 
+function getCategoryScoreChartData(
+    requirements: Requirement[],
+    user: User,
+    cohort: string,
+    category: string
+): PieChartData[] {
+    const data: PieChartData[] = [];
+
+    for (const requirement of requirements) {
+        if (category !== requirement.category) {
+            continue;
+        }
+
+        const score = getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+        if (score === 0) {
+            continue;
+        }
+
+        const name = requirement.name;
+        data.push({
+            name: name,
+            value: score,
+            color: RequirementColors[data.length % RequirementColors.length],
+        });
+    }
+
+    return data;
+}
+
 function getTimeChartData(
     requirements: Requirement[],
     user: User,
-    cohort: string
+    cohort: string,
+    category: string
 ): PieChartData[] {
+    if (category) {
+        return getCategoryTimeChartData(requirements, user, cohort, category);
+    }
+
     const requirementMap =
         requirements.reduce((map, r) => {
             map[r.id] = r;
@@ -67,10 +106,43 @@ function getTimeChartData(
     return Object.values(data);
 }
 
-function getTimeChartTooltip(entry: PieChartData) {
-    const hours = Math.floor(entry.value / 60);
-    const minutes = entry.value % 60;
-    return `${entry.name} - ${hours}h ${minutes}m`;
+function getCategoryTimeChartData(
+    requirements: Requirement[],
+    user: User,
+    cohort: string,
+    category: string
+): PieChartData[] {
+    const data: PieChartData[] = [];
+
+    for (const requirement of requirements) {
+        if (category !== requirement.category) {
+            continue;
+        }
+        const progress = user.progress[requirement.id];
+        if (!progress || !progress.minutesSpent || !progress.minutesSpent[cohort]) {
+            continue;
+        }
+
+        data.push({
+            name: requirement.name,
+            value: progress.minutesSpent[cohort],
+            color: RequirementColors[data.length % RequirementColors.length],
+        });
+    }
+    return data;
+}
+
+function getTimeChartTooltip(entry?: PieChartData) {
+    if (!entry) {
+        return '';
+    }
+    return `${entry.name} - ${getTimeDisplay(entry.value)}`;
+}
+
+function getTimeDisplay(value: number) {
+    const hours = Math.floor(value / 60);
+    const minutes = value % 60;
+    return `${hours}h ${minutes}m`;
 }
 
 interface ActivityPieChartProps {
@@ -80,6 +152,9 @@ interface ActivityPieChartProps {
 const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
     const [cohort, setCohort] = useState(user.dojoCohort);
     const { requirements } = useRequirements(cohort, false);
+
+    const [scoreChartCategory, setScoreChartCategory] = useState('');
+    const [timeChartCategory, setTimeChartCategory] = useState('');
 
     const cohortOptions = useMemo(() => {
         if (!user.progress) {
@@ -94,24 +169,32 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
     }, [user.progress, user.dojoCohort]);
 
     const scoreChartData = useMemo(() => {
-        return getScoreChartData(requirements, user, cohort);
-    }, [requirements, user, cohort]);
-
-    const cohortScore = useMemo(() => {
-        let score = 0;
-        for (const requirement of requirements) {
-            score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
-        }
-        return Math.round(score * 100) / 100;
-    }, [requirements, user, cohort]);
+        return getScoreChartData(requirements, user, cohort, scoreChartCategory);
+    }, [requirements, user, cohort, scoreChartCategory]);
 
     const timeChartData = useMemo(() => {
-        return getTimeChartData(requirements, user, cohort);
-    }, [requirements, user, cohort]);
+        return getTimeChartData(requirements, user, cohort, timeChartCategory);
+    }, [requirements, user, cohort, timeChartCategory]);
 
     const onChangeCohort = (cohort: string) => {
+        setScoreChartCategory('');
+        setTimeChartCategory('');
         setCohort(cohort);
     };
+
+    const onClickScoreChart = (_: any, segmentIndex: number) => {
+        if (!scoreChartCategory) {
+            setScoreChartCategory(scoreChartData[segmentIndex].name);
+        }
+    };
+
+    const onClickTimeChart = (_: any, segmentIndex: number) => {
+        if (!timeChartCategory) {
+            setTimeChartCategory(timeChartData[segmentIndex].name);
+        }
+    };
+
+    console.log('Time chart data: ', timeChartData);
 
     return (
         <Stack spacing={3} justifyContent='center' alignItems='center'>
@@ -130,19 +213,54 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
                 ))}
             </TextField>
 
+            <Typography variant='body2' color='text.secondary'>
+                Click on a segment of the pie chart to see more details
+            </Typography>
+
             <PieChart
                 id='score-chart'
-                title='Score Breakdown'
-                subtitle={`Total Cohort Score: ${cohortScore}`}
+                title={`Score Breakdown${
+                    scoreChartCategory && `: ${scoreChartCategory}`
+                }`}
                 data={scoreChartData}
-                getTooltip={(entry) => `${entry.name} - ${entry.value}`}
+                renderTotal={(score) => (
+                    <Stack alignItems='center'>
+                        <Typography variant='subtitle1'>
+                            Total {scoreChartCategory ? 'Category' : 'Cohort'} Score:{' '}
+                            {score}
+                        </Typography>
+                        {scoreChartCategory && (
+                            <Button onClick={() => setScoreChartCategory('')}>
+                                Back to Cohort
+                            </Button>
+                        )}
+                    </Stack>
+                )}
+                getTooltip={(entry?: PieChartData) =>
+                    entry ? `${entry.name} - ${entry.value}` : ''
+                }
+                onClick={onClickScoreChart}
             />
 
             <PieChart
                 id='time-chart'
-                title='Time Breakdown'
+                title={`Time Breakdown${timeChartCategory && `: ${timeChartCategory}`}`}
                 data={timeChartData}
+                renderTotal={(time) => (
+                    <Stack alignItems='center'>
+                        <Typography variant='subtitle1'>
+                            Total {timeChartCategory ? 'Category' : 'Cohort'} Time:{' '}
+                            {getTimeDisplay(time)}
+                        </Typography>
+                        {timeChartCategory && (
+                            <Button onClick={() => setTimeChartCategory('')}>
+                                Back to Cohort
+                            </Button>
+                        )}
+                    </Stack>
+                )}
                 getTooltip={getTimeChartTooltip}
+                onClick={onClickTimeChart}
             />
         </Stack>
     );

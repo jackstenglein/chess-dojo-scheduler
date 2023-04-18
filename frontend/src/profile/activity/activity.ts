@@ -15,3 +15,13 @@ export const ScoreCategories = [
     'Endgame',
     'Opening',
 ];
+
+export const RequirementColors = [
+    '#c27ba0',
+    '#ff9900',
+    '#38761d',
+    '#0000ff',
+    '#351c75',
+    '#cc0000',
+    '#f44336',
+];

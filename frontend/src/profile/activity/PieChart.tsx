@@ -2,7 +2,7 @@ import { Box, Container, Stack, Typography } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 import { PieChart as ReactPieChart } from 'react-minimal-pie-chart';
 import Tooltip from 'react-tooltip';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const defaultLabelStyle = {
     fontSize: '5px',
@@ -18,18 +18,29 @@ export interface PieChartData {
 interface PieChartProps {
     id: string;
     title: string;
-    subtitle?: string;
     data: PieChartData[];
+    renderTotal: (value: number) => JSX.Element;
     getTooltip: (entry: PieChartData) => string;
+    onClick: (event: React.MouseEvent<Element, MouseEvent>, dataIndex: number) => void;
 }
 
-const PieChart: React.FC<PieChartProps> = ({ id, title, subtitle, data, getTooltip }) => {
+const PieChart: React.FC<PieChartProps> = ({
+    id,
+    title,
+    data,
+    renderTotal,
+    getTooltip,
+    onClick,
+}) => {
     const [hovered, setHovered] = useState<number | null>(null);
+    const totalScore = useMemo(() => {
+        return data.reduce((sum, curr) => sum + curr.value, 0);
+    }, [data]);
 
     return (
         <Stack justifyContent='center' alignItems='center'>
             <Typography variant='h6'>{title}</Typography>
-            {subtitle && <Typography variant='subtitle1'>{subtitle}</Typography>}
+            {renderTotal(totalScore)}
 
             {data.length === 0 && <Typography>No data</Typography>}
 
@@ -49,6 +60,7 @@ const PieChart: React.FC<PieChartProps> = ({ id, title, subtitle, data, getToolt
                             onMouseOut={() => {
                                 setHovered(null);
                             }}
+                            onClick={onClick}
                         />
                         <Tooltip
                             id={id}
