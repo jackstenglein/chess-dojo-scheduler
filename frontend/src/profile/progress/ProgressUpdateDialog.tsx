@@ -10,6 +10,7 @@ import {
     DialogActions,
     Button,
     MenuItem,
+    Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
@@ -66,21 +67,19 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
         requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
         requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
 
+    let hoursInt = parseInt(hours) || 0;
+    let minutesInt = parseInt(minutes) || 0;
+    const totalTime = 60 * hoursInt + minutesInt + (progress?.minutesSpent[cohort] ?? 0);
+
     const onSubmit = () => {
-        let hoursInt = 0;
-        let minutesInt = 0;
         const errors: Record<string, string> = {};
         if (hours !== '') {
-            if (NUMBER_REGEX.test(hours)) {
-                hoursInt = parseInt(hours);
-            } else {
+            if (!NUMBER_REGEX.test(hours)) {
                 errors.hours = 'Only numeric characters are accepted';
             }
         }
         if (minutes !== '') {
-            if (NUMBER_REGEX.test(minutes)) {
-                minutesInt = parseInt(minutes);
-            } else {
+            if (!NUMBER_REGEX.test(minutes)) {
                 errors.minutes = 'Only numeric characters are accepted';
             }
         }
@@ -205,6 +204,10 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
                                     />
                                 </Grid>
                             </Grid>
+                            <DialogContentText>
+                                Total Time:{' '}
+                                {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
+                            </DialogContentText>
                         </>
                     )}
                 </Stack>
