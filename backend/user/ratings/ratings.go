@@ -78,7 +78,7 @@ func FetchLichessRating(lichessUsername string) (int, error) {
 func findRating(body []byte, regex *regexp.Regexp) (int, error) {
 	groups := regex.FindSubmatch(body)
 	if len(groups) < 2 {
-		err := errors.New(400, "Invalid request: unable to find rating regexp ", "")
+		err := errors.New(400, "Unable to find rating on website ", "")
 		return 0, err
 	}
 
@@ -108,7 +108,12 @@ func FetchFideRating(fideId string) (int, error) {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read FIDE response", err)
 		return 0, err
 	}
-	return findRating(b, fideRegexp)
+
+	rating, err := findRating(b, fideRegexp)
+	if err != nil {
+		return 0, errors.Wrap(400, fmt.Sprintf("Invalid FIDE id `%s`: no rating found on FIDE website", fideId), "", err)
+	}
+	return rating, nil
 }
 
 func FetchUscfRating(uscfId string) (int, error) {
@@ -135,5 +140,9 @@ func FetchUscfRating(uscfId string) (int, error) {
 		return 0, err
 	}
 
-	return findRating(b, uscfRegexp)
+	rating, err := findRating(b, uscfRegexp)
+	if err != nil {
+		return 0, errors.Wrap(400, fmt.Sprintf("Invalid USCF id `%s`: no rating found on USCF website", uscfId), "", err)
+	}
+	return rating, nil
 }
