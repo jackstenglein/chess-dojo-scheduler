@@ -1,7 +1,6 @@
 import {
     Stack,
     Typography,
-    Divider,
     FormControlLabel,
     Checkbox,
     useMediaQuery,

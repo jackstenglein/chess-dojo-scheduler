@@ -13,6 +13,7 @@ interface ScoreboardProgressProps {
     username?: string;
     cohort?: string;
     requirement?: Requirement;
+    fullHeight?: boolean;
 }
 
 const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps> = ({
@@ -23,6 +24,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     username,
     cohort,
     requirement,
+    fullHeight,
     ...rest
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
@@ -36,7 +38,12 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     return (
         <>
             <Box
-                sx={{ width: 1, height: 1, display: 'flex', alignItems: 'center' }}
+                sx={{
+                    width: 1,
+                    height: fullHeight ? 1 : undefined,
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
                 onClick={onClick}
             >
                 <Box sx={{ flexGrow: 1, mr: 1 }}>

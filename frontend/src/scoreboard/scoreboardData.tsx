@@ -84,6 +84,7 @@ export function getColumnDefinition(
             default:
                 return (
                     <ScoreboardProgress
+                        fullHeight
                         value={score}
                         max={totalCount}
                         min={requirement.startCount}
