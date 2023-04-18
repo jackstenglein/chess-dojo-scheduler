@@ -8,6 +8,7 @@ import {
 import { User } from '../database/user';
 import { useRequirements } from '../api/cache/requirements';
 import { getTotalScore } from '../database/requirement';
+import ScoreboardProgress from '../scoreboard/ScoreboardProgress';
 
 const categories = [
     'Games + Analysis',
@@ -26,6 +27,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user }) => {
 
     const totalScore = getTotalScore(user.dojoCohort, requirements);
     const cohortScore = getCohortScore(user, user.dojoCohort, requirements);
+    const percentComplete = Math.round((100 * cohortScore) / totalScore);
 
     return (
         <Card variant='outlined'>
@@ -46,19 +48,16 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user }) => {
                             sm: 'center',
                         }}
                     >
-                        <Stack alignItems='end' width='150px'>
+                        <Stack alignItems='start' width='154px'>
                             <Typography variant='subtitle2' color='text.secondary'>
-                                All Reqs
+                                Percent Complete
                             </Typography>
-                            <Typography
-                                sx={{
-                                    fontSize: '2.25rem',
-                                    lineHeight: 1,
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                {cohortScore}/{Math.round(totalScore)}
-                            </Typography>
+                            <ScoreboardProgress
+                                value={percentComplete}
+                                min={0}
+                                max={100}
+                                label={`${percentComplete}%`}
+                            />
                         </Stack>
                     </Grid>
 
@@ -74,25 +73,18 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user }) => {
                         }}
                         pr={{
                             xs: 1,
+                            sm: 0,
                         }}
                     >
-                        <Stack alignItems='end' width='150px'>
-                            <Typography
-                                variant='subtitle2'
-                                color='text.secondary'
-                                textAlign='end'
-                            >
-                                Percent Complete
+                        <Stack alignItems='start' width='154px'>
+                            <Typography variant='subtitle2' color='text.secondary'>
+                                All Requirements
                             </Typography>
-                            <Typography
-                                sx={{
-                                    fontSize: '2.25rem',
-                                    lineHeight: 1,
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                {Math.round((100 * cohortScore) / totalScore)}%
-                            </Typography>
+                            <ScoreboardProgress
+                                value={cohortScore}
+                                min={0}
+                                max={Math.round(totalScore)}
+                            />
                         </Stack>
                     </Grid>
 
@@ -110,38 +102,29 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user }) => {
                             }}
                             pr={{
                                 xs: idx % 2 ? 1 : 0,
+                                sm: 0,
                             }}
                         >
-                            <Stack alignItems='end' width='154px'>
-                                <Typography
-                                    variant='subtitle2'
-                                    color='text.secondary'
-                                    textAlign='end'
-                                >
+                            <Stack alignItems='start' width='154px'>
+                                <Typography variant='subtitle2' color='text.secondary'>
                                     {c}
                                 </Typography>
-                                <Typography
-                                    sx={{
-                                        fontSize: '2.25rem',
-                                        lineHeight: 1,
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    {getCategoryScore(
+                                <ScoreboardProgress
+                                    value={getCategoryScore(
                                         user,
                                         user.dojoCohort,
                                         c,
                                         requirements
                                     )}
-                                    /
-                                    {Math.round(
+                                    min={0}
+                                    max={Math.round(
                                         getTotalCategoryScore(
                                             user.dojoCohort,
                                             c,
                                             requirements
                                         )
                                     )}
-                                </Typography>
+                                />
                             </Stack>
                         </Grid>
                     ))}
