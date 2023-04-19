@@ -228,9 +228,9 @@ export function RequireProfile() {
 
     if (
         user.dojoCohort === '' ||
+        user.dojoCohort === 'NO_COHORT' ||
         user.displayName === '' ||
-        user.chesscomUsername === '' ||
-        user.lichessUsername === ''
+        (user.ratingSystem as string) === ''
     ) {
         return <ProfileEditorPage hideCancel />;
     }
