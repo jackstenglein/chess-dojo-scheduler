@@ -6,7 +6,7 @@ import { useAuth } from '../auth/Auth';
 
 import { Requirement, ScoreboardDisplay } from '../database/requirement';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
-import ProgressUpdateDialog from '../profile/progress/ProgressUpdateDialog';
+import ProgressDialog from '../profile/progress/ProgressDialog';
 import Position from './Position';
 import { useNavigate } from 'react-router-dom';
 
@@ -130,7 +130,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
             </Stack>
 
             {!preview && (
-                <ProgressUpdateDialog
+                <ProgressDialog
                     open={showUpdateDialog}
                     onClose={() => setShowUpdateDialog(false)}
                     requirement={requirement}

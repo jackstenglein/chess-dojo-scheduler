@@ -1,58 +1,46 @@
 import { useState } from 'react';
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
     Stack,
+    TextField,
     DialogContentText,
     Grid,
-    TextField,
+    DialogContent,
     DialogActions,
     Button,
-    MenuItem,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
 import {
-    getCurrentCount,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
+    getCurrentCount,
 } from '../../database/requirement';
 import InputSlider from './InputSlider';
-import { compareCohorts, dojoCohorts } from '../../database/user';
+import { useRequest } from '../../api/Request';
+import { useApi } from '../../api/Api';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
-interface ProgressUpdateDialogProps {
-    open: boolean;
-    onClose: () => void;
+interface ProgressUpdaterProps {
     requirement: Requirement;
     progress?: RequirementProgress;
     cohort: string;
-    selectCohort?: boolean;
+    onClose: () => void;
+    toggleView?: () => void;
 }
 
-const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
-    open,
-    onClose,
+const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     requirement,
     progress,
     cohort,
-    selectCohort,
+    onClose,
+    toggleView,
 }) => {
-    const cohortOptions = requirement.counts.ALL_COHORTS
-        ? dojoCohorts
-        : Object.keys(requirement.counts).sort(compareCohorts);
-    const initialCohort = cohortOptions.includes(cohort) ? cohort : cohortOptions[0];
-
     const api = useApi();
-    const [selectedCohort, setSelectedCohort] = useState(initialCohort);
 
-    const totalCount = requirement.counts[selectedCohort] || 0;
-    const currentCount = getCurrentCount(selectedCohort, requirement, progress);
+    const totalCount = requirement.counts[cohort] || 0;
+    const currentCount = getCurrentCount(cohort, requirement, progress);
 
     const [value, setValue] = useState<number>(currentCount);
     const [hours, setHours] = useState('');
@@ -96,7 +84,7 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
 
         request.onStart();
         api.updateUserProgress(
-            selectedCohort,
+            cohort,
             requirement.id,
             updatedValue,
             hoursInt * 60 + minutesInt
@@ -113,34 +101,10 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
             });
     };
 
-    let requirementName = requirement.name;
-    if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
-        requirementName += ` (${totalCount})`;
-    }
-
     return (
-        <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
-            <DialogTitle>
-                {isSlider ? 'Update' : isComplete ? 'Uncheck' : 'Complete'}{' '}
-                {requirementName}?
-            </DialogTitle>
+        <>
             <DialogContent>
                 <Stack spacing={2}>
-                    {selectCohort && (
-                        <TextField
-                            select
-                            label='Cohort'
-                            value={selectedCohort}
-                            onChange={(event) => setSelectedCohort(event.target.value)}
-                            sx={{ mt: 1 }}
-                        >
-                            {cohortOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    )}
                     {isSlider && (
                         <InputSlider
                             value={value}
@@ -215,6 +179,11 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
                 <Button onClick={onClose} disabled={request.isLoading()}>
                     Cancel
                 </Button>
+                {toggleView && (
+                    <Button onClick={toggleView} disabled={request.isLoading()}>
+                        Show History
+                    </Button>
+                )}
                 <LoadingButton
                     loading={request.isLoading()}
                     onClick={onSubmit}
@@ -223,8 +192,8 @@ const ProgressUpdateDialog: React.FC<ProgressUpdateDialogProps> = ({
                     {isSlider ? 'Update' : isComplete ? 'Uncheck' : 'Complete'}
                 </LoadingButton>
             </DialogActions>
-        </Dialog>
+        </>
     );
 };
 
-export default ProgressUpdateDialog;
+export default ProgressUpdater;

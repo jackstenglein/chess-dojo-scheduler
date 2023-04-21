@@ -4,7 +4,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { Box } from '@mui/material';
 
 import { Requirement } from '../database/requirement';
-import ProgressUpdateDialog from '../profile/progress/ProgressUpdateDialog';
+import ProgressDialog from '../profile/progress/ProgressDialog';
 import { useAuth } from '../auth/Auth';
 
 interface ScoreboardCheckProps {
@@ -41,7 +41,7 @@ const ScoreboardCheck: React.FC<ScoreboardCheckProps> = ({
                 )}
             </Box>
             {canUpdate && showUpdateDialog && (
-                <ProgressUpdateDialog
+                <ProgressDialog
                     open={showUpdateDialog}
                     onClose={() => setShowUpdateDialog(false)}
                     requirement={requirement}

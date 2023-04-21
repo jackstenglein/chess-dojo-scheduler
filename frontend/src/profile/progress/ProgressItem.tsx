@@ -9,7 +9,7 @@ import {
     ScoreboardDisplay,
 } from '../../database/requirement';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
-import ProgressUpdateDialog from './ProgressUpdateDialog';
+import ProgressDialog from './ProgressDialog';
 import RequirementModal from '../../requirements/RequirementModal';
 
 interface ProgressItemProps {
@@ -76,7 +76,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
 
     return (
         <Stack spacing={2} mt={2}>
-            <ProgressUpdateDialog
+            <ProgressDialog
                 open={showUpdateDialog}
                 onClose={() => setShowUpdateDialog(false)}
                 requirement={requirement}

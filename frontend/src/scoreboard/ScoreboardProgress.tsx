@@ -3,7 +3,7 @@ import { Box, LinearProgress, LinearProgressProps, Typography } from '@mui/mater
 
 import { Requirement } from '../database/requirement';
 import { useAuth } from '../auth/Auth';
-import ProgressUpdateDialog from '../profile/progress/ProgressUpdateDialog';
+import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ScoreboardProgressProps {
     value: number;
@@ -57,7 +57,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
             </Box>
 
             {canUpdate && showUpdateDialog && (
-                <ProgressUpdateDialog
+                <ProgressDialog
                     open={showUpdateDialog}
                     onClose={() => setShowUpdateDialog(false)}
                     requirement={requirement}
