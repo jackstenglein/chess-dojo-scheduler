@@ -9,6 +9,7 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/graduate user/graduate/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/list user/list/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/progress/update user/progress/update/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/progress/timeline user/progress/timeline/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/ratings/update user/ratings/update/main.go
 
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/set availability/set/main.go
