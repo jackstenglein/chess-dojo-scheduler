@@ -70,14 +70,14 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
         <Dialog open={open} onClose={onClose} maxWidth='md'>
             <DialogTitle>{dialogTitle}</DialogTitle>
 
-            {selectCohort && (
-                <DialogContent>
+            {(selectCohort || view === ProgressDialogView.History) && (
+                <DialogContent sx={{ overflowY: 'visible' }}>
                     <TextField
                         select
                         label='Cohort'
                         value={selectedCohort}
                         onChange={(event) => setSelectedCohort(event.target.value)}
-                        sx={{ mt: 1 }}
+                        sx={{ pt: 1 }}
                         fullWidth
                     >
                         {cohortOptions.map((option) => (
@@ -94,6 +94,7 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
                     requirement={requirement}
                     onClose={onClose}
                     toggleView={() => setView(ProgressDialogView.Updater)}
+                    cohort={selectedCohort}
                 />
             )}
             {view === ProgressDialogView.Updater && (

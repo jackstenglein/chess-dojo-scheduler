@@ -76,13 +76,15 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
 
     return (
         <Stack spacing={2} mt={2}>
-            <ProgressDialog
-                open={showUpdateDialog}
-                onClose={() => setShowUpdateDialog(false)}
-                requirement={requirement}
-                cohort={cohort}
-                progress={progress}
-            />
+            {showUpdateDialog && (
+                <ProgressDialog
+                    open={showUpdateDialog}
+                    onClose={() => setShowUpdateDialog(false)}
+                    requirement={requirement}
+                    cohort={cohort}
+                    progress={progress}
+                />
+            )}
             <Grid
                 container
                 columnGap={0.5}
@@ -123,11 +125,13 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             </Grid>
             <Divider />
 
-            <RequirementModal
-                open={showReqModal}
-                onClose={() => setShowReqModal(false)}
-                requirement={requirement}
-            />
+            {showReqModal && (
+                <RequirementModal
+                    open={showReqModal}
+                    onClose={() => setShowReqModal(false)}
+                    requirement={requirement}
+                />
+            )}
         </Stack>
     );
 };

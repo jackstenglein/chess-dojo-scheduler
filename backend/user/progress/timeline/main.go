@@ -17,14 +17,23 @@ const funcName = "user-progress-timeline-update-handler"
 var repository database.UserUpdater = database.DynamoDB
 
 type UpdateTimelineRequest struct {
-	RequirementId string                      `json:"requirementId"`
-	Entries       []*database.TimelineEntry   `json:"entries"`
-	Counts        map[database.DojoCohort]int `json:"counts"`
-	MinutesSpent  map[database.DojoCohort]int `json:"minutesSpent"`
+	RequirementId string                    `json:"requirementId"`
+	Cohort        database.DojoCohort       `json:"cohort"`
+	Entries       []*database.TimelineEntry `json:"entries"`
+	Count         int                       `json:"count"`
+	MinutesSpent  int                       `json:"minutesSpent"`
 }
 
 func removeIndex(s []*database.TimelineEntry, index int) []*database.TimelineEntry {
-	return append(s[:index], s[index+1:]...)
+	if index == len(s)-1 {
+		if index == 0 {
+			return nil
+		}
+		s[index] = nil
+		return s[:index-1]
+	}
+	s[index], s[len(s)-1] = s[len(s)-1], nil
+	return s[:len(s)-1]
 }
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
@@ -43,6 +52,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if request.RequirementId == "" {
 		return api.Failure(funcName, errors.New(400, "Invalid request: requirementId is required", "")), nil
 	}
+	if request.Cohort == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
+	}
 
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
@@ -50,28 +62,32 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	// Correct user's timeline
-	for i := 0; i < len(user.Timeline); i++ {
-		if user.Timeline[i].RequirementId == request.RequirementId {
-			removeIndex(user.Timeline, i)
+	for i := 0; i < len(user.Timeline) && len(user.Timeline) > 0; i++ {
+		if user.Timeline[i].RequirementId == request.RequirementId && user.Timeline[i].Cohort == request.Cohort {
+			user.Timeline = removeIndex(user.Timeline, i)
 			i--
 		}
 	}
 	user.Timeline = append(user.Timeline, request.Entries...)
 
 	// Correct user's progress map
-	progress := &database.RequirementProgress{
-		RequirementId: request.RequirementId,
-		Counts:        request.Counts,
-		MinutesSpent:  request.MinutesSpent,
-		UpdatedAt:     time.Now().Format(time.RFC3339),
+	progress, ok := user.Progress[request.RequirementId]
+	if !ok {
+		progress = &database.RequirementProgress{
+			RequirementId: request.RequirementId,
+			Counts:        make(map[database.DojoCohort]int),
+			MinutesSpent:  make(map[database.DojoCohort]int),
+		}
 	}
+	progress.UpdatedAt = time.Now().Format(time.RFC3339)
+	progress.Counts[request.Cohort] = request.Count
+	progress.MinutesSpent[request.Cohort] = request.MinutesSpent
 	user.Progress[progress.RequirementId] = progress
 
 	update := &database.UserUpdate{
 		Timeline: user.Timeline,
 		Progress: user.Progress,
 	}
-
 	user, err = repository.UpdateUser(user.Username, update)
 	if err != nil {
 		return api.Failure(funcName, err), nil

@@ -34,6 +34,7 @@ import {
     updateUser,
     updateUserProgress,
     graduate,
+    updateUserTimeline,
 } from './userApi';
 import {
     GameApiContextType,
@@ -59,7 +60,7 @@ import {
     listGraduationsByOwner,
     listGraduationsByDate,
 } from './graduationApi';
-import { Requirement } from '../database/requirement';
+import { Requirement, TimelineEntry } from '../database/requirement';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -121,6 +122,22 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     requirementId,
                     incrementalCount,
                     incrementalMinutesSpent,
+                    auth.updateUser
+                ),
+            updateUserTimeline: (
+                requirementId: string,
+                cohort: string,
+                entries: TimelineEntry[],
+                count: number,
+                minutesSpent: number
+            ) =>
+                updateUserTimeline(
+                    idToken,
+                    requirementId,
+                    cohort,
+                    entries,
+                    count,
+                    minutesSpent,
                     auth.updateUser
                 ),
             graduate: (comments: string) => graduate(idToken, comments, auth.updateUser),

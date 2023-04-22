@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import { User } from '../database/user';
 import { getConfig } from '../config';
 import { Graduation } from '../database/graduation';
+import { TimelineEntry } from '../database/requirement';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -50,6 +51,23 @@ export type UserApiContextType = {
         requirementId: string,
         incrementalCount: number,
         incrementalMinutesSpent: number
+    ) => Promise<AxiosResponse<User, any>>;
+
+    /**
+     * updateUserTimeline sets the current user's timeline for the provided requirement.
+     * @param requirementId The id of the requirement being updated.
+     * @param cohort The cohort to update the timeline for.
+     * @param entries The timeline entries to set on the requirement.
+     * @param count The cohort count to set on the requirement.
+     * @param minutesSpent The cohort minutes spent to set on the requirement.
+     * @returns An AxiosResponse containing the updated user in the data field.
+     */
+    updateUserTimeline: (
+        requirementId: string,
+        cohort: string,
+        entries: TimelineEntry[],
+        count: number,
+        minutesSpent: number
     ) => Promise<AxiosResponse<User, any>>;
 
     /**
@@ -160,6 +178,45 @@ export async function updateUserProgress(
             requirementId,
             incrementalCount,
             incrementalMinutesSpent,
+        },
+        {
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        }
+    );
+    callback(result.data);
+    return result;
+}
+
+/**
+ * updateUserTimeline sets the current user's timeline for the provided requirement.
+ * @param idToken The id token of the current signed-in user.
+ * @param requirementId The id of the requirement being updated.
+ * @param cohort The cohort to set the requirement for.
+ * @param entries The timeline entries to set on the requirement.
+ * @param count The cohort count to set on the requirement.
+ * @param minutesSpent The cohort minutes spent to set on the requirement.
+ * @param callback A callback function to invoke with the update after it has succeeded on the backend.
+ * @returns An AxiosResponse containing the updated user in the data field.
+ */
+export async function updateUserTimeline(
+    idToken: string,
+    requirementId: string,
+    cohort: string,
+    entries: TimelineEntry[],
+    count: number,
+    minutesSpent: number,
+    callback: (update: Partial<User>) => void
+) {
+    const result = await axios.post<User>(
+        BASE_URL + '/user/progress/timeline',
+        {
+            requirementId,
+            cohort,
+            entries,
+            count,
+            minutesSpent,
         },
         {
             headers: {
