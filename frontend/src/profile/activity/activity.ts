@@ -3,7 +3,7 @@ export const CategoryColors: Record<string, string> = {
     'Games + Analysis': '#ff9900', // orange
     Tactics: '#38761d', // dark green 2
     'Middlegames + Strategy': '#0000ff', // blue
-    Endgame: '#351c75', // dark purple 2
+    Endgame: '#674ea7', // dark purple 1
     Opening: '#cc0000', // dark red 1
     Graduation: '#f44336', // red
 };
