@@ -80,6 +80,7 @@ function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boole
                         value={timelineEntry.newCount}
                         min={0}
                         max={timelineEntry.totalCount}
+                        suffix={timelineEntry.progressBarSuffix}
                     />
                 )}
                 {timeSpent && <Typography variant='subtitle2'>{timeSpent}</Typography>}

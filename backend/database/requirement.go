@@ -72,6 +72,9 @@ type Requirement struct {
 	// How the requirement should be displayed on the scoreboard.
 	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`
 
+	// Optional suffix to be displayed on progress bar label.
+	ProgressBarSuffix string `dynamodbav:"progressBarSuffix" json:"progressBarSuffix"`
+
 	// The time the requirement was most recently updated
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
 
@@ -140,6 +143,9 @@ type TimelineEntry struct {
 
 	// How the requirement should be displayed on the scoreboard.
 	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`
+
+	// The requirement's progress bar suffix
+	ProgressBarSuffix string `dynamodbav:"progressBarSuffix" json:"progressBarSuffix"`
 
 	// The cohort the timeline entry applies to
 	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`

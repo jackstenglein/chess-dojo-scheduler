@@ -91,6 +91,7 @@ export function getColumnDefinition(
                         username={params.row.username}
                         cohort={cohort}
                         requirement={requirement}
+                        suffix={requirement.progressBarSuffix}
                     />
                 );
         }

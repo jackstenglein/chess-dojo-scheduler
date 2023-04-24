@@ -83,6 +83,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		RequirementName:     requirement.Name,
 		RequirementCategory: requirement.Category,
 		ScoreboardDisplay:   requirement.ScoreboardDisplay,
+		ProgressBarSuffix:   requirement.ProgressBarSuffix,
 		Cohort:              request.Cohort,
 		TotalCount:          totalCount,
 		PreviousCount:       originalCount,

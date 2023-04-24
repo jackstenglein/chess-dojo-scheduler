@@ -133,6 +133,9 @@ const RequirementEditorPage = () => {
         requirement?.scoreboardDisplay ?? ScoreboardDisplay.Unspecified
     );
     const [sortPriority, setSortPriority] = useState(requirement?.sortPriority ?? '');
+    const [progressBarSuffix, setProgressBarSuffix] = useState(
+        requirement?.progressBarSuffix ?? ''
+    );
 
     const [errors, setErrors] = useState<RequirementEditorErrors>({});
     const [showPreview, setShowPreview] = useState(false);
@@ -179,6 +182,7 @@ const RequirementEditorPage = () => {
         positionUrls,
         scoreboardDisplay,
         sortPriority,
+        progressBarSuffix,
         updatedAt: 'now',
     };
 

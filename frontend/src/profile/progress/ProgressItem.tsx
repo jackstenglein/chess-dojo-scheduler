@@ -53,6 +53,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     value={currentCount}
                     max={totalCount}
                     min={requirement.startCount}
+                    suffix={requirement.progressBarSuffix}
                 />
             );
             UpdateElement =

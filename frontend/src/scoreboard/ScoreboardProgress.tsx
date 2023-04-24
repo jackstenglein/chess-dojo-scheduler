@@ -14,6 +14,7 @@ interface ScoreboardProgressProps {
     cohort?: string;
     requirement?: Requirement;
     fullHeight?: boolean;
+    suffix?: string;
 }
 
 const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps> = ({
@@ -25,6 +26,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     cohort,
     requirement,
     fullHeight,
+    suffix,
     ...rest
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
@@ -51,7 +53,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 </Box>
                 <Box>
                     <Typography variant='body2' color='text.secondary'>
-                        {label ? label : `${value}/${max}`}
+                        {label ? label : `${value}/${max}${suffix || ''}`}
                     </Typography>
                 </Box>
             </Box>

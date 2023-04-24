@@ -28,6 +28,7 @@ export interface Requirement {
     videoUrls?: string[];
     positionUrls?: string[];
     scoreboardDisplay: ScoreboardDisplay;
+    progressBarSuffix: string;
     updatedAt: string;
     sortPriority: string;
 }
@@ -53,6 +54,7 @@ export interface TimelineEntry {
     newCount: number;
     minutesSpent: number;
     scoreboardDisplay: ScoreboardDisplay;
+    progressBarSuffix: string;
     createdAt: string;
 }
 

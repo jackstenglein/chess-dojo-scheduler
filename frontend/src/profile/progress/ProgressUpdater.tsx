@@ -111,6 +111,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                             setValue={setValue}
                             max={totalCount}
                             min={requirement.startCount}
+                            suffix={requirement.progressBarSuffix}
                         />
                     )}
                     {isComplete ? (
