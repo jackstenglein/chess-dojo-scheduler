@@ -57,10 +57,15 @@ type Requirement struct {
 	// is "carried over" to new cohorts
 	NumberOfCohorts int `dynamodbav:"numberOfCohorts" json:"numberOfCohorts"`
 
-	// The score per unit
+	// The score per unit. Applies to all cohorts unless overridden in UnitScoreOverride.
 	UnitScore float32 `dynamodbav:"unitScore" json:"unitScore"`
 
-	// The total score received after completing the requirement. Overrides UnitScore if non-zero
+	// The score per unit for each cohort. Overrides UnitScore if set for a particular cohort.
+	// If not set for a cohort, UnitScore is used for that cohort.
+	UnitScoreOverride map[DojoCohort]float32 `dynamodbav:"unitScoreOverride" json:"unitScoreOverride"`
+
+	// The total score received after completing the requirement. Overrides UnitScore
+	// and UnitScoreOverride if non-zero.
 	TotalScore float32 `dynamodbav:"totalScore" json:"totalScore"`
 
 	// The URLs of the videos describing the requirement, if any exist
@@ -112,7 +117,12 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 		return 0
 	}
 
-	return float32(math.Max(float64(count-r.StartCount), 0)) * r.UnitScore
+	unitScore := r.UnitScore
+	if unitScoreOverride, ok := r.UnitScoreOverride[cohort]; ok {
+		unitScore = unitScoreOverride
+	}
+
+	return float32(math.Max(float64(count-r.StartCount), 0)) * unitScore
 }
 
 type RequirementProgress struct {

@@ -57,6 +57,18 @@ def getStartCount(row: dict):
     
     return 0
 
+def getUnitScoreOverride(row: dict):
+    result = {}
+    for cohort in cohorts:
+        uso_name = "USO " + cohort
+        value = row.get(uso_name, None)
+        if value is None or value == '':
+            continue
+
+        result[cohort] = Decimal(value)
+
+    return result
+
 def main():
     items = []
     categories = {
@@ -82,6 +94,7 @@ def main():
 
                 counts = getCounts(row)
                 startCount = getStartCount(row)
+                unitScoreOverride = getUnitScoreOverride(row)
 
                 if not row['ID']:
                     row['ID'] = str(uuid.uuid4())
@@ -97,6 +110,7 @@ def main():
                     'startCount': startCount,
                     'numberOfCohorts': int(row['# of Cohorts']) if row['# of Cohorts'] else 1,
                     'unitScore': Decimal(row['Unit Score']) if row['Unit Score'] else 0,
+                    'unitScoreOverride': unitScoreOverride,
                     'totalScore': Decimal(row['Total Score']) if row['Total Score'] else 0,
                     'videoUrls': row['Videos'].split(',') if row['Videos'] else [],
                     'positionUrls': row['Positions'].split(',') if row['Positions'] else [],

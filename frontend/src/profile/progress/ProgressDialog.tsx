@@ -77,7 +77,7 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
                         label='Cohort'
                         value={selectedCohort}
                         onChange={(event) => setSelectedCohort(event.target.value)}
-                        sx={{ pt: 1 }}
+                        sx={{ mt: 1 }}
                         fullWidth
                     >
                         {cohortOptions.map((option) => (

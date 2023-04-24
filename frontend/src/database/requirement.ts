@@ -24,6 +24,9 @@ export interface Requirement {
     startCount: number;
     numberOfCohorts: number;
     unitScore: number;
+    unitScoreOverride?: {
+        [cohort: string]: number;
+    };
     totalScore: number;
     videoUrls?: string[];
     positionUrls?: string[];
@@ -122,8 +125,15 @@ export function getCurrentScore(
         return 0;
     }
 
+    let unitScore = requirement.unitScore;
+    if (
+        requirement.unitScoreOverride &&
+        requirement.unitScoreOverride[cohort] !== undefined
+    ) {
+        unitScore = requirement.unitScoreOverride[cohort];
+    }
     const currentCount = getCurrentCount(cohort, requirement, progress);
-    return Math.max(currentCount - requirement.startCount, 0) * requirement.unitScore;
+    return Math.max(currentCount - requirement.startCount, 0) * unitScore;
 }
 
 export function getTotalScore(cohort: string | undefined, requirements: Requirement[]) {
@@ -135,8 +145,12 @@ export function getTotalScore(cohort: string | undefined, requirements: Requirem
         if (r.totalScore) {
             return sum + r.totalScore;
         }
+        let unitScore = r.unitScore;
+        if (r.unitScoreOverride && r.unitScoreOverride[cohort] !== undefined) {
+            unitScore = r.unitScoreOverride[cohort];
+        }
         const count = r.counts[cohort] || 0;
-        return sum + (count - r.startCount) * r.unitScore;
+        return sum + (count - r.startCount) * unitScore;
     }, 0);
 
     return totalScore;

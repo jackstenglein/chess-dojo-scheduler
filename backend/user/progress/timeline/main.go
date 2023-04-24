@@ -14,7 +14,7 @@ import (
 
 const funcName = "user-progress-timeline-update-handler"
 
-var repository database.UserUpdater = database.DynamoDB
+var repository database.UserProgressUpdater = database.DynamoDB
 
 type UpdateTimelineRequest struct {
 	RequirementId string                    `json:"requirementId"`
@@ -61,14 +61,25 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	requirement, err := repository.GetRequirement(request.RequirementId)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
 	// Correct user's timeline
+	log.Debugf("Timeline before removal: %+v", user.Timeline)
 	for i := 0; i < len(user.Timeline) && len(user.Timeline) > 0; i++ {
+		log.Debugf("Checking index: %d", i)
 		if user.Timeline[i].RequirementId == request.RequirementId && user.Timeline[i].Cohort == request.Cohort {
+			log.Debugf("Removing index: %d", i)
 			user.Timeline = removeIndex(user.Timeline, i)
+			log.Debugf("Timeline after removing index: %+v", user.Timeline)
 			i--
 		}
 	}
+	log.Debugf("Timeline after removal: %+v", user.Timeline)
 	user.Timeline = append(user.Timeline, request.Entries...)
+	log.Debugf("Timeline after append: %+v", user.Timeline)
 
 	// Correct user's progress map
 	progress, ok := user.Progress[request.RequirementId]
@@ -80,13 +91,17 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 	progress.UpdatedAt = time.Now().Format(time.RFC3339)
-	progress.Counts[request.Cohort] = request.Count
 	progress.MinutesSpent[request.Cohort] = request.MinutesSpent
+	if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
+		progress.Counts[database.AllCohorts] = request.Count
+	} else {
+		progress.Counts[request.Cohort] = request.Count
+	}
 	user.Progress[progress.RequirementId] = progress
 
 	update := &database.UserUpdate{
-		Timeline: user.Timeline,
-		Progress: user.Progress,
+		Timeline: &user.Timeline,
+		Progress: &user.Progress,
 	}
 	user, err = repository.UpdateUser(user.Username, update)
 	if err != nil {

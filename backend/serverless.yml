@@ -216,6 +216,10 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt RequirementsTable.Arn
 
   getUser:
     handler: bin/user/get

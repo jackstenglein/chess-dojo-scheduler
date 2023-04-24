@@ -324,11 +324,11 @@ type UserUpdate struct {
 
 	// Maps requirement ids to RequirementProgress objects.
 	// Cannot be manually passed by the user. The user should instead call the user/progress/timeline function
-	Progress map[string]*RequirementProgress `dynamodbav:"progress,omitempty" json:"-"`
+	Progress *map[string]*RequirementProgress `dynamodbav:"progress,omitempty" json:"-"`
 
 	// A list of RequirementProgress objects forming the user's activity.
 	// Cannot be manually passed by the user. The user should instead call the user/progress/timeline function
-	Timeline []*TimelineEntry `dynamodbav:"timeline,omitempty" json:"-"`
+	Timeline *[]*TimelineEntry `dynamodbav:"timeline,omitempty" json:"-"`
 
 	// Whether to enable dark mode on the site
 	EnableDarkMode *bool `dynamodbav:"enableDarkMode,omitempty" json:"enableDarkMode,omitempty"`
@@ -362,7 +362,7 @@ type UserUpdater interface {
 }
 
 type UserProgressUpdater interface {
-	UserGetter
+	UserUpdater
 	RequirementGetter
 
 	// UpdateUserProgress sets the given progress entry in the user's progress map and appends

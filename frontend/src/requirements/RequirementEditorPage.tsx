@@ -133,9 +133,6 @@ const RequirementEditorPage = () => {
         requirement?.scoreboardDisplay ?? ScoreboardDisplay.Unspecified
     );
     const [sortPriority, setSortPriority] = useState(requirement?.sortPriority ?? '');
-    const [progressBarSuffix, setProgressBarSuffix] = useState(
-        requirement?.progressBarSuffix ?? ''
-    );
 
     const [errors, setErrors] = useState<RequirementEditorErrors>({});
     const [showPreview, setShowPreview] = useState(false);
@@ -176,13 +173,14 @@ const RequirementEditorPage = () => {
         counts: newCounts,
         numberOfCohorts: parseInt(numberOfCohorts),
         unitScore: parseFloat(unitScore),
+        unitScoreOverride: requirement?.unitScoreOverride ?? {},
         totalScore: parseFloat(totalScore),
         startCount: parseInt(startCount),
         videoUrls,
         positionUrls,
         scoreboardDisplay,
         sortPriority,
-        progressBarSuffix,
+        progressBarSuffix: requirement?.progressBarSuffix ?? '',
         updatedAt: 'now',
     };
 

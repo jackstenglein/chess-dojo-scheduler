@@ -228,8 +228,6 @@ const ScoreboardPage = () => {
         return <LoadingPage />;
     }
 
-    console.log('Column groups: ', defaultColumnGroups.concat(columnGroups));
-
     return (
         <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={requirementRequest} />
