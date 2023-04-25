@@ -2,10 +2,9 @@ import React from 'react';
 import { Stack, Typography, Button } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
-import { AvailabilityType, getDisplayString } from '../database/availability';
 import { Link, useNavigate } from 'react-router-dom';
 import GraduationIcon from '../scoreboard/GraduationIcon';
-import { Event } from '../database/event';
+import { Event, AvailabilityType, getDisplayString } from '../database/event';
 
 interface AvailabilityViewerProps {
     processedEvent: ProcessedEvent;

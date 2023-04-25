@@ -9,7 +9,7 @@ import {
     FormControl,
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
-import { AvailabilityType, getDisplayString } from '../database/availability';
+import { AvailabilityType, getDisplayString } from '../database/event';
 import { dojoCohorts } from '../database/user';
 
 import { styled } from '@mui/material/styles';

@@ -2,8 +2,7 @@ import { Stack, Button, Typography } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useNavigate } from 'react-router-dom';
-import { AvailabilityType, getDisplayString } from '../database/availability';
-import { Event } from '../database/event';
+import { Event, AvailabilityType, getDisplayString } from '../database/event';
 
 interface GroupViewerProps {
     processedEvent: ProcessedEvent;

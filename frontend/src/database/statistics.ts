@@ -1,4 +1,4 @@
-import { AvailabilityType } from './availability';
+import { AvailabilityType } from './event';
 
 export interface AvailabilityStatistics {
     created: number;

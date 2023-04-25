@@ -7,14 +7,13 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
-import { AvailabilityStatus } from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { CalendarFilters, DefaultTimezone, Filters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
 import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
 import { User } from '../database/user';
-import { Event, EventType } from '../database/event';
+import { Event, EventType, AvailabilityStatus } from '../database/event';
 
 function processAvailability(
     user: User,

@@ -3,8 +3,6 @@ import { Box, Container, Tab, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/Auth';
-import AvailabilitiesTab from './AvailabilitiesTab';
-import MeetingsTab from './MeetingsTab';
 import RequirementsTab from './RequirementsTab';
 import StatisticsTab from './StatisticsTab';
 import UsersTab from './UsersTab';
@@ -28,20 +26,12 @@ const AdminPage = () => {
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <TabList onChange={(_, t) => setTab(t)} aria-label='admin tabs'>
                             <Tab label='Users' value='users' />
-                            <Tab label='Availabilities' value='availabilities' />
-                            <Tab label='Meetings' value='meetings' />
                             <Tab label='Requirements' value='requirements' />
                             <Tab label='Statistics' value='statistics' />
                         </TabList>
                     </Box>
                     <TabPanel value='users'>
                         <UsersTab />
-                    </TabPanel>
-                    <TabPanel value='availabilities'>
-                        <AvailabilitiesTab />
-                    </TabPanel>
-                    <TabPanel value='meetings'>
-                        <MeetingsTab />
                     </TabPanel>
                     <TabPanel value='requirements'>
                         <RequirementsTab />

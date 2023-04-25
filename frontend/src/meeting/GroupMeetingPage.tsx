@@ -9,7 +9,7 @@ import {
 import { Link, useParams } from 'react-router-dom';
 
 import { useCache } from '../api/cache/Cache';
-import { getDisplayString } from '../database/availability';
+import { getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import LoadingPage from '../loading/LoadingPage';
 

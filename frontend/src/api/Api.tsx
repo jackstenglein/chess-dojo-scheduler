@@ -8,9 +8,7 @@ import { Requirement, TimelineEntry } from '../database/requirement';
 
 import {
     AdminApiContextType,
-    adminListAvailabilities,
     adminListUsers,
-    adminListMeetings,
     adminGetStatistics,
     adminListRequirements,
 } from './adminApi';
@@ -93,10 +91,6 @@ export function ApiProvider({ children }: { children: ReactNode }) {
     const value = useMemo(() => {
         return {
             adminListUsers: (startKey?: string) => adminListUsers(idToken, startKey),
-            adminListAvailabilities: (startKey?: string) =>
-                adminListAvailabilities(idToken, startKey),
-            adminListMeetings: (startKey?: string) =>
-                adminListMeetings(idToken, startKey),
             adminGetStatistics: () => adminGetStatistics(idToken),
             adminListRequirements: (startKey?: string) =>
                 adminListRequirements(idToken, startKey),

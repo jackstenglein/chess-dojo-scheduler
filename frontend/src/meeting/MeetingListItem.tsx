@@ -2,8 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardActionArea, CardContent, CardHeader, Chip } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
-import { Event } from '../database/event';
-import { AvailabilityStatus, getDisplayString } from '../database/availability';
+import { Event, AvailabilityStatus, getDisplayString } from '../database/event';
 
 interface MeetingListItemProps {
     meeting: Event;

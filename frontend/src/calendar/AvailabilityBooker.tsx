@@ -26,7 +26,7 @@ import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { useApi } from '../api/Api';
 import { useCache } from '../api/cache/Cache';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { AvailabilityType, getDisplayString } from '../database/availability';
+import { AvailabilityType, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import LoadingPage from '../loading/LoadingPage';
 

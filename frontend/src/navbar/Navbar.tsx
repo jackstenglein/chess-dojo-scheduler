@@ -2,9 +2,8 @@ import { AppBar, Container, Toolbar } from '@mui/material';
 
 import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
-import { Event } from '../database/event';
+import { Event, AvailabilityStatus } from '../database/event';
 import NavbarMenu from './NavbarMenu';
-import { AvailabilityStatus } from '../database/availability';
 
 const ONE_HOUR = 3600000;
 

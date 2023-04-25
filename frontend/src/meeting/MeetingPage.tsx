@@ -21,7 +21,7 @@ import { LoadingButton } from '@mui/lab';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { AvailabilityStatus, getDisplayString } from '../database/availability';
+import { AvailabilityStatus, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import { useCache } from '../api/cache/Cache';
 import LoadingPage from '../loading/LoadingPage';

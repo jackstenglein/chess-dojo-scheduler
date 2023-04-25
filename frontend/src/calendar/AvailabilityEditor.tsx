@@ -23,18 +23,18 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react';
 
 import { useApi } from '../api/Api';
-import {
-    AvailabilityStatus,
-    AvailabilityType,
-    getDefaultNumberOfParticipants,
-    getDisplayString,
-} from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
 import React from 'react';
 import { useCache } from '../api/cache/Cache';
-import { EventType } from '../database/event';
+import {
+    EventType,
+    AvailabilityStatus,
+    AvailabilityType,
+    getDefaultNumberOfParticipants,
+    getDisplayString,
+} from '../database/event';
 
 const ONE_HOUR = 60 * 60 * 1000;
 
