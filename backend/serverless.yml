@@ -300,6 +300,123 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt GraduationsTable.Arn
 
+  ############## Event Endpoints #################
+
+  bookEvent:
+    handler: bin/event/book
+    package:
+      patterns:
+        - ./bin/event/book
+    events:
+      - httpApi:
+          path: /event/{id}/book
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt EventsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+
+  cancelEvent:
+    handler: bin/event/cancel
+    package:
+      patterns:
+        - ./bin/event/cancel
+    events:
+      - httpApi:
+          path: /event/{id}/cancel
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt EventsTable.Arn
+          - !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt EventsTable.Arn
+
+  deleteEvent:
+    handler: bin/event/delete
+    package:
+      patterns:
+        - ./bin/event/delete
+    events:
+      - httpApi:
+          path: /event/{id}
+          method: delete
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:DeleteItem
+        Resource: !GetAtt EventsTable.Arn
+
+  getEvent:
+    handler: bin/event/get
+    package:
+      patterns:
+        - ./bin/event/get
+    events:
+      - httpApi:
+          path: /event/{id}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt EventsTable.Arn
+
+  listEvents:
+    handler: bin/event/list
+    package:
+      patterns:
+        - ./bin/event/list
+    events:
+      - httpApi:
+          path: /event
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt EventsTable.Arn
+
+  setEvent:
+    handler: bin/event/set
+    package:
+      patterns:
+        - ./bin/event/set
+    events:
+      - httpApi:
+          path: /event
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt EventsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+
   ########## Availability Endpoints ##############
 
   setAvailability:
@@ -945,6 +1062,29 @@ resources:
               - ReadCapacityUnits: 1
                 WriteCapacityUnits: 1
               - !Ref AWS::NoValue
+        BillingMode: !If
+          - IsProd
+          - PROVISIONED
+          - PAY_PER_REQUEST
+        ProvisionedThroughput: !If
+          - IsProd
+          - ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          - !Ref AWS::NoValue
+        TimeToLiveSpecification:
+          AttributeName: expirationTime
+          Enabled: true
+
+    EventsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-events
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
         BillingMode: !If
           - IsProd
           - PROVISIONED

@@ -64,32 +64,6 @@ func GetDisplayNames(types []AvailabilityType) []string {
 	return result
 }
 
-// Represents the scheduling status for availabilities and meetings.
-type SchedulingStatus string
-
-const (
-	Scheduled SchedulingStatus = "SCHEDULED"
-	Booked    SchedulingStatus = "BOOKED"
-	Canceled  SchedulingStatus = "CANCELED"
-)
-
-type Participant struct {
-	// The Cognito username of the participant.
-	Username string `dynamodbav:"username" json:"username"`
-
-	// The display name of the participant.
-	DisplayName string `dynamodbav:"displayName" json:"displayName"`
-
-	// The Discord username of the participant.
-	// Discord string `dynamodbav:"discord" json:"discord"`
-
-	// The Dojo cohort of the participant.
-	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
-
-	// The cohort the participant most recently graduated from
-	PreviousCohort DojoCohort `dynamodbav:"previousCohort" json:"previousCohort"`
-}
-
 type Availability struct {
 	// The username of the creator of this availability.
 	Owner string `dynamodbav:"owner" json:"owner"`

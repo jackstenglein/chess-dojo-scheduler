@@ -12,6 +12,13 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/progress/timeline user/progress/timeline/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/ratings/update user/ratings/update/main.go
 
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/book event/book/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/cancel event/cancel/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/delete event/delete/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/get event/get/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/list event/list/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/set event/set/main.go
+
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/set availability/set/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/book availability/book/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/delete availability/delete/main.go
