@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-    CircularProgress,
     Container,
     Stack,
     Card,
@@ -22,46 +21,25 @@ import { LoadingButton } from '@mui/lab';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { getDisplayString } from '../database/availability';
-import { GetMeetingResponse } from '../api/meetingApi';
-import { MeetingStatus } from '../database/meeting';
+import { AvailabilityStatus, getDisplayString } from '../database/availability';
 import GraduationIcon from '../scoreboard/GraduationIcon';
+import { useCache } from '../api/cache/Cache';
+import LoadingPage from '../loading/LoadingPage';
 
 const MeetingPage = () => {
-    const api = useApi();
     const { meetingId } = useParams();
-    const request = useRequest<GetMeetingResponse>();
+    const cache = useCache();
 
-    const [isCanceling, setIsCanceling] = useState(false);
+    const api = useApi();
+    const [showCancelDialog, setShowCancelDialog] = useState(false);
     const cancelRequest = useRequest();
 
-    const fetchMeeting = useCallback(() => {
-        request.onStart();
-        api.getMeeting(meetingId!)
-            .then((response) => {
-                request.onSuccess(response.data);
-            })
-            .catch((err) => {
-                console.error(err);
-                request.onFailure(err);
-            });
-    }, [request, api, meetingId]);
-
-    useEffect(() => {
-        if (!request.isSent()) {
-            fetchMeeting();
+    const meeting = cache.events.get(meetingId!);
+    if (!meeting) {
+        if (cache.isLoading) {
+            return <LoadingPage />;
         }
-    }, [request, fetchMeeting]);
 
-    if (request.isLoading() || !request.isSent()) {
-        return (
-            <Container sx={{ pt: 6, pb: 4 }}>
-                <CircularProgress />
-            </Container>
-        );
-    }
-
-    if (!request.data) {
         return (
             <Container sx={{ pt: 6, pb: 4 }}>
                 <Typography variant='subtitle2'>Meeting not found</Typography>
@@ -72,12 +50,12 @@ const MeetingPage = () => {
     const onCancel = () => {
         cancelRequest.onStart();
 
-        api.cancelMeeting(meetingId!)
+        api.cancelEvent(meetingId!)
             .then((response) => {
                 console.log('Cancel meeting response: ', response);
-                request.onSuccess({ ...request.data!, meeting: response.data });
-                setIsCanceling(false);
+                cache.events.put(response.data);
                 cancelRequest.onSuccess();
+                setShowCancelDialog(false);
             })
             .catch((err) => {
                 console.error(err);
@@ -85,26 +63,34 @@ const MeetingPage = () => {
             });
     };
 
-    const meeting = request.data.meeting;
-    const opponent = request.data.opponent;
-    const start = new Date(meeting.startTime);
+    const start = new Date(meeting.bookedStartTime || meeting.startTime);
     const startDate = start.toLocaleDateString();
     const startTime = start.toLocaleTimeString();
 
+    const opponent = meeting.participants[0];
+
     return (
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
-            <Dialog open={isCanceling} onClose={() => setIsCanceling(false)}>
+            <Dialog
+                open={showCancelDialog}
+                onClose={
+                    cancelRequest.isLoading()
+                        ? undefined
+                        : () => setShowCancelDialog(false)
+                }
+            >
                 <RequestSnackbar request={cancelRequest} />
                 <DialogTitle>
                     Cancel this meeting?
                     <IconButton
                         aria-label='close'
-                        onClick={() => setIsCanceling(false)}
+                        onClick={() => setShowCancelDialog(false)}
                         sx={{
                             position: 'absolute',
                             right: 10,
                             top: 8,
                         }}
+                        disabled={cancelRequest.isLoading()}
                     >
                         <CloseIcon />
                     </IconButton>
@@ -123,7 +109,7 @@ const MeetingPage = () => {
             </Dialog>
 
             <Stack spacing={4}>
-                {meeting.status === MeetingStatus.Canceled && (
+                {meeting.status === AvailabilityStatus.Canceled && (
                     <Alert severity='error'>This meeting has been canceled.</Alert>
                 )}
 
@@ -140,11 +126,11 @@ const MeetingPage = () => {
                                     Meeting Details
                                 </Typography>
 
-                                {meeting.status !== MeetingStatus.Canceled && (
+                                {meeting.status !== AvailabilityStatus.Canceled && (
                                     <Button
                                         variant='contained'
                                         color='error'
-                                        onClick={() => setIsCanceling(true)}
+                                        onClick={() => setShowCancelDialog(true)}
                                     >
                                         Cancel Meeting
                                     </Button>
@@ -168,7 +154,7 @@ const MeetingPage = () => {
                                     Meeting Type
                                 </Typography>
                                 <Typography variant='body1'>
-                                    {getDisplayString(meeting.type)}
+                                    {getDisplayString(meeting.bookedType)}
                                 </Typography>
                             </Stack>
 
@@ -226,27 +212,7 @@ const MeetingPage = () => {
                                 <Typography variant='subtitle2' color='text.secondary'>
                                     Chess Dojo Cohort
                                 </Typography>
-                                <Typography variant='body1'>
-                                    {opponent.dojoCohort}
-                                </Typography>
-                            </Stack>
-
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Chess.com Username
-                                </Typography>
-                                <Typography variant='body1'>
-                                    {opponent.chesscomUsername}
-                                </Typography>
-                            </Stack>
-
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Lichess Username
-                                </Typography>
-                                <Typography variant='body1'>
-                                    {opponent.lichessUsername}
-                                </Typography>
+                                <Typography variant='body1'>{opponent.cohort}</Typography>
                             </Stack>
                         </Stack>
                     </CardContent>

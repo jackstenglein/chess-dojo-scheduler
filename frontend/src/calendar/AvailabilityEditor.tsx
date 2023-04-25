@@ -24,6 +24,7 @@ import { useEffect, useState } from 'react';
 
 import { useApi } from '../api/Api';
 import {
+    AvailabilityStatus,
     AvailabilityType,
     getDefaultNumberOfParticipants,
     getDisplayString,
@@ -33,6 +34,7 @@ import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
 import React from 'react';
 import { useCache } from '../api/cache/Cache';
+import { EventType } from '../database/event';
 
 const ONE_HOUR = 60 * 60 * 1000;
 
@@ -63,12 +65,15 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
 
     const cache = useCache();
     const request = useRequest();
+
+    const [type, setType] = useState<EventType>(EventType.Availability);
+
     const [start, setStart] = useState<Date | null>(defaultStart || null);
     const [end, setEnd] = useState<Date | null>(defaultEnd || null);
 
-    const [location, setLocation] = useState(originalEvent?.availability?.location ?? '');
+    const [location, setLocation] = useState(originalEvent?.event?.location ?? '');
     const [description, setDescription] = useState(
-        originalEvent?.availability?.description ?? ''
+        originalEvent?.event?.description || ''
     );
 
     const [allTypes, setAllTypes] = useState(false);
@@ -80,7 +85,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
     );
 
     const [maxParticipants, setMaxParticipants] = useState(
-        originalEvent?.availability?.maxParticipants || ''
+        originalEvent?.event?.maxParticipants || ''
     );
 
     const userCohortIndex = dojoCohorts.findIndex((c) => c === user.dojoCohort);
@@ -109,7 +114,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
     }
 
     useEffect(() => {
-        const originalTypes: AvailabilityType[] = originalEvent?.availability?.types;
+        const originalTypes: AvailabilityType[] = originalEvent?.event?.types;
         if (originalTypes) {
             setTypes((t) =>
                 originalTypes.reduce((map, type) => {
@@ -119,7 +124,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             );
         }
 
-        const originalCohorts: string[] = originalEvent?.availability?.cohorts;
+        const originalCohorts: string[] = originalEvent?.event?.cohorts;
         if (originalCohorts) {
             const allFalseCohorts = dojoCohorts.reduce((map, cohort) => {
                 map[cohort] = false;
@@ -206,8 +211,9 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
         try {
             scheduler.loading(true);
 
-            const response = await api.setAvailability({
-                ...(originalEvent?.availability ?? {}),
+            const response = await api.setEvent({
+                ...(originalEvent?.event ?? {}),
+                type,
                 owner: user.username,
                 ownerDisplayName: user.displayName,
                 ownerCohort: user.dojoCohort,
@@ -216,14 +222,15 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                 endTime: endIso,
                 types: selectedTypes,
                 cohorts: selectedCohorts,
+                status: AvailabilityStatus.Scheduled,
                 location,
                 description,
                 maxParticipants: participants,
             });
-            console.log('Got setAvailability response: ', response);
+            console.log('Got setEvent response: ', response);
             const availability = response.data;
 
-            cache.availabilities.put(availability);
+            cache.events.put(availability);
             request.onSuccess();
             scheduler.close();
         } catch (err) {

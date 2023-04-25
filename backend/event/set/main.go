@@ -144,6 +144,11 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 		return api.Failure(funcName, err), nil
 	}
 
+	if event.Title == "" {
+		err := errors.New(400, "Invalid request: title is required", "")
+		return api.Failure(funcName, err), nil
+	}
+
 	if event.Status != database.Scheduled {
 		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.Scheduled), "")
 		return api.Failure(funcName, err), nil
@@ -197,6 +202,10 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	if err := json.Unmarshal([]byte(request.Body), event); err != nil {
 		err := errors.Wrap(400, "Invalid request: body format is invalid", "Unable to unmarshal body", err)
 		return api.Failure(funcName, err), nil
+	}
+
+	if event.Participants == nil {
+		event.Participants = make([]*database.Participant, 0)
 	}
 
 	if event.Type == database.EventTypeAvailability {

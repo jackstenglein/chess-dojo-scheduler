@@ -2,7 +2,6 @@ import {
     Card,
     CardContent,
     CardHeader,
-    CircularProgress,
     Container,
     Stack,
     Typography,
@@ -12,19 +11,16 @@ import { Link, useParams } from 'react-router-dom';
 import { useCache } from '../api/cache/Cache';
 import { getDisplayString } from '../database/availability';
 import GraduationIcon from '../scoreboard/GraduationIcon';
+import LoadingPage from '../loading/LoadingPage';
 
 const GroupMeetingPage = () => {
     const { availabilityId } = useParams();
     const cache = useCache();
 
-    const availability = cache.availabilities.get(availabilityId!);
+    const availability = cache.events.get(availabilityId!);
     if (!availability) {
         if (cache.isLoading) {
-            return (
-                <Container sx={{ pt: 6, pb: 4 }}>
-                    <CircularProgress />
-                </Container>
-            );
+            return <LoadingPage />;
         }
 
         return (

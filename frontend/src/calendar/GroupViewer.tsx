@@ -2,20 +2,17 @@ import { Stack, Button, Typography } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useNavigate } from 'react-router-dom';
-import {
-    Availability,
-    AvailabilityType,
-    getDisplayString,
-} from '../database/availability';
+import { AvailabilityType, getDisplayString } from '../database/availability';
+import { Event } from '../database/event';
 
 interface GroupViewerProps {
-    event: ProcessedEvent;
+    processedEvent: ProcessedEvent;
 }
 
-const GroupViewer: React.FC<GroupViewerProps> = ({ event }) => {
+const GroupViewer: React.FC<GroupViewerProps> = ({ processedEvent }) => {
     const navigate = useNavigate();
 
-    const group: Availability = event.group;
+    const event: Event = processedEvent.event;
 
     return (
         <Stack sx={{ pt: 2 }} spacing={2}>
@@ -24,7 +21,7 @@ const GroupViewer: React.FC<GroupViewerProps> = ({ event }) => {
                     Number of Participants
                 </Typography>
                 <Typography variant='body1'>
-                    {group.participants.length} / {group.maxParticipants}
+                    {event.participants.length} / {event.maxParticipants}
                 </Typography>
             </Stack>
 
@@ -33,19 +30,19 @@ const GroupViewer: React.FC<GroupViewerProps> = ({ event }) => {
                     Available Types
                 </Typography>
                 <Typography variant='body1'>
-                    {group.types
+                    {event.types
                         .map((t: AvailabilityType) => getDisplayString(t))
                         .join(', ')}
                 </Typography>
             </Stack>
 
-            {group.description && (
+            {event.description && (
                 <Stack>
                     <Typography variant='subtitle2' color='text.secondary'>
                         Description
                     </Typography>
                     <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
-                        {group.description}
+                        {event.description}
                     </Typography>
                 </Stack>
             )}
@@ -54,10 +51,10 @@ const GroupViewer: React.FC<GroupViewerProps> = ({ event }) => {
                 <Typography variant='subtitle2' color='text.secondary'>
                     Cohorts
                 </Typography>
-                <Typography variant='body1'>{group.cohorts.join(', ')}</Typography>
+                <Typography variant='body1'>{event.cohorts.join(', ')}</Typography>
             </Stack>
 
-            <Button variant='contained' onClick={() => navigate(`/group/${group.id}`)}>
+            <Button variant='contained' onClick={() => navigate(`/group/${event.id}`)}>
                 View Details
             </Button>
         </Stack>

@@ -2,13 +2,15 @@ import { Stack, Button, Typography } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useNavigate } from 'react-router-dom';
+import { Event } from '../database/event';
 
 interface MeetingViewerProps {
-    event: ProcessedEvent;
+    processedEvent: ProcessedEvent;
 }
 
-const MeetingViewer: React.FC<MeetingViewerProps> = ({ event }) => {
+const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
     const navigate = useNavigate();
+    const event: Event = processedEvent.event;
 
     return (
         <Stack sx={{ pt: 2 }} spacing={2}>
@@ -16,26 +18,21 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ event }) => {
                 <Typography variant='subtitle2' color='text.secondary'>
                     Location
                 </Typography>
-                <Typography variant='body1'>
-                    {event.meeting.location || 'Discord'}
-                </Typography>
+                <Typography variant='body1'>{event.location || 'Discord'}</Typography>
             </Stack>
 
-            {event.meeting.description && (
+            {event.description && (
                 <Stack>
                     <Typography variant='subtitle2' color='text.secondary'>
                         Description
                     </Typography>
                     <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
-                        {event.meeting.description}
+                        {event.description}
                     </Typography>
                 </Stack>
             )}
 
-            <Button
-                variant='contained'
-                onClick={() => navigate(`/meeting/${event.meeting.id}`)}
-            >
+            <Button variant='contained' onClick={() => navigate(`/meeting/${event.id}`)}>
                 View Details
             </Button>
         </Stack>

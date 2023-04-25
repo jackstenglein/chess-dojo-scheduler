@@ -8,12 +8,11 @@ import {
     useMemo,
 } from 'react';
 
-import { Meeting } from '../../database/meeting';
 import { Request, useRequest } from '../Request';
 import { useApi } from '../Api';
-import { Availability } from '../../database/availability';
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import { Requirement } from '../../database/requirement';
+import { Event } from '../../database/event';
 
 interface Identifiable {
     id: string;
@@ -103,8 +102,7 @@ type CacheContextType = {
     isLoading: boolean;
     setIsLoading: (arg: boolean) => void;
 
-    meetings: IdentifiableCache<Meeting>;
-    availabilities: IdentifiableCache<Availability>;
+    events: IdentifiableCache<Event>;
     requirements: IdentifiableCache<Requirement> & CohortCache;
 };
 
@@ -124,8 +122,7 @@ export function useCache() {
  */
 export function CacheProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(false);
-    const meetings = useIdentifiableCache<Meeting>();
-    const availabilities = useIdentifiableCache<Availability>();
+    const events = useIdentifiableCache<Event>();
     const requirements = useIdentifiableCache<Requirement>();
 
     const [fetchedCohorts, setFetchedCohorts] = useState<Record<string, boolean>>({});
@@ -150,82 +147,37 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const value = {
         isLoading,
         setIsLoading,
-        meetings,
-        availabilities,
+        events,
         requirements: { ...requirements, isFetched, markFetched },
     };
     return <CacheContext.Provider value={value}>{children}</CacheContext.Provider>;
 }
 
-interface UseMeetingsResponse {
-    meetings: Meeting[];
+interface UseEventsResponse {
+    events: Event[];
     request: Request;
+    putEvent: (e: Event) => void;
+    removeEvent: (id: string) => void;
 }
 
-export function useMeetings(): UseMeetingsResponse {
-    const api = useApi();
-    const cache = useCache();
-    const request = useRequest();
-
-    const meetings = cache.meetings.list();
-
-    useEffect(() => {
-        if (!request.isSent()) {
-            request.onStart();
-
-            api.listMeetings()
-                .then((result) => {
-                    result.sort((lhs, rhs) => lhs.startTime.localeCompare(rhs.startTime));
-                    request.onSuccess();
-                    cache.meetings.putMany(result);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    request.onFailure(err);
-                });
-        }
-    }, [request, api, cache]);
-
-    return {
-        meetings,
-        request,
-    };
-}
-
-interface UseCalendarResponse {
-    meetings: Meeting[];
-    availabilities: Availability[];
-    putAvailability: (a: Availability) => void;
-    removeAvailability: (id: string) => void;
-    request: Request;
-}
-
-const TWO_DAYS = 24 * 60 * 60 * 1000 * 2;
-
-export function useCalendar(): UseCalendarResponse {
+export function useEvents(): UseEventsResponse {
     const auth = useAuth();
     const api = useApi();
     const cache = useCache();
     const request = useRequest();
 
-    const meetings = useMemo(() => cache.meetings.list(), [cache.meetings]);
-    const availabilities = useMemo(
-        () => cache.availabilities.list(),
-        [cache.availabilities]
-    );
+    const events = useMemo(() => cache.events.list(), [cache.events]);
 
     useEffect(() => {
         if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
             request.onStart();
             cache.setIsLoading(true);
 
-            const startTime = new Date(new Date().getTime() - TWO_DAYS);
-            api.getCalendar(startTime)
-                .then((result) => {
-                    console.log('Calendar result: ', result);
+            api.listEvents()
+                .then((events) => {
+                    console.log('Got events: ', events);
                     request.onSuccess();
-                    cache.meetings.putMany(result.meetings);
-                    cache.availabilities.putMany(result.availabilities);
+                    cache.events.putMany(events);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -238,10 +190,10 @@ export function useCalendar(): UseCalendarResponse {
     }, [auth.status, request, api, cache]);
 
     return {
-        meetings,
-        availabilities,
-        putAvailability: cache.availabilities.put,
-        removeAvailability: cache.availabilities.remove,
+        events,
         request,
+
+        putEvent: cache.events.put,
+        removeEvent: cache.events.remove,
     };
 }

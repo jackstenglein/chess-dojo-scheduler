@@ -31,7 +31,7 @@ export type MeetingApiContextType = {
      * @param startKey The first startKey to use when searching for meetings.
      * @returns
      */
-    listMeetings: (limit?: number, startKey?: string) => Promise<Meeting[]>;
+    // listMeetings: (limit?: number, startKey?: string) => Promise<Meeting[]>;
 };
 
 // The response from a GetMeeting request.

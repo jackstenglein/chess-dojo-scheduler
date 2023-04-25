@@ -34,7 +34,7 @@ export type AvailabilityApiContextType = {
      * @param startKey The first startKey to use when searching.
      * @returns A list of availabilities.
      */
-    getAvailabilities: (limit?: number, startKey?: string) => Promise<Availability[]>;
+    // getAvailabilities: (limit?: number, startKey?: string) => Promise<Availability[]>;
 
     /**
      * getAvailabilitiesByTime returns a list of availabilities from other users.
@@ -44,11 +44,11 @@ export type AvailabilityApiContextType = {
      * @param startKey The first startKey to use when searching.
      * @returns A list of availabilities matching the provided request.
      */
-    getAvailabilitiesByTime: (
-        startTime: string,
-        limit?: number,
-        startKey?: string
-    ) => Promise<Availability[]>;
+    // getAvailabilitiesByTime: (
+    //     startTime: string,
+    //     limit?: number,
+    //     startKey?: string
+    // ) => Promise<Availability[]>;
 
     /**
      * Books the provided availability at the provided start times.

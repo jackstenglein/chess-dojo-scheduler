@@ -1,11 +1,10 @@
 import { Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useCalendar } from '../api/cache/Cache';
+import { useEvents } from '../api/cache/Cache';
 import { RequestSnackbar } from '../api/Request';
 import { useAuth } from '../auth/Auth';
-import { Availability } from '../database/availability';
+import { Event } from '../database/event';
 
-import { Meeting } from '../database/meeting';
 import GroupMeetingListItem from './GroupMeetingListItem';
 import MeetingListItem from './MeetingListItem';
 
@@ -15,33 +14,28 @@ const ListMeetingsPage = () => {
     const user = useAuth().user!;
     const navigate = useNavigate();
 
-    const { meetings: allMeetings, availabilities, request } = useCalendar();
+    const { events, request } = useEvents();
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
 
-    const meetingFilter = (m: Meeting) => {
-        if (m.owner !== user.username && m.participant !== user.username) {
+    const meetingFilter = (e: Event) => {
+        if (e.participants.length === 0) {
             return false;
         }
-        return m.startTime >= filterTime;
-    };
-    const meetings: any[] = allMeetings.filter(meetingFilter);
-
-    const groupFilter = (a: Availability) => {
-        if (a.endTime < filterTime) {
+        if (
+            e.owner !== user.username &&
+            e.participants.every((p) => p.username !== user.username)
+        ) {
             return false;
         }
-        if (a.owner === user.username && (a.participants?.length ?? 0) > 0) {
-            return true;
-        }
-        if (a.participants?.some((p) => p.username === user.username)) {
-            return true;
-        }
-        return false;
+        return e.endTime >= filterTime;
     };
-    const groups = availabilities.filter(groupFilter);
 
-    const events: Array<Meeting | Availability> = meetings.concat(groups);
-    events.sort((lhs, rhs) => lhs.startTime.localeCompare(rhs.startTime));
+    const meetings: Event[] = events.filter(meetingFilter);
+    meetings.sort((lhs, rhs) =>
+        (lhs.bookedStartTime || lhs.startTime).localeCompare(
+            rhs.bookedStartTime || rhs.startTime
+        )
+    );
 
     const requestLoading = request.isLoading() || !request.isSent();
 
@@ -66,17 +60,12 @@ const ListMeetingsPage = () => {
                     </>
                 )}
 
-                {events.map((e) => {
-                    if ((e as Availability).participants !== undefined) {
-                        return (
-                            <GroupMeetingListItem
-                                key={e.id}
-                                availability={e as Availability}
-                            />
-                        );
+                {meetings.map((e) => {
+                    if (e.maxParticipants === 1) {
+                        return <MeetingListItem key={e.id} meeting={e} />;
                     }
 
-                    return <MeetingListItem key={e.id} meeting={e as Meeting} />;
+                    return <GroupMeetingListItem key={e.id} availability={e} />;
                 })}
             </Stack>
         </Container>

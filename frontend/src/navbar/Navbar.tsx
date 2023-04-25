@@ -1,9 +1,10 @@
 import { AppBar, Container, Toolbar } from '@mui/material';
 
-import { useCalendar } from '../api/cache/Cache';
+import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
-import { Meeting, MeetingStatus } from '../database/meeting';
+import { Event } from '../database/event';
 import NavbarMenu from './NavbarMenu';
+import { AvailabilityStatus } from '../database/availability';
 
 const ONE_HOUR = 3600000;
 
@@ -11,30 +12,21 @@ const Navbar = () => {
     const auth = useAuth();
 
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
-    const { meetings, availabilities } = useCalendar();
+    const { events } = useEvents();
 
-    const meetingCount = meetings.filter((m: Meeting) => {
-        if (m.owner !== auth.user?.username && m.participant !== auth.user?.username) {
+    const count = events.filter((e: Event) => {
+        if (e.participants.length === 0) {
             return false;
         }
-        return m.status !== MeetingStatus.Canceled && m.startTime >= filterTime;
-    }).length;
-
-    const groupCount = availabilities.filter((a) => {
-        if (a.endTime <= filterTime) {
+        if (
+            e.owner !== auth.user?.username &&
+            e.participants.every((p) => p.username !== auth.user?.username)
+        ) {
             return false;
         }
-        if (a.owner === auth.user?.username && (a.participants?.length ?? 0) > 0) {
-            return true;
-        }
-        if (a.participants?.some((p) => p.username === auth.user?.username)) {
-            return true;
-        }
-
-        return false;
+        return e.status !== AvailabilityStatus.Canceled && e.endTime >= filterTime;
     }).length;
 
-    const count = meetingCount + groupCount;
     const meetingText = count > 0 ? `Meetings (${count})` : `Meetings`;
 
     return (

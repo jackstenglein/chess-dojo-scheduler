@@ -8,7 +8,7 @@ import {
     MenuItem,
     FormControl,
 } from '@mui/material';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AvailabilityType, getDisplayString } from '../database/availability';
 import { dojoCohorts } from '../database/user';
 
@@ -77,6 +77,9 @@ export interface Filters {
     meetings: boolean;
     setMeetings: React.Dispatch<React.SetStateAction<boolean>>;
 
+    dojoEvents: boolean;
+    setDojoEvents: React.Dispatch<React.SetStateAction<boolean>>;
+
     allTypes: boolean;
     setAllTypes: React.Dispatch<React.SetStateAction<boolean>>;
 
@@ -96,6 +99,7 @@ export function useFilters(): Filters {
     const [timezone, setTimezone] = useState(user.timezoneOverride || DefaultTimezone);
     const [availabilities, setAvailabilities] = useState(true);
     const [meetings, setMeetings] = useState(true);
+    const [dojoEvents, setDojoEvents] = useState(true);
 
     const [allTypes, setAllTypes] = useState(true);
     const [types, setTypes] = useState<Record<AvailabilityType, boolean>>(
@@ -121,6 +125,8 @@ export function useFilters(): Filters {
             setAvailabilities,
             meetings,
             setMeetings,
+            dojoEvents,
+            setDojoEvents,
             allTypes,
             setAllTypes,
             types,
@@ -137,6 +143,8 @@ export function useFilters(): Filters {
             setAvailabilities,
             meetings,
             setMeetings,
+            dojoEvents,
+            setDojoEvents,
             allTypes,
             setAllTypes,
             types,

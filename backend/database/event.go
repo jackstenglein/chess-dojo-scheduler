@@ -45,12 +45,12 @@ type Event struct {
 	// A v4 UUID identifying this event.
 	Id string `dynamodbav:"id" json:"id"`
 
+	// The type of the event.
+	Type EventType `dynamodbav:"type" json:"type"`
+
 	// The username of the creator of this event, or `Sensei` if the type
 	// is EventTypeDojo.
 	Owner string `dynamodbav:"owner" json:"owner"`
-
-	// The type of the event.
-	Type EventType `dynamodbav:"type" json:"type"`
 
 	// The display name of the owner, or `Sensei` if the type is EventTypeDojo.
 	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
@@ -61,6 +61,9 @@ type Event struct {
 	// The cohort the owner most recently graduated from, or an empty string
 	// if the type is EventTypeDojo.
 	OwnerPreviousCohort DojoCohort `dynamodbav:"ownerPreviousCohort" json:"ownerPreviousCohort"`
+
+	// The title of the event. This field is only used if type is EventTypeDojo.
+	Title string `dynamodbav:"title" json:"title"`
 
 	// The time the event starts, in full ISO-8601 format. For availabilities,
 	// this is the earliest that the owner is willing to start their game/meeting.

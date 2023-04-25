@@ -15,8 +15,6 @@ import {
     Radio,
     FormHelperText,
     Slide,
-    Container,
-    CircularProgress,
     Snackbar,
     Alert,
 } from '@mui/material';
@@ -28,13 +26,9 @@ import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { useApi } from '../api/Api';
 import { useCache } from '../api/cache/Cache';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import {
-    Availability,
-    AvailabilityType,
-    getDisplayString,
-} from '../database/availability';
-import { Meeting } from '../database/meeting';
+import { AvailabilityType, getDisplayString } from '../database/availability';
 import GraduationIcon from '../scoreboard/GraduationIcon';
+import LoadingPage from '../loading/LoadingPage';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -61,7 +55,7 @@ const AvailabilityBooker = () => {
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const availability = cache.availabilities.get(id!);
+    const availability = cache.events.get(id!);
 
     useEffect(() => {
         if (availability) {
@@ -73,11 +67,7 @@ const AvailabilityBooker = () => {
 
     if (!availability) {
         if (cache.isLoading) {
-            return (
-                <Container sx={{ pt: 6, pb: 4 }}>
-                    <CircularProgress />
-                </Container>
-            );
+            return <LoadingPage />;
         }
 
         return (
@@ -129,12 +119,11 @@ const AvailabilityBooker = () => {
 
         console.log('Booking availability: ', availability);
         request.onStart();
-        api.bookAvailability(availability, startTime!, selectedType!)
+        api.bookEvent(availability.id, startTime!, selectedType!)
             .then((response) => {
                 console.log('Book response: ', response);
                 request.onSuccess();
-                cache.meetings.put(response.data as Meeting);
-                cache.availabilities.remove(availability.id);
+                cache.events.put(response.data);
                 navigate(`/meeting/${response.data.id}`);
             })
             .catch((err) => {
@@ -145,11 +134,11 @@ const AvailabilityBooker = () => {
 
     const confirmGroupBooking = () => {
         request.onStart();
-        api.bookAvailability(availability)
+        api.bookEvent(availability.id)
             .then((response) => {
                 console.log('Book response: ', response);
                 request.onSuccess();
-                cache.availabilities.put(response.data as Availability);
+                cache.events.put(response.data);
                 navigate(`/group/${response.data.id}`);
             })
             .catch((err) => {

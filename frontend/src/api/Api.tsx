@@ -1,8 +1,11 @@
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 
 import { useAuth } from '../auth/Auth';
-import { Availability } from '../database/availability';
+
 import { User } from '../database/user';
+import { Event } from '../database/event';
+import { Requirement, TimelineEntry } from '../database/requirement';
+
 import {
     AdminApiContextType,
     adminListAvailabilities,
@@ -11,21 +14,6 @@ import {
     adminGetStatistics,
     adminListRequirements,
 } from './adminApi';
-import {
-    AvailabilityApiContextType,
-    bookAvailability,
-    deleteAvailability,
-    getAvailabilities,
-    getAvailabilitiesByTime,
-    setAvailability,
-} from './availabilityApi';
-import { CalendarApiContextType, getCalendar } from './calendarApi';
-import {
-    cancelMeeting,
-    getMeeting,
-    listMeetings,
-    MeetingApiContextType,
-} from './meetingApi';
 import {
     UserApiContextType,
     getUser,
@@ -60,16 +48,25 @@ import {
     listGraduationsByOwner,
     listGraduationsByDate,
 } from './graduationApi';
-import { Requirement, TimelineEntry } from '../database/requirement';
+import {
+    bookEvent,
+    cancelEvent,
+    deleteEvent,
+    EventApiContextType,
+    getEvent,
+    listEvents,
+    setEvent,
+} from './eventApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
  */
 type ApiContextType = AdminApiContextType &
     UserApiContextType &
-    AvailabilityApiContextType &
-    MeetingApiContextType &
-    CalendarApiContextType &
+    // AvailabilityApiContextType &
+    // MeetingApiContextType &
+    // CalendarApiContextType &
+    EventApiContextType &
     GameApiContextType &
     RequirementApiContextType &
     GraduationApiContextType;
@@ -142,25 +139,33 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 ),
             graduate: (comments: string) => graduate(idToken, comments, auth.updateUser),
 
-            setAvailability: (a: Availability) => setAvailability(idToken, a),
-            deleteAvailability: (id: string) => deleteAvailability(idToken, id),
-            bookAvailability: (a: Availability, time?: Date, type?: string) =>
-                bookAvailability(idToken, a, time, type),
-            getAvailabilities: (limit?: number, startKey?: string) =>
-                getAvailabilities(idToken, limit, startKey),
-            getAvailabilitiesByTime: (
-                startTime: string,
-                limit?: number,
-                startKey?: string
-            ) => getAvailabilitiesByTime(idToken, startTime, limit, startKey),
+            // setAvailability: (a: Availability) => setAvailability(idToken, a),
+            // deleteAvailability: (id: string) => deleteAvailability(idToken, id),
+            // bookAvailability: (a: Availability, time?: Date, type?: string) =>
+            //     bookAvailability(idToken, a, time, type),
+            // getAvailabilities: (limit?: number, startKey?: string) =>
+            //     getAvailabilities(idToken, limit, startKey),
+            // getAvailabilitiesByTime: (
+            //     startTime: string,
+            //     limit?: number,
+            //     startKey?: string
+            // ) => getAvailabilitiesByTime(idToken, startTime, limit, startKey),
 
-            getMeeting: (id: string) => getMeeting(idToken, id),
-            cancelMeeting: (id: string) => cancelMeeting(idToken, id),
-            listMeetings: (limit?: number, startKey?: string) =>
-                listMeetings(idToken, limit, startKey),
+            // getMeeting: (id: string) => getMeeting(idToken, id),
+            // cancelMeeting: (id: string) => cancelMeeting(idToken, id),
+            // listMeetings: (limit?: number, startKey?: string) =>
+            // listMeetings(idToken, limit, startKey),
 
-            getCalendar: (startTime: Date, startKey?: string) =>
-                getCalendar(idToken, startTime, startKey),
+            // getCalendar: (startTime: Date, startKey?: string) =>
+            //     getCalendar(idToken, startTime, startKey),
+
+            bookEvent: (id: string, startTime?: Date, type?: string) =>
+                bookEvent(idToken, id, startTime, type),
+            cancelEvent: (id: string) => cancelEvent(idToken, id),
+            deleteEvent: (id: string) => deleteEvent(idToken, id),
+            getEvent: (id: string) => getEvent(idToken, id),
+            listEvents: (startKey?: string) => listEvents(idToken, startKey),
+            setEvent: (event: Event) => setEvent(idToken, event),
 
             createGame: (req: CreateGameRequest) => createGame(idToken, req),
             getGame: (cohort: string, id: string) => getGame(idToken, cohort, id),

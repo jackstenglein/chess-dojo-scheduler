@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, CardActionArea, CardContent, CardHeader, Typography } from '@mui/material';
 
-import { Availability } from '../database/availability';
+import { Event } from '../database/event';
 
 interface GroupMeetingListItemProps {
-    availability: Availability;
+    availability: Event;
 }
 
 const GroupMeetingListItem: React.FC<GroupMeetingListItemProps> = ({ availability }) => {

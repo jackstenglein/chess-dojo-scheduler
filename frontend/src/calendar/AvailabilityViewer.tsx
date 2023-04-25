@@ -2,26 +2,23 @@ import React from 'react';
 import { Stack, Typography, Button } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
-import {
-    Availability,
-    AvailabilityType,
-    getDisplayString,
-} from '../database/availability';
+import { AvailabilityType, getDisplayString } from '../database/availability';
 import { Link, useNavigate } from 'react-router-dom';
 import GraduationIcon from '../scoreboard/GraduationIcon';
+import { Event } from '../database/event';
 
 interface AvailabilityViewerProps {
-    event: ProcessedEvent;
+    processedEvent: ProcessedEvent;
 }
 
-const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
-    const availability: Availability = event.availability;
+const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent }) => {
+    const event: Event = processedEvent.event;
     const navigate = useNavigate();
 
-    const isOwner = event.isOwner;
+    const isOwner: boolean = processedEvent.isOwner;
 
     const startBooking = () => {
-        navigate(`/calendar/availability/${availability.id}`);
+        navigate(`/calendar/availability/${event.id}`);
     };
 
     return (
@@ -32,28 +29,23 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                         Owner
                     </Typography>
                     <Stack direction='row' spacing={2} alignItems='center'>
-                        <Link to={`/profile/${availability.owner}`}>
+                        <Link to={`/profile/${event.owner}`}>
                             <Typography variant='body1'>
-                                {availability.ownerDisplayName} (
-                                {availability.ownerCohort})
+                                {event.ownerDisplayName} ({event.ownerCohort})
                             </Typography>
                         </Link>
-                        <GraduationIcon
-                            cohort={availability.ownerPreviousCohort}
-                            size={25}
-                        />
+                        <GraduationIcon cohort={event.ownerPreviousCohort} size={25} />
                     </Stack>
                 </Stack>
             )}
 
-            {availability.maxParticipants > 1 && (
+            {event.maxParticipants > 1 && (
                 <Stack>
                     <Typography variant='subtitle2' color='text.secondary'>
                         Number of Participants
                     </Typography>
                     <Typography variant='body1'>
-                        {availability.participants?.length ?? 0} /{' '}
-                        {availability.maxParticipants}
+                        {event.participants.length} / {event.maxParticipants}
                     </Typography>
                 </Stack>
             )}
@@ -63,18 +55,18 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                     Available Types
                 </Typography>
                 <Typography variant='body1'>
-                    {availability.types
+                    {event.types
                         .map((t: AvailabilityType) => getDisplayString(t))
                         .join(', ')}
                 </Typography>
             </Stack>
 
-            {availability.description.length > 0 && (
+            {event.description.length > 0 && (
                 <Stack>
                     <Typography variant='subtitle2' color='text.secondary'>
                         Description
                     </Typography>
-                    <Typography variant='body1'>{availability.description}</Typography>
+                    <Typography variant='body1'>{event.description}</Typography>
                 </Stack>
             )}
 
@@ -82,7 +74,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ event }) => {
                 <Typography variant='subtitle2' color='text.secondary'>
                     Cohorts
                 </Typography>
-                <Typography variant='body1'>{availability.cohorts.join(', ')}</Typography>
+                <Typography variant='body1'>{event.cohorts.join(', ')}</Typography>
             </Stack>
 
             {!isOwner && (

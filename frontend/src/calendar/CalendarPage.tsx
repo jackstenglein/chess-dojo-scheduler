@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
+import { Outlet } from 'react-router-dom';
 import { Container, Grid } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import type { SchedulerRef } from '@aldabil/react-scheduler/types';
@@ -6,177 +7,159 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
-import {
-    Availability,
-    AvailabilityStatus,
-    getDisplayString,
-} from '../database/availability';
+import { AvailabilityStatus } from '../database/availability';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { Meeting, MeetingStatus } from '../database/meeting';
 import { CalendarFilters, DefaultTimezone, Filters, useFilters } from './CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
-import { useCalendar } from '../api/cache/Cache';
+import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
 import { User } from '../database/user';
-import { Outlet } from 'react-router-dom';
+import { Event, EventType } from '../database/event';
 
-const ONE_HOUR = 3600000;
-
-function getEventFromAvailability(
+function processAvailability(
     user: User,
     filters: Filters,
-    a: Availability
+    event: Event
 ): ProcessedEvent | null {
-    // This user's availabilities
-    if (a.owner === user.username) {
-        if (a.participants && a.participants.length > 0) {
-            if (filters.meetings) {
-                return {
-                    event_id: a.id,
-                    title: `Group Meeting (${a.participants.length}/${a.maxParticipants})`,
-                    start: new Date(a.startTime),
-                    end: new Date(a.endTime),
-                    group: a,
-                    draggable: false,
-                    isOwner: true,
-                    editable: a.participants.length < a.maxParticipants,
-                };
-            }
+    if (event.status === AvailabilityStatus.Canceled) {
+        return null;
+    }
+
+    // This user's joined meetings
+    if (
+        (event.owner === user.username ||
+            event.participants.some((p) => p.username === user.username)) &&
+        event.participants.length > 0
+    ) {
+        if (!filters.meetings) {
             return null;
         }
 
+        const title =
+            event.maxParticipants === 1
+                ? 'Meeting'
+                : `Group Meeting (${event.participants.length}/${event.maxParticipants})`;
+
+        const isOwner = event.owner === user.username;
+        const editable = isOwner && event.participants.length < event.maxParticipants;
+
+        return {
+            event_id: event.id,
+            title,
+            start: new Date(event.bookedStartTime || event.startTime),
+            end: new Date(event.endTime),
+            isOwner,
+            editable,
+            deletable: false,
+            draggable: false,
+            event,
+        };
+    }
+
+    // This user's created availabilities
+    if (event.owner === user.username) {
         if (!filters.availabilities) {
             return null;
         }
 
-        if (a.status !== AvailabilityStatus.Scheduled) {
-            return null;
-        }
-
-        let title = 'Available - 1 on 1';
-        if (a.maxParticipants > 1) {
-            title = 'Available - Group';
-        }
-
+        const title =
+            event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group';
         return {
-            event_id: a.id,
+            event_id: event.id,
             title: title,
-            start: new Date(a.startTime),
-            end: new Date(a.endTime),
-            availability: a,
+            start: new Date(event.startTime),
+            end: new Date(event.endTime),
             draggable: true,
             isOwner: true,
-        };
-    }
-
-    // This users joined groups
-    if (a.participants?.some((p) => p.username === user.username)) {
-        if (!filters.meetings) {
-            return null;
-        }
-        return {
-            event_id: a.id,
-            title: `Group Meeting (${a.participants.length}/${a.maxParticipants})`,
-            start: new Date(a.startTime),
-            end: new Date(a.endTime),
-            group: a,
-            editable: false,
-            deletable: false,
-            draggable: false,
-            isOwner: false,
+            editable: true,
+            deletable: true,
+            event,
         };
     }
 
     // Other users' bookable availabilities
-
-    if (!user.isAdmin && a.status !== AvailabilityStatus.Scheduled) {
+    if (!user.isAdmin && event.status !== AvailabilityStatus.Scheduled) {
         return null;
     }
 
-    if (!filters.allTypes && a.types.every((t) => !filters.types[t])) {
+    if (event.cohorts.every((c) => c !== user.dojoCohort)) {
         return null;
     }
 
-    if (!filters.allCohorts && !filters.cohorts[a.ownerCohort]) {
+    if (!filters.allTypes && event.types.every((t) => !filters.types[t])) {
+        return null;
+    }
+
+    if (!filters.allCohorts && !filters.cohorts[event.ownerCohort]) {
         return null;
     }
 
     return {
-        event_id: a.id,
+        event_id: event.id,
         title:
-            a.maxParticipants > 1
-                ? `Bookable - Group (${a.participants.length}/${a.maxParticipants})`
-                : `Bookable - ${a.ownerDisplayName}`,
-        start: new Date(a.startTime),
-        end: new Date(a.endTime),
-        availability: a,
+            event.maxParticipants > 1
+                ? `Bookable - Group (${event.participants.length}/${event.maxParticipants})`
+                : `Bookable - ${event.ownerDisplayName}`,
+        start: new Date(event.startTime),
+        end: new Date(event.endTime),
         color: '#d32f2f',
         editable: false,
         deletable: false,
         draggable: false,
         isOwner: false,
+        event,
     };
 }
 
-function getEventFromMeeting(
-    user: User,
-    filters: Filters,
-    m: Meeting
-): ProcessedEvent | null {
-    if (m.status === MeetingStatus.Canceled) {
+function processDojoEvent(filters: Filters, event: Event): ProcessedEvent | null {
+    if (!filters.dojoEvents) {
         return null;
-    }
-    let color = undefined;
-    if (m.owner !== user.username && m.participant !== user.username) {
-        color = '#66bb6a';
     }
 
     return {
-        event_id: m.id,
-        title: getDisplayString(m.type),
-        start: new Date(m.startTime),
-        end: new Date(new Date(m.startTime).getTime() + ONE_HOUR),
-        meeting: m,
+        event_id: event.id,
+        title: event.title,
+        start: new Date(event.startTime),
+        end: new Date(event.endTime),
+        color: '#66bb6a',
         editable: false,
         deletable: false,
         draggable: false,
-        color: color,
+        isOwner: false,
+        event,
     };
 }
 
-function getEvents(
+function getProcessedEvents(
     user: User,
     filters: Filters,
-    meetings: Meeting[],
-    availabilities: Availability[]
+    events: Event[]
 ): ProcessedEvent[] {
-    const events: ProcessedEvent[] = [];
+    const result: ProcessedEvent[] = [];
 
-    availabilities.forEach((a) => {
-        const event = getEventFromAvailability(user, filters, a);
-        if (event !== null) {
-            events.push(event);
+    for (const event of events) {
+        let processedEvent: ProcessedEvent | null = null;
+
+        if (event.type === EventType.Availability) {
+            processedEvent = processAvailability(user, filters, event);
+        } else if (event.type === EventType.Dojo) {
+            processedEvent = processDojoEvent(filters, event);
         }
-    });
 
-    if (filters.meetings) {
-        meetings.forEach((m) => {
-            const event = getEventFromMeeting(user, filters, m);
-            if (event !== null) {
-                events.push(event);
-            }
-        });
+        if (processedEvent !== null) {
+            result.push(processedEvent);
+        }
     }
 
-    return events;
+    return result;
 }
 
 export default function CalendarPage() {
     const user = useAuth().user!;
     const api = useApi();
 
-    const { meetings, availabilities, putAvailability, removeAvailability, request } =
-        useCalendar();
+    const { events, putEvent, removeEvent, request } = useEvents();
+
     const filters = useFilters();
 
     const calendarRef = useRef<SchedulerRef>(null);
@@ -220,10 +203,10 @@ export default function CalendarPage() {
                 console.log('Deleting availability with id: ', id);
                 // Don't use deleteRequest.onStart as it messes up the
                 // scheduler library
-                await api.deleteAvailability(id);
+                await api.deleteEvent(id);
                 console.log(`Availability ${id} deleted`);
 
-                removeAvailability(id);
+                removeEvent(id);
                 deleteRequest.onSuccess('Availability deleted');
                 return id;
             } catch (err) {
@@ -231,7 +214,7 @@ export default function CalendarPage() {
                 deleteRequest.onFailure(err);
             }
         },
-        [api, removeAvailability, deleteRequest]
+        [api, removeEvent, deleteRequest]
     );
 
     const copyAvailability = useCallback(
@@ -260,13 +243,13 @@ export default function CalendarPage() {
                 copyRequest.onStart();
 
                 // If shift is held, then set the id and discordMessagedId to
-                // undefinded in order to create a new availability
-                const id = shiftHeld ? undefined : originalEvent.availability?.id;
+                // undefinded in order to create a new event
+                const id = shiftHeld ? undefined : originalEvent.event?.id;
                 const discordMessageId = shiftHeld
                     ? undefined
-                    : originalEvent.availability?.discordMessageId;
-                const response = await api.setAvailability({
-                    ...(originalEvent.availability ?? {}),
+                    : originalEvent.event?.discordMessageId;
+                const response = await api.setEvent({
+                    ...(originalEvent.event ?? {}),
                     startTime: startIso,
                     endTime: endIso,
                     id,
@@ -274,23 +257,22 @@ export default function CalendarPage() {
                 });
                 const availability = response.data;
 
-                putAvailability(availability);
+                putEvent(availability);
                 copyRequest.onSuccess();
             } catch (err) {
                 copyRequest.onFailure(err);
             }
         },
-        [copyRequest, api, shiftHeld, view, putAvailability]
+        [copyRequest, api, shiftHeld, view, putEvent]
     );
 
-    const events = useMemo(() => {
-        console.log('Getting events');
-        return getEvents(user, filters, meetings, availabilities);
-    }, [user, filters, meetings, availabilities]);
+    const processedEvents = useMemo(() => {
+        return getProcessedEvents(user, filters, events);
+    }, [user, filters, events]);
 
     useEffect(() => {
-        calendarRef.current?.scheduler.handleState(events, 'events');
-    }, [events, calendarRef]);
+        calendarRef.current?.scheduler.handleState(processedEvents, 'events');
+    }, [processedEvents, calendarRef]);
 
     useEffect(() => {
         const timezone =
@@ -339,9 +321,9 @@ export default function CalendarPage() {
                         onDelete={deleteAvailability}
                         onEventDrop={copyAvailability}
                         viewerExtraComponent={(fields, event) => (
-                            <ProcessedEventViewer event={event} />
+                            <ProcessedEventViewer processedEvent={event} />
                         )}
-                        events={events}
+                        events={processedEvents}
                         timeZone={
                             filters.timezone === DefaultTimezone
                                 ? undefined
