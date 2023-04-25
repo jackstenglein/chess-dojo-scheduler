@@ -1,15 +1,13 @@
-import { Stack, Button, Typography } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { useNavigate } from 'react-router-dom';
+import { Stack, Typography } from '@mui/material';
 
 import { Event } from '../database/event';
 
-interface MeetingViewerProps {
+interface DojoEventViewerProps {
     processedEvent: ProcessedEvent;
 }
 
-const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
-    const navigate = useNavigate();
+const DojoEventViewer: React.FC<DojoEventViewerProps> = ({ processedEvent }) => {
     const event: Event = processedEvent.event;
 
     return (
@@ -18,7 +16,7 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
                 <Typography variant='subtitle2' color='text.secondary'>
                     Location
                 </Typography>
-                <Typography variant='body1'>{event.location || 'Discord'}</Typography>
+                <Typography variant='body1'>{event.location}</Typography>
             </Stack>
 
             {event.description && (
@@ -31,12 +29,8 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
                     </Typography>
                 </Stack>
             )}
-
-            <Button variant='contained' onClick={() => navigate(`/meeting/${event.id}`)}>
-                View Details
-            </Button>
         </Stack>
     );
 };
 
-export default MeetingViewer;
+export default DojoEventViewer;

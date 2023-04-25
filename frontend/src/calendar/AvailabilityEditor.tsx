@@ -14,6 +14,8 @@ import {
     Slide,
     AppBar,
     Toolbar,
+    RadioGroup,
+    Radio,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { TransitionProps } from '@mui/material/transitions';
@@ -66,7 +68,11 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
     const cache = useCache();
     const request = useRequest();
 
-    const [type, setType] = useState<EventType>(EventType.Availability);
+    const [type, setType] = useState<EventType>(
+        originalEvent?.event?.type ?? EventType.Availability
+    );
+
+    const [title, setTitle] = useState<string>(originalEvent?.event?.title || '');
 
     const [start, setStart] = useState<Date | null>(defaultStart || null);
     const [end, setEnd] = useState<Date | null>(defaultEnd || null);
@@ -159,8 +165,15 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
         minEnd.setTime(start.getTime() + ONE_HOUR);
     }
 
+    const isAvailability = type === EventType.Availability;
+    const defaultLocation = isAvailability ? 'Discord' : 'No Location Provided';
+
     const onSubmit = async () => {
         const errors: Record<string, string> = {};
+
+        if (!isAvailability && title.trim() === '') {
+            errors.title = 'This field is required';
+        }
 
         if (start === null) {
             errors.start = 'This field is required';
@@ -180,19 +193,19 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             : (Object.keys(types).filter(
                   (t) => types[t as AvailabilityType]
               ) as AvailabilityType[]);
-        if (selectedTypes.length === 0) {
+        if (isAvailability && selectedTypes.length === 0) {
             errors.types = 'At least one type is required';
         }
 
         const selectedCohorts = allCohorts
             ? dojoCohorts
             : dojoCohorts.filter((c) => cohorts[c]);
-        if (selectedCohorts.length === 0) {
+        if (isAvailability && selectedCohorts.length === 0) {
             errors.cohorts = 'At least one cohort is required';
         }
 
         let participants = defaultMaxParticipants;
-        if (maxParticipants !== '') {
+        if (isAvailability && maxParticipants !== '') {
             participants = parseInt(maxParticipants);
             if (isNaN(participants)) {
                 errors.maxParticipants = 'You must specify a number';
@@ -218,6 +231,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                 ownerDisplayName: user.displayName,
                 ownerCohort: user.dojoCohort,
                 ownerPreviousCohort: user.previousCohort,
+                title,
                 startTime: startIso,
                 endTime: endIso,
                 types: selectedTypes,
@@ -282,15 +296,60 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                         mt: 4,
                     }}
                 >
+                    {user.isAdmin && (
+                        <Stack>
+                            <Typography variant='h6'>Event Type</Typography>
+                            <FormControl>
+                                <RadioGroup
+                                    row
+                                    value={type}
+                                    onChange={(e) => setType(e.target.value as EventType)}
+                                >
+                                    <FormControlLabel
+                                        value={EventType.Availability}
+                                        control={<Radio />}
+                                        label='Bookable Availability'
+                                    />
+                                    <FormControlLabel
+                                        value={EventType.Dojo}
+                                        control={<Radio />}
+                                        label='Dojo-Wide Event'
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        </Stack>
+                    )}
+
+                    {!isAvailability && (
+                        <Stack>
+                            <Typography variant='h6'>Event Title</Typography>
+                            <Typography
+                                variant='subtitle1'
+                                color='text.secondary'
+                                sx={{ mb: 2 }}
+                            >
+                                This title will be used in the calendar and in the Discord
+                                events.
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                label='Title'
+                                variant='outlined'
+                                value={title}
+                                onChange={(event) => setTitle(event.target.value)}
+                                error={!!errors.title}
+                                helperText={errors.title}
+                            />
+                        </Stack>
+                    )}
+
                     <Stack>
                         <Typography variant='h6'>Times</Typography>
-                        <Typography
-                            variant='subtitle1'
-                            color='text.secondary'
-                            sx={{ mb: 2 }}
-                        >
-                            Availabilities must be at least one hour long
-                        </Typography>
+                        {isAvailability && (
+                            <Typography variant='subtitle1' color='text.secondary'>
+                                Availabilities must be at least one hour long
+                            </Typography>
+                        )}
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <DateTimePicker
                                 label='Start Time'
@@ -304,7 +363,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                         fullWidth: true,
                                         error: !!errors.start,
                                         helperText: errors.start,
-                                        sx: { mb: 3 },
+                                        sx: { mt: 2, mb: 3 },
                                     },
                                 }}
                             />
@@ -340,7 +399,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                             variant='outlined'
                             value={location}
                             onChange={(event) => setLocation(event.target.value)}
-                            helperText='Defaults to "Discord" if left blank.'
+                            helperText={`Defaults to "${defaultLocation}" if left blank.`}
                         />
                     </Stack>
 
@@ -351,7 +410,9 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                             color='text.secondary'
                             sx={{ mb: 1.5 }}
                         >
-                            Add a sparring position or any other notes for your opponent.
+                            {isAvailability
+                                ? 'Add a sparring position or any other notes for your opponent.'
+                                : 'This description will be visible in the calendar and the Discord events.'}
                         </Typography>
                         <TextField
                             label='Description'
@@ -363,114 +424,125 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                         />
                     </Stack>
 
-                    <Stack>
-                        <Typography variant='h6'>Availability Types</Typography>
-                        <Typography variant='subtitle1' color='text.secondary'>
-                            Choose the meeting types you are available for.
-                        </Typography>
-                        <FormControl error={!!errors.types}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={allTypes}
-                                        onChange={(event) =>
-                                            setAllTypes(event.target.checked)
-                                        }
-                                    />
-                                }
-                                label='All Types'
-                            />
-                            <Stack
-                                direction='row'
-                                sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
-                            >
-                                {Object.values(AvailabilityType).map((type) => (
+                    {isAvailability && (
+                        <>
+                            <Stack>
+                                <Typography variant='h6'>Availability Types</Typography>
+                                <Typography variant='subtitle1' color='text.secondary'>
+                                    Choose the meeting types you are available for.
+                                </Typography>
+                                <FormControl error={!!errors.types}>
                                     <FormControlLabel
-                                        key={type}
                                         control={
                                             <Checkbox
-                                                checked={allTypes || types[type]}
+                                                checked={allTypes}
                                                 onChange={(event) =>
-                                                    onChangeType(
-                                                        type,
-                                                        event.target.checked
-                                                    )
+                                                    setAllTypes(event.target.checked)
                                                 }
                                             />
                                         }
-                                        disabled={allTypes}
-                                        label={getDisplayString(type)}
+                                        label='All Types'
                                     />
-                                ))}
+                                    <Stack
+                                        direction='row'
+                                        sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
+                                    >
+                                        {Object.values(AvailabilityType).map((type) => (
+                                            <FormControlLabel
+                                                key={type}
+                                                control={
+                                                    <Checkbox
+                                                        checked={allTypes || types[type]}
+                                                        onChange={(event) =>
+                                                            onChangeType(
+                                                                type,
+                                                                event.target.checked
+                                                            )
+                                                        }
+                                                    />
+                                                }
+                                                disabled={allTypes}
+                                                label={getDisplayString(type)}
+                                            />
+                                        ))}
+                                    </Stack>
+                                    <FormHelperText>{errors.types}</FormHelperText>
+                                </FormControl>
                             </Stack>
-                            <FormHelperText>{errors.types}</FormHelperText>
-                        </FormControl>
-                    </Stack>
 
-                    <Stack>
-                        <Typography variant='h6'>Max Participants</Typography>
-                        <Typography
-                            variant='subtitle1'
-                            color='text.secondary'
-                            sx={{ mb: 1.5 }}
-                        >
-                            The number of people that can book your availability (not
-                            including yourself).
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            label='Max Participants'
-                            variant='outlined'
-                            value={maxParticipants}
-                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                            onChange={(event) => setMaxParticipants(event.target.value)}
-                            helperText={`Defaults to ${defaultMaxParticipants} if left blank.`}
-                        />
-                    </Stack>
+                            <Stack>
+                                <Typography variant='h6'>Max Participants</Typography>
+                                <Typography
+                                    variant='subtitle1'
+                                    color='text.secondary'
+                                    sx={{ mb: 1.5 }}
+                                >
+                                    The number of people that can book your availability
+                                    (not including yourself).
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    label='Max Participants'
+                                    variant='outlined'
+                                    value={maxParticipants}
+                                    inputProps={{
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    onChange={(event) =>
+                                        setMaxParticipants(event.target.value)
+                                    }
+                                    helperText={`Defaults to ${defaultMaxParticipants} if left blank.`}
+                                />
+                            </Stack>
 
-                    <Stack>
-                        <Typography variant='h6'>Cohorts</Typography>
-                        <Typography variant='subtitle1' color='text.secondary'>
-                            Choose the cohorts that can book your availability.
-                        </Typography>
-                        <FormControl error={!!errors.cohorts}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={allCohorts}
-                                        onChange={(event) =>
-                                            setAllCohorts(event.target.checked)
-                                        }
-                                    />
-                                }
-                                label='All Cohorts'
-                            />
-                            <Stack
-                                direction='row'
-                                sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
-                            >
-                                {dojoCohorts.map((cohort) => (
+                            <Stack>
+                                <Typography variant='h6'>Cohorts</Typography>
+                                <Typography variant='subtitle1' color='text.secondary'>
+                                    Choose the cohorts that can book your availability.
+                                </Typography>
+                                <FormControl error={!!errors.cohorts}>
                                     <FormControlLabel
-                                        key={cohort}
                                         control={
                                             <Checkbox
-                                                checked={allCohorts || cohorts[cohort]}
+                                                checked={allCohorts}
                                                 onChange={(event) =>
-                                                    onChangeCohort(
-                                                        cohort,
-                                                        event.target.checked
-                                                    )
+                                                    setAllCohorts(event.target.checked)
                                                 }
                                             />
                                         }
-                                        disabled={allCohorts}
-                                        label={cohort}
+                                        label='All Cohorts'
                                     />
-                                ))}
+                                    <Stack
+                                        direction='row'
+                                        sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
+                                    >
+                                        {dojoCohorts.map((cohort) => (
+                                            <FormControlLabel
+                                                key={cohort}
+                                                control={
+                                                    <Checkbox
+                                                        checked={
+                                                            allCohorts || cohorts[cohort]
+                                                        }
+                                                        onChange={(event) =>
+                                                            onChangeCohort(
+                                                                cohort,
+                                                                event.target.checked
+                                                            )
+                                                        }
+                                                    />
+                                                }
+                                                disabled={allCohorts}
+                                                label={cohort}
+                                            />
+                                        ))}
+                                    </Stack>
+                                    <FormHelperText>{errors.cohorts}</FormHelperText>
+                                </FormControl>
                             </Stack>
-                            <FormHelperText>{errors.cohorts}</FormHelperText>
-                        </FormControl>
-                    </Stack>
+                        </>
+                    )}
                 </Stack>
             </DialogContent>
         </Dialog>

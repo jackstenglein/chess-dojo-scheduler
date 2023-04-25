@@ -288,6 +288,17 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={filters.dojoEvents}
+                                onChange={(event) =>
+                                    filters.setDojoEvents(event.target.checked)
+                                }
+                            />
+                        }
+                        label='Dojo Events'
+                    />
                     <Stack pt={2}>
                         <Typography variant='subtitle2' color='text.secondary'>
                             Meeting Types

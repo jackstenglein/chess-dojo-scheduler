@@ -81,7 +81,7 @@ function processAvailability(
         return null;
     }
 
-    if (event.cohorts.every((c) => c !== user.dojoCohort)) {
+    if (!user.isAdmin && event.cohorts.every((c) => c !== user.dojoCohort)) {
         return null;
     }
 
@@ -110,7 +110,11 @@ function processAvailability(
     };
 }
 
-function processDojoEvent(filters: Filters, event: Event): ProcessedEvent | null {
+function processDojoEvent(
+    user: User,
+    filters: Filters,
+    event: Event
+): ProcessedEvent | null {
     if (!filters.dojoEvents) {
         return null;
     }
@@ -120,10 +124,10 @@ function processDojoEvent(filters: Filters, event: Event): ProcessedEvent | null
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: '#66bb6a',
-        editable: false,
-        deletable: false,
-        draggable: false,
+        color: '#d32f2f',
+        editable: user.isAdmin,
+        deletable: user.isAdmin,
+        draggable: user.isAdmin,
         isOwner: false,
         event,
     };
@@ -142,7 +146,7 @@ function getProcessedEvents(
         if (event.type === EventType.Availability) {
             processedEvent = processAvailability(user, filters, event);
         } else if (event.type === EventType.Dojo) {
-            processedEvent = processDojoEvent(filters, event);
+            processedEvent = processDojoEvent(user, filters, event);
         }
 
         if (processedEvent !== null) {

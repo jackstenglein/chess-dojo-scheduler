@@ -6,6 +6,7 @@ import MeetingViewer from './MeetingViewer';
 import GroupViewer from './GroupViewer';
 import { Event, EventType } from '../database/event';
 import { useAuth } from '../auth/Auth';
+import DojoEventViewer from './DojoEventViewer';
 
 interface ProcessedEventViewerProps {
     processedEvent: ProcessedEvent;
@@ -33,6 +34,8 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({
             return <MeetingViewer processedEvent={processedEvent} />;
         }
         return <GroupViewer processedEvent={processedEvent} />;
+    } else if (event.type === EventType.Dojo) {
+        return <DojoEventViewer processedEvent={processedEvent} />;
     }
 
     return null;
