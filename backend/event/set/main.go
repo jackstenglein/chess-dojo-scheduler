@@ -13,6 +13,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 )
 
 const funcName = "event-set-handler"
@@ -118,18 +119,17 @@ func handleAvailability(info *api.UserInfo, event *database.Event) (api.Response
 		return api.Failure(funcName, err), nil
 	}
 
-	// TODO: add this back
-	// if msgId, err := discord.SendAvailabilityNotification(event); err != nil {
-	// 	log.Error("Failed SendAvailabilityNotification: ", err)
-	// } else if event.DiscordMessageId != msgId {
-	// 	// We have to save the event a second time in order to avoid first
-	// 	// sending the Discord notification and then failing to save the event.
-	// 	// If this save fails, we just log the error and return success since it is non-critical.
-	// 	event.DiscordMessageId = msgId
-	// 	if err := repository.SetEvent(event); err != nil {
-	// 		log.Error("Failed to set event.DiscordMessageId: ", err)
-	// 	}
-	// }
+	if msgId, err := discord.SendAvailabilityNotification(event); err != nil {
+		log.Error("Failed SendAvailabilityNotification: ", err)
+	} else if event.DiscordMessageId != msgId {
+		// We have to save the event a second time in order to avoid first
+		// sending the Discord notification and then failing to save the event.
+		// If this save fails, we just log the error and return success since it is non-critical.
+		event.DiscordMessageId = msgId
+		if err := repository.SetEvent(event); err != nil {
+			log.Error("Failed to set event.DiscordMessageId: ", err)
+		}
+	}
 
 	return api.Success(funcName, event), nil
 }
@@ -183,6 +183,18 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 
 	if err := repository.SetEvent(event); err != nil {
 		return api.Failure(funcName, err), nil
+	}
+
+	if privateEventId, publicEventId, err := discord.SetEvent(event); err != nil {
+		log.Error("Failed SendAvailabilityNotification: ", err)
+	} else if event.PrivateDiscordEventId != privateEventId || event.PublicDiscordEventId != publicEventId {
+		// We have to save the event a second time in order to avoid first
+		// pushing the Discord event and then failing to save the event in our database.
+		// If this save fails, we just log the error and return success since it is non-critical.
+		event.PrivateDiscordEventId, event.PublicDiscordEventId = privateEventId, publicEventId
+		if err := repository.SetEvent(event); err != nil {
+			log.Error("Failed to set event.DiscordEventIds: ", err)
+		}
 	}
 
 	return api.Success(funcName, event), nil

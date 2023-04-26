@@ -135,13 +135,12 @@ func FetchUscfRating(uscfId string) (int, error) {
 		return 0, err
 	}
 
-	if bytes.Contains(b, []byte("Non-Member")) {
-		err = errors.New(404, "Invalid request: the given USCF ID does not exist", "")
-		return 0, err
-	}
-
 	rating, err := findRating(b, uscfRegexp)
 	if err != nil {
+		if bytes.Contains(b, []byte("Non-Member")) {
+			err := errors.New(404, "Invalid request: the given USCF ID does not exist", "")
+			return 0, err
+		}
 		return 0, errors.Wrap(400, fmt.Sprintf("Invalid USCF id `%s`: no rating found on USCF website", uscfId), "", err)
 	}
 	return rating, nil

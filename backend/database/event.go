@@ -114,9 +114,13 @@ type Event struct {
 	// is unused if type is EventTypeDojo.
 	DiscordMessageId string `dynamodbav:"discordMessageId" json:"discordMessageId"`
 
-	// The IDs of Discord guild events for this event. This field is unused if
+	// The ID of the private Discord guild event for this event. This field is unused if
 	// type is EventTypeAvailability.
-	DiscordEventIds []string `dynamodbav:"discordEventIds" json:"discordEventIds"`
+	PrivateDiscordEventId string `dynamodbav:"privateDiscordEventId" json:"privateDiscordEventId"`
+
+	// The ID of the public Discord guild event for this event. This field is unused if
+	// type is EventTypeAvailability.
+	PublicDiscordEventId string `dynamodbav:"publicDiscordEventId" json:"publicDiscordEventId"`
 }
 
 type EventSetter interface {

@@ -30,8 +30,10 @@ provider:
   environment:
     stage: ${sls:stage}
     frontendHost: ${file(./config-${sls:stage}.yml):frontendHost}
-    discordFindGameChannelId: ${file(./config-${sls:stage}.yml):discordFindGameChannelId}
     discordAuth: ${file(./discord.yml):discordAuth}
+    discordFindGameChannelId: ${file(./config-${sls:stage}.yml):discordFindGameChannelId}
+    discordPrivateGuildId: ${file(./config-${sls:stage}.yml):discordPrivateGuildId}
+    discordPublicGuildId: ${file(./config-${sls:stage}.yml):discordPublicGuildId}
   httpApi:
     cors: true
     authorizers:
@@ -362,6 +364,10 @@ functions:
           - dynamodb:GetItem
           - dynamodb:DeleteItem
         Resource: !GetAtt EventsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
 
   getEvent:
     handler: bin/event/get
@@ -416,212 +422,6 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
-
-  ########## Availability Endpoints ##############
-
-  setAvailability:
-    handler: bin/availability/set
-    package:
-      patterns:
-        - ./bin/availability/set
-    events:
-      - httpApi:
-          path: /availability
-          method: put
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:UpdateItem
-        Resource: !GetAtt AvailabilitiesTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: !GetAtt UsersTable.Arn
-
-  bookAvailability:
-    handler: bin/availability/book
-    package:
-      patterns:
-        - ./bin/availability/book
-    events:
-      - httpApi:
-          path: /availability/book
-          method: put
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:UpdateItem
-        Resource: !GetAtt MeetingsTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:PutItem
-          - dynamodb:UpdateItem
-        Resource: !GetAtt AvailabilitiesTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: !GetAtt UsersTable.Arn
-
-  deleteAvailability:
-    handler: bin/availability/delete
-    package:
-      patterns:
-        - ./bin/availability/delete
-    events:
-      - httpApi:
-          path: /availability/{id}
-          method: delete
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:DeleteItem
-          - dynamodb:UpdateItem
-        Resource: !GetAtt AvailabilitiesTable.Arn
-
-  getAvailability:
-    handler: bin/availability/get
-    package:
-      patterns:
-        - ./bin/availability/get
-    events:
-      - httpApi:
-          path: /availability
-          method: get
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource:
-          - Fn::Join:
-              - ''
-              - - !GetAtt AvailabilitiesTable.Arn
-                - '/index/EndSearchIndex'
-          - !GetAtt AvailabilitiesTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: !GetAtt UsersTable.Arn
-
-  ########## Meeting Endpoints ##############
-
-  getMeeting:
-    handler: bin/meeting/get
-    package:
-      patterns:
-        - ./bin/meeting/get
-    events:
-      - httpApi:
-          path: /meeting/{id}
-          method: get
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource:
-          - !GetAtt MeetingsTable.Arn
-          - !GetAtt UsersTable.Arn
-
-  listMeetings:
-    handler: bin/meeting/list
-    package:
-      patterns:
-        - ./bin/meeting/list
-    events:
-      - httpApi:
-          path: /meeting
-          method: get
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource:
-          - Fn::Join:
-              - ''
-              - - !GetAtt MeetingsTable.Arn
-                - '/index/OwnerIndex'
-          - Fn::Join:
-              - ''
-              - - !GetAtt MeetingsTable.Arn
-                - '/index/ParticipantIndex'
-
-  cancelMeeting:
-    handler: bin/meeting/cancel
-    package:
-      patterns:
-        - ./bin/meeting/cancel
-    events:
-      - httpApi:
-          path: /meeting/cancel/{id}
-          method: put
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource:
-          - !GetAtt MeetingsTable.Arn
-          - !GetAtt UsersTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:UpdateItem
-        Resource:
-          - !GetAtt MeetingsTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:UpdateItem
-        Resource:
-          - !GetAtt AvailabilitiesTable.Arn
-
-  ########## Calendar Endpoints ##############
-
-  getCalendar:
-    handler: bin/calendar/get
-    package:
-      patterns:
-        - ./bin/calendar/get
-    events:
-      - httpApi:
-          path: /calendar
-          method: get
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource:
-          - Fn::Join:
-              - ''
-              - - !GetAtt MeetingsTable.Arn
-                - '/index/OwnerIndex'
-          - Fn::Join:
-              - ''
-              - - !GetAtt MeetingsTable.Arn
-                - '/index/ParticipantIndex'
-          - Fn::Join:
-              - ''
-              - - !GetAtt AvailabilitiesTable.Arn
-                - '/index/EndSearchIndex'
-          - !GetAtt AvailabilitiesTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: !GetAtt UsersTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:Scan
-        Resource:
-          - !GetAtt MeetingsTable.Arn
-          - !GetAtt AvailabilitiesTable.Arn
 
   ########## Game Endpoints ##############
 

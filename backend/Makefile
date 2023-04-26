@@ -19,22 +19,11 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/list event/list/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/set event/set/main.go
 
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/set availability/set/main.go
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/book availability/book/main.go
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/delete availability/delete/main.go
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/availability/get availability/get/main.go
-
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/meeting/get meeting/get/main.go
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/meeting/list meeting/list/main.go
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/meeting/cancel meeting/cancel/main.go
-
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/admin/user/list admin/user/list/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/admin/availability/list admin/availability/list/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/admin/meeting/list admin/meeting/list/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/admin/requirement/list admin/requirement/list/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/admin/statistics/get admin/statistics/get/main.go
-
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/calendar/get calendar/get/main.go
 
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/create game/create/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/game/get game/get/main.go

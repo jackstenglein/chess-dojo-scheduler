@@ -23,7 +23,8 @@ export interface Event {
     maxParticipants: number;
     participants: Participant[];
     discordMessageId: string;
-    discordEventIds: string[];
+    privateDiscordEventId: string;
+    publicDiscordEventId: string;
 }
 
 export interface Participant {

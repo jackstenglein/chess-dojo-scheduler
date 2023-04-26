@@ -5,28 +5,95 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-func CreateEvent() error {
-	discord, err := discordgo.New("Bot " + authToken)
-	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+// SetEvent creates a discord event for events of type EventTypeDojo.
+func SetEvent(event *database.Event) (string, string, error) {
+	if event.Type != database.EventTypeDojo {
+		return "", "", errors.New(400, "Invalid request: event.type must be `DOJO`", "")
 	}
 
-	startTime := time.Now().Add(time.Hour)
-	endTime := time.Now().Add(2 * time.Hour)
+	if event.Title == "" {
+		return "", "", errors.New(400, "Invalid request: event.title cannot be empty", "")
+	}
 
-	params := discordgo.GuildScheduledEventParams{
-		Name:               "Test Event",
-		Description:        "Test Description",
+	startTime, err := time.Parse(time.RFC3339, event.StartTime)
+	if err != nil {
+		return "", "", errors.Wrap(400, "Invalid request: availability.startTime cannot be parsed", "", err)
+	}
+	endTime, err := time.Parse(time.RFC3339, event.EndTime)
+	if err != nil {
+		return "", "", errors.Wrap(400, "Invalid request: availability.endTime cannot be parsed", "", err)
+	}
+
+	discord, err := discordgo.New("Bot " + authToken)
+	if err != nil {
+		return "", "", errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+	}
+
+	params := &discordgo.GuildScheduledEventParams{
+		Name:               event.Title,
+		Description:        event.Description,
 		ScheduledStartTime: &startTime,
 		ScheduledEndTime:   &endTime,
 		PrivacyLevel:       discordgo.GuildScheduledEventPrivacyLevelGuildOnly,
 		EntityType:         discordgo.GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: &discordgo.GuildScheduledEventEntityMetadata{
-			Location: "No Location Provided",
+			Location: event.Location,
 		},
 	}
-	_, err = discord.GuildScheduledEventCreate("691123894001598536", &params)
-	return err
+
+	privateEventId, err := setGuildEvent(privateGuildId, event.PrivateDiscordEventId, discord, params)
+	if err != nil {
+		return "", "", err
+	}
+
+	publicEventId, err := setGuildEvent(publicGuildId, event.PublicDiscordEventId, discord, params)
+	return privateEventId, publicEventId, err
+}
+
+// setGuildEvent either creates a new event or, if eventId is non-empty, updates an existing event in
+// the provided guild. The event id is returned.
+func setGuildEvent(guildId string, eventId string, discord *discordgo.Session, params *discordgo.GuildScheduledEventParams) (string, error) {
+	if guildId == "" {
+		return "", nil
+	}
+
+	if eventId == "" {
+		event, err := discord.GuildScheduledEventCreate(guildId, params)
+		if err != nil {
+			return "", errors.Wrap(500, "Temporary server error", "Failed to create Guild event", err)
+		}
+		return event.ID, nil
+	}
+
+	_, err := discord.GuildScheduledEventEdit(guildId, eventId, params)
+	return eventId, errors.Wrap(500, "Temporary server error", "Failed to edit Guild event", err)
+}
+
+// DeleteEvents deletes the provided Discord events.
+func DeleteEvents(privateEventId, publicEventId string) error {
+	if privateEventId == "" && publicEventId == "" {
+		return nil
+	}
+
+	discord, err := discordgo.New("Bot " + authToken)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+	}
+
+	if privateEventId != "" {
+		if err := discord.GuildScheduledEventDelete(privateGuildId, privateEventId); err != nil {
+			return errors.Wrap(500, "Temporary server error", "Failed to delete GuildScheduledEvent", err)
+		}
+	}
+
+	if publicEventId != "" {
+		if err := discord.GuildScheduledEventDelete(publicGuildId, publicEventId); err != nil {
+			return errors.Wrap(500, "Temporary server error", "Failed to delete GuildScheduledEvent", err)
+		}
+	}
+
+	return nil
 }

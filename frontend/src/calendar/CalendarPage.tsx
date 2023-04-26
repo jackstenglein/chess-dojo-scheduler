@@ -124,7 +124,7 @@ function processDojoEvent(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: '#d32f2f',
+        color: user.isAdmin ? '#66bb6a' : '#d32f2f',
         editable: user.isAdmin,
         deletable: user.isAdmin,
         draggable: user.isAdmin,
@@ -207,7 +207,7 @@ export default function CalendarPage() {
                 // Don't use deleteRequest.onStart as it messes up the
                 // scheduler library
                 await api.deleteEvent(id);
-                console.log(`Availability ${id} deleted`);
+                console.log(`Event ${id} deleted`);
 
                 removeEvent(id);
                 deleteRequest.onSuccess('Availability deleted');
@@ -245,18 +245,28 @@ export default function CalendarPage() {
 
                 copyRequest.onStart();
 
-                // If shift is held, then set the id and discordMessagedId to
-                // undefinded in order to create a new event
-                const id = shiftHeld ? undefined : originalEvent.event?.id;
-                const discordMessageId = shiftHeld
-                    ? undefined
-                    : originalEvent.event?.discordMessageId;
+                let id = originalEvent.event?.id;
+                let discordMessageId = originalEvent.event?.discordMessageId;
+                let privateDiscordEventId = originalEvent.event?.privateDiscordEventId;
+                let publicDiscordEventId = originalEvent.event?.publicDiscordEventId;
+
+                // If shift is held, then set the id and discord ids to
+                // undefined in order to create a new event
+                if (shiftHeld) {
+                    id = undefined;
+                    discordMessageId = undefined;
+                    privateDiscordEventId = undefined;
+                    publicDiscordEventId = undefined;
+                }
+
                 const response = await api.setEvent({
                     ...(originalEvent.event ?? {}),
                     startTime: startIso,
                     endTime: endIso,
                     id,
                     discordMessageId,
+                    privateDiscordEventId,
+                    publicDiscordEventId,
                 });
                 const availability = response.data;
 

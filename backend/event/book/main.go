@@ -12,6 +12,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 )
 
 var repository database.EventBooker = database.DynamoDB
@@ -126,16 +127,22 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	// if err := repository.RecordGroupJoin(participant.DojoCohort); err != nil {
 	// 	log.Error("Failed RecordGroupJoin: ", err)
 	// }
-	// if err := discord.SendGroupJoinNotification(availability.Owner, availability.Id); err != nil {
-	// 	log.Error("Failed SendGroupJoinNotification: ", err)
-	// }
-	// if a.Status == database.Booked {
-	// 	if err := discord.DeleteMessage(availability.DiscordMessageId); err != nil {
-	// 		log.Error("Failed to delete Discord message: ", err)
-	// 	}
-	// } else if _, err := discord.SendAvailabilityNotification(a); err != nil {
-	// 	log.Error("Failed SendAvailabilityNotification: ", err)
-	// }
+
+	if event.MaxParticipants == 1 {
+		if err := discord.SendBookingNotification(event.Owner, event.Id); err != nil {
+			log.Error("Failed SendBookingNotification: ", err)
+		}
+	} else if err := discord.SendGroupJoinNotification(event.Owner, event.Id); err != nil {
+		log.Error("Failed SendGroupJoinNotification: ", err)
+	}
+
+	if event.Status == database.Booked {
+		if err := discord.DeleteMessage(event.DiscordMessageId); err != nil {
+			log.Error("Failed to delete Discord message: ", err)
+		}
+	} else if _, err := discord.SendAvailabilityNotification(event); err != nil {
+		log.Error("Failed SendAvailabilityNotification: ", err)
+	}
 
 	return api.Success(funcName, event), nil
 }
