@@ -26,7 +26,7 @@ func checkAvailabilityTypes(types []database.AvailabilityType) error {
 	}
 
 	for _, t := range types {
-		if !database.IsValidAvailabilityType(t) {
+		if !t.IsValid() {
 			return errors.New(400, fmt.Sprintf("Invalid request: availability type `%s` is invalid", t), "")
 		}
 	}

@@ -9,6 +9,62 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
+type AvailabilityType string
+
+var availabilityTypes = []AvailabilityType{
+	"CLASSICAL_GAME",
+	"OPENING_SPARRING",
+	"MIDDLEGAME_SPARRING",
+	"ENDGAME_SPARRING",
+	"ROOK_ENDGAME_PROGRESSION",
+	"CLASSIC_ANALYSIS",
+	"ANALYZE_OWN_GAME",
+	"BOOK_STUDY",
+}
+
+// IsValid returns true if the provided availability type is valid.
+func (t AvailabilityType) IsValid() bool {
+	for _, t2 := range availabilityTypes {
+		if t == t2 {
+			return true
+		}
+	}
+	return false
+}
+
+// GetDisplayName returns the display name for the provided availability type.
+func (t AvailabilityType) GetDisplayName() string {
+	switch t {
+	case "CLASSICAL_GAME":
+		return "Classical Game"
+	case "OPENING_SPARRING":
+		return "Opening Sparring"
+	case "MIDDLEGAME_SPARRING":
+		return "Middlegame Sparring"
+	case "ENDGAME_SPARRING":
+		return "Endgame Sparring"
+	case "ROOK_ENDGAME_PROGRESSION":
+		return "Rook Endgame Progression"
+	case "CLASSIC_ANALYSIS":
+		return "Analyze Classic Game"
+	case "ANALYZE_OWN_GAME":
+		return "Analyze Own Game"
+	case "BOOK_STUDY":
+		return "Book Study"
+	default:
+		return "Unknown"
+	}
+}
+
+// GetDisplayNames returns a list of the availability type display names.
+func GetDisplayNames(types []AvailabilityType) []string {
+	result := make([]string, 0, len(types))
+	for _, t := range types {
+		result = append(result, t.GetDisplayName())
+	}
+	return result
+}
+
 type EventType string
 
 const (
