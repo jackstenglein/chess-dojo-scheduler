@@ -405,6 +405,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:BatchWriteItem
         Resource:
           - !GetAtt GamesTable.Arn
 

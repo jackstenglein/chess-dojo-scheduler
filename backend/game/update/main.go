@@ -107,7 +107,7 @@ func updatePgn(event api.Request) api.Response {
 	var pgnText string
 	var err error
 	if req.Type == Lichess {
-		pgnText, err = game.GetLichessPgn(req.Url)
+		pgnText, err = game.GetLichessChapter(req.Url)
 	} else if req.Type == Manual {
 		pgnText = req.PgnText
 	} else {

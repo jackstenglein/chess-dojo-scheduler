@@ -16,15 +16,19 @@ import (
 type ImportType string
 
 const (
-	Lichess  ImportType = "lichess"
-	Chesscom            = "chesscom"
-	Manual              = "manual"
+	LichessChapter ImportType = "lichessChapter"
+	LichessStudy              = "lichessStudy"
+	Manual                    = "manual"
 )
 
 type CreateGameRequest struct {
 	Type    ImportType `json:"type"`
 	Url     string     `json:"url"`
 	PgnText string     `json:"pgnText"`
+}
+
+type CreateGameResponse struct {
+	Count int `json:"count"`
 }
 
 var repository database.GamePutter = database.DynamoDB
@@ -42,13 +46,20 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	var pgnText string
+	var pgnTexts []string
 	var err error
-	if req.Type == Lichess {
-		pgnText, err = game.GetLichessPgn(req.Url)
+	if req.Type == LichessChapter {
+		pgnText, err = game.GetLichessChapter(req.Url)
+	} else if req.Type == LichessStudy {
+		pgnTexts, err = game.GetLichessStudy(req.Url)
 	} else if req.Type == Manual {
 		pgnText = req.PgnText
 	} else {
 		err = errors.New(400, fmt.Sprintf("Invalid request: type `%s` not supported", req.Type), "")
+	}
+
+	if pgnTexts == nil {
+		pgnTexts = []string{pgnText}
 	}
 
 	if err != nil {
@@ -61,30 +72,47 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	game, err := saveGame(user, pgnText)
+	games, err := getGames(user, pgnTexts)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+	if len(games) == 0 {
+		err := errors.New(400, "Invalid request: no games found", "")
+		return api.Failure(funcName, err), nil
+	}
+
+	updated, err := repository.BatchPutGames(games)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	if err := repository.RecordGameCreation(user); err != nil {
+	if err := repository.RecordGameCreation(user, updated); err != nil {
 		// Only log this error as this happens on best effort
 		log.Error("Failed RecordGameCreation: ", err)
 	}
 
-	return api.Success(funcName, game), nil
+	if req.Type == LichessChapter || req.Type == Manual {
+		return api.Success(funcName, games[0]), nil
+	}
+	return api.Success(funcName, &CreateGameResponse{Count: updated}), nil
 }
 
-func saveGame(user *database.User, pgnText string) (*database.Game, error) {
-	game, err := game.GetGame(user, pgnText)
-	if err != nil {
-		return nil, err
+func getGames(user *database.User, pgnTexts []string) ([]*database.Game, error) {
+	games := make([]*database.Game, 0, len(pgnTexts))
+
+	for i, pgnText := range pgnTexts {
+		log.Debugf("Parsing game %d: %s", i+1, pgnText)
+		g, err := game.GetGame(user, pgnText)
+		if err != nil {
+			if aerr, ok := err.(*errors.Error); ok {
+				return nil, errors.Wrap(400, fmt.Sprintf("Failed to read chapter %d: %s", i+1, aerr.PublicMessage), "", aerr)
+			}
+			return nil, err
+		}
+		games = append(games, g)
 	}
 
-	if err := repository.PutGame(game); err != nil {
-		return nil, err
-	}
-
-	return game, nil
+	return games, nil
 }
 
 func main() {

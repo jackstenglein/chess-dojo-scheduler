@@ -15,26 +15,57 @@ import (
 	"github.com/malbrecht/chess/pgn"
 )
 
-func GetLichessPgn(url string) (string, error) {
+func GetLichessChapter(url string) (string, error) {
 	matched, err := regexp.MatchString("^https://lichess.org/study/.{8}/.{8}$", url)
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed regexp.MatchString", err)
 		return "", err
 	}
-
 	if !matched {
-		err = errors.New(400, fmt.Sprintf("Invalid request: url `%s` does not match the lichess study format", url), "")
+		err = errors.New(400, fmt.Sprintf("Invalid request: url `%s` does not match the Lichess chapter format", url), "")
 		return "", err
 	}
 
-	resp, err := http.Get(url + ".pgn")
+	return fetchLichessStudy(url)
+}
+
+func GetLichessStudy(url string) ([]string, error) {
+	matched, err := regexp.MatchString("^https://lichess.org/study/.{8}$", url)
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed regexp.MatchString", err)
+		return nil, err
+	}
+	if !matched {
+		err = errors.New(400, fmt.Sprintf("Invalid request: url `%s` does not match the Lichess study format", url), "")
+		return nil, err
+	}
+
+	allPgns, err := fetchLichessStudy(url)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Debug("PGN data before splitting: ", allPgns)
+	games := strings.Split(allPgns, "\n\n\n")
+	result := make([]string, 0, len(games))
+	for _, g := range games {
+		g = strings.TrimSpace(g)
+		if g != "" {
+			result = append(result, g)
+		}
+	}
+	return result, nil
+}
+
+func fetchLichessStudy(url string) (string, error) {
+	resp, err := http.Get(url + ".pgn?source=true")
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed http.Get", err)
 		return "", err
 	}
 
 	if resp.StatusCode != 200 {
-		err = errors.New(400, fmt.Sprintf("Invalid request: lichess returned status `%d`. The study must be public.", resp.StatusCode), "")
+		err = errors.New(400, fmt.Sprintf("Invalid request: lichess returned status `%d`. The study must be unlisted or public.", resp.StatusCode), "")
 		return "", err
 	}
 

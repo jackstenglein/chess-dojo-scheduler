@@ -136,8 +136,11 @@ type GamePutter interface {
 	// PutGame inserts the provided game into the database.
 	PutGame(game *Game) error
 
+	// BatchPutGames inserts the provided list of games into the database.
+	BatchPutGames(games []*Game) (int, error)
+
 	// RecordGameCreation updates the given user to increase their game creation stats.
-	RecordGameCreation(user *User) error
+	RecordGameCreation(user *User, amount int) error
 }
 
 type GameUpdater interface {
@@ -194,6 +197,59 @@ func (repo *dynamoRepository) PutGame(game *Game) error {
 
 	_, err = repo.svc.PutItem(input)
 	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+}
+
+// BatchPutGames inserts the provided list of games into the database. The number of successfully
+// updated games is returned.
+func (repo *dynamoRepository) BatchPutGames(games []*Game) (int, error) {
+	var writeRequests []*dynamodb.WriteRequest
+	updated := 0
+	for _, g := range games {
+		item, err := dynamodbattribute.MarshalMap(g)
+		if err != nil {
+			return updated, errors.Wrap(500, "Temporary server error", "Failed to marshal game", err)
+		}
+		req := &dynamodb.WriteRequest{
+			PutRequest: &dynamodb.PutRequest{
+				Item: item,
+			},
+		}
+		writeRequests = append(writeRequests, req)
+
+		if len(writeRequests) == 25 {
+			if err := repo.sendBatchPutGames(writeRequests); err != nil {
+				return updated, err
+			}
+			updated += 25
+			writeRequests = nil
+		}
+	}
+
+	if len(writeRequests) > 0 {
+		if err := repo.sendBatchPutGames(writeRequests); err != nil {
+			return updated, err
+		}
+		updated += len(writeRequests)
+	}
+	return updated, nil
+}
+
+func (repo *dynamoRepository) sendBatchPutGames(writeRequests []*dynamodb.WriteRequest) error {
+	input := &dynamodb.BatchWriteItemInput{
+		RequestItems: map[string][]*dynamodb.WriteRequest{
+			gameTable: writeRequests,
+		},
+		ReturnConsumedCapacity: aws.String("NONE"),
+	}
+
+	output, err := repo.svc.BatchWriteItem(input)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed DynamoDB BatchWriteItem", err)
+	}
+	if len(output.UnprocessedItems) > 0 {
+		return errors.New(500, "Temporary server error", "DynamoDB BatchWriteItem failed to process")
+	}
+	return nil
 }
 
 // GetGame returns the game object with the provided cohort and id.

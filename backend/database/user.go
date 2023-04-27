@@ -649,13 +649,13 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 }
 
 // RecordGameCreation updates the given user to increase their game creation stats.
-func (repo *dynamoRepository) RecordGameCreation(user *User) error {
+func (repo *dynamoRepository) RecordGameCreation(user *User, amount int) error {
 	if user.GamesCreated == nil {
 		user.GamesCreated = make(map[DojoCohort]int)
 	}
 
 	count, _ := user.GamesCreated[user.DojoCohort]
-	user.GamesCreated[user.DojoCohort] = count + 1
+	user.GamesCreated[user.DojoCohort] = count + amount
 	return repo.SetUserConditional(user, nil)
 }
 

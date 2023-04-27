@@ -12,7 +12,9 @@ export type GameApiContextType = {
      * @param req The CreateGameRequest.
      * @returns The newly created Game.
      */
-    createGame: (req: CreateGameRequest) => Promise<AxiosResponse<Game, any>>;
+    createGame: (
+        req: CreateGameRequest
+    ) => Promise<AxiosResponse<Game | CreateGameResponse, any>>;
 
     /**
      * getGame returns the requested game.
@@ -107,9 +109,13 @@ export type GameApiContextType = {
 };
 
 export interface CreateGameRequest {
-    type: 'lichess' | 'manual';
+    type: 'lichessChapter' | 'lichessStudy' | 'manual';
     url?: string;
     pgnText?: string;
+}
+
+export interface CreateGameResponse {
+    count: number;
 }
 
 /**
@@ -119,7 +125,7 @@ export interface CreateGameRequest {
  * @returns The newly created Game.
  */
 export function createGame(idToken: string, req: CreateGameRequest) {
-    return axios.post<Game>(BASE_URL + '/game', req, {
+    return axios.post<Game | CreateGameResponse>(BASE_URL + '/game', req, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

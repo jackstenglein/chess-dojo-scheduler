@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApi } from '../api/Api';
-import { CreateGameRequest } from '../api/gameApi';
+import { CreateGameRequest, CreateGameResponse } from '../api/gameApi';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import GameSubmissionForm from './GameSubmissionForm';
+import { Game } from '../database/game';
 
 const EditGamePage = () => {
     const api = useApi();
@@ -14,13 +15,20 @@ const EditGamePage = () => {
         request.onStart();
         api.createGame(req)
             .then((response) => {
-                navigate(
-                    `../${response.data.cohort.replaceAll(
-                        '+',
-                        '%2B'
-                    )}/${response.data.id.replaceAll('?', '%3F')}`
-                );
-                request.onSuccess();
+                if (req.type === 'lichessChapter' || req.type === 'manual') {
+                    const game = response.data as Game;
+                    navigate(
+                        `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
+                            '?',
+                            '%3F'
+                        )}`
+                    );
+                    request.onSuccess();
+                } else {
+                    const count = (response.data as CreateGameResponse).count;
+                    request.onSuccess(`Created ${count} games`);
+                    navigate('/profile?view=games');
+                }
             })
             .catch((err) => {
                 console.error('CreateGame ', err);
@@ -57,10 +65,11 @@ const EditGamePage = () => {
                 title={title}
                 description={description}
                 loading={request.isLoading()}
+                isCreating={id === undefined}
                 onSubmit={onSubmit}
             />
 
-            <RequestSnackbar request={request} />
+            <RequestSnackbar request={request} showSuccess />
         </>
     );
 };
