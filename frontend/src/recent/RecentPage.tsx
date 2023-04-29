@@ -2,7 +2,7 @@ import { Container, Stack } from '@mui/material';
 import FeaturedGames from './FeaturedGames';
 import RecentGraduates from './RecentGraduates';
 
-const HomePage = () => {
+const RecentPage = () => {
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
             <Stack spacing={5}>
@@ -13,4 +13,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default RecentPage;

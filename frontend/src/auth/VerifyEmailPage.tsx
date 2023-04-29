@@ -37,7 +37,7 @@ const VerifyEmailPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/calendar' />;
+        return <Navigate to='/' />;
     }
 
     const onSubmit = () => {
@@ -90,7 +90,7 @@ const VerifyEmailPage = () => {
 
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <Stack alignItems='center'>
-                    <Typography variant='h4'>Chess Dojo Scheduler</Typography>
+                    <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
                     <Typography variant='h6'>Verify Email</Typography>
                 </Stack>
 

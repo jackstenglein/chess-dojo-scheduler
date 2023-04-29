@@ -25,7 +25,7 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import NotFoundPage from './NotFoundPage';
 import RequirementPage from './requirements/RequirementPage';
 import { GraduationPrompt } from './profile/GraduationPrompt';
-import HomePage from './home/HomePage';
+import RecentPage from './recent/RecentPage';
 import HelpPage from './help/HelpPage';
 import RequirementEditorPage from './requirements/RequirementEditorPage';
 import EditGamePage from './games/EditGamePage';
@@ -85,7 +85,7 @@ function Router() {
                         <Route path='admin' element={<AdminPage />} />
 
                         <Route element={<RequireProfile />}>
-                            <Route path='home' element={<HomePage />} />
+                            <Route path='recent' element={<RecentPage />} />
                             <Route path='calendar' element={<CalendarPage />}>
                                 <Route
                                     path='availability/:id'

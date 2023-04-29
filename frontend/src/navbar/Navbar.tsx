@@ -29,9 +29,9 @@ const Navbar = () => {
     const meetingText = count > 0 ? `Meetings (${count})` : `Meetings`;
 
     return (
-        <AppBar position='sticky' sx={{ zIndex: 1300 }}>
-            <Container maxWidth='xl'>
-                <Toolbar disableGutters>
+        <AppBar position='sticky' sx={{ zIndex: 1300, height: '80px' }}>
+            <Container maxWidth='xl' sx={{ height: 1 }}>
+                <Toolbar disableGutters sx={{ height: 1 }}>
                     <NavbarMenu meetingText={meetingText} />
                 </Toolbar>
             </Container>
