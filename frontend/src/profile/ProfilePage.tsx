@@ -120,38 +120,33 @@ const ProfilePage = () => {
                     </Typography>
                 )}
 
-                {(currentUser.isAdmin || currentUser.isBetaTester) && (
-                    <Box sx={{ width: '100%', typography: 'body1' }}>
-                        <TabContext value={tab}>
-                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                <TabList
-                                    onChange={(_, t) => setTab(t)}
-                                    aria-label='profile tabs'
-                                >
-                                    <Tab label='Ratings' value='stats' />
-                                    <Tab label='Progress' value='progress' />
-                                    <Tab label='Activity' value='activity' />
-                                    <Tab label='Games' value='games' />
-                                </TabList>
-                            </Box>
-                            <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
-                                <StatsTab user={user} />
-                            </TabPanel>
-                            <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
-                                <ProgressTab
-                                    user={user}
-                                    isCurrentUser={currentUserProfile}
-                                />
-                            </TabPanel>
-                            <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
-                                <ActivityTab user={user} />
-                            </TabPanel>
-                            <TabPanel value='games' sx={{ px: { xs: 0, sm: 3 } }}>
-                                <GamesTab user={user} />
-                            </TabPanel>
-                        </TabContext>
-                    </Box>
-                )}
+                <Box sx={{ width: '100%', typography: 'body1' }}>
+                    <TabContext value={tab}>
+                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                            <TabList
+                                onChange={(_, t) => setTab(t)}
+                                aria-label='profile tabs'
+                            >
+                                <Tab label='Ratings' value='stats' />
+                                <Tab label='Progress' value='progress' />
+                                <Tab label='Activity' value='activity' />
+                                <Tab label='Games' value='games' />
+                            </TabList>
+                        </Box>
+                        <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
+                            <StatsTab user={user} />
+                        </TabPanel>
+                        <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
+                            <ProgressTab user={user} isCurrentUser={currentUserProfile} />
+                        </TabPanel>
+                        <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
+                            <ActivityTab user={user} />
+                        </TabPanel>
+                        <TabPanel value='games' sx={{ px: { xs: 0, sm: 3 } }}>
+                            <GamesTab user={user} />
+                        </TabPanel>
+                    </TabContext>
+                </Box>
             </Stack>
 
             {currentUserProfile && (
