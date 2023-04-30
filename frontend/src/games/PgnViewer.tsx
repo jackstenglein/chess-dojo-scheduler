@@ -174,7 +174,10 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
                 </Grid>
 
                 <Grid item sm={12} md={8} lg={9}>
-                    <div id={id}></div>
+                    <div
+                        id={id}
+                        className={user.enableDarkMode ? 'dark' : undefined}
+                    ></div>
                 </Grid>
             </Grid>
         </Stack>

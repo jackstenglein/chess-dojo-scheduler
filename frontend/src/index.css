@@ -47,10 +47,34 @@ div #board .outerBoard .boardAnd {
 
 div #board #boardMoves {
     grid-area: tools;
+    color: inherit;
 }
 
 div #board #boardButton {
     grid-area: button;
+}
+
+div#board.dark move-number {
+    background: var(--gray-800);
+}
+
+div#board.dark span.comment.timeNormal {
+    background: none;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+div#board.dark .variation span.comment.afterComment {
+    background: none;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+div#board.dark span.comment {
+    color: rgba(255, 255, 255, 0.9);
+    background: var(--gray-800);
+}
+
+div#board.dark move san:hover {
+    color: var(--gray-800);
 }
 
 @media screen and (min-width: 600px) {
