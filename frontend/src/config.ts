@@ -61,8 +61,8 @@ const config: Record<string, Config> = {
             oauth: {
                 domain: 'user-pool-domain-prod-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com',
                 scope: ['profile', 'email', 'openid'],
-                redirectSignIn: 'https://www.chess-dojo-scheduler.com',
-                redirectSignOut: 'https://www.chess-dojo-scheduler.com',
+                redirectSignIn: 'https://www.dojoscoreboard.com',
+                redirectSignOut: 'https://www.dojoscoreboard.com',
                 responseType: 'code',
             },
         },
