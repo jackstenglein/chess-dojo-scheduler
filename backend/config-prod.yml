@@ -1,5 +1,5 @@
 stage: prod
-frontendHost: 'https://www.chess-dojo-scheduler.com'
+frontendHost: 'https://www.dojoscoreboard.com'
 discordFindGameChannelId: '972163822850814022'
 discordPrivateGuildId: '951958534113886238'
 discordPublicGuildId: '419042970558398469'
