@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Container, Stack, Tab, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
@@ -29,7 +29,10 @@ const ProfilePage = () => {
 
     const currentUserProfile = !username || username === currentUser.username;
 
-    const [tab, setTab] = useState(currentUserProfile ? 'progress' : 'stats');
+    const [searchParams, setSearchParams] = useSearchParams(
+        currentUserProfile ? { view: 'progress' } : { view: 'stats' }
+    );
+
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     useEffect(() => {
@@ -121,10 +124,10 @@ const ProfilePage = () => {
                 )}
 
                 <Box sx={{ width: '100%', typography: 'body1' }}>
-                    <TabContext value={tab}>
+                    <TabContext value={searchParams.get('view') || 'stats'}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList
-                                onChange={(_, t) => setTab(t)}
+                                onChange={(_, t) => setSearchParams({ view: t })}
                                 aria-label='profile tabs'
                             >
                                 <Tab label='Ratings' value='stats' />
