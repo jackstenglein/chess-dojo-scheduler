@@ -16,6 +16,8 @@ function getMemberLink(ratingSystem: RatingSystem, username: string): string {
             return `https://ratings.fide.com/profile/${username}`;
         case RatingSystem.Uscf:
             return `https://www.uschess.org/msa/MbrDtlMain.php?${username}`;
+        case RatingSystem.Ecf:
+            return `https://www.ecfrating.org.uk/v2/new/player.php?ECF_code=${username}`;
     }
 }
 

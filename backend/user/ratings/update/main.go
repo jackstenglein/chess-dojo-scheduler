@@ -23,6 +23,7 @@ func updateUsers(users []*database.User) {
 	var lichessRating int
 	var fideRating int
 	var uscfRating int
+	var ecfRating int
 	var err error
 
 	var updatedUsers []*database.User
@@ -63,12 +64,26 @@ func updateUsers(users []*database.User) {
 			uscfRating = user.CurrentUscfRating
 		}
 
-		if user.CurrentChesscomRating != chesscomRating || user.CurrentLichessRating != lichessRating ||
-			user.CurrentFideRating != fideRating || user.CurrentUscfRating != uscfRating {
+		if ecfId := strings.TrimSpace(user.EcfId); ecfId != "" {
+			if ecfRating, err = ratings.FetchEcfRating(ecfId); err != nil {
+				log.Errorf("Failed to get ECF rating for %q: %v", user.EcfId, err)
+				ecfRating = user.CurrentEcfRating
+			}
+		} else {
+			ecfRating = user.CurrentEcfRating
+		}
+
+		if user.CurrentChesscomRating != chesscomRating ||
+			user.CurrentLichessRating != lichessRating ||
+			user.CurrentFideRating != fideRating ||
+			user.CurrentUscfRating != uscfRating ||
+			user.CurrentEcfRating != ecfRating {
+
 			user.CurrentChesscomRating = chesscomRating
 			user.CurrentLichessRating = lichessRating
 			user.CurrentFideRating = fideRating
 			user.CurrentUscfRating = uscfRating
+			user.CurrentEcfRating = ecfRating
 			updatedUsers = append(updatedUsers, user)
 		}
 

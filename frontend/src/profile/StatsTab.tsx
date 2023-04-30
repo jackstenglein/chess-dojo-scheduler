@@ -60,6 +60,18 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
                     isPreferred={user.ratingSystem === RatingSystem.Uscf}
                 />
             )}
+
+            {(user.currentEcfRating > 0 || user.startEcfRating > 0) && (
+                <RatingCard
+                    system={RatingSystem.Ecf}
+                    cohort={user.dojoCohort}
+                    username={user.ecfId}
+                    usernameHidden={user.hideEcfId}
+                    currentRating={user.currentEcfRating}
+                    startRating={user.startEcfRating}
+                    isPreferred={user.ratingSystem === RatingSystem.Ecf}
+                />
+            )}
         </Stack>
     );
 };

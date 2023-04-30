@@ -36,6 +36,40 @@ func fetchCurrentRating(username **string, currentRating **int, fetcher ratingFe
 	return err
 }
 
+func fetchRatings(update *database.UserUpdate) error {
+	if update.ChesscomUsername != nil {
+		err := fetchCurrentRating(&update.ChesscomUsername, &update.CurrentChesscomRating, ratings.FetchChesscomRating)
+		if err != nil {
+			return err
+		}
+	}
+	if update.LichessUsername != nil {
+		err := fetchCurrentRating(&update.LichessUsername, &update.CurrentLichessRating, ratings.FetchLichessRating)
+		if err != nil {
+			return err
+		}
+	}
+	if update.FideId != nil {
+		err := fetchCurrentRating(&update.FideId, &update.CurrentFideRating, ratings.FetchFideRating)
+		if err != nil {
+			return err
+		}
+	}
+	if update.UscfId != nil {
+		err := fetchCurrentRating(&update.UscfId, &update.CurrentUscfRating, ratings.FetchUscfRating)
+		if err != nil {
+			return err
+		}
+	}
+	if update.EcfId != nil {
+		err := fetchCurrentRating(&update.EcfId, &update.CurrentEcfRating, ratings.FetchEcfRating)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -82,29 +116,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	if update.ChesscomUsername != nil {
-		err := fetchCurrentRating(&update.ChesscomUsername, &update.CurrentChesscomRating, ratings.FetchChesscomRating)
-		if err != nil {
-			return api.Failure(funcName, err), nil
-		}
-	}
-	if update.LichessUsername != nil {
-		err := fetchCurrentRating(&update.LichessUsername, &update.CurrentLichessRating, ratings.FetchLichessRating)
-		if err != nil {
-			return api.Failure(funcName, err), nil
-		}
-	}
-	if update.FideId != nil {
-		err := fetchCurrentRating(&update.FideId, &update.CurrentFideRating, ratings.FetchFideRating)
-		if err != nil {
-			return api.Failure(funcName, err), nil
-		}
-	}
-	if update.UscfId != nil {
-		err := fetchCurrentRating(&update.UscfId, &update.CurrentUscfRating, ratings.FetchUscfRating)
-		if err != nil {
-			return api.Failure(funcName, err), nil
-		}
+	if err := fetchRatings(update); err != nil {
+		return api.Failure(funcName, err), nil
 	}
 
 	user, err := repository.UpdateUser(info.Username, update)

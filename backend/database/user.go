@@ -148,6 +148,18 @@ type User struct {
 	// The user's current Uscf rating
 	CurrentUscfRating int `dynamodbav:"currentUscfRating" json:"currentUscfRating"`
 
+	// The user's ECF Id
+	EcfId string `dynamodbav:"ecfId" json:"ecfId"`
+
+	// Whether to hide the user's ECF ID from other users
+	HideEcfId bool `dynamodbav:"hideEcfId" json:"hideEcfId"`
+
+	// The user's starting ECF rating
+	StartEcfRating int `dynamodbav:"startEcfRating" json:"startEcfRating"`
+
+	// The user's current Ecf rating
+	CurrentEcfRating int `dynamodbav:"currentEcfRating" json:"currentEcfRating"`
+
 	// The user's Dojo cohort
 	DojoCohort DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
 
@@ -299,6 +311,19 @@ type UserUpdate struct {
 	// The user's current USCF rating
 	// Cannot be manually passed by the user and is updated automatically by the server.
 	CurrentUscfRating *int `dynamodbav:"currentUscfRating,omitempty" json:"-"`
+
+	// The user's ECF Id
+	EcfId *string `dynamodbav:"ecfId,omitempty" json:"ecfId,omitempty"`
+
+	// Whether to hide the user's ECF ID from other users
+	HideEcfId *bool `dynamodbav:"hideEcfId,omitempty" json:"hideEcfId,omitempty"`
+
+	// The user's starting ECF rating
+	StartEcfRating *int `dynamodbav:"startEcfRating,omitempty" json:"startEcfRating,omitempty"`
+
+	// The user's current Ecf rating
+	// Cannot be manually passed by the user and is updated automatically by the server.
+	CurrentEcfRating *int `dynamodbav:"currentEcfRating,omitempty" json:"-"`
 
 	// The user's Dojo cohort
 	DojoCohort *DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort,omitempty"`
@@ -619,6 +644,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
 		sb.WriteString(fmt.Sprintf(" SET currentChesscomRating=%d SET currentLichessRating=%d", user.CurrentChesscomRating, user.CurrentLichessRating))
 		sb.WriteString(fmt.Sprintf(" SET currentFideRating=%d SET currentUscfRating=%d", user.CurrentFideRating, user.CurrentUscfRating))
+		sb.WriteString(fmt.Sprintf(" SET currentEcfRating=%d", user.CurrentEcfRating))
 
 		if user.StartChesscomRating == 0 {
 			sb.WriteString(fmt.Sprintf(" SET startChesscomRating=%d", user.CurrentChesscomRating))
@@ -631,6 +657,9 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		}
 		if user.StartUscfRating == 0 {
 			sb.WriteString(fmt.Sprintf(" SET startUscfRating=%d", user.CurrentUscfRating))
+		}
+		if user.StartEcfRating == 0 {
+			sb.WriteString(fmt.Sprintf(" SET startEcfRating=%d", user.CurrentEcfRating))
 		}
 		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 

@@ -94,6 +94,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
     const [startUscfRating, setStartUscfRating] = useState(`${user.startUscfRating}`);
     const [hideUscfId, setHideUscfId] = useState(user.hideUscfId);
 
+    const [ecfId, setEcfId] = useState(user.ecfId);
+    const [startEcfRating, setStartEcfRating] = useState(`${user.startEcfRating}`);
+    const [hideEcfId, setHideEcfId] = useState(user.hideEcfId);
+
     const [disableBookingNotifications, setDisableBookingNotifications] = useState(
         user.disableBookingNotifications
     );
@@ -127,6 +131,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
         uscfId: uscfId.trim(),
         startUscfRating: getStartRating(startUscfRating),
         hideUscfId,
+
+        ecfId: ecfId.trim(),
+        startEcfRating: getStartRating(startEcfRating),
+        hideEcfId,
 
         disableBookingNotifications,
         disableCancellationNotifications,
@@ -178,6 +186,13 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
         }
         if (getStartRating(startUscfRating) < 0) {
             newErrors.startUscfRating = 'Rating must be an integer >= 0';
+        }
+
+        if (ratingSystem === RatingSystem.Ecf && !ecfId.trim()) {
+            newErrors.ecfId = 'This field is required when using ECF rating system.';
+        }
+        if (getStartRating(startEcfRating) < 0) {
+            newErrors.startEcfRating = 'Rating must be an integer >= 0';
         }
 
         setErrors(newErrors);
@@ -250,6 +265,19 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
             setHidden: setHideUscfId,
             usernameError: errors.uscfId,
             startRatingError: errors.startUscfRating,
+        },
+        {
+            required: ratingSystem === RatingSystem.Ecf,
+            label: 'ECF Rating Code',
+            hideLabel: 'Hide Rating Code',
+            username: ecfId,
+            setUsername: setEcfId,
+            startRating: startEcfRating,
+            setStartRating: setStartEcfRating,
+            hidden: hideEcfId,
+            setHidden: setHideEcfId,
+            usernameError: errors.ecfId,
+            startRatingError: errors.startEcfRating,
         },
     ];
 

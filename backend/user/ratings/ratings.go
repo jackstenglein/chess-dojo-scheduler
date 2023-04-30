@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
@@ -29,6 +30,10 @@ type LichessResponse struct {
 			Rating int `json:"rating"`
 		} `json:"classical"`
 	} `json:"perfs"`
+}
+
+type EcfResponse struct {
+	Rating int `json:"revised_rating"`
 }
 
 func FetchChesscomRating(chesscomUsername string) (int, error) {
@@ -144,4 +149,25 @@ func FetchUscfRating(uscfId string) (int, error) {
 		return 0, errors.Wrap(400, fmt.Sprintf("Invalid USCF id `%s`: no rating found on USCF website", uscfId), "", err)
 	}
 	return rating, nil
+}
+
+func FetchEcfRating(ecfId string) (int, error) {
+	resp, err := http.Get(fmt.Sprintf("https://www.ecfrating.org.uk/v2/new/api.php?v2/ratings/S/%s/%s", ecfId, time.Now().Format(time.DateOnly)))
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed call to ECF API", err)
+		return 0, err
+	}
+
+	if resp.StatusCode != 200 {
+		err = errors.New(400, fmt.Sprintf("Invalid request: ECF API returned status `%d`", resp.StatusCode), "")
+		return 0, err
+	}
+
+	var rating EcfResponse
+	if err := json.NewDecoder(resp.Body).Decode(&rating); err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to parse ECF API response", err)
+		return 0, err
+	}
+
+	return rating.Rating, nil
 }
