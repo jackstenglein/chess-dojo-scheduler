@@ -119,15 +119,25 @@ function processDojoEvent(
         return null;
     }
 
+    if (
+        !user.isAdmin &&
+        !user.isCalendarAdmin &&
+        event.cohorts &&
+        event.cohorts.length > 0 &&
+        event.cohorts.every((c) => c !== user.dojoCohort)
+    ) {
+        return null;
+    }
+
     return {
         event_id: event.id,
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: user.isAdmin ? '#66bb6a' : '#d32f2f',
-        editable: user.isAdmin,
-        deletable: user.isAdmin,
-        draggable: user.isAdmin,
+        color: '#66bb6a',
+        editable: user.isAdmin || user.isCalendarAdmin,
+        deletable: user.isAdmin || user.isCalendarAdmin,
+        draggable: user.isAdmin || user.isCalendarAdmin,
         isOwner: false,
         event,
     };

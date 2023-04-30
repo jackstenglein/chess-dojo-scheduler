@@ -42,7 +42,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		if err != nil {
 			return api.Failure(funcName, err), nil
 		}
-		if !user.IsAdmin {
+		if !user.IsAdmin && !user.IsCalendarAdmin {
 			err := errors.New(403, "You do not have permission to delete dojo events", "")
 			return api.Failure(funcName, err), nil
 		}

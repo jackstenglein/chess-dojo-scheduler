@@ -38,7 +38,7 @@ func featureGame(event api.Request) api.Response {
 	if err != nil {
 		return api.Failure(funcName, err)
 	}
-	if !user.IsAdmin {
+	if !user.IsAdmin && !user.IsCalendarAdmin {
 		err := errors.New(403, "You do not have permission to perform this action", "")
 		return api.Failure(funcName, err)
 	}

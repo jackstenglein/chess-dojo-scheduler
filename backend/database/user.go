@@ -169,6 +169,9 @@ type User struct {
 	// Whether the user is an admin or not
 	IsAdmin bool `dynamodbav:"isAdmin" json:"isAdmin"`
 
+	// Whether the user has admin privileges for the calendar
+	IsCalendarAdmin bool `dynamodbav:"isCalendarAdmin" json:"isCalendarAdmin"`
+
 	// Whether the user is a beta tester or not
 	IsBetaTester bool `dynamodbav:"isBetaTester" json:"isBetaTester"`
 

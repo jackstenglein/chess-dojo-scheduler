@@ -159,6 +159,40 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
         });
     };
 
+    const onChangeEventType = (value: EventType) => {
+        const allFalseCohorts = dojoCohorts.reduce((map, cohort) => {
+            map[cohort] = false;
+            return map;
+        }, {} as Record<string, boolean>);
+
+        setType(value);
+
+        if (value === EventType.Availability) {
+            const originalCohorts: string[] = originalEvent?.event?.cohorts;
+            setAllCohorts(false);
+            if (originalCohorts) {
+                setCohorts((c) =>
+                    originalCohorts.reduce((map, cohort) => {
+                        map[cohort] = true;
+                        return map;
+                    }, Object.assign({}, allFalseCohorts))
+                );
+            } else {
+                setCohorts(
+                    dojoCohorts.reduce((map, cohort, index) => {
+                        map[cohort] =
+                            userCohortIndex >= 0 &&
+                            Math.abs(index - userCohortIndex) <= 1;
+                        return map;
+                    }, {} as Record<string, boolean>)
+                );
+            }
+        } else {
+            setAllCohorts(true);
+            setCohorts(allFalseCohorts);
+        }
+    };
+
     let minEnd: Date | null = null;
     if (start !== null) {
         minEnd = new Date();
@@ -296,14 +330,16 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                         mt: 4,
                     }}
                 >
-                    {user.isAdmin && (
+                    {(user.isAdmin || user.isCalendarAdmin) && (
                         <Stack>
                             <Typography variant='h6'>Event Type</Typography>
                             <FormControl>
                                 <RadioGroup
                                     row
                                     value={type}
-                                    onChange={(e) => setType(e.target.value as EventType)}
+                                    onChange={(e) =>
+                                        onChangeEventType(e.target.value as EventType)
+                                    }
                                 >
                                     <FormControlLabel
                                         value={EventType.Availability}
@@ -495,54 +531,60 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                     helperText={`Defaults to ${defaultMaxParticipants} if left blank.`}
                                 />
                             </Stack>
+                        </>
+                    )}
 
-                            <Stack>
-                                <Typography variant='h6'>Cohorts</Typography>
-                                <Typography variant='subtitle1' color='text.secondary'>
-                                    Choose the cohorts that can book your availability.
-                                </Typography>
-                                <FormControl error={!!errors.cohorts}>
+                    <Stack>
+                        <Typography variant='h6'>Cohorts</Typography>
+                        {isAvailability ? (
+                            <Typography variant='subtitle1' color='text.secondary'>
+                                Choose the cohorts that can book your availability.
+                            </Typography>
+                        ) : (
+                            <Typography variant='subtitle1' color='text.secondary'>
+                                Choose the cohorts that can see this event. If no cohorts
+                                are selected, all cohorts will be able to view the event.
+                            </Typography>
+                        )}
+
+                        <FormControl error={!!errors.cohorts}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={allCohorts}
+                                        onChange={(event) =>
+                                            setAllCohorts(event.target.checked)
+                                        }
+                                    />
+                                }
+                                label='All Cohorts'
+                            />
+                            <Stack
+                                direction='row'
+                                sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
+                            >
+                                {dojoCohorts.map((cohort) => (
                                     <FormControlLabel
+                                        key={cohort}
                                         control={
                                             <Checkbox
-                                                checked={allCohorts}
+                                                checked={allCohorts || cohorts[cohort]}
                                                 onChange={(event) =>
-                                                    setAllCohorts(event.target.checked)
+                                                    onChangeCohort(
+                                                        cohort,
+                                                        event.target.checked
+                                                    )
                                                 }
                                             />
                                         }
-                                        label='All Cohorts'
+                                        disabled={allCohorts}
+                                        label={cohort}
                                     />
-                                    <Stack
-                                        direction='row'
-                                        sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
-                                    >
-                                        {dojoCohorts.map((cohort) => (
-                                            <FormControlLabel
-                                                key={cohort}
-                                                control={
-                                                    <Checkbox
-                                                        checked={
-                                                            allCohorts || cohorts[cohort]
-                                                        }
-                                                        onChange={(event) =>
-                                                            onChangeCohort(
-                                                                cohort,
-                                                                event.target.checked
-                                                            )
-                                                        }
-                                                    />
-                                                }
-                                                disabled={allCohorts}
-                                                label={cohort}
-                                            />
-                                        ))}
-                                    </Stack>
-                                    <FormHelperText>{errors.cohorts}</FormHelperText>
-                                </FormControl>
+                                ))}
                             </Stack>
-                        </>
-                    )}
+                            <FormHelperText>{errors.cohorts}</FormHelperText>
+                        </FormControl>
+                    </Stack>
                 </Stack>
             </DialogContent>
         </Dialog>

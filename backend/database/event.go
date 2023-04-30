@@ -145,8 +145,7 @@ type Event struct {
 	// is EventTypeDojo.
 	BookedType AvailabilityType `dynamodbav:"bookedType" json:"bookedType"`
 
-	// The dojo cohorts that the owner is willing to play against/meet with.
-	// This field is unused if type is EventTypeDojo.
+	// The dojo cohorts for which the event is viewable/bookable.
 	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
 
 	// The status of the event.

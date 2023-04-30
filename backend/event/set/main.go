@@ -139,7 +139,7 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
-	if !user.IsAdmin {
+	if !user.IsAdmin && !user.IsCalendarAdmin {
 		err := errors.New(403, "You do not have permission to create Dojo events", "")
 		return api.Failure(funcName, err), nil
 	}
@@ -158,6 +158,10 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 		return api.Failure(funcName, err), nil
 	}
 
+	if err := checkCohorts(event.Cohorts); len(event.Cohorts) > 0 && err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
 	if event.Id == "" {
 		event.Id = uuid.New().String()
 		// TODO: add this back in
@@ -173,7 +177,6 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 	event.BookedStartTime = ""
 	event.Types = nil
 	event.BookedType = ""
-	event.Cohorts = nil
 	event.MaxParticipants = 0
 	event.DiscordMessageId = ""
 

@@ -79,6 +79,7 @@ export interface User {
     disableBookingNotifications: boolean;
     disableCancellationNotifications: boolean;
     isAdmin: boolean;
+    isCalendarAdmin: boolean;
     isBetaTester: boolean;
     createdAt: string;
     numberOfGraduations: number;

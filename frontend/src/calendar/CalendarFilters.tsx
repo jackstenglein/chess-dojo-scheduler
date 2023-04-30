@@ -243,7 +243,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     forceExpansion={forceExpansion}
                 >
                     <Typography variant='h6' color='text.secondary'>
-                        My Calendar (Blue)
+                        My Calendar
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -284,7 +284,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     forceExpansion={forceExpansion}
                 >
                     <Typography variant='h6' color='text.secondary'>
-                        Dojo Calendar (Red)
+                        Dojo Calendar
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
