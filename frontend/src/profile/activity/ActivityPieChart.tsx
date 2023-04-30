@@ -43,7 +43,7 @@ function getCategoryScoreChartData(
     cohort: string,
     category: string
 ): PieChartData[] {
-    const data: PieChartData[] = [];
+    const data: Record<string, PieChartData> = {};
 
     for (const requirement of requirements) {
         if (category !== requirement.category) {
@@ -56,14 +56,20 @@ function getCategoryScoreChartData(
         }
 
         const name = requirement.name;
-        data.push({
-            name: name,
-            value: score,
-            color: RequirementColors[data.length % RequirementColors.length],
-        });
+        if (data[name]) {
+            data[name].value += score;
+        } else {
+            data[name] = {
+                name,
+                value: score,
+                color: RequirementColors[
+                    Object.values(data).length % RequirementColors.length
+                ],
+            };
+        }
     }
 
-    return data;
+    return Object.values(data);
 }
 
 function getTimeChartData(
@@ -112,7 +118,7 @@ function getCategoryTimeChartData(
     cohort: string,
     category: string
 ): PieChartData[] {
-    const data: PieChartData[] = [];
+    const data: Record<string, PieChartData> = {};
 
     for (const requirement of requirements) {
         if (category !== requirement.category) {
@@ -123,13 +129,20 @@ function getCategoryTimeChartData(
             continue;
         }
 
-        data.push({
-            name: requirement.name,
-            value: progress.minutesSpent[cohort],
-            color: RequirementColors[data.length % RequirementColors.length],
-        });
+        const name = requirement.name;
+        if (data[name]) {
+            data[name].value += progress.minutesSpent[cohort];
+        } else {
+            data[name] = {
+                name,
+                value: progress.minutesSpent[cohort],
+                color: RequirementColors[
+                    Object.values(data).length % RequirementColors.length
+                ],
+            };
+        }
     }
-    return data;
+    return Object.values(data);
 }
 
 function getTimeChartTooltip(entry?: PieChartData) {
