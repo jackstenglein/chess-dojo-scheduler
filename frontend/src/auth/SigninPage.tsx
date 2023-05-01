@@ -1,5 +1,6 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
+    Alert,
     Button,
     CircularProgress,
     Container,
@@ -69,6 +70,12 @@ const SigninPage = () => {
                 <Stack alignItems='center'>
                     <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
                     <Typography variant='h6'>Signin</Typography>
+
+                    <Alert severity='warning' sx={{ mt: 2 }}>
+                        This account is separate from your account on chessdojo.club. Do
+                        not try to use your chessdojo.club account to login. You must
+                        first create an account on this site to login.
+                    </Alert>
                 </Stack>
 
                 <Stack width={0.75} spacing={4}>
