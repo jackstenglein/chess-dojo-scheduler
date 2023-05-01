@@ -755,7 +755,7 @@ resources:
                 - updatedAt
             ProvisionedThroughput: !If
               - IsProd
-              - ReadCapacityUnits: 1
+              - ReadCapacityUnits: 2
                 WriteCapacityUnits: 1
               - !Ref AWS::NoValue
 
@@ -802,7 +802,7 @@ resources:
           - PAY_PER_REQUEST
         ProvisionedThroughput: !If
           - IsProd
-          - ReadCapacityUnits: 1
+          - ReadCapacityUnits: 2
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
 
@@ -860,8 +860,8 @@ resources:
           - PAY_PER_REQUEST
         ProvisionedThroughput: !If
           - IsProd
-          - ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
+          - ReadCapacityUnits: 4
+            WriteCapacityUnits: 2
           - !Ref AWS::NoValue
         GlobalSecondaryIndexes:
           - IndexName: OwnerIndex
@@ -879,8 +879,8 @@ resources:
                 - headers
             ProvisionedThroughput: !If
               - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
+              - ReadCapacityUnits: 2
+                WriteCapacityUnits: 2
               - !Ref AWS::NoValue
           - IndexName: WhiteIndex
             KeySchema:
@@ -897,8 +897,8 @@ resources:
                 - headers
             ProvisionedThroughput: !If
               - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
+              - ReadCapacityUnits: 2
+                WriteCapacityUnits: 2
               - !Ref AWS::NoValue
           - IndexName: BlackIndex
             KeySchema:
@@ -915,8 +915,8 @@ resources:
                 - headers
             ProvisionedThroughput: !If
               - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
+              - ReadCapacityUnits: 2
+                WriteCapacityUnits: 2
               - !Ref AWS::NoValue
           - IndexName: FeaturedIdx
             KeySchema:

@@ -1,7 +1,7 @@
 import boto3
 
 db = boto3.resource('dynamodb')
-table = db.Table('dev-games')
+table = db.Table('prod-games')
 
 
 def main():
@@ -12,10 +12,11 @@ def main():
     lastKey = res.get('LastEvaluatedKey', None)
     items = res.get('Items', [])
     for item in items:
-        item['white'] = item['white'].lower()
-        item['black'] = item['black'].lower()
-        table.put_item(Item=item)
-        updated += 1
+        if item['white'] != item['white'].lower() or item['black'] != item['black'].lower():
+            item['white'] = item['white'].lower()
+            item['black'] = item['black'].lower()
+            table.put_item(Item=item)
+            updated += 1
 
     while lastKey != None:
         print(lastKey)
@@ -24,10 +25,11 @@ def main():
         lastKey = res.get('LastEvaluatedKey', None)
         items = res.get('Items', [])
         for item in items:
-            item['white'] = item['white'].lower()
-            item['black'] = item['black'].lower()
-            table.put_item(Item=item)
-            updated += 1
+            if item['white'] != item['white'].lower() or item['black'] != item['black'].lower():
+                item['white'] = item['white'].lower()
+                item['black'] = item['black'].lower()
+                table.put_item(Item=item)
+                updated += 1
 
 
     print("Updated: ", updated)
