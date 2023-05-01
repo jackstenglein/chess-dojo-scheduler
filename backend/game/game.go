@@ -160,8 +160,8 @@ func GetGame(user *database.User, pgnText string) (*database.Game, error) {
 	return &database.Game{
 		Cohort:              user.DojoCohort,
 		Id:                  date + "_" + uuid.New().String(),
-		White:               white,
-		Black:               black,
+		White:               strings.ToLower(white),
+		Black:               strings.ToLower(black),
 		Date:                date,
 		Owner:               user.Username,
 		OwnerDisplayName:    user.DisplayName,

@@ -485,7 +485,7 @@ func (repo *dynamoRepository) listColorGames(player, color, startDate, endDate, 
 	}
 	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
 		":player": {
-			S: aws.String(player),
+			S: aws.String(strings.ToLower(player)),
 		},
 	}
 
