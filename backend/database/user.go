@@ -464,6 +464,7 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*
 	for k, v := range av.M {
 		builder = builder.Set(expression.Name(k), expression.Value(v))
 	}
+	log.Debugf("Expression builder: %+v", builder)
 
 	expr, err := expression.NewBuilder().WithUpdate(builder).Build()
 	if err != nil {

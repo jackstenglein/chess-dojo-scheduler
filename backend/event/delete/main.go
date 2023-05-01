@@ -56,10 +56,9 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	// TODO: add this back
-	// if err = repository.RecordAvailabilityDeletion(availability); err != nil {
-	// 	log.Error("Failed RecordAvailabilityDeletion: ", err)
-	// }
+	if err = repository.RecordEventDeletion(event); err != nil {
+		log.Error("Failed RecordEventDeletion: ", err)
+	}
 
 	if err = discord.DeleteMessage(event.DiscordMessageId); err != nil {
 		log.Error("Failed discord.DeleteMessage: ", err)

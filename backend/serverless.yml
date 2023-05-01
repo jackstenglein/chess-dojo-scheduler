@@ -84,8 +84,6 @@ functions:
           - dynamodb:GetItem
         Resource:
           - !GetAtt UsersTable.Arn
-          - !GetAtt AvailabilitiesTable.Arn
-          - !GetAtt MeetingsTable.Arn
 
   adminListRequirements:
     handler: bin/admin/requirement/list
@@ -299,12 +297,8 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource:
-          - !GetAtt EventsTable.Arn
-          - !GetAtt UsersTable.Arn
-      - Effect: Allow
-        Action:
           - dynamodb:PutItem
+          - dynamodb:UpdateItem
         Resource:
           - !GetAtt EventsTable.Arn
 
@@ -323,6 +317,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
         Resource: !GetAtt EventsTable.Arn
       - Effect: Allow
         Action:
@@ -386,6 +381,7 @@ functions:
   ########## Game Endpoints ##############
 
   createGame:
+    timeout: 28
     handler: bin/game/create
     package:
       patterns:
@@ -734,34 +730,6 @@ resources:
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
         GlobalSecondaryIndexes:
-          - IndexName: CohortIndex
-            KeySchema:
-              - AttributeName: dojoCohort
-                KeyType: HASH
-              - AttributeName: username
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - discordUsername
-                - ratingSystem
-                - startChesscomRating
-                - currentChesscomRating
-                - startLichessRating
-                - currentLichessRating
-                - startFideRating
-                - currentFideRating
-                - startUscfRating
-                - currentUscfRating
-                - progress
-                - createdAt
-                - previousCohort
-                - updatedAt
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
           - IndexName: CohortIdx
             KeySchema:
               - AttributeName: dojoCohort
@@ -791,51 +759,6 @@ resources:
                 WriteCapacityUnits: 1
               - !Ref AWS::NoValue
 
-    AvailabilitiesTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${sls:stage}-availabilities
-        AttributeDefinitions:
-          - AttributeName: owner
-            AttributeType: S
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: status
-            AttributeType: S
-          - AttributeName: endTime
-            AttributeType: S
-        KeySchema:
-          - AttributeName: owner
-            KeyType: HASH
-          - AttributeName: id
-            KeyType: RANGE
-        GlobalSecondaryIndexes:
-          - IndexName: EndSearchIndex
-            KeySchema:
-              - AttributeName: status
-                KeyType: HASH
-              - AttributeName: endTime
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
-        BillingMode: !If
-          - IsProd
-          - PROVISIONED
-          - PAY_PER_REQUEST
-        ProvisionedThroughput: !If
-          - IsProd
-          - ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
-          - !Ref AWS::NoValue
-        TimeToLiveSpecification:
-          AttributeName: expirationTime
-          Enabled: true
-
     EventsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -855,50 +778,6 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
-        TimeToLiveSpecification:
-          AttributeName: expirationTime
-          Enabled: true
-
-    MeetingsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${sls:stage}-meetings
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: owner
-            AttributeType: S
-          - AttributeName: participant
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        GlobalSecondaryIndexes:
-          - IndexName: OwnerIndex
-            KeySchema:
-              - AttributeName: owner
-                KeyType: HASH
-              - AttributeName: id
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: 1
-              WriteCapacityUnits: 1
-          - IndexName: ParticipantIndex
-            KeySchema:
-              - AttributeName: participant
-                KeyType: HASH
-              - AttributeName: id
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: 1
-              WriteCapacityUnits: 1
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
         TimeToLiveSpecification:
           AttributeName: expirationTime
           Enabled: true
@@ -1033,27 +912,6 @@ resources:
                 - white
                 - date
                 - owner
-                - headers
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
-          - IndexName: FeaturedIndex
-            KeySchema:
-              - AttributeName: isFeatured
-                KeyType: HASH
-              - AttributeName: featuredAt
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - white
-                - black
-                - date
-                - owner
-                - ownerDiscord
-                - ownerPreviousCohort
                 - headers
             ProvisionedThroughput: !If
               - IsProd

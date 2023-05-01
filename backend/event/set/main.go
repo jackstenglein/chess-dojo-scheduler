@@ -105,10 +105,9 @@ func handleAvailability(info *api.UserInfo, event *database.Event) (api.Response
 
 	if event.Id == "" {
 		event.Id = uuid.New().String()
-		// TODO: add this back in
-		// if err = repository.RecordAvailabilityCreation(&availability); err != nil {
-		// 	log.Error("Failed RecordAvailabilityCreation: ", err)
-		// }
+		if err := repository.RecordEventCreation(event); err != nil {
+			log.Error("Failed RecordEventCreation: ", err)
+		}
 	}
 
 	if strings.TrimSpace(event.Location) == "" {
@@ -164,10 +163,9 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 
 	if event.Id == "" {
 		event.Id = uuid.New().String()
-		// TODO: add this back in
-		// if err = repository.RecordAvailabilityCreation(&availability); err != nil {
-		// 	log.Error("Failed RecordAvailabilityCreation: ", err)
-		// }
+		if err := repository.RecordEventCreation(event); err != nil {
+			log.Error("Failed RecordEventCreation: ", err)
+		}
 	}
 
 	event.Owner = database.EventTypeDojoOwner

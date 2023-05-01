@@ -183,6 +183,9 @@ type EventSetter interface {
 
 	// SetEvent inserts the provided Event into the database.
 	SetEvent(event *Event) error
+
+	// RecordEventCreation saves statistics on the created event.
+	RecordEventCreation(event *Event) error
 }
 
 type EventGetter interface {
@@ -191,15 +194,14 @@ type EventGetter interface {
 }
 
 type EventCanceler interface {
-	UserGetter
 	EventGetter
 
 	// CancelEvent marks the provided event as canceled. The updated event is
 	// returned.
 	CancelEvent(event *Event) (*Event, error)
 
-	// RecordMeetingCancelation saves statistics on the canceled meeting.
-	RecordMeetingCancelation(cancelerCohort DojoCohort) error
+	// RecordEventCancelation saves statistics on the canceled event.
+	RecordEventCancelation(event *Event) error
 }
 
 type EventDeleter interface {
@@ -209,6 +211,9 @@ type EventDeleter interface {
 	// DeleteEvent deletes the event with the given id. The deleted
 	// event is returned. An error is returned if it does not exist or is booked.
 	DeleteEvent(id string) (*Event, error)
+
+	// RecordEventDeletion saves statistics on the deleted event.
+	RecordEventDeletion(event *Event) error
 }
 
 type EventBooker interface {
@@ -220,6 +225,9 @@ type EventBooker interface {
 	// startTime and aType are only used if the Event is of type EventTypeAvailability
 	// and has MaxParticipants set to 1.
 	BookEvent(event *Event, user *User, startTime string, aType AvailabilityType) (*Event, error)
+
+	// RecordEventBooking saves statistics on an event booking.
+	RecordEventBooking(event *Event) error
 }
 
 type EventLister interface {
@@ -231,6 +239,10 @@ type EventLister interface {
 
 // SetEvent inserts the provided Event into the database.
 func (repo *dynamoRepository) SetEvent(event *Event) error {
+	if event.Id == "STATISTICS" {
+		return errors.New(403, "Invalid request: user does not have permission to set event statistics", "")
+	}
+
 	item, err := dynamodbattribute.MarshalMap(event)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Unable to marshal event", err)
@@ -253,6 +265,10 @@ func (repo *dynamoRepository) SetEvent(event *Event) error {
 
 // GetEvent returns the event object with the provided id.
 func (repo *dynamoRepository) GetEvent(id string) (*Event, error) {
+	if id == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: user does not have permission to get event statistics", "")
+	}
+
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {
@@ -273,6 +289,10 @@ func (repo *dynamoRepository) GetEvent(id string) (*Event, error) {
 // event is returned. An error is returned if it does not exist or is booked.
 // TODO: throw an error if the event is booked.
 func (repo *dynamoRepository) DeleteEvent(id string) (*Event, error) {
+	if id == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: user does not have permission to delete event statistics", "")
+	}
+
 	input := &dynamodb.DeleteItemInput{
 		ConditionExpression: aws.String("attribute_exists(id)"),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -304,6 +324,10 @@ func (repo *dynamoRepository) DeleteEvent(id string) (*Event, error) {
 // startTime and aType are only used if the Event is of type EventTypeAvailability
 // and has MaxParticipants set to 1.
 func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime string, aType AvailabilityType) (*Event, error) {
+	if event.Id == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: event statistics cannot be booked", "")
+	}
+
 	participant := &Participant{
 		Username:       user.Username,
 		DisplayName:    user.DisplayName,
@@ -388,6 +412,10 @@ func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime stri
 // CancelEvent marks the provided event as canceled. The updated event is
 // returned.
 func (repo *dynamoRepository) CancelEvent(event *Event) (*Event, error) {
+	if event.Id == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: event statistics cannot be canceled", "")
+	}
+
 	event.Status = Canceled
 	if err := repo.SetEvent(event); err != nil {
 		return nil, err

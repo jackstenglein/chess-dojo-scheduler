@@ -62,10 +62,8 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if user, err := repository.GetUser(info.Username); err != nil {
-		log.Error("Failed GetUser: ", err)
-	} else if err := repository.RecordMeetingCancelation(user.DojoCohort); err != nil {
-		log.Error("Failed RecordMeetingCancelation: ", err)
+	if err := repository.RecordEventCancelation(event); err != nil {
+		log.Error("Failed RecordEventCancelation: ", err)
 	}
 
 	var opponentUsername = event.Owner

@@ -123,10 +123,9 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	// TODO: add this back
-	// if err := repository.RecordGroupJoin(participant.DojoCohort); err != nil {
-	// 	log.Error("Failed RecordGroupJoin: ", err)
-	// }
+	if err := repository.RecordEventBooking(event); err != nil {
+		log.Error("Failed RecordEventBooking: ", err)
+	}
 
 	if event.MaxParticipants == 1 {
 		if err := discord.SendBookingNotification(event.Owner, event.Id); err != nil {
