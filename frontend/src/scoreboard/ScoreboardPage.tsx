@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Container, MenuItem, TextField, Typography } from '@mui/material';
+import { Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import {
     DataGrid,
@@ -82,8 +82,29 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
     {
         field: 'previousCohort',
         headerName: 'Graduated',
+        valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) => {
+            if (params.row.graduationCohorts && params.row.graduationCohorts.length > 0) {
+                return params.row.graduationCohorts;
+            }
+            return params.row.previousCohort;
+        },
         renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
-            return <GraduationIcon cohort={params.value} size={35} />;
+            let graduationCohorts = params.row.graduationCohorts;
+            if (graduationCohorts && graduationCohorts.length > 0) {
+                if (graduationCohorts.length > 3) {
+                    graduationCohorts = graduationCohorts.slice(
+                        graduationCohorts.length - 3
+                    );
+                }
+                return (
+                    <Stack direction='row'>
+                        {graduationCohorts.map((c) => (
+                            <GraduationIcon cohort={c} size={35} />
+                        ))}
+                    </Stack>
+                );
+            }
+            return <GraduationIcon cohort={params.row.previousCohort} size={35} />;
         },
         align: 'center',
     },
@@ -157,7 +178,7 @@ const ScoreboardPage = () => {
         () => [
             {
                 field: 'cohortScore',
-                headerName: 'Cohort Score',
+                headerName: 'Dojo Score',
                 minWidth: 150,
                 valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
                     getCohortScore(params, cohort, requirements),

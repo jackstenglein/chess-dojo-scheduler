@@ -196,6 +196,9 @@ type User struct {
 	// The cohort the user most recently graduated from
 	PreviousCohort DojoCohort `dynamodbav:"previousCohort" json:"previousCohort"`
 
+	// The cohorts the user has graduated from
+	GraduationCohorts []DojoCohort `dynamodbav:"graduationCohorts" json:"graduationCohorts"`
+
 	// When the user most recently graduated
 	LastGraduatedAt string `dynamodbav:"lastGraduatedAt" json:"lastGraduatedAt"`
 
@@ -342,6 +345,10 @@ type UserUpdate struct {
 	// Cannot be manually passed by the user. The user should instead call the user/graduate function
 	PreviousCohort *DojoCohort `dynamodbav:"previousCohort,omitempty" json:"-"`
 
+	// The cohorts the user has graduated from
+	// Cannot be manually passed by the user. The user should instead call the user/graduate function
+	GraduationCohorts *[]DojoCohort `dynamodbav:"graduationCohorts,omitempty" json:"-"`
+
 	// When the user most recently graduated
 	// Cannot be manually passed by the user. The user should instead call the user/graduate function
 	LastGraduatedAt *string `dynamodbav:"lastGraduatedAt,omitempty" json:"-"`
@@ -464,7 +471,6 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*
 	for k, v := range av.M {
 		builder = builder.Set(expression.Name(k), expression.Value(v))
 	}
-	log.Debugf("Expression builder: %+v", builder)
 
 	expr, err := expression.NewBuilder().WithUpdate(builder).Build()
 	if err != nil {

@@ -68,10 +68,24 @@ const ProfilePage = () => {
                     rowGap={2}
                 >
                     <Stack>
-                        <Stack direction='row' spacing={2}>
+                        <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
                             <Typography variant='h4'>{user.displayName}</Typography>
-                            {user.previousCohort && (
-                                <GraduationIcon cohort={user.previousCohort} />
+                            {user.graduationCohorts &&
+                            user.graduationCohorts.length > 0 ? (
+                                <Stack
+                                    direction='row'
+                                    spacing={0.5}
+                                    flexWrap='wrap'
+                                    rowGap={1}
+                                >
+                                    {user.graduationCohorts.map((c) => (
+                                        <GraduationIcon cohort={c} />
+                                    ))}
+                                </Stack>
+                            ) : (
+                                user.previousCohort && (
+                                    <GraduationIcon cohort={user.previousCohort} />
+                                )
                             )}
                         </Stack>
                         <Typography variant='h5' color='text.secondary'>

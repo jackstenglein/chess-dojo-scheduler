@@ -44,6 +44,9 @@ type Graduation struct {
 	// The number of times the user has graduated, including this graduation.
 	NumberOfGraduations int `dynamodbav:"numberOfGraduations" json:"numberOfGraduations"`
 
+	// The cohorts the user has graduated from
+	GraduationCohorts []DojoCohort `dynamodbav:"graduationCohorts" json:"graduationCohorts"`
+
 	// The time the user started the cohort.
 	StartedAt string `dynamodbav:"startedAt" json:"startedAt"`
 

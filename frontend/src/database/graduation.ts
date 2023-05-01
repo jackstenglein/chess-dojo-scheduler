@@ -14,6 +14,7 @@ export interface Graduation {
     progress: {
         [id: string]: RequirementProgress;
     };
+    graduationCohorts: string[];
     startedAt: string;
     createdAt: string;
 }

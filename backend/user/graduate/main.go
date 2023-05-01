@@ -68,6 +68,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	startRating, currentRating := user.GetRatings()
 
+	graduationCohorts := append(user.GraduationCohorts, user.DojoCohort)
+	var numberOfGraduations = user.NumberOfGraduations + 1
+
 	graduation := database.Graduation{
 		Username:            info.Username,
 		DisplayName:         user.DisplayName,
@@ -81,18 +84,19 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		Progress:            user.Progress,
 		StartedAt:           startedAt,
 		CreatedAt:           createdAt,
-		NumberOfGraduations: user.NumberOfGraduations + 1,
+		NumberOfGraduations: numberOfGraduations,
+		GraduationCohorts:   graduationCohorts,
 	}
 	if err := repository.PutGraduation(&graduation); err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	var numberOfGraduations = user.NumberOfGraduations + 1
 	update := database.UserUpdate{
 		NumberOfGraduations: &numberOfGraduations,
 		LastGraduatedAt:     &createdAt,
 		DojoCohort:          &nextCohort,
 		PreviousCohort:      &user.DojoCohort,
+		GraduationCohorts:   &graduationCohorts,
 	}
 	user, err = repository.UpdateUser(info.Username, &update)
 	if err != nil {

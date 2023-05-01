@@ -92,6 +92,7 @@ export interface User {
     createdAt: string;
     numberOfGraduations: number;
     previousCohort: string;
+    graduationCohorts: string[];
     lastGraduatedAt: string;
 
     enableDarkMode: boolean;

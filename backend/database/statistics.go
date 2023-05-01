@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 type EventStatistics struct {
@@ -92,8 +91,6 @@ func (repo *dynamoRepository) RecordEventCreation(event *Event) error {
 		value = expression.Name(maxParticipantsName).Plus(expression.Value(1))
 		builder = builder.Set(expression.Name(maxParticipantsName), value)
 	}
-
-	log.Debugf("Expression builder: %+v", builder)
 
 	expr, err := expression.NewBuilder().WithUpdate(builder).Build()
 	if err != nil {
