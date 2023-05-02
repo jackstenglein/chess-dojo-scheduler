@@ -87,7 +87,9 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                             {user.isAdmin && (
                                 <Button
                                     variant='contained'
-                                    onClick={() => navigate('edit')}
+                                    onClick={() =>
+                                        navigate(`/requirements/${requirement.id}/edit`)
+                                    }
                                 >
                                     Edit Requirement
                                 </Button>
