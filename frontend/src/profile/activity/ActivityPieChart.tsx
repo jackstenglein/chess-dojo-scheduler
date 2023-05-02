@@ -240,7 +240,7 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
                     <Stack alignItems='center'>
                         <Typography variant='subtitle1'>
                             Total {scoreChartCategory ? 'Category' : 'Cohort'} Score:{' '}
-                            {score}
+                            {Math.round(score * 100) / 100}
                         </Typography>
                         {scoreChartCategory && (
                             <Button onClick={() => setScoreChartCategory('')}>

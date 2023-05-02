@@ -437,7 +437,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                                     error={!!rs.startRatingError}
                                     helperText={
                                         rs.startRatingError ||
-                                        "Leave blank if you don't have an account"
+                                        'Your rating when you first joined the Dojo'
                                     }
                                     sx={{ width: 1 }}
                                 />
