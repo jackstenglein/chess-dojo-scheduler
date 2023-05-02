@@ -46,11 +46,14 @@ func GetLichessStudy(url string) ([]string, error) {
 	}
 
 	log.Debug("PGN data before splitting: ", allPgns)
-	games := strings.Split(allPgns, "\n\n\n")
+	games := strings.Split(allPgns, "\n\n\n[")
 	result := make([]string, 0, len(games))
-	for _, g := range games {
+	for i, g := range games {
 		g = strings.TrimSpace(g)
 		if g != "" {
+			if i != 0 {
+				g = fmt.Sprintf("[%s", g)
+			}
 			result = append(result, g)
 		}
 	}
