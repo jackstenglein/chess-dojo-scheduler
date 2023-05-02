@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    GridColDef,
+    GridRenderCellParams,
+    GridValueGetterParams,
+} from '@mui/x-data-grid';
+import { Link } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -12,6 +18,9 @@ const columns: GridColDef[] = [
         headerName: 'Display Name',
         valueGetter: (params: GridValueGetterParams<any, User>) =>
             params.row.displayName || 'N/A',
+        renderCell: (params: GridRenderCellParams<string, User>) => {
+            return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;
+        },
         flex: 1,
     },
     {
