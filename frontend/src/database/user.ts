@@ -106,6 +106,25 @@ export function parseUser(apiResponse: any, cognitoUser?: CognitoUser) {
     };
 }
 
+export function getStartRating(user?: User): number {
+    if (!user) {
+        return 0;
+    }
+
+    switch (user.ratingSystem) {
+        case RatingSystem.Chesscom:
+            return user.startChesscomRating;
+        case RatingSystem.Lichess:
+            return user.startLichessRating;
+        case RatingSystem.Fide:
+            return user.startFideRating;
+        case RatingSystem.Uscf:
+            return user.startUscfRating;
+        case RatingSystem.Ecf:
+            return user.startEcfRating;
+    }
+}
+
 export function getCurrentRating(user?: User): number {
     if (!user) {
         return 0;
@@ -122,9 +141,6 @@ export function getCurrentRating(user?: User): number {
             return user.currentUscfRating;
         case RatingSystem.Ecf:
             return user.currentEcfRating;
-
-        default:
-            return 0;
     }
 }
 

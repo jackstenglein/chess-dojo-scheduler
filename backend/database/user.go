@@ -76,6 +76,7 @@ const (
 	Lichess  RatingSystem = "LICHESS"
 	Fide     RatingSystem = "FIDE"
 	Uscf     RatingSystem = "USCF"
+	Ecf      RatingSystem = "ECF"
 )
 
 type User struct {
@@ -227,6 +228,8 @@ func (u *User) GetRatings() (int, int) {
 		return u.StartFideRating, u.CurrentFideRating
 	case Uscf:
 		return u.StartUscfRating, u.CurrentUscfRating
+	case Ecf:
+		return u.StartEcfRating, u.CurrentEcfRating
 	default:
 		return 0, 0
 	}

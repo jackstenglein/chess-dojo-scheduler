@@ -18,6 +18,8 @@ import ScoreboardCheck from './ScoreboardCheck';
 import {
     RatingSystem,
     formatRatingSystem as formatRatingSystemEnum,
+    getCurrentRating as getUserCurrentRating,
+    getStartRating as getUserStartRating,
     User,
 } from '../database/user';
 import { Graduation, isGraduation } from '../database/graduation';
@@ -179,20 +181,7 @@ export function getStartRating(
         return params.row.startRating;
     }
 
-    const ratingSystem = params.row.ratingSystem;
-    switch (ratingSystem) {
-        case RatingSystem.Chesscom:
-            return params.row.startChesscomRating;
-        case RatingSystem.Lichess:
-            return params.row.startLichessRating;
-        case RatingSystem.Fide:
-            return params.row.startFideRating;
-        case RatingSystem.Uscf:
-            return params.row.startUscfRating;
-
-        default:
-            return 0;
-    }
+    return getUserStartRating(params.row);
 }
 
 export function getCurrentRating(
@@ -202,20 +191,7 @@ export function getCurrentRating(
         return params.row.currentRating;
     }
 
-    const ratingSystem = params.row.ratingSystem;
-    switch (ratingSystem) {
-        case RatingSystem.Chesscom:
-            return params.row.currentChesscomRating;
-        case RatingSystem.Lichess:
-            return params.row.currentLichessRating;
-        case RatingSystem.Fide:
-            return params.row.currentFideRating;
-        case RatingSystem.Uscf:
-            return params.row.currentUscfRating;
-
-        default:
-            return 0;
-    }
+    return getUserCurrentRating(params.row);
 }
 
 export function getRatingChange(params: GridValueGetterParams<any, ScoreboardRow>) {
