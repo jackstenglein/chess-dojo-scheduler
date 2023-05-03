@@ -1,6 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Stack, Typography, Card, CardHeader, CardContent, Divider } from '@mui/material';
+import {
+    Stack,
+    Typography,
+    Card,
+    CardHeader,
+    CardContent,
+    Divider,
+    FormControl,
+    MenuItem,
+    Select,
+} from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Carousel from 'react-material-ui-carousel';
 
@@ -62,6 +72,7 @@ const GraduationCard: React.FC<GraduationCardProps> = ({ graduation }) => {
 const RecentGraduates = () => {
     const api = useApi();
     const request = useRequest<Graduation[]>();
+    const [timeframe, setTimeframe] = useState('month');
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -75,13 +86,43 @@ const RecentGraduates = () => {
         }
     }, [request, api]);
 
-    const graduations = request.data ?? [];
+    const graduations = useMemo(() => {
+        const gs = request.data ?? [];
+        if (timeframe === 'month') {
+            return gs;
+        }
+
+        const d = new Date();
+        d.setDate(d.getDate() - 7);
+
+        const weekAgo = d.toISOString();
+        return gs.filter((g) => g.createdAt >= weekAgo);
+    }, [request.data, timeframe]);
 
     return (
         <Stack spacing={3}>
             <RequestSnackbar request={request} />
             <Stack>
-                <Typography variant='h6'>Recent Graduates</Typography>
+                <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                    <Typography variant='h6'>Recent Graduates</Typography>
+                    <FormControl size='small' variant='standard'>
+                        <Select
+                            value={timeframe}
+                            onChange={(e) => setTimeframe(e.target.value)}
+                            sx={{
+                                '::before': {
+                                    border: 'none !important',
+                                },
+                                '& div': {
+                                    paddingBottom: 0,
+                                },
+                            }}
+                        >
+                            <MenuItem value='month'>Past Month</MenuItem>
+                            <MenuItem value='week'>Past Week</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Stack>
                 <Divider />
             </Stack>
 
@@ -96,6 +137,7 @@ const RecentGraduates = () => {
                     sx={{ overflow: 'visible', px: '70px' }}
                     navButtonsAlwaysVisible
                     autoPlay={false}
+                    key={timeframe}
                 >
                     {graduations.map((g) => (
                         <GraduationCard key={g.createdAt} graduation={g} />
