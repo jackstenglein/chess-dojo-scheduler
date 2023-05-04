@@ -218,7 +218,7 @@ functions:
           - Fn::Join:
               - ''
               - - !GetAtt UsersTable.Arn
-                - '/index/CohortIdx'
+                - '/index/CohortIndex'
 
   updateRatings:
     handler: bin/user/ratings/update
@@ -730,7 +730,7 @@ resources:
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
         GlobalSecondaryIndexes:
-          - IndexName: CohortIdx
+          - IndexName: CohortIndex
             KeySchema:
               - AttributeName: dojoCohort
                 KeyType: HASH
@@ -749,9 +749,14 @@ resources:
                 - currentFideRating
                 - startUscfRating
                 - currentUscfRating
+                - startEcfRating
+                - currentEcfRating
                 - progress
                 - createdAt
+                - numberOfGraduations
                 - previousCohort
+                - graduationCohorts
+                - lastGraduatedAt
                 - updatedAt
             ProvisionedThroughput: !If
               - IsProd

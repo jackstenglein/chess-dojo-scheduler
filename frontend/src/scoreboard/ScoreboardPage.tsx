@@ -99,7 +99,7 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
                 return (
                     <Stack direction='row'>
                         {graduationCohorts.map((c) => (
-                            <GraduationIcon cohort={c} size={35} />
+                            <GraduationIcon key={c} cohort={c} size={35} />
                         ))}
                     </Stack>
                 );

@@ -593,7 +593,7 @@ func (repo *dynamoRepository) ListUsersByCohort(cohort DojoCohort, startKey stri
 			":u":      {S: aws.String(monthAgo)},
 		},
 		FilterExpression: aws.String("#u >= :u"),
-		IndexName:        aws.String("CohortIdx"),
+		IndexName:        aws.String("CohortIndex"),
 		TableName:        aws.String(userTable),
 	}
 
