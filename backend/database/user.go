@@ -58,6 +58,18 @@ func IsValidCohort(c DojoCohort) bool {
 	return false
 }
 
+func (c DojoCohort) IsValid() bool {
+	if c == AllCohorts {
+		return true
+	}
+	for _, c2 := range cohorts {
+		if c == c2 {
+			return true
+		}
+	}
+	return false
+}
+
 // GetNextCohort returns the cohort after the provided one or
 // NoCohort if none exist.
 func (c DojoCohort) GetNextCohort() DojoCohort {

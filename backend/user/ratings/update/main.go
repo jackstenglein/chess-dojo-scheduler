@@ -97,7 +97,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User) (*da
 }
 
 func updateStats(stats *database.UserStatistics, user *database.User) {
-	if user.DojoCohort == "" || user.RatingSystem == "" {
+	if !user.DojoCohort.IsValid() || user.RatingSystem == "" {
 		return
 	}
 
