@@ -38,9 +38,13 @@ const HeaderDisplay: React.FC<HeaderDisplayProps> = ({ header, value }) => {
 };
 
 function formatSite(site: string) {
+    if (!site) {
+        return '';
+    }
     if (site.includes('lichess.org')) {
         return 'Lichess';
-    } else if (site.includes('chess.com')) {
+    }
+    if (site.includes('chess.com')) {
         return 'Chess.com';
     }
     return site;
@@ -92,27 +96,37 @@ const GameData: React.FC<GameDataProps> = ({ game }) => {
             <HeaderDisplay header='Result' value={headers.Result} />
             <HeaderDisplay header='Date' value={headers.Date} />
 
-            <Grid item xs={3}>
-                <Typography variant='subtitle2' color='text.secondary'>
-                    Site
-                </Typography>
-            </Grid>
-            <Grid item xs={8}>
-                <Stack direction='row' alignItems='center'>
-                    <Typography variant='body2'>{formatSite(headers.Site)}</Typography>
-                    {lichessUrl && (
-                        <MuiLink href={lichessUrl} target='_blank' rel='noreferrer'>
-                            <OpenInNewIcon
-                                sx={{
-                                    fontSize: '1rem',
-                                    position: 'relative',
-                                    left: 4,
-                                }}
-                            />
-                        </MuiLink>
-                    )}
-                </Stack>
-            </Grid>
+            {headers.Site && (
+                <>
+                    <Grid item xs={3}>
+                        <Typography variant='subtitle2' color='text.secondary'>
+                            Site
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                        <Stack direction='row' alignItems='center'>
+                            <Typography variant='body2'>
+                                {formatSite(headers.Site)}
+                            </Typography>
+                            {lichessUrl && (
+                                <MuiLink
+                                    href={lichessUrl}
+                                    target='_blank'
+                                    rel='noreferrer'
+                                >
+                                    <OpenInNewIcon
+                                        sx={{
+                                            fontSize: '1rem',
+                                            position: 'relative',
+                                            left: 4,
+                                        }}
+                                    />
+                                </MuiLink>
+                            )}
+                        </Stack>
+                    </Grid>
+                </>
+            )}
 
             {Object.entries(headers).map(([key, value]) => {
                 if (isDefaultHeader(key)) {
