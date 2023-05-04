@@ -233,6 +233,7 @@ functions:
         Action:
           - dynamodb:Scan
           - dynamodb:PartiQLUpdate
+          - dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
 
   graduate:

@@ -5,8 +5,10 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 type EventStatistics struct {
@@ -35,14 +37,84 @@ type EventStatistics struct {
 	AvailabilityMaxParticipants map[int]int `dynamodbav:"availabilityMaxParticipants" json:"availabilityMaxParticipants"`
 }
 
+type UserStatistics struct {
+	// The number of participants per cohort
+	Participants map[DojoCohort]int `dynamodbav:"participants" json:"participants"`
+
+	// The number of active participants per cohort
+	ActiveParticipants map[DojoCohort]int `dynamodbav:"activeParticipants" json:"activeParticipants"`
+
+	// The sum of dojo scores per cohort. Not currently used.
+	DojoScores map[DojoCohort]float32 `dynamodbav:"dojoScores" json:"dojoScores"`
+
+	// The sum of active dojo scores per cohort. Not currently used.
+	ActiveDojoScores map[DojoCohort]float32 `dynamodbav:"activeDojoScores" json:"activeDojoScores"`
+
+	// The sum of rating changes per cohort
+	RatingChanges map[DojoCohort]int `dynamodbav:"ratingChanges" json:"ratingChanges"`
+
+	// The sum of active rating changes per cohort
+	ActiveRatingChanges map[DojoCohort]int `dynamodbav:"activeRatingChanges" json:"activeRatingChanges"`
+
+	// The number of users using a specific rating system per cohort
+	RatingSystems map[DojoCohort]map[RatingSystem]int `dynamodbav:"ratingSystems" json:"ratingSystems"`
+
+	// The number of active users using a specific rating system per cohort
+	ActiveRatingSystems map[DojoCohort]map[RatingSystem]int `dynamodbav:"activeRatingSystems" json:"activeRatingSystems"`
+
+	// The sum of minutes spent per cohort
+	MinutesSpent map[DojoCohort]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
+
+	// The sum of active minutes spent per cohort
+	ActiveMinutesSpent map[DojoCohort]int `dynamodbav:"activeMinutesSpent" json:"activeMinutesSpent"`
+}
+
 type AdminStatisticsGetter interface {
 	UserGetter
 
-	// GetEventStatistics gets the event statistics from the database.
+	// GetEventStatistics gets the event statistics from the
 	GetEventStatistics() (*EventStatistics, error)
 }
 
-// GetEventStatistics gets the event statistics from the database.
+func NewUserStatistics() *UserStatistics {
+	stats := &UserStatistics{
+		Participants:        make(map[DojoCohort]int),
+		ActiveParticipants:  make(map[DojoCohort]int),
+		DojoScores:          make(map[DojoCohort]float32),
+		ActiveDojoScores:    make(map[DojoCohort]float32),
+		RatingChanges:       make(map[DojoCohort]int),
+		ActiveRatingChanges: make(map[DojoCohort]int),
+		RatingSystems:       make(map[DojoCohort]map[RatingSystem]int),
+		ActiveRatingSystems: make(map[DojoCohort]map[RatingSystem]int),
+		MinutesSpent:        make(map[DojoCohort]int),
+		ActiveMinutesSpent:  make(map[DojoCohort]int),
+	}
+
+	statsCohorts := []DojoCohort{AllCohorts, NoCohort}
+	statsCohorts = append(statsCohorts, cohorts...)
+
+	for _, c := range statsCohorts {
+		stats.Participants[c] = 0
+		stats.ActiveParticipants[c] = 0
+		stats.DojoScores[c] = 0
+		stats.ActiveDojoScores[c] = 0
+		stats.RatingChanges[c] = 0
+		stats.ActiveRatingChanges[c] = 0
+		stats.RatingSystems[c] = make(map[RatingSystem]int)
+		stats.ActiveRatingSystems[c] = make(map[RatingSystem]int)
+		stats.MinutesSpent[c] = 0
+		stats.ActiveMinutesSpent[c] = 0
+
+		for _, rs := range ratingSystems {
+			stats.RatingSystems[c][rs] = 0
+			stats.ActiveRatingSystems[c][rs] = 0
+		}
+	}
+
+	return stats
+}
+
+// GetEventStatistics gets the event statistics from the
 func (repo *dynamoRepository) GetEventStatistics() (*EventStatistics, error) {
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
@@ -187,4 +259,21 @@ func (repo *dynamoRepository) RecordEventCancelation(event *Event) error {
 	}
 	_, err := repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed to update event statistics record", err)
+}
+
+func (repo *dynamoRepository) SetUserStatistics(stats *UserStatistics) error {
+	log.Debugf("Saving stats: %#v", stats)
+	item, err := dynamodbattribute.MarshalMap(stats)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal users stats", err)
+	}
+	item["username"] = &dynamodb.AttributeValue{S: aws.String("STATISTICS")}
+	item["dojoCohort"] = &dynamodb.AttributeValue{S: aws.String("STATISTICS")}
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(userTable),
+	}
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
 }

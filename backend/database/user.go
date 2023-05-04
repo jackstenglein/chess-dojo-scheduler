@@ -79,6 +79,14 @@ const (
 	Ecf      RatingSystem = "ECF"
 )
 
+var ratingSystems = []RatingSystem{
+	Chesscom,
+	Lichess,
+	Fide,
+	Uscf,
+	Ecf,
+}
+
 type User struct {
 	// The user's Cognito username. Uniquely identifies a user
 	Username string `dynamodbav:"username" json:"username"`
@@ -247,6 +255,14 @@ func (u *User) CalculateScore(requirements []*Requirement) float32 {
 		score += requirement.CalculateScore(u.DojoCohort, p)
 	}
 	return score
+}
+
+func (u *User) GetRatingChange() int {
+	start, current := u.GetRatings()
+	if start == 0 {
+		return 0
+	}
+	return current - start
 }
 
 // UserUpdate contains pointers to fields included in the update of a user record. If a field
@@ -433,6 +449,10 @@ func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, e
 
 // SetUserConditional saves the provided User object in the database using an optional condition statement.
 func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) error {
+	if user.Username == "STATISTICS" {
+		return errors.New(403, "Invalid request: cannot use username `STATISTICS`", "")
+	}
+
 	user.UpdatedAt = time.Now().Format(time.RFC3339)
 	item, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
@@ -461,6 +481,10 @@ func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) 
 
 // UpdateUser applies the specified update to the user with the provided username.
 func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*User, error) {
+	if username == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: cannot update username `STATISTICS`", "")
+	}
+
 	update.UpdatedAt = aws.String(time.Now().Format(time.RFC3339))
 
 	encoder := dynamodbattribute.NewEncoder()
@@ -508,6 +532,10 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*
 // UpdateUserProgress sets the given progress entry in the user's progress map and appends
 // the given timeline entry to the user's timeline.
 func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *TimelineEntry) (*User, error) {
+	if username == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: cannot update username `STATISTICS`", "")
+	}
+
 	pav, err := dynamodbattribute.Marshal(progressEntry)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal progress entry", err)
@@ -558,6 +586,10 @@ func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry 
 
 // GetUser returns the User object with the provided username.
 func (repo *dynamoRepository) GetUser(username string) (*User, error) {
+	if username == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: cannot get username `STATISTICS`", "")
+	}
+
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"username": {
@@ -581,6 +613,10 @@ const ONE_MONTH_AGO = -time.Hour * 24 * 31
 // users are returned (updated within the past month).
 // The list of users and the next start key are returned.
 func (repo *dynamoRepository) ListUsersByCohort(cohort DojoCohort, startKey string) ([]*User, string, error) {
+	if cohort == "STATISTICS" {
+		return nil, "", errors.New(403, "Invalid request: cannot get cohort `STATISTICS`", "")
+	}
+
 	monthAgo := time.Now().Add(ONE_MONTH_AGO).Format(time.RFC3339)
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#cohort = :cohort"),
@@ -610,7 +646,13 @@ func (repo *dynamoRepository) ListUsersByCohort(cohort DojoCohort, startKey stri
 // The list of users and the next start key are returned.
 func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error) {
 	input := &dynamodb.ScanInput{
-		TableName: aws.String(userTable),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":statistics": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		FilterExpression: aws.String("username <> :statistics"),
+		TableName:        aws.String(userTable),
 	}
 
 	var users []*User
@@ -621,16 +663,22 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, chesscomUsername, lichessUsername, fideId, uscfId, startChesscomRating, " +
-	"currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, currentFideRating, " +
-	"startUscfRating, currentUscfRating"
+const ratingsProjection = "username, dojoCohort, updatedAt, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
+	"uscfId, startChesscomRating, currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, " +
+	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating"
 
 // ScanUserRatings returns a list of all Users in the database, up to 1MB of data.
-// Only the usernames and ratings are returned.
+// Only the usernames, cohorts and ratings are returned.
 // startkey is an optional parameter that can be used to perform pagination.
 // The list of users and the next start key are returned.
 func (repo *dynamoRepository) ScanUserRatings(startKey string) ([]*User, string, error) {
 	input := &dynamodb.ScanInput{
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":statistics": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		FilterExpression:     aws.String("username <> :statistics"),
 		ProjectionExpression: aws.String(ratingsProjection),
 		TableName:            aws.String(userTable),
 	}
@@ -703,6 +751,10 @@ func (repo *dynamoRepository) RecordGameCreation(user *User, amount int) error {
 
 // DeleteUser deletes the user with the given username
 func (repo *dynamoRepository) DeleteUser(username string) error {
+	if username == "STATISTICS" {
+		return errors.New(403, "Invalid request: cannot delete username `STATISTICS`", "")
+	}
+
 	input := &dynamodb.DeleteItemInput{
 		ConditionExpression: aws.String("attribute_exists(username)"),
 		Key: map[string]*dynamodb.AttributeValue{
