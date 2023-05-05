@@ -30,6 +30,7 @@ import HelpPage from './help/HelpPage';
 import RequirementEditorPage from './requirements/RequirementEditorPage';
 import EditGamePage from './games/EditGamePage';
 import ThemeProvider from './ThemeProvider';
+import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -112,6 +113,7 @@ function Router() {
                             <Route path='scoreboard'>
                                 <Route index element={<ScoreboardPage />} />
                                 <Route path=':cohort' element={<ScoreboardPage />} />
+                                <Route path='stats' element={<StatisticsPage />} />
                             </Route>
 
                             <Route path='requirements'>

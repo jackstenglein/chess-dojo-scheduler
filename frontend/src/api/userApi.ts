@@ -4,6 +4,7 @@ import { User } from '../database/user';
 import { getConfig } from '../config';
 import { Graduation } from '../database/graduation';
 import { TimelineEntry } from '../database/requirement';
+import { UserStatistics } from '../database/statistics';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -76,6 +77,11 @@ export type UserApiContextType = {
      * @returns An AxiosResponse containing the new graduation object and the user update.
      */
     graduate: (comments: string) => Promise<AxiosResponse<GraduationResponse, any>>;
+
+    /**
+     * @returns An AxiosResponse containing the user statistics.
+     */
+    getUserStatistics: () => Promise<AxiosResponse<UserStatistics, any>>;
 };
 
 /**
@@ -257,4 +263,11 @@ export async function graduate(
     );
     callback(result.data.userUpdate);
     return result;
+}
+
+/**
+ * @returns An AxiosResponse containing the user statistics.
+ */
+export function getUserStatistics() {
+    return axios.get<UserStatistics>(BASE_URL + '/public/user/statistics');
 }

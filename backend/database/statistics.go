@@ -72,10 +72,17 @@ type UserStatistics struct {
 type AdminStatisticsGetter interface {
 	UserGetter
 
-	// GetEventStatistics gets the event statistics from the
+	// GetEventStatistics gets the event statistics from the database.
 	GetEventStatistics() (*EventStatistics, error)
 }
 
+type UserStatisticsGetter interface {
+	// GetUserStatistics returns the user statistics from the database.
+	GetUserStatistics() (*UserStatistics, error)
+}
+
+// NewUserStatistics returns a blank UserStatistics object with all values
+// set to zero.
 func NewUserStatistics() *UserStatistics {
 	stats := &UserStatistics{
 		Participants:        make(map[DojoCohort]int),
@@ -112,6 +119,42 @@ func NewUserStatistics() *UserStatistics {
 	}
 
 	return stats
+}
+
+// GetUserStatistics returns the user statistics from the database.
+func (repo *dynamoRepository) GetUserStatistics() (*UserStatistics, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {
+				S: aws.String("STATISTICS"),
+			},
+		},
+		TableName: aws.String(userTable),
+	}
+
+	userStats := UserStatistics{}
+	if err := repo.getItem(input, &userStats); err != nil {
+		return nil, err
+	}
+	return &userStats, nil
+}
+
+// SetUserStatistics inserts the provided user statistics into the database.
+func (repo *dynamoRepository) SetUserStatistics(stats *UserStatistics) error {
+	log.Debugf("Saving stats: %#v", stats)
+	item, err := dynamodbattribute.MarshalMap(stats)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshal users stats", err)
+	}
+	item["username"] = &dynamodb.AttributeValue{S: aws.String("STATISTICS")}
+	item["dojoCohort"] = &dynamodb.AttributeValue{S: aws.String("STATISTICS")}
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(userTable),
+	}
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
 }
 
 // GetEventStatistics gets the event statistics from the
@@ -259,21 +302,4 @@ func (repo *dynamoRepository) RecordEventCancelation(event *Event) error {
 	}
 	_, err := repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed to update event statistics record", err)
-}
-
-func (repo *dynamoRepository) SetUserStatistics(stats *UserStatistics) error {
-	log.Debugf("Saving stats: %#v", stats)
-	item, err := dynamodbattribute.MarshalMap(stats)
-	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Unable to marshal users stats", err)
-	}
-	item["username"] = &dynamodb.AttributeValue{S: aws.String("STATISTICS")}
-	item["dojoCohort"] = &dynamodb.AttributeValue{S: aws.String("STATISTICS")}
-
-	input := &dynamodb.PutItemInput{
-		Item:      item,
-		TableName: aws.String(userTable),
-	}
-	_, err = repo.svc.PutItem(input)
-	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
 }

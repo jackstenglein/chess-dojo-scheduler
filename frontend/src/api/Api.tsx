@@ -21,6 +21,7 @@ import {
     updateUserProgress,
     graduate,
     updateUserTimeline,
+    getUserStatistics,
 } from './userApi';
 import {
     GameApiContextType,
@@ -132,26 +133,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     auth.updateUser
                 ),
             graduate: (comments: string) => graduate(idToken, comments, auth.updateUser),
-
-            // setAvailability: (a: Availability) => setAvailability(idToken, a),
-            // deleteAvailability: (id: string) => deleteAvailability(idToken, id),
-            // bookAvailability: (a: Availability, time?: Date, type?: string) =>
-            //     bookAvailability(idToken, a, time, type),
-            // getAvailabilities: (limit?: number, startKey?: string) =>
-            //     getAvailabilities(idToken, limit, startKey),
-            // getAvailabilitiesByTime: (
-            //     startTime: string,
-            //     limit?: number,
-            //     startKey?: string
-            // ) => getAvailabilitiesByTime(idToken, startTime, limit, startKey),
-
-            // getMeeting: (id: string) => getMeeting(idToken, id),
-            // cancelMeeting: (id: string) => cancelMeeting(idToken, id),
-            // listMeetings: (limit?: number, startKey?: string) =>
-            // listMeetings(idToken, limit, startKey),
-
-            // getCalendar: (startTime: Date, startKey?: string) =>
-            //     getCalendar(idToken, startTime, startKey),
+            getUserStatistics: () => getUserStatistics(),
 
             bookEvent: (id: string, startTime?: Date, type?: string) =>
                 bookEvent(idToken, id, startTime, type),

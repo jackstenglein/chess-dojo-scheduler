@@ -261,6 +261,7 @@ const ScoreboardPage = () => {
                 sx={{ mb: 3 }}
                 fullWidth
             >
+                <MenuItem value='stats'>Statistics</MenuItem>
                 {dojoCohorts.map((option) => (
                     <MenuItem key={option} value={option}>
                         {option}

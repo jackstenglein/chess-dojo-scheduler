@@ -4,7 +4,6 @@ import { CircularProgress, Stack } from '@mui/material';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { GetStatisticsResponse } from '../api/adminApi';
-import GroupStatisticsTable from './GroupStatisticsTable';
 
 const StatisticsTab = () => {
     const api = useApi();
@@ -36,16 +35,9 @@ const StatisticsTab = () => {
         );
     }
 
-    const availabilityStats = request.data.availabilityStatistics;
-    const meetingStats = request.data.meetingStatistics;
     return (
         <Stack spacing={6}>
             <RequestSnackbar request={request} />
-
-            <GroupStatisticsTable
-                availabilityStats={availabilityStats}
-                meetingStats={meetingStats}
-            />
         </Stack>
     );
 };

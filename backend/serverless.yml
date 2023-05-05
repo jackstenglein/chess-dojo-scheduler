@@ -261,6 +261,21 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt GraduationsTable.Arn
 
+  getUserStatistics:
+    handler: bin/user/statistics/get
+    package:
+      patterns:
+        - ./bin/user/statistics/get
+    events:
+      - httpApi:
+          path: /public/user/statistics
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+
   ############## Event Endpoints #################
 
   bookEvent:

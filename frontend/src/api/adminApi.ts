@@ -2,7 +2,6 @@ import axios, { AxiosResponse } from 'axios';
 
 import { User } from '../database/user';
 import { getConfig } from '../config';
-import { AvailabilityStatistics, MeetingStatistics } from '../database/statistics';
 import { Requirement } from '../database/requirement';
 
 const BASE_URL = getConfig().api.baseUrl;
@@ -60,10 +59,7 @@ export async function adminListUsers(idToken: string, startKey?: string) {
     return result;
 }
 
-export interface GetStatisticsResponse {
-    meetingStatistics: MeetingStatistics;
-    availabilityStatistics: AvailabilityStatistics;
-}
+export interface GetStatisticsResponse {}
 
 /**
  * adminGetStatistics returns an AxiosResponse containing the GetStatisticsResponse object.
