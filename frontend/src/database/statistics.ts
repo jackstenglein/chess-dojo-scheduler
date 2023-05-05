@@ -1,5 +1,3 @@
-import { RatingSystem } from './user';
-
 export interface UserStatistics {
     participants: {
         [cohort: string]: number;

@@ -1,14 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Container, MenuItem, Stack, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { AxisOptions } from 'react-charts';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { dojoCohorts } from '../../database/user';
+import { RatingSystem, dojoCohorts, formatRatingSystem } from '../../database/user';
 import { useApi } from '../../api/Api';
 import { UserStatistics } from '../../database/statistics';
 import LoadingPage from '../../loading/LoadingPage';
-import ParticipantsChart from './ParticipantsChart';
-import RatingSystemsChart from './RatingSystemsChart';
+import Chart, { Datum, Series } from './Chart';
+
+const primaryAxis: AxisOptions<Datum> = {
+    getValue: (datum) => datum.cohort,
+};
+const participantsSecondaryAxes: AxisOptions<Datum>[] = [
+    {
+        scaleType: 'linear',
+        getValue: (datum) => datum.value,
+        stacked: true,
+        formatters: {
+            scale: (value) => (value % 1 === 0 ? `${value}` : ''),
+        },
+    },
+];
+const ratingSystemsSecondaryAxes: AxisOptions<Datum>[] = [
+    {
+        scaleType: 'linear',
+        getValue: (datum) => datum.value,
+        formatters: {
+            scale: (value) => (value % 1 === 0 ? `${value}` : ''),
+        },
+    },
+];
 
 const StatisticsPage = () => {
     const api = useApi();
@@ -29,6 +52,43 @@ const StatisticsPage = () => {
                 });
         }
     }, [request, api]);
+
+    const participantsData: Series[] = useMemo(() => {
+        if (!request.data) {
+            return [];
+        }
+        return [
+            {
+                label: 'Active',
+                data: dojoCohorts.map((c) => ({
+                    cohort: c,
+                    value: request.data!.activeParticipants[c],
+                })),
+            },
+            {
+                label: 'Inactive',
+                data: dojoCohorts.map((c) => ({
+                    cohort: c,
+                    value:
+                        request.data!.participants[c] -
+                        request.data!.activeParticipants[c],
+                })),
+            },
+        ];
+    }, [request.data]);
+
+    const ratingSystemsData: Series[] = useMemo(() => {
+        if (!request.data) {
+            return [];
+        }
+        return Object.values(RatingSystem).map((rs) => ({
+            label: formatRatingSystem(rs),
+            data: dojoCohorts.map((c) => ({
+                cohort: c,
+                value: request.data!.ratingSystems[c][rs],
+            })),
+        }));
+    }, [request.data]);
 
     if (request.isLoading() && request.data === undefined) {
         return <LoadingPage />;
@@ -63,8 +123,18 @@ const StatisticsPage = () => {
             </TextField>
 
             <Stack spacing={3}>
-                <ParticipantsChart stats={request.data} />
-                <RatingSystemsChart stats={request.data} />
+                <Chart
+                    title='Participants'
+                    series={participantsData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={participantsSecondaryAxes}
+                />
+                <Chart
+                    title='Rating Systems'
+                    series={ratingSystemsData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={ratingSystemsSecondaryAxes}
+                />
             </Stack>
         </Container>
     );
