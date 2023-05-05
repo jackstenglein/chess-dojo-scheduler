@@ -81,6 +81,10 @@ div#board div#boardMoves move {
     flex-basis: 42.5%;
 }
 
+div#board div#boardMoves span.move.filler {
+    flex-basis: 42.5%;
+}
+
 @media screen and (min-width: 600px) {
     div #board {
         grid-template-rows: 0px auto calc(min(500px, 100vw - 48px)) 37px 200px !important;
