@@ -94,7 +94,7 @@ const VerifyEmailPage = () => {
                     <Typography variant='h6'>Verify Email</Typography>
                 </Stack>
 
-                <Typography variant='body2' component='div' gutterBottom>
+                <Typography variant='body1' component='div' gutterBottom>
                     In order to complete your account creation, please enter the
                     verification code sent to {email}.
                 </Typography>

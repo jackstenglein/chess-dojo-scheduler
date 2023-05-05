@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 
 import { AuthStatus, useAuth } from './Auth';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { LoadingButton } from '@mui/lab';
 
 enum ForgotPasswordStep {
     Start = 'START',
@@ -25,6 +27,7 @@ const ForgotPasswordPage = () => {
     const [step, setStep] = useState(ForgotPasswordStep.Start);
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState<string>();
+    const request = useRequest();
 
     if (auth.status === AuthStatus.Loading) {
         return (
@@ -45,9 +48,14 @@ const ForgotPasswordPage = () => {
         }
         setEmailError(undefined);
 
+        request.onStart();
         auth.forgotPassword(email)
-            .then(() => setStep(ForgotPasswordStep.Confirm))
+            .then(() => {
+                request.onSuccess();
+                setStep(ForgotPasswordStep.Confirm);
+            })
             .catch((err) => {
+                request.onFailure(err);
                 if (err.code === 'UserNotFoundException') {
                     setEmailError('Account with this email does not exist');
                 } else {
@@ -63,6 +71,8 @@ const ForgotPasswordPage = () => {
     return (
         <Container maxWidth='md' sx={{ pt: 10 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
+                <RequestSnackbar request={request} />
+
                 <Stack alignItems='center'>
                     <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
                     <Typography variant='h6'>Forgot Password</Typography>
@@ -81,6 +91,7 @@ const ForgotPasswordPage = () => {
                             emailError={emailError}
                             onSubmit={onSubmit}
                             onCancel={onCancel}
+                            loading={request.isLoading()}
                         />
                     )}
 
@@ -88,6 +99,7 @@ const ForgotPasswordPage = () => {
                         <ConfirmStep
                             email={email}
                             onSuccess={() => setStep(ForgotPasswordStep.Success)}
+                            onCancel={onCancel}
                         />
                     )}
 
@@ -104,6 +116,7 @@ interface StartStepProps {
     emailError?: string;
     onSubmit: () => void;
     onCancel: () => void;
+    loading: boolean;
 }
 
 const StartStep: React.FC<StartStepProps> = ({
@@ -112,6 +125,7 @@ const StartStep: React.FC<StartStepProps> = ({
     emailError,
     onSubmit,
     onCancel,
+    loading,
 }) => {
     return (
         <>
@@ -130,14 +144,15 @@ const StartStep: React.FC<StartStepProps> = ({
                 helperText={emailError}
             />
 
-            <Button
+            <LoadingButton
                 variant='contained'
                 onClick={onSubmit}
                 fullWidth
                 sx={{ textTransform: 'none' }}
+                loading={loading}
             >
                 Send Email
-            </Button>
+            </LoadingButton>
 
             <Button variant='text' sx={{ textTransform: 'none' }} onClick={onCancel}>
                 Cancel
@@ -149,9 +164,10 @@ const StartStep: React.FC<StartStepProps> = ({
 interface ConfirmStepProps {
     email: string;
     onSuccess: () => void;
+    onCancel: () => void;
 }
 
-const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
+const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel }) => {
     const auth = useAuth();
 
     const [code, setCode] = useState('');
@@ -159,6 +175,8 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
     const [passwordError, setPasswordError] = useState<string>();
+
+    const request = useRequest();
 
     const onConfirm = () => {
         let failed = false;
@@ -182,10 +200,15 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
 
         if (failed) return;
 
+        request.onStart();
         auth.forgotPasswordConfirm(email, code, password)
-            .then(onSuccess)
+            .then(() => {
+                request.onSuccess();
+                onSuccess();
+            })
             .catch((err) => {
-                console.dir(err);
+                request.onFailure(err);
+                console.error(err);
                 if (err.code === 'CodeMismatchException') {
                     setCodeError('Incorrect recovery code');
                 } else {
@@ -196,6 +219,8 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
 
     return (
         <>
+            <RequestSnackbar request={request} />
+
             <Typography variant='subtitle1' component='div' gutterBottom>
                 Email sent! Enter the code to reset your password.
             </Typography>
@@ -235,13 +260,18 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
                 helperText={passwordError}
             />
 
-            <Button
+            <LoadingButton
                 variant='contained'
                 onClick={onConfirm}
                 fullWidth
                 sx={{ textTransform: 'none' }}
+                loading={request.isLoading()}
             >
                 Reset Password
+            </LoadingButton>
+
+            <Button variant='text' sx={{ textTransform: 'none' }} onClick={onCancel}>
+                Cancel
             </Button>
         </>
     );

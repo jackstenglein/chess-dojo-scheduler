@@ -53,10 +53,10 @@ function getUpdate(user: User, formFields: Partial<User>): Partial<User> | undef
 }
 
 interface ProfileEditorPageProps {
-    hideCancel?: boolean;
+    isCreating?: boolean;
 }
 
-const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => {
+const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => {
     const user = useAuth().user!;
     const api = useApi();
     const navigate = useNavigate();
@@ -304,7 +304,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                     rowGap={2}
                 >
                     <Typography variant='h4' mr={2}>
-                        Edit Profile
+                        {isCreating ? 'Create' : 'Edit'} Profile
                     </Typography>
 
                     <Stack direction='row' spacing={2}>
@@ -317,7 +317,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                             Save
                         </LoadingButton>
 
-                        {!hideCancel && (
+                        {!isCreating && (
                             <Button
                                 variant='contained'
                                 color='error'
@@ -329,6 +329,12 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ hideCancel }) => 
                         )}
                     </Stack>
                 </Stack>
+
+                {Object.values(errors).length > 0 && (
+                    <Alert severity='error' sx={{ mb: 3 }}>
+                        Unable to save profile. Fix the errors below and retry.
+                    </Alert>
+                )}
 
                 <Stack spacing={4}>
                     <Stack>

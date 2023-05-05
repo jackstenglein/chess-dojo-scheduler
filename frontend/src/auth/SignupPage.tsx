@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 
 import { AuthStatus, useAuth } from './Auth';
 import { useState } from 'react';
-import { useRequest } from '../api/Request';
+import { RequestSnackbar, useRequest } from '../api/Request';
 import { LoadingButton } from '@mui/lab';
 
 const SignupPage = () => {
@@ -66,6 +66,8 @@ const SignupPage = () => {
     return (
         <Container maxWidth='md' sx={{ pt: 10 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
+                <RequestSnackbar request={request} />
+
                 <Stack alignItems='center'>
                     <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
                     <Typography variant='h6'>Create Account</Typography>

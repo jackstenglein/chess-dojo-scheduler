@@ -196,31 +196,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 /**
- * @returns A React component that renders an Outlet only if the current user is signed in.
- * Otherwise, the user is redirected to the landing page.
+ * A React component that renders an Outlet only if the current user is signed in and has a completed profile.
+ * If the user is not signed in, then they are redirected to the landing page. If the user is signed in, but
+ * has not completed their profile, the profile editor page is rendered regardless of the current route.
  */
 export function RequireAuth() {
     const auth = useAuth();
+    const user = auth.user;
 
     if (auth.status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
-
-    if (auth.status === AuthStatus.Unauthenticated || !auth.user) {
-        return <Navigate to='/' replace />;
-    }
-
-    return <Outlet />;
-}
-
-/**
- * @returns A React component that renders an Outlet only if the current user is signed in and has a completed profile.
- * Otherwise, if the user is not signed in, they are redirected to the landing page, and if they are signed in
- * but don't have a completed profile, they are redirected to the profile page.
- */
-export function RequireProfile() {
-    const auth = useAuth();
-    const user = auth.user;
 
     if (auth.status === AuthStatus.Unauthenticated || !user) {
         return <Navigate to='/' replace />;
@@ -232,11 +218,11 @@ export function RequireProfile() {
         user.displayName === '' ||
         (user.ratingSystem as string) === ''
     ) {
-        return <ProfileEditorPage hideCancel />;
+        return <ProfileEditorPage isCreating />;
     }
 
     if (!dojoCohorts.includes(user.dojoCohort)) {
-        return <ProfileEditorPage hideCancel />;
+        return <ProfileEditorPage isCreating />;
     }
 
     return <Outlet />;

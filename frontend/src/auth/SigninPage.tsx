@@ -12,7 +12,7 @@ import { LoadingButton } from '@mui/lab';
 
 import { AuthStatus, useAuth } from './Auth';
 import { useState } from 'react';
-import { useRequest } from '../api/Request';
+import { RequestSnackbar, useRequest } from '../api/Request';
 
 const SigninPage = () => {
     const auth = useAuth();
@@ -67,6 +67,7 @@ const SigninPage = () => {
     return (
         <Container maxWidth='md' sx={{ pt: 10 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
+                <RequestSnackbar request={request} />
                 <Stack alignItems='center'>
                     <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
                     <Typography variant='h6'>Signin</Typography>
