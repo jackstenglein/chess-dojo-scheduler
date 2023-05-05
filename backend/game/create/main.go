@@ -13,18 +13,10 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/game"
 )
 
-type ImportType string
-
-const (
-	LichessChapter ImportType = "lichessChapter"
-	LichessStudy              = "lichessStudy"
-	Manual                    = "manual"
-)
-
 type CreateGameRequest struct {
-	Type    ImportType `json:"type"`
-	Url     string     `json:"url"`
-	PgnText string     `json:"pgnText"`
+	Type    game.ImportType `json:"type"`
+	Url     string          `json:"url"`
+	PgnText string          `json:"pgnText"`
 }
 
 type CreateGameResponse struct {
@@ -48,11 +40,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	var pgnText string
 	var pgnTexts []string
 	var err error
-	if req.Type == LichessChapter {
+	if req.Type == game.LichessChapter {
 		pgnText, err = game.GetLichessChapter(req.Url)
-	} else if req.Type == LichessStudy {
+	} else if req.Type == game.LichessStudy {
 		pgnTexts, err = game.GetLichessStudy(req.Url)
-	} else if req.Type == Manual {
+	} else if req.Type == game.Manual {
 		pgnText = req.PgnText
 	} else {
 		err = errors.New(400, fmt.Sprintf("Invalid request: type `%s` not supported", req.Type), "")
@@ -91,7 +83,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		log.Error("Failed RecordGameCreation: ", err)
 	}
 
-	if req.Type == LichessChapter || req.Type == Manual {
+	if req.Type == game.LichessChapter || req.Type == game.Manual {
 		return api.Success(funcName, games[0]), nil
 	}
 	return api.Success(funcName, &CreateGameResponse{Count: updated}), nil

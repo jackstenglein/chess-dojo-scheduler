@@ -47,6 +47,9 @@ func getDiscordIdByDiscordUsername(discord *discordgo.Session, discordUsername s
 	discordUsername = discordTokens[0]
 	discordDiscriminator := discordTokens[1]
 
+	if discordUsername == "" {
+		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is not in username#id format", discordUsername), "")
+	}
 	if discordDiscriminator == "" {
 		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is not in username#id format", discordUsername), "")
 	}

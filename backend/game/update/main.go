@@ -15,18 +15,10 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/game"
 )
 
-type ImportType string
-
-const (
-	Lichess  ImportType = "lichess"
-	Chesscom            = "chesscom"
-	Manual              = "manual"
-)
-
 type CreateGameRequest struct {
-	Type    ImportType `json:"type"`
-	Url     string     `json:"url"`
-	PgnText string     `json:"pgnText"`
+	Type    game.ImportType `json:"type"`
+	Url     string          `json:"url"`
+	PgnText string          `json:"pgnText"`
 }
 
 var repository database.GameUpdater = database.DynamoDB
@@ -106,9 +98,9 @@ func updatePgn(event api.Request) api.Response {
 
 	var pgnText string
 	var err error
-	if req.Type == Lichess {
+	if req.Type == game.LichessChapter {
 		pgnText, err = game.GetLichessChapter(req.Url)
-	} else if req.Type == Manual {
+	} else if req.Type == game.Manual {
 		pgnText = req.PgnText
 	} else {
 		err = errors.New(400, fmt.Sprintf("Invalid request: type `%s` not supported", req.Type), "")

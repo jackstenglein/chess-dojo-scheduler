@@ -15,6 +15,14 @@ import (
 	"github.com/malbrecht/chess/pgn"
 )
 
+type ImportType string
+
+const (
+	LichessChapter ImportType = "lichessChapter"
+	LichessStudy              = "lichessStudy"
+	Manual                    = "manual"
+)
+
 func GetLichessChapter(url string) (string, error) {
 	matched, err := regexp.MatchString("^https://lichess.org/study/.{8}/.{8}$", url)
 	if err != nil {
