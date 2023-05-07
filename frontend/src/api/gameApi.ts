@@ -52,6 +52,15 @@ export type GameApiContextType = {
     ) => Promise<AxiosResponse<Game, any>>;
 
     /**
+     * deleteGame removes the specified game from the database. The caller
+     * must be the owner of the game.
+     * @param cohort The cohort the game is in.
+     * @param id The id of the game.
+     * @returns The delete Game.
+     */
+    deleteGame: (cohort: string, id: string) => Promise<AxiosResponse<Game, any>>;
+
+    /**
      * listGamesByCohort returns a list of GameInfo objects corresponding to the provided cohort,
      * as well as the next start key for pagination.
      * @param cohort The cohort to search for games in.
@@ -197,6 +206,23 @@ export function updateGame(
     const urlId = id.replaceAll('?', '%3F');
 
     return axios.put<Game>(BASE_URL + `/game/${urlCohort}/${urlId}`, req, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
+}
+
+/**
+ * deleteGame removes the specified game from the database. The caller
+ * must be the owner of the game.
+ * @param idToken The id token of the current signed-in user.
+ * @param cohort The cohort the game is in.
+ * @param id The id of the game.
+ * @returns The delete Game.
+ */
+export function deleteGame(idToken: string, cohort: string, id: string) {
+    const urlCohort = cohort.replaceAll('+', '%2B');
+    const urlId = id.replaceAll('?', '%3F');
+
+    return axios.delete<Game>(BASE_URL + `/game/${urlCohort}/${urlId}`, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }

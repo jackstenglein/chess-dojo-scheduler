@@ -34,6 +34,7 @@ import {
     createComment,
     featureGame,
     updateGame,
+    deleteGame,
 } from './gameApi';
 import {
     RequirementApiContextType,
@@ -149,6 +150,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 featureGame(idToken, cohort, id, featured),
             updateGame: (cohort: string, id: string, req: CreateGameRequest) =>
                 updateGame(idToken, cohort, id, req),
+            deleteGame: (cohort: string, id: string) => deleteGame(idToken, cohort, id),
             listGamesByCohort: (
                 cohort: string,
                 startKey?: string,

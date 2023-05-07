@@ -14,9 +14,9 @@ import CheckIcon from '@mui/icons-material/Check';
 import LinkIcon from '@mui/icons-material/Link';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { Game } from '../database/game';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { Game } from '../../database/game';
 import PgnViewer from './PgnViewer';
 import { LoadingButton } from '@mui/lab';
 import CommentList from './CommentList';

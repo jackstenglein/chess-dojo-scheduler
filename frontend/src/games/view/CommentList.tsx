@@ -1,6 +1,6 @@
 import { FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { Comment as CommentModel } from '../database/game';
+import { Comment as CommentModel } from '../../database/game';
 import Comment from './Comment';
 
 interface CommentListProps {

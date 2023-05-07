@@ -309,7 +309,7 @@ func (repo *dynamoRepository) DeleteEvent(id string) (*Event, error) {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
 			return nil, errors.Wrap(404, "Invalid request: event does not exist or is already booked", "DynamoDB conditional check failed", aerr)
 		}
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal DeleteItem result", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed Dynamo DeleteItem call", err)
 	}
 
 	event := Event{}

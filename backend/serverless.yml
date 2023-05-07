@@ -459,6 +459,22 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
+  deleteGame:
+    handler: bin/game/delete
+    package:
+      patterns:
+        - ./bin/game/delete
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id}
+          method: delete
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt GamesTable.Arn
+
   getGame:
     handler: bin/game/get
     package:

@@ -150,6 +150,12 @@ type GameUpdater interface {
 	UpdateGame(cohort, id, owner string, update *GameUpdate) (*Game, error)
 }
 
+type GameDeleter interface {
+	// DeleteGame removes the specified game from the database, if the game
+	// is owned by the calling user.
+	DeleteGame(username, cohort, id string) (*Game, error)
+}
+
 type GameGetter interface {
 	// GetGame returns the Game object with the provided cohort and id.
 	GetGame(cohort, id string) (*Game, error)
@@ -324,6 +330,40 @@ func (repo *dynamoRepository) UpdateGame(cohort, id, owner string, update *GameU
 	game := Game{}
 	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &game); err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &game, nil
+}
+
+// DeleteGame removes the specified game from the database, if the game
+// is owned by the calling user.
+func (repo *dynamoRepository) DeleteGame(username, cohort, id string) (*Game, error) {
+	input := &dynamodb.DeleteItemInput{
+		ConditionExpression: aws.String("#owner = :owner"),
+		ExpressionAttributeNames: map[string]*string{
+			"#owner": aws.String("owner"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":owner": {S: aws.String(username)},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"cohort": {S: aws.String(cohort)},
+			"id":     {S: aws.String(id)},
+		},
+		ReturnValues: aws.String("ALL_OLD"),
+		TableName:    aws.String(gameTable),
+	}
+
+	result, err := repo.svc.DeleteItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: game does not exist or you do not have permission to delete it", "Dynamo conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed Dynamo DeleteItem call", err)
+	}
+
+	game := Game{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &game); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal DeleteItem result", err)
 	}
 	return &game, nil
 }

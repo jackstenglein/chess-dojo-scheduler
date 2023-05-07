@@ -13,9 +13,10 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
-import { Game, isDefaultHeader } from '../database/game';
-import { useAuth } from '../auth/Auth';
-import GraduationIcon from '../scoreboard/GraduationIcon';
+import { Game, isDefaultHeader } from '../../database/game';
+import { useAuth } from '../../auth/Auth';
+import GraduationIcon from '../../scoreboard/GraduationIcon';
+import DeleteGameButton from './DeleteGameButton';
 
 interface HeaderDisplayProps {
     header: string;
@@ -164,13 +165,17 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
             <Grid container rowSpacing={4}>
                 <Grid item sm={12} md={4} lg={3}>
                     {game.owner === user.username && (
-                        <Button
-                            variant='contained'
+                        <Stack
+                            direction='row'
+                            alignItems='center'
+                            spacing={2}
                             sx={{ mb: 2 }}
-                            onClick={() => navigate('edit')}
                         >
-                            Update PGN
-                        </Button>
+                            <Button variant='contained' onClick={() => navigate('edit')}>
+                                Update PGN
+                            </Button>
+                            <DeleteGameButton game={game} />
+                        </Stack>
                     )}
                     {user.isAdmin && (
                         <Stack direction='row' alignItems='center' spacing={2}>

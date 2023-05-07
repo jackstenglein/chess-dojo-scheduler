@@ -1,8 +1,8 @@
 import { Stack, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-import { Comment as CommentModel } from '../database/game';
-import GraduationIcon from '../scoreboard/GraduationIcon';
+import { Comment as CommentModel } from '../../database/game';
+import GraduationIcon from '../../scoreboard/GraduationIcon';
 
 interface CommentProps {
     comment: CommentModel;
