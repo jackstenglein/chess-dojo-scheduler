@@ -79,7 +79,7 @@ const ProfilePage = () => {
                                     rowGap={1}
                                 >
                                     {user.graduationCohorts.map((c) => (
-                                        <GraduationIcon cohort={c} />
+                                        <GraduationIcon key={c} cohort={c} />
                                     ))}
                                 </Stack>
                             ) : (

@@ -7,6 +7,8 @@ import { getCurrentScore, Requirement } from '../../database/requirement';
 import PieChart, { PieChartData } from './PieChart';
 import { CategoryColors, RequirementColors } from './activity';
 
+const numberedReqRegex = / #\d+$/;
+
 function getScoreChartData(
     requirements: Requirement[],
     user: User,
@@ -55,7 +57,12 @@ function getCategoryScoreChartData(
             continue;
         }
 
-        const name = requirement.name;
+        let name = requirement.name;
+        const result = numberedReqRegex.exec(name);
+        if (result) {
+            name = name.substring(0, result.index);
+        }
+
         if (data[name]) {
             data[name].value += score;
         } else {
@@ -129,7 +136,12 @@ function getCategoryTimeChartData(
             continue;
         }
 
-        const name = requirement.name;
+        let name = requirement.name;
+        const result = numberedReqRegex.exec(name);
+        if (result) {
+            name = name.substring(0, result.index);
+        }
+
         if (data[name]) {
             data[name].value += progress.minutesSpent[cohort];
         } else {

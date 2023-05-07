@@ -39,7 +39,9 @@ const PieChart: React.FC<PieChartProps> = ({
 
     return (
         <Stack justifyContent='center' alignItems='center'>
-            <Typography variant='h6'>{title}</Typography>
+            <Typography variant='h6' textAlign='center'>
+                {title}
+            </Typography>
             {renderTotal(totalScore)}
 
             {data.length === 0 && <Typography>No data</Typography>}
