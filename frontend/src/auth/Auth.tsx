@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
     CognitoUser,
-    dojoCohorts,
+    hasCreatedProfile,
     parseCognitoResponse,
     parseUser,
     User,
@@ -212,16 +212,7 @@ export function RequireAuth() {
         return <Navigate to='/' replace />;
     }
 
-    if (
-        user.dojoCohort === '' ||
-        user.dojoCohort === 'NO_COHORT' ||
-        user.displayName === '' ||
-        (user.ratingSystem as string) === ''
-    ) {
-        return <ProfileEditorPage isCreating />;
-    }
-
-    if (!dojoCohorts.includes(user.dojoCohort)) {
+    if (!hasCreatedProfile(user)) {
         return <ProfileEditorPage isCreating />;
     }
 

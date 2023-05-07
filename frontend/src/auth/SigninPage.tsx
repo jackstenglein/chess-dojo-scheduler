@@ -1,17 +1,19 @@
+import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
     Alert,
     Button,
     CircularProgress,
     Container,
+    Divider,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import GoogleButton from 'react-google-button';
 
 import { AuthStatus, useAuth } from './Auth';
-import { useState } from 'react';
 import { RequestSnackbar, useRequest } from '../api/Request';
 
 const SigninPage = () => {
@@ -52,24 +54,30 @@ const SigninPage = () => {
         request.onStart();
         auth.signin(email, password).catch((err) => {
             console.error(err);
-            request.onFailure(err);
             if (
                 err.code === 'NotAuthorizedException' ||
                 err.code === 'UserNotFoundException'
             ) {
                 setErrors({ password: 'Incorrect email or password' });
+                request.onFailure({ message: 'Incorrect email or password' });
             } else {
-                setErrors({ password: err.message });
+                request.onFailure(err);
             }
         });
     };
 
+    const onGoogleSignIn = () => {
+        auth.socialSignin('Google');
+    };
+
     return (
-        <Container maxWidth='md' sx={{ pt: 10 }}>
+        <Container maxWidth='md' sx={{ pt: 10, pb: 4 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <RequestSnackbar request={request} />
                 <Stack alignItems='center'>
-                    <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
+                    <Typography variant='h4' textAlign='center'>
+                        Chess Dojo Scoreboard
+                    </Typography>
                     <Typography variant='h6'>Signin</Typography>
 
                     <Alert severity='warning' sx={{ mt: 2 }}>
@@ -79,7 +87,7 @@ const SigninPage = () => {
                     </Alert>
                 </Stack>
 
-                <Stack width={0.75} spacing={4}>
+                <Stack width={0.75} spacing={4} alignItems='center'>
                     <TextField
                         fullWidth
                         id='email'
@@ -130,6 +138,8 @@ const SigninPage = () => {
                             Forgot password?
                         </Button>
                     </Stack>
+                    <Divider sx={{ width: 1 }}>Or</Divider>
+                    <GoogleButton onClick={onGoogleSignIn} />
                 </Stack>
             </Stack>
         </Container>

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Amplify } from 'aws-amplify';
+import { Amplify, Hub } from 'aws-amplify';
 
 import { getConfig } from './config';
 import { AuthProvider, RequireAuth } from './auth/Auth';
@@ -31,6 +31,7 @@ import RequirementEditorPage from './requirements/RequirementEditorPage';
 import EditGamePage from './games/EditGamePage';
 import ThemeProvider from './ThemeProvider';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
+import { useEffect } from 'react';
 
 const config = getConfig();
 Amplify.configure({
@@ -49,6 +50,16 @@ Amplify.configure({
 });
 
 function App() {
+    useEffect(() => {
+        Hub.listen('auth', (data) => {
+            if (data.payload.event === 'signIn_failure') {
+                console.log('Sign in failure: ', data);
+            } else {
+                console.log('Other auth data: ', data);
+            }
+        });
+    }, []);
+
     return (
         <AuthProvider>
             <ThemeProvider>

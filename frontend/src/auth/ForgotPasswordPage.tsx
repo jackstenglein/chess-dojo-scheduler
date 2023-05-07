@@ -13,6 +13,9 @@ import { AuthStatus, useAuth } from './Auth';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { LoadingButton } from '@mui/lab';
 
+const googleSigninMessage =
+    'Your email is not verified. Note that if you previously signed in with Google, you must continue to use that option. You will not be able to reset your password in that case.';
+
 enum ForgotPasswordStep {
     Start = 'START',
     Confirm = 'CONFIRM',
@@ -58,6 +61,11 @@ const ForgotPasswordPage = () => {
                 request.onFailure(err);
                 if (err.code === 'UserNotFoundException') {
                     setEmailError('Account with this email does not exist');
+                } else if (err.code === 'NotAuthorizedException') {
+                    setEmailError('Email is not verified');
+                    request.onFailure({
+                        message: googleSigninMessage,
+                    });
                 } else {
                     setEmailError(err.message);
                 }
@@ -74,7 +82,9 @@ const ForgotPasswordPage = () => {
                 <RequestSnackbar request={request} />
 
                 <Stack alignItems='center'>
-                    <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
+                    <Typography variant='h4' textAlign='center'>
+                        Chess Dojo Scoreboard
+                    </Typography>
                     <Typography variant='h6'>Forgot Password</Typography>
                 </Stack>
                 <Stack
@@ -129,7 +139,12 @@ const StartStep: React.FC<StartStepProps> = ({
 }) => {
     return (
         <>
-            <Typography variant='subtitle1' component='div' gutterBottom>
+            <Typography
+                variant='subtitle1'
+                component='div'
+                gutterBottom
+                textAlign='center'
+            >
                 Enter your email, and we'll send you a code to reset your password.
             </Typography>
 
@@ -221,7 +236,12 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
         <>
             <RequestSnackbar request={request} />
 
-            <Typography variant='subtitle1' component='div' gutterBottom>
+            <Typography
+                variant='subtitle1'
+                component='div'
+                gutterBottom
+                textAlign='center'
+            >
                 Email sent! Enter the code to reset your password.
             </Typography>
 
@@ -286,7 +306,12 @@ const SuccessStep = () => {
 
     return (
         <>
-            <Typography variant='subtitle1' component='div' gutterBottom>
+            <Typography
+                variant='subtitle1'
+                component='div'
+                gutterBottom
+                textAlign='center'
+            >
                 You can now sign in using your new password.
             </Typography>
 

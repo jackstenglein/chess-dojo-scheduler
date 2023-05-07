@@ -23,10 +23,50 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 import { AuthStatus, useAuth } from '../auth/Auth';
 import PawnIcon from './PawnIcon';
+import { hasCreatedProfile } from '../database/user';
+
+const Logo = () => {
+    const navigate = useNavigate();
+    return (
+        <img
+            src='/logo192.png'
+            style={{
+                paddingTop: '10px',
+                paddingBottom: '10px',
+                maxHeight: '100%',
+                marginRight: '15px',
+                cursor: 'pointer',
+            }}
+            alt=''
+            onClick={() => navigate('/')}
+        />
+    );
+};
 
 interface MenuProps {
     meetingText: string;
 }
+
+const LargeMenuUnauthenticated = () => {
+    const navigate = useNavigate();
+
+    return (
+        <>
+            <Logo />
+            <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
+                <Typography color='white'>Chess Dojo Scoreboard</Typography>
+            </Stack>
+            <Stack spacing={1} direction='row'>
+                <Button onClick={() => navigate('/signin')} sx={{ color: 'white' }}>
+                    Signin
+                </Button>
+                <Button onClick={() => navigate('/signup')} sx={{ color: 'white' }}>
+                    Signup
+                </Button>
+            </Stack>
+        </>
+    );
+};
 
 const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const auth = useAuth();
@@ -40,6 +80,10 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const showSignout = useMediaQuery('(min-width:545px)');
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    if (auth.status === AuthStatus.Unauthenticated) {
+        return <LargeMenuUnauthenticated />;
+    }
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -56,18 +100,11 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
         };
     };
 
+    const profileCreated = hasCreatedProfile(auth.user!);
+
     return (
         <>
-            <img
-                src='/logo192.png'
-                style={{
-                    paddingTop: '10px',
-                    paddingBottom: '10px',
-                    maxHeight: '100%',
-                    marginRight: '15px',
-                }}
-                alt=''
-            />
+            <Logo />
             <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
                 <Button
                     onClick={() => navigate('/profile')}
@@ -77,127 +114,153 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                     Profile
                 </Button>
 
-                <Button
-                    onClick={() => navigate('/scoreboard')}
-                    sx={{ color: 'white' }}
-                    startIcon={<ScoreboardIcon />}
-                >
-                    Scoreboard
-                </Button>
-
-                {showGames && (
-                    <Button
-                        onClick={() => navigate('/games')}
-                        sx={{ color: 'white' }}
-                        startIcon={<PawnIcon />}
-                    >
-                        Games
-                    </Button>
-                )}
-
-                {showCalendar && (
-                    <Button
-                        onClick={() => navigate('/calendar')}
-                        sx={{ color: 'white' }}
-                        startIcon={<CalendarTodayIcon />}
-                    >
-                        Calendar
-                    </Button>
-                )}
-
-                {showMeetingsAndRecent && (
+                {profileCreated && (
                     <>
                         <Button
-                            onClick={() => navigate('/meeting')}
+                            onClick={() => navigate('/scoreboard')}
                             sx={{ color: 'white' }}
-                            startIcon={<GroupsIcon />}
+                            startIcon={<ScoreboardIcon />}
                         >
-                            {meetingText}
+                            Scoreboard
                         </Button>
 
-                        <Button
-                            onClick={() => navigate('/recent')}
-                            sx={{ color: 'white' }}
-                            startIcon={<ScheduleIcon />}
-                        >
-                            Recent
-                        </Button>
-                    </>
-                )}
+                        {showGames && (
+                            <Button
+                                onClick={() => navigate('/games')}
+                                sx={{ color: 'white' }}
+                                startIcon={<PawnIcon />}
+                            >
+                                Games
+                            </Button>
+                        )}
 
-                {!showMeetingsAndRecent && (
-                    <>
-                        <Button
-                            onClick={handleOpen}
-                            sx={{ color: 'white' }}
-                            endIcon={<ExpandMoreIcon />}
-                        >
-                            More
-                        </Button>
-                        <Menu
-                            id='menu-appbar'
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            {!showGames && (
-                                <MenuItem onClick={handleClick(() => navigate('/games'))}>
-                                    <ListItemIcon>
-                                        <PawnIcon />
-                                    </ListItemIcon>
-                                    <Typography textAlign='center'>
-                                        Game Database
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {!showCalendar && (
-                                <MenuItem
-                                    onClick={handleClick(() => navigate('/calendar'))}
+                        {showCalendar && (
+                            <Button
+                                onClick={() => navigate('/calendar')}
+                                sx={{ color: 'white' }}
+                                startIcon={<CalendarTodayIcon />}
+                            >
+                                Calendar
+                            </Button>
+                        )}
+
+                        {showMeetingsAndRecent && (
+                            <>
+                                <Button
+                                    onClick={() => navigate('/meeting')}
+                                    sx={{ color: 'white' }}
+                                    startIcon={<GroupsIcon />}
                                 >
-                                    <ListItemIcon>
-                                        <CalendarTodayIcon />
-                                    </ListItemIcon>
-                                    <Typography textAlign='center'>Calendar</Typography>
-                                </MenuItem>
-                            )}
-                            <MenuItem onClick={handleClick(() => navigate('/meeting'))}>
-                                <ListItemIcon>
-                                    <GroupsIcon />
-                                </ListItemIcon>
-                                <Typography textAlign='center'>{meetingText}</Typography>
-                            </MenuItem>
-                            <MenuItem onClick={handleClick(() => navigate('/recent'))}>
-                                <ListItemIcon>
-                                    <ScheduleIcon />
-                                </ListItemIcon>
-                                <Typography textAlign='center'>Recent</Typography>
-                            </MenuItem>
-                            {!showHelp && (
-                                <MenuItem onClick={handleClick(() => navigate('/help'))}>
-                                    <ListItemIcon>
-                                        <HelpIcon />
-                                    </ListItemIcon>
-                                    <Typography textAlign='center'>Help</Typography>
-                                </MenuItem>
-                            )}
-                            {isAdmin && (
-                                <MenuItem onClick={handleClick(() => navigate('/admin'))}>
-                                    <Typography textAlign='center'>
-                                        Admin Portal
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {!showSignout && (
-                                <MenuItem onClick={handleClick(auth.signout)}>
-                                    <ListItemIcon>
-                                        <LogoutIcon color='error' />
-                                    </ListItemIcon>
-                                    <Typography textAlign='center' color='error'>
-                                        Sign Out
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                        </Menu>
+                                    {meetingText}
+                                </Button>
+
+                                <Button
+                                    onClick={() => navigate('/recent')}
+                                    sx={{ color: 'white' }}
+                                    startIcon={<ScheduleIcon />}
+                                >
+                                    Recent
+                                </Button>
+                            </>
+                        )}
+
+                        {!showMeetingsAndRecent && (
+                            <>
+                                <Button
+                                    onClick={handleOpen}
+                                    sx={{ color: 'white' }}
+                                    endIcon={<ExpandMoreIcon />}
+                                >
+                                    More
+                                </Button>
+                                <Menu
+                                    id='menu-appbar'
+                                    anchorEl={anchorEl}
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleClose}
+                                >
+                                    {!showGames && (
+                                        <MenuItem
+                                            onClick={handleClick(() =>
+                                                navigate('/games')
+                                            )}
+                                        >
+                                            <ListItemIcon>
+                                                <PawnIcon />
+                                            </ListItemIcon>
+                                            <Typography textAlign='center'>
+                                                Game Database
+                                            </Typography>
+                                        </MenuItem>
+                                    )}
+                                    {!showCalendar && (
+                                        <MenuItem
+                                            onClick={handleClick(() =>
+                                                navigate('/calendar')
+                                            )}
+                                        >
+                                            <ListItemIcon>
+                                                <CalendarTodayIcon />
+                                            </ListItemIcon>
+                                            <Typography textAlign='center'>
+                                                Calendar
+                                            </Typography>
+                                        </MenuItem>
+                                    )}
+                                    <MenuItem
+                                        onClick={handleClick(() => navigate('/meeting'))}
+                                    >
+                                        <ListItemIcon>
+                                            <GroupsIcon />
+                                        </ListItemIcon>
+                                        <Typography textAlign='center'>
+                                            {meetingText}
+                                        </Typography>
+                                    </MenuItem>
+                                    <MenuItem
+                                        onClick={handleClick(() => navigate('/recent'))}
+                                    >
+                                        <ListItemIcon>
+                                            <ScheduleIcon />
+                                        </ListItemIcon>
+                                        <Typography textAlign='center'>Recent</Typography>
+                                    </MenuItem>
+                                    {!showHelp && (
+                                        <MenuItem
+                                            onClick={handleClick(() => navigate('/help'))}
+                                        >
+                                            <ListItemIcon>
+                                                <HelpIcon />
+                                            </ListItemIcon>
+                                            <Typography textAlign='center'>
+                                                Help
+                                            </Typography>
+                                        </MenuItem>
+                                    )}
+                                    {isAdmin && (
+                                        <MenuItem
+                                            onClick={handleClick(() =>
+                                                navigate('/admin')
+                                            )}
+                                        >
+                                            <Typography textAlign='center'>
+                                                Admin Portal
+                                            </Typography>
+                                        </MenuItem>
+                                    )}
+                                    {!showSignout && (
+                                        <MenuItem onClick={handleClick(auth.signout)}>
+                                            <ListItemIcon>
+                                                <LogoutIcon color='error' />
+                                            </ListItemIcon>
+                                            <Typography textAlign='center' color='error'>
+                                                Sign Out
+                                            </Typography>
+                                        </MenuItem>
+                                    )}
+                                </Menu>
+                            </>
+                        )}
                     </>
                 )}
             </Stack>
@@ -225,11 +288,9 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
     );
 };
 
-const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
-    const auth = useAuth();
+const ExtraSmallMenuUnauthenticated = () => {
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const isAdmin = auth.user?.isAdmin;
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -253,16 +314,69 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
             alignItems='center'
             sx={{ flexGrow: 1, height: 1 }}
         >
-            <img
-                src='/logo192.png'
-                style={{
-                    paddingTop: '10px',
-                    paddingBottom: '10px',
-                    maxHeight: '100%',
-                    marginRight: '15px',
-                }}
-                alt=''
-            />
+            <Logo />
+            <IconButton
+                size='medium'
+                aria-label='navigation menu'
+                aria-controls='menu-appbar'
+                aria-haspopup='true'
+                onClick={handleOpen}
+                color='inherit'
+            >
+                <MenuIcon />
+            </IconButton>
+            <Menu
+                id='menu-appbar'
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+            >
+                <MenuItem onClick={handleClick(() => navigate('/signin'))}>
+                    <Typography textAlign='center'>Signin</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleClick(() => navigate('/signup'))}>
+                    <Typography textAlign='center'>Signup</Typography>
+                </MenuItem>
+            </Menu>
+        </Stack>
+    );
+};
+
+const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
+    const auth = useAuth();
+    const navigate = useNavigate();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const isAdmin = auth.user?.isAdmin;
+
+    if (auth.status === AuthStatus.Unauthenticated) {
+        return <ExtraSmallMenuUnauthenticated />;
+    }
+
+    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleClick = (func: () => void) => {
+        return () => {
+            func();
+            handleClose();
+        };
+    };
+
+    const profileCreated = hasCreatedProfile(auth.user!);
+
+    return (
+        <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'
+            sx={{ flexGrow: 1, height: 1 }}
+        >
+            <Logo />
             <IconButton
                 size='medium'
                 aria-label='navigation menu'
@@ -285,36 +399,40 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                     </ListItemIcon>
                     <Typography textAlign='center'>Profile</Typography>
                 </MenuItem>
-                <MenuItem onClick={handleClick(() => navigate('/scoreboard'))}>
-                    <ListItemIcon>
-                        <ScoreboardIcon />
-                    </ListItemIcon>
-                    <Typography textAlign='center'>Scoreboard</Typography>
-                </MenuItem>
-                <MenuItem onClick={handleClick(() => navigate('/games'))}>
-                    <ListItemIcon>
-                        <PawnIcon />
-                    </ListItemIcon>
-                    <Typography textAlign='center'>Game Database</Typography>
-                </MenuItem>
-                <MenuItem onClick={handleClick(() => navigate('/calendar'))}>
-                    <ListItemIcon>
-                        <CalendarTodayIcon />
-                    </ListItemIcon>
-                    <Typography textAlign='center'>Calendar</Typography>
-                </MenuItem>
-                <MenuItem onClick={handleClick(() => navigate('/meeting'))}>
-                    <ListItemIcon>
-                        <GroupsIcon />
-                    </ListItemIcon>
-                    <Typography textAlign='center'>{meetingText}</Typography>
-                </MenuItem>
-                <MenuItem onClick={handleClick(() => navigate('/recent'))}>
-                    <ListItemIcon>
-                        <ScheduleIcon />
-                    </ListItemIcon>
-                    <Typography textAlign='center'>Recent</Typography>
-                </MenuItem>
+                {profileCreated && (
+                    <>
+                        <MenuItem onClick={handleClick(() => navigate('/scoreboard'))}>
+                            <ListItemIcon>
+                                <ScoreboardIcon />
+                            </ListItemIcon>
+                            <Typography textAlign='center'>Scoreboard</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleClick(() => navigate('/games'))}>
+                            <ListItemIcon>
+                                <PawnIcon />
+                            </ListItemIcon>
+                            <Typography textAlign='center'>Game Database</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleClick(() => navigate('/calendar'))}>
+                            <ListItemIcon>
+                                <CalendarTodayIcon />
+                            </ListItemIcon>
+                            <Typography textAlign='center'>Calendar</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleClick(() => navigate('/meeting'))}>
+                            <ListItemIcon>
+                                <GroupsIcon />
+                            </ListItemIcon>
+                            <Typography textAlign='center'>{meetingText}</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleClick(() => navigate('/recent'))}>
+                            <ListItemIcon>
+                                <ScheduleIcon />
+                            </ListItemIcon>
+                            <Typography textAlign='center'>Recent</Typography>
+                        </MenuItem>
+                    </>
+                )}
 
                 <MenuItem onClick={handleClick(() => navigate('/help'))}>
                     <ListItemIcon>
@@ -346,8 +464,8 @@ const NavbarMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const auth = useAuth();
     const largeMenu = useMediaQuery('(min-width:450px)');
 
-    if (auth.status !== AuthStatus.Authenticated) {
-        return null;
+    if (auth.status === AuthStatus.Loading) {
+        return <Logo />;
     }
 
     if (largeMenu) {

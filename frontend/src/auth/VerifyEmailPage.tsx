@@ -53,9 +53,18 @@ const VerifyEmailPage = () => {
             .then(() => auth.signin(email, password))
             .catch((err) => {
                 console.dir(err);
-                submitRequest.onFailure(err);
                 if (err.message) {
                     setCodeError(err.message);
+                }
+                if (err.code === 'AliasExistsException') {
+                    submitRequest.onFailure({
+                        message:
+                            'An account with this email already exists. ' +
+                            'Note that if you previously signed in with Google, ' +
+                            'you must continue to use that option.',
+                    });
+                } else {
+                    submitRequest.onFailure(err);
                 }
             });
     };
@@ -90,11 +99,18 @@ const VerifyEmailPage = () => {
 
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <Stack alignItems='center'>
-                    <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
+                    <Typography variant='h4' textAlign='center'>
+                        Chess Dojo Scoreboard
+                    </Typography>
                     <Typography variant='h6'>Verify Email</Typography>
                 </Stack>
 
-                <Typography variant='body1' component='div' gutterBottom>
+                <Typography
+                    variant='body1'
+                    component='div'
+                    gutterBottom
+                    textAlign='center'
+                >
                     In order to complete your account creation, please enter the
                     verification code sent to {email}.
                 </Typography>

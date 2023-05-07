@@ -366,3 +366,15 @@ export function shouldPromptGraduation(user?: User): boolean {
 
     return getCurrentRating(user) >= ratingBoundary;
 }
+
+export function hasCreatedProfile(user: User): boolean {
+    if (
+        user.dojoCohort === '' ||
+        user.dojoCohort === 'NO_COHORT' ||
+        user.displayName === '' ||
+        (user.ratingSystem as string) === ''
+    ) {
+        return false;
+    }
+    return dojoCohorts.includes(user.dojoCohort);
+}

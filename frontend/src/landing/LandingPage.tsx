@@ -35,13 +35,12 @@ const LandingPage = () => {
         <Container maxWidth='md' sx={{ pt: 10 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <Stack alignItems='center' spacing={2}>
-                    <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
+                    <Typography variant='h4' textAlign='center'>
+                        Chess Dojo Scoreboard
+                    </Typography>
                     <Typography variant='h5' textAlign='center'>
                         A structured plan to hold yourself accountable and a group to do
                         it with
-                    </Typography>
-                    <Typography variant='h6' sx={{ pt: 2 }}>
-                        Sign in to Continue
                     </Typography>
                 </Stack>
                 <GoogleButton onClick={onGoogleSignIn} />

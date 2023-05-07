@@ -69,7 +69,9 @@ const SignupPage = () => {
                 <RequestSnackbar request={request} />
 
                 <Stack alignItems='center'>
-                    <Typography variant='h4'>Chess Dojo Scoreboard</Typography>
+                    <Typography variant='h4' textAlign='center'>
+                        Chess Dojo Scoreboard
+                    </Typography>
                     <Typography variant='h6'>Create Account</Typography>
                 </Stack>
 

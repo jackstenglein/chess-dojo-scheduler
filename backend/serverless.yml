@@ -34,6 +34,7 @@ provider:
     discordFindGameChannelId: ${file(./config-${sls:stage}.yml):discordFindGameChannelId}
     discordPrivateGuildId: ${file(./config-${sls:stage}.yml):discordPrivateGuildId}
     discordPublicGuildId: ${file(./config-${sls:stage}.yml):discordPublicGuildId}
+    userPoolId: { Ref: CognitoUserPool }
   httpApi:
     cors: true
     authorizers:
@@ -106,6 +107,23 @@ functions:
         Resource: !GetAtt RequirementsTable.Arn
 
   ######### User Endpoints ###############
+
+  linkProvider:
+    handler: bin/user/provider/link
+    package:
+      patterns:
+        - ./bin/user/provider/link
+    events:
+      - cognitoUserPool:
+          pool: ${sls:stage}-chess-dojo-scheduler-auth-pool
+          trigger: PreSignUp
+          existing: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:ListUsers
+          - cognito-idp:AdminLinkProviderForUser
+        Resource: !GetAtt CognitoUserPool.Arn
 
   createUser:
     handler: bin/user/create
