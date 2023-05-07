@@ -1,11 +1,10 @@
 import boto3
 import csv
-import uuid
 import datetime
 from decimal import Decimal
 
 db = boto3.resource('dynamodb')
-table = db.Table('dev-requirements')
+table = db.Table('prod-requirements')
 
 cohorts = [
 	"0-300",
@@ -81,7 +80,7 @@ def main():
     }
     updatedAt = datetime.datetime.utcnow().isoformat('T') + 'Z'
 
-    with open('requirements.csv', newline='') as infile:
+    with open('requirements.csv', newline='', encoding='utf8') as infile:
         with open('out_requirements.csv', 'w') as outfile:
             reader = csv.DictReader(infile)
             writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames)
@@ -96,8 +95,8 @@ def main():
                 startCount = getStartCount(row)
                 unitScoreOverride = getUnitScoreOverride(row)
 
-                if not row['ID']:
-                    row['ID'] = str(uuid.uuid4())
+                if not row['ID'] or row['ID'] == '':
+                    raise Exception('Row missing ID: ', row)
 
                 writer.writerow(row)
                 item = {

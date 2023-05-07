@@ -24,7 +24,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { LoadingButton } from '@mui/lab';
 
 const vimeoRegex = /^https:\/\/player.vimeo.com\/video\/\d*$/;
-const youtubeRegex = /^https:\/\/www.youtube.com\/embed\/[a-zA-Z0-9]*$/;
+const youtubeRegex = /^https:\/\/www.youtube.com\/embed\/[a-zA-Z0-9-]*$/;
 const videoUrlError =
     'URL must match the form https://player.vimeo.com/video/123456789 or https://www.youtube.com/embed/abcd1234';
 
