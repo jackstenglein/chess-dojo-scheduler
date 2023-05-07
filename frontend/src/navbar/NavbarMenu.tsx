@@ -20,6 +20,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import HelpIcon from '@mui/icons-material/Help';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 import { AuthStatus, useAuth } from '../auth/Auth';
 import PawnIcon from './PawnIcon';
@@ -73,11 +74,12 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const isAdmin = auth.user?.isAdmin;
     const navigate = useNavigate();
 
-    const showMeetingsAndRecent = useMediaQuery('(min-width:1000px)');
+    const showMaterialAndRecent = useMediaQuery('(min-width:1130px)');
+    const showMeetings = useMediaQuery('(min-width:1000px)');
     const showCalendar = useMediaQuery('(min-width:870px)');
-    const showGames = useMediaQuery('(min-width:730px)');
-    const showHelp = useMediaQuery('(min-width:621px)');
-    const showSignout = useMediaQuery('(min-width:545px)');
+    const showGames = useMediaQuery('(min-width:735px)');
+    const showHelp = useMediaQuery('(min-width:623px)');
+    const showSignout = useMediaQuery('(min-width:556px)');
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -144,16 +146,18 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                             </Button>
                         )}
 
-                        {showMeetingsAndRecent && (
-                            <>
-                                <Button
-                                    onClick={() => navigate('/meeting')}
-                                    sx={{ color: 'white' }}
-                                    startIcon={<GroupsIcon />}
-                                >
-                                    {meetingText}
-                                </Button>
+                        {showMeetings && (
+                            <Button
+                                onClick={() => navigate('/meeting')}
+                                sx={{ color: 'white' }}
+                                startIcon={<GroupsIcon />}
+                            >
+                                {meetingText}
+                            </Button>
+                        )}
 
+                        {showMaterialAndRecent && (
+                            <>
                                 <Button
                                     onClick={() => navigate('/recent')}
                                     sx={{ color: 'white' }}
@@ -161,10 +165,18 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                                 >
                                     Recent
                                 </Button>
+
+                                <Button
+                                    onClick={() => navigate('/material')}
+                                    sx={{ color: 'white' }}
+                                    startIcon={<MenuBookIcon />}
+                                >
+                                    Material
+                                </Button>
                             </>
                         )}
 
-                        {!showMeetingsAndRecent && (
+                        {!showMaterialAndRecent && (
                             <>
                                 <Button
                                     onClick={handleOpen}
@@ -207,16 +219,21 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                                             </Typography>
                                         </MenuItem>
                                     )}
-                                    <MenuItem
-                                        onClick={handleClick(() => navigate('/meeting'))}
-                                    >
-                                        <ListItemIcon>
-                                            <GroupsIcon />
-                                        </ListItemIcon>
-                                        <Typography textAlign='center'>
-                                            {meetingText}
-                                        </Typography>
-                                    </MenuItem>
+                                    {!showMeetings && (
+                                        <MenuItem
+                                            onClick={handleClick(() =>
+                                                navigate('/meeting')
+                                            )}
+                                        >
+                                            <ListItemIcon>
+                                                <GroupsIcon />
+                                            </ListItemIcon>
+                                            <Typography textAlign='center'>
+                                                {meetingText}
+                                            </Typography>
+                                        </MenuItem>
+                                    )}
+
                                     <MenuItem
                                         onClick={handleClick(() => navigate('/recent'))}
                                     >
@@ -225,6 +242,18 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                                         </ListItemIcon>
                                         <Typography textAlign='center'>Recent</Typography>
                                     </MenuItem>
+
+                                    <MenuItem
+                                        onClick={handleClick(() => navigate('/material'))}
+                                    >
+                                        <ListItemIcon>
+                                            <MenuBookIcon />
+                                        </ListItemIcon>
+                                        <Typography textAlign='center'>
+                                            Material
+                                        </Typography>
+                                    </MenuItem>
+
                                     {!showHelp && (
                                         <MenuItem
                                             onClick={handleClick(() => navigate('/help'))}
@@ -265,7 +294,7 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                 )}
             </Stack>
 
-            {isAdmin && showMeetingsAndRecent && (
+            {isAdmin && showMaterialAndRecent && (
                 <Box>
                     <Button onClick={() => navigate('/admin')} sx={{ color: 'white' }}>
                         Admin Portal
@@ -430,6 +459,12 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                                 <ScheduleIcon />
                             </ListItemIcon>
                             <Typography textAlign='center'>Recent</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleClick(() => navigate('/material'))}>
+                            <ListItemIcon>
+                                <MenuBookIcon />
+                            </ListItemIcon>
+                            <Typography textAlign='center'>Material</Typography>
                         </MenuItem>
                     </>
                 )}

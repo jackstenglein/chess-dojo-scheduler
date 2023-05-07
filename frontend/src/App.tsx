@@ -32,6 +32,7 @@ import EditGamePage from './games/EditGamePage';
 import ThemeProvider from './ThemeProvider';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import { useEffect } from 'react';
+import MaterialPage from './material/MaterialPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -132,6 +133,10 @@ function Router() {
                                 <Route index element={<RequirementPage />} />
                                 <Route path='edit' element={<RequirementEditorPage />} />
                             </Route>
+                        </Route>
+
+                        <Route path='material'>
+                            <Route index element={<MaterialPage />} />
                         </Route>
                     </Route>
                 </Route>
