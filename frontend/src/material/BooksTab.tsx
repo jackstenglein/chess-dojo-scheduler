@@ -11,7 +11,7 @@ function getDisplayTitle(b: BookModel) {
 const Book: React.FC<{ book: BookModel }> = ({ book }) => {
     if (book.link) {
         return (
-            <a href={book.link} target='__blank' rel='noreferrer'>
+            <a href={book.link} target='_blank' rel='noreferrer'>
                 <Typography>{getDisplayTitle(book)}</Typography>
             </a>
         );
@@ -23,13 +23,13 @@ const BooksTab = () => {
     return (
         <Stack spacing={3}>
             {sections.map((s) => (
-                <Stack spacing={2}>
+                <Stack key={s.title} spacing={2}>
                     <Stack>
                         <Typography variant='h6'>{s.title}</Typography>
                         <Divider />
                     </Stack>
                     {s.cohorts.map((c) => (
-                        <Stack alignItems='start'>
+                        <Stack key={c.cohort} alignItems='start'>
                             <Typography
                                 variant='subtitle1'
                                 fontWeight='bold'
