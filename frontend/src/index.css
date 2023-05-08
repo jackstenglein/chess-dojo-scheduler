@@ -50,8 +50,8 @@ div #board #boardMoves {
     color: inherit;
 }
 
-div #board #boardButton {
-    grid-area: button;
+div #board #editboardButton {
+    visibility:hidden;
 }
 
 div#board.dark move-number {
