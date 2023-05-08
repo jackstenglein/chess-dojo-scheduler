@@ -3,6 +3,7 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Container, Box, Tab } from '@mui/material';
 
 import BooksTab from './BooksTab';
+import RatingsTab from './RatingsTab';
 
 const MaterialPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'books' });
@@ -16,10 +17,16 @@ const MaterialPage = () => {
                         aria-label='profile tabs'
                     >
                         <Tab label='Books' value='books' />
+                        <Tab label='Sparring Positions' value='sparring' />
+                        <Tab label='Model Games' value='modelGames' />
+                        <Tab label='Rating Conversions' value='ratings' />
                     </TabList>
                 </Box>
                 <TabPanel value='books' sx={{ px: { xs: 0, sm: 3 } }}>
                     <BooksTab />
+                </TabPanel>
+                <TabPanel value='ratings' sx={{ px: { xs: 0, sm: 3 } }}>
+                    <RatingsTab />
                 </TabPanel>
             </TabContext>
         </Container>
