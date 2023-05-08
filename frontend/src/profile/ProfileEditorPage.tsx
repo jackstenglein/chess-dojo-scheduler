@@ -20,7 +20,7 @@ import { dojoCohorts, formatRatingSystem, RatingSystem, User } from '../database
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 
-function getStartRating(rating: string): number {
+function parseRating(rating: string): number {
     rating = rating.trim();
     if (!rating) {
         return 0;
@@ -98,6 +98,17 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
     const [startEcfRating, setStartEcfRating] = useState(`${user.startEcfRating}`);
     const [hideEcfId, setHideEcfId] = useState(user.hideEcfId);
 
+    const [cfcId, setCfcId] = useState(user.cfcId);
+    const [startCfcRating, setStartCfcRating] = useState(`${user.startCfcRating}`);
+    const [hideCfcId, setHideCfcId] = useState(user.hideCfcId);
+
+    const [currentCustomRating, setCurrentCustomRating] = useState(
+        `${user.currentCustomRating}`
+    );
+    const [startCustomRating, setStartCustomRating] = useState(
+        `${user.startCustomRating}`
+    );
+
     const [disableBookingNotifications, setDisableBookingNotifications] = useState(
         user.disableBookingNotifications
     );
@@ -117,24 +128,31 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         ratingSystem,
 
         chesscomUsername: chesscomUsername.trim(),
-        startChesscomRating: getStartRating(startChesscomRating),
+        startChesscomRating: parseRating(startChesscomRating),
         hideChesscomUsername,
 
         lichessUsername: lichessUsername.trim(),
-        startLichessRating: getStartRating(startLichessRating),
+        startLichessRating: parseRating(startLichessRating),
         hideLichessUsername,
 
         fideId: fideId.trim(),
-        startFideRating: getStartRating(startFideRating),
+        startFideRating: parseRating(startFideRating),
         hideFideId,
 
         uscfId: uscfId.trim(),
-        startUscfRating: getStartRating(startUscfRating),
+        startUscfRating: parseRating(startUscfRating),
         hideUscfId,
 
         ecfId: ecfId.trim(),
-        startEcfRating: getStartRating(startEcfRating),
+        startEcfRating: parseRating(startEcfRating),
         hideEcfId,
+
+        cfcId: cfcId.trim(),
+        startCfcRating: parseRating(startCfcRating),
+        hideCfcId,
+
+        currentCustomRating: parseRating(currentCustomRating),
+        startCustomRating: parseRating(startCustomRating),
 
         disableBookingNotifications,
         disableCancellationNotifications,
@@ -162,7 +180,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
             newErrors.chesscomUsername =
                 'This field is required when using Chess.com rating system.';
         }
-        if (getStartRating(startChesscomRating) < 0) {
+        if (parseRating(startChesscomRating) < 0) {
             newErrors.startChesscomRating = 'Rating must be an integer >= 0';
         }
 
@@ -170,29 +188,47 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
             newErrors.lichessUsername =
                 'This field is required when using Lichess rating system.';
         }
-        if (getStartRating(startLichessRating) < 0) {
+        if (parseRating(startLichessRating) < 0) {
             newErrors.startLichessRating = 'Rating must be an integer >= 0';
         }
 
         if (ratingSystem === RatingSystem.Fide && !fideId.trim()) {
             newErrors.fideId = 'This field is required when using FIDE rating system.';
         }
-        if (getStartRating(startFideRating) < 0) {
+        if (parseRating(startFideRating) < 0) {
             newErrors.startFideRating = 'Rating must be an integer >= 0';
         }
 
         if (ratingSystem === RatingSystem.Uscf && !uscfId.trim()) {
             newErrors.uscfId = 'This field is required when using USCF rating system.';
         }
-        if (getStartRating(startUscfRating) < 0) {
+        if (parseRating(startUscfRating) < 0) {
             newErrors.startUscfRating = 'Rating must be an integer >= 0';
         }
 
         if (ratingSystem === RatingSystem.Ecf && !ecfId.trim()) {
             newErrors.ecfId = 'This field is required when using ECF rating system.';
         }
-        if (getStartRating(startEcfRating) < 0) {
+        if (parseRating(startEcfRating) < 0) {
             newErrors.startEcfRating = 'Rating must be an integer >= 0';
+        }
+
+        if (ratingSystem === RatingSystem.Cfc && !cfcId.trim()) {
+            newErrors.cfcId = 'This field is required when using CFC rating system.';
+        }
+        if (parseRating(startCfcRating) < 0) {
+            newErrors.startCfcRating = 'Rating must be an integer >= 0';
+        }
+
+        if (ratingSystem === RatingSystem.Custom) {
+            if (parseRating(currentCustomRating) <= 0) {
+                newErrors.currentCustomRating =
+                    'This field is required when using Custom rating system.';
+            }
+            if (parseRating(startCustomRating) <= 0) {
+                newErrors.startCustomRating =
+                    'This field is required when using Custom rating system.';
+            }
         }
 
         setErrors(newErrors);
@@ -278,6 +314,19 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
             setHidden: setHideEcfId,
             usernameError: errors.ecfId,
             startRatingError: errors.startEcfRating,
+        },
+        {
+            required: ratingSystem === RatingSystem.Cfc,
+            label: 'CFC ID',
+            hideLabel: 'Hide ID',
+            username: cfcId,
+            setUsername: setCfcId,
+            startRating: startCfcRating,
+            setStartRating: setStartCfcRating,
+            hidden: hideCfcId,
+            setHidden: setHideCfcId,
+            usernameError: errors.cfcId,
+            startRatingError: errors.startCfcRating,
         },
     ];
 
@@ -464,6 +513,42 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                             </Grid>
                         </Grid>
                     ))}
+
+                    <Grid container columnGap={2} alignItems='center'>
+                        <Grid item xs>
+                            <TextField
+                                required={ratingSystem === RatingSystem.Custom}
+                                label='Current Rating (Custom)'
+                                value={currentCustomRating}
+                                onChange={(event) =>
+                                    setCurrentCustomRating(event.target.value)
+                                }
+                                error={!!errors.currentCustomRating}
+                                helperText={
+                                    errors.currentCustomRating ||
+                                    'Fill in if you want to manually track your rating'
+                                }
+                                sx={{ width: 1 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs>
+                            <TextField
+                                required={ratingSystem === RatingSystem.Custom}
+                                label='Start Rating (Custom)'
+                                value={startCustomRating}
+                                onChange={(event) =>
+                                    setStartCustomRating(event.target.value)
+                                }
+                                error={!!errors.startCustomRating}
+                                helperText={
+                                    errors.startCustomRating ||
+                                    'Your rating when you first joined the Dojo'
+                                }
+                                sx={{ width: 1 }}
+                            />
+                        </Grid>
+                    </Grid>
                 </Stack>
 
                 <Stack spacing={2}>

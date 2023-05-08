@@ -22,7 +22,7 @@ var repository = database.DynamoDB
 var monthAgo = time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
 
 func updateIfNecessary(user *database.User, queuedUpdates []*database.User) (*database.User, []*database.User) {
-	var chesscomRating, lichessRating, fideRating, uscfRating, ecfRating int
+	var chesscomRating, lichessRating, fideRating, uscfRating, ecfRating, cfcRating int
 	var err error
 
 	if chesscomUsername := strings.TrimSpace(user.ChesscomUsername); chesscomUsername != "" {
@@ -70,17 +70,28 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User) (*da
 		ecfRating = user.CurrentEcfRating
 	}
 
+	if cfcId := strings.TrimSpace(user.CfcId); cfcId != "" {
+		if cfcRating, err = ratings.FetchCfcRating(cfcId); err != nil {
+			log.Errorf("Failed to get CFC rating for %q: %v", user.CfcId, err)
+			cfcRating = user.CurrentCfcRating
+		}
+	} else {
+		cfcRating = user.CurrentCfcRating
+	}
+
 	if user.CurrentChesscomRating != chesscomRating ||
 		user.CurrentLichessRating != lichessRating ||
 		user.CurrentFideRating != fideRating ||
 		user.CurrentUscfRating != uscfRating ||
-		user.CurrentEcfRating != ecfRating {
+		user.CurrentEcfRating != ecfRating ||
+		user.CurrentCfcRating != cfcRating {
 
 		user.CurrentChesscomRating = chesscomRating
 		user.CurrentLichessRating = lichessRating
 		user.CurrentFideRating = fideRating
 		user.CurrentUscfRating = uscfRating
 		user.CurrentEcfRating = ecfRating
+		user.CurrentCfcRating = cfcRating
 
 		queuedUpdates = append(queuedUpdates, user)
 		if len(queuedUpdates) == 25 {

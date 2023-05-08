@@ -236,7 +236,7 @@ functions:
           - Fn::Join:
               - ''
               - - !GetAtt UsersTable.Arn
-                - '/index/CohortIndex'
+                - '/index/CohortIdx'
 
   updateRatings:
     handler: bin/user/ratings/update
@@ -780,34 +780,14 @@ resources:
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
         GlobalSecondaryIndexes:
-          - IndexName: CohortIndex
+          - IndexName: CohortIdx
             KeySchema:
               - AttributeName: dojoCohort
                 KeyType: HASH
               - AttributeName: username
                 KeyType: RANGE
             Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - displayName
-                - ratingSystem
-                - startChesscomRating
-                - currentChesscomRating
-                - startLichessRating
-                - currentLichessRating
-                - startFideRating
-                - currentFideRating
-                - startUscfRating
-                - currentUscfRating
-                - startEcfRating
-                - currentEcfRating
-                - progress
-                - createdAt
-                - numberOfGraduations
-                - previousCohort
-                - graduationCohorts
-                - lastGraduatedAt
-                - updatedAt
+              ProjectionType: ALL
             ProvisionedThroughput: !If
               - IsProd
               - ReadCapacityUnits: 2

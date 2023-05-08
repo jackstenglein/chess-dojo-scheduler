@@ -15,7 +15,7 @@ import {
     getRatingBoundary,
 } from '../database/user';
 
-const { Fide, ...others } = RatingSystem;
+const { Fide, Custom, ...others } = RatingSystem;
 
 const RatingsTab = () => {
     const ratingSystems = Object.values(others);

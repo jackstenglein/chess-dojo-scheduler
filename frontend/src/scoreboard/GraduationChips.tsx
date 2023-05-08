@@ -6,6 +6,8 @@ interface GraduationChipsProps {
     cohort: string;
 }
 
+const { Custom, ...ratingSystems } = RatingSystem;
+
 const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
     const ratingBoundary = getRatingBoundary(cohort, RatingSystem.Fide);
 
@@ -24,7 +26,7 @@ const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
         >
             <Typography>Graduation:</Typography>
 
-            {Object.values(RatingSystem).map((rs) => (
+            {Object.values(ratingSystems).map((rs) => (
                 <Chip
                     key={rs}
                     label={`${getRatingBoundary(cohort, rs)} ${formatRatingSystem(rs)}`}

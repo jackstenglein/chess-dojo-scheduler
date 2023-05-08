@@ -89,6 +89,8 @@ const (
 	Fide     RatingSystem = "FIDE"
 	Uscf     RatingSystem = "USCF"
 	Ecf      RatingSystem = "ECF"
+	Cfc      RatingSystem = "CFC"
+	Custom   RatingSystem = "CUSTOM"
 )
 
 var ratingSystems = []RatingSystem{
@@ -97,6 +99,8 @@ var ratingSystems = []RatingSystem{
 	Fide,
 	Uscf,
 	Ecf,
+	Cfc,
+	Custom,
 }
 
 type User struct {
@@ -178,8 +182,26 @@ type User struct {
 	// The user's starting ECF rating
 	StartEcfRating int `dynamodbav:"startEcfRating" json:"startEcfRating"`
 
-	// The user's current Ecf rating
+	// The user's current ECF rating
 	CurrentEcfRating int `dynamodbav:"currentEcfRating" json:"currentEcfRating"`
+
+	// The user's CFC id
+	CfcId string `dynamodbav:"cfcId" json:"cfcId"`
+
+	// Whether to hide the user's CFC ID from other users
+	HideCfcId bool `dynamodbav:"hideCfcId" json:"hideCfcId"`
+
+	// The user's starting CFC rating
+	StartCfcRating int `dynamodbav:"startCfcRating" json:"startCfcRating"`
+
+	// The user's current CFC rating
+	CurrentCfcRating int `dynamodbav:"currentCfcRating" json:"currentCfcRating"`
+
+	// The user's start custom rating
+	StartCustomRating int `dynamodbav:"startCustomRating" json:"startCustomRating"`
+
+	// The user's current custom rating
+	CurrentCustomRating int `dynamodbav:"currentCustomRating" json:"currentCustomRating"`
 
 	// The user's Dojo cohort
 	DojoCohort DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
@@ -250,6 +272,10 @@ func (u *User) GetRatings() (int, int) {
 		return u.StartUscfRating, u.CurrentUscfRating
 	case Ecf:
 		return u.StartEcfRating, u.CurrentEcfRating
+	case Cfc:
+		return u.StartCfcRating, u.CurrentCfcRating
+	case Custom:
+		return u.StartCustomRating, u.CurrentCustomRating
 	default:
 		return 0, 0
 	}
@@ -358,6 +384,25 @@ type UserUpdate struct {
 	// The user's current Ecf rating
 	// Cannot be manually passed by the user and is updated automatically by the server.
 	CurrentEcfRating *int `dynamodbav:"currentEcfRating,omitempty" json:"-"`
+
+	// The user's CFC id
+	CfcId *string `dynamodbav:"cfcId,omitempty" json:"cfcId,omitempty"`
+
+	// Whether to hide the user's CFC ID from other users
+	HideCfcId *bool `dynamodbav:"hideCfcId,omitempty" json:"hideCfcId,omitempty"`
+
+	// The user's starting CFC rating
+	StartCfcRating *int `dynamodbav:"startCfcRating,omitempty" json:"startCfcRating,omitempty"`
+
+	// The user's current CFC rating
+	// Cannot be manually passed by the user and is updated automatically by the server.
+	CurrentCfcRating *int `dynamodbav:"currentCfcRating,omitempty" json:"-"`
+
+	// The user's start custom rating
+	StartCustomRating *int `dynamodbav:"startCustomRating,omitempty" json:"startCustomRating,omitempty"`
+
+	// The user's current custom rating
+	CurrentCustomRating *int `dynamodbav:"currentCustomRating,omitempty" json:"currentCustomRating,omitempty"`
 
 	// The user's Dojo cohort
 	DojoCohort *DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort,omitempty"`
@@ -641,7 +686,7 @@ func (repo *dynamoRepository) ListUsersByCohort(cohort DojoCohort, startKey stri
 			":u":      {S: aws.String(monthAgo)},
 		},
 		FilterExpression: aws.String("#u >= :u"),
-		IndexName:        aws.String("CohortIndex"),
+		IndexName:        aws.String("CohortIdx"),
 		TableName:        aws.String(userTable),
 	}
 
@@ -677,7 +722,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 
 const ratingsProjection = "username, dojoCohort, updatedAt, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
 	"uscfId, startChesscomRating, currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, " +
-	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating"
+	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating, startCfcRating, currentCfcRating"
 
 // ScanUserRatings returns a list of all Users in the database, up to 1MB of data.
 // Only the usernames, cohorts and ratings are returned.
@@ -715,6 +760,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		sb.WriteString(fmt.Sprintf(" SET currentChesscomRating=%d SET currentLichessRating=%d", user.CurrentChesscomRating, user.CurrentLichessRating))
 		sb.WriteString(fmt.Sprintf(" SET currentFideRating=%d SET currentUscfRating=%d", user.CurrentFideRating, user.CurrentUscfRating))
 		sb.WriteString(fmt.Sprintf(" SET currentEcfRating=%d", user.CurrentEcfRating))
+		sb.WriteString(fmt.Sprintf(" SET currentCfcRating=%d", user.CurrentCfcRating))
 
 		if user.StartChesscomRating == 0 {
 			sb.WriteString(fmt.Sprintf(" SET startChesscomRating=%d", user.CurrentChesscomRating))
@@ -730,6 +776,9 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		}
 		if user.StartEcfRating == 0 {
 			sb.WriteString(fmt.Sprintf(" SET startEcfRating=%d", user.CurrentEcfRating))
+		}
+		if user.StartCfcRating == 0 {
+			sb.WriteString(fmt.Sprintf(" SET startCfcRating=%d", user.CurrentCfcRating))
 		}
 		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 

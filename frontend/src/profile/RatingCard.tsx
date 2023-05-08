@@ -18,6 +18,10 @@ function getMemberLink(ratingSystem: RatingSystem, username: string): string {
             return `https://www.uschess.org/msa/MbrDtlMain.php?${username}`;
         case RatingSystem.Ecf:
             return `https://www.ecfrating.org.uk/v2/new/player.php?ECF_code=${username}`;
+        case RatingSystem.Cfc:
+            return `https://www.chess.ca/en/ratings/p/?id=${username}`;
+        case RatingSystem.Custom:
+            return '';
     }
 }
 

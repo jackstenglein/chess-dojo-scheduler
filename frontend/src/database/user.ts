@@ -29,9 +29,11 @@ export enum RatingSystem {
     Fide = 'FIDE',
     Uscf = 'USCF',
     Ecf = 'ECF',
+    Cfc = 'CFC',
+    Custom = 'CUSTOM',
 }
 
-export function formatRatingSystem(ratingSystem: RatingSystem): string {
+export function formatRatingSystem(ratingSystem: RatingSystem | string): string {
     switch (ratingSystem) {
         case RatingSystem.Chesscom:
             return 'Chess.com Rapid';
@@ -43,7 +45,12 @@ export function formatRatingSystem(ratingSystem: RatingSystem): string {
             return 'USCF';
         case RatingSystem.Ecf:
             return 'ECF';
+        case RatingSystem.Cfc:
+            return 'CFC';
+        case RatingSystem.Custom:
+            return 'Custom';
     }
+    return ratingSystem;
 }
 
 export interface User {
@@ -82,6 +89,14 @@ export interface User {
     startEcfRating: number;
     currentEcfRating: number;
 
+    cfcId: string;
+    hideCfcId: boolean;
+    startCfcRating: number;
+    currentCfcRating: number;
+
+    startCustomRating: number;
+    currentCustomRating: number;
+
     progress: { [requirementId: string]: RequirementProgress };
     timeline: TimelineEntry[];
     disableBookingNotifications: boolean;
@@ -110,8 +125,17 @@ export function getStartRating(user?: User): number {
     if (!user) {
         return 0;
     }
+    return getSystemStartRating(user, user.ratingSystem);
+}
 
-    switch (user.ratingSystem) {
+export function getSystemStartRating(
+    user: User | undefined,
+    ratingSystem: RatingSystem
+): number {
+    if (!user) {
+        return 0;
+    }
+    switch (ratingSystem) {
         case RatingSystem.Chesscom:
             return user.startChesscomRating;
         case RatingSystem.Lichess:
@@ -122,6 +146,10 @@ export function getStartRating(user?: User): number {
             return user.startUscfRating;
         case RatingSystem.Ecf:
             return user.startEcfRating;
+        case RatingSystem.Cfc:
+            return user.startCfcRating;
+        case RatingSystem.Custom:
+            return user.startCustomRating;
     }
 }
 
@@ -129,8 +157,17 @@ export function getCurrentRating(user?: User): number {
     if (!user) {
         return 0;
     }
+    return getSystemCurrentRating(user, user.ratingSystem);
+}
 
-    switch (user.ratingSystem) {
+export function getSystemCurrentRating(
+    user: User | undefined,
+    ratingSystem: RatingSystem
+): number {
+    if (!user) {
+        return 0;
+    }
+    switch (ratingSystem) {
         case RatingSystem.Chesscom:
             return user.currentChesscomRating;
         case RatingSystem.Lichess:
@@ -141,6 +178,60 @@ export function getCurrentRating(user?: User): number {
             return user.currentUscfRating;
         case RatingSystem.Ecf:
             return user.currentEcfRating;
+        case RatingSystem.Cfc:
+            return user.currentCfcRating;
+        case RatingSystem.Custom:
+            return user.currentCustomRating;
+    }
+}
+
+export function getRatingUsername(
+    user: User | undefined,
+    ratingSystem: RatingSystem
+): string {
+    if (!user) {
+        return '';
+    }
+    switch (ratingSystem) {
+        case RatingSystem.Chesscom:
+            return user.chesscomUsername;
+        case RatingSystem.Lichess:
+            return user.lichessUsername;
+        case RatingSystem.Fide:
+            return user.fideId;
+        case RatingSystem.Uscf:
+            return user.uscfId;
+        case RatingSystem.Ecf:
+            return user.ecfId;
+        case RatingSystem.Cfc:
+            return user.cfcId;
+        case RatingSystem.Custom:
+            return '';
+    }
+}
+
+export function hideRatingUsername(
+    user: User | undefined,
+    ratingSystem: RatingSystem
+): boolean {
+    if (!user) {
+        return true;
+    }
+    switch (ratingSystem) {
+        case RatingSystem.Chesscom:
+            return user.hideChesscomUsername;
+        case RatingSystem.Lichess:
+            return user.hideLichessUsername;
+        case RatingSystem.Fide:
+            return user.hideFideId;
+        case RatingSystem.Uscf:
+            return user.hideUscfId;
+        case RatingSystem.Ecf:
+            return user.hideEcfId;
+        case RatingSystem.Cfc:
+            return user.hideCfcId;
+        case RatingSystem.Custom:
+            return true;
     }
 }
 
@@ -188,6 +279,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Fide]: 300,
         [RatingSystem.Uscf]: 350,
         [RatingSystem.Ecf]: 300,
+        [RatingSystem.Cfc]: 425,
+        [RatingSystem.Custom]: -1,
     },
     '300-400': {
         [RatingSystem.Chesscom]: 650,
@@ -195,6 +288,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Fide]: 400,
         [RatingSystem.Uscf]: 450,
         [RatingSystem.Ecf]: 400,
+        [RatingSystem.Cfc]: 525,
+        [RatingSystem.Custom]: -1,
     },
     '400-500': {
         [RatingSystem.Chesscom]: 750,
@@ -202,6 +297,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Fide]: 500,
         [RatingSystem.Uscf]: 550,
         [RatingSystem.Ecf]: 500,
+        [RatingSystem.Cfc]: 625,
+        [RatingSystem.Custom]: -1,
     },
     '500-600': {
         [RatingSystem.Chesscom]: 850,
@@ -209,6 +306,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Fide]: 600,
         [RatingSystem.Uscf]: 650,
         [RatingSystem.Ecf]: 600,
+        [RatingSystem.Cfc]: 725,
+        [RatingSystem.Custom]: -1,
     },
     '600-700': {
         [RatingSystem.Chesscom]: 950,
@@ -216,6 +315,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Fide]: 700,
         [RatingSystem.Uscf]: 750,
         [RatingSystem.Ecf]: 700,
+        [RatingSystem.Cfc]: 825,
+        [RatingSystem.Custom]: -1,
     },
     '700-800': {
         [RatingSystem.Chesscom]: 1050,
@@ -223,6 +324,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Fide]: 800,
         [RatingSystem.Uscf]: 850,
         [RatingSystem.Ecf]: 800,
+        [RatingSystem.Cfc]: 925,
+        [RatingSystem.Custom]: -1,
     },
     '800-900': {
         [RatingSystem.Chesscom]: 1150,
@@ -230,6 +333,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Fide]: 900,
         [RatingSystem.Uscf]: 950,
         [RatingSystem.Ecf]: 900,
+        [RatingSystem.Cfc]: 1025,
+        [RatingSystem.Custom]: -1,
     },
     '900-1000': {
         [RatingSystem.Fide]: 1000,
@@ -237,6 +342,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 1250,
         [RatingSystem.Lichess]: 1475,
         [RatingSystem.Ecf]: 1000,
+        [RatingSystem.Cfc]: 1125,
+        [RatingSystem.Custom]: -1,
     },
     '1000-1100': {
         [RatingSystem.Fide]: 1100,
@@ -244,6 +351,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 1350,
         [RatingSystem.Lichess]: 1575,
         [RatingSystem.Ecf]: 1100,
+        [RatingSystem.Cfc]: 1225,
+        [RatingSystem.Custom]: -1,
     },
     '1100-1200': {
         [RatingSystem.Fide]: 1200,
@@ -251,6 +360,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 1450,
         [RatingSystem.Lichess]: 1675,
         [RatingSystem.Ecf]: 1200,
+        [RatingSystem.Cfc]: 1325,
+        [RatingSystem.Custom]: -1,
     },
     '1200-1300': {
         [RatingSystem.Fide]: 1300,
@@ -258,6 +369,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 1550,
         [RatingSystem.Lichess]: 1750,
         [RatingSystem.Ecf]: 1300,
+        [RatingSystem.Cfc]: 1425,
+        [RatingSystem.Custom]: -1,
     },
     '1300-1400': {
         [RatingSystem.Fide]: 1400,
@@ -265,6 +378,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 1650,
         [RatingSystem.Lichess]: 1825,
         [RatingSystem.Ecf]: 1400,
+        [RatingSystem.Cfc]: 1525,
+        [RatingSystem.Custom]: -1,
     },
     '1400-1500': {
         [RatingSystem.Fide]: 1500,
@@ -272,6 +387,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 1750,
         [RatingSystem.Lichess]: 1900,
         [RatingSystem.Ecf]: 1500,
+        [RatingSystem.Cfc]: 1625,
+        [RatingSystem.Custom]: -1,
     },
     '1500-1600': {
         [RatingSystem.Fide]: 1600,
@@ -279,6 +396,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 1850,
         [RatingSystem.Lichess]: 2000,
         [RatingSystem.Ecf]: 1600,
+        [RatingSystem.Cfc]: 1725,
+        [RatingSystem.Custom]: -1,
     },
     '1600-1700': {
         [RatingSystem.Fide]: 1700,
@@ -286,6 +405,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 1950,
         [RatingSystem.Lichess]: 2075,
         [RatingSystem.Ecf]: 1700,
+        [RatingSystem.Cfc]: 1825,
+        [RatingSystem.Custom]: -1,
     },
     '1700-1800': {
         [RatingSystem.Fide]: 1800,
@@ -293,6 +414,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 2050,
         [RatingSystem.Lichess]: 2150,
         [RatingSystem.Ecf]: 1800,
+        [RatingSystem.Cfc]: 1925,
+        [RatingSystem.Custom]: -1,
     },
     '1800-1900': {
         [RatingSystem.Fide]: 1900,
@@ -300,6 +423,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 2150,
         [RatingSystem.Lichess]: 2225,
         [RatingSystem.Ecf]: 1900,
+        [RatingSystem.Cfc]: 2025,
+        [RatingSystem.Custom]: -1,
     },
     '1900-2000': {
         [RatingSystem.Fide]: 2000,
@@ -307,6 +432,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 2250,
         [RatingSystem.Lichess]: 2300,
         [RatingSystem.Ecf]: 2000,
+        [RatingSystem.Cfc]: 2125,
+        [RatingSystem.Custom]: -1,
     },
     '2000-2100': {
         [RatingSystem.Fide]: 2100,
@@ -314,6 +441,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 2350,
         [RatingSystem.Lichess]: 2375,
         [RatingSystem.Ecf]: 2100,
+        [RatingSystem.Cfc]: 2225,
+        [RatingSystem.Custom]: -1,
     },
     '2100-2200': {
         [RatingSystem.Fide]: 2200,
@@ -321,6 +450,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 2425,
         [RatingSystem.Lichess]: 2450,
         [RatingSystem.Ecf]: 2200,
+        [RatingSystem.Cfc]: 2325,
+        [RatingSystem.Custom]: -1,
     },
     '2200-2300': {
         [RatingSystem.Fide]: 2300,
@@ -328,6 +459,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 2525,
         [RatingSystem.Lichess]: 2525,
         [RatingSystem.Ecf]: 2300,
+        [RatingSystem.Cfc]: 2425,
+        [RatingSystem.Custom]: -1,
     },
     '2300-2400': {
         [RatingSystem.Fide]: 2400,
@@ -335,6 +468,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Chesscom]: 2600,
         [RatingSystem.Lichess]: 2600,
         [RatingSystem.Ecf]: 2400,
+        [RatingSystem.Cfc]: 2525,
+        [RatingSystem.Custom]: -1,
     },
 };
 
@@ -347,7 +482,11 @@ export function getRatingBoundary(
         return undefined;
     }
 
-    return cohortBoundaries[ratingSystem];
+    const boundary = cohortBoundaries[ratingSystem];
+    if (boundary <= 0) {
+        return undefined;
+    }
+    return boundary;
 }
 
 export function shouldPromptGraduation(user?: User): boolean {

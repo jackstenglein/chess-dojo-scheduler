@@ -36,6 +36,12 @@ type EcfResponse struct {
 	Rating int `json:"revised_rating"`
 }
 
+type CfcResponse struct {
+	Player struct {
+		Rating int `json:"regular_rating"`
+	} `json:"player"`
+}
+
 func FetchChesscomRating(chesscomUsername string) (int, error) {
 	resp, err := http.Get(fmt.Sprintf("https://api.chess.com/pub/player/%s/stats", chesscomUsername))
 	if err != nil {
@@ -170,4 +176,24 @@ func FetchEcfRating(ecfId string) (int, error) {
 	}
 
 	return rating.Rating, nil
+}
+
+func FetchCfcRating(cfcId string) (int, error) {
+	resp, err := http.Get(fmt.Sprintf("https://server.chess.ca/api/player/v1/%s", cfcId))
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed call to CFC API", err)
+		return 0, err
+	}
+
+	if resp.StatusCode != 200 {
+		err = errors.New(400, fmt.Sprintf("Invalid request: CFC API returned status `%d`", resp.StatusCode), "")
+		return 0, err
+	}
+
+	var r CfcResponse
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to parse CFC API response", err)
+		return 0, err
+	}
+	return r.Player.Rating, nil
 }

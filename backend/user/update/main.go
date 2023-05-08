@@ -67,6 +67,12 @@ func fetchRatings(update *database.UserUpdate) error {
 			return err
 		}
 	}
+	if update.CfcId != nil {
+		err := fetchCurrentRating(&update.CfcId, &update.CurrentCfcRating, ratings.FetchCfcRating)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
