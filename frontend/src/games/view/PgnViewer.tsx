@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { pgnView } from '@mliebelt/pgn-viewer';
+import { pgnEdit } from '@mliebelt/pgn-viewer';
 import {
     Button,
     Grid,
@@ -151,7 +151,7 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
     const id = 'board';
 
     useLayoutEffect(() => {
-        pgnView(id, {
+        pgnEdit(id, {
             pgn: game.pgn,
             pieceStyle: 'wikipedia',
             theme: 'brown',
