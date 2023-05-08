@@ -72,7 +72,7 @@ const GraduationCard: React.FC<GraduationCardProps> = ({ graduation }) => {
 const RecentGraduates = () => {
     const api = useApi();
     const request = useRequest<Graduation[]>();
-    const [timeframe, setTimeframe] = useState('month');
+    const [timeframe, setTimeframe] = useState('week');
 
     useEffect(() => {
         if (!request.isSent()) {
