@@ -22,6 +22,7 @@ import {
     sections,
     Position as PositionModel,
     CohortPositions as CohortPositionsModel,
+    PositionSection,
 } from './sparring';
 import React, { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -71,11 +72,22 @@ const Position: React.FC<PositionProps> = ({ sectionTitle, position }) => {
             <CardHeader
                 sx={{ px: 1 }}
                 subheader={
-                    <Stack direction='row' justifyContent='space-between' px={1}>
-                        <Typography>{position.title}</Typography>
-                        <Typography>
-                            {position.limitSeconds / 60}+{position.incrementSeconds}
-                        </Typography>
+                    <Stack px={1}>
+                        <Stack direction='row' justifyContent='space-between'>
+                            <Typography>{position.title}</Typography>
+                            <Typography>
+                                {position.limitSeconds / 60}+{position.incrementSeconds}
+                            </Typography>
+                        </Stack>
+                        {position.result && (
+                            <Typography
+                                variant='overline'
+                                color='text.secondary'
+                                sx={{ mb: -1 }}
+                            >
+                                {position.result}
+                            </Typography>
+                        )}
                     </Stack>
                 }
             />
@@ -154,23 +166,46 @@ const CohortPositions: React.FC<CohortPositionsProps> = ({ sectionTitle, cohort 
     );
 };
 
+interface SparringSectionProps {
+    section: PositionSection;
+}
+
+const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
+    const [open, setOpen] = useState(false);
+    const toggleOpen = () => {
+        setOpen(!open);
+    };
+
+    return (
+        <Box>
+            <Stack direction='row' alignItems='center'>
+                <IconButton size='small' onClick={toggleOpen}>
+                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                </IconButton>
+                <Typography variant='h6'>{section.title}</Typography>
+            </Stack>
+            <Divider />
+
+            <Collapse in={open} timeout='auto' unmountOnExit>
+                <Stack spacing={2}>
+                    {section.cohorts.map((c) => (
+                        <CohortPositions
+                            key={c.cohort}
+                            cohort={c}
+                            sectionTitle={section.title}
+                        />
+                    ))}
+                </Stack>
+            </Collapse>
+        </Box>
+    );
+};
+
 const SparringTab = () => {
     return (
         <Stack spacing={3}>
             {sections.map((s) => (
-                <Stack key={s.title} spacing={2}>
-                    <Stack>
-                        <Typography variant='h6'>{s.title}</Typography>
-                        <Divider />
-                    </Stack>
-                    {s.cohorts.map((c) => (
-                        <CohortPositions
-                            key={c.cohort}
-                            cohort={c}
-                            sectionTitle={s.title}
-                        />
-                    ))}
-                </Stack>
+                <SparringSection key={s.title} section={s} />
             ))}
         </Stack>
     );
