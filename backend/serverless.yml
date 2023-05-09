@@ -246,7 +246,7 @@ functions:
         - ./bin/user/ratings/update
     events:
       - schedule: cron(0 0 * * ? *)
-    timeout: 600
+    timeout: 900
     iamRoleStatements:
       - Effect: Allow
         Action:

@@ -793,6 +793,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 	input := &dynamodb.BatchExecuteStatementInput{
 		Statements: statements,
 	}
+	log.Debugf("Batch execute statement input: %v", input)
 	output, err := repo.svc.BatchExecuteStatement(input)
 	log.Debugf("Batch execute statement output: %v", output)
 

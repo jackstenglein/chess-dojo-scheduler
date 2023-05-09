@@ -105,13 +105,12 @@ func FetchBulkLichessRatings(lichessUsernames []string) (map[string]int, error) 
 		err = errors.Wrap(500, "Temporary server error", "Failed to read lichess response", err)
 		return nil, err
 	}
-	log.Debugf("rs: %#v", rs)
 
 	result := make(map[string]int, len(rs))
 	for _, r := range rs {
 		result[r.Id] = r.Performances.Classical.Rating
 	}
-	log.Debugf("Result: %#v", result)
+	log.Debugf("Bluk Lichess result: %#v", result)
 	return result, nil
 }
 

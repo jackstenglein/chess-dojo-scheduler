@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -21,92 +22,56 @@ var repository = database.DynamoDB
 
 var monthAgo = time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
 
+type ratingFetchFunc func(username string) (int, error)
+
+func fetchRating(username string, ratingSystem string, currentRating *int, startRating int, fetcher ratingFetchFunc) bool {
+	trimmedUsername := strings.TrimSpace(username)
+	if trimmedUsername == "" {
+		return false
+	}
+
+	rating, err := fetcher(trimmedUsername)
+	if err != nil {
+		log.Errorf("Failed to get %s rating for %q: %v", ratingSystem, username, err)
+		return false
+	}
+
+	if rating != *currentRating {
+		*currentRating = rating
+		return true
+	}
+
+	if startRating == 0 {
+		return true
+	}
+
+	return false
+}
+
 func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lichessRatings map[string]int) (*database.User, []*database.User) {
-	var chesscomRating, lichessRating, fideRating, uscfRating, ecfRating, cfcRating int
-	var err error
-	var ok bool
+	shouldUpdate := fetchRating(user.ChesscomUsername, "Chess.com", &user.CurrentChesscomRating, user.StartChesscomRating, ratings.FetchChesscomRating)
+	shouldUpdate = shouldUpdate || fetchRating(user.FideId, "FIDE", &user.CurrentFideRating, user.StartFideRating, ratings.FetchFideRating)
+	shouldUpdate = shouldUpdate || fetchRating(user.UscfId, "USCF", &user.CurrentUscfRating, user.StartUscfRating, ratings.FetchUscfRating)
+	shouldUpdate = shouldUpdate || fetchRating(user.EcfId, "ECF", &user.CurrentEcfRating, user.StartEcfRating, ratings.FetchEcfRating)
+	shouldUpdate = shouldUpdate || fetchRating(user.CfcId, "CFC", &user.CurrentCfcRating, user.StartCfcRating, ratings.FetchCfcRating)
 
-	if chesscomUsername := strings.TrimSpace(user.ChesscomUsername); chesscomUsername != "" {
-		if chesscomRating, err = ratings.FetchChesscomRating(chesscomUsername); err != nil {
-			log.Errorf("Failed to get Chess.com rating for %q: %v", user.ChesscomUsername, err)
-			chesscomRating = user.CurrentChesscomRating
-		}
-	} else {
-		chesscomRating = user.CurrentChesscomRating
-	}
+	shouldUpdate = shouldUpdate || fetchRating(user.LichessUsername, "Lichess", &user.CurrentLichessRating, user.StartLichessRating,
+		func(username string) (int, error) {
+			if rating, ok := lichessRatings[strings.ToLower(username)]; !ok {
+				return 0, errors.New("No Lichess rating found in cache")
+			} else {
+				return rating, nil
+			}
+		},
+	)
 
-	if lichessUsername := strings.TrimSpace(user.LichessUsername); lichessUsername != "" {
-		if lichessRating, ok = lichessRatings[lichessUsername]; !ok {
-			log.Errorf("No lichess rating found for user %q", user.LichessUsername)
-			lichessRating = user.CurrentLichessRating
-		}
-	} else {
-		lichessRating = user.CurrentLichessRating
-	}
-
-	if fideId := strings.TrimSpace(user.FideId); fideId != "" {
-		if fideRating, err = ratings.FetchFideRating(fideId); err != nil {
-			log.Errorf("Failed to get FIDE rating for %q: %v", user.FideId, err)
-			fideRating = user.CurrentFideRating
-		}
-	} else {
-		fideRating = user.CurrentFideRating
-	}
-
-	if uscfId := strings.TrimSpace(user.UscfId); uscfId != "" {
-		if uscfRating, err = ratings.FetchUscfRating(uscfId); err != nil {
-			log.Errorf("Failed to get USCF rating for %q: %v", user.UscfId, err)
-			uscfRating = user.CurrentUscfRating
-		}
-	} else {
-		uscfRating = user.CurrentUscfRating
-	}
-
-	if ecfId := strings.TrimSpace(user.EcfId); ecfId != "" {
-		if ecfRating, err = ratings.FetchEcfRating(ecfId); err != nil {
-			log.Errorf("Failed to get ECF rating for %q: %v", user.EcfId, err)
-			ecfRating = user.CurrentEcfRating
-		}
-	} else {
-		ecfRating = user.CurrentEcfRating
-	}
-
-	if cfcId := strings.TrimSpace(user.CfcId); cfcId != "" {
-		if cfcRating, err = ratings.FetchCfcRating(cfcId); err != nil {
-			log.Errorf("Failed to get CFC rating for %q: %v", user.CfcId, err)
-			cfcRating = user.CurrentCfcRating
-		}
-	} else {
-		cfcRating = user.CurrentCfcRating
-	}
-
-	if user.CurrentChesscomRating != chesscomRating ||
-		user.CurrentLichessRating != lichessRating ||
-		user.CurrentFideRating != fideRating ||
-		user.CurrentUscfRating != uscfRating ||
-		user.CurrentEcfRating != ecfRating ||
-		user.CurrentCfcRating != cfcRating ||
-		user.StartChesscomRating == 0 ||
-		user.StartLichessRating == 0 ||
-		user.StartFideRating == 0 ||
-		user.StartUscfRating == 0 ||
-		user.StartEcfRating == 0 ||
-		user.StartCfcRating == 0 {
-
-		user.CurrentChesscomRating = chesscomRating
-		user.CurrentLichessRating = lichessRating
-		user.CurrentFideRating = fideRating
-		user.CurrentUscfRating = uscfRating
-		user.CurrentEcfRating = ecfRating
-		user.CurrentCfcRating = cfcRating
-
+	if shouldUpdate {
 		queuedUpdates = append(queuedUpdates, user)
 		if len(queuedUpdates) == 25 {
-			log.Debugf("Updating users: %#v", queuedUpdates)
 			if err := repository.UpdateUserRatings(queuedUpdates); err != nil {
 				log.Error(err)
 			} else {
-				log.Debugf("Updated %d users", len(queuedUpdates))
+				log.Infof("Updated %d users", len(queuedUpdates))
 			}
 			queuedUpdates = nil
 		}
@@ -179,7 +144,7 @@ func updateUsers(users []*database.User, stats *database.UserStatistics) {
 		if err := repository.UpdateUserRatings(queuedUpdates); err != nil {
 			log.Error(err)
 		} else {
-			log.Debugf("Updated %d users", len(queuedUpdates))
+			log.Infof("Updated %d users", len(queuedUpdates))
 		}
 	}
 }
@@ -199,7 +164,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 			log.Errorf("Failed to scan users: %v", err)
 			return event, err
 		}
-		log.Debugf("Updating %d users", len(users))
+		log.Infof("Processing %d users", len(users))
 		updateUsers(users, stats)
 	}
 
