@@ -32,6 +32,61 @@ const ratingSystemsSecondaryAxes: AxisOptions<Datum>[] = [
         },
     },
 ];
+const decimalSecondaryAxes: AxisOptions<Datum>[] = [
+    {
+        scaleType: 'linear',
+        getValue: (datum) => datum.value,
+    },
+];
+
+function formatTime(value: number) {
+    const hours = Math.floor(value / 60);
+    const minutes = value % 60;
+    return `${hours}h ${minutes}m`;
+}
+
+const timeSecondaryAxes: AxisOptions<Datum>[] = [
+    {
+        scaleType: 'linear',
+        getValue: (datum) => datum.value,
+        formatters: {
+            scale: formatTime,
+        },
+    },
+];
+
+function getSeries(
+    data: UserStatistics | undefined,
+    getActiveValue: (d: UserStatistics, c: string) => number,
+    getInactiveValue: (d: UserStatistics, c: string) => number
+): Series[] {
+    if (!data) {
+        return [];
+    }
+
+    return [
+        {
+            label: 'Active',
+            data: dojoCohorts.map((c) => {
+                const result = getActiveValue(data, c);
+                return {
+                    cohort: c,
+                    value: isNaN(result) ? 0 : result,
+                };
+            }),
+        },
+        {
+            label: 'Inactive',
+            data: dojoCohorts.map((c) => {
+                const result = getInactiveValue(data, c);
+                return {
+                    cohort: c,
+                    value: isNaN(result) ? 0 : result,
+                };
+            }),
+        },
+    ];
+}
 
 const StatisticsPage = () => {
     const api = useApi();
@@ -54,27 +109,11 @@ const StatisticsPage = () => {
     }, [request, api]);
 
     const participantsData: Series[] = useMemo(() => {
-        if (!request.data) {
-            return [];
-        }
-        return [
-            {
-                label: 'Active',
-                data: dojoCohorts.map((c) => ({
-                    cohort: c,
-                    value: request.data!.activeParticipants[c],
-                })),
-            },
-            {
-                label: 'Inactive',
-                data: dojoCohorts.map((c) => ({
-                    cohort: c,
-                    value:
-                        request.data!.participants[c] -
-                        request.data!.activeParticipants[c],
-                })),
-            },
-        ];
+        return getSeries(
+            request.data,
+            (d, c) => d.activeParticipants[c],
+            (d, c) => d.participants[c] - d.activeParticipants[c]
+        );
     }, [request.data]);
 
     const ratingSystemsData: Series[] = useMemo(() => {
@@ -88,6 +127,42 @@ const StatisticsPage = () => {
                 value: request.data!.ratingSystems[c][rs],
             })),
         }));
+    }, [request.data]);
+
+    const totalRatingChangeData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.activeRatingChanges[c],
+            (d, c) => d.ratingChanges[c] - d.activeRatingChanges[c]
+        );
+    }, [request.data]);
+
+    const avgRatingChangeData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.activeRatingChanges[c] / d.activeParticipants[c],
+            (d, c) =>
+                (d.ratingChanges[c] - d.activeRatingChanges[c]) /
+                (d.participants[c] - d.activeParticipants[c])
+        );
+    }, [request.data]);
+
+    const totalTimeData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.activeMinutesSpent[c],
+            (d, c) => d.minutesSpent[c] - d.activeMinutesSpent[c]
+        );
+    }, [request.data]);
+
+    const avgTimeData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.activeMinutesSpent[c] / d.activeParticipants[c],
+            (d, c) =>
+                (d.minutesSpent[c] - d.activeMinutesSpent[c]) /
+                (d.participants[c] - d.activeParticipants[c])
+        );
     }, [request.data]);
 
     if (request.isLoading() && request.data === undefined) {
@@ -134,6 +209,35 @@ const StatisticsPage = () => {
                     series={ratingSystemsData}
                     primaryAxis={primaryAxis}
                     secondaryAxes={ratingSystemsSecondaryAxes}
+                />
+
+                <Chart
+                    title='Total Rating Change'
+                    series={totalRatingChangeData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={decimalSecondaryAxes}
+                />
+                <Chart
+                    title='Average Rating Change'
+                    series={avgRatingChangeData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={decimalSecondaryAxes}
+                    hideSums
+                />
+
+                <Chart
+                    title='Total Time Spent'
+                    series={totalTimeData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={timeSecondaryAxes}
+                    sumFormatter={formatTime}
+                />
+                <Chart
+                    title='Average Time Spent'
+                    series={avgTimeData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={timeSecondaryAxes}
+                    hideSums
                 />
             </Stack>
         </Container>

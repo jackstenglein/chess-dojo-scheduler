@@ -19,6 +19,8 @@ interface ChartProps {
     series: Series[];
     primaryAxis: AxisOptions<Datum>;
     secondaryAxes: AxisOptions<Datum>[];
+    hideSums?: boolean;
+    sumFormatter?: (sum: number) => string;
 }
 
 const colors = [
@@ -29,31 +31,43 @@ const colors = [
     'rgb(162, 217, 37)',
 ];
 
-const Chart: React.FC<ChartProps> = ({ title, series, primaryAxis, secondaryAxes }) => {
+const Chart: React.FC<ChartProps> = ({
+    title,
+    series,
+    primaryAxis,
+    secondaryAxes,
+    hideSums,
+    sumFormatter,
+}) => {
     const user = useAuth().user;
 
     return (
         <Stack>
             <Typography variant='subtitle1'>{title}</Typography>
-            <Stack direction='row' spacing={1} mb={1} rowGap={1} flexWrap='wrap'>
-                {series.map((s, i) => {
-                    const sum = s.data.reduce((sum, d) => sum + d.value, 0);
-                    return (
-                        <Chip
-                            key={s.label}
-                            label={`${sum} ${s.label}`}
-                            size='small'
-                            icon={
-                                <CircleIcon
-                                    sx={{
-                                        color: `${colors[i % colors.length]} !important`,
-                                    }}
-                                />
-                            }
-                        />
-                    );
-                })}
-            </Stack>
+            {!hideSums && (
+                <Stack direction='row' spacing={1} mb={1} rowGap={1} flexWrap='wrap'>
+                    {series.map((s, i) => {
+                        const sum = s.data.reduce((sum, d) => sum + d.value, 0);
+                        const formattedSum = sumFormatter ? sumFormatter(sum) : sum;
+                        return (
+                            <Chip
+                                key={s.label}
+                                label={`${formattedSum} ${s.label}`}
+                                size='small'
+                                icon={
+                                    <CircleIcon
+                                        sx={{
+                                            color: `${
+                                                colors[i % colors.length]
+                                            } !important`,
+                                        }}
+                                    />
+                                }
+                            />
+                        );
+                    })}
+                </Stack>
+            )}
             <Box height='200px'>
                 <ReactChart
                     options={{
