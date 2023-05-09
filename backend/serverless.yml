@@ -155,6 +155,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
+          - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
   updateUserProgress:

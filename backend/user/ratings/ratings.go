@@ -8,9 +8,11 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
@@ -25,6 +27,9 @@ type ChesscomResponse struct {
 }
 
 type LichessResponse struct {
+	Id       string `json:"id"`
+	Username string `json:"username"`
+
 	Performances struct {
 		Classical struct {
 			Rating int `json:"rating"`
@@ -84,6 +89,30 @@ func FetchLichessRating(lichessUsername string) (int, error) {
 	}
 
 	return rating.Performances.Classical.Rating, nil
+}
+
+func FetchBulkLichessRatings(lichessUsernames []string) (map[string]int, error) {
+	log.Debugf("Fetching bulk lichess usernames: %#v", lichessUsernames)
+
+	resp, err := http.Post("https://lichess.org/api/users", "text/plain", strings.NewReader(strings.Join(lichessUsernames, ",")))
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to get lichess bulk stats", err)
+		return nil, err
+	}
+
+	var rs []*LichessResponse
+	if err = json.NewDecoder(resp.Body).Decode(&rs); err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to read lichess response", err)
+		return nil, err
+	}
+	log.Debugf("rs: %#v", rs)
+
+	result := make(map[string]int, len(rs))
+	for _, r := range rs {
+		result[r.Id] = r.Performances.Classical.Rating
+	}
+	log.Debugf("Result: %#v", result)
+	return result, nil
 }
 
 func findRating(body []byte, regex *regexp.Regexp) (int, error) {

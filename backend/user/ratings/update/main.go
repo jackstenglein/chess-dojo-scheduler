@@ -21,9 +21,10 @@ var repository = database.DynamoDB
 
 var monthAgo = time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
 
-func updateIfNecessary(user *database.User, queuedUpdates []*database.User) (*database.User, []*database.User) {
+func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lichessRatings map[string]int) (*database.User, []*database.User) {
 	var chesscomRating, lichessRating, fideRating, uscfRating, ecfRating, cfcRating int
 	var err error
+	var ok bool
 
 	if chesscomUsername := strings.TrimSpace(user.ChesscomUsername); chesscomUsername != "" {
 		if chesscomRating, err = ratings.FetchChesscomRating(chesscomUsername); err != nil {
@@ -35,8 +36,8 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User) (*da
 	}
 
 	if lichessUsername := strings.TrimSpace(user.LichessUsername); lichessUsername != "" {
-		if lichessRating, err = ratings.FetchLichessRating(lichessUsername); err != nil {
-			log.Errorf("Failed to get Lichess rating for %q: %v", user.LichessUsername, err)
+		if lichessRating, ok = lichessRatings[lichessUsername]; !ok {
+			log.Errorf("No lichess rating found for user %q", user.LichessUsername)
 			lichessRating = user.CurrentLichessRating
 		}
 	} else {
@@ -84,7 +85,13 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User) (*da
 		user.CurrentFideRating != fideRating ||
 		user.CurrentUscfRating != uscfRating ||
 		user.CurrentEcfRating != ecfRating ||
-		user.CurrentCfcRating != cfcRating {
+		user.CurrentCfcRating != cfcRating ||
+		user.StartChesscomRating == 0 ||
+		user.StartLichessRating == 0 ||
+		user.StartFideRating == 0 ||
+		user.StartUscfRating == 0 ||
+		user.StartEcfRating == 0 ||
+		user.StartCfcRating == 0 {
 
 		user.CurrentChesscomRating = chesscomRating
 		user.CurrentLichessRating = lichessRating
@@ -95,6 +102,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User) (*da
 
 		queuedUpdates = append(queuedUpdates, user)
 		if len(queuedUpdates) == 25 {
+			log.Debugf("Updating users: %#v", queuedUpdates)
 			if err := repository.UpdateUserRatings(queuedUpdates); err != nil {
 				log.Error(err)
 			} else {
@@ -150,8 +158,20 @@ func updateStats(stats *database.UserStatistics, user *database.User) {
 
 func updateUsers(users []*database.User, stats *database.UserStatistics) {
 	var queuedUpdates []*database.User
+
+	lichessUsernames := make([]string, 0, len(users))
 	for _, user := range users {
-		user, queuedUpdates = updateIfNecessary(user, queuedUpdates)
+		if lichessUsername := strings.TrimSpace(user.LichessUsername); lichessUsername != "" {
+			lichessUsernames = append(lichessUsernames, lichessUsername)
+		}
+	}
+	lichessRatings, err := ratings.FetchBulkLichessRatings(lichessUsernames)
+	if err != nil {
+		log.Error(err)
+	}
+
+	for _, user := range users {
+		user, queuedUpdates = updateIfNecessary(user, queuedUpdates, lichessRatings)
 		updateStats(stats, user)
 	}
 
@@ -179,6 +199,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 			log.Errorf("Failed to scan users: %v", err)
 			return event, err
 		}
+		log.Debugf("Updating %d users", len(users))
 		updateUsers(users, stats)
 	}
 

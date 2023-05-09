@@ -36,41 +36,53 @@ func fetchCurrentRating(username **string, currentRating **int, fetcher ratingFe
 	return err
 }
 
-func fetchRatings(update *database.UserUpdate) error {
+func fetchRatings(user *database.User, update *database.UserUpdate) error {
 	if update.ChesscomUsername != nil {
-		err := fetchCurrentRating(&update.ChesscomUsername, &update.CurrentChesscomRating, ratings.FetchChesscomRating)
-		if err != nil {
+		if err := fetchCurrentRating(&update.ChesscomUsername, &update.CurrentChesscomRating, ratings.FetchChesscomRating); err != nil {
 			return err
+		}
+		if user.StartChesscomRating == 0 && update.StartChesscomRating == nil {
+			update.StartChesscomRating = update.CurrentChesscomRating
 		}
 	}
 	if update.LichessUsername != nil {
-		err := fetchCurrentRating(&update.LichessUsername, &update.CurrentLichessRating, ratings.FetchLichessRating)
-		if err != nil {
+		if err := fetchCurrentRating(&update.LichessUsername, &update.CurrentLichessRating, ratings.FetchLichessRating); err != nil {
 			return err
+		}
+		if user.StartLichessRating == 0 && update.StartLichessRating == nil {
+			update.StartLichessRating = update.CurrentLichessRating
 		}
 	}
 	if update.FideId != nil {
-		err := fetchCurrentRating(&update.FideId, &update.CurrentFideRating, ratings.FetchFideRating)
-		if err != nil {
+		if err := fetchCurrentRating(&update.FideId, &update.CurrentFideRating, ratings.FetchFideRating); err != nil {
 			return err
+		}
+		if user.StartFideRating == 0 && update.StartFideRating == nil {
+			update.StartFideRating = update.CurrentFideRating
 		}
 	}
 	if update.UscfId != nil {
-		err := fetchCurrentRating(&update.UscfId, &update.CurrentUscfRating, ratings.FetchUscfRating)
-		if err != nil {
+		if err := fetchCurrentRating(&update.UscfId, &update.CurrentUscfRating, ratings.FetchUscfRating); err != nil {
 			return err
+		}
+		if user.StartUscfRating == 0 && update.StartUscfRating == nil {
+			update.StartUscfRating = update.CurrentUscfRating
 		}
 	}
 	if update.EcfId != nil {
-		err := fetchCurrentRating(&update.EcfId, &update.CurrentEcfRating, ratings.FetchEcfRating)
-		if err != nil {
+		if err := fetchCurrentRating(&update.EcfId, &update.CurrentEcfRating, ratings.FetchEcfRating); err != nil {
 			return err
+		}
+		if user.StartEcfRating == 0 && update.StartEcfRating == nil {
+			update.StartEcfRating = update.CurrentEcfRating
 		}
 	}
 	if update.CfcId != nil {
-		err := fetchCurrentRating(&update.CfcId, &update.CurrentCfcRating, ratings.FetchCfcRating)
-		if err != nil {
+		if err := fetchCurrentRating(&update.CfcId, &update.CurrentCfcRating, ratings.FetchCfcRating); err != nil {
 			return err
+		}
+		if user.StartCfcRating == 0 && update.StartCfcRating == nil {
+			update.StartCfcRating = update.CurrentCfcRating
 		}
 	}
 	return nil
@@ -83,6 +95,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
 		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+	}
+
+	user, err := repository.GetUser(info.Username)
+	if err != nil {
+		return api.Failure(funcName, err), nil
 	}
 
 	update := &database.UserUpdate{}
@@ -122,11 +139,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	if err := fetchRatings(update); err != nil {
+	if err := fetchRatings(user, update); err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	user, err := repository.UpdateUser(info.Username, update)
+	user, err = repository.UpdateUser(info.Username, update)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
