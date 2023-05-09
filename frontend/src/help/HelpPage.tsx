@@ -151,6 +151,22 @@ const HelpPage = () => {
                             updated in this way.
                         </HelpItem>
 
+                        <HelpItem title='How do I delete my game?'>
+                            If the game was submitted to the current database (IE: on this
+                            site), then go to the page for the game you want to delete. On
+                            the top left of the page, you will see a button labeled Delete
+                            Game. Click this button to permanently remove your game and
+                            any associated comments. For games submitted through the old
+                            database (on chessdojo.club), fill out the following form:{' '}
+                            <a
+                                href='https://forms.gle/v3JMwxyLQw3LMA1Y9'
+                                target='_blank'
+                                rel='noreferrer'
+                            >
+                                https://forms.gle/v3JMwxyLQw3LMA1Y9
+                            </a>
+                        </HelpItem>
+
                         <HelpItem title="Why can't I find a game I am searching for?">
                             Most games were submitted through the old site and therefore
                             were not associated with this site's accounts. These games
