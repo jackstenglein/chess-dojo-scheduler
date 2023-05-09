@@ -68,7 +68,17 @@ const Position: React.FC<PositionProps> = ({ sectionTitle, position }) => {
 
     return (
         <Card variant='outlined' sx={{ px: 0 }}>
-            <CardHeader sx={{ px: 1 }} subheader={position.title} />
+            <CardHeader
+                sx={{ px: 1 }}
+                subheader={
+                    <Stack direction='row' justifyContent='space-between' px={1}>
+                        <Typography>{position.title}</Typography>
+                        <Typography>
+                            {position.limitSeconds / 60}+{position.incrementSeconds}
+                        </Typography>
+                    </Stack>
+                }
+            />
             <CardContent sx={{ pt: 0, px: 1, minWidth: '336px', height: '328px' }}>
                 <iframe
                     src={position.link}
