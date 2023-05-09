@@ -720,7 +720,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, updatedAt, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
+const ratingsProjection = "username, dojoCohort, updatedAt, progress, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
 	"uscfId, startChesscomRating, currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, " +
 	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating, startCfcRating, currentCfcRating"
 
