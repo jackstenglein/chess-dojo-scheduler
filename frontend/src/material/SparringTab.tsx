@@ -182,7 +182,9 @@ const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
                 <IconButton size='small' onClick={toggleOpen}>
                     {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                 </IconButton>
-                <Typography variant='h6'>{section.title}</Typography>
+                <Typography variant='h6' onClick={toggleOpen} sx={{ cursor: 'pointer' }}>
+                    {section.title}
+                </Typography>
             </Stack>
             <Divider />
 
