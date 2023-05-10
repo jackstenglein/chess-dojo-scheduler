@@ -25,6 +25,7 @@ import { dojoCohorts } from '../database/user';
 import { useAuth } from '../auth/Auth';
 import { useApi } from '../api/Api';
 import { SearchFunc } from './pagination';
+import { useSearchParams } from 'react-router-dom';
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -71,7 +72,7 @@ interface BaseFilterProps {
 
 type SearchByCohortProps = BaseFilterProps & {
     cohort: string;
-    setCohort: React.Dispatch<React.SetStateAction<string>>;
+    setCohort: (cohort: string) => void;
 };
 
 export const SearchByCohort: React.FC<SearchByCohortProps> = ({
@@ -274,40 +275,80 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
     );
 };
 
+enum SearchType {
+    Cohort = 'cohort',
+    Player = 'player',
+    Owner = 'owner',
+}
+
+function isValid(d: Date | null): boolean {
+    return d instanceof Date && !isNaN(d.getTime());
+}
+
 interface SearchFiltersProps {
     isLoading: boolean;
     onSearch: (searchFunc: SearchFunc) => void;
 }
 
 const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) => {
+    const user = useAuth().user!;
+    const api = useApi();
+
+    const [searchParams, setSearchParams] = useSearchParams({
+        cohort: user.dojoCohort,
+        player: '',
+        color: 'either',
+        type: SearchType.Cohort,
+    });
+
     const [expanded, setExpanded] = useState<string | false>('searchByCohort');
     const onChangePanel =
         (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
             setExpanded(newExpanded ? panel : false);
         };
 
-    const api = useApi();
-    const user = useAuth().user!;
-    const [cohort, setCohort] = useState(user.dojoCohort);
-    const [player, setPlayer] = useState('');
-    const [color, setColor] = useState('either');
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-    const [firstSearch, setFirstSearch] = useState(false);
+    // State variables for editing the form before clicking search
+    const [editCohort, setCohort] = useState(
+        searchParams.get('cohort')!.replaceAll('%2B', '+')
+    );
+    const [editPlayer, setPlayer] = useState(searchParams.get('player')!);
+    const [editColor, setColor] = useState(searchParams.get('color')!);
 
-    const startDateStr = startDate?.toISOString().substring(0, 10).replaceAll('-', '.');
-    const endDateStr = endDate?.toISOString().substring(0, 10).replaceAll('-', '.');
+    const paramsStartDate = searchParams.get('startDate');
+    const paramsEndDate = searchParams.get('endDate');
 
-    const searchByCohort = useCallback(
-        (startKey: string) =>
-            api.listGamesByCohort(cohort, startKey, startDateStr, endDateStr),
-        [cohort, api, startDateStr, endDateStr]
+    const [editStartDate, setStartDate] = useState<Date | null>(
+        paramsStartDate ? new Date(paramsStartDate) : null
+    );
+    const [editEndDate, setEndDate] = useState<Date | null>(
+        paramsEndDate ? new Date(paramsEndDate) : null
     );
 
-    const searchByOwner = useCallback(
+    // Submitted variables that should be searched on
+    const type = searchParams.get('type');
+    const cohort = searchParams.get('cohort');
+    const player = searchParams.get('player');
+    const color = searchParams.get('color');
+    let startDateStr: string | undefined = undefined;
+    let endDateStr: string | undefined = undefined;
+    if (isValid(new Date(paramsStartDate || ''))) {
+        startDateStr = new Date(paramsStartDate || '')
+            ?.toISOString()
+            .substring(0, 10)
+            .replaceAll('-', '.');
+    }
+    if (isValid(new Date(paramsEndDate || ''))) {
+        endDateStr = new Date(paramsEndDate || '')
+            .toISOString()
+            .substring(0, 10)
+            .replaceAll('-', '.');
+    }
+
+    // Functions that actually perform the search
+    const searchByCohort = useCallback(
         (startKey: string) =>
-            api.listGamesByOwner(user.username, startKey, startDateStr, endDateStr),
-        [api, user.username, startDateStr, endDateStr]
+            api.listGamesByCohort(cohort!, startKey, startDateStr, endDateStr),
+        [cohort, api, startDateStr, endDateStr]
     );
 
     const searchByPlayer = useCallback(
@@ -317,29 +358,63 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 startKey,
                 startDateStr,
                 endDateStr,
-                player,
-                color
+                player!,
+                color!
             ),
         [api, startDateStr, endDateStr, player, color]
     );
 
+    const searchByOwner = useCallback(
+        (startKey: string) =>
+            api.listGamesByOwner(user.username, startKey, startDateStr, endDateStr),
+        [api, user.username, startDateStr, endDateStr]
+    );
+
+    // Search is called every time the above functions change, which should
+    // happen only when the searchParams change
     useEffect(() => {
-        if (!firstSearch) {
-            setFirstSearch(true);
-            onSearch(searchByCohort);
+        switch (type) {
+            case SearchType.Owner:
+                onSearch(searchByOwner);
+                break;
+
+            case SearchType.Player:
+                onSearch(searchByPlayer);
+                break;
+
+            case SearchType.Cohort:
+            default:
+                onSearch(searchByCohort);
+                break;
         }
-    }, [firstSearch, setFirstSearch, onSearch, searchByCohort]);
+    }, [type, onSearch, searchByOwner, searchByPlayer, searchByCohort]);
 
+    // Functions that change the search params
     const onSearchByCohort = () => {
-        onSearch(searchByCohort);
-    };
-
-    const onSearchByOwner = () => {
-        onSearch(searchByOwner);
+        setSearchParams({
+            type: SearchType.Cohort,
+            cohort: editCohort,
+            startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
+            endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+        });
     };
 
     const onSearchByPlayer = () => {
-        onSearch(searchByPlayer);
+        setSearchParams({
+            type: SearchType.Player,
+            player: editPlayer,
+            color: editColor,
+            startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
+            endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+        });
+    };
+
+    const onSearchByOwner = () => {
+        setSearchParams({
+            type: SearchType.Owner,
+            startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
+            endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+        });
     };
 
     return (
@@ -353,11 +428,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 </AccordionSummary>
                 <AccordionDetails>
                     <SearchByCohort
-                        cohort={cohort}
+                        cohort={editCohort}
                         setCohort={setCohort}
-                        startDate={startDate}
+                        startDate={editStartDate}
                         setStartDate={setStartDate}
-                        endDate={endDate}
+                        endDate={editEndDate}
                         setEndDate={setEndDate}
                         isLoading={isLoading}
                         onSearch={onSearchByCohort}
@@ -373,13 +448,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 </AccordionSummary>
                 <AccordionDetails>
                     <SearchByPlayer
-                        player={player}
+                        player={editPlayer}
                         setPlayer={setPlayer}
-                        color={color}
+                        color={editColor}
                         setColor={setColor}
-                        startDate={startDate}
+                        startDate={editStartDate}
                         setStartDate={setStartDate}
-                        endDate={endDate}
+                        endDate={editEndDate}
                         setEndDate={setEndDate}
                         isLoading={isLoading}
                         onSearch={onSearchByPlayer}
@@ -395,9 +470,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 </AccordionSummary>
                 <AccordionDetails>
                     <SearchByOwner
-                        startDate={startDate}
+                        startDate={editStartDate}
                         setStartDate={setStartDate}
-                        endDate={endDate}
+                        endDate={editEndDate}
                         setEndDate={setEndDate}
                         isLoading={isLoading}
                         onSearch={onSearchByOwner}

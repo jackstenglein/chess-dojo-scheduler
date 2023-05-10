@@ -4,6 +4,7 @@ import { AxiosResponse } from 'axios';
 import { ListGamesResponse } from '../api/gameApi';
 import { RequestStatus, useRequest } from '../api/Request';
 import { GameInfo } from '../database/game';
+import { useSearchParams } from 'react-router-dom';
 
 export type SearchFunc = (
     startKey: string
@@ -17,31 +18,56 @@ export function usePagination(
     const request = useRequest();
     const reset = request.reset;
 
-    const [page, setPage] = useState(initialPage);
-    const [pageSize, setPageSize] = useState(initialPageSize);
+    const [searchParams, setSearchParams] = useSearchParams({
+        page: `${initialPage}`,
+        pageSize: `${initialPageSize}`,
+    });
+
     const [games, setGames] = useState<GameInfo[]>([]);
     const [startKey, setStartKey] = useState<string | undefined>('');
     const [searchFunc, setSearchFunc] = useState<SearchFunc | null>(
         () => initialSearchFunc
     );
 
+    const page = parseInt(searchParams.get('page') || `${initialPage}`);
+    const pageSize = parseInt(searchParams.get('pageSize') || `${initialPageSize}`);
+
     const onChangePage = useCallback(
         (newPage: number) => {
             reset();
-            setPage(newPage);
+            setSearchParams((prev) => {
+                prev.set('page', `${newPage}`);
+                return prev;
+            });
         },
-        [reset, setPage]
+        [reset, setSearchParams]
+    );
+
+    const onChangePageSize = useCallback(
+        (newPageSize: number) => {
+            setSearchParams((prev) => {
+                const oldPageSize = parseInt(
+                    prev.get('pageSize') || `${initialPageSize}`
+                );
+                const oldPage = parseInt(prev.get('page') || `${initialPage}`);
+                const newPage = Math.floor((oldPage * oldPageSize) / newPageSize);
+
+                prev.set('page', `${newPage}`);
+                prev.set('pageSize', `${newPageSize}`);
+                return prev;
+            });
+        },
+        [setSearchParams, initialPage, initialPageSize]
     );
 
     const onSearch = useCallback(
         (searchFunc: SearchFunc) => {
             reset();
-            setPage(0);
             setGames([]);
             setStartKey('');
             setSearchFunc(() => searchFunc);
         },
-        [reset, setPage, setGames, setStartKey, setSearchFunc]
+        [reset, setGames, setStartKey, setSearchFunc]
     );
 
     useEffect(() => {
@@ -99,7 +125,7 @@ export function usePagination(
         request,
         rowCount,
         setPage: onChangePage,
-        setPageSize,
+        setPageSize: onChangePageSize,
         onSearch,
     };
 }

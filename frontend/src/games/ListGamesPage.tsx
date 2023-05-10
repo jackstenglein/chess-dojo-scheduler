@@ -83,7 +83,7 @@ const ListGamesPage = () => {
                         paginationMode='server'
                         onPageChange={(page) => setPage(page)}
                         onPageSizeChange={(size) => setPageSize(size)}
-                        page={page}
+                        page={data.length > 0 ? page : 0}
                         loading={request.isLoading()}
                         autoHeight
                         rowHeight={70}
