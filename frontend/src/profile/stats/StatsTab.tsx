@@ -7,7 +7,7 @@ import {
     getSystemCurrentRating,
     getSystemStartRating,
     hideRatingUsername,
-} from '../database/user';
+} from '../../database/user';
 import RatingCard from './RatingCard';
 import DojoScoreCard from './DojoScoreCard';
 

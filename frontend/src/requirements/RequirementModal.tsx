@@ -2,7 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent, Slide } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 
-import { Requirement } from '../database/requirement';
+import { CustomTask, Requirement } from '../database/requirement';
 import RequirementDisplay from './RequirementDisplay';
 
 const Transition = React.forwardRef(function Transition(
@@ -17,7 +17,7 @@ const Transition = React.forwardRef(function Transition(
 interface RequirementModalProps {
     open: boolean;
     onClose: () => void;
-    requirement: Requirement;
+    requirement: Requirement | CustomTask;
 }
 
 const RequirementModal: React.FC<RequirementModalProps> = ({

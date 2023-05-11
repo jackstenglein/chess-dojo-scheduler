@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, TextField, MenuItem } from '@mui/material';
 
 import {
+    CustomTask,
     getCurrentCount,
     Requirement,
     RequirementProgress,
@@ -19,7 +20,7 @@ enum ProgressDialogView {
 interface ProgressDialogProps {
     open: boolean;
     onClose: () => void;
-    requirement: Requirement;
+    requirement: Requirement | CustomTask;
     progress?: RequirementProgress;
     cohort: string;
     selectCohort?: boolean;
@@ -61,7 +62,7 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
     if (view === ProgressDialogView.History) {
         dialogTitle = `${requirementName} History`;
     } else if (isNonDojo) {
-        dialogTitle = `Add Time to ${requirementName}?`;
+        dialogTitle = `Add time to ${requirementName}?`;
     } else if (isSlider) {
         dialogTitle = `Update ${requirementName}?`;
     } else if (isComplete) {

@@ -31,6 +31,31 @@ func (s ScoreboardDisplay) IsValid() bool {
 	return s == Hidden || s == Checkbox || s == ProgressBar || s == NonDojo
 }
 
+// CustomTask contains the fields for a user-entered NonDojo task.
+type CustomTask struct {
+	// Uniquely identifies a custom requirement.
+	Id string `dynamodbav:"id" json:"id"`
+
+	// The display name of the task
+	Name string `dynamodbav:"name" json:"name"`
+
+	// The description of the task
+	Description string `dynamodbav:"description" json:"description"`
+
+	// The total number of units in the task, by cohort
+	// ALL_COHORTS is *not* a valid value.
+	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`
+
+	// Must be NonDojo
+	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`
+
+	// Must be Non-Dojo
+	Category string `dynamodbav:"category" json:"category"`
+
+	// The time the task was most recently updated
+	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+}
+
 type Requirement struct {
 	// Uniquely identifies a requirement. The sort key for the table.
 	Id string `dynamodbav:"id" json:"id"`

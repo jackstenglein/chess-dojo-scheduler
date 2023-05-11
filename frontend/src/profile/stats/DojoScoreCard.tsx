@@ -4,11 +4,11 @@ import {
     getCategoryScore,
     getCohortScore,
     getTotalCategoryScore,
-} from '../database/requirement';
-import { User } from '../database/user';
-import { useRequirements } from '../api/cache/requirements';
-import { getTotalScore } from '../database/requirement';
-import ScoreboardProgress from '../scoreboard/ScoreboardProgress';
+} from '../../database/requirement';
+import { User } from '../../database/user';
+import { useRequirements } from '../../api/cache/requirements';
+import { getTotalScore } from '../../database/requirement';
+import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 
 const categories = [
     'Games + Analysis',

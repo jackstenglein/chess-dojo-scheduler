@@ -3,7 +3,7 @@ import { Stack, TextField, MenuItem, Typography, Button } from '@mui/material';
 
 import { compareCohorts, User } from '../../database/user';
 import { useRequirements } from '../../api/cache/requirements';
-import { getCurrentScore, Requirement } from '../../database/requirement';
+import { CustomTask, getCurrentScore, Requirement } from '../../database/requirement';
 import PieChart, { PieChartData } from './PieChart';
 import { CategoryColors, RequirementColors } from './activity';
 
@@ -93,7 +93,11 @@ function getTimeChartData(
         requirements.reduce((map, r) => {
             map[r.id] = r;
             return map;
-        }, {} as Record<string, Requirement>) ?? {};
+        }, {} as Record<string, Requirement | CustomTask>) ?? {};
+
+    user.customTasks?.forEach((t) => {
+        requirementMap[t.id] = t;
+    });
 
     const data: Record<string, PieChartData> = {};
     Object.values(user.progress).forEach((progress) => {
@@ -145,6 +149,23 @@ function getCategoryTimeChartData(
         if (data[name]) {
             data[name].value += progress.minutesSpent[cohort];
         } else {
+            data[name] = {
+                name,
+                value: progress.minutesSpent[cohort],
+                color: RequirementColors[
+                    Object.values(data).length % RequirementColors.length
+                ],
+            };
+        }
+    }
+    if (category === 'Non-Dojo') {
+        for (const task of user.customTasks || []) {
+            const progress = user.progress[task.id];
+            if (!progress || !progress.minutesSpent || !progress.minutesSpent[cohort]) {
+                continue;
+            }
+
+            let name = task.name;
             data[name] = {
                 name,
                 value: progress.minutesSpent[cohort],
@@ -262,7 +283,7 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
                     </Stack>
                 )}
                 getTooltip={(entry?: PieChartData) =>
-                    entry ? `${entry.name} - ${entry.value}` : ''
+                    entry ? `${entry.name} - ${Math.round(entry.value * 100) / 100}` : ''
                 }
                 onClick={onClickScoreChart}
             />

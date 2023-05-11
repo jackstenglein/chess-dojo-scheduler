@@ -46,9 +46,9 @@ const ListMeetingsPage = () => {
             <Stack spacing={2} alignItems='start'>
                 <Typography variant='h4'>Meetings</Typography>
 
-                {requestLoading && events.length === 0 && <CircularProgress />}
+                {requestLoading && meetings.length === 0 && <CircularProgress />}
 
-                {!requestLoading && events.length === 0 && (
+                {!requestLoading && meetings.length === 0 && (
                     <>
                         <Typography variant='body1'>
                             Looks like you don't have any meetings. Go to the calendar and

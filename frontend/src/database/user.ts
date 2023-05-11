@@ -1,4 +1,4 @@
-import { RequirementProgress, TimelineEntry } from './requirement';
+import { CustomTask, RequirementProgress, TimelineEntry } from './requirement';
 
 interface CognitoSession {
     idToken: {
@@ -112,6 +112,8 @@ export interface User {
 
     enableDarkMode: boolean;
     timezoneOverride: string;
+
+    customTasks?: CustomTask[];
 }
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser) {

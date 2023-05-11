@@ -11,13 +11,15 @@ import {
 import { LoadingButton } from '@mui/lab';
 
 import {
+    CustomTask,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
     getCurrentCount,
+    isRequirement,
 } from '../../database/requirement';
 import InputSlider from './InputSlider';
-import { useRequest } from '../../api/Request';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 
 const NUMBER_REGEX = /^[0-9]*$/;
@@ -77,7 +79,7 @@ function getIncrementalCount(
 }
 
 interface ProgressUpdaterProps {
-    requirement: Requirement;
+    requirement: Requirement | CustomTask;
     progress?: RequirementProgress;
     cohort: string;
     onClose: () => void;
@@ -157,6 +159,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             })
             .catch((err) => {
                 console.error('updateUserProgress: ', err);
+                request.onFailure(err);
             });
     };
 
@@ -164,7 +167,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
         <>
             <DialogContent>
                 <Stack spacing={2}>
-                    {isSlider && (
+                    {isSlider && isRequirement(requirement) && (
                         <InputSlider
                             value={value}
                             setValue={setValue}
@@ -241,6 +244,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     {getButtonText(isComplete, isSlider, isNonDojo)}
                 </LoadingButton>
             </DialogActions>
+
+            <RequestSnackbar request={request} />
         </>
     );
 };

@@ -3,9 +3,11 @@ import { Typography, Stack, Checkbox, Divider, IconButton, Grid } from '@mui/mat
 import EditIcon from '@mui/icons-material/Edit';
 
 import {
+    CustomTask,
     formatTime,
     getCurrentCount,
     getTotalTime,
+    isRequirement,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
@@ -13,10 +15,11 @@ import {
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import ProgressDialog from './ProgressDialog';
 import RequirementModal from '../../requirements/RequirementModal';
+import CustomTaskProgressItem from './CustomTaskProgressItem';
 
 interface ProgressItemProps {
     progress?: RequirementProgress;
-    requirement: Requirement;
+    requirement: Requirement | CustomTask;
     cohort: string;
     isCurrentUser: boolean;
 }
@@ -29,6 +32,17 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
+
+    if (!isRequirement(requirement)) {
+        return (
+            <CustomTaskProgressItem
+                progress={progress}
+                task={requirement}
+                cohort={cohort}
+                isCurrentUser={isCurrentUser}
+            />
+        );
+    }
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
@@ -45,6 +59,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     aria-label={`Checkbox ${requirement.name}`}
                     checked={currentCount >= totalCount}
                     onClick={() => setShowUpdateDialog(true)}
+                    disabled={!isCurrentUser}
                 />
             );
             break;

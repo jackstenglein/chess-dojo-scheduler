@@ -24,26 +24,37 @@ type ProgressUpdateRequest struct {
 	IncrementalMinutesSpent int                 `json:"incrementalMinutesSpent"`
 }
 
-func Handler(ctx context.Context, event api.Request) (api.Response, error) {
-	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task *database.CustomTask) (api.Response, error) {
+	progress, ok := user.Progress[request.RequirementId]
+	if !ok {
+		progress = &database.RequirementProgress{
+			RequirementId: request.RequirementId,
+			Counts:        make(map[database.DojoCohort]int),
+			MinutesSpent:  make(map[database.DojoCohort]int),
+		}
+	}
+	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
+	progress.UpdatedAt = time.Now().Format(time.RFC3339)
 
-	info := api.GetUserInfo(event)
-	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+	timelineEntry := &database.TimelineEntry{
+		RequirementId:       request.RequirementId,
+		RequirementName:     task.Name,
+		RequirementCategory: "Non-Dojo",
+		ScoreboardDisplay:   task.ScoreboardDisplay,
+		Cohort:              request.Cohort,
+		TotalCount:          1,
+		MinutesSpent:        request.IncrementalMinutesSpent,
+		CreatedAt:           time.Now().Format(time.RFC3339),
 	}
 
-	request := &ProgressUpdateRequest{}
-	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
-		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+	user, err := repository.UpdateUserProgress(user.Username, progress, timelineEntry)
+	if err != nil {
+		return api.Failure(funcName, err), nil
 	}
-	if request.RequirementId == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: requirementId is required", "")), nil
-	}
-	if request.Cohort == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
-	}
+	return api.Success(funcName, user), nil
+}
 
+func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api.Response, error) {
 	requirement, err := repository.GetRequirement(request.RequirementId)
 	if err != nil {
 		return api.Failure(funcName, err), nil
@@ -51,11 +62,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	totalCount, ok := requirement.Counts[request.Cohort]
 	if !ok {
 		return api.Failure(funcName, errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` does not apply to this requirement", request.Cohort), "")), nil
-	}
-
-	user, err := repository.GetUser(info.Username)
-	if err != nil {
-		return api.Failure(funcName, err), nil
 	}
 
 	progress, ok := user.Progress[request.RequirementId]
@@ -92,11 +98,45 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		CreatedAt:           time.Now().Format(time.RFC3339),
 	}
 
-	user, err = repository.UpdateUserProgress(info.Username, progress, timelineEntry)
+	user, err = repository.UpdateUserProgress(user.Username, progress, timelineEntry)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 	return api.Success(funcName, user), nil
+}
+
+func Handler(ctx context.Context, event api.Request) (api.Response, error) {
+	log.SetRequestId(event.RequestContext.RequestID)
+	log.Debugf("Event: %#v", event)
+
+	info := api.GetUserInfo(event)
+	if info.Username == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+	}
+
+	request := &ProgressUpdateRequest{}
+	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
+		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+	}
+	if request.RequirementId == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: requirementId is required", "")), nil
+	}
+	if request.Cohort == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
+	}
+
+	user, err := repository.GetUser(info.Username)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
+	for _, t := range user.CustomTasks {
+		if t.Id == request.RequirementId {
+			return handleCustomTask(request, user, t)
+		}
+	}
+
+	return handleDefaultTask(request, user)
 }
 
 func main() {

@@ -15,7 +15,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { isComplete, Requirement } from '../../database/requirement';
+import { CustomTask, isComplete, Requirement } from '../../database/requirement';
 import { dojoCohorts, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import ProgressItem from './ProgressItem';
@@ -23,10 +23,11 @@ import { Graduation } from '../../database/graduation';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import { useRequirements } from '../../api/cache/requirements';
 import GraduationChips from '../../scoreboard/GraduationChips';
+import CustomTaskEditor from './CustomTaskEditor';
 
 interface Category {
     name: string;
-    requirements: Requirement[];
+    requirements: Array<Requirement | CustomTask>;
     totalComplete: number;
 }
 
@@ -49,6 +50,8 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         Opening: false,
         'Non-Dojo': false,
     });
+
+    const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
 
     useEffect(() => {
         setCohort(user.dojoCohort);
@@ -81,6 +84,20 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                 c.requirements.push(r);
                 if (complete) {
                     c.totalComplete++;
+                }
+            }
+        });
+        user.customTasks?.forEach((task) => {
+            if (task.counts[cohort]) {
+                const c = categories.find((c) => c.name === 'Non-Dojo');
+                if (c === undefined) {
+                    categories.push({
+                        name: 'Non-Dojo',
+                        requirements: [task],
+                        totalComplete: 0,
+                    });
+                } else {
+                    c.requirements.push(task);
                 }
             }
         });
@@ -208,9 +225,22 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                                 isCurrentUser={isCurrentUser}
                             />
                         ))}
+                        {c.name === 'Non-Dojo' && isCurrentUser && (
+                            <Button
+                                sx={{ mt: 2 }}
+                                onClick={() => setShowCustomTaskEditor(true)}
+                            >
+                                Add Custom Activity
+                            </Button>
+                        )}
                     </AccordionDetails>
                 </Accordion>
             ))}
+
+            <CustomTaskEditor
+                open={showCustomTaskEditor}
+                onClose={() => setShowCustomTaskEditor(false)}
+            />
         </Stack>
     );
 };

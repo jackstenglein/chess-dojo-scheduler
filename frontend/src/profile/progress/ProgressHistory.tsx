@@ -16,6 +16,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LoadingButton } from '@mui/lab';
 
 import {
+    CustomTask,
     Requirement,
     ScoreboardDisplay,
     TimelineEntry,
@@ -173,10 +174,7 @@ interface HistoryItemError {
     minutes?: string;
 }
 
-function getTimelineUpdate(
-    items: HistoryItem[],
-    cohort: string
-): {
+function getTimelineUpdate(items: HistoryItem[]): {
     timeline: TimelineEntry[];
     errors: Record<number, HistoryItemError>;
 } {
@@ -238,7 +236,7 @@ function getTimelineUpdate(
 }
 
 interface ProgressHistoryProps {
-    requirement: Requirement;
+    requirement: Requirement | CustomTask;
     cohort: string;
     onClose: () => void;
     toggleView?: () => void;
@@ -312,7 +310,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     );
 
     const onSubmit = () => {
-        const update = getTimelineUpdate(items, cohort);
+        const update = getTimelineUpdate(items);
 
         setErrors(update.errors);
         if (Object.values(update.errors).length > 0) {

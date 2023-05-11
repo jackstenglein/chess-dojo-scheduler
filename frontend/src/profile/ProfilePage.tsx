@@ -14,7 +14,7 @@ import ProgressTab from './progress/ProgressTab';
 import ActivityTab from './activity/ActivityTab';
 import GraduationDialog from './GraduationDialog';
 import GraduationIcon from '../scoreboard/GraduationIcon';
-import StatsTab from './StatsTab';
+import StatsTab from './stats/StatsTab';
 
 type ProfilePageProps = {
     username: string;

@@ -4,14 +4,20 @@ import { useMemo, useState } from 'react';
 import Carousel from 'react-material-ui-carousel';
 import { useAuth } from '../auth/Auth';
 
-import { Requirement, ScoreboardDisplay } from '../database/requirement';
+import {
+    CustomTask,
+    Requirement,
+    ScoreboardDisplay,
+    isRequirement,
+} from '../database/requirement';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 import Position from './Position';
 import { useNavigate } from 'react-router-dom';
+import CustomTaskDisplay from './CustomTaskDisplay';
 
 interface RequirementDisplayProps {
-    requirement: Requirement;
+    requirement: Requirement | CustomTask;
     preview?: boolean;
 }
 
@@ -34,6 +40,10 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
             ? user.dojoCohort
             : cohortOptions[0];
     }, [requirement, user.dojoCohort]);
+
+    if (!isRequirement(requirement)) {
+        return <CustomTaskDisplay task={requirement} />;
+    }
 
     const progress = user.progress[requirement.id];
 

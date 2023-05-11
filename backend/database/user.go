@@ -253,6 +253,9 @@ type User struct {
 
 	// The user's preferred timezone on the calendar
 	TimezoneOverride string `dynamodbav:"timezoneOverride" json:"timezoneOverride"`
+
+	// The user's list of custom tasks
+	CustomTasks []*CustomTask `dynamodbav:"customTasks" json:"customTasks"`
 }
 
 // GetRatings returns the start and current ratings in the user's preferred rating system.
@@ -446,6 +449,9 @@ type UserUpdate struct {
 
 	// The user's preferred timezone on the calendar
 	TimezoneOverride *string `dynamodbav:"timezoneOverride,omitempty" json:"timezoneOverride,omitempty"`
+
+	// The user's list of custom tasks
+	CustomTasks *[]*CustomTask `dynamodbav:"customTasks,omitempty" json:"customTasks,omitempty"`
 }
 
 type UserCreator interface {

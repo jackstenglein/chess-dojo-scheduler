@@ -4,7 +4,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import HelpIcon from '@mui/icons-material/Help';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
-import { RatingSystem, formatRatingSystem, getRatingBoundary } from '../database/user';
+import { RatingSystem, formatRatingSystem, getRatingBoundary } from '../../database/user';
 
 function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     switch (ratingSystem) {

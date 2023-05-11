@@ -13,6 +13,18 @@ export enum ScoreboardDisplay {
     NonDojo = 'NON_DOJO',
 }
 
+export interface CustomTask {
+    id: string;
+    name: string;
+    description: string;
+    counts: {
+        [cohort: string]: number;
+    };
+    scoreboardDisplay: ScoreboardDisplay;
+    category: string;
+    updatedAt: string;
+}
+
 export interface Requirement {
     id: string;
     status: RequirementStatus;
@@ -62,6 +74,10 @@ export interface TimelineEntry {
     createdAt: string;
 }
 
+export function isRequirement(obj: any): obj is Requirement {
+    return obj.numberOfCohorts !== undefined;
+}
+
 export function compareRequirements(a: Requirement, b: Requirement) {
     if (a.sortPriority === undefined || b.sortPriority === undefined) {
         return 0;
@@ -71,10 +87,16 @@ export function compareRequirements(a: Requirement, b: Requirement) {
 
 export function getCurrentCount(
     cohort: string,
-    requirement: Requirement,
+    requirement: Requirement | CustomTask,
     progress?: RequirementProgress
 ): number {
     if (!progress) {
+        return 0;
+    }
+    if (!isRequirement(requirement)) {
+        return 0;
+    }
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
         return 0;
     }
 
