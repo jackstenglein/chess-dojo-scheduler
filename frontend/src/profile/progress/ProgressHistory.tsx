@@ -15,7 +15,11 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LoadingButton } from '@mui/lab';
 
-import { Requirement, TimelineEntry } from '../../database/requirement';
+import {
+    Requirement,
+    ScoreboardDisplay,
+    TimelineEntry,
+} from '../../database/requirement';
 import { useAuth } from '../../auth/Auth';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
@@ -116,14 +120,16 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                     />
                 </LocalizationProvider>
 
-                <TextField
-                    label='Count'
-                    value={count}
-                    onChange={(event) => onChangeCount(event.target.value)}
-                    sx={{ maxWidth: '100px' }}
-                    error={!!error.count}
-                    helperText={error.count}
-                />
+                {entry.scoreboardDisplay !== ScoreboardDisplay.NonDojo && (
+                    <TextField
+                        label='Count'
+                        value={count}
+                        onChange={(event) => onChangeCount(event.target.value)}
+                        sx={{ maxWidth: '100px' }}
+                        error={!!error.count}
+                        helperText={error.count}
+                    />
+                )}
 
                 <TextField
                     label='Hours'
@@ -181,7 +187,10 @@ function getTimelineUpdate(
         if (item.date === null) {
             itemErrors.date = 'This field is required';
         }
-        if (isNaN(parseInt(item.count)) || parseInt(item.count) === 0) {
+        if (
+            item.entry.scoreboardDisplay !== ScoreboardDisplay.NonDojo &&
+            (isNaN(parseInt(item.count)) || parseInt(item.count) === 0)
+        ) {
             itemErrors.count = 'This field must be a non-zero integer';
         }
         if (
@@ -351,9 +360,12 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                         ))}
 
                         <Stack>
-                            <Typography color='text.secondary'>
-                                Total Count: {totalCount}
-                            </Typography>
+                            {requirement.scoreboardDisplay !==
+                                ScoreboardDisplay.NonDojo && (
+                                <Typography color='text.secondary'>
+                                    Total Count: {totalCount}
+                                </Typography>
+                            )}
                             <Typography color='text.secondary'>
                                 Total Time:{' '}
                                 {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
