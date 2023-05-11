@@ -36,6 +36,9 @@ type CustomTask struct {
 	// Uniquely identifies a custom requirement.
 	Id string `dynamodbav:"id" json:"id"`
 
+	// The username of the owner of the custom task.
+	Owner string `dynamodbav:"owner" json:"owner"`
+
 	// The display name of the task
 	Name string `dynamodbav:"name" json:"name"`
 

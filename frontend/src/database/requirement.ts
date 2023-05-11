@@ -15,6 +15,7 @@ export enum ScoreboardDisplay {
 
 export interface CustomTask {
     id: string;
+    owner: string;
     name: string;
     description: string;
     counts: {

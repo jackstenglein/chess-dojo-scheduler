@@ -34,12 +34,14 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
     const api = useApi();
     const user = useAuth().user!;
 
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [allCohorts, setAllCohorts] = useState(true);
+    const [name, setName] = useState(task?.name ?? '');
+    const [description, setDescription] = useState(task?.description ?? '');
+    const [allCohorts, setAllCohorts] = useState(
+        task ? Object.values(task.counts).length === dojoCohorts.length : true
+    );
     const [cohorts, setCohorts] = useState<Record<string, boolean>>(
         dojoCohorts.reduce((map, cohort) => {
-            map[cohort] = false;
+            map[cohort] = task?.counts[cohort] !== undefined ?? false;
             return map;
         }, {} as Record<string, boolean>)
     );
@@ -75,18 +77,31 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
         }, {} as Record<string, number>);
 
         const newTask = {
-            id: uuidv4(),
+            id: task ? task.id : uuidv4(),
             name,
             description,
             counts: newCounts,
             scoreboardDisplay: ScoreboardDisplay.NonDojo,
             category: 'Non-Dojo',
             updatedAt: new Date().toISOString(),
+            owner: user.username,
         };
+
+        let newTasks: CustomTask[] = [];
+        if (task && user.customTasks) {
+            const index = user.customTasks.findIndex((t) => t.id === task.id);
+            newTasks = [
+                ...user.customTasks.slice(0, index),
+                newTask,
+                ...user.customTasks.slice(index + 1),
+            ];
+        } else {
+            newTasks = [...(user.customTasks || []), newTask];
+        }
 
         request.onStart();
         api.updateUser({
-            customTasks: [...(user.customTasks || []), newTask],
+            customTasks: newTasks,
         })
             .then((resp) => {
                 console.log('updateUser: ', resp);
@@ -99,6 +114,8 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             });
     };
 
+    const title = task ? `Update ${task.name}?` : 'Create Custom Activity?';
+
     return (
         <Dialog
             open={open}
@@ -107,13 +124,15 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
         >
             <RequestSnackbar request={request} />
 
-            <DialogTitle>Create Custom Activity?</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <DialogContentText>
-                    This will create a new custom activity which you can use to track your
-                    time. You will not be able to update progress or mark this task as
-                    complete.
-                </DialogContentText>
+                {task === undefined && (
+                    <DialogContentText>
+                        This will create a new custom activity which you can use to track
+                        your time. You will not be able to update progress or mark this
+                        task as complete.
+                    </DialogContentText>
+                )}
 
                 <Stack spacing={2} mt={2}>
                     <TextField
@@ -191,7 +210,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
                 </Button>
 
                 <LoadingButton loading={request.isLoading()} onClick={onCreate}>
-                    Create
+                    {task ? 'Update' : 'Create'}
                 </LoadingButton>
             </DialogActions>
         </Dialog>
