@@ -301,7 +301,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         type: SearchType.Cohort,
     });
 
-    const [expanded, setExpanded] = useState<string | false>('searchByCohort');
+    const [expanded, setExpanded] = useState<string | false>(searchParams.get('type')!);
     const onChangePanel =
         (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
             setExpanded(newExpanded ? panel : false);
@@ -420,8 +420,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     return (
         <Stack spacing={0}>
             <Accordion
-                expanded={expanded === 'searchByCohort'}
-                onChange={onChangePanel('searchByCohort')}
+                expanded={expanded === SearchType.Cohort}
+                onChange={onChangePanel(SearchType.Cohort)}
             >
                 <AccordionSummary>
                     <Typography>Search By Cohort</Typography>
@@ -440,8 +440,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 </AccordionDetails>
             </Accordion>
             <Accordion
-                expanded={expanded === 'searchByPlayer'}
-                onChange={onChangePanel('searchByPlayer')}
+                expanded={expanded === SearchType.Player}
+                onChange={onChangePanel(SearchType.Player)}
             >
                 <AccordionSummary>
                     <Typography>Search By Player</Typography>
@@ -462,8 +462,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 </AccordionDetails>
             </Accordion>
             <Accordion
-                expanded={expanded === 'searchByOwner'}
-                onChange={onChangePanel('searchByOwner')}
+                expanded={expanded === SearchType.Owner}
+                onChange={onChangePanel(SearchType.Owner)}
             >
                 <AccordionSummary>
                     <Typography>Search My Uploads</Typography>
