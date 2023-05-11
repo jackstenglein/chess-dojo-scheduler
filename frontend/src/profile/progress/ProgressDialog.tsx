@@ -50,6 +50,8 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
         requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
         requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
 
+    const isNonDojo = requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo;
+
     let requirementName = requirement.name;
     if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
         requirementName += ` (${totalCount})`;
@@ -58,6 +60,8 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
     let dialogTitle = '';
     if (view === ProgressDialogView.History) {
         dialogTitle = `${requirementName} History`;
+    } else if (isNonDojo) {
+        dialogTitle = `Add Time to ${requirementName}?`;
     } else if (isSlider) {
         dialogTitle = `Update ${requirementName}?`;
     } else if (isComplete) {

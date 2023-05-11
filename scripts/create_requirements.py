@@ -4,33 +4,34 @@ import datetime
 from decimal import Decimal
 
 db = boto3.resource('dynamodb')
-table = db.Table('prod-requirements')
+table = db.Table('dev-requirements')
 
 cohorts = [
-	"0-300",
-	"300-400",
-	"400-500",
-	"500-600",
-	"600-700",
-	"700-800",
-	"800-900",
-	"900-1000",
-	"1000-1100",
-	"1100-1200",
-	"1200-1300",
-	"1300-1400",
-	"1400-1500",
-	"1500-1600",
-	"1600-1700",
-	"1700-1800",
-	"1800-1900",
-	"1900-2000",
-	"2000-2100",
-	"2100-2200",
-	"2200-2300",
-	"2300-2400",
-	"2400+",
+    "0-300",
+    "300-400",
+    "400-500",
+    "500-600",
+    "600-700",
+    "700-800",
+    "800-900",
+    "900-1000",
+    "1000-1100",
+    "1100-1200",
+    "1200-1300",
+    "1300-1400",
+    "1400-1500",
+    "1500-1600",
+    "1600-1700",
+    "1700-1800",
+    "1800-1900",
+    "1900-2000",
+    "2000-2100",
+    "2100-2200",
+    "2200-2300",
+    "2300-2400",
+    "2400+",
 ]
+
 
 def getCounts(row: dict):
     result = {}
@@ -40,10 +41,11 @@ def getCounts(row: dict):
 
         count = row[cohort]
         if "-" in count:
-            count = count[count.find("-") + 1 : ]
+            count = count[count.find("-") + 1:]
         result[cohort] = int(count)
-    
+
     return result
+
 
 def getStartCount(row: dict):
     for cohort in cohorts:
@@ -52,9 +54,10 @@ def getStartCount(row: dict):
 
         count = row[cohort]
         if "-" in count:
-            return int(count[ : count.find("-")]) - 1
-    
+            return int(count[: count.find("-")]) - 1
+
     return 0
+
 
 def getUnitScoreOverride(row: dict):
     result = {}
@@ -68,6 +71,7 @@ def getUnitScoreOverride(row: dict):
 
     return result
 
+
 def main():
     items = []
     categories = {
@@ -77,6 +81,7 @@ def main():
         'Middlegames + Strategy': [],
         'Endgame': [],
         'Opening': [],
+        'Non-Dojo': [],
     }
     updatedAt = datetime.datetime.utcnow().isoformat('T') + 'Z'
 
@@ -123,11 +128,14 @@ def main():
                 categories[row['Category']].append(item)
 
     print(f'Got {len(items)} requirements')
-    print(f'Got {len(categories["Games + Analysis"])} Games + Analysis requirements')
+    print(
+        f'Got {len(categories["Games + Analysis"])} Games + Analysis requirements')
     print(f'Got {len(categories["Tactics"])} Tactics requirements')
-    print(f'Got {len(categories["Middlegames + Strategy"])} Middlegames + Strategy requirements')
+    print(
+        f'Got {len(categories["Middlegames + Strategy"])} Middlegames + Strategy requirements')
     print(f'Got {len(categories["Endgame"])} Endgame requirements')
     print(f'Got {len(categories["Opening"])} Opening requirements')
+    print(f'Got {len(categories["Non-Dojo"])} Non-Dojo requirements')
 
     print('Uploading items')
 

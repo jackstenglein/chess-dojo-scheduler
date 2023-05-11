@@ -47,6 +47,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         'Middlegames + Strategy': false,
         Endgame: false,
         Opening: false,
+        'Non-Dojo': false,
     });
 
     useEffect(() => {
@@ -109,6 +110,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             'Middlegames + Strategy': true,
             Endgame: true,
             Opening: true,
+            'Non-Dojo': true,
         });
     };
 
@@ -120,6 +122,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             'Middlegames + Strategy': false,
             Endgame: false,
             Opening: false,
+            'Non-Dojo': false,
         });
     };
 
@@ -183,9 +186,15 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                             sx={{ width: 1, mr: 2 }}
                         >
                             <Typography fontWeight='bold'>{c.name}</Typography>
-                            <Typography color='text.secondary'>
-                                {`${c.totalComplete}/${c.requirements.length} steps`}
-                            </Typography>
+                            {c.name === 'Non-Dojo' ? (
+                                <Typography color='text.secondary'>
+                                    {c.requirements.length} activities
+                                </Typography>
+                            ) : (
+                                <Typography color='text.secondary'>
+                                    {`${c.totalComplete}/${c.requirements.length} steps`}
+                                </Typography>
+                            )}
                         </Stack>
                     </AccordionSummary>
                     <AccordionDetails>

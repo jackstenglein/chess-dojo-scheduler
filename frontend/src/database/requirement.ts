@@ -10,6 +10,7 @@ export enum ScoreboardDisplay {
     Hidden = 'HIDDEN',
     Checkbox = 'CHECKBOX',
     ProgressBar = 'PROGRESS_BAR',
+    NonDojo = 'NON_DOJO',
 }
 
 export interface Requirement {
@@ -96,6 +97,22 @@ export function getCurrentCount(
 
 export function getTotalCount(cohort: string, requirement: Requirement): number {
     return requirement.counts[cohort] || 0;
+}
+
+export function getTotalTime(cohort: string, progress?: RequirementProgress): number {
+    if (!progress) {
+        return 0;
+    }
+    return progress.minutesSpent[cohort] || 0;
+}
+
+export function formatTime(value: number): string {
+    const hours = Math.floor(value / 60);
+    const minutes = Math.round(value % 60);
+    if (minutes === 0 && hours > 0) {
+        return `${hours}h`;
+    }
+    return `${hours}h ${minutes}m`;
 }
 
 export function isComplete(

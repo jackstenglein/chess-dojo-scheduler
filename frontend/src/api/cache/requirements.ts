@@ -25,7 +25,11 @@ export function useRequirements(
     const requirements = useMemo(() => {
         return cache.requirements
             .filter((r) => {
-                if (scoreboardOnly && r.scoreboardDisplay === ScoreboardDisplay.Hidden) {
+                if (
+                    scoreboardOnly &&
+                    (r.scoreboardDisplay === ScoreboardDisplay.Hidden ||
+                        r.scoreboardDisplay === ScoreboardDisplay.NonDojo)
+                ) {
                     return false;
                 }
                 return r.counts[cohort] !== undefined;

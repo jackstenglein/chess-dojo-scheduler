@@ -45,6 +45,9 @@ function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boole
     const isCheckbox =
         timelineEntry.scoreboardDisplay === ScoreboardDisplay.Checkbox ||
         timelineEntry.scoreboardDisplay === ScoreboardDisplay.Hidden;
+    const isSlider =
+        timelineEntry.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
+        timelineEntry.scoreboardDisplay === ScoreboardDisplay.Unspecified;
     const isComplete = timelineEntry.newCount >= timelineEntry.totalCount;
     const timeSpent = getTimeSpent(timelineEntry);
 
@@ -75,7 +78,7 @@ function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boole
                 <Typography variant='subtitle1' component='span'>
                     {description} {timelineEntry.requirementName}
                 </Typography>
-                {!isCheckbox && (
+                {isSlider && (
                     <ScoreboardProgress
                         value={timelineEntry.newCount}
                         min={0}

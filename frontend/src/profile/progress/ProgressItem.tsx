@@ -3,7 +3,9 @@ import { Typography, Stack, Checkbox, Divider, IconButton, Grid } from '@mui/mat
 import EditIcon from '@mui/icons-material/Edit';
 
 import {
+    formatTime,
     getCurrentCount,
+    getTotalTime,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
@@ -30,6 +32,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
+    const time = formatTime(getTotalTime(cohort, progress));
 
     let DescriptionElement = null;
     let UpdateElement = null;
@@ -68,6 +71,17 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     </IconButton>
                 );
             break;
+
+        case ScoreboardDisplay.NonDojo:
+            UpdateElement = (
+                <IconButton
+                    aria-label={`Update ${requirement.name}`}
+                    onClick={() => setShowUpdateDialog(true)}
+                >
+                    <EditIcon />
+                </IconButton>
+            );
+            break;
     }
 
     let requirementName = requirement.name;
@@ -95,7 +109,11 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 <Grid
                     item
                     xs={9}
-                    xl={10}
+                    xl={
+                        requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo
+                            ? 9
+                            : 10
+                    }
                     onClick={() => setShowReqModal(true)}
                     sx={{ cursor: 'pointer', position: 'relative' }}
                 >
@@ -118,8 +136,21 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     </Typography>
                     {DescriptionElement}
                 </Grid>
-                <Grid item xs={2} xl={1}>
-                    <Stack direction='row' alignItems='center' justifyContent='end'>
+                <Grid item xs={2} sm='auto'>
+                    <Stack
+                        direction='row'
+                        alignItems='center'
+                        justifyContent='end'
+                        spacing={1}
+                    >
+                        <Typography
+                            color='text.secondary'
+                            sx={{ display: { xs: 'none', sm: 'initial' } }}
+                            noWrap
+                            textOverflow='unset'
+                        >
+                            {time}
+                        </Typography>
                         {UpdateElement}
                     </Stack>
                 </Grid>

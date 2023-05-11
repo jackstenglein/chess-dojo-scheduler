@@ -6,6 +6,7 @@ export const CategoryColors: Record<string, string> = {
     Endgame: '#674ea7', // dark purple 1
     Opening: '#cc0000', // dark red 1
     Graduation: '#f44336', // red
+    'Non-Dojo': '#cccccc', // gray
 };
 
 export const ScoreCategories = [

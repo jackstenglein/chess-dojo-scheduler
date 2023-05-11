@@ -24,10 +24,11 @@ const (
 	Hidden      ScoreboardDisplay = "HIDDEN"
 	Checkbox    ScoreboardDisplay = "CHECKBOX"
 	ProgressBar ScoreboardDisplay = "PROGRESS_BAR"
+	NonDojo     ScoreboardDisplay = "NON_DOJO"
 )
 
 func (s ScoreboardDisplay) IsValid() bool {
-	return s == Hidden || s == Checkbox || s == ProgressBar
+	return s == Hidden || s == Checkbox || s == ProgressBar || s == NonDojo
 }
 
 type Requirement struct {
@@ -91,6 +92,9 @@ type Requirement struct {
 // cohort and progress.
 func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32 {
 	if r == nil || progress == nil {
+		return 0
+	}
+	if r.ScoreboardDisplay == NonDojo {
 		return 0
 	}
 	if _, ok := r.Counts[cohort]; !ok {
