@@ -7,22 +7,251 @@ export interface Position {
     result?: string;
 }
 
-export interface CohortPositions {
-    cohort: string;
+export interface PositionSubsection {
+    title: string;
     positions: Position[];
 }
 
 export interface PositionSection {
     title: string;
-    cohorts: CohortPositions[];
+    cohorts: PositionSubsection[];
 }
 
 export const sections: PositionSection[] = [
     {
+        title: 'Opening',
+        cohorts: [
+            {
+                title: "Bishop's Opening",
+                positions: [
+                    {
+                        title: '#1',
+                        fen: 'r1bq1rk1/ppppbppp/2nn4/8/5Q2/1BN2N2/PPPP1PPP/R1B1K2R b KQ - 0 8',
+                        link: '//www.chess.com/emboard?id=10544275',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#2',
+                        fen: 'r1bqk2r/pppp1ppp/2n2n2/4p3/1bB1P3/2NP4/PPP1NPPP/R1BQK2R b KQkq - 0 5',
+                        link: '//www.chess.com/emboard?id=10544277',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#3',
+                        fen: 'r1bqkb1r/pppp1ppp/5n2/n3p3/2B1P3/2NP1Q2/PPP2PPP/R1B1K1NR b KQkq - 0 5',
+                        link: '//www.chess.com/emboard?id=10544283',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#4',
+                        fen: 'r1bqk2r/ppp2ppp/2np1n2/2b1pP2/2B1P3/2NP4/PPP3PP/R1BQK1NR b KQkq - 0 6',
+                        link: '//www.chess.com/emboard?id=10544285',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#5',
+                        fen: 'r1bq1rk1/ppp2ppp/2np1n2/2b5/2BPPB2/2N2N2/PPP3PP/R2QK2R b KQ - 0 8',
+                        link: '//www.chess.com/emboard?id=10544289',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                ],
+            },
+            {
+                title: 'Sicilian',
+                positions: [
+                    {
+                        title: '#1',
+                        fen: 'r1b1kbnr/ppqp1ppp/2n1p3/8/3NP3/2N1B3/PPP2PPP/R2QKB1R b KQkq - 0 6',
+                        link: '//www.chess.com/emboard?id=10544293',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#2',
+                        fen: 'r4rk1/pp1qppbp/2np1np1/2p5/4PP1Q/2NP1N2/PPP3PP/R1B2RK1 b - - 0 10',
+                        link: '//www.chess.com/emboard?id=10544297',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#3',
+                        fen: 'r2qk2r/pp1bppbp/2np1np1/1Bp5/4PP2/2NP1N2/PPP3PP/R1B1QRK1 b kq - 0 8',
+                        link: '//www.chess.com/emboard?id=10544301',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#4',
+                        fen: 'r1bqk1nr/pp2ppbp/2p3p1/2p5/4PP2/2NP4/PPP3PP/R1BQK1NR b KQkq - 0 6',
+                        link: '//www.chess.com/emboard?id=10544305',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#5',
+                        fen: 'r1bqkbnr/pp1ppppp/8/1Bp5/3nP3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 0 4',
+                        link: '//www.chess.com/emboard?id=10544309',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                ],
+            },
+            {
+                title: 'Caro Kann',
+                positions: [
+                    {
+                        title: '#1',
+                        fen: 'rnbqk1nr/pp3ppp/4p3/2bpP3/8/3B1N2/PPP2PPP/RNBQK2R b KQkq - 0 6',
+                        link: '//www.chess.com/emboard?id=10544313',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#2',
+                        fen: 'rn1qkbnr/pp2pppb/2p1P2p/3p4/3P2PP/5P2/PPP5/RNBQKBNR b KQkq - 0 7',
+                        link: '//www.chess.com/emboard?id=10544317',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#3',
+                        fen: 'rn2kbnr/pp2ppp1/2p5/3pPqBp/7P/5N2/PPP2PP1/RN1Q1RK1 b kq - 0 9',
+                        link: '//www.chess.com/emboard?id=10544319',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#4',
+                        fen: 'rn2kbnr/pp2ppp1/q1p5/3pP1Bp/3P3P/7Q/PPP2PP1/RN2K1NR b KQkq - 0 8',
+                        link: '//www.chess.com/emboard?id=10544323',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#5',
+                        fen: 'rn2kbnr/pp2ppp1/2p1P3/3p2Bp/3P3P/3Q4/PqP2PP1/RN2K1NR b KQkq - 0 8',
+                        link: '//www.chess.com/emboard?id=10544327',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                ],
+            },
+            {
+                title: 'French Defense',
+                positions: [
+                    {
+                        title: '#1',
+                        fen: 'r2qk1nr/pp1b1ppp/1bn1p3/1P1pP3/8/2P2N2/P4PPP/RNBQKB1R b KQkq - 0 8',
+                        link: '//www.chess.com/emboard?id=10544331',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#2',
+                        fen: 'r3k1nr/pp1b1ppp/1qn1p3/2bpP3/8/2PB1N2/PP3PPP/RNBQ1RK1 b kq - 0 8',
+                        link: '//www.chess.com/emboard?id=10544343',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#3',
+                        fen: 'r1b1kbnr/pp3ppp/1qn1p3/3pP3/8/2NB1N2/PP3PPP/R1BQ1RK1 b kq - 0 8',
+                        link: '//www.chess.com/emboard?id=10544347',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#4',
+                        fen: 'r3kb1r/pp1bnppp/1qn1p3/3pP3/3p3P/2PB1N2/PP3PP1/RNBQR1K1 b kq - 0 9',
+                        link: '//www.chess.com/emboard?id=10544351',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                ],
+            },
+            {
+                title: 'Pirc',
+                positions: [
+                    {
+                        title: '#1',
+                        fen: 'rn1qk1nr/1bp1ppbp/p2p2p1/1p6/3PP3/2N1BP2/PPPQ2PP/2KR1BNR b kq - 0 7',
+                        link: '//www.chess.com/emboard?id=10544353',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#2',
+                        fen: 'rnbqkb1r/pp2pp1p/2pp1np1/8/3PP3/2N1B3/PPP2PPP/R2QKBNR w KQkq - 0 5',
+                        link: '//www.chess.com/emboard?id=10544359',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#3',
+                        fen: 'rnbqk2r/pp2pp1p/2pp1npQ/8/3PP3/2N5/PPP2PPP/R3KBNR b KQkq - 0 7',
+                        link: '//www.chess.com/emboard?id=10544361',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                ],
+            },
+            {
+                title: 'Scandinavian Defense',
+                positions: [
+                    {
+                        title: '#1',
+                        fen: 'rn1qkb1r/ppp1pppp/8/3n4/3P2b1/5N2/PPP1BPPP/RNBQK2R b KQkq - 0 5',
+                        link: '//www.chess.com/emboard?id=10544365',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#2',
+                        fen: 'rnb1kb1r/pp2pppp/2p2n2/q7/3P4/2N2N2/PPPB1PPP/R2QKB1R b KQkq - 0 6',
+                        link: '//www.chess.com/emboard?id=10544371',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                ],
+            },
+            {
+                title: "Alekhine's Defense",
+                positions: [
+                    {
+                        title: '#1',
+                        fen: 'rn1qk2r/ppp1bppp/3pp3/3nP3/3P2b1/5N1P/PPP1BPP1/RNBQ1RK1 b kq - 0 7',
+                        link: '//www.chess.com/emboard?id=10544375',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#2',
+                        fen: 'rnbqk2r/ppp1ppbp/1n1p2p1/4P1N1/3P4/1B6/PPP2PPP/RNBQK2R b KQkq - 0 7',
+                        link: '//www.chess.com/emboard?id=10544377',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                    {
+                        title: '#3',
+                        fen: 'r1bq1b1r/pppnp1pp/4k3/3n3Q/2PP4/8/PP3PPP/RNB1KB1R b KQ - 0 8',
+                        link: '//www.chess.com/emboard?id=10544379',
+                        limitSeconds: 900,
+                        incrementSeconds: 10,
+                    },
+                ],
+            },
+        ],
+    },
+    {
         title: 'Middlegame Win Conversions',
         cohorts: [
             {
-                cohort: '600-1000',
+                title: '600-1000',
                 positions: [
                     {
                         title: '#1: Extra Queen',
@@ -60,7 +289,7 @@ export const sections: PositionSection[] = [
         title: 'Middlegame Sparring',
         cohorts: [
             {
-                cohort: '1000-1100',
+                title: '1000-1100',
                 positions: [
                     {
                         title: '#1: Alekhine - NN',
@@ -72,7 +301,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1100-1200',
+                title: '1100-1200',
                 positions: [
                     {
                         title: '#1: Marshall - Chigorin',
@@ -84,7 +313,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1200-1300',
+                title: '1200-1300',
                 positions: [
                     {
                         title: '#1: Steinitz - Paulsen',
@@ -96,7 +325,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1300-1400',
+                title: '1300-1400',
                 positions: [
                     {
                         title: '#1: Kline - Capablanca',
@@ -108,7 +337,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1400-1500',
+                title: '1400-1500',
                 positions: [
                     {
                         title: '#1: Stein - Furman',
@@ -127,7 +356,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1500-1600',
+                title: '1500-1600',
                 positions: [
                     {
                         title: '#1: Knorre - Chigorin',
@@ -146,7 +375,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1600-1700',
+                title: '1600-1700',
                 positions: [
                     {
                         title: '#1: Keres - Sajtar',
@@ -165,7 +394,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1700-1800',
+                title: '1700-1800',
                 positions: [
                     {
                         title: '#1: Nimzowitsch - Capablanca',
@@ -184,7 +413,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1800-1900',
+                title: '1800-1900',
                 positions: [
                     {
                         title: '#1: Bondarevsky - Lilienthal',
@@ -210,7 +439,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1900-2000',
+                title: '1900-2000',
                 positions: [
                     {
                         title: '#1: Koenig - Smyslov',
@@ -236,7 +465,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2000-2100',
+                title: '2000-2100',
                 positions: [
                     {
                         title: '#1: Saemisch - Alekhine',
@@ -262,7 +491,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2100-2200',
+                title: '2100-2200',
                 positions: [
                     {
                         title: '#1: Pilnik - Geller',
@@ -288,7 +517,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2200-2300',
+                title: '2200-2300',
                 positions: [
                     {
                         title: '#1: Alatortsev - Levenfish',
@@ -321,7 +550,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2300-2400',
+                title: '2300-2400',
                 positions: [
                     {
                         title: '#1: Smyslov - Reshevsky',
@@ -354,7 +583,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2400+',
+                title: '2400+',
                 positions: [
                     {
                         title: '#1: Spassky - Petrosian',
@@ -392,7 +621,7 @@ export const sections: PositionSection[] = [
         title: 'Endgame Algorithms',
         cohorts: [
             {
-                cohort: '0-500',
+                title: '0-500',
                 positions: [
                     {
                         title: '#1: K+Q Checkmate',
@@ -404,26 +633,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '500-600',
-                positions: [
-                    {
-                        title: '#1: K+Q Checkmate',
-                        fen: '8/8/8/8/8/1k6/8/QK6 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362279',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
-                    {
-                        title: '#2: K+R Checkmate',
-                        fen: '8/8/8/8/8/1k6/8/RK6 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362283',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
-                ],
-            },
-            {
-                cohort: '600-700',
+                title: '500-600',
                 positions: [
                     {
                         title: '#1: K+Q Checkmate',
@@ -442,7 +652,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '700-800',
+                title: '600-700',
                 positions: [
                     {
                         title: '#1: K+Q Checkmate',
@@ -458,17 +668,10 @@ export const sections: PositionSection[] = [
                         limitSeconds: 180,
                         incrementSeconds: 0,
                     },
-                    {
-                        title: '#3: K+P vs K',
-                        fen: '3k4/8/8/8/8/8/3P4/3K4 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362289',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
                 ],
             },
             {
-                cohort: '800-900',
+                title: '700-800',
                 positions: [
                     {
                         title: '#1: K+Q Checkmate',
@@ -491,17 +694,10 @@ export const sections: PositionSection[] = [
                         limitSeconds: 180,
                         incrementSeconds: 0,
                     },
-                    {
-                        title: '#4: Two Bishop Checkmate',
-                        fen: '3k4/8/8/8/8/8/8/B2K1B2 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362291',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
                 ],
             },
             {
-                cohort: '900-1000',
+                title: '800-900',
                 positions: [
                     {
                         title: '#1: K+Q Checkmate',
@@ -534,8 +730,15 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1000-1100',
+                title: '900-1000',
                 positions: [
+                    {
+                        title: '#1: K+Q Checkmate',
+                        fen: '8/8/8/8/8/1k6/8/QK6 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362279',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
                     {
                         title: '#2: K+R Checkmate',
                         fen: '8/8/8/8/8/1k6/8/RK6 w - - 0 1',
@@ -557,18 +760,18 @@ export const sections: PositionSection[] = [
                         limitSeconds: 180,
                         incrementSeconds: 0,
                     },
-                    {
-                        title: '#5: K+P 2',
-                        fen: '8/2k5/1p6/1P1K4/8/8/8/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362295',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
                 ],
             },
             {
-                cohort: '1100-1200',
+                title: '1000-1100',
                 positions: [
+                    {
+                        title: '#2: K+R Checkmate',
+                        fen: '8/8/8/8/8/1k6/8/RK6 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362283',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
                     {
                         title: '#3: K+P vs K',
                         fen: '3k4/8/8/8/8/8/3P4/3K4 w - - 0 1',
@@ -590,17 +793,10 @@ export const sections: PositionSection[] = [
                         limitSeconds: 180,
                         incrementSeconds: 0,
                     },
-                    {
-                        title: '#6: K+P 3',
-                        fen: '8/8/8/6p1/5kP1/8/5K2/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362299',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
                 ],
             },
             {
-                cohort: '1200-1300',
+                title: '1100-1200',
                 positions: [
                     {
                         title: '#3: K+P vs K',
@@ -633,7 +829,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1300-1400',
+                title: '1200-1300',
                 positions: [
                     {
                         title: '#3: K+P vs K',
@@ -666,7 +862,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1400-1500',
+                title: '1300-1400',
                 positions: [
                     {
                         title: '#3: K+P vs K',
@@ -699,8 +895,15 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1500-1600',
+                title: '1400-1500',
                 positions: [
+                    {
+                        title: '#3: K+P vs K',
+                        fen: '3k4/8/8/8/8/8/3P4/3K4 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362289',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
                     {
                         title: '#4: Two Bishop Checkmate',
                         fen: '3k4/8/8/8/8/8/8/B2K1B2 w - - 0 1',
@@ -722,32 +925,18 @@ export const sections: PositionSection[] = [
                         limitSeconds: 180,
                         incrementSeconds: 0,
                     },
-                    {
-                        title: '#7: Philidor',
-                        fen: '1R6/8/8/8/4pk2/8/r7/4K3 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362301',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
-                    {
-                        title: '#8: Lucena',
-                        fen: '3K4/3P1k2/8/8/8/8/2r5/4R3 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362305',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
-                    {
-                        title: '#9: K+P 4',
-                        fen: '2k5/8/p1P5/P2K4/8/8/8/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362313',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
                 ],
             },
             {
-                cohort: '1600-1700',
+                title: '1500-1600',
                 positions: [
+                    {
+                        title: '#4: Two Bishop Checkmate',
+                        fen: '3k4/8/8/8/8/8/8/B2K1B2 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362291',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
                     {
                         title: '#5: K+P 2',
                         fen: '8/2k5/1p6/1P1K4/8/8/8/8 w - - 0 1',
@@ -783,17 +972,10 @@ export const sections: PositionSection[] = [
                         limitSeconds: 180,
                         incrementSeconds: 0,
                     },
-                    {
-                        title: '#10: B+N Checkmate',
-                        fen: '5k2/5N2/5K2/5B2/8/8/8/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362315',
-                        limitSeconds: 300,
-                        incrementSeconds: 0,
-                    },
                 ],
             },
             {
-                cohort: '1700-1800',
+                title: '1600-1700',
                 positions: [
                     {
                         title: '#5: K+P 2',
@@ -837,25 +1019,25 @@ export const sections: PositionSection[] = [
                         limitSeconds: 300,
                         incrementSeconds: 0,
                     },
-                    {
-                        title: '#11: B+N Checkmate 2',
-                        fen: '8/8/8/8/8/2k5/8/NBK5 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362319',
-                        limitSeconds: 300,
-                        incrementSeconds: 0,
-                    },
-                    {
-                        title: '#12: K+P 5',
-                        fen: '8/7p/3K1k2/7P/5P2/8/8/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362323',
-                        limitSeconds: 300,
-                        incrementSeconds: 0,
-                    },
                 ],
             },
             {
-                cohort: '1800-1900',
+                title: '1700-1800',
                 positions: [
+                    {
+                        title: '#5: K+P 2',
+                        fen: '8/2k5/1p6/1P1K4/8/8/8/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362295',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#6: K+P 3',
+                        fen: '8/8/8/6p1/5kP1/8/5K2/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362299',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
                     {
                         title: '#7: Philidor',
                         fen: '1R6/8/8/8/4pk2/8/r7/4K3 w - - 0 1',
@@ -898,32 +1080,39 @@ export const sections: PositionSection[] = [
                         limitSeconds: 300,
                         incrementSeconds: 0,
                     },
-                    {
-                        title: '#13: Q vs P',
-                        fen: '5QK1/8/8/8/8/8/1p6/2k5 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362325',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
-                    {
-                        title: '#14: Q vs P 2',
-                        fen: '8/6K1/5P2/8/8/8/8/1kq5 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362329',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
-                    {
-                        title: '#15: R vs P',
-                        fen: '8/2PK3r/8/3k4/8/8/8/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362331',
-                        limitSeconds: 180,
-                        incrementSeconds: 0,
-                    },
                 ],
             },
             {
-                cohort: '1900-2000',
+                title: '1800-1900',
                 positions: [
+                    {
+                        title: '#7: Philidor',
+                        fen: '1R6/8/8/8/4pk2/8/r7/4K3 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362301',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#8: Lucena',
+                        fen: '3K4/3P1k2/8/8/8/8/2r5/4R3 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362305',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#9: K+P 4',
+                        fen: '2k5/8/p1P5/P2K4/8/8/8/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362313',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#10: B+N Checkmate',
+                        fen: '5k2/5N2/5K2/5B2/8/8/8/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362315',
+                        limitSeconds: 300,
+                        incrementSeconds: 0,
+                    },
                     {
                         title: '#11: B+N Checkmate 2',
                         fen: '8/8/8/8/8/2k5/8/NBK5 w - - 0 1',
@@ -959,54 +1148,18 @@ export const sections: PositionSection[] = [
                         limitSeconds: 180,
                         incrementSeconds: 0,
                     },
-
-                    {
-                        title: '#16: R vs P 2',
-                        fen: '8/4K3/8/3pk3/3R4/8/8/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362337',
-                        limitSeconds: 300,
-                        incrementSeconds: 0,
-                    },
-                    {
-                        title: '#17: Errant Knight',
-                        fen: '8/8/8/7n/3K4/2R5/3k4/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362339',
-                        limitSeconds: 300,
-                        incrementSeconds: 0,
-                    },
-                    {
-                        title: '#18: Q vs R',
-                        fen: '8/8/8/4k3/3r4/8/Q7/1K6 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362341',
-                        limitSeconds: 300,
-                        incrementSeconds: 30,
-                    },
-                    {
-                        title: '#19: R+B vs R',
-                        fen: '3k4/4r3/3K4/3B4/8/8/8/5R2 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362345',
-                        limitSeconds: 300,
-                        incrementSeconds: 30,
-                    },
-                    {
-                        title: '#20: R+B vs R 2',
-                        fen: '8/8/3K4/r5b1/3k4/8/8/5R2 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362351',
-                        limitSeconds: 300,
-                        incrementSeconds: 30,
-                    },
-                    {
-                        title: '#21: Opposite Bishops',
-                        fen: '4bB2/8/4k3/3pp3/8/3K4/8/8 w - - 0 1',
-                        link: '//www.chess.com/emboard?id=10362347',
-                        limitSeconds: 300,
-                        incrementSeconds: 30,
-                    },
                 ],
             },
             {
-                cohort: '2000-2100',
+                title: '1900-2000',
                 positions: [
+                    {
+                        title: '#11: B+N Checkmate 2',
+                        fen: '8/8/8/8/8/2k5/8/NBK5 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362319',
+                        limitSeconds: 300,
+                        incrementSeconds: 0,
+                    },
                     {
                         title: '#12: K+P 5',
                         fen: '8/7p/3K1k2/7P/5P2/8/8/8 w - - 0 1',
@@ -1081,7 +1234,83 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2100-2200',
+                title: '2000-2100',
+                positions: [
+                    {
+                        title: '#12: K+P 5',
+                        fen: '8/7p/3K1k2/7P/5P2/8/8/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362323',
+                        limitSeconds: 300,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#13: Q vs P',
+                        fen: '5QK1/8/8/8/8/8/1p6/2k5 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362325',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#14: Q vs P 2',
+                        fen: '8/6K1/5P2/8/8/8/8/1kq5 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362329',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#15: R vs P',
+                        fen: '8/2PK3r/8/3k4/8/8/8/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362331',
+                        limitSeconds: 180,
+                        incrementSeconds: 0,
+                    },
+
+                    {
+                        title: '#16: R vs P 2',
+                        fen: '8/4K3/8/3pk3/3R4/8/8/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362337',
+                        limitSeconds: 300,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#17: Errant Knight',
+                        fen: '8/8/8/7n/3K4/2R5/3k4/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362339',
+                        limitSeconds: 300,
+                        incrementSeconds: 0,
+                    },
+                    {
+                        title: '#18: Q vs R',
+                        fen: '8/8/8/4k3/3r4/8/Q7/1K6 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362341',
+                        limitSeconds: 300,
+                        incrementSeconds: 30,
+                    },
+                    {
+                        title: '#19: R+B vs R',
+                        fen: '3k4/4r3/3K4/3B4/8/8/8/5R2 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362345',
+                        limitSeconds: 300,
+                        incrementSeconds: 30,
+                    },
+                    {
+                        title: '#20: R+B vs R 2',
+                        fen: '8/8/3K4/r5b1/3k4/8/8/5R2 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362351',
+                        limitSeconds: 300,
+                        incrementSeconds: 30,
+                    },
+                    {
+                        title: '#21: Opposite Bishops',
+                        fen: '4bB2/8/4k3/3pp3/8/3K4/8/8 w - - 0 1',
+                        link: '//www.chess.com/emboard?id=10362347',
+                        limitSeconds: 300,
+                        incrementSeconds: 30,
+                    },
+                ],
+            },
+            {
+                title: '2100-2200',
                 positions: [
                     {
                         title: '#14: Q vs P 2',
@@ -1150,7 +1379,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2200-2300',
+                title: '2200-2300',
                 positions: [
                     {
                         title: '#14: Q vs P 2',
@@ -1219,7 +1448,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2300-2400',
+                title: '2300-2400',
                 positions: [
                     {
                         title: '#15: R vs P',
@@ -1288,7 +1517,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2400+',
+                title: '2400+',
                 positions: [
                     {
                         title: '#16: R vs P 2',
@@ -1361,7 +1590,7 @@ export const sections: PositionSection[] = [
         title: 'Endgame Win Conversions',
         cohorts: [
             {
-                cohort: '600-1000',
+                title: '600-1000',
                 positions: [
                     {
                         title: '#1: Extra Rook',
@@ -1399,7 +1628,7 @@ export const sections: PositionSection[] = [
         title: 'Endgame Positional Sparring',
         cohorts: [
             {
-                cohort: '1000-1100',
+                title: '1000-1100',
                 positions: [
                     {
                         title: '#1: Outside Passer',
@@ -1411,7 +1640,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1100-1200',
+                title: '1100-1200',
                 positions: [
                     {
                         title: '#2: Sveshnikov-Kasparov 1979',
@@ -1423,7 +1652,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1200-1300',
+                title: '1200-1300',
                 positions: [
                     {
                         title: '#3: Topalov-Anand 2014 WC',
@@ -1435,7 +1664,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1300-1400',
+                title: '1300-1400',
                 positions: [
                     {
                         title: '#4: Winter-Capablanca 1919',
@@ -1447,7 +1676,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1400-1500',
+                title: '1400-1500',
                 positions: [
                     {
                         title: '#5: Petrosian-Ivkov 1982',
@@ -1466,7 +1695,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1500-1600',
+                title: '1500-1600',
                 positions: [
                     {
                         title: '#7: Gheorghiu-Olafsson 1969',
@@ -1485,7 +1714,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1600-1700',
+                title: '1600-1700',
                 positions: [
                     {
                         title: '#9: Vaganian-Rashkovsky 1981',
@@ -1504,7 +1733,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1700-1800',
+                title: '1700-1800',
                 positions: [
                     {
                         title: '#11: Fischer-Reshevsky 1963',
@@ -1523,7 +1752,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1800-1900',
+                title: '1800-1900',
                 positions: [
                     {
                         title: '#13: Botvinnik-Alekhine 1938',
@@ -1549,7 +1778,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '1900-2000',
+                title: '1900-2000',
                 positions: [
                     {
                         title: '#16: Smyslov-Benko 1969',
@@ -1575,7 +1804,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2000-2100',
+                title: '2000-2100',
                 positions: [
                     {
                         title: '#19: Catalan Pressure',
@@ -1601,7 +1830,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2100-2200',
+                title: '2100-2200',
                 positions: [
                     {
                         title: '#22: Smyslov-Barcza 1953',
@@ -1627,7 +1856,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2200-2300',
+                title: '2200-2300',
                 positions: [
                     {
                         title: '#25: Smyslov-Simagin 1951',
@@ -1660,7 +1889,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2300-2400',
+                title: '2300-2400',
                 positions: [
                     {
                         title: '#29: Smyslov-Silwa 1956',
@@ -1693,7 +1922,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: '2400+',
+                title: '2400+',
                 positions: [
                     {
                         title: '#33: Smyslov-Haag 1963',
@@ -1731,7 +1960,7 @@ export const sections: PositionSection[] = [
         title: 'Rook Endgame Progression',
         cohorts: [
             {
-                cohort: 'Match #1',
+                title: 'Match #1',
                 positions: [
                     {
                         title: '#1: Philidor',
@@ -1857,7 +2086,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: 'Match #2',
+                title: 'Match #2',
                 positions: [
                     {
                         title: '#16: Taubenhaus-Gelly 1907',
@@ -1974,7 +2203,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: 'Match #3',
+                title: 'Match #3',
                 positions: [
                     {
                         title: '#30',
@@ -2075,7 +2304,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: 'Match #4',
+                title: 'Match #4',
                 positions: [
                     {
                         title: '#42: Geschwendtner-Sott 1995',
@@ -2160,7 +2389,7 @@ export const sections: PositionSection[] = [
                 ],
             },
             {
-                cohort: 'Match #5',
+                title: 'Match #5',
                 positions: [
                     {
                         title: '#52: Drimer-Doda',

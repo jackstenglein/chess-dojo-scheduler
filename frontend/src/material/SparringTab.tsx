@@ -21,7 +21,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
     sections,
     Position as PositionModel,
-    CohortPositions as CohortPositionsModel,
+    PositionSubsection as PositionSubsectionModel,
     PositionSection,
 } from './sparring';
 import React, { useState } from 'react';
@@ -124,12 +124,15 @@ const Position: React.FC<PositionProps> = ({ sectionTitle, position }) => {
     );
 };
 
-interface CohortPositionsProps {
+interface PositionSubsectionProps {
     sectionTitle: string;
-    cohort: CohortPositionsModel;
+    cohort: PositionSubsectionModel;
 }
 
-const CohortPositions: React.FC<CohortPositionsProps> = ({ sectionTitle, cohort }) => {
+const PositionSubsection: React.FC<PositionSubsectionProps> = ({
+    sectionTitle,
+    cohort,
+}) => {
     const [open, setOpen] = useState(false);
 
     const toggleOpen = () => {
@@ -149,7 +152,7 @@ const CohortPositions: React.FC<CohortPositionsProps> = ({ sectionTitle, cohort 
                     onClick={toggleOpen}
                     sx={{ cursor: 'pointer' }}
                 >
-                    {cohort.cohort}
+                    {cohort.title}
                 </Typography>
             </Stack>
 
@@ -191,8 +194,8 @@ const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
             <Collapse in={open} timeout='auto' unmountOnExit>
                 <Stack spacing={2}>
                     {section.cohorts.map((c) => (
-                        <CohortPositions
-                            key={c.cohort}
+                        <PositionSubsection
+                            key={c.title}
                             cohort={c}
                             sectionTitle={section.title}
                         />
