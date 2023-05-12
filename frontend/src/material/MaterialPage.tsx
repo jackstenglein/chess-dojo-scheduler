@@ -5,6 +5,7 @@ import { Container, Box, Tab } from '@mui/material';
 import BooksTab from './BooksTab';
 import RatingsTab from './RatingsTab';
 import SparringTab from './SparringTab';
+import ModelGamesTab from './ModelGamesTab';
 
 const MaterialPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'books' });
@@ -23,13 +24,19 @@ const MaterialPage = () => {
                         <Tab label='Rating Conversions' value='ratings' />
                     </TabList>
                 </Box>
+
                 <TabPanel value='books' sx={{ px: { xs: 0, sm: 3 } }}>
                     <BooksTab />
                 </TabPanel>
+
                 <TabPanel value='sparring' sx={{ px: { xs: 0, sm: 3 } }}>
                     <SparringTab />
                 </TabPanel>
-                <TabPanel value='modelGames'>Coming Soon</TabPanel>
+
+                <TabPanel value='modelGames'>
+                    <ModelGamesTab />
+                </TabPanel>
+
                 <TabPanel value='ratings' sx={{ px: { xs: 0, sm: 3 } }}>
                     <RatingsTab />
                 </TabPanel>
