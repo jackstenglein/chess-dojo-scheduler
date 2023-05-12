@@ -132,6 +132,23 @@ export function getCohortScore(
     return Math.round(score * 100) / 100;
 }
 
+export function getTimeSpent(
+    params: GridValueGetterParams<any, ScoreboardRow>,
+    cohort: string | undefined
+): number {
+    if (!cohort) {
+        return 0;
+    }
+
+    let result = 0;
+    for (const progress of Object.values(params.row.progress)) {
+        if (progress.minutesSpent && progress.minutesSpent[cohort]) {
+            result += progress.minutesSpent[cohort];
+        }
+    }
+    return result;
+}
+
 export function getCategoryScore(
     params: GridValueGetterParams<any, ScoreboardRow>,
     cohort: string | undefined,

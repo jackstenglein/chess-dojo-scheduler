@@ -6,6 +6,7 @@ import {
     GridColDef,
     GridRenderCellParams,
     GridRowModel,
+    GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
 
@@ -22,6 +23,7 @@ import {
     getPercentComplete,
     getRatingChange,
     getStartRating,
+    getTimeSpent,
     ScoreboardRow,
 } from './scoreboardData';
 import { dojoCohorts, User } from '../database/user';
@@ -30,6 +32,7 @@ import GraduationIcon from './GraduationIcon';
 import { useRequirements } from '../api/cache/requirements';
 import ScoreboardProgress from './ScoreboardProgress';
 import GraduationChips from './GraduationChips';
+import { formatTime } from '../database/requirement';
 
 interface ColumnGroupChild {
     field: string;
@@ -60,11 +63,7 @@ const defaultColumnGroups: ColumnGroup[] = [
         groupId: 'Progress',
         children: [
             { field: 'cohortScore' },
-            { field: 'gamesAndAnalysisScore' },
-            { field: 'middlegamesAndStrategyScore' },
-            { field: 'tacticsScore' },
-            { field: 'endgameScore' },
-            { field: 'openingScore' },
+            { field: 'cohortTime' },
             { field: 'percentComplete' },
         ],
     },
@@ -179,9 +178,19 @@ const ScoreboardPage = () => {
             {
                 field: 'cohortScore',
                 headerName: 'Dojo Score',
-                minWidth: 150,
+                minWidth: 125,
                 valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
                     getCohortScore(params, cohort, requirements),
+                align: 'center',
+            },
+            {
+                field: 'cohortTime',
+                headerName: 'Time Spent',
+                minWidth: 125,
+                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                    getTimeSpent(params, cohort),
+                valueFormatter: (params: GridValueFormatterParams<number>) =>
+                    formatTime(params.value),
                 align: 'center',
             },
             {
