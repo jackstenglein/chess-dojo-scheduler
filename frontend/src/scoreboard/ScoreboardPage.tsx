@@ -289,6 +289,11 @@ const ScoreboardPage = () => {
                 rows={usersList}
                 loading={usersRequest.isLoading()}
                 getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
+                initialState={{
+                    sorting: {
+                        sortModel: [{ field: 'cohortScore', sort: 'desc' }],
+                    },
+                }}
             />
 
             <Typography variant='h6'>Graduations</Typography>
@@ -300,6 +305,11 @@ const ScoreboardPage = () => {
                 rows={graduationsRequest.data ?? []}
                 loading={graduationsRequest.isLoading()}
                 getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
+                initialState={{
+                    sorting: {
+                        sortModel: [{ field: 'cohortScore', sort: 'desc' }],
+                    },
+                }}
             />
         </Container>
     );
