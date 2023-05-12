@@ -6,6 +6,13 @@ export interface UserStatistics {
         [cohort: string]: number;
     };
 
+    dojoScores: {
+        [cohort: string]: number;
+    };
+    activeDojoScores: {
+        [cohort: string]: number;
+    };
+
     ratingChanges: {
         [cohort: string]: number;
     };

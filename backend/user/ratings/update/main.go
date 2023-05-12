@@ -80,7 +80,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lich
 	return user, queuedUpdates
 }
 
-func updateStats(stats *database.UserStatistics, user *database.User) {
+func updateStats(stats *database.UserStatistics, user *database.User, requirements []*database.Requirement) {
 	if !user.DojoCohort.IsValid() || user.RatingSystem == "" {
 		return
 	}
@@ -88,40 +88,32 @@ func updateStats(stats *database.UserStatistics, user *database.User) {
 	isActive := user.UpdatedAt >= monthAgo
 	ratingChange := user.GetRatingChange()
 
-	stats.Participants[database.AllCohorts] += 1
+	score := user.CalculateScore(requirements)
+
 	stats.Participants[user.DojoCohort] += 1
-
-	stats.RatingChanges[database.AllCohorts] += ratingChange
+	stats.DojoScores[user.DojoCohort] += score
 	stats.RatingChanges[user.DojoCohort] += ratingChange
-
-	stats.RatingSystems[database.AllCohorts][user.RatingSystem] += 1
 	stats.RatingSystems[user.DojoCohort][user.RatingSystem] += 1
 
 	if isActive {
-		stats.ActiveParticipants[database.AllCohorts] += 1
 		stats.ActiveParticipants[user.DojoCohort] += 1
-
-		stats.ActiveRatingChanges[database.AllCohorts] += ratingChange
+		stats.ActiveDojoScores[user.DojoCohort] += score
 		stats.ActiveRatingChanges[user.DojoCohort] += ratingChange
-
-		stats.ActiveRatingSystems[database.AllCohorts][user.RatingSystem] += 1
 		stats.ActiveRatingSystems[user.DojoCohort][user.RatingSystem] += 1
 	}
 
 	for _, progress := range user.Progress {
 		for cohort, minutes := range progress.MinutesSpent {
-			stats.MinutesSpent[database.AllCohorts] += minutes
 			stats.MinutesSpent[cohort] += minutes
 
 			if isActive {
-				stats.ActiveMinutesSpent[database.AllCohorts] += minutes
 				stats.ActiveMinutesSpent[cohort] += minutes
 			}
 		}
 	}
 }
 
-func updateUsers(users []*database.User, stats *database.UserStatistics) {
+func updateUsers(users []*database.User, stats *database.UserStatistics, requirements []*database.Requirement) {
 	var queuedUpdates []*database.User
 
 	lichessUsernames := make([]string, 0, len(users))
@@ -137,7 +129,7 @@ func updateUsers(users []*database.User, stats *database.UserStatistics) {
 
 	for _, user := range users {
 		user, queuedUpdates = updateIfNecessary(user, queuedUpdates, lichessRatings)
-		updateStats(stats, user)
+		updateStats(stats, user, requirements)
 	}
 
 	if len(queuedUpdates) > 0 {
@@ -153,11 +145,25 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 	log.Debugf("Event: %#v", event)
 	log.SetRequestId(event.ID)
 
-	stats := database.NewUserStatistics()
-
-	var users []*database.User
+	log.Debug("Fetching requirements")
+	var requirements []*database.Requirement
+	var rs []*database.Requirement
 	var startKey string
 	var err error
+	for ok := true; ok; ok = startKey != "" {
+		rs, startKey, err = repository.ScanRequirements("", startKey)
+		if err != nil {
+			log.Errorf("Failed to scan requirements: %v", err)
+			return event, err
+		}
+		requirements = append(requirements, rs...)
+	}
+	log.Debugf("Got %d requirements", len(requirements))
+
+	stats := database.NewUserStatistics()
+	var users []*database.User
+	startKey = ""
+	err = nil
 	for ok := true; ok; ok = startKey != "" {
 		users, startKey, err = repository.ScanUserRatings(startKey)
 		if err != nil {
@@ -165,7 +171,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 			return event, err
 		}
 		log.Infof("Processing %d users", len(users))
-		updateUsers(users, stats)
+		updateUsers(users, stats, requirements)
 	}
 
 	if err := repository.SetUserStatistics(stats); err != nil {

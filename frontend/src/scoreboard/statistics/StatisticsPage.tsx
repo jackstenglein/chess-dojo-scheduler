@@ -119,17 +119,22 @@ const StatisticsPage = () => {
         );
     }, [request.data]);
 
-    const ratingSystemsData: Series[] = useMemo(() => {
-        if (!request.data) {
-            return [];
-        }
-        return Object.values(RatingSystem).map((rs) => ({
-            label: formatRatingSystem(rs),
-            data: dojoCohorts.map((c) => ({
-                cohort: c,
-                value: request.data!.ratingSystems[c][rs],
-            })),
-        }));
+    const totalDojoScoreData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.activeDojoScores[c],
+            (d, c) => d.dojoScores[c] - d.activeDojoScores[c]
+        );
+    }, [request.data]);
+
+    const avgDojoScoreData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.activeDojoScores[c] / d.activeParticipants[c],
+            (d, c) =>
+                (d.dojoScores[c] - d.activeDojoScores[c]) /
+                (d.participants[c] - d.activeParticipants[c])
+        );
     }, [request.data]);
 
     const totalRatingChangeData: Series[] = useMemo(() => {
@@ -166,6 +171,19 @@ const StatisticsPage = () => {
                 (d.minutesSpent[c] - d.activeMinutesSpent[c]) /
                 (d.participants[c] - d.activeParticipants[c])
         );
+    }, [request.data]);
+
+    const ratingSystemsData: Series[] = useMemo(() => {
+        if (!request.data) {
+            return [];
+        }
+        return Object.values(RatingSystem).map((rs) => ({
+            label: formatRatingSystem(rs),
+            data: dojoCohorts.map((c) => ({
+                cohort: c,
+                value: request.data!.ratingSystems[c][rs],
+            })),
+        }));
     }, [request.data]);
 
     if (request.isLoading() && request.data === undefined) {
@@ -207,11 +225,20 @@ const StatisticsPage = () => {
                     primaryAxis={primaryAxis}
                     secondaryAxes={participantsSecondaryAxes}
                 />
+
                 <Chart
-                    title='Rating Systems'
-                    series={ratingSystemsData}
+                    title='Total Dojo Score'
+                    series={totalDojoScoreData}
                     primaryAxis={primaryAxis}
-                    secondaryAxes={ratingSystemsSecondaryAxes}
+                    secondaryAxes={decimalSecondaryAxes}
+                    sumFormatter={(sum) => `${Math.round(sum)}`}
+                />
+                <Chart
+                    title='Average Dojo Score'
+                    series={avgDojoScoreData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={decimalSecondaryAxes}
+                    hideSums
                 />
 
                 <Chart
@@ -241,6 +268,13 @@ const StatisticsPage = () => {
                     primaryAxis={primaryAxis}
                     secondaryAxes={timeSecondaryAxes}
                     hideSums
+                />
+
+                <Chart
+                    title='Rating Systems'
+                    series={ratingSystemsData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={ratingSystemsSecondaryAxes}
                 />
             </Stack>
         </Container>

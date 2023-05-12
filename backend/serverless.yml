@@ -254,6 +254,10 @@ functions:
           - dynamodb:PartiQLUpdate
           - dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt RequirementsTable.Arn
 
   graduate:
     handler: bin/user/graduate

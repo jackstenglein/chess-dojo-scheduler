@@ -97,7 +97,7 @@ func NewUserStatistics() *UserStatistics {
 		ActiveMinutesSpent:  make(map[DojoCohort]int),
 	}
 
-	statsCohorts := []DojoCohort{AllCohorts, NoCohort}
+	statsCohorts := []DojoCohort{NoCohort}
 	statsCohorts = append(statsCohorts, cohorts...)
 
 	for _, c := range statsCohorts {
