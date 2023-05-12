@@ -187,9 +187,9 @@ function getTimelineUpdate(items: HistoryItem[]): {
         }
         if (
             item.entry.scoreboardDisplay !== ScoreboardDisplay.NonDojo &&
-            (isNaN(parseInt(item.count)) || parseInt(item.count) === 0)
+            (isNaN(parseInt(item.count)) || parseInt(item.count) < 0)
         ) {
-            itemErrors.count = 'This field must be a non-zero integer';
+            itemErrors.count = 'This field must be a non-negative integer';
         }
         if (
             item.hours !== '' &&

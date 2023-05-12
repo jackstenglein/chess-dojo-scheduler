@@ -7,6 +7,8 @@ import {
     DialogContent,
     DialogActions,
     Button,
+    FormControlLabel,
+    Checkbox,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
@@ -24,44 +26,19 @@ import { useApi } from '../../api/Api';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
-function getContentText(
-    isComplete: boolean,
-    isSlider: boolean,
-    isNonDojo: boolean
-): string {
+function getContentText(isNonDojo: boolean): string {
     if (isNonDojo) {
         return 'This time will be added to any time you have previously entered for this activity.';
     }
 
-    if (isComplete) {
-        return `Your progress on this requirement will be ${
-            isSlider ? 'updated' : 'reset'
-        }, but any time you previously entered and associated activity entries for this requirement will remain.`;
-    }
-
-    return `Optionally add how long it took to ${
-        isSlider ? 'update' : 'complete'
-    } this requirement in order for it to be added to your activity breakdown. This time will be added to any time you have previously entered for this requirement.`;
-}
-
-function getButtonText(
-    isComplete: boolean,
-    isSlider: boolean,
-    isNonDojo: boolean
-): string {
-    if (isSlider || isNonDojo) {
-        return 'Update';
-    }
-    if (isComplete) {
-        return 'Uncheck';
-    }
-    return 'Complete';
+    return `Optionally add time to this requirement in order for it to be added to your activity breakdown. This time will be added to any time you have previously entered for this requirement.`;
 }
 
 function getIncrementalCount(
-    isComplete: boolean,
+    alreadyComplete: boolean,
     isSlider: boolean,
     isNonDojo: boolean,
+    markComplete: boolean,
     value: number,
     currentCount: number,
     totalCount: number
@@ -72,9 +49,19 @@ function getIncrementalCount(
     if (isSlider) {
         return value - currentCount;
     }
-    if (isComplete) {
-        return -totalCount;
+
+    if (alreadyComplete) {
+        if (!markComplete) {
+            return -totalCount;
+        }
+        return 0;
     }
+
+    if (!markComplete) {
+        // The user is just changing the time
+        return currentCount;
+    }
+
     return totalCount;
 }
 
@@ -99,12 +86,17 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     const currentCount = getCurrentCount(cohort, requirement, progress);
 
     const [value, setValue] = useState<number>(currentCount);
+    const [markComplete, setMarkComplete] = useState(true);
     const [hours, setHours] = useState('');
     const [minutes, setMinutes] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
     const isComplete = currentCount >= totalCount;
+
+    const isCheckbox =
+        requirement.scoreboardDisplay === ScoreboardDisplay.Hidden ||
+        requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox;
 
     const isSlider =
         requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
@@ -138,6 +130,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             isComplete,
             isSlider,
             isNonDojo,
+            markComplete,
             value,
             currentCount,
             totalCount
@@ -176,55 +169,56 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                             suffix={requirement.progressBarSuffix}
                         />
                     )}
-                    <DialogContentText>
-                        {getContentText(isComplete, isSlider, isNonDojo)}
-                    </DialogContentText>
-                    {!isComplete && (
-                        <>
-                            <Grid container width={1}>
-                                <Grid item xs={12} sm>
-                                    <TextField
-                                        label='Hours'
-                                        value={hours}
-                                        inputProps={{
-                                            inputMode: 'numeric',
-                                            pattern: '[0-9]*',
-                                        }}
-                                        onChange={(event) => setHours(event.target.value)}
-                                        error={!!errors.hours}
-                                        helperText={errors.hours}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sm
-                                    pl={{ sm: 2 }}
-                                    pt={{ xs: 2, sm: 0 }}
-                                >
-                                    <TextField
-                                        label='Minutes'
-                                        value={minutes}
-                                        inputProps={{
-                                            inputMode: 'numeric',
-                                            pattern: '[0-9]*',
-                                        }}
-                                        onChange={(event) =>
-                                            setMinutes(event.target.value)
-                                        }
-                                        error={!!errors.minutes}
-                                        helperText={errors.minutes}
-                                        fullWidth
-                                    />
-                                </Grid>
-                            </Grid>
-                            <DialogContentText>
-                                Total Time:{' '}
-                                {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
-                            </DialogContentText>
-                        </>
+
+                    {isCheckbox && (
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={markComplete}
+                                    onChange={(event) =>
+                                        setMarkComplete(event.target.checked)
+                                    }
+                                />
+                            }
+                            label='Mark as Completed?'
+                        />
                     )}
+
+                    <DialogContentText>{getContentText(isNonDojo)}</DialogContentText>
+
+                    <Grid container width={1}>
+                        <Grid item xs={12} sm>
+                            <TextField
+                                label='Hours'
+                                value={hours}
+                                inputProps={{
+                                    inputMode: 'numeric',
+                                    pattern: '[0-9]*',
+                                }}
+                                onChange={(event) => setHours(event.target.value)}
+                                error={!!errors.hours}
+                                helperText={errors.hours}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
+                            <TextField
+                                label='Minutes'
+                                value={minutes}
+                                inputProps={{
+                                    inputMode: 'numeric',
+                                    pattern: '[0-9]*',
+                                }}
+                                onChange={(event) => setMinutes(event.target.value)}
+                                error={!!errors.minutes}
+                                helperText={errors.minutes}
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                    <DialogContentText>
+                        Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
+                    </DialogContentText>
                 </Stack>
             </DialogContent>
             <DialogActions>
@@ -236,12 +230,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                         Show History
                     </Button>
                 )}
-                <LoadingButton
-                    loading={request.isLoading()}
-                    onClick={onSubmit}
-                    disabled={isSlider ? value === currentCount : false}
-                >
-                    {getButtonText(isComplete, isSlider, isNonDojo)}
+                <LoadingButton loading={request.isLoading()} onClick={onSubmit}>
+                    Update
                 </LoadingButton>
             </DialogActions>
 

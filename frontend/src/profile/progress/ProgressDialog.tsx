@@ -3,7 +3,6 @@ import { Dialog, DialogTitle, DialogContent, TextField, MenuItem } from '@mui/ma
 
 import {
     CustomTask,
-    getCurrentCount,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
@@ -43,14 +42,6 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
     const [selectedCohort, setSelectedCohort] = useState(initialCohort);
 
     const totalCount = requirement.counts[selectedCohort] || 0;
-    const currentCount = getCurrentCount(selectedCohort, requirement, progress);
-
-    const isComplete = currentCount >= totalCount;
-
-    const isSlider =
-        requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
-        requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
-
     const isNonDojo = requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo;
 
     let requirementName = requirement.name;
@@ -63,12 +54,8 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
         dialogTitle = `${requirementName} History`;
     } else if (isNonDojo) {
         dialogTitle = `Add time to ${requirementName}?`;
-    } else if (isSlider) {
-        dialogTitle = `Update ${requirementName}?`;
-    } else if (isComplete) {
-        dialogTitle = `Uncheck ${requirementName}?`;
     } else {
-        dialogTitle = `Complete ${requirementName}?`;
+        dialogTitle = `Update ${requirementName}?`;
     }
 
     return (
