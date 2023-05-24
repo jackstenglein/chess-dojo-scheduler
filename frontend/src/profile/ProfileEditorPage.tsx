@@ -19,6 +19,7 @@ import { useAuth } from '../auth/Auth';
 import { dojoCohorts, formatRatingSystem, RatingSystem, User } from '../database/user';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
+import { DefaultTimezone } from '../calendar/CalendarFilters';
 
 function parseRating(rating: string): number {
     rating = rating.trim();
@@ -52,6 +53,20 @@ function getUpdate(user: User, formFields: Partial<User>): Partial<User> | undef
     return update;
 }
 
+function getTimezoneOptions() {
+    const options = [];
+    for (let i = -12; i <= 14; i++) {
+        const displayLabel = i < 0 ? `UTC${i}` : `UTC+${i}`;
+        const value = i <= 0 ? `Etc/GMT+${Math.abs(i)}` : `Etc/GMT-${i}`;
+        options.push(
+            <MenuItem key={i} value={value}>
+                {displayLabel}
+            </MenuItem>
+        );
+    }
+    return options;
+}
+
 interface ProfileEditorPageProps {
     isCreating?: boolean;
 }
@@ -67,6 +82,9 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : ''
     );
     const [bio, setBio] = useState(user.bio);
+    const [timezone, setTimezone] = useState(
+        user.timezoneOverride === DefaultTimezone ? '' : user.timezoneOverride
+    );
 
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
 
@@ -129,6 +147,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         discordUsername: discordUsername.trim(),
         dojoCohort,
         bio,
+        timezoneOverride: timezone === '' ? user.timezoneOverride : timezone,
         ratingSystem,
 
         chesscomUsername: chesscomUsername.trim(),
@@ -449,6 +468,15 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                         error={!!errors.bio}
                         helperText={errors.bio}
                     />
+
+                    <TextField
+                        select
+                        label='Timezone'
+                        value={timezone}
+                        onChange={(e) => setTimezone(e.target.value)}
+                    >
+                        {getTimezoneOptions()}
+                    </TextField>
                 </Stack>
 
                 <Stack spacing={4}>

@@ -15,6 +15,37 @@ import ActivityTab from './activity/ActivityTab';
 import GraduationDialog from './GraduationDialog';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import StatsTab from './stats/StatsTab';
+import { DefaultTimezone } from '../calendar/CalendarFilters';
+
+const timezoneDisplayLabels: Record<string, string> = {
+    'Etc/GMT+12': 'UTC-12',
+    'Etc/GMT+11': 'UTC-11',
+    'Etc/GMT+10': 'UTC-10',
+    'Etc/GMT+9': 'UTC-9',
+    'Etc/GMT+8': 'UTC-8',
+    'Etc/GMT+7': 'UTC-7',
+    'Etc/GMT+6': 'UTC-6',
+    'Etc/GMT+5': 'UTC-5',
+    'Etc/GMT+4': 'UTC-4',
+    'Etc/GMT+3': 'UTC-3',
+    'Etc/GMT+2': 'UTC-2',
+    'Etc/GMT+1': 'UTC-1',
+    'Etc/GMT+0': 'UTC+0',
+    'Etc/GMT-1': 'UTC+1',
+    'Etc/GMT-2': 'UTC+2',
+    'Etc/GMT-3': 'UTC+3',
+    'Etc/GMT-4': 'UTC+4',
+    'Etc/GMT-5': 'UTC+5',
+    'Etc/GMT-6': 'UTC+6',
+    'Etc/GMT-7': 'UTC+7',
+    'Etc/GMT-8': 'UTC+8',
+    'Etc/GMT-9': 'UTC+9',
+    'Etc/GMT-10': 'UTC+10',
+    'Etc/GMT-11': 'UTC+11',
+    'Etc/GMT-12': 'UTC+12',
+    'Etc/GMT-13': 'UTC+13',
+    'Etc/GMT-14': 'UTC+14',
+};
 
 type ProfilePageProps = {
     username: string;
@@ -63,7 +94,7 @@ const ProfilePage = () => {
                 <Stack
                     direction='row'
                     justifyContent='space-between'
-                    alignItems='center'
+                    alignItems='start'
                     flexWrap='wrap'
                     rowGap={2}
                 >
@@ -98,6 +129,13 @@ const ProfilePage = () => {
                                 {new Date(user.createdAt).toLocaleDateString()}
                             </Typography>
                         )}
+
+                        {user.timezoneOverride &&
+                            user.timezoneOverride !== DefaultTimezone && (
+                                <Typography mt={1}>
+                                    {timezoneDisplayLabels[user.timezoneOverride]}
+                                </Typography>
+                            )}
 
                         {user.discordUsername && (
                             <Stack direction='row' spacing={1} alignItems='center' mt={1}>
