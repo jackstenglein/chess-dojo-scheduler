@@ -90,6 +90,7 @@ const (
 	Uscf     RatingSystem = "USCF"
 	Ecf      RatingSystem = "ECF"
 	Cfc      RatingSystem = "CFC"
+	Dwz      RatingSystem = "DWZ"
 	Custom   RatingSystem = "CUSTOM"
 )
 
@@ -100,6 +101,7 @@ var ratingSystems = []RatingSystem{
 	Uscf,
 	Ecf,
 	Cfc,
+	Dwz,
 	Custom,
 }
 
@@ -197,6 +199,18 @@ type User struct {
 	// The user's current CFC rating
 	CurrentCfcRating int `dynamodbav:"currentCfcRating" json:"currentCfcRating"`
 
+	// The user's DWZ id
+	DwzId string `dynamodbav:"dwzId" json:"dwzId"`
+
+	// Whether to hide the user's DWZ ID from other users
+	HideDwzId bool `dynamodbav:"hideDwzId" json:"hideDwzId"`
+
+	// The user's starting DWZ rating
+	StartDwzRating int `dynamodbav:"startDwzRating" json:"startDwzRating"`
+
+	// The user's current DWZ rating
+	CurrentDwzRating int `dynamodbav:"currentDwzRating" json:"currentDwzRating"`
+
 	// The user's start custom rating
 	StartCustomRating int `dynamodbav:"startCustomRating" json:"startCustomRating"`
 
@@ -277,6 +291,8 @@ func (u *User) GetRatings() (int, int) {
 		return u.StartEcfRating, u.CurrentEcfRating
 	case Cfc:
 		return u.StartCfcRating, u.CurrentCfcRating
+	case Dwz:
+		return u.StartDwzRating, u.CurrentDwzRating
 	case Custom:
 		return u.StartCustomRating, u.CurrentCustomRating
 	default:
@@ -400,6 +416,19 @@ type UserUpdate struct {
 	// The user's current CFC rating
 	// Cannot be manually passed by the user and is updated automatically by the server.
 	CurrentCfcRating *int `dynamodbav:"currentCfcRating,omitempty" json:"-"`
+
+	// The user's DWZ id
+	DwzId *string `dynamodbav:"dwzId,omitempty" json:"dwzId,omitempty"`
+
+	// Whether to hide the user's DWZ ID from other users
+	HideDwzId *bool `dynamodbav:"hideDwzId,omitempty" json:"hideDwzId,omitempty"`
+
+	// The user's starting DWZ rating
+	StartDwzRating *int `dynamodbav:"startDwzRating,omitempty" json:"startDwzRating,omitempty"`
+
+	// The user's current DWZ rating
+	// Cannot be manually passed by the user and is updated automatically by the server.
+	CurrentDwzRating *int `dynamodbav:"currentDwzRating,omitempty" json:"-"`
 
 	// The user's start custom rating
 	StartCustomRating *int `dynamodbav:"startCustomRating,omitempty" json:"startCustomRating,omitempty"`
@@ -728,7 +757,8 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 
 const ratingsProjection = "username, dojoCohort, updatedAt, progress, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
 	"uscfId, startChesscomRating, currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, " +
-	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating, startCfcRating, currentCfcRating"
+	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating, startCfcRating, currentCfcRating, " +
+	"startDwzRating, currentDwzRating"
 
 // ScanUserRatings returns a list of all Users in the database, up to 1MB of data.
 // Only the usernames, cohorts and ratings are returned.
@@ -767,6 +797,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		sb.WriteString(fmt.Sprintf(" SET currentFideRating=%d SET currentUscfRating=%d", user.CurrentFideRating, user.CurrentUscfRating))
 		sb.WriteString(fmt.Sprintf(" SET currentEcfRating=%d", user.CurrentEcfRating))
 		sb.WriteString(fmt.Sprintf(" SET currentCfcRating=%d", user.CurrentCfcRating))
+		sb.WriteString(fmt.Sprintf(" SET currentDwzRating=%d", user.CurrentDwzRating))
 
 		if user.StartChesscomRating == 0 {
 			sb.WriteString(fmt.Sprintf(" SET startChesscomRating=%d", user.CurrentChesscomRating))
@@ -785,6 +816,9 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		}
 		if user.StartCfcRating == 0 {
 			sb.WriteString(fmt.Sprintf(" SET startCfcRating=%d", user.CurrentCfcRating))
+		}
+		if user.StartDwzRating == 0 {
+			sb.WriteString(fmt.Sprintf(" SET startDwzRating=%d", user.CurrentDwzRating))
 		}
 		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 

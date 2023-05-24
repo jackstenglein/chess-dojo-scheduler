@@ -102,6 +102,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
     const [startCfcRating, setStartCfcRating] = useState(`${user.startCfcRating}`);
     const [hideCfcId, setHideCfcId] = useState(user.hideCfcId);
 
+    const [dwzId, setDwzId] = useState(user.dwzId);
+    const [startDwzRating, setStartDwzRating] = useState(`${user.startDwzRating}`);
+    const [hideDwzId, setHideDwzId] = useState(user.hideDwzId);
+
     const [currentCustomRating, setCurrentCustomRating] = useState(
         `${user.currentCustomRating}`
     );
@@ -150,6 +154,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         cfcId: cfcId.trim(),
         startCfcRating: parseRating(startCfcRating),
         hideCfcId,
+
+        dwzId: dwzId.trim(),
+        startDwzRating: parseRating(startDwzRating),
+        hideDwzId,
 
         currentCustomRating: parseRating(currentCustomRating),
         startCustomRating: parseRating(startCustomRating),
@@ -218,6 +226,13 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         }
         if (parseRating(startCfcRating) < 0) {
             newErrors.startCfcRating = 'Rating must be an integer >= 0';
+        }
+
+        if (ratingSystem === RatingSystem.Dwz && !dwzId.trim()) {
+            newErrors.dwzId = 'This field is required when using DWZ rating system.';
+        }
+        if (parseRating(startDwzRating) < 0) {
+            newErrors.startDwzRating = 'Rating must be an integer >= 0';
         }
 
         if (ratingSystem === RatingSystem.Custom) {
@@ -327,6 +342,19 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
             setHidden: setHideCfcId,
             usernameError: errors.cfcId,
             startRatingError: errors.startCfcRating,
+        },
+        {
+            required: ratingSystem === RatingSystem.Dwz,
+            label: 'DWZ ID',
+            hideLabel: 'Hide ID',
+            username: dwzId,
+            setUsername: setDwzId,
+            startRating: startDwzRating,
+            setStartRating: setStartDwzRating,
+            hidden: hideDwzId,
+            setHidden: setHideDwzId,
+            usernameError: errors.dwzId,
+            startRatingError: errors.startDwzRating,
         },
     ];
 

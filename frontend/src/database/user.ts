@@ -30,6 +30,7 @@ export enum RatingSystem {
     Uscf = 'USCF',
     Ecf = 'ECF',
     Cfc = 'CFC',
+    Dwz = 'DWZ',
     Custom = 'CUSTOM',
 }
 
@@ -47,6 +48,8 @@ export function formatRatingSystem(ratingSystem: RatingSystem | string): string 
             return 'ECF';
         case RatingSystem.Cfc:
             return 'CFC';
+        case RatingSystem.Dwz:
+            return 'DWZ';
         case RatingSystem.Custom:
             return 'Custom';
     }
@@ -93,6 +96,11 @@ export interface User {
     hideCfcId: boolean;
     startCfcRating: number;
     currentCfcRating: number;
+
+    dwzId: string;
+    hideDwzId: boolean;
+    startDwzRating: number;
+    currentDwzRating: number;
 
     startCustomRating: number;
     currentCustomRating: number;
@@ -150,6 +158,8 @@ export function getSystemStartRating(
             return user.startEcfRating;
         case RatingSystem.Cfc:
             return user.startCfcRating;
+        case RatingSystem.Dwz:
+            return user.startDwzRating;
         case RatingSystem.Custom:
             return user.startCustomRating;
     }
@@ -182,6 +192,8 @@ export function getSystemCurrentRating(
             return user.currentEcfRating;
         case RatingSystem.Cfc:
             return user.currentCfcRating;
+        case RatingSystem.Dwz:
+            return user.currentDwzRating;
         case RatingSystem.Custom:
             return user.currentCustomRating;
     }
@@ -207,6 +219,8 @@ export function getRatingUsername(
             return user.ecfId;
         case RatingSystem.Cfc:
             return user.cfcId;
+        case RatingSystem.Dwz:
+            return user.dwzId;
         case RatingSystem.Custom:
             return '';
     }
@@ -232,6 +246,8 @@ export function hideRatingUsername(
             return user.hideEcfId;
         case RatingSystem.Cfc:
             return user.hideCfcId;
+        case RatingSystem.Dwz:
+            return user.hideDwzId;
         case RatingSystem.Custom:
             return true;
     }
@@ -282,6 +298,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Uscf]: 350,
         [RatingSystem.Ecf]: 300,
         [RatingSystem.Cfc]: 425,
+        [RatingSystem.Dwz]: 300,
         [RatingSystem.Custom]: -1,
     },
     '300-400': {
@@ -291,6 +308,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Uscf]: 450,
         [RatingSystem.Ecf]: 400,
         [RatingSystem.Cfc]: 525,
+        [RatingSystem.Dwz]: 400,
         [RatingSystem.Custom]: -1,
     },
     '400-500': {
@@ -300,6 +318,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Uscf]: 550,
         [RatingSystem.Ecf]: 500,
         [RatingSystem.Cfc]: 625,
+        [RatingSystem.Dwz]: 500,
         [RatingSystem.Custom]: -1,
     },
     '500-600': {
@@ -309,6 +328,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Uscf]: 650,
         [RatingSystem.Ecf]: 600,
         [RatingSystem.Cfc]: 725,
+        [RatingSystem.Dwz]: 600,
         [RatingSystem.Custom]: -1,
     },
     '600-700': {
@@ -318,6 +338,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Uscf]: 750,
         [RatingSystem.Ecf]: 700,
         [RatingSystem.Cfc]: 825,
+        [RatingSystem.Dwz]: 700,
         [RatingSystem.Custom]: -1,
     },
     '700-800': {
@@ -327,6 +348,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Uscf]: 850,
         [RatingSystem.Ecf]: 800,
         [RatingSystem.Cfc]: 925,
+        [RatingSystem.Dwz]: 800,
         [RatingSystem.Custom]: -1,
     },
     '800-900': {
@@ -336,6 +358,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Uscf]: 950,
         [RatingSystem.Ecf]: 900,
         [RatingSystem.Cfc]: 1025,
+        [RatingSystem.Dwz]: 900,
         [RatingSystem.Custom]: -1,
     },
     '900-1000': {
@@ -345,6 +368,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 1475,
         [RatingSystem.Ecf]: 1000,
         [RatingSystem.Cfc]: 1125,
+        [RatingSystem.Dwz]: 1000,
         [RatingSystem.Custom]: -1,
     },
     '1000-1100': {
@@ -354,6 +378,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 1575,
         [RatingSystem.Ecf]: 1100,
         [RatingSystem.Cfc]: 1225,
+        [RatingSystem.Dwz]: 1100,
         [RatingSystem.Custom]: -1,
     },
     '1100-1200': {
@@ -363,6 +388,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 1675,
         [RatingSystem.Ecf]: 1200,
         [RatingSystem.Cfc]: 1325,
+        [RatingSystem.Dwz]: 1200,
         [RatingSystem.Custom]: -1,
     },
     '1200-1300': {
@@ -372,6 +398,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 1750,
         [RatingSystem.Ecf]: 1300,
         [RatingSystem.Cfc]: 1425,
+        [RatingSystem.Dwz]: 1300,
         [RatingSystem.Custom]: -1,
     },
     '1300-1400': {
@@ -381,6 +408,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 1825,
         [RatingSystem.Ecf]: 1400,
         [RatingSystem.Cfc]: 1525,
+        [RatingSystem.Dwz]: 1400,
         [RatingSystem.Custom]: -1,
     },
     '1400-1500': {
@@ -390,6 +418,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 1900,
         [RatingSystem.Ecf]: 1500,
         [RatingSystem.Cfc]: 1625,
+        [RatingSystem.Dwz]: 1500,
         [RatingSystem.Custom]: -1,
     },
     '1500-1600': {
@@ -399,6 +428,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2000,
         [RatingSystem.Ecf]: 1600,
         [RatingSystem.Cfc]: 1725,
+        [RatingSystem.Dwz]: 1600,
         [RatingSystem.Custom]: -1,
     },
     '1600-1700': {
@@ -408,6 +438,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2075,
         [RatingSystem.Ecf]: 1700,
         [RatingSystem.Cfc]: 1825,
+        [RatingSystem.Dwz]: 1700,
         [RatingSystem.Custom]: -1,
     },
     '1700-1800': {
@@ -417,6 +448,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2150,
         [RatingSystem.Ecf]: 1800,
         [RatingSystem.Cfc]: 1925,
+        [RatingSystem.Dwz]: 1800,
         [RatingSystem.Custom]: -1,
     },
     '1800-1900': {
@@ -426,6 +458,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2225,
         [RatingSystem.Ecf]: 1900,
         [RatingSystem.Cfc]: 2025,
+        [RatingSystem.Dwz]: 1900,
         [RatingSystem.Custom]: -1,
     },
     '1900-2000': {
@@ -435,6 +468,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2300,
         [RatingSystem.Ecf]: 2000,
         [RatingSystem.Cfc]: 2125,
+        [RatingSystem.Dwz]: 2000,
         [RatingSystem.Custom]: -1,
     },
     '2000-2100': {
@@ -444,6 +478,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2375,
         [RatingSystem.Ecf]: 2100,
         [RatingSystem.Cfc]: 2225,
+        [RatingSystem.Dwz]: 2100,
         [RatingSystem.Custom]: -1,
     },
     '2100-2200': {
@@ -453,6 +488,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2450,
         [RatingSystem.Ecf]: 2200,
         [RatingSystem.Cfc]: 2325,
+        [RatingSystem.Dwz]: 2200,
         [RatingSystem.Custom]: -1,
     },
     '2200-2300': {
@@ -462,6 +498,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2525,
         [RatingSystem.Ecf]: 2300,
         [RatingSystem.Cfc]: 2425,
+        [RatingSystem.Dwz]: 2300,
         [RatingSystem.Custom]: -1,
     },
     '2300-2400': {
@@ -471,6 +508,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Lichess]: 2600,
         [RatingSystem.Ecf]: 2400,
         [RatingSystem.Cfc]: 2525,
+        [RatingSystem.Dwz]: 2400,
         [RatingSystem.Custom]: -1,
     },
 };

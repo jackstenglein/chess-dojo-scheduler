@@ -54,6 +54,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lich
 	shouldUpdate = shouldUpdate || fetchRating(user.UscfId, "USCF", &user.CurrentUscfRating, user.StartUscfRating, ratings.FetchUscfRating)
 	shouldUpdate = shouldUpdate || fetchRating(user.EcfId, "ECF", &user.CurrentEcfRating, user.StartEcfRating, ratings.FetchEcfRating)
 	shouldUpdate = shouldUpdate || fetchRating(user.CfcId, "CFC", &user.CurrentCfcRating, user.StartCfcRating, ratings.FetchCfcRating)
+	shouldUpdate = shouldUpdate || fetchRating(user.DwzId, "DWZ", &user.CurrentDwzRating, user.StartDwzRating, ratings.FetchDwzRating)
 
 	shouldUpdate = shouldUpdate || fetchRating(user.LichessUsername, "Lichess", &user.CurrentLichessRating, user.StartLichessRating,
 		func(username string) (int, error) {

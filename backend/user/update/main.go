@@ -85,6 +85,14 @@ func fetchRatings(user *database.User, update *database.UserUpdate) error {
 			update.StartCfcRating = update.CurrentCfcRating
 		}
 	}
+	if update.DwzId != nil {
+		if err := fetchCurrentRating(&update.DwzId, &update.CurrentDwzRating, ratings.FetchDwzRating); err != nil {
+			return err
+		}
+		if user.StartDwzRating == 0 && update.StartDwzRating == nil {
+			update.StartDwzRating = update.CurrentDwzRating
+		}
+	}
 	return nil
 }
 

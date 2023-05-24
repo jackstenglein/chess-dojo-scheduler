@@ -225,3 +225,36 @@ func FetchCfcRating(cfcId string) (int, error) {
 	}
 	return r.Player.Rating, nil
 }
+
+func FetchDwzRating(dwzId string) (int, error) {
+	resp, err := http.Get(fmt.Sprintf("https://www.schachbund.de/php/dewis/spieler.php?pkz=%s", dwzId))
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed call to DWZ API", err)
+		return 0, err
+	}
+
+	if resp.StatusCode != 200 {
+		err = errors.New(400, fmt.Sprintf("Invalid request: DWZ API returned status `%d`", resp.StatusCode), "")
+		return 0, err
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to read DWZ response", err)
+		return 0, err
+	}
+
+	const ratingIndex = 13
+	tokens := strings.Split(string(b), "|")
+	if len(tokens) < ratingIndex {
+		err = errors.New(400, "Invalid request: DWZ API did not return a rating", "Tokens length less than 14")
+		return 0, err
+	}
+
+	rating, err := strconv.Atoi(tokens[ratingIndex])
+	if err != nil {
+		return 0, errors.Wrap(400, fmt.Sprintf("Invalid request: DWZ API returned rating `%s` which cannot be converted to integer", tokens[14]), "", err)
+	}
+	return rating, nil
+}
