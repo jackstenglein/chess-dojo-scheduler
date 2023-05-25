@@ -109,8 +109,15 @@ type User struct {
 	// The user's Cognito username. Uniquely identifies a user
 	Username string `dynamodbav:"username" json:"username"`
 
-	// The user's email address
+	// The user's email address used to log into the scoreboard
 	Email string `dynamodbav:"email" json:"-"`
+
+	// The user's email address used to log into the wix site
+	WixEmail string `dynamodbav:"wixEmail" json:"wixEmail"`
+
+	// Whether the user is forbidden from accessing the site due to
+	// missing Wix subscription
+	IsForbidden bool `dynamodbav:"isForbidden" json:"isForbidden"`
 
 	// The name of the user
 	Name string `dynamodbav:"name" json:"-"`
@@ -327,6 +334,13 @@ func (u *User) GetRatingChange() int {
 // Some fields from the User type are removed as they cannot be updated. Other fields
 // are ignored by the json encoder because they cannot be manually updated by the user.
 type UserUpdate struct {
+	// The user's email address used to log into the wix site
+	WixEmail *string `dynamodbav:"wixEmail,omitempty" json:"wixEmail,omitempty"`
+
+	// Whether the user is forbidden from accessing the site due to
+	// missing Wix subscription. Cannot be passed by the user.
+	IsForbidden *bool `dynamodbav:"isForbidden,omitempty" json:"-"`
+
 	// The user's preferred display name on the site
 	DisplayName *string `dynamodbav:"displayName,omitempty" json:"displayName,omitempty"`
 
@@ -505,6 +519,9 @@ type UserUpdater interface {
 
 	// UpdateUser applies the specified update to the user with the provided username.
 	UpdateUser(username string, update *UserUpdate) (*User, error)
+
+	// FindUsersByWixEmail returns a list of users with the given wixEmail.
+	FindUsersByWixEmail(wixEmail, startKey string) ([]*User, string, error)
 }
 
 type UserProgressUpdater interface {
@@ -530,6 +547,7 @@ func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, e
 	user := &User{
 		Username:   username,
 		Email:      email,
+		WixEmail:   email,
 		Name:       name,
 		CreatedAt:  time.Now().Format(time.RFC3339),
 		DojoCohort: NoCohort,
@@ -866,4 +884,26 @@ func (repo *dynamoRepository) DeleteUser(username string) error {
 	}
 	_, err := repo.svc.DeleteItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed DynamoDB DeleteItem", err)
+}
+
+// FindUsersByWixEmail returns a list of users with the given wixEmail.
+func (repo *dynamoRepository) FindUsersByWixEmail(wixEmail, startKey string) ([]*User, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#wixEmail = :wixEmail"),
+		ExpressionAttributeNames: map[string]*string{
+			"#wixEmail": aws.String("wixEmail"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":wixEmail": {S: aws.String(wixEmail)},
+		},
+		IndexName: aws.String("WixEmailIndex"),
+		TableName: aws.String(userTable),
+	}
+
+	var users []*User
+	lastKey, err := repo.query(input, startKey, &users)
+	if err != nil {
+		return nil, "", err
+	}
+	return users, lastKey, nil
 }

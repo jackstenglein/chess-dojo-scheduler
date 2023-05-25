@@ -65,6 +65,9 @@ export interface User {
     dojoCohort: string;
     bio: string;
 
+    wixEmail: string;
+    isForbidden: boolean;
+
     ratingSystem: RatingSystem;
 
     chesscomUsername: string;
@@ -124,7 +127,7 @@ export interface User {
     customTasks?: CustomTask[];
 }
 
-export function parseUser(apiResponse: any, cognitoUser?: CognitoUser) {
+export function parseUser(apiResponse: any, cognitoUser?: CognitoUser): User {
     return {
         ...apiResponse,
         cognitoUser,

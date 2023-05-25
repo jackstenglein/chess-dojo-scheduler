@@ -48,6 +48,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		if user.HideUscfId {
 			user.UscfId = ""
 		}
+		user.WixEmail = ""
 	}
 
 	return api.Success(funcName, user), err
