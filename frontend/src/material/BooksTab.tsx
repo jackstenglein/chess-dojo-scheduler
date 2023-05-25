@@ -57,7 +57,7 @@ const Section: React.FC<SectionProps> = ({ section }) => {
                                 {c.cohort}
                             </Typography>
                             {c.books.map((b) => (
-                                <Book book={b} />
+                                <Book key={b.title} book={b} />
                             ))}
                         </Stack>
                     ))}

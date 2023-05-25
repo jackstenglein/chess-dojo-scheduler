@@ -21,16 +21,21 @@ import {
 import { getUser } from '../api/userApi';
 import ProfileEditorPage from '../profile/ProfileEditorPage';
 import LoadingPage from '../loading/LoadingPage';
+import { useApi } from '../api/Api';
+import { useRequest } from '../api/Request';
+import ForbiddenPage from './ForbiddenPage';
 
 export enum AuthStatus {
     Loading = 'Loading',
     Authenticated = 'Authenticated',
     Unauthenticated = 'Unauthenticated',
+    Forbidden = 'Forbidden',
 }
 
 interface AuthContextType {
     user?: User;
     status: AuthStatus;
+    forbiddenMessage: string;
 
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
@@ -49,6 +54,8 @@ interface AuthContextType {
     ) => Promise<string>;
 
     signout: () => void;
+
+    onForbidden: (message: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType>(null!);
@@ -113,6 +120,7 @@ async function fetchUser(cognitoUser: CognitoUser) {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
+    const [forbiddenMessage, setForbiddenMessage] = useState('');
 
     const handleCognitoResponse = useCallback(async (cognitoResponse: any) => {
         const cognitoUser = parseCognitoResponse(cognitoResponse);
@@ -173,9 +181,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const onForbidden = useCallback(
+        (message: string) => {
+            setStatus(AuthStatus.Forbidden);
+            setForbiddenMessage(message);
+        },
+        [setStatus, setForbiddenMessage]
+    );
+
     const value = {
         user,
         status,
+        forbiddenMessage,
 
         getCurrentUser,
         updateUser,
@@ -190,6 +207,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         forgotPasswordConfirm,
 
         signout,
+        onForbidden,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -203,6 +221,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function RequireAuth() {
     const auth = useAuth();
     const user = auth.user;
+    const api = useApi();
+    const request = useRequest();
+
+    useEffect(() => {
+        if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
+            request.onStart();
+            console.log('Checking user access');
+            api.checkUserAccess()
+                .then(() => {
+                    request.onSuccess();
+                })
+                .catch((err) => {
+                    console.log('Check user access error: ', err.response);
+                    request.onFailure(err);
+                    if (err.response?.status === 403) {
+                        auth.onForbidden(err.response.data?.message);
+                    }
+                });
+        }
+    }, [auth.status, auth.onForbidden, request, api]);
 
     if (auth.status === AuthStatus.Loading) {
         return <LoadingPage />;
@@ -210,6 +248,10 @@ export function RequireAuth() {
 
     if (auth.status === AuthStatus.Unauthenticated || !user) {
         return <Navigate to='/' replace />;
+    }
+
+    if (auth.status === AuthStatus.Forbidden) {
+        return <ForbiddenPage message={auth.forbiddenMessage} />;
     }
 
     if (!hasCreatedProfile(user)) {

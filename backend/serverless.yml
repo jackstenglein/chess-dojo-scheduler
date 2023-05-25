@@ -35,6 +35,7 @@ provider:
     discordPrivateGuildId: ${file(./config-${sls:stage}.yml):discordPrivateGuildId}
     discordPublicGuildId: ${file(./config-${sls:stage}.yml):discordPublicGuildId}
     userPoolId: { Ref: CognitoUserPool }
+    wixApiKey: ${file(./wix.yml):wixApiKey}
   httpApi:
     cors: true
     authorizers:
@@ -140,6 +141,17 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
+
+  checkAccess:
+    handler: bin/user/access
+    package:
+      patterns:
+        - ./bin/user/access
+    events:
+      - httpApi:
+          path: /user/access
+          method: get
+          authorizer: serviceAuthorizer
 
   updateUser:
     handler: bin/user/update

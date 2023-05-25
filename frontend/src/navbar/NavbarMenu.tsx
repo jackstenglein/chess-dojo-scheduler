@@ -69,6 +69,24 @@ const LargeMenuUnauthenticated = () => {
     );
 };
 
+const LargeMenuForbidden = () => {
+    const auth = useAuth();
+
+    return (
+        <>
+            <Logo />
+            <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
+                Chess Dojo Scoreboard
+            </Stack>
+            <Stack spacing={1} direction='row'>
+                <Button onClick={auth.signout} sx={{ color: 'white' }}>
+                    Sign Out
+                </Button>
+            </Stack>
+        </>
+    );
+};
+
 const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const auth = useAuth();
     const isAdmin = auth.user?.isAdmin;
@@ -85,6 +103,9 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
 
     if (auth.status === AuthStatus.Unauthenticated) {
         return <LargeMenuUnauthenticated />;
+    }
+    if (auth.status === AuthStatus.Forbidden) {
+        return <LargeMenuForbidden />;
     }
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -371,6 +392,62 @@ const ExtraSmallMenuUnauthenticated = () => {
     );
 };
 
+const ExtraSmallMenuForbidden = () => {
+    const auth = useAuth();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleClick = (func: () => void) => {
+        return () => {
+            func();
+            handleClose();
+        };
+    };
+
+    return (
+        <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'
+            sx={{ flexGrow: 1, height: 1 }}
+        >
+            <Logo />
+            <IconButton
+                size='medium'
+                aria-label='navigation menu'
+                aria-controls='menu-appbar'
+                aria-haspopup='true'
+                onClick={handleOpen}
+                color='inherit'
+            >
+                <MenuIcon />
+            </IconButton>
+            <Menu
+                id='menu-appbar'
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+            >
+                <MenuItem onClick={handleClick(auth.signout)}>
+                    <ListItemIcon>
+                        <LogoutIcon color='error' />
+                    </ListItemIcon>
+                    <Typography textAlign='center' color='error'>
+                        Sign Out
+                    </Typography>
+                </MenuItem>
+            </Menu>
+        </Stack>
+    );
+};
+
 const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const auth = useAuth();
     const navigate = useNavigate();
@@ -379,6 +456,9 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
 
     if (auth.status === AuthStatus.Unauthenticated) {
         return <ExtraSmallMenuUnauthenticated />;
+    }
+    if (auth.status === AuthStatus.Forbidden) {
+        return <ExtraSmallMenuForbidden />;
     }
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {

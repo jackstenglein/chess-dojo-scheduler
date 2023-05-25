@@ -22,6 +22,7 @@ import {
     graduate,
     updateUserTimeline,
     getUserStatistics,
+    checkUserAccess,
 } from './userApi';
 import {
     GameApiContextType,
@@ -63,9 +64,6 @@ import {
  */
 type ApiContextType = AdminApiContextType &
     UserApiContextType &
-    // AvailabilityApiContextType &
-    // MeetingApiContextType &
-    // CalendarApiContextType &
     EventApiContextType &
     GameApiContextType &
     RequirementApiContextType &
@@ -97,6 +95,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             adminListRequirements: (startKey?: string) =>
                 adminListRequirements(idToken, startKey),
 
+            checkUserAccess: () => checkUserAccess(idToken),
             getUser: () => getUser(idToken),
             getUserPublic: (username: string) => getUserPublic(username),
             listUsersByCohort: (cohort: string, startKey?: string) =>
