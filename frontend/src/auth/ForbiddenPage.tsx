@@ -1,4 +1,4 @@
-import { Container, Stack, TextField, Typography } from '@mui/material';
+import { Button, Container, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { LoadingButton } from '@mui/lab';
 
@@ -7,7 +7,8 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 
 const ForbiddenPage = () => {
-    const user = useAuth().user!;
+    const auth = useAuth();
+    const user = auth.user!;
     const api = useApi();
     const request = useRequest();
     const [wixEmail, setWixEmail] = useState(user.wixEmail);
@@ -23,6 +24,10 @@ const ForbiddenPage = () => {
                 console.error(err);
                 request.onFailure(err);
             });
+    };
+
+    const onSkip = () => {
+        auth.setSkipForbidden(true);
     };
 
     return (
@@ -68,7 +73,9 @@ const ForbiddenPage = () => {
                     <strong>DMHokie</strong> (discord: DMHokie#2533) or{' '}
                     <strong>Jack</strong> (discord: Heh13#5117, email:
                     jackstenglein@gmail.com) for help.{' '}
-                    <strong>Include in your message your emails for both sites.</strong>
+                    <strong>Include in your message your emails for both sites.</strong>{' '}
+                    While you wait for us to respond to your request, click here to skip
+                    this message: <Button onClick={onSkip}>Skip</Button>
                 </Typography>
             </Stack>
         </Container>

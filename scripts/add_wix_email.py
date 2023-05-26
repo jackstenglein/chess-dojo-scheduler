@@ -1,7 +1,7 @@
 import boto3
 
 db = boto3.resource('dynamodb')
-table = db.Table('dev-users')
+table = db.Table('prod-users')
 
 
 def main():

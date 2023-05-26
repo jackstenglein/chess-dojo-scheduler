@@ -34,8 +34,9 @@ export enum AuthStatus {
 interface AuthContextType {
     user?: User;
     status: AuthStatus;
+    skipForbidden: boolean;
 
-    setStatus: (status: AuthStatus) => void;
+    setSkipForbidden: (value: boolean) => void;
 
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
@@ -118,6 +119,7 @@ async function fetchUser(cognitoUser: CognitoUser) {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
+    const [skipForbidden, setSkipForbidden] = useState(false);
 
     const handleCognitoResponse = useCallback(async (cognitoResponse: any) => {
         const cognitoUser = parseCognitoResponse(cognitoResponse);
@@ -182,7 +184,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         status,
 
-        setStatus,
+        skipForbidden,
+        setSkipForbidden,
 
         getCurrentUser,
         updateUser,
@@ -239,7 +242,7 @@ export function RequireAuth() {
         return <Navigate to='/' replace />;
     }
 
-    if (user.isForbidden) {
+    if (user.isForbidden && !auth.skipForbidden) {
         return <ForbiddenPage />;
     }
 
