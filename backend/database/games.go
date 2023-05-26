@@ -133,9 +133,6 @@ type GameUpdate struct {
 type GamePutter interface {
 	UserGetter
 
-	// PutGame inserts the provided game into the database.
-	PutGame(game *Game) error
-
 	// BatchPutGames inserts the provided list of games into the database.
 	BatchPutGames(games []*Game) (int, error)
 
@@ -183,28 +180,6 @@ type GameCommenter interface {
 	CreateComment(cohort, id string, comment *Comment) (*Game, error)
 }
 
-// PutGame inserts the provided game into the database.
-func (repo *dynamoRepository) PutGame(game *Game) error {
-	item, err := dynamodbattribute.MarshalMap(game)
-	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Unable to marshal game", err)
-	}
-
-	// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
-	if len(game.Comments) == 0 {
-		emptyList := make([]*dynamodb.AttributeValue, 0)
-		item["comments"] = &dynamodb.AttributeValue{L: emptyList}
-	}
-
-	input := &dynamodb.PutItemInput{
-		Item:      item,
-		TableName: aws.String(gameTable),
-	}
-
-	_, err = repo.svc.PutItem(input)
-	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
-}
-
 // BatchPutGames inserts the provided list of games into the database. The number of successfully
 // updated games is returned.
 func (repo *dynamoRepository) BatchPutGames(games []*Game) (int, error) {
@@ -215,6 +190,13 @@ func (repo *dynamoRepository) BatchPutGames(games []*Game) (int, error) {
 		if err != nil {
 			return updated, errors.Wrap(500, "Temporary server error", "Failed to marshal game", err)
 		}
+
+		// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
+		if len(g.Comments) == 0 {
+			emptyList := make([]*dynamodb.AttributeValue, 0)
+			item["comments"] = &dynamodb.AttributeValue{L: emptyList}
+		}
+
 		req := &dynamodb.WriteRequest{
 			PutRequest: &dynamodb.PutRequest{
 				Item: item,
