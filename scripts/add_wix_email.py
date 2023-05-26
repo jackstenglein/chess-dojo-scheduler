@@ -18,6 +18,8 @@ def main():
                 wix_email = item.get('wixEmail', '')
                 if email != '' and wix_email == '':
                     item['wixEmail'] = email
+                    if item.get('dojoCohort', None) == None:
+                        item['dojoCohort'] = 'NO_COHORT'
                     batch.put_item(Item=item)
                     updated += 1
 
@@ -32,6 +34,8 @@ def main():
                     wix_email = item.get('wixEmail', '')
                     if email != '' and wix_email == '':
                         item['wixEmail'] = email
+                        if item.get('dojoCohort', None) == None:
+                            item['dojoCohort'] = 'NO_COHORT'
                         batch.put_item(Item=item)
                         updated += 1
 
