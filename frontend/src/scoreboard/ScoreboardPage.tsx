@@ -16,7 +16,7 @@ import { useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
 import {
     formatPercentComplete,
-    formatRatingSystem,
+    getRatingSystem,
     getCohortScore,
     getColumnDefinition,
     getCurrentRating,
@@ -111,7 +111,8 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
         field: 'ratingSystem',
         headerName: 'Rating System',
         minWidth: 175,
-        valueFormatter: formatRatingSystem,
+        valueGetter: getRatingSystem,
+        // valueFormatter: formatRatingSystem,
     },
     {
         field: 'startRating',

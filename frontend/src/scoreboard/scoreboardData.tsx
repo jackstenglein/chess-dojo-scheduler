@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     GridColDef,
     GridRenderCellParams,
-    GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
 
@@ -16,8 +15,7 @@ import {
 } from '../database/requirement';
 import ScoreboardCheck from './ScoreboardCheck';
 import {
-    RatingSystem,
-    formatRatingSystem as formatRatingSystemEnum,
+    formatRatingSystem,
     getCurrentRating as getUserCurrentRating,
     getStartRating as getUserStartRating,
     User,
@@ -187,8 +185,8 @@ export function formatPercentComplete(value: number) {
     return `${Math.round(value)}%`;
 }
 
-export function formatRatingSystem(params: GridValueFormatterParams<RatingSystem>) {
-    return formatRatingSystemEnum(params.value);
+export function getRatingSystem(params: GridValueGetterParams<any, ScoreboardRow>) {
+    return formatRatingSystem(params.row.ratingSystem);
 }
 
 export function getStartRating(
