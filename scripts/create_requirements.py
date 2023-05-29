@@ -4,7 +4,7 @@ import datetime
 from decimal import Decimal
 
 db = boto3.resource('dynamodb')
-table = db.Table('dev-requirements')
+table = db.Table('prod-requirements')
 
 cohorts = [
     "0-300",
@@ -93,8 +93,14 @@ def getPositions(row: dict):
 
     index = 1
     for fen, url in zip(fens, embedUrls):
+        ptitle = title
+        if len(fens) > 1:
+            ptitle = f'{title} #{index}'
+        elif len(title) == 0:
+            ptitle = f'#{index}'
+
         position = {
-            'title': f'{title} #{index}',
+            'title': ptitle,
             'fen': fen,
             'embedUrl': url,
             'limitSeconds': limitSeconds,
