@@ -1,4 +1,4 @@
-import { Stack, Typography, Chip, Button, Box } from '@mui/material';
+import { Stack, Typography, Chip, Button, Box, Grid } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import { useMemo, useState } from 'react';
 import Carousel from 'react-material-ui-carousel';
@@ -13,6 +13,7 @@ import {
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 import Position from './Position';
+import Position2 from './Position2';
 import { useNavigate } from 'react-router-dom';
 import CustomTaskDisplay from './CustomTaskDisplay';
 
@@ -114,17 +115,33 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                     dangerouslySetInnerHTML={{ __html: requirement.description }}
                 />
 
-                {requirement.positionUrls?.length === 1 && (
+                {requirement.positions && (
+                    <Grid container spacing={2}>
+                        {requirement.positions.map((p) => (
+                            <Grid key={p.fen} item xs='auto'>
+                                <Position2 position={p} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                )}
+
+                {!requirement.positions && requirement.positionUrls?.length === 1 && (
                     <Position url={requirement.positionUrls[0]} />
                 )}
 
-                {requirement.positionUrls && requirement.positionUrls.length > 1 && (
-                    <Carousel autoPlay={false} navButtonsAlwaysVisible>
-                        {requirement.positionUrls.map((url, idx) => (
-                            <Position key={url} url={url} title={`Position ${idx + 1}`} />
-                        ))}
-                    </Carousel>
-                )}
+                {!requirement.positions &&
+                    requirement.positionUrls &&
+                    requirement.positionUrls.length > 1 && (
+                        <Carousel autoPlay={false} navButtonsAlwaysVisible>
+                            {requirement.positionUrls.map((url, idx) => (
+                                <Position
+                                    key={url}
+                                    url={url}
+                                    title={`Position ${idx + 1}`}
+                                />
+                            ))}
+                        </Carousel>
+                    )}
 
                 {requirement.videoUrls &&
                     requirement.videoUrls.map((url, idx) => (

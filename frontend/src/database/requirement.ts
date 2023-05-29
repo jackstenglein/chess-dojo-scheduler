@@ -26,6 +26,15 @@ export interface CustomTask {
     updatedAt: string;
 }
 
+export interface Position {
+    title: string;
+    fen: string;
+    embedUrl: string;
+    limitSeconds: number;
+    incrementSeconds: number;
+    result: string;
+}
+
 export interface Requirement {
     id: string;
     status: RequirementStatus;
@@ -44,6 +53,7 @@ export interface Requirement {
     totalScore: number;
     videoUrls?: string[];
     positionUrls?: string[];
+    positions?: Position[];
     scoreboardDisplay: ScoreboardDisplay;
     progressBarSuffix: string;
     updatedAt: string;

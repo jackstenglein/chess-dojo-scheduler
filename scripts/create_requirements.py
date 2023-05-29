@@ -72,6 +72,40 @@ def getUnitScoreOverride(row: dict):
     return result
 
 
+def getPositions(row: dict):
+    if not row['FENs']:
+        return None
+
+    positions = []
+    fens = row['FENs'].split(',')
+
+    if not row['Position URLs']:
+        raise Exception('Row Position URLs does not match FENs: ', row)
+    
+    embedUrls = row['Position URLs'].split(',')
+    if len(fens) != len(embedUrls):
+        raise Exception('Row FENs does not match Position URLs: ', row)
+    
+    limitSeconds = int(row['Limit Seconds'])
+    incrementSeconds = int(row['Increment Seconds']) if row['Increment Seconds'] else 0
+    result = row['Expected Result']
+    title = row['Position Title']
+
+    index = 1
+    for fen, url in zip(fens, embedUrls):
+        position = {
+            'title': f'{title} #{index}',
+            'fen': fen,
+            'embedUrl': url,
+            'limitSeconds': limitSeconds,
+            'incrementSeconds': incrementSeconds,
+            'result': result,
+        }
+        positions.append(position)
+        index += 1
+    return positions
+
+
 def main():
     items = []
     categories = {
@@ -99,6 +133,7 @@ def main():
                 counts = getCounts(row)
                 startCount = getStartCount(row)
                 unitScoreOverride = getUnitScoreOverride(row)
+                positions = getPositions(row)
 
                 if not row['ID'] or row['ID'] == '':
                     raise Exception('Row missing ID: ', row)
@@ -117,7 +152,8 @@ def main():
                     'unitScoreOverride': unitScoreOverride,
                     'totalScore': Decimal(row['Total Score']) if row['Total Score'] else 0,
                     'videoUrls': row['Videos'].split(',') if row['Videos'] else [],
-                    'positionUrls': row['Positions'].split(',') if row['Positions'] else [],
+                    'positionUrls': row['Position URLs'].split(',') if row['Position URLs'] else [],
+                    'positions': positions,
                     'scoreboardDisplay': row['Scoreboard Display'],
                     'updatedAt': updatedAt,
                     'sortPriority': row['Sort Priority'],

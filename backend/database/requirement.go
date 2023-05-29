@@ -59,6 +59,27 @@ type CustomTask struct {
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
 }
 
+// Position contains the field for a sparring position.
+type Position struct {
+	// An optional title associated with the position
+	Title string `dynamodbav:"title" json:"title"`
+
+	// The FEN of the position
+	Fen string `dynamodbav:"fen" json:"fen"`
+
+	// The board embed URL of the position
+	EmbedUrl string `dynamodbav:"embedUrl" json:"embedUrl"`
+
+	// The time limit in seconds the position is meant to be played at
+	LimitSeconds int `dynamodbav:"limitSeconds" json:"limitSeconds"`
+
+	// The time increment in seconds the position is meant to be played at
+	IncrementSeconds int `dynamodbav:"incrementSeconds" json:"incrementSeconds"`
+
+	// The expected result of the position
+	Result string `dynamodbav:"result" json:"result"`
+}
+
 type Requirement struct {
 	// Uniquely identifies a requirement. The sort key for the table.
 	Id string `dynamodbav:"id" json:"id"`
@@ -102,6 +123,9 @@ type Requirement struct {
 
 	// The positions included in the requirement, if any exist
 	PositionUrls []string `dynamodbav:"positionUrls" json:"positionUrls"`
+
+	// The positions included in the requirement, if any exist
+	Positions []*Position `dynamodbav:"positions" json:"positions"`
 
 	// How the requirement should be displayed on the scoreboard.
 	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`
