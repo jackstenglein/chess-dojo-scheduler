@@ -27,7 +27,6 @@ import RequirementPage from './requirements/RequirementPage';
 import { GraduationPrompt } from './profile/GraduationPrompt';
 import RecentPage from './recent/RecentPage';
 import HelpPage from './help/HelpPage';
-import RequirementEditorPage from './requirements/RequirementEditorPage';
 import EditGamePage from './games/EditGamePage';
 import ThemeProvider from './ThemeProvider';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
@@ -117,11 +116,7 @@ function Router() {
                         </Route>
 
                         <Route path='requirements'>
-                            <Route path='new' element={<RequirementEditorPage />} />
-                            <Route path=':id'>
-                                <Route index element={<RequirementPage />} />
-                                <Route path='edit' element={<RequirementEditorPage />} />
-                            </Route>
+                            <Route path=':id' element={<RequirementPage />} />
                         </Route>
 
                         <Route path='material'>

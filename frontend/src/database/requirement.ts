@@ -52,7 +52,6 @@ export interface Requirement {
     };
     totalScore: number;
     videoUrls?: string[];
-    positionUrls?: string[];
     positions?: Position[];
     scoreboardDisplay: ScoreboardDisplay;
     progressBarSuffix: string;

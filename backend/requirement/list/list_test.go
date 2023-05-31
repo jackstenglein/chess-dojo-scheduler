@@ -27,7 +27,6 @@ var goldenRequirement = &database.Requirement{
 	NumberOfCohorts:   2,
 	UnitScore:         1,
 	VideoUrls:         []string{"Test Video Urls"},
-	PositionUrls:      []string{"Test Position"},
 	ScoreboardDisplay: database.Hidden,
 	UpdatedAt:         "2023-03-01T12:00:00Z",
 	SortPriority:      "0.0.0",

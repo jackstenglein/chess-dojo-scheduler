@@ -16,7 +16,7 @@ import { useRequirements } from '../api/cache/requirements';
 import { ALL_COHORTS, dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import { Requirement } from '../database/requirement';
-import Position2 from '../requirements/Position2';
+import Position from '../requirements/Position';
 
 interface SparringRequirementProps {
     requirement: Requirement;
@@ -60,7 +60,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                     <Grid container spacing={2}>
                         {requirement.positions.map((p) => (
                             <Grid item xs='auto' key={p.fen}>
-                                <Position2 position={p} />
+                                <Position position={p} />
                             </Grid>
                         ))}
                     </Grid>
@@ -74,7 +74,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
             <Grid container spacing={2}>
                 {requirement.positions.map((p) => (
                     <Grid item xs='auto' key={p.fen}>
-                        <Position2 position={p} />
+                        <Position position={p} />
                     </Grid>
                 ))}
             </Grid>
@@ -85,7 +85,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
         <>
             {requirement.positions.map((p) => (
                 <Grid item xs='auto' key={p.fen}>
-                    <Position2 position={p} />
+                    <Position position={p} />
                 </Grid>
             ))}
         </>

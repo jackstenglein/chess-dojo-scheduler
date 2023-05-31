@@ -158,7 +158,6 @@ def main():
                     'unitScoreOverride': unitScoreOverride,
                     'totalScore': Decimal(row['Total Score']) if row['Total Score'] else 0,
                     'videoUrls': row['Videos'].split(',') if row['Videos'] else [],
-                    'positionUrls': row['Position URLs'].split(',') if row['Position URLs'] else [],
                     'positions': positions,
                     'scoreboardDisplay': row['Scoreboard Display'],
                     'updatedAt': updatedAt,

@@ -45,7 +45,7 @@ const columns: GridColDef<Requirement>[] = [
         field: 'numberOfPositions',
         headerName: 'Num Positions',
         valueGetter: (params: GridValueGetterParams<any, Requirement>) =>
-            params.row.positionUrls?.length || 0,
+            params.row.positions?.length || 0,
         minWidth: 150,
         align: 'center',
     },

@@ -122,9 +122,6 @@ type Requirement struct {
 	VideoUrls []string `dynamodbav:"videoUrls" json:"videoUrls"`
 
 	// The positions included in the requirement, if any exist
-	PositionUrls []string `dynamodbav:"positionUrls" json:"positionUrls"`
-
-	// The positions included in the requirement, if any exist
 	Positions []*Position `dynamodbav:"positions" json:"positions"`
 
 	// How the requirement should be displayed on the scoreboard.
