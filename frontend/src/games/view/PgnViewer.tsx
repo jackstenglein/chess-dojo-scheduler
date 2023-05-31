@@ -153,8 +153,8 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
     useLayoutEffect(() => {
         pgnEdit(id, {
             pgn: game.pgn,
-            pieceStyle: 'wikipedia',
-            theme: 'brown',
+            pieceStyle: 'alpha',
+            theme: 'blue',
             showResult: true,
             notationLayout: 'list',
         });
