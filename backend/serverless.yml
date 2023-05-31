@@ -809,8 +809,8 @@ resources:
           - PAY_PER_REQUEST
         ProvisionedThroughput: !If
           - IsProd
-          - ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
+          - ReadCapacityUnits: 2
+            WriteCapacityUnits: 3
           - !Ref AWS::NoValue
         GlobalSecondaryIndexes:
           - IndexName: CohortIdx
@@ -824,7 +824,7 @@ resources:
             ProvisionedThroughput: !If
               - IsProd
               - ReadCapacityUnits: 2
-                WriteCapacityUnits: 1
+                WriteCapacityUnits: 3
               - !Ref AWS::NoValue
           - IndexName: WixEmailIndex
             KeySchema:
