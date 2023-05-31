@@ -8,6 +8,7 @@ import {
 import { useApi } from '../Api';
 import { Request, useRequest } from '../Request';
 import { useCache } from './Cache';
+import { ALL_COHORTS } from '../../database/user';
 
 interface UseRequirementsResponse {
     requirements: Requirement[];
@@ -32,16 +33,25 @@ export function useRequirements(
                 ) {
                     return false;
                 }
+                if (cohort === ALL_COHORTS) {
+                    return true;
+                }
                 return r.counts[cohort] !== undefined;
             })
             .sort(compareRequirements);
     }, [cache.requirements, cohort, scoreboardOnly]);
 
     useEffect(() => {
-        if (cohort !== '' && !cache.requirements.isFetched(cohort) && !request.isSent()) {
+        if (
+            cohort !== '' &&
+            !cache.requirements.isFetched(ALL_COHORTS) &&
+            !cache.requirements.isFetched(cohort) &&
+            !request.isSent()
+        ) {
             request.onStart();
             api.listRequirements(cohort, false)
                 .then((requirements) => {
+                    console.log('listRequirements: ', requirements);
                     cache.requirements.markFetched(cohort);
                     cache.requirements.putMany(requirements);
                     request.onSuccess();

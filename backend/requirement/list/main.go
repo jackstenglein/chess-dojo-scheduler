@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
@@ -24,14 +23,22 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
+	startKey, _ := event.QueryStringParameters["startKey"]
 	cohort, _ := event.PathParameters["cohort"]
-	if cohort == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
+
+	if cohort == "" || cohort == string(database.AllCohorts) {
+		requirements, lastKey, err := repository.ScanRequirements("", startKey)
+		if err != nil {
+			return api.Failure(funcName, err), nil
+		}
+		return api.Success(funcName, &ListRequirementsResponse{
+			Requirements:     requirements,
+			LastEvaluatedKey: lastKey,
+		}), nil
 	}
 
 	scoreboard, _ := event.QueryStringParameters["scoreboardOnly"]
 	scoreboardOnly := scoreboard == "true"
-	startKey, _ := event.QueryStringParameters["startKey"]
 
 	requirements, lastKey, err := repository.ListRequirements(database.DojoCohort(cohort), scoreboardOnly, startKey)
 	if err != nil {

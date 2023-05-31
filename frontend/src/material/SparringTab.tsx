@@ -1,11 +1,5 @@
-import axios from 'axios';
 import {
     Box,
-    Button,
-    Card,
-    CardActions,
-    CardContent,
-    CardHeader,
     Collapse,
     Divider,
     Grid,
@@ -13,126 +7,96 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import CheckIcon from '@mui/icons-material/Check';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-import {
-    sections,
-    Position as PositionModel,
-    PositionSubsection as PositionSubsectionModel,
-    PositionSection,
-} from './sparring';
-import React, { useState } from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { useRequest } from '../api/Request';
-import { LoadingButton } from '@mui/lab';
+import React, { useMemo, useState } from 'react';
+import { RequestSnackbar } from '../api/Request';
+import { useRequirements } from '../api/cache/requirements';
+import { ALL_COHORTS, dojoCohorts } from '../database/user';
+import LoadingPage from '../loading/LoadingPage';
+import { Requirement } from '../database/requirement';
+import Position2 from '../requirements/Position2';
 
-interface PositionProps {
-    sectionTitle: string;
-    position: PositionModel;
+interface SparringRequirementProps {
+    requirement: Requirement;
+    forceExpanded?: boolean;
+    stacked?: boolean;
 }
 
-const Position: React.FC<PositionProps> = ({ sectionTitle, position }) => {
-    const [copied, setCopied] = useState('');
-    const lichessRequest = useRequest();
-
-    const onCopy = (name: string) => {
-        setCopied(name);
-        setTimeout(() => {
-            setCopied('');
-        }, 3000);
+const SparringRequirement: React.FC<SparringRequirementProps> = ({
+    requirement,
+    forceExpanded,
+    stacked,
+}) => {
+    const [open, setOpen] = useState(false);
+    const toggleOpen = () => {
+        setOpen(!open);
     };
 
-    const generateLichessUrl = () => {
-        lichessRequest.onStart();
-        axios
-            .post('https://lichess.org/api/challenge/open', {
-                'clock.limit': position.limitSeconds,
-                'clock.increment': position.incrementSeconds,
-                fen: position.fen,
-                name: `${sectionTitle} ${position.title}`,
-                rules: 'noAbort',
-            })
-            .then((resp) => {
-                console.log('Generate Lichess URL: ', resp);
-                lichessRequest.onSuccess();
-                navigator.clipboard.writeText(resp.data.challenge.url);
-                onCopy('lichess');
-            })
-            .catch((err) => {
-                console.error(err);
-                lichessRequest.onFailure(err);
-            });
-    };
+    if (!requirement.positions) {
+        return null;
+    }
+
+    if (!forceExpanded && requirement.positions.length > 1) {
+        return (
+            <Box>
+                <Stack direction='row' alignItems='center'>
+                    <IconButton size='small' onClick={toggleOpen}>
+                        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    </IconButton>
+                    <Typography
+                        variant='subtitle1'
+                        fontWeight='bold'
+                        color='text.secondary'
+                        onClick={toggleOpen}
+                        sx={{ cursor: 'pointer' }}
+                    >
+                        {requirement.name}
+                    </Typography>
+                </Stack>
+
+                <Collapse in={open} timeout='auto' unmountOnExit>
+                    <Grid container spacing={2}>
+                        {requirement.positions.map((p) => (
+                            <Grid item xs='auto' key={p.fen}>
+                                <Position2 position={p} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Collapse>
+            </Box>
+        );
+    }
+
+    if (stacked) {
+        return (
+            <Grid container spacing={2}>
+                {requirement.positions.map((p) => (
+                    <Grid item xs='auto' key={p.fen}>
+                        <Position2 position={p} />
+                    </Grid>
+                ))}
+            </Grid>
+        );
+    }
 
     return (
-        <Card variant='outlined' sx={{ px: 0 }}>
-            <CardHeader
-                sx={{ px: 1 }}
-                subheader={
-                    <Stack px={1}>
-                        <Stack direction='row' justifyContent='space-between'>
-                            <Typography>{position.title}</Typography>
-                            <Typography>
-                                {position.limitSeconds / 60}+{position.incrementSeconds}
-                            </Typography>
-                        </Stack>
-                        {position.result && (
-                            <Typography
-                                variant='overline'
-                                color='text.secondary'
-                                sx={{ mb: -1 }}
-                            >
-                                {position.result}
-                            </Typography>
-                        )}
-                    </Stack>
-                }
-            />
-            <CardContent sx={{ pt: 0, px: 1, minWidth: '336px', height: '328px' }}>
-                <iframe
-                    src={position.link}
-                    title={position.link}
-                    frameBorder={0}
-                    style={{ width: '100%', height: '100%' }}
-                    scrolling='no'
-                />
-            </CardContent>
-            <CardActions>
-                <CopyToClipboard text={position.fen} onCopy={() => onCopy('fen')}>
-                    <Button
-                        startIcon={
-                            copied === 'fen' ? <CheckIcon /> : <ContentPasteIcon />
-                        }
-                    >
-                        {copied === 'fen' ? 'Copied' : 'FEN'}
-                    </Button>
-                </CopyToClipboard>
-                <LoadingButton
-                    startIcon={
-                        copied === 'lichess' ? <CheckIcon /> : <ContentPasteIcon />
-                    }
-                    loading={lichessRequest.isLoading()}
-                    onClick={generateLichessUrl}
-                >
-                    {copied === 'lichess' ? 'Copied' : 'Challenge URL'}
-                </LoadingButton>
-            </CardActions>
-        </Card>
+        <>
+            {requirement.positions.map((p) => (
+                <Grid item xs='auto' key={p.fen}>
+                    <Position2 position={p} />
+                </Grid>
+            ))}
+        </>
     );
 };
 
-interface PositionSubsectionProps {
-    sectionTitle: string;
-    cohort: PositionSubsectionModel;
+interface SparringSubsectionProps {
+    subsection: Subsection;
 }
 
-const PositionSubsection: React.FC<PositionSubsectionProps> = ({
-    sectionTitle,
-    cohort,
-}) => {
+const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) => {
     const [open, setOpen] = useState(false);
 
     const toggleOpen = () => {
@@ -152,25 +116,35 @@ const PositionSubsection: React.FC<PositionSubsectionProps> = ({
                     onClick={toggleOpen}
                     sx={{ cursor: 'pointer' }}
                 >
-                    {cohort.title}
+                    {subsection.name}
                 </Typography>
             </Stack>
 
             <Collapse in={open} timeout='auto' unmountOnExit>
-                <Grid container spacing={2}>
-                    {cohort.positions.map((p) => (
-                        <Grid item xs='auto' key={p.fen}>
-                            <Position sectionTitle={sectionTitle} position={p} />
-                        </Grid>
-                    ))}
-                </Grid>
+                {subsection.stacked ? (
+                    <Stack pl={{ xs: 0, sm: 2 }} spacing={1}>
+                        {subsection.requirements.map((r) => (
+                            <SparringRequirement key={r.id} requirement={r} stacked />
+                        ))}
+                    </Stack>
+                ) : (
+                    <Grid container spacing={2}>
+                        {subsection.requirements.map((r) => (
+                            <SparringRequirement
+                                key={r.id}
+                                requirement={r}
+                                forceExpanded={subsection.requirements.length === 1}
+                            />
+                        ))}
+                    </Grid>
+                )}
             </Collapse>
         </Box>
     );
 };
 
 interface SparringSectionProps {
-    section: PositionSection;
+    section: Section;
 }
 
 const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
@@ -186,31 +160,142 @@ const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
                     {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                 </IconButton>
                 <Typography variant='h6' onClick={toggleOpen} sx={{ cursor: 'pointer' }}>
-                    {section.title}
+                    {section.name}
                 </Typography>
             </Stack>
             <Divider />
 
             <Collapse in={open} timeout='auto' unmountOnExit>
                 <Stack spacing={2}>
-                    {section.cohorts.map((c) => (
-                        <PositionSubsection
-                            key={c.title}
-                            cohort={c}
-                            sectionTitle={section.title}
-                        />
-                    ))}
+                    {section.subsections.map((subsection) => {
+                        if (subsection.requirements.length === 0) {
+                            return null;
+                        }
+
+                        return (
+                            <SparringSubsection
+                                key={subsection.name}
+                                subsection={subsection}
+                            />
+                        );
+                    })}
                 </Stack>
             </Collapse>
         </Box>
     );
 };
 
+interface Subsection {
+    name: string;
+    requirements: Requirement[];
+    stacked?: boolean;
+}
+
+interface Section {
+    name: string;
+    subsections: Subsection[];
+}
+
+const sectionData = [
+    {
+        title: 'Middlegame Win Conversions',
+        selector: (r: Requirement) =>
+            r.category === 'Middlegames + Strategy' &&
+            r.name.startsWith('Win Conversion'),
+    },
+    {
+        title: 'Middlegame Sparring',
+        selector: (r: Requirement) =>
+            r.category === 'Middlegames + Strategy' &&
+            r.name.startsWith('Middlegame Sparring'),
+    },
+    {
+        title: 'Endgame Algorithms',
+        stacked: true,
+        selector: (r: Requirement) =>
+            r.category === 'Endgame' && r.name.startsWith('Algorithm'),
+    },
+    {
+        title: 'Endgame Win Conversions',
+        selector: (r: Requirement) =>
+            r.category === 'Endgame' && r.name.startsWith('Win Conversion'),
+    },
+    {
+        title: 'Endgame Positional Sparring',
+        selector: (r: Requirement) =>
+            r.category === 'Endgame' && r.name.startsWith('Positional Sparring'),
+    },
+    {
+        title: 'Rook Endgame Progression',
+        subsections: [
+            {
+                title: 'Match #1',
+                selector: (r: Requirement) =>
+                    r.category === 'Endgame' && r.name === 'REP Match #1',
+            },
+            {
+                title: 'Match #2',
+                selector: (r: Requirement) =>
+                    r.category === 'Endgame' && r.name === 'REP Match #2',
+            },
+            {
+                title: 'Match #3',
+                selector: (r: Requirement) =>
+                    r.category === 'Endgame' && r.name === 'REP Match #3',
+            },
+            {
+                title: 'Match #4',
+                selector: (r: Requirement) =>
+                    r.category === 'Endgame' && r.name === 'REP Match #4',
+            },
+            {
+                title: 'Match #5',
+                selector: (r: Requirement) =>
+                    r.category === 'Endgame' && r.name === 'REP Match #5',
+            },
+        ],
+    },
+];
+
 const SparringTab = () => {
+    const { requirements, request } = useRequirements(ALL_COHORTS, true);
+
+    const sections = useMemo(() => {
+        const sections = [];
+        for (const datum of sectionData) {
+            const section: Section = {
+                name: datum.title,
+                subsections: [],
+            };
+            if (datum.subsections) {
+                section.subsections = datum.subsections.map((s) => ({
+                    name: s.title,
+                    requirements: requirements.filter(s.selector),
+                }));
+            } else {
+                section.subsections = dojoCohorts.map((cohort) => ({
+                    name: cohort,
+                    stacked: datum.stacked,
+                    requirements: requirements.filter(
+                        (r) => datum.selector(r) && r.counts[cohort]
+                    ),
+                }));
+            }
+            sections.push(section);
+        }
+        return sections;
+    }, [requirements]);
+
+    if (request.isLoading()) {
+        return <LoadingPage />;
+    }
+
     return (
-        <Stack spacing={3}>
+        <Stack spacing={4}>
+            <RequestSnackbar request={request} />
+
             {sections.map((s) => (
-                <SparringSection key={s.title} section={s} />
+                <SparringSection key={s.name} section={s} />
             ))}
         </Stack>
     );

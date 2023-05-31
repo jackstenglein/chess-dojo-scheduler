@@ -240,6 +240,10 @@ type RequirementLister interface {
 	// only requirements which should be displayed on the scoreboard will be returned. The next start key is returned
 	// as well.
 	ListRequirements(cohort DojoCohort, scoreboardOnly bool, startKey string) ([]*Requirement, string, error)
+
+	// ScanRequirements fetches a list of requirements matching the provided cohort, if provided, and a list
+	// of all requirements if not provided.
+	ScanRequirements(cohort DojoCohort, startKey string) ([]*Requirement, string, error)
 }
 
 type RequirementGetter interface {
