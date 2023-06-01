@@ -31,6 +31,7 @@ import EditGamePage from './games/edit/EditGamePage';
 import ThemeProvider from './ThemeProvider';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import MaterialPage from './material/MaterialPage';
+import ErrorBoundary from './ErrorBoundary';
 
 const config = getConfig();
 Amplify.configure({
@@ -56,7 +57,9 @@ function App() {
                     <ApiProvider>
                         <CacheProvider>
                             <Navbar />
-                            <Router />
+                            <ErrorBoundary>
+                                <Router />
+                            </ErrorBoundary>
                         </CacheProvider>
                     </ApiProvider>
                 </BrowserRouter>
