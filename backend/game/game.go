@@ -17,6 +17,12 @@ import (
 
 type ImportType string
 
+type HeaderData struct {
+	White string `json:"white"`
+	Black string `json:"black"`
+	Date  string `json:"date"`
+}
+
 const (
 	LichessChapter ImportType = "lichessChapter"
 	LichessStudy              = "lichessStudy"
@@ -121,43 +127,66 @@ func AddPlyCount(headers map[string]string, pgnText string) (string, error) {
 	}
 
 	plies := pgnDB.Games[0].Plies()
-	headers["PlyCount"] = fmt.Sprintf("%d", plies)
+	return AddHeader(headers, "PlyCount", fmt.Sprintf("%d", plies), pgnText)
+}
 
+func AddHeader(headers map[string]string, name, value, pgnText string) (string, error) {
 	headerEndIndex := strings.Index(pgnText, "\n\n")
 	if headerEndIndex < 0 {
 		return pgnText, errors.New(500, "Failed to find PGN header end", "")
 	}
 
-	plyCountHeader := fmt.Sprintf("[PlyCount \"%d\"]", plies)
-	newPgn := fmt.Sprintf("%s\n%s\n\n%s", pgnText[:headerEndIndex], plyCountHeader, pgnText[headerEndIndex+2:])
+	headers[name] = value
+	header := fmt.Sprintf("[%s \"%s\"]", name, value)
+	newPgn := fmt.Sprintf("%s\n%s\n\n%s", pgnText[:headerEndIndex], header, pgnText[headerEndIndex+2:])
 	return newPgn, nil
 }
 
 var dateRegex, _ = regexp.Compile(`^\d{4}\.\d{2}\.\d{2}$`)
+var dateRegexDash, _ = regexp.Compile(`^\d{4}-\d{2}-\d{2}$`)
 
-func GetGame(user *database.User, pgnText string) (*database.Game, error) {
+func GetGame(user *database.User, pgnText string, headerData *HeaderData) (*database.Game, *HeaderData, error) {
 	headers, err := GetHeaders(pgnText)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	white, ok := headers["White"]
-	if !ok {
-		return nil, errors.New(400, "Invalid request: PGN missing `White` tag", "")
+	white, _ := headers["White"]
+	if headerData != nil && headerData.White != "" {
+		white = headerData.White
+		pgnText, err = AddHeader(headers, "White", white, pgnText)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
-	black, ok := headers["Black"]
-	if !ok {
-		return nil, errors.New(400, "Invalid request: PGN missing `Black` tag", "")
+	black, _ := headers["Black"]
+	if headerData != nil && headerData.Black != "" {
+		black = headerData.Black
+		pgnText, err = AddHeader(headers, "Black", black, pgnText)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
-	date, ok := headers["Date"]
-	if !ok {
-		return nil, errors.New(400, "Invalid request: PGN missing `Date` tag", "")
+	date, _ := headers["Date"]
+	if headerData != nil && headerData.Date != "" {
+		date = headerData.Date
+		pgnText, err = AddHeader(headers, "Date", date, pgnText)
+		if err != nil {
+			return nil, nil, err
+		}
+	} else if dateRegexDash.MatchString(date) {
+		date = strings.ReplaceAll(date, "-", ".")
+		headers["Date"] = date
 	}
 
-	if !dateRegex.MatchString(date) {
-		return nil, errors.New(400, "Invalid request: PGN `Date` tag must be in YYYY.MM.DD format", "")
+	if white == "" || black == "" || !dateRegex.MatchString(date) {
+		return nil, &HeaderData{
+			White: white,
+			Black: black,
+			Date:  date,
+		}, nil
 	}
 
 	if _, ok := headers["PlyCount"]; !ok {
@@ -169,19 +198,23 @@ func GetGame(user *database.User, pgnText string) (*database.Game, error) {
 	}
 
 	return &database.Game{
-		Cohort:              user.DojoCohort,
-		Id:                  date + "_" + uuid.New().String(),
-		White:               strings.ToLower(white),
-		Black:               strings.ToLower(black),
-		Date:                date,
-		Owner:               user.Username,
-		OwnerDisplayName:    user.DisplayName,
-		OwnerPreviousCohort: user.PreviousCohort,
-		Headers:             headers,
-		IsFeatured:          "false",
-		FeaturedAt:          "NOT_FEATURED",
-		Pgn:                 pgnText,
-	}, nil
+			Cohort:              user.DojoCohort,
+			Id:                  date + "_" + uuid.New().String(),
+			White:               strings.ToLower(white),
+			Black:               strings.ToLower(black),
+			Date:                date,
+			Owner:               user.Username,
+			OwnerDisplayName:    user.DisplayName,
+			OwnerPreviousCohort: user.PreviousCohort,
+			Headers:             headers,
+			IsFeatured:          "false",
+			FeaturedAt:          "NOT_FEATURED",
+			Pgn:                 pgnText,
+		}, &HeaderData{
+			White: white,
+			Black: black,
+			Date:  date,
+		}, nil
 }
 
 func GetGameUpdate(pgnText string) (*database.GameUpdate, error) {

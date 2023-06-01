@@ -1,9 +1,16 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { CreateGameRequest, CreateGameResponse } from '../api/gameApi';
-import { RequestSnackbar, useRequest } from '../api/Request';
+
+import { useApi } from '../../api/Api';
+import { CreateGameRequest, GameHeader, isGame } from '../../api/gameApi';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import GameSubmissionForm from './GameSubmissionForm';
-import { Game } from '../database/game';
+import SubmitGamePreflight from './SubmitGamePreflight';
+
+interface Preflight {
+    req: CreateGameRequest;
+    headers: GameHeader[];
+}
 
 const EditGamePage = () => {
     const api = useApi();
@@ -11,21 +18,25 @@ const EditGamePage = () => {
     const { cohort, id } = useParams();
     const navigate = useNavigate();
 
+    const [preflight, setPreflight] = useState<Preflight>();
+
     const onCreate = (req: CreateGameRequest) => {
         request.onStart();
         api.createGame(req)
             .then((response) => {
-                if (req.type === 'lichessChapter' || req.type === 'manual') {
-                    const game = response.data as Game;
+                if (isGame(response.data)) {
+                    const game = response.data;
                     navigate(
                         `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
                             '?',
                             '%3F'
                         )}`
                     );
+                } else if (response.data.headers) {
                     request.onSuccess();
+                    setPreflight({ req, headers: response.data.headers });
                 } else {
-                    const count = (response.data as CreateGameResponse).count;
+                    const count = response.data.count;
                     request.onSuccess(`Created ${count} games`);
                     navigate('/profile?view=games');
                 }
@@ -52,6 +63,11 @@ const EditGamePage = () => {
             });
     };
 
+    const onPreflight = (headers: GameHeader[]) => {
+        console.log('Headers: ', headers);
+        onCreate({ ...preflight!.req, headers });
+    };
+
     const title = cohort && id ? 'Edit Game' : 'Submit Game';
     const description =
         cohort && id
@@ -70,6 +86,16 @@ const EditGamePage = () => {
             />
 
             <RequestSnackbar request={request} showSuccess />
+
+            {preflight && (
+                <SubmitGamePreflight
+                    open={true}
+                    onClose={() => setPreflight(undefined)}
+                    initHeaders={preflight.headers}
+                    loading={request.isLoading()}
+                    onSubmit={onPreflight}
+                />
+            )}
         </>
     );
 };

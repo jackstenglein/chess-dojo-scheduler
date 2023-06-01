@@ -21,9 +21,9 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 
-import { dojoCohorts } from '../database/user';
-import { useAuth } from '../auth/Auth';
-import { useApi } from '../api/Api';
+import { dojoCohorts } from '../../database/user';
+import { useAuth } from '../../auth/Auth';
+import { useApi } from '../../api/Api';
 import { SearchFunc } from './pagination';
 import { useSearchParams } from 'react-router-dom';
 

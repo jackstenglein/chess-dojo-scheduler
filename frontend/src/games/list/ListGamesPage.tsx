@@ -1,9 +1,9 @@
 import { Button, Container, Divider, Grid, Stack } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 
-import { GameInfo } from '../database/game';
+import { GameInfo } from '../../database/game';
 import { RenderPlayers, RenderResult } from './GameListItem';
-import { RequestSnackbar } from '../api/Request';
+import { RequestSnackbar } from '../../api/Request';
 import { useNavigate } from 'react-router-dom';
 import SearchFilters from './SearchFilters';
 

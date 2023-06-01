@@ -1,14 +1,14 @@
-import { Stack, Typography } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import { DataGrid, GridRowParams } from '@mui/x-data-grid';
 import { useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar } from '../api/Request';
 
 import { GameInfo } from '../database/game';
 import { User } from '../database/user';
-import { gameTableColumns } from '../games/ListGamesPage';
-import { usePagination } from '../games/pagination';
+import { gameTableColumns } from '../games/list/ListGamesPage';
+import { usePagination } from '../games/list/pagination';
 
 interface GamesTabProps {
     user: User;
@@ -36,13 +36,12 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     };
 
     return (
-        <Stack spacing={2}>
+        <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
-            <Typography variant='body1'>
-                Note: games uploaded through the original Google form are not viewable
-                here. To find those games, perform a player search on the{' '}
-                <Link to='/games'>Games page</Link>.
-            </Typography>
+            <Button variant='contained' onClick={() => navigate('/games/submit')}>
+                Submit a Game
+            </Button>
+
             <DataGrid
                 columns={gameTableColumns}
                 rows={data}
@@ -57,6 +56,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 autoHeight
                 rowHeight={70}
                 onRowClick={onClickRow}
+                sx={{ width: 1 }}
             />
         </Stack>
     );

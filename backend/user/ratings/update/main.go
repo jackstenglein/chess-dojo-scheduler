@@ -66,6 +66,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lich
 		},
 	)
 
+	// log.Infof("Username %s should update %t", user.Username, shouldUpdate)
 	if shouldUpdate {
 		queuedUpdates = append(queuedUpdates, user)
 		if len(queuedUpdates) == 25 {

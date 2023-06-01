@@ -121,10 +121,22 @@ export interface CreateGameRequest {
     type: 'lichessChapter' | 'lichessStudy' | 'manual';
     url?: string;
     pgnText?: string;
+    headers?: GameHeader[];
+}
+
+export interface GameHeader {
+    white: string;
+    black: string;
+    date: string;
 }
 
 export interface CreateGameResponse {
+    headers: GameHeader[];
     count: number;
+}
+
+export function isGame(obj: any): obj is Game {
+    return obj.count === undefined;
 }
 
 /**

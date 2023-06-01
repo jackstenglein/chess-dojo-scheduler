@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AxiosResponse } from 'axios';
 
-import { ListGamesResponse } from '../api/gameApi';
-import { RequestStatus, useRequest } from '../api/Request';
-import { GameInfo } from '../database/game';
+import { ListGamesResponse } from '../../api/gameApi';
+import { RequestStatus, useRequest } from '../../api/Request';
+import { GameInfo } from '../../database/game';
 import { useSearchParams } from 'react-router-dom';
 
 export type SearchFunc = (

@@ -14,13 +14,15 @@ import (
 )
 
 type CreateGameRequest struct {
-	Type    game.ImportType `json:"type"`
-	Url     string          `json:"url"`
-	PgnText string          `json:"pgnText"`
+	Type    game.ImportType    `json:"type"`
+	Url     string             `json:"url"`
+	PgnText string             `json:"pgnText"`
+	Headers []*game.HeaderData `json:"headers"`
 }
 
 type CreateGameResponse struct {
-	Count int `json:"count"`
+	Headers []*game.HeaderData `json:"headers"`
+	Count   int                `json:"count"`
 }
 
 var repository database.GamePutter = database.DynamoDB
@@ -64,10 +66,14 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	games, err := getGames(user, pgnTexts)
+	games, headers, err := getGames(user, pgnTexts, req.Headers)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
+	if headers != nil {
+		return api.Success(funcName, &CreateGameResponse{Headers: headers, Count: len(headers)}), nil
+	}
+
 	if len(games) == 0 {
 		err := errors.New(400, "Invalid request: no games found", "")
 		return api.Failure(funcName, err), nil
@@ -89,22 +95,39 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	return api.Success(funcName, &CreateGameResponse{Count: updated}), nil
 }
 
-func getGames(user *database.User, pgnTexts []string) ([]*database.Game, error) {
+func getGames(user *database.User, pgnTexts []string, reqHeaders []*game.HeaderData) ([]*database.Game, []*game.HeaderData, error) {
 	games := make([]*database.Game, 0, len(pgnTexts))
+	headerDatas := make([]*game.HeaderData, 0, len(pgnTexts))
+	missingData := false
 
 	for i, pgnText := range pgnTexts {
 		log.Debugf("Parsing game %d: %s", i+1, pgnText)
-		g, err := game.GetGame(user, pgnText)
+
+		var reqHeader *game.HeaderData = nil
+		if len(reqHeaders) > i {
+			reqHeader = reqHeaders[i]
+		}
+
+		g, headerData, err := game.GetGame(user, pgnText, reqHeader)
 		if err != nil {
 			if aerr, ok := err.(*errors.Error); ok {
-				return nil, errors.Wrap(400, fmt.Sprintf("Failed to read chapter %d: %s", i+1, aerr.PublicMessage), "", aerr)
+				return nil, nil, errors.Wrap(400, fmt.Sprintf("Failed to read chapter %d: %s", i+1, aerr.PublicMessage), "", aerr)
 			}
-			return nil, err
+			return nil, nil, err
+		}
+		if g == nil {
+			log.Debugf("Game %d is missing data. Header data: %#v", i+1, headerData)
+			missingData = true
 		}
 		games = append(games, g)
+		headerDatas = append(headerDatas, headerData)
 	}
 
-	return games, nil
+	if missingData {
+		return nil, headerDatas, nil
+	}
+
+	return games, nil, nil
 }
 
 func main() {

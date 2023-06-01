@@ -10,7 +10,7 @@ import {
     Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { CreateGameRequest } from '../api/gameApi';
+import { CreateGameRequest } from '../../api/gameApi';
 
 const lichessStudyRegex = new RegExp('^https://lichess.org/study/.{8}$');
 const lichessChapterRegex = new RegExp('^https://lichess.org/study/.{8}/.{8}$');

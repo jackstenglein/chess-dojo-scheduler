@@ -118,6 +118,7 @@ func Success(funcName string, in interface{}) Response {
 		}
 	}
 
+	log.Debugf("Response: %#v", in)
 	return Response{
 		StatusCode:      200,
 		IsBase64Encoded: false,
