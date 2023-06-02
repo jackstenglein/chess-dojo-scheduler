@@ -74,7 +74,7 @@ function getSeries(
                 const result = getActiveValue(data, c);
                 return {
                     cohort: c,
-                    value: isNaN(result) ? 0 : result,
+                    value: isFinite(result) ? result : 0,
                 };
             }),
         },
@@ -84,7 +84,7 @@ function getSeries(
                 const result = getInactiveValue(data, c);
                 return {
                     cohort: c,
-                    value: isNaN(result) ? 0 : result,
+                    value: isFinite(result) ? result : 0,
                 };
             }),
         },
@@ -114,62 +114,58 @@ const StatisticsPage = () => {
     const participantsData: Series[] = useMemo(() => {
         return getSeries(
             request.data,
-            (d, c) => d.activeParticipants[c],
-            (d, c) => d.participants[c] - d.activeParticipants[c]
+            (d, c) => d.cohorts[c].activeParticipants,
+            (d, c) => d.cohorts[c].inactiveParticipants
         );
     }, [request.data]);
 
     const totalDojoScoreData: Series[] = useMemo(() => {
         return getSeries(
             request.data,
-            (d, c) => d.activeDojoScores[c],
-            (d, c) => d.dojoScores[c] - d.activeDojoScores[c]
+            (d, c) => d.cohorts[c].activeDojoScores,
+            (d, c) => d.cohorts[c].inactiveDojoScores
         );
     }, [request.data]);
 
     const avgDojoScoreData: Series[] = useMemo(() => {
         return getSeries(
             request.data,
-            (d, c) => d.activeDojoScores[c] / d.activeParticipants[c],
-            (d, c) =>
-                (d.dojoScores[c] - d.activeDojoScores[c]) /
-                (d.participants[c] - d.activeParticipants[c])
+            (d, c) => d.cohorts[c].activeDojoScores / d.cohorts[c].activeParticipants,
+            (d, c) => d.cohorts[c].inactiveDojoScores / d.cohorts[c].inactiveParticipants
         );
     }, [request.data]);
 
     const totalRatingChangeData: Series[] = useMemo(() => {
         return getSeries(
             request.data,
-            (d, c) => d.activeRatingChanges[c],
-            (d, c) => d.ratingChanges[c] - d.activeRatingChanges[c]
+            (d, c) => d.cohorts[c].activeRatingChanges,
+            (d, c) => d.cohorts[c].inactiveRatingChanges
         );
     }, [request.data]);
 
     const avgRatingChangeData: Series[] = useMemo(() => {
         return getSeries(
             request.data,
-            (d, c) => d.activeRatingChanges[c] / d.activeParticipants[c],
+            (d, c) => d.cohorts[c].activeRatingChanges / d.cohorts[c].activeParticipants,
             (d, c) =>
-                (d.ratingChanges[c] - d.activeRatingChanges[c]) /
-                (d.participants[c] - d.activeParticipants[c])
+                d.cohorts[c].inactiveRatingChanges / d.cohorts[c].inactiveParticipants
         );
     }, [request.data]);
 
     const totalTimeData: Series[] = useMemo(() => {
         return getSeries(
             request.data,
-            (d, c) => d.activeMinutesSpent[c],
-            (d, c) => d.minutesSpent[c] - d.activeMinutesSpent[c]
+            (d, c) => d.cohorts[c].activeMinutesSpent,
+            (d, c) => d.cohorts[c].inactiveMinutesSpent
         );
     }, [request.data]);
 
     const avgTimeData: Series[] = useMemo(() => {
         return getSeries(
             request.data,
-            (d, c) => d.activeMinutesSpent[c] / d.activeParticipants[c],
+            (d, c) => d.cohorts[c].activeMinutesSpent / d.cohorts[c].activeParticipants,
             (d, c) =>
-                (d.minutesSpent[c] - d.activeMinutesSpent[c]) /
-                (d.participants[c] - d.activeParticipants[c])
+                d.cohorts[c].inactiveMinutesSpent / d.cohorts[c].inactiveParticipants
         );
     }, [request.data]);
 
@@ -181,7 +177,9 @@ const StatisticsPage = () => {
             label: formatRatingSystem(rs),
             data: dojoCohorts.map((c) => ({
                 cohort: c,
-                value: request.data!.ratingSystems[c][rs],
+                value:
+                    request.data!.cohorts[c].activeRatingSystems[rs] +
+                    request.data!.cohorts[c].inactiveRatingSystems[rs],
             })),
         }));
     }, [request.data]);

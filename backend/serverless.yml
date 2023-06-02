@@ -335,6 +335,28 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PartiQLUpdate
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt UsersTable.Arn
+                - '/index/CohortIdx'
+
+  updateStatistics:
+    handler: bin/user/statistics/update
+    package:
+      patterns:
+        - ./bin/user/statistics/update
+    events:
+      - schedule:
+          rate: cron(20 0 * * ? *)
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
           - dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
       - Effect: Allow

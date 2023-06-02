@@ -83,40 +83,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lich
 	return user, queuedUpdates
 }
 
-func updateStats(stats *database.UserStatistics, user *database.User, requirements []*database.Requirement) {
-	if !user.DojoCohort.IsValid() || user.RatingSystem == "" {
-		return
-	}
-
-	isActive := user.UpdatedAt >= monthAgo
-	ratingChange := user.GetRatingChange()
-
-	score := user.CalculateScore(requirements)
-
-	stats.Participants[user.DojoCohort] += 1
-	stats.DojoScores[user.DojoCohort] += score
-	stats.RatingChanges[user.DojoCohort] += ratingChange
-	stats.RatingSystems[user.DojoCohort][user.RatingSystem] += 1
-
-	if isActive {
-		stats.ActiveParticipants[user.DojoCohort] += 1
-		stats.ActiveDojoScores[user.DojoCohort] += score
-		stats.ActiveRatingChanges[user.DojoCohort] += ratingChange
-		stats.ActiveRatingSystems[user.DojoCohort][user.RatingSystem] += 1
-	}
-
-	for _, progress := range user.Progress {
-		for cohort, minutes := range progress.MinutesSpent {
-			stats.MinutesSpent[cohort] += minutes
-
-			if isActive {
-				stats.ActiveMinutesSpent[cohort] += minutes
-			}
-		}
-	}
-}
-
-func updateUsers(users []*database.User, stats *database.UserStatistics, requirements []*database.Requirement) {
+func updateUsers(users []*database.User) {
 	if len(users) == 0 {
 		return
 	}
@@ -135,7 +102,6 @@ func updateUsers(users []*database.User, stats *database.UserStatistics, require
 	var queuedUpdates []*database.User
 	for _, user := range users {
 		user, queuedUpdates = updateIfNecessary(user, queuedUpdates, lichessRatings)
-		updateStats(stats, user, requirements)
 	}
 
 	if len(queuedUpdates) > 0 {
@@ -163,28 +129,12 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 	}
 	log.Debugf("Request: %+v", req)
 
-	log.Debug("Fetching requirements")
-	var requirements []*database.Requirement
-	var rs []*database.Requirement
 	var startKey string
-	for ok := true; ok; ok = startKey != "" {
-		rs, startKey, err = repository.ScanRequirements("", startKey)
-		if err != nil {
-			log.Errorf("Failed to scan requirements: %v", err)
-			return event, err
-		}
-		requirements = append(requirements, rs...)
-	}
-	log.Debugf("Got %d requirements", len(requirements))
-
-	stats := database.NewUserStatistics()
-
 	for _, cohort := range req.Cohorts {
 		log.Debugf("Processing cohort %s", cohort)
 
 		var users []*database.User
 		startKey = ""
-		err = nil
 		for ok := true; ok; ok = startKey != "" {
 			users, startKey, err = repository.ListUserRatings(cohort, startKey)
 			if err != nil {
@@ -192,12 +142,8 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 				return event, err
 			}
 			log.Infof("Processing %d users", len(users))
-			updateUsers(users, stats, requirements)
+			updateUsers(users)
 		}
-	}
-
-	if err := repository.SetUserStatistics(stats); err != nil {
-		log.Error(err)
 	}
 
 	return event, nil

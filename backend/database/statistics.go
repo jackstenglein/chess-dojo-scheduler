@@ -37,36 +37,40 @@ type EventStatistics struct {
 	AvailabilityMaxParticipants map[int]int `dynamodbav:"availabilityMaxParticipants" json:"availabilityMaxParticipants"`
 }
 
+type CohortStatistics struct {
+	// The number of active participants in the cohort
+	ActiveParticipants int `dynamodbav:"activeParticipants" json:"activeParticipants"`
+
+	// The number of inactive participants in the cohort
+	InactiveParticipants int `dynamodbav:"inactiveParticipants" json:"inactiveParticipants"`
+
+	// The sum of active dojo scores in the cohort
+	ActiveDojoScores float32 `dynamodbav:"activeDojoScores" json:"activeDojoScores"`
+
+	// The sum of inactive dojo scores in the cohort
+	InactiveDojoScores float32 `dynamodbav:"inactiveDojoScores" json:"inactiveDojoScores"`
+
+	// The sum of active rating changes in the cohort
+	ActiveRatingChanges int `dynamodbav:"activeRatingChanges" json:"activeRatingChanges"`
+
+	// The sum of inactive rating changes in the cohort
+	InactiveRatingChanges int `dynamodbav:"inactiveRatingChanges" json:"inactiveRatingChanges"`
+
+	// The number of active users with a specific rating system in the cohort
+	ActiveRatingSystems map[RatingSystem]int `dynamodbav:"activeRatingSystems" json:"activeRatingSystems"`
+
+	// The number of inactive users with a specific rating system in the cohort
+	InactiveRatingSystems map[RatingSystem]int `dynamodbav:"inactiveRatingSystems" json:"inactiveRatingSystems"`
+
+	// The sum of active minutes spent in the cohort
+	ActiveMinutesSpent int `dynamodbav:"activeMinutesSpent" json:"activeMinutesSpent"`
+
+	// The sum of inactive minutes spent in the cohort
+	InactiveMinutesSpent int `dynamodbav:"inactiveMinutesSpent" json:"inactiveMinutesSpent"`
+}
+
 type UserStatistics struct {
-	// The number of participants per cohort
-	Participants map[DojoCohort]int `dynamodbav:"participants" json:"participants"`
-
-	// The number of active participants per cohort
-	ActiveParticipants map[DojoCohort]int `dynamodbav:"activeParticipants" json:"activeParticipants"`
-
-	// The sum of dojo scores per cohort. Not currently used.
-	DojoScores map[DojoCohort]float32 `dynamodbav:"dojoScores" json:"dojoScores"`
-
-	// The sum of active dojo scores per cohort. Not currently used.
-	ActiveDojoScores map[DojoCohort]float32 `dynamodbav:"activeDojoScores" json:"activeDojoScores"`
-
-	// The sum of rating changes per cohort
-	RatingChanges map[DojoCohort]int `dynamodbav:"ratingChanges" json:"ratingChanges"`
-
-	// The sum of active rating changes per cohort
-	ActiveRatingChanges map[DojoCohort]int `dynamodbav:"activeRatingChanges" json:"activeRatingChanges"`
-
-	// The number of users using a specific rating system per cohort
-	RatingSystems map[DojoCohort]map[RatingSystem]int `dynamodbav:"ratingSystems" json:"ratingSystems"`
-
-	// The number of active users using a specific rating system per cohort
-	ActiveRatingSystems map[DojoCohort]map[RatingSystem]int `dynamodbav:"activeRatingSystems" json:"activeRatingSystems"`
-
-	// The sum of minutes spent per cohort
-	MinutesSpent map[DojoCohort]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
-
-	// The sum of active minutes spent per cohort
-	ActiveMinutesSpent map[DojoCohort]int `dynamodbav:"activeMinutesSpent" json:"activeMinutesSpent"`
+	Cohorts map[DojoCohort]*CohortStatistics `dynamodbav:"cohorts" json:"cohorts"`
 }
 
 type AdminStatisticsGetter interface {
@@ -85,36 +89,18 @@ type UserStatisticsGetter interface {
 // set to zero.
 func NewUserStatistics() *UserStatistics {
 	stats := &UserStatistics{
-		Participants:        make(map[DojoCohort]int),
-		ActiveParticipants:  make(map[DojoCohort]int),
-		DojoScores:          make(map[DojoCohort]float32),
-		ActiveDojoScores:    make(map[DojoCohort]float32),
-		RatingChanges:       make(map[DojoCohort]int),
-		ActiveRatingChanges: make(map[DojoCohort]int),
-		RatingSystems:       make(map[DojoCohort]map[RatingSystem]int),
-		ActiveRatingSystems: make(map[DojoCohort]map[RatingSystem]int),
-		MinutesSpent:        make(map[DojoCohort]int),
-		ActiveMinutesSpent:  make(map[DojoCohort]int),
+		Cohorts: make(map[DojoCohort]*CohortStatistics),
 	}
 
-	statsCohorts := []DojoCohort{NoCohort}
-	statsCohorts = append(statsCohorts, cohorts...)
-
-	for _, c := range statsCohorts {
-		stats.Participants[c] = 0
-		stats.ActiveParticipants[c] = 0
-		stats.DojoScores[c] = 0
-		stats.ActiveDojoScores[c] = 0
-		stats.RatingChanges[c] = 0
-		stats.ActiveRatingChanges[c] = 0
-		stats.RatingSystems[c] = make(map[RatingSystem]int)
-		stats.ActiveRatingSystems[c] = make(map[RatingSystem]int)
-		stats.MinutesSpent[c] = 0
-		stats.ActiveMinutesSpent[c] = 0
+	for _, c := range Cohorts {
+		stats.Cohorts[c] = &CohortStatistics{
+			ActiveRatingSystems:   make(map[RatingSystem]int),
+			InactiveRatingSystems: make(map[RatingSystem]int),
+		}
 
 		for _, rs := range ratingSystems {
-			stats.RatingSystems[c][rs] = 0
-			stats.ActiveRatingSystems[c][rs] = 0
+			stats.Cohorts[c].ActiveRatingSystems[rs] = 0
+			stats.Cohorts[c].InactiveRatingSystems[rs] = 0
 		}
 	}
 

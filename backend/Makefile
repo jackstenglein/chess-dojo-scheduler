@@ -14,6 +14,7 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/progress/timeline user/progress/timeline/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/ratings/update user/ratings/update/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/statistics/get user/statistics/get/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/user/statistics/update user/statistics/update/main.go
 
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/book event/book/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/event/cancel event/cancel/main.go

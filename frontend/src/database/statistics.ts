@@ -1,40 +1,26 @@
-export interface UserStatistics {
-    participants: {
-        [cohort: string]: number;
-    };
-    activeParticipants: {
-        [cohort: string]: number;
-    };
+export interface CohortStatistics {
+    activeParticipants: number;
+    inactiveParticipants: number;
 
-    dojoScores: {
-        [cohort: string]: number;
-    };
-    activeDojoScores: {
-        [cohort: string]: number;
-    };
+    activeDojoScores: number;
+    inactiveDojoScores: number;
 
-    ratingChanges: {
-        [cohort: string]: number;
-    };
-    activeRatingChanges: {
-        [cohort: string]: number;
-    };
+    activeRatingChanges: number;
+    inactiveRatingChanges: number;
 
-    ratingSystems: {
-        [cohort: string]: {
-            [system: string]: number;
-        };
-    };
     activeRatingSystems: {
-        [cohort: string]: {
-            [system: string]: number;
-        };
+        [system: string]: number;
+    };
+    inactiveRatingSystems: {
+        [system: string]: number;
     };
 
-    minutesSpent: {
-        [cohort: string]: number;
-    };
-    activeMinutesSpent: {
-        [cohort: string]: number;
+    activeMinutesSpent: number;
+    inactiveMinutesSpent: number;
+}
+
+export interface UserStatistics {
+    cohorts: {
+        [cohort: string]: CohortStatistics;
     };
 }

@@ -31,6 +31,7 @@ const colors = [
     'rgb(162, 217, 37)',
     'rgb(222, 207, 63)',
     'rgb(115, 79, 233)',
+    'rgb(205, 130, 173)',
 ];
 
 const Chart: React.FC<ChartProps> = ({

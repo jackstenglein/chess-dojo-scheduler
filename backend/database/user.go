@@ -15,7 +15,7 @@ import (
 
 type DojoCohort string
 
-var cohorts = []DojoCohort{
+var Cohorts = []DojoCohort{
 	"0-300",
 	"300-400",
 	"400-500",
@@ -50,7 +50,7 @@ func IsValidCohort(c DojoCohort) bool {
 	if c == AllCohorts {
 		return true
 	}
-	for _, c2 := range cohorts {
+	for _, c2 := range Cohorts {
 		if c == c2 {
 			return true
 		}
@@ -62,7 +62,7 @@ func (c DojoCohort) IsValid() bool {
 	if c == AllCohorts {
 		return true
 	}
-	for _, c2 := range cohorts {
+	for _, c2 := range Cohorts {
 		if c == c2 {
 			return true
 		}
@@ -73,9 +73,9 @@ func (c DojoCohort) IsValid() bool {
 // GetNextCohort returns the cohort after the provided one or
 // NoCohort if none exist.
 func (c DojoCohort) GetNextCohort() DojoCohort {
-	for i, c2 := range cohorts[:len(cohorts)-1] {
+	for i, c2 := range Cohorts[:len(Cohorts)-1] {
 		if c == c2 {
-			return cohorts[i+1]
+			return Cohorts[i+1]
 		}
 	}
 	return NoCohort

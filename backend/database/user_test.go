@@ -5,7 +5,7 @@ import (
 )
 
 func TestIsValidCohort(t *testing.T) {
-	for _, c := range cohorts {
+	for _, c := range Cohorts {
 		if !IsValidCohort(c) {
 			t.Errorf("IsValidCohort(%s) got false; want true", c)
 		}
