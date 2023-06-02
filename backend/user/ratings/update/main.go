@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
@@ -116,7 +117,9 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 }
 
 func updateUsers(users []*database.User, stats *database.UserStatistics, requirements []*database.Requirement) {
-	var queuedUpdates []*database.User
+	if len(users) == 0 {
+		return
+	}
 
 	lichessUsernames := make([]string, 0, len(users))
 	for _, user := range users {
@@ -129,6 +132,7 @@ func updateUsers(users []*database.User, stats *database.UserStatistics, require
 		log.Error(err)
 	}
 
+	var queuedUpdates []*database.User
 	for _, user := range users {
 		user, queuedUpdates = updateIfNecessary(user, queuedUpdates, lichessRatings)
 		updateStats(stats, user, requirements)
@@ -143,15 +147,26 @@ func updateUsers(users []*database.User, stats *database.UserStatistics, require
 	}
 }
 
+type RatingUpdateRequest struct {
+	Cohorts []database.DojoCohort `json:"cohorts"`
+}
+
 func Handler(ctx context.Context, event Event) (Event, error) {
 	log.Debugf("Event: %#v", event)
 	log.SetRequestId(event.ID)
+
+	var req RatingUpdateRequest
+	err := json.Unmarshal(event.Detail, &req)
+	if err != nil {
+		log.Errorf("Failed to unmarshal request:%v ", err)
+		return event, err
+	}
+	log.Debugf("Request: %+v", req)
 
 	log.Debug("Fetching requirements")
 	var requirements []*database.Requirement
 	var rs []*database.Requirement
 	var startKey string
-	var err error
 	for ok := true; ok; ok = startKey != "" {
 		rs, startKey, err = repository.ScanRequirements("", startKey)
 		if err != nil {
@@ -163,17 +178,22 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 	log.Debugf("Got %d requirements", len(requirements))
 
 	stats := database.NewUserStatistics()
-	var users []*database.User
-	startKey = ""
-	err = nil
-	for ok := true; ok; ok = startKey != "" {
-		users, startKey, err = repository.ScanUserRatings(startKey)
-		if err != nil {
-			log.Errorf("Failed to scan users: %v", err)
-			return event, err
+
+	for _, cohort := range req.Cohorts {
+		log.Debugf("Processing cohort %s", cohort)
+
+		var users []*database.User
+		startKey = ""
+		err = nil
+		for ok := true; ok; ok = startKey != "" {
+			users, startKey, err = repository.ListUserRatings(cohort, startKey)
+			if err != nil {
+				log.Errorf("Failed to scan users: %v", err)
+				return event, err
+			}
+			log.Infof("Processing %d users", len(users))
+			updateUsers(users, stats, requirements)
 		}
-		log.Infof("Processing %d users", len(users))
-		updateUsers(users, stats, requirements)
 	}
 
 	if err := repository.SetUserStatistics(stats); err != nil {

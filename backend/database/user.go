@@ -778,24 +778,26 @@ const ratingsProjection = "username, dojoCohort, updatedAt, progress, ratingSyst
 	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating, startCfcRating, currentCfcRating, " +
 	"startDwzRating, currentDwzRating"
 
-// ScanUserRatings returns a list of all Users in the database, up to 1MB of data.
-// Only the usernames, cohorts and ratings are returned.
+// ListUserRatings returns a list of Users matching the provided cohort, up to 1MB of data.
+// Only the fields necessary for the rating/statistics update are returned.
 // startkey is an optional parameter that can be used to perform pagination.
 // The list of users and the next start key are returned.
-func (repo *dynamoRepository) ScanUserRatings(startKey string) ([]*User, string, error) {
-	input := &dynamodb.ScanInput{
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":statistics": {
-				S: aws.String("STATISTICS"),
-			},
+func (repo *dynamoRepository) ListUserRatings(cohort DojoCohort, startKey string) ([]*User, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#cohort = :cohort"),
+		ExpressionAttributeNames: map[string]*string{
+			"#cohort": aws.String("dojoCohort"),
 		},
-		FilterExpression:     aws.String("username <> :statistics"),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":cohort": {S: aws.String(string(cohort))},
+		},
 		ProjectionExpression: aws.String(ratingsProjection),
+		IndexName:            aws.String("CohortIdx"),
 		TableName:            aws.String(userTable),
 	}
 
 	var users []*User
-	lastKey, err := repo.scan(input, startKey, &users)
+	lastKey, err := repo.query(input, startKey, &users)
 	if err != nil {
 		return nil, "", err
 	}
