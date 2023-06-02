@@ -1,4 +1,4 @@
-import { Button, Container, Stack, TextField, Typography } from '@mui/material';
+import { Container, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { LoadingButton } from '@mui/lab';
 
@@ -24,10 +24,6 @@ const ForbiddenPage = () => {
                 console.error(err);
                 request.onFailure(err);
             });
-    };
-
-    const onSkip = () => {
-        auth.setSkipForbidden(true);
     };
 
     return (
@@ -69,13 +65,12 @@ const ForbiddenPage = () => {
                 </Stack>
 
                 <Typography mt={5} textAlign='center'>
-                    If you still cannot log in and think it is incorrect, contact either{' '}
-                    <strong>DMHokie</strong> (discord: DMHokie#2533) or{' '}
-                    <strong>Jack</strong> (discord: Heh13#5117, email:
-                    jackstenglein@gmail.com) for help.{' '}
+                    Note that if you have just started your subscription, it can take a
+                    few minutes for access to be granted. If you still cannot log in and
+                    think it is incorrect, contact either <strong>DMHokie</strong>{' '}
+                    (discord: DMHokie#2533) or <strong>Jack</strong> (discord: Heh13#5117,
+                    email: jackstenglein@gmail.com) for help.{' '}
                     <strong>Include in your message your emails for both sites.</strong>{' '}
-                    While you wait for us to respond to your request, click here to skip
-                    this message: <Button onClick={onSkip}>Skip</Button>
                 </Typography>
             </Stack>
         </Container>
