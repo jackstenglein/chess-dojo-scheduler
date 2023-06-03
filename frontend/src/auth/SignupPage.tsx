@@ -30,10 +30,10 @@ const SignupPage = () => {
 
     const onSignin = () => {
         const errors: Record<string, string> = {};
-        if (name.length === 0) {
+        if (name.trim().length === 0) {
             errors.name = 'Name is required';
         }
-        if (email.length === 0) {
+        if (email.trim().length === 0) {
             errors.email = 'Email is required';
         }
         if (password.length === 0) {
@@ -46,13 +46,13 @@ const SignupPage = () => {
         }
 
         request.onStart();
-        auth.signup(name, email, password)
+        auth.signup(name.trim(), email.trim(), password)
             .then((result) => {
                 navigate('/verify-email', {
                     state: {
                         username: result.user.username,
-                        name,
-                        email,
+                        name: name.trim(),
+                        email: email.trim(),
                         password,
                     },
                 });

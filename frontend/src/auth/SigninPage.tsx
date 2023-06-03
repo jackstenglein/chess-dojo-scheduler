@@ -39,7 +39,7 @@ const SigninPage = () => {
 
     const onSignin = () => {
         const errors: Record<string, string> = {};
-        if (email.length === 0) {
+        if (email.trim().length === 0) {
             errors.email = 'Email is required';
         }
         if (password.length === 0) {
@@ -52,7 +52,7 @@ const SigninPage = () => {
         }
 
         request.onStart();
-        auth.signin(email, password).catch((err) => {
+        auth.signin(email.trim(), password).catch((err) => {
             console.error(err);
             if (
                 err.code === 'NotAuthorizedException' ||
