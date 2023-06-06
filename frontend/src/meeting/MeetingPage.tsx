@@ -21,14 +21,16 @@ import { LoadingButton } from '@mui/lab';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { AvailabilityStatus, getDisplayString } from '../database/event';
+import { AvailabilityStatus, Participant, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import { useCache } from '../api/cache/Cache';
 import LoadingPage from '../loading/LoadingPage';
+import { useAuth } from '../auth/Auth';
 
 const MeetingPage = () => {
     const { meetingId } = useParams();
     const cache = useCache();
+    const user = useAuth().user!;
 
     const api = useApi();
     const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -46,6 +48,7 @@ const MeetingPage = () => {
             </Container>
         );
     }
+    console.log('Meeting: ', meeting);
 
     const onCancel = () => {
         cancelRequest.onStart();
@@ -67,7 +70,15 @@ const MeetingPage = () => {
     const startDate = start.toLocaleDateString();
     const startTime = start.toLocaleTimeString();
 
-    const opponent = meeting.participants[0];
+    let opponent: Participant = meeting.participants[0];
+    if (opponent.username === user.username) {
+        opponent = {
+            username: meeting.owner,
+            displayName: meeting.ownerDisplayName,
+            cohort: meeting.ownerCohort,
+            previousCohort: meeting.ownerPreviousCohort,
+        };
+    }
 
     return (
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
