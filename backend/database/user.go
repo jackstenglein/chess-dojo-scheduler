@@ -774,7 +774,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 }
 
 const ratingsProjection = "username, dojoCohort, updatedAt, progress, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
-	"uscfId, startChesscomRating, currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, " +
+	"uscfId, ecfId, cfcId, dwzId, startChesscomRating, currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, " +
 	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating, startCfcRating, currentCfcRating, " +
 	"startDwzRating, currentDwzRating"
 
