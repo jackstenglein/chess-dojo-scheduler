@@ -42,9 +42,13 @@ export type UserApiContextType = {
     /**
      * updateUser applies the given updates to the current signed-in user.
      * @param update The updates to apply.
+     * @param autopickCohort Whether to automatically pick a cohort for the user based on the rating system and username.
      * @returns An AxiosResponse containing the updated user in the data field.
      */
-    updateUser: (update: Partial<User>) => Promise<AxiosResponse<User, any>>;
+    updateUser: (
+        update: Partial<User>,
+        autopickCohort?: boolean
+    ) => Promise<AxiosResponse<User, any>>;
 
     /**
      * updateUserProgress updates the current user's progress on the provided requirement.
@@ -164,16 +168,21 @@ export async function listUsersByCohort(
  * @param idToken The id token of the current signed-in user.
  * @param update The updates to apply.
  * @param callback A callback function to invoke with the update after it has succeeded on the backend.
+ * @param autopickCohort Whether to automatically pick a cohort for the user based on the rating system and username.
  * @returns An AxiosResponse containing the updated user in the data field.
  */
 export async function updateUser(
     idToken: string,
     update: Partial<User>,
-    callback: (update: Partial<User>) => void
+    callback: (update: Partial<User>) => void,
+    autopickCohort?: boolean
 ) {
-    const result = await axios.put<User>(BASE_URL + '/user', update, {
+    const result = await axios.put<User>(`${BASE_URL}/user`, update, {
         headers: {
             Authorization: 'Bearer ' + idToken,
+        },
+        params: {
+            autopickCohort,
         },
     });
     callback(result.data);

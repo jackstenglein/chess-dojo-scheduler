@@ -19,11 +19,11 @@ import {
     User,
 } from '../database/user';
 import { getUser } from '../api/userApi';
-import ProfileEditorPage from '../profile/ProfileEditorPage';
 import LoadingPage from '../loading/LoadingPage';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import ForbiddenPage from './ForbiddenPage';
+import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -240,7 +240,7 @@ export function RequireAuth() {
     }
 
     if (!hasCreatedProfile(user)) {
-        return <ProfileEditorPage isCreating />;
+        return <ProfileCreatorPage />;
     }
 
     return <Outlet />;
