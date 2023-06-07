@@ -124,6 +124,8 @@ export interface User {
     enableDarkMode: boolean;
     timezoneOverride: string;
 
+    hasCreatedProfile: boolean;
+
     customTasks?: CustomTask[];
 }
 
@@ -553,8 +555,9 @@ export function hasCreatedProfile(user: User): boolean {
     if (
         user.dojoCohort === '' ||
         user.dojoCohort === 'NO_COHORT' ||
-        user.displayName === '' ||
-        (user.ratingSystem as string) === ''
+        user.displayName.trim() === '' ||
+        (user.ratingSystem as string) === '' ||
+        !user.hasCreatedProfile
     ) {
         return false;
     }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -97,6 +98,32 @@ func fetchRatings(user *database.User, update *database.UserUpdate) error {
 	return nil
 }
 
+func handleAutopickCohort(user *database.User, update *database.UserUpdate) api.Response {
+	if update.RatingSystem == nil || *update.RatingSystem == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem is required when autopickCohort is true", ""))
+	}
+
+	if *update.RatingSystem == database.Custom {
+		if update.CurrentCustomRating == nil || *update.CurrentCustomRating <= 0 {
+			return api.Failure(funcName, errors.New(400, "Invalid request: currentCustomRating must be >0 when ratingSystem is CUSTOM", ""))
+		}
+		update.StartCustomRating = update.CurrentCustomRating
+	} else {
+		if err := fetchRatings(user, update); err != nil {
+			return api.Failure(funcName, err)
+		}
+		if cohort := update.AutopickCohort(); cohort == database.NoCohort {
+			return api.Failure(funcName, errors.New(500, "Unable to choose cohort. Please contact support", fmt.Sprintf("Autopick cohort returned NoCohort for update %+v", update)))
+		}
+	}
+
+	user, err := repository.UpdateUser(user.Username, update)
+	if err != nil {
+		return api.Failure(funcName, err)
+	}
+	return api.Success(funcName, user)
+}
+
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -114,6 +141,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	update := &database.UserUpdate{}
 	if err := json.Unmarshal([]byte(event.Body), update); err != nil {
 		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+	}
+
+	autopickCohort, _ := event.QueryStringParameters["autopickCohort"]
+	if autopickCohort == "true" {
+		return handleAutopickCohort(user, update), nil
 	}
 
 	if update.DisplayName != nil {

@@ -100,8 +100,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getUserPublic: (username: string) => getUserPublic(username),
             listUsersByCohort: (cohort: string, startKey?: string) =>
                 listUsersByCohort(idToken, cohort, startKey),
-            updateUser: (update: Partial<User>) =>
-                updateUser(idToken, update, auth.updateUser),
+            updateUser: (update: Partial<User>, autopickCohort?: boolean) =>
+                updateUser(idToken, update, auth.updateUser, autopickCohort),
             updateUserProgress: (
                 cohort: string,
                 requirementId: string,

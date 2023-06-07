@@ -277,6 +277,9 @@ type User struct {
 
 	// The user's list of custom tasks
 	CustomTasks []*CustomTask `dynamodbav:"customTasks" json:"customTasks"`
+
+	// Whether the user has finished creating their profile
+	HasCreatedProfile bool `dynamodbav:"hasCreatedProfile" json:"hasCreatedProfile"`
 }
 
 // GetRatings returns the start and current ratings in the user's preferred rating system.
@@ -495,6 +498,44 @@ type UserUpdate struct {
 
 	// The user's list of custom tasks
 	CustomTasks *[]*CustomTask `dynamodbav:"customTasks,omitempty" json:"customTasks,omitempty"`
+
+	// Whether the user has finished creating their profile
+	HasCreatedProfile *bool `dynamodbav:"hasCreatedProfile,omitempty" json:"hasCreatedProfile,omitempty"`
+}
+
+// AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
+// and current rating fields. The chosen cohort is returned.
+func (u *UserUpdate) AutopickCohort() DojoCohort {
+	if u == nil || u.RatingSystem == nil {
+		return NoCohort
+	}
+
+	var currentRating *int
+
+	switch *u.RatingSystem {
+	case Chesscom:
+		currentRating = u.CurrentChesscomRating
+	case Lichess:
+		currentRating = u.CurrentLichessRating
+	case Fide:
+		currentRating = u.CurrentFideRating
+	case Uscf:
+		currentRating = u.CurrentUscfRating
+	case Ecf:
+		currentRating = u.CurrentEcfRating
+	case Cfc:
+		currentRating = u.CurrentCfcRating
+	case Dwz:
+		currentRating = u.CurrentDwzRating
+	}
+
+	if currentRating == nil {
+		return NoCohort
+	}
+
+	cohort := getCohort(*u.RatingSystem, *currentRating)
+	u.DojoCohort = &cohort
+	return cohort
 }
 
 type UserCreator interface {
