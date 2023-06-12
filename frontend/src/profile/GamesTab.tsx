@@ -9,6 +9,7 @@ import { GameInfo } from '../database/game';
 import { User } from '../database/user';
 import { gameTableColumns } from '../games/list/ListGamesPage';
 import { usePagination } from '../games/list/pagination';
+import { useAuth } from '../auth/Auth';
 
 interface GamesTabProps {
     user: User;
@@ -17,6 +18,7 @@ interface GamesTabProps {
 const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const navigate = useNavigate();
     const api = useApi();
+    const currentUser = useAuth().user!;
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user.username, startKey),
@@ -38,9 +40,11 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     return (
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
-            <Button variant='contained' onClick={() => navigate('/games/submit')}>
-                Submit a Game
-            </Button>
+            {currentUser.username === user.username && (
+                <Button variant='contained' onClick={() => navigate('/games/submit')}>
+                    Submit a Game
+                </Button>
+            )}
 
             <DataGrid
                 columns={gameTableColumns}
