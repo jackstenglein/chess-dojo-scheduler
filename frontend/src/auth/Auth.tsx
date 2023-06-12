@@ -216,12 +216,13 @@ export function RequireAuth() {
             api.checkUserAccess()
                 .then(() => {
                     request.onSuccess();
+                    auth.updateUser({ isForbidden: false });
                 })
                 .catch((err) => {
                     console.log('Check user access error: ', err.response);
                     request.onFailure(err);
                     if (err.response?.status === 403) {
-                        // auth.updateUser({ isForbidden: true });
+                        auth.updateUser({ isForbidden: true });
                     }
                 });
         }
@@ -235,9 +236,9 @@ export function RequireAuth() {
         return <Navigate to='/' replace />;
     }
 
-    // if (user.isForbidden) {
-    //     return <ForbiddenPage />;
-    // }
+    if (user.isForbidden) {
+        return <ForbiddenPage />;
+    }
 
     if (!hasCreatedProfile(user)) {
         return <ProfileCreatorPage />;
