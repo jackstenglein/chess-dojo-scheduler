@@ -35,9 +35,14 @@ func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task 
 		}
 	}
 	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
-	progress.UpdatedAt = time.Now().Format(time.RFC3339)
+	now := time.Now()
+	progress.UpdatedAt = now.Format(time.RFC3339)
 
 	timelineEntry := &database.TimelineEntry{
+		TimelineEntryKey: database.TimelineEntryKey{
+			Owner: user.Username,
+			Id:    fmt.Sprintf("%s_%s", now.Format(time.DateOnly), uuid.NewString()),
+		},
 		RequirementId:       request.RequirementId,
 		RequirementName:     task.Name,
 		RequirementCategory: "Non-Dojo",
@@ -47,8 +52,11 @@ func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task 
 		MinutesSpent:        request.IncrementalMinutesSpent,
 		CreatedAt:           time.Now().Format(time.RFC3339),
 	}
+	if err := repository.PutTimelineEntry(timelineEntry); err != nil {
+		return api.Failure(funcName, err), nil
+	}
 
-	user, err := repository.UpdateUserProgress(user.Username, progress, timelineEntry)
+	user, err := repository.UpdateUserProgress(user.Username, progress)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
@@ -110,7 +118,7 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		return api.Failure(funcName, err), nil
 	}
 
-	user, err = repository.UpdateUserProgress(user.Username, progress, timelineEntry)
+	user, err = repository.UpdateUserProgress(user.Username, progress)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}

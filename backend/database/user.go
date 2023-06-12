@@ -230,9 +230,6 @@ type User struct {
 	// Maps requirement ids to RequirementProgress objects
 	Progress map[string]*RequirementProgress `dynamodbav:"progress" json:"progress"`
 
-	// A list of RequirementProgress objects forming the user's activity
-	// Timeline []*TimelineEntry `dynamodbav:"timeline" json:"timeline"`
-
 	// Whether to disable notifications when a user's meeting is booked
 	DisableBookingNotifications bool `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
 
@@ -486,10 +483,6 @@ type UserUpdate struct {
 	// Cannot be manually passed by the user. The user should instead call the user/progress/timeline function
 	Progress *map[string]*RequirementProgress `dynamodbav:"progress,omitempty" json:"-"`
 
-	// A list of RequirementProgress objects forming the user's activity.
-	// Cannot be manually passed by the user. The user should instead call the user/progress/timeline function
-	// Timeline *[]*TimelineEntry `dynamodbav:"timeline,omitempty" json:"-"`
-
 	// Whether to enable dark mode on the site
 	EnableDarkMode *bool `dynamodbav:"enableDarkMode,omitempty" json:"enableDarkMode,omitempty"`
 
@@ -570,9 +563,8 @@ type UserProgressUpdater interface {
 	RequirementGetter
 	TimelineEditor
 
-	// UpdateUserProgress sets the given progress entry in the user's progress map and appends
-	// the given timeline entry to the user's timeline.
-	UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *TimelineEntry) (*User, error)
+	// UpdateUserProgress sets the given progress entry in the user's progress map.
+	UpdateUserProgress(username string, progressEntry *RequirementProgress) (*User, error)
 }
 
 type AdminUserLister interface {
@@ -616,10 +608,6 @@ func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) 
 		emptyMap := make(map[string]*dynamodb.AttributeValue)
 		item["progress"] = &dynamodb.AttributeValue{M: emptyMap}
 	}
-	// if len(user.Timeline) == 0 {
-	// 	emptyList := make([]*dynamodb.AttributeValue, 0)
-	// 	item["timeline"] = &dynamodb.AttributeValue{L: emptyList}
-	// }
 
 	input := &dynamodb.PutItemInput{
 		ConditionExpression: condition,
@@ -681,9 +669,8 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*
 	return &user, nil
 }
 
-// UpdateUserProgress sets the given progress entry in the user's progress map and appends
-// the given timeline entry to the user's timeline.
-func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry *RequirementProgress, timelineEntry *TimelineEntry) (*User, error) {
+// UpdateUserProgress sets the given progress entry in the user's progress map.
+func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry *RequirementProgress) (*User, error) {
 	if username == "STATISTICS" {
 		return nil, errors.New(403, "Invalid request: cannot update username `STATISTICS`", "")
 	}
@@ -693,11 +680,6 @@ func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry 
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal progress entry", err)
 	}
 
-	tav, err := dynamodbattribute.Marshal(timelineEntry)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal timeline entry", err)
-	}
-
 	updatedAt := time.Now().Format(time.RFC3339)
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
@@ -705,16 +687,14 @@ func (repo *dynamoRepository) UpdateUserProgress(username string, progressEntry 
 				S: aws.String(username),
 			},
 		},
-		UpdateExpression: aws.String("SET #p.#id = :p, #t = list_append(#t, :t), #u = :u"),
+		UpdateExpression: aws.String("SET #p.#id = :p, #u = :u"),
 		ExpressionAttributeNames: map[string]*string{
 			"#p":  aws.String("progress"),
 			"#id": aws.String(progressEntry.RequirementId),
-			"#t":  aws.String("timeline"),
 			"#u":  aws.String("updatedAt"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":p": pav,
-			":t": {L: []*dynamodb.AttributeValue{tav}},
 			":u": {S: aws.String(updatedAt)},
 		},
 		ConditionExpression: aws.String("attribute_exists(username)"),

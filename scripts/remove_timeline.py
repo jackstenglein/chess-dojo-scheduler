@@ -1,22 +1,17 @@
 import boto3
-import uuid
+import time
 
 db = boto3.resource('dynamodb')
 users_table = db.Table('prod-users')
-timeline_table = db.Table('prod-timeline')
 
 def process_users(batch, users):
     updated = 0
 
     for user in users:
-        timeline = user.get('timeline', [])
-
-        for entry in timeline:
-            if entry.get('id', '') == '':
-                entry['owner'] = user['username']
-                entry['id'] = str(uuid.uuid4())
-                batch.put_item(Item=entry)
-                updated += 1
+        user['timeline'] = None
+        batch.put_item(Item=user)
+        updated += 1
+        time.sleep(5)
 
     return updated
 
@@ -29,7 +24,7 @@ def main():
         res = users_table.scan()
         lastKey = res.get('LastEvaluatedKey', None)
         items = res.get('Items', [])
-        with timeline_table.batch_writer() as batch:
+        with users_table.batch_writer() as batch:
             updated += process_users(batch, items)
 
             while lastKey != None:
