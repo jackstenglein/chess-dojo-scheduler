@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../auth/Auth';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
+import { useTimeline } from '../activity/useTimeline';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -34,6 +35,7 @@ interface HistoryItem {
     minutes: string;
     entry: TimelineEntry;
     index: number;
+    deleted: boolean;
 }
 
 type ProgressHistoryItemProps = HistoryItem & {
@@ -49,10 +51,15 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
     minutes,
     entry,
     index,
+    deleted,
     error,
     updateItem,
     deleteItem,
 }) => {
+    if (deleted) {
+        return null;
+    }
+
     const onChangeDate = (value: Date | null) => {
         updateItem({
             date: value,
@@ -61,6 +68,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
             minutes,
             entry,
             index,
+            deleted,
         });
     };
 
@@ -72,6 +80,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
             minutes,
             entry,
             index,
+            deleted,
         });
     };
 
@@ -83,6 +92,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
             minutes,
             entry,
             index,
+            deleted,
         });
     };
 
@@ -94,6 +104,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
             minutes: value,
             entry,
             index,
+            deleted,
         });
     };
 
@@ -175,12 +186,17 @@ interface HistoryItemError {
 }
 
 function getTimelineUpdate(items: HistoryItem[]): {
-    timeline: TimelineEntry[];
+    updated: TimelineEntry[];
+    deleted: TimelineEntry[];
     errors: Record<number, HistoryItemError>;
 } {
     const errors: Record<number, HistoryItemError> = {};
 
     items.forEach((item, idx) => {
+        if (item.deleted) {
+            return;
+        }
+
         let itemErrors: HistoryItemError = {};
         if (item.date === null) {
             itemErrors.date = 'This field is required';
@@ -210,27 +226,38 @@ function getTimelineUpdate(items: HistoryItem[]): {
 
     if (Object.values(errors).length > 0) {
         return {
-            timeline: [],
+            updated: [],
+            deleted: [],
             errors,
         };
     }
 
-    const timeline: TimelineEntry[] = items.map((item, idx) => {
-        const previousCount = idx === 0 ? 0 : items[idx - 1].entry.newCount;
+    const updated: TimelineEntry[] = [];
+    const deleted: TimelineEntry[] = [];
+
+    for (const item of items) {
+        if (item.deleted) {
+            deleted.push(item.entry);
+            continue;
+        }
+
+        const previousCount = updated.length === 0 ? 0 : updated[-1].newCount;
         const newCount = previousCount + parseInt(item.count);
         const minutesSpent =
             60 * parseInt(item.hours || '0') + parseInt(item.minutes || '0');
 
-        return {
+        updated.push({
             ...item.entry,
+            createdAt: item.date?.toISOString() || item.entry.createdAt,
             previousCount,
             newCount,
             minutesSpent,
-        };
-    });
+        });
+    }
 
     return {
-        timeline,
+        updated,
+        deleted,
         errors,
     };
 }
@@ -254,9 +281,12 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
 
+    const { entries } = useTimeline(user.username);
+
     const initialItems: HistoryItem[] = useMemo(() => {
-        return user.timeline
+        return entries
             .filter((t) => t.requirementId === requirement.id && t.cohort === cohort)
+            .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
             .map((t, idx) => ({
                 date: new Date(t.createdAt),
                 count: `${t.newCount - t.previousCount}`,
@@ -265,8 +295,9 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                 cohort: t.cohort,
                 entry: t,
                 index: idx,
+                deleted: false,
             }));
-    }, [requirement, user, cohort]);
+    }, [requirement, entries, cohort]);
 
     const [items, setItems] = useState(initialItems);
 
@@ -276,6 +307,9 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
 
     const totalCount = useMemo(() => {
         return items.reduce((sum, item) => {
+            if (item.deleted) {
+                return sum;
+            }
             if (isNaN(parseInt(item.count))) {
                 return sum;
             }
@@ -285,6 +319,9 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
 
     const totalTime = useMemo(() => {
         return items.reduce((sum, item) => {
+            if (item.deleted) {
+                return sum;
+            }
             let newSum = sum;
             if (NUMBER_REGEX.test(item.hours) && !isNaN(parseInt(item.hours))) {
                 newSum += 60 * parseInt(item.hours);
@@ -305,7 +342,14 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
 
     const getDeleteItem = useCallback(
         (idx: number) => () =>
-            setItems((items) => [...items.slice(0, idx), ...items.slice(idx + 1)]),
+            setItems((items) => [
+                ...items.slice(0, idx),
+                {
+                    ...items[idx],
+                    deleted: true,
+                },
+                ...items.slice(idx + 1),
+            ]),
         [setItems]
     );
 
@@ -322,7 +366,8 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
         api.updateUserTimeline(
             requirement.id,
             cohort,
-            update.timeline,
+            update.updated,
+            update.deleted,
             totalCount,
             totalTime
         )

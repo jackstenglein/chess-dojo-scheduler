@@ -19,21 +19,10 @@ var repository database.UserProgressUpdater = database.DynamoDB
 type UpdateTimelineRequest struct {
 	RequirementId string                    `json:"requirementId"`
 	Cohort        database.DojoCohort       `json:"cohort"`
-	Entries       []*database.TimelineEntry `json:"entries"`
+	Updated       []*database.TimelineEntry `json:"updated"`
+	Deleted       []*database.TimelineEntry `json:"deleted"`
 	Count         int                       `json:"count"`
 	MinutesSpent  int                       `json:"minutesSpent"`
-}
-
-func removeIndex(s []*database.TimelineEntry, index int) []*database.TimelineEntry {
-	if index == len(s)-1 {
-		if index == 0 {
-			return nil
-		}
-		s[index] = nil
-		return s[:index-1]
-	}
-	s[index], s[len(s)-1] = s[len(s)-1], nil
-	return s[:len(s)-1]
 }
 
 func updateCustomTaskProgress(request *UpdateTimelineRequest, user *database.User) {
@@ -95,19 +84,40 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
 	}
 
+	if len(request.Updated) == 0 && len(request.Deleted) == 0 {
+		return api.Failure(funcName, errors.New(400, "Invalid request: at least one change is required", "")), nil
+	}
+
+	for _, entry := range request.Updated {
+		if entry.Owner != info.Username {
+			return api.Failure(funcName, errors.New(400, "Invalid request: you are not the owner of an updated entry", "")), nil
+		}
+	}
+
+	for _, entry := range request.Deleted {
+		if entry.Owner != info.Username {
+			return api.Failure(funcName, errors.New(400, "Invalid request: you are not the owner of a deleted entry", "")), nil
+		}
+	}
+
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	// Correct user's timeline
-	for i := 0; i < len(user.Timeline) && len(user.Timeline) > 0; i++ {
-		if user.Timeline[i].RequirementId == request.RequirementId && user.Timeline[i].Cohort == request.Cohort {
-			user.Timeline = removeIndex(user.Timeline, i)
-			i--
+	if len(request.Deleted) > 0 {
+		_, err := repository.DeleteTimelineEntries(request.Deleted)
+		if err != nil {
+			return api.Failure(funcName, errors.Wrap(500, "Temporary server error", "Failed to delete timeline entries", err)), nil
 		}
 	}
-	user.Timeline = append(user.Timeline, request.Entries...)
+
+	if len(request.Updated) > 0 {
+		_, err := repository.PutTimelineEntries(request.Updated)
+		if err != nil {
+			return api.Failure(funcName, err), nil
+		}
+	}
 
 	// Update user's progress
 	found := false
@@ -123,7 +133,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	update := &database.UserUpdate{
-		Timeline: &user.Timeline,
 		Progress: &user.Progress,
 	}
 	user, err = repository.UpdateUser(user.Username, update)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -22,6 +23,7 @@ var DynamoDB = &dynamoRepository{
 }
 
 var userTable = os.Getenv("stage") + "-users"
+var timelineTable = os.Getenv("stage") + "-timeline"
 var gameTable = os.Getenv("stage") + "-games"
 var requirementTable = os.Getenv("stage") + "-requirements"
 var graduationTable = os.Getenv("stage") + "-graduations"
@@ -110,4 +112,24 @@ func (repo *dynamoRepository) scan(input *dynamodb.ScanInput, startKey string, o
 		lastKey = string(b)
 	}
 	return lastKey, nil
+}
+
+// batchWrite handles sending a DynamoDB BatchWriteItem request using the provided slice of WriteRequests.
+// The WriteRequests are mapped to the provided table name.
+func (repo *dynamoRepository) batchWrite(reqs []*dynamodb.WriteRequest, tableName string) error {
+	input := &dynamodb.BatchWriteItemInput{
+		RequestItems: map[string][]*dynamodb.WriteRequest{
+			tableName: reqs,
+		},
+		ReturnConsumedCapacity: aws.String("NONE"),
+	}
+
+	output, err := repo.svc.BatchWriteItem(input)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed DynamoDB BatchWriteItem", err)
+	}
+	if len(output.UnprocessedItems) > 0 {
+		return errors.New(500, "Temporary server error", "DynamoDB BatchWriteItem failed to process")
+	}
+	return nil
 }

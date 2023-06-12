@@ -1,4 +1,4 @@
-import { CustomTask, RequirementProgress, TimelineEntry } from './requirement';
+import { CustomTask, RequirementProgress } from './requirement';
 
 interface CognitoSession {
     idToken: {
@@ -109,7 +109,6 @@ export interface User {
     currentCustomRating: number;
 
     progress: { [requirementId: string]: RequirementProgress };
-    timeline: TimelineEntry[];
     disableBookingNotifications: boolean;
     disableCancellationNotifications: boolean;
     isAdmin: boolean;

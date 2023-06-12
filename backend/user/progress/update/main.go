@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/google/uuid"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
@@ -82,9 +83,16 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		progress.Counts[request.Cohort] += request.IncrementalCount
 	}
 	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
-	progress.UpdatedAt = time.Now().Format(time.RFC3339)
+
+	now := time.Now()
+	updatedAt := now.Format(time.RFC3339)
+	progress.UpdatedAt = updatedAt
 
 	timelineEntry := &database.TimelineEntry{
+		TimelineEntryKey: database.TimelineEntryKey{
+			Owner: user.Username,
+			Id:    fmt.Sprintf("%s_%s", now.Format(time.DateOnly), uuid.NewString()),
+		},
 		RequirementId:       request.RequirementId,
 		RequirementName:     requirement.Name,
 		RequirementCategory: requirement.Category,
@@ -95,7 +103,11 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		PreviousCount:       originalCount,
 		NewCount:            originalCount + request.IncrementalCount,
 		MinutesSpent:        request.IncrementalMinutesSpent,
-		CreatedAt:           time.Now().Format(time.RFC3339),
+		CreatedAt:           updatedAt,
+	}
+
+	if err := repository.PutTimelineEntry(timelineEntry); err != nil {
+		return api.Failure(funcName, err), nil
 	}
 
 	user, err = repository.UpdateUserProgress(user.Username, progress, timelineEntry)

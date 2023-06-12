@@ -204,6 +204,10 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: !GetAtt RequirementsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt TimelineTable.Arn
 
   updateUserTimeline:
     handler: bin/user/progress/timeline
@@ -225,6 +229,10 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: !GetAtt RequirementsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+        Resource: !GetAtt TimelineTable.Arn
 
   getUser:
     handler: bin/user/get
@@ -244,6 +252,22 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
+
+  listUserTimeline:
+    handler: bin/user/timeline/list
+    package:
+      patterns:
+        - ./bin/user/timeline/list
+    events:
+      - httpApi:
+          path: /user/{owner}/timeline
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt TimelineTable.Arn
 
   listUsers:
     handler: bin/user/list
@@ -396,6 +420,10 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: !GetAtt GraduationsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt TimelineTable.Arn
 
   getUserStatistics:
     handler: bin/user/statistics/get
@@ -929,6 +957,30 @@ resources:
               - ReadCapacityUnits: 1
                 WriteCapacityUnits: 1
               - !Ref AWS::NoValue
+
+    TimelineTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-timeline
+        AttributeDefinitions:
+          - AttributeName: owner
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: owner
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: !If
+          - IsProd
+          - PROVISIONED
+          - PAY_PER_REQUEST
+        ProvisionedThroughput: !If
+          - IsProd
+          - ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          - !Ref AWS::NoValue
 
     EventsTable:
       Type: AWS::DynamoDB::Table

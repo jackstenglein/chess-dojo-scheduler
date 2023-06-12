@@ -23,6 +23,7 @@ import {
     updateUserTimeline,
     getUserStatistics,
     checkUserAccess,
+    listUserTimeline,
 } from './userApi';
 import {
     GameApiContextType,
@@ -98,6 +99,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             checkUserAccess: () => checkUserAccess(idToken),
             getUser: () => getUser(idToken),
             getUserPublic: (username: string) => getUserPublic(username),
+            listUserTimeline: (owner: string, startKey?: string) =>
+                listUserTimeline(idToken, owner, startKey),
             listUsersByCohort: (cohort: string, startKey?: string) =>
                 listUsersByCohort(idToken, cohort, startKey),
             updateUser: (update: Partial<User>, autopickCohort?: boolean) =>
@@ -119,7 +122,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             updateUserTimeline: (
                 requirementId: string,
                 cohort: string,
-                entries: TimelineEntry[],
+                updated: TimelineEntry[],
+                deleted: TimelineEntry[],
                 count: number,
                 minutesSpent: number
             ) =>
@@ -127,7 +131,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     idToken,
                     requirementId,
                     cohort,
-                    entries,
+                    updated,
+                    deleted,
                     count,
                     minutesSpent,
                     auth.updateUser

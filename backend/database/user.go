@@ -231,7 +231,7 @@ type User struct {
 	Progress map[string]*RequirementProgress `dynamodbav:"progress" json:"progress"`
 
 	// A list of RequirementProgress objects forming the user's activity
-	Timeline []*TimelineEntry `dynamodbav:"timeline" json:"timeline"`
+	// Timeline []*TimelineEntry `dynamodbav:"timeline" json:"timeline"`
 
 	// Whether to disable notifications when a user's meeting is booked
 	DisableBookingNotifications bool `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
@@ -488,7 +488,7 @@ type UserUpdate struct {
 
 	// A list of RequirementProgress objects forming the user's activity.
 	// Cannot be manually passed by the user. The user should instead call the user/progress/timeline function
-	Timeline *[]*TimelineEntry `dynamodbav:"timeline,omitempty" json:"-"`
+	// Timeline *[]*TimelineEntry `dynamodbav:"timeline,omitempty" json:"-"`
 
 	// Whether to enable dark mode on the site
 	EnableDarkMode *bool `dynamodbav:"enableDarkMode,omitempty" json:"enableDarkMode,omitempty"`
@@ -568,6 +568,7 @@ type UserUpdater interface {
 type UserProgressUpdater interface {
 	UserUpdater
 	RequirementGetter
+	TimelineEditor
 
 	// UpdateUserProgress sets the given progress entry in the user's progress map and appends
 	// the given timeline entry to the user's timeline.
@@ -615,10 +616,10 @@ func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) 
 		emptyMap := make(map[string]*dynamodb.AttributeValue)
 		item["progress"] = &dynamodb.AttributeValue{M: emptyMap}
 	}
-	if len(user.Timeline) == 0 {
-		emptyList := make([]*dynamodb.AttributeValue, 0)
-		item["timeline"] = &dynamodb.AttributeValue{L: emptyList}
-	}
+	// if len(user.Timeline) == 0 {
+	// 	emptyList := make([]*dynamodb.AttributeValue, 0)
+	// 	item["timeline"] = &dynamodb.AttributeValue{L: emptyList}
+	// }
 
 	input := &dynamodb.PutItemInput{
 		ConditionExpression: condition,

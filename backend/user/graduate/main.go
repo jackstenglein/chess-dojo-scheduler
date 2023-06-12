@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/google/uuid"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
@@ -64,7 +65,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if startedAt == "" {
 		startedAt = user.CreatedAt
 	}
-	createdAt := time.Now().Format(time.RFC3339)
+	now := time.Now()
+	createdAt := now.Format(time.RFC3339)
 
 	startRating, currentRating := user.GetRatings()
 
@@ -89,6 +91,22 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 	if err := repository.PutGraduation(&graduation); err != nil {
 		return api.Failure(funcName, err), nil
+	}
+
+	timelineEntry := database.TimelineEntry{
+		TimelineEntryKey: database.TimelineEntryKey{
+			Owner: info.Username,
+			Id:    fmt.Sprintf("%s_%s", now.Format(time.DateOnly), uuid.NewString()),
+		},
+		RequirementId:       "Graduation",
+		RequirementName:     fmt.Sprintf("Graduated from %s", user.DojoCohort),
+		RequirementCategory: "Graduation",
+		ScoreboardDisplay:   database.Hidden,
+		Cohort:              user.DojoCohort,
+		CreatedAt:           createdAt,
+	}
+	if err := repository.PutTimelineEntry(&timelineEntry); err != nil {
+		log.Debugf("Failed to create timeline entry: %v", err)
 	}
 
 	update := database.UserUpdate{

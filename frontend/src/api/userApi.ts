@@ -32,6 +32,17 @@ export type UserApiContextType = {
     getUserPublic: (username: string) => Promise<AxiosResponse<User, any>>;
 
     /**
+     * listUserTimeline returns a list of the provided user's timeline entries.
+     * @param owner The username to fetch timeline entries for.
+     * @param startKey The optional start key to use when searching.
+     * @returns A ListUserTimelineResponse
+     */
+    listUserTimeline: (
+        owner: string,
+        startKey?: string
+    ) => Promise<ListUserTimelineResponse>;
+
+    /**
      * listUsersByCohort returns a list of users in the provided cohort.
      * @param cohort The cohort to get users in.
      * @param startKey The optional start key to use when searching.
@@ -69,7 +80,8 @@ export type UserApiContextType = {
      * updateUserTimeline sets the current user's timeline for the provided requirement.
      * @param requirementId The id of the requirement being updated.
      * @param cohort The cohort to update the timeline for.
-     * @param entries The timeline entries to set on the requirement.
+     * @param updated The timeline entries to update.
+     * @param deleted The timeline entries to delete.
      * @param count The cohort count to set on the requirement.
      * @param minutesSpent The cohort minutes spent to set on the requirement.
      * @returns An AxiosResponse containing the updated user in the data field.
@@ -77,7 +89,8 @@ export type UserApiContextType = {
     updateUserTimeline: (
         requirementId: string,
         cohort: string,
-        entries: TimelineEntry[],
+        updated: TimelineEntry[],
+        deleted: TimelineEntry[],
         count: number,
         minutesSpent: number
     ) => Promise<AxiosResponse<User, any>>;
@@ -129,6 +142,36 @@ export function getUser(idToken: string) {
  */
 export function getUserPublic(username: string) {
     return axios.get<User>(BASE_URL + '/public/user/' + username);
+}
+
+export interface ListUserTimelineResponse {
+    entries: TimelineEntry[];
+    lastEvaluatedKey: string;
+}
+
+/**
+ * listUserTimeline returns a list of the provided user's timeline entries
+ * @param idToken The id token of the current signed-in user.
+ * @param owner The username to fetch timeline entries for.
+ * @param startKey The optional start key to use when searching.
+ * @returns A ListUserTimelineResponse
+ */
+export async function listUserTimeline(
+    idToken: string,
+    owner: string,
+    startKey?: string
+) {
+    let params = { startKey };
+    const resp = await axios.get<ListUserTimelineResponse>(
+        `${BASE_URL}/user/${owner}/timeline`,
+        {
+            params,
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        }
+    );
+    return resp.data;
 }
 
 interface ListUsersResponse {
@@ -230,7 +273,8 @@ export async function updateUserProgress(
  * @param idToken The id token of the current signed-in user.
  * @param requirementId The id of the requirement being updated.
  * @param cohort The cohort to set the requirement for.
- * @param entries The timeline entries to set on the requirement.
+ * @param updated The timeline entries to update.
+ * @param deleted The timeline entries to delete.
  * @param count The cohort count to set on the requirement.
  * @param minutesSpent The cohort minutes spent to set on the requirement.
  * @param callback A callback function to invoke with the update after it has succeeded on the backend.
@@ -240,7 +284,8 @@ export async function updateUserTimeline(
     idToken: string,
     requirementId: string,
     cohort: string,
-    entries: TimelineEntry[],
+    updated: TimelineEntry[],
+    deleted: TimelineEntry[],
     count: number,
     minutesSpent: number,
     callback: (update: Partial<User>) => void
@@ -250,7 +295,8 @@ export async function updateUserTimeline(
         {
             requirementId,
             cohort,
-            entries,
+            updated,
+            deleted,
             count,
             minutesSpent,
         },

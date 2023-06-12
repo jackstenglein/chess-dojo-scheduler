@@ -58,6 +58,7 @@ type GraduationCreator interface {
 	UserGetter
 	UserUpdater
 	RequirementLister
+	TimelineEditor
 
 	// PutGraduation saves the provided Graduation in the database.
 	PutGraduation(graduation *Graduation) error

@@ -100,7 +100,6 @@ func TestGetUser(t *testing.T) {
 				Username:   testUsername,
 				DojoCohort: database.NoCohort,
 				Progress:   map[string]*database.RequirementProgress{},
-				Timeline:   make([]*database.TimelineEntry, 0),
 			},
 		},
 		{
@@ -112,7 +111,6 @@ func TestGetUser(t *testing.T) {
 				Username:   testUsername,
 				DojoCohort: database.NoCohort,
 				Progress:   map[string]*database.RequirementProgress{},
-				Timeline:   make([]*database.TimelineEntry, 0),
 			},
 		},
 	}

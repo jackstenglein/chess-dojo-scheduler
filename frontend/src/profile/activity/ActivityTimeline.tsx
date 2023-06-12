@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from 'react';
 import {
     Timeline,
     TimelineItem,
@@ -8,19 +7,18 @@ import {
     TimelineContent,
     timelineOppositeContentClasses,
     TimelineOppositeContent,
+    LoadingButton,
 } from '@mui/lab';
 import { Stack, Typography } from '@mui/material';
 
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
-import { Graduation, isGraduation } from '../../database/graduation';
+import { RequestSnackbar } from '../../api/Request';
 import { ScoreboardDisplay, TimelineEntry } from '../../database/requirement';
 import { User } from '../../database/user';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import { CategoryColors } from './activity';
-
-type TimelineData = TimelineEntry | Graduation;
+import { useTimeline } from './useTimeline';
+import LoadingPage from '../../loading/LoadingPage';
 
 const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
     day: '2-digit',
@@ -40,16 +38,16 @@ function getTimeSpent(timelineItem: TimelineEntry): string {
     return `${hours}h ${minutes}m`;
 }
 
-function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boolean) {
-    const date = new Date(timelineEntry.createdAt);
+function getProgressItem(entry: TimelineEntry, showConnector: boolean) {
+    const date = new Date(entry.createdAt);
     const isCheckbox =
-        timelineEntry.scoreboardDisplay === ScoreboardDisplay.Checkbox ||
-        timelineEntry.scoreboardDisplay === ScoreboardDisplay.Hidden;
+        entry.scoreboardDisplay === ScoreboardDisplay.Checkbox ||
+        entry.scoreboardDisplay === ScoreboardDisplay.Hidden;
     const isSlider =
-        timelineEntry.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
-        timelineEntry.scoreboardDisplay === ScoreboardDisplay.Unspecified;
-    const isComplete = timelineEntry.newCount >= timelineEntry.totalCount;
-    const timeSpent = getTimeSpent(timelineEntry);
+        entry.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
+        entry.scoreboardDisplay === ScoreboardDisplay.Unspecified;
+    const isComplete = entry.newCount >= entry.totalCount;
+    const timeSpent = getTimeSpent(entry);
 
     let description = 'Updated';
     if (isComplete) {
@@ -59,31 +57,28 @@ function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boole
     }
 
     return (
-        <TimelineItem
-            key={`${timelineEntry.requirementId}-${timelineEntry.createdAt}-${timelineEntry.newCount}`}
-        >
+        <TimelineItem key={`${entry.requirementId}-${entry.createdAt}-${entry.newCount}`}>
             <TimelineOppositeContent>
                 {date.toLocaleDateString(undefined, DATE_OPTIONS)}
             </TimelineOppositeContent>
             <TimelineSeparator>
                 <TimelineDot
                     sx={{
-                        backgroundColor:
-                            CategoryColors[timelineEntry.requirementCategory],
+                        backgroundColor: CategoryColors[entry.requirementCategory],
                     }}
                 />
                 {showConnector && <TimelineConnector />}
             </TimelineSeparator>
             <TimelineContent>
                 <Typography variant='subtitle1' component='span'>
-                    {description} {timelineEntry.requirementName}
+                    {description} {entry.requirementName}
                 </Typography>
                 {isSlider && (
                     <ScoreboardProgress
-                        value={timelineEntry.newCount}
+                        value={entry.newCount}
                         min={0}
-                        max={timelineEntry.totalCount}
-                        suffix={timelineEntry.progressBarSuffix}
+                        max={entry.totalCount}
+                        suffix={entry.progressBarSuffix}
                     />
                 )}
                 {timeSpent && <Typography variant='subtitle2'>{timeSpent}</Typography>}
@@ -92,11 +87,11 @@ function getTimelineEntryItem(timelineEntry: TimelineEntry, showConnector: boole
     );
 }
 
-function getGraduationItem(graduation: Graduation, showConnector: boolean) {
-    const date = new Date(graduation.createdAt);
+function getGraduationItem(entry: TimelineEntry, showConnector: boolean) {
+    const date = new Date(entry.createdAt);
 
     return (
-        <TimelineItem key={graduation.createdAt}>
+        <TimelineItem key={entry.createdAt}>
             <TimelineOppositeContent>
                 {date.toLocaleDateString(undefined, DATE_OPTIONS)}
             </TimelineOppositeContent>
@@ -112,24 +107,22 @@ function getGraduationItem(graduation: Graduation, showConnector: boolean) {
                 <Stack direction='row' alignItems='center' spacing={1}>
                     <Stack>
                         <Typography variant='subtitle1' component='span'>
-                            Graduated from {graduation.previousCohort}
-                        </Typography>
-                        <Typography variant='subtitle2'>
-                            Dojo Score: {Math.round(graduation.score * 100) / 100}
+                            Graduated from {entry.cohort}
                         </Typography>
                     </Stack>
-                    <GraduationIcon cohort={graduation.previousCohort} size={30} />
+                    <GraduationIcon cohort={entry.cohort} size={30} />
                 </Stack>
             </TimelineContent>
         </TimelineItem>
     );
 }
 
-function getTimelineItem(data: TimelineData, showConnector: boolean) {
-    if (isGraduation(data)) {
-        return getGraduationItem(data, showConnector);
+function getTimelineItem(entry: TimelineEntry, showConnector: boolean) {
+    if (entry.requirementCategory === 'Graduation') {
+        return getGraduationItem(entry, showConnector);
     }
-    return getTimelineEntryItem(data, showConnector);
+
+    return getProgressItem(entry, showConnector);
 }
 
 function getCreatedAtItem(createdAt: string) {
@@ -157,44 +150,26 @@ interface ActivityTimelineProps {
 }
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user }) => {
-    const graduationRequest = useRequest<Graduation[]>();
-    const api = useApi();
+    const { request, entries, hasMore, onLoadMore } = useTimeline(user.username);
 
-    useEffect(() => {
-        if (!graduationRequest.isSent()) {
-            graduationRequest.onStart();
-            api.listGraduationsByOwner(user.username)
-                .then((graduations) => graduationRequest.onSuccess(graduations))
-                .catch((err) => {
-                    console.error('listGraduationsByOwner: ', err);
-                    graduationRequest.onFailure(err);
-                });
-        }
-    }, [graduationRequest, api, user.username]);
-
-    const timelineData: TimelineData[] = useMemo(() => {
-        return (user.timeline as TimelineData[])
-            .concat(graduationRequest.data ?? [])
-            .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-    }, [graduationRequest.data, user.timeline]);
-
-    const timeline = useMemo(() => {
-        const result = [];
-        for (let i = timelineData.length - 1; i >= 0; i--) {
-            result.push(getTimelineItem(timelineData[i], i > 0 || user.createdAt !== ''));
-        }
-        if (user.createdAt) {
-            result.push(getCreatedAtItem(user.createdAt));
-        }
-        return result;
-    }, [timelineData, user.createdAt]);
+    if (request.isLoading() && entries.length === 0) {
+        return (
+            <Stack>
+                <Typography variant='h6' alignSelf='start'>
+                    Timeline
+                </Typography>
+                <LoadingPage />
+            </Stack>
+        );
+    }
 
     return (
         <Stack>
             <Typography variant='h6' alignSelf='start'>
                 Timeline
             </Typography>
-            {user.timeline.length === 0 ? (
+
+            {entries.length === 0 ? (
                 <Typography>No events yet</Typography>
             ) : (
                 <Timeline
@@ -207,9 +182,39 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user }) => {
                         paddingTop: '8px',
                     }}
                 >
-                    {timeline}
+                    {entries.map((td, i) =>
+                        getTimelineItem(
+                            td,
+                            i < entries.length - 1 || user.createdAt !== ''
+                        )
+                    )}
+
+                    {hasMore && (
+                        <Stack
+                            width='fit-content'
+                            height='84px'
+                            justifyContent='start'
+                            alignItems='center'
+                            mx={3.1}
+                        >
+                            <TimelineConnector />
+                            <LoadingButton
+                                variant='outlined'
+                                sx={{ alignSelf: 'center', my: 1 }}
+                                loading={request.isLoading()}
+                                onClick={onLoadMore}
+                            >
+                                Load More
+                            </LoadingButton>
+                            <TimelineConnector />
+                        </Stack>
+                    )}
+
+                    {user.createdAt && getCreatedAtItem(user.createdAt)}
                 </Timeline>
             )}
+
+            <RequestSnackbar request={request} />
         </Stack>
     );
 };
