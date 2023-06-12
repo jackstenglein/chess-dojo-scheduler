@@ -66,7 +66,7 @@ export interface User {
     bio: string;
 
     wixEmail: string;
-    isForbidden: boolean;
+    // isForbidden: boolean;
 
     ratingSystem: RatingSystem;
 

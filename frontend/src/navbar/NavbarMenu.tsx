@@ -104,9 +104,9 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
     if (auth.status === AuthStatus.Unauthenticated) {
         return <LargeMenuUnauthenticated />;
     }
-    if (auth.user?.isForbidden) {
-        return <LargeMenuForbidden />;
-    }
+    // if (auth.user?.isForbidden) {
+    //     return <LargeMenuForbidden />;
+    // }
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -457,9 +457,9 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
     if (auth.status === AuthStatus.Unauthenticated) {
         return <ExtraSmallMenuUnauthenticated />;
     }
-    if (auth.user?.isForbidden) {
-        return <ExtraSmallMenuForbidden />;
-    }
+    // if (auth.user?.isForbidden) {
+    //     return <ExtraSmallMenuForbidden />;
+    // }
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
