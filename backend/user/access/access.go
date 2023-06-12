@@ -3,10 +3,12 @@ package access
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 var wixApiKey = os.Getenv("wixApiKey")
@@ -37,6 +39,12 @@ func IsForbidden(email string) (bool, error) {
 		return false, errors.Wrap(500, "Temporary server error", "Failed to send request to chessdojo.club", err)
 	}
 
+	if res.StatusCode >= 500 {
+		body, _ := ioutil.ReadAll(res.Body)
+		defer res.Body.Close()
+		log.Errorf("Failed to check auth for email `%s`. Chessdojo.club returned status `%d`: %v", email, res.StatusCode, string(body))
+		return false, nil
+	}
 	if res.StatusCode == 404 {
 		return true, errors.New(403, fmt.Sprintf("Not Authorized: email `%s` not found on https://chessdojo.club", email), "")
 	}

@@ -25,18 +25,20 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if isForbidden, err := access.IsForbidden(user.WixEmail); err != nil {
-		if isForbidden {
-			// Cache that the user is forbidden from accessing the site, that
-			// way future reloads of the frontend immediately hide the site
-			_, err := repository.UpdateUser(info.Username, &database.UserUpdate{
-				IsForbidden: aws.Bool(true),
-			})
-			if err != nil {
-				log.Error("Failed UpdateUser: ", err)
-			}
-		}
+	isForbidden, err := access.IsForbidden(user.WixEmail)
 
+	if isForbidden != user.IsForbidden {
+		// Cache the user's forbidden status, that way future reloads of the
+		// frontend immediately show or hide the site
+		_, err := repository.UpdateUser(info.Username, &database.UserUpdate{
+			IsForbidden: aws.Bool(isForbidden),
+		})
+		if err != nil {
+			log.Error("Failed UpdateUser: ", err)
+		}
+	}
+
+	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
