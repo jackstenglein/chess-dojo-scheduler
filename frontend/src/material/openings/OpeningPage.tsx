@@ -38,7 +38,7 @@ const OpeningPage = () => {
         return request.data?.levels.find(
             (l) => l.name.toLowerCase() === params.levelName?.toLowerCase()
         );
-    }, [request]);
+    }, [request, params.levelName]);
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
