@@ -829,6 +829,22 @@ functions:
 
   ########## Opening Endpoints ##############
 
+  getOpening:
+    handler: bin/opening/get
+    package:
+      patterns:
+        - ./bin/opening/get
+    events:
+      - httpApi:
+          path: /openings/{id}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt OpeningTable.Arn
+
   listOpenings:
     handler: bin/opening/list
     package:

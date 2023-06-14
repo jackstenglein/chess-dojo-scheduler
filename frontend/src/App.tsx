@@ -32,6 +32,7 @@ import ThemeProvider from './ThemeProvider';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import MaterialPage from './material/MaterialPage';
 import ErrorBoundary from './ErrorBoundary';
+import OpeningPage from './material/openings/OpeningPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -125,6 +126,8 @@ function Router() {
                         <Route path='material'>
                             <Route index element={<MaterialPage />} />
                         </Route>
+
+                        <Route path='openings/:id/:levelName' element={<OpeningPage />} />
                     </Route>
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />

@@ -26,7 +26,7 @@ const OpeningsTab = () => {
         }
     });
 
-    if (request.isLoading()) {
+    if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
     }
 

@@ -72,6 +72,27 @@ type OpeningModule struct {
 	Games []*Game `dynamodbav:"games" json:"games"`
 }
 
+type OpeningGetter interface {
+	// GetOpening returns the opening with the provided id.
+	GetOpening(id string) (*Opening, error)
+}
+
+// GetOpening returns the opening with the provided id.
+func (repo *dynamoRepository) GetOpening(id string) (*Opening, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(id)},
+		},
+		TableName: aws.String(openingTable),
+	}
+
+	opening := Opening{}
+	if err := repo.getItem(input, &opening); err != nil {
+		return nil, err
+	}
+	return &opening, nil
+}
+
 type OpeningLister interface {
 	// ListOpenings returns a list of openings in the database.
 	ListOpenings(startKey string) ([]*Opening, string, error)

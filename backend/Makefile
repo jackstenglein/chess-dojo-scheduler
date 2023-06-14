@@ -43,6 +43,7 @@ build: gomodgen
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/requirement/list requirement/list/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/requirement/set requirement/set/main.go
 
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/opening/get opening/get/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/opening/list opening/list/main.go
 
 clean:

@@ -157,6 +157,7 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
             theme: 'blue',
             showResult: true,
             notationLayout: 'list',
+            resizable: false,
         });
     }, [id, game.pgn]);
 
