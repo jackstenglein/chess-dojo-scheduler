@@ -17,6 +17,11 @@ export interface Opening {
     name: string;
 
     /**
+     * The color the opening is for.
+     */
+    color: string;
+
+    /**
      * The list of levels associated with the opening (starter, expert, etc).
      */
     levels: OpeningLevel[];

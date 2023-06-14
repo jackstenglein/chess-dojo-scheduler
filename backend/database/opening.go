@@ -14,6 +14,9 @@ type Opening struct {
 	// The name of the opening.
 	Name string `dynamodbav:"name" json:"name"`
 
+	// The color the opening is for.
+	Color string `dynamodbav:"color" json:"color"`
+
 	// The list of levels associated with the opening (starter, expert, etc).
 	Levels []*OpeningLevel `dynamodbav:"levels" json:"levels"`
 }
