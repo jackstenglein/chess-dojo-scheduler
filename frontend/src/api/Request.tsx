@@ -122,11 +122,15 @@ export function RequestSnackbar<T = any>({
 
     let displaySuccess = showSuccess && request.data !== undefined;
 
-    const errorMessage =
+    let errorMessage =
         request.error?.response?.data?.message ||
         request.error?.message ||
         defaultErrorMessage ||
         'Something went wrong. Please try again later or contact support if the problem persists';
+
+    if (errorMessage === 'Unauthorized') {
+        errorMessage = 'Login expired. Please refresh and try again.';
+    }
 
     const successMessage = isReactNode(request.data)
         ? request.data
