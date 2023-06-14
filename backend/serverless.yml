@@ -827,6 +827,24 @@ functions:
           - dynamodb:Scan
         Resource: !GetAtt GraduationsTable.Arn
 
+  ########## Opening Endpoints ##############
+
+  listOpenings:
+    handler: bin/opening/list
+    package:
+      patterns:
+        - ./bin/opening/list
+    events:
+      - httpApi:
+          path: /openings
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt OpeningTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -1162,3 +1180,23 @@ resources:
               - ReadCapacityUnits: 1
                 WriteCapacityUnits: 1
               - !Ref AWS::NoValue
+
+    OpeningTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-openings
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: !If
+          - IsProd
+          - PROVISIONED
+          - PAY_PER_REQUEST
+        ProvisionedThroughput: !If
+          - IsProd
+          - ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          - !Ref AWS::NoValue

@@ -6,6 +6,7 @@ import BooksTab from './BooksTab';
 import RatingsTab from './RatingsTab';
 import SparringTab from './SparringTab';
 import ModelGamesTab from './ModelGamesTab';
+import OpeningsTab from './openings/OpeningsTab';
 
 const MaterialPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'books' });
@@ -19,6 +20,7 @@ const MaterialPage = () => {
                         aria-label='profile tabs'
                     >
                         <Tab label='Books' value='books' />
+                        <Tab label='Openings' value='openings' />
                         <Tab label='Sparring Positions' value='sparring' />
                         <Tab label='Model Games' value='modelGames' />
                         <Tab label='Rating Conversions' value='ratings' />
@@ -27,6 +29,10 @@ const MaterialPage = () => {
 
                 <TabPanel value='books' sx={{ px: { xs: 0, sm: 3 } }}>
                     <BooksTab />
+                </TabPanel>
+
+                <TabPanel value='openings' sx={{ px: { xs: 0, sm: 3 } }}>
+                    <OpeningsTab />
                 </TabPanel>
 
                 <TabPanel value='sparring' sx={{ px: { xs: 0, sm: 3 } }}>

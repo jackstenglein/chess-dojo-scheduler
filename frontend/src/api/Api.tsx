@@ -59,6 +59,7 @@ import {
     listEvents,
     setEvent,
 } from './eventApi';
+import { listOpenings, OpeningApiContextType } from './openingApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -68,7 +69,8 @@ type ApiContextType = AdminApiContextType &
     EventApiContextType &
     GameApiContextType &
     RequirementApiContextType &
-    GraduationApiContextType;
+    GraduationApiContextType &
+    OpeningApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -198,6 +200,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listGraduationsByOwner(idToken, username, startKey),
             listGraduationsByDate: (startKey?: string) =>
                 listGraduationsByDate(idToken, startKey),
+
+            listOpenings: (startKey?: string) => listOpenings(idToken, startKey),
         };
     }, [idToken, auth.user, auth.updateUser]);
 
