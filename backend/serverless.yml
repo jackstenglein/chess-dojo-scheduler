@@ -720,6 +720,29 @@ functions:
               - - !GetAtt GamesTable.Arn
                 - '/index/FeaturedIdx'
 
+  updateGameStatistics:
+    handler: bin/game/statistics/update
+    package:
+      patterns:
+        - ./bin/game/statistics/update
+    events:
+      - schedule:
+          rate: cron(20 0 * * ? *)
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt GamesTable.Arn
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref GameDatabaseBucket
+            - /dojo_database.zip
+
   ########## Requirement Endpoints ##############
 
   getRequirement:
@@ -1216,3 +1239,31 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+
+    ############# S3 Resources #################
+
+    GameDatabaseBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: chess-dojo-${sls:stage}-game-database
+        PublicAccessBlockConfiguration:
+          BlockPublicPolicy: false
+
+    GameDatabaseBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref GameDatabaseBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref GameDatabaseBucket
+                  - /dojo_database.zip
+              Principal: '*'
+
+    ############# End S3 Resources ##############

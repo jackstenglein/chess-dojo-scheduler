@@ -173,6 +173,9 @@ type GameLister interface {
 
 	// ListFeaturedGames returns a list of Games featured more recently than the provided date.
 	ListFeaturedGames(date, startKey string) ([]*Game, string, error)
+
+	// ScanGames returns a list of all Games in the database.
+	ScanGames(startKey string) ([]*Game, string, error)
 }
 
 type GameCommenter interface {
@@ -549,6 +552,20 @@ func (repo *dynamoRepository) ListFeaturedGames(date, startKey string) ([]*Game,
 
 	var games []*Game
 	lastKey, err := repo.query(input, startKey, &games)
+	if err != nil {
+		return nil, "", err
+	}
+	return games, lastKey, nil
+}
+
+// ScanGames returns a list of all Games in the database.
+func (repo *dynamoRepository) ScanGames(startKey string) ([]*Game, string, error) {
+	input := &dynamodb.ScanInput{
+		TableName: aws.String(gameTable),
+	}
+
+	var games []*Game
+	lastKey, err := repo.scan(input, startKey, &games)
 	if err != nil {
 		return nil, "", err
 	}
