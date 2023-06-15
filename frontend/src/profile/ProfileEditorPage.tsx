@@ -451,11 +451,14 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                     />
 
                     <TextField
-                        label='Discord Username (with # number)'
+                        label='Discord Username'
                         value={discordUsername}
                         onChange={(event) => setDiscordUsername(event.target.value)}
                         error={!!errors.discordUsername}
-                        helperText={errors.discordUsername || 'username#id'}
+                        helperText={
+                            errors.discordUsername ||
+                            'Format as username#id for older-style Discord usernames'
+                        }
                     />
 
                     <TextField

@@ -38,20 +38,21 @@ func getDiscordIdByUser(discord *discordgo.Session, user *database.User) (string
 }
 
 // getDiscordIdByDiscordUsername returns the discord ID of the user with the given discord username.
-func getDiscordIdByDiscordUsername(discord *discordgo.Session, discordUsername string) (string, error) {
-	discordTokens := strings.Split(discordUsername, "#")
-	if len(discordTokens) != 2 {
-		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is not in username#id format", discordUsername), "")
-	}
+func getDiscordIdByDiscordUsername(discord *discordgo.Session, fullDiscordUsername string) (string, error) {
+	discordUsername := fullDiscordUsername
+	var discordDiscriminator string
 
-	discordUsername = discordTokens[0]
-	discordDiscriminator := discordTokens[1]
+	discordTokens := strings.Split(discordUsername, "#")
+	if len(discordTokens) > 2 {
+		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is in unrecognized format", fullDiscordUsername), "")
+	}
+	if len(discordTokens) == 2 {
+		discordUsername = discordTokens[0]
+		discordDiscriminator = discordTokens[1]
+	}
 
 	if discordUsername == "" {
-		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is not in username#id format", discordUsername), "")
-	}
-	if discordDiscriminator == "" {
-		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is not in username#id format", discordUsername), "")
+		return "", errors.New(400, fmt.Sprintf("Discord username `%s` cannot be empty", fullDiscordUsername), "")
 	}
 
 	discordUsers, err := discord.GuildMembersSearch(privateGuildId, discordUsername, 1000)
@@ -59,7 +60,15 @@ func getDiscordIdByDiscordUsername(discord *discordgo.Session, discordUsername s
 		return "", errors.Wrap(500, "Temporary server error", "Failed to search for guild members", err)
 	}
 	if len(discordUsers) == 0 {
-		return "", errors.New(404, fmt.Sprintf("Discord username `%s` not found", discordUsername), "")
+		return "", errors.New(404, fmt.Sprintf("Discord username `%s` not found in ChessDojo Training Program server", discordUsername), "")
+	}
+
+	if len(discordUsers) == 1 && discordDiscriminator == "" {
+		return discordUsers[0].User.ID, nil
+	}
+
+	if discordDiscriminator == "" {
+		return "", errors.New(400, fmt.Sprintf("Multiple users found for username `%s`. Add your #id and try again.", fullDiscordUsername), "")
 	}
 
 	for _, u := range discordUsers {
@@ -68,7 +77,7 @@ func getDiscordIdByDiscordUsername(discord *discordgo.Session, discordUsername s
 		}
 	}
 
-	return "", errors.New(404, fmt.Sprintf("Cannot find matching # number for discord username `%s`", discordUsername), "")
+	return "", errors.New(404, fmt.Sprintf("Cannot find #id `%s` for discord username `%s`", discordDiscriminator, discordUsername), "")
 }
 
 // CheckDiscordUsername verifies that the provided discord username can be found in the server.

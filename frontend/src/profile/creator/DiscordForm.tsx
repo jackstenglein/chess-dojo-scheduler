@@ -56,10 +56,10 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) =>
             </Typography>
 
             <TextField
-                label='Discord Username (with # number)'
+                label='Discord Username'
                 value={discordUsername}
                 onChange={(event) => setDiscordUsername(event.target.value)}
-                helperText={'username#id'}
+                helperText={'Format as username#id for older-style Discord usernames'}
             />
 
             <Stack>
