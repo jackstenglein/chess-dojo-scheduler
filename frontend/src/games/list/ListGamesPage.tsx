@@ -1,4 +1,4 @@
-import { Button, Container, Divider, Grid, Stack } from '@mui/material';
+import { Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 
 import { GameInfo } from '../../database/game';
@@ -103,6 +103,16 @@ const ListGamesPage = () => {
                             isLoading={request.isLoading()}
                             onSearch={onSearch}
                         />
+
+                        <Typography variant='caption' alignSelf='end'>
+                            <a
+                                href='https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip'
+                                target='__blank'
+                                rel='noreferrer'
+                            >
+                                Download full database (updated every 24 hours)
+                            </a>
+                        </Typography>
                     </Stack>
                 </Grid>
             </Grid>
