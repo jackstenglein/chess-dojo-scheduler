@@ -74,20 +74,20 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
         field: 'displayName',
         headerName: 'Name',
         minWidth: 250,
-        renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
+        renderCell: (params: GridRenderCellParams<ScoreboardRow, string>) => {
             return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;
         },
     },
     {
         field: 'previousCohort',
         headerName: 'Graduated',
-        valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) => {
+        valueGetter: (params: GridValueGetterParams<ScoreboardRow>) => {
             if (params.row.graduationCohorts && params.row.graduationCohorts.length > 0) {
                 return params.row.graduationCohorts;
             }
             return params.row.previousCohort;
         },
-        renderCell: (params: GridRenderCellParams<string, ScoreboardRow>) => {
+        renderCell: (params: GridRenderCellParams<ScoreboardRow>) => {
             let graduationCohorts = params.row.graduationCohorts;
             if (graduationCohorts && graduationCohorts.length > 0) {
                 if (graduationCohorts.length > 3) {
@@ -112,7 +112,6 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
         headerName: 'Rating System',
         minWidth: 175,
         valueGetter: getRatingSystem,
-        // valueFormatter: formatRatingSystem,
     },
     {
         field: 'startRating',
@@ -180,7 +179,7 @@ const ScoreboardPage = () => {
                 field: 'cohortScore',
                 headerName: 'Dojo Score',
                 minWidth: 125,
-                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
                     getCohortScore(params, cohort, requirements),
                 align: 'center',
             },
@@ -188,7 +187,7 @@ const ScoreboardPage = () => {
                 field: 'cohortTime',
                 headerName: 'Time Spent',
                 minWidth: 125,
-                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
                     getTimeSpent(params, cohort),
                 valueFormatter: (params: GridValueFormatterParams<number>) =>
                     formatTime(params.value),
@@ -198,9 +197,9 @@ const ScoreboardPage = () => {
                 field: 'percentComplete',
                 headerName: 'Percent Complete',
                 minWidth: 175,
-                valueGetter: (params: GridValueGetterParams<any, ScoreboardRow>) =>
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
                     getPercentComplete(params, cohort, requirements),
-                renderCell: (params: GridRenderCellParams<number, ScoreboardRow>) => (
+                renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) => (
                     <ScoreboardProgress
                         value={params.value ?? 0}
                         max={100}
