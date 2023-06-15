@@ -69,10 +69,10 @@ type CohortStatistics struct {
 	InactiveMinutesSpent int `dynamodbav:"inactiveMinutesSpent" json:"inactiveMinutesSpent"`
 
 	// The sum of rating change per hour spent for active users in the cohort
-	ActiveRatingChangePerHour float32 `dynamodbav:"activeAvgRatingChangePerHour" json:"activeAvgRatingChangePerHour"`
+	ActiveRatingChangePerHour float32 `dynamodbav:"activeRatingChangePerHour" json:"activeRatingChangePerHour"`
 
 	// The sum of rating change per hour spent for inactive users in the cohort
-	InactiveRatingChangePerHour float32 `dynamodbav:"inactiveAvgRatingChangePerHour" json:"inactiveAvgRatingChangePerHour"`
+	InactiveRatingChangePerHour float32 `dynamodbav:"inactiveRatingChangePerHour" json:"inactiveRatingChangePerHour"`
 }
 
 type UserStatistics struct {

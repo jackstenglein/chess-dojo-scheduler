@@ -68,7 +68,7 @@ const ForbiddenPage = () => {
                     Note that if you have just started your subscription, it can take a
                     few minutes for access to be granted. If you still cannot log in and
                     think it is incorrect, contact either <strong>DMHokie</strong>{' '}
-                    (discord: DMHokie#2533) or <strong>Jack</strong> (discord: Heh13#5117,
+                    (discord: @dmhokie) or <strong>Jack</strong> (discord: @jackstenglein,
                     email: jackstenglein@gmail.com) for help.{' '}
                     <strong>Include in your message your emails for both sites.</strong>{' '}
                 </Typography>

@@ -37,9 +37,9 @@ class ErrorBoundary extends Component<any, ErrorBoundaryState, any> {
                     <Typography variant='h6'>
                         Congratulations! You have broken the site in a new and interesting
                         way. To report this error, please send a Discord message to
-                        Heh13#5117 with a description of what you were doing when the site
-                        broke and a copy of the error message below. Then refresh the page
-                        to continue using the site.
+                        @jackstenglein with a description of what you were doing when the
+                        site broke and a copy of the error message below. Then refresh the
+                        page to continue using the site.
                     </Typography>
 
                     <Typography variant='body1' color='error' whiteSpace='pre-line'>
