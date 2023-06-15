@@ -130,7 +130,7 @@ const PreferredRatingSystemForm: React.FC<ProfileCreatorFormProps> = ({
     const request = useRequest();
 
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
-    const [username, setUsername] = useState(getRatingUsername(user, ratingSystem));
+    const [username, setUsername] = useState(getRatingUsername(user, ratingSystem) || '');
     const [hideUsername, setHideUsername] = useState(
         hideRatingUsername(user, ratingSystem)
     );

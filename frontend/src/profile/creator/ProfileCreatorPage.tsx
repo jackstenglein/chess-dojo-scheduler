@@ -50,6 +50,7 @@ function getActiveStep(user: User): number {
     if (
         user.dojoCohort === '' ||
         user.dojoCohort === 'NO_COHORT' ||
+        (user.ratingSystem as string) === '' ||
         !dojoCohorts.includes(user.dojoCohort)
     ) {
         return 1;

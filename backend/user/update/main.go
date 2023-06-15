@@ -102,19 +102,15 @@ func handleAutopickCohort(user *database.User, update *database.UserUpdate) api.
 	if update.RatingSystem == nil || *update.RatingSystem == "" {
 		return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem is required when autopickCohort is true", ""))
 	}
-
 	if *update.RatingSystem == database.Custom {
-		if update.CurrentCustomRating == nil || *update.CurrentCustomRating <= 0 {
-			return api.Failure(funcName, errors.New(400, "Invalid request: currentCustomRating must be >0 when ratingSystem is CUSTOM", ""))
-		}
-		update.StartCustomRating = update.CurrentCustomRating
-	} else {
-		if err := fetchRatings(user, update); err != nil {
-			return api.Failure(funcName, err)
-		}
-		if cohort := update.AutopickCohort(); cohort == database.NoCohort {
-			return api.Failure(funcName, errors.New(500, "Unable to choose cohort. Please contact support", fmt.Sprintf("Autopick cohort returned NoCohort for update %+v", update)))
-		}
+		return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem cannot be CUSTOM when autopickCohort is true", ""))
+	}
+
+	if err := fetchRatings(user, update); err != nil {
+		return api.Failure(funcName, err)
+	}
+	if cohort := update.AutopickCohort(); cohort == database.NoCohort {
+		return api.Failure(funcName, errors.New(500, "Unable to choose cohort. Please contact support", fmt.Sprintf("Autopick cohort returned NoCohort for update %+v", update)))
 	}
 
 	user, err := repository.UpdateUser(user.Username, update)
