@@ -111,30 +111,6 @@ const StatisticsPage = () => {
         }
     }, [request, api]);
 
-    const participantsData: Series[] = useMemo(() => {
-        return getSeries(
-            request.data,
-            (d, c) => d.cohorts[c].activeParticipants,
-            (d, c) => d.cohorts[c].inactiveParticipants
-        );
-    }, [request.data]);
-
-    const totalDojoScoreData: Series[] = useMemo(() => {
-        return getSeries(
-            request.data,
-            (d, c) => d.cohorts[c].activeDojoScores,
-            (d, c) => d.cohorts[c].inactiveDojoScores
-        );
-    }, [request.data]);
-
-    const avgDojoScoreData: Series[] = useMemo(() => {
-        return getSeries(
-            request.data,
-            (d, c) => d.cohorts[c].activeDojoScores / d.cohorts[c].activeParticipants,
-            (d, c) => d.cohorts[c].inactiveDojoScores / d.cohorts[c].inactiveParticipants
-        );
-    }, [request.data]);
-
     const totalRatingChangeData: Series[] = useMemo(() => {
         return getSeries(
             request.data,
@@ -166,6 +142,41 @@ const StatisticsPage = () => {
             (d, c) => d.cohorts[c].activeMinutesSpent / d.cohorts[c].activeParticipants,
             (d, c) =>
                 d.cohorts[c].inactiveMinutesSpent / d.cohorts[c].inactiveParticipants
+        );
+    }, [request.data]);
+
+    const avgRatingChangePerHourData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) =>
+                d.cohorts[c].activeRatingChangePerHour / d.cohorts[c].activeParticipants,
+            (d, c) =>
+                d.cohorts[c].inactiveRatingChangePerHour /
+                d.cohorts[c].inactiveParticipants
+        );
+    }, [request.data]);
+
+    const totalDojoScoreData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.cohorts[c].activeDojoScores,
+            (d, c) => d.cohorts[c].inactiveDojoScores
+        );
+    }, [request.data]);
+
+    const avgDojoScoreData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.cohorts[c].activeDojoScores / d.cohorts[c].activeParticipants,
+            (d, c) => d.cohorts[c].inactiveDojoScores / d.cohorts[c].inactiveParticipants
+        );
+    }, [request.data]);
+
+    const participantsData: Series[] = useMemo(() => {
+        return getSeries(
+            request.data,
+            (d, c) => d.cohorts[c].activeParticipants,
+            (d, c) => d.cohorts[c].inactiveParticipants
         );
     }, [request.data]);
 
@@ -218,28 +229,6 @@ const StatisticsPage = () => {
 
             <Stack spacing={3}>
                 <Chart
-                    title='Participants'
-                    series={participantsData}
-                    primaryAxis={primaryAxis}
-                    secondaryAxes={participantsSecondaryAxes}
-                />
-
-                <Chart
-                    title='Total Dojo Score'
-                    series={totalDojoScoreData}
-                    primaryAxis={primaryAxis}
-                    secondaryAxes={decimalSecondaryAxes}
-                    sumFormatter={(sum) => `${Math.round(sum)}`}
-                />
-                <Chart
-                    title='Average Dojo Score'
-                    series={avgDojoScoreData}
-                    primaryAxis={primaryAxis}
-                    secondaryAxes={decimalSecondaryAxes}
-                    hideSums
-                />
-
-                <Chart
                     title='Total Rating Change'
                     series={totalRatingChangeData}
                     primaryAxis={primaryAxis}
@@ -266,6 +255,36 @@ const StatisticsPage = () => {
                     primaryAxis={primaryAxis}
                     secondaryAxes={timeSecondaryAxes}
                     hideSums
+                />
+
+                <Chart
+                    title='Average Rating Change Per Hour'
+                    series={avgRatingChangePerHourData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={decimalSecondaryAxes}
+                    hideSums
+                />
+
+                <Chart
+                    title='Total Dojo Score'
+                    series={totalDojoScoreData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={decimalSecondaryAxes}
+                    sumFormatter={(sum) => `${Math.round(sum)}`}
+                />
+                <Chart
+                    title='Average Dojo Score'
+                    series={avgDojoScoreData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={decimalSecondaryAxes}
+                    hideSums
+                />
+
+                <Chart
+                    title='Participants'
+                    series={participantsData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={participantsSecondaryAxes}
                 />
 
                 <Chart

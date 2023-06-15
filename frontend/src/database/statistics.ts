@@ -17,6 +17,9 @@ export interface CohortStatistics {
 
     activeMinutesSpent: number;
     inactiveMinutesSpent: number;
+
+    activeRatingChangePerHour: number;
+    inactiveRatingChangePerHour: number;
 }
 
 export interface UserStatistics {

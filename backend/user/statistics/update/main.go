@@ -28,25 +28,30 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 	ratingChange := user.GetRatingChange()
 	score := user.CalculateScore(requirements)
 
+	var minutes int
+	for _, progress := range user.Progress {
+		m, _ := progress.MinutesSpent[user.DojoCohort]
+		minutes += m
+	}
+
 	cohortStats := stats.Cohorts[user.DojoCohort]
 	if isActive {
 		cohortStats.ActiveParticipants += 1
 		cohortStats.ActiveDojoScores += score
 		cohortStats.ActiveRatingChanges += ratingChange
 		cohortStats.ActiveRatingSystems[user.RatingSystem] += 1
+		cohortStats.ActiveMinutesSpent += minutes
+		if minutes > 0 {
+			cohortStats.ActiveRatingChangePerHour += 60 * (float32(ratingChange) / float32(minutes))
+		}
 	} else {
 		cohortStats.InactiveParticipants += 1
 		cohortStats.InactiveDojoScores += score
 		cohortStats.InactiveRatingChanges += ratingChange
 		cohortStats.InactiveRatingSystems[user.RatingSystem] += 1
-	}
-
-	for _, progress := range user.Progress {
-		minutes, _ := progress.MinutesSpent[user.DojoCohort]
-		if isActive {
-			cohortStats.ActiveMinutesSpent += minutes
-		} else {
-			cohortStats.InactiveMinutesSpent += minutes
+		cohortStats.InactiveMinutesSpent += minutes
+		if minutes > 0 {
+			cohortStats.InactiveRatingChangePerHour += 60 * (float32(ratingChange) / float32(minutes))
 		}
 	}
 }
