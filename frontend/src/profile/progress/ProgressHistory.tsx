@@ -25,6 +25,7 @@ import { useAuth } from '../../auth/Auth';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { useTimeline } from '../activity/useTimeline';
+import LoadingPage from '../../loading/LoadingPage';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -241,7 +242,8 @@ function getTimelineUpdate(items: HistoryItem[]): {
             continue;
         }
 
-        const previousCount = updated.length === 0 ? 0 : updated[-1].newCount;
+        const previousCount =
+            updated.length === 0 ? 0 : updated[updated.length - 1].newCount;
         const newCount = previousCount + parseInt(item.count);
         const minutesSpent =
             60 * parseInt(item.hours || '0') + parseInt(item.minutes || '0');
@@ -281,7 +283,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
 
-    const { entries } = useTimeline(user.username);
+    const { entries, request: timelineRequest } = useTimeline(user.username);
 
     const initialItems: HistoryItem[] = useMemo(() => {
         return entries
@@ -382,6 +384,16 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
             });
     };
 
+    if (timelineRequest.isLoading()) {
+        return (
+            <>
+                <DialogContent>
+                    <LoadingPage />
+                </DialogContent>
+            </>
+        );
+    }
+
     return (
         <>
             <DialogContent>
@@ -431,6 +443,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                 </LoadingButton>
             </DialogActions>
             <RequestSnackbar request={request} />
+            <RequestSnackbar request={timelineRequest} />
         </>
     );
 };
