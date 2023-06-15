@@ -57,11 +57,11 @@ export function getColumnDefinition(
 ): GridColDef<ScoreboardRow> {
     const totalCount = requirement.counts[cohort] || 0;
 
-    const valueGetter = (params: GridValueGetterParams<any, ScoreboardRow>) => {
+    const valueGetter = (params: GridValueGetterParams<ScoreboardRow>) => {
         return getCurrentCount(cohort, requirement, params.row.progress[requirement.id]);
     };
 
-    const renderCell = (params: GridRenderCellParams<number, ScoreboardRow>) => {
+    const renderCell = (params: GridRenderCellParams<ScoreboardRow>) => {
         const score = getCurrentCount(
             cohort,
             requirement,
@@ -114,7 +114,7 @@ export function getColumnDefinition(
 }
 
 export function getCohortScore(
-    params: GridValueGetterParams<any, ScoreboardRow>,
+    params: GridValueGetterParams<ScoreboardRow>,
     cohort: string | undefined,
     requirements: Requirement[]
 ): number {
@@ -131,7 +131,7 @@ export function getCohortScore(
 }
 
 export function getTimeSpent(
-    params: GridValueGetterParams<any, ScoreboardRow>,
+    params: GridValueGetterParams<ScoreboardRow>,
     cohort: string | undefined
 ): number {
     if (!cohort) {
@@ -148,7 +148,7 @@ export function getTimeSpent(
 }
 
 export function getCategoryScore(
-    params: GridValueGetterParams<any, ScoreboardRow>,
+    params: GridValueGetterParams<ScoreboardRow>,
     cohort: string | undefined,
     category: string,
     requirements: Requirement[]
@@ -168,7 +168,7 @@ export function getCategoryScore(
 }
 
 export function getPercentComplete(
-    params: GridValueGetterParams<any, ScoreboardRow>,
+    params: GridValueGetterParams<ScoreboardRow>,
     cohort: string | undefined,
     requirements: Requirement[]
 ): number {
@@ -185,13 +185,11 @@ export function formatPercentComplete(value: number) {
     return `${Math.round(value)}%`;
 }
 
-export function getRatingSystem(params: GridValueGetterParams<any, ScoreboardRow>) {
+export function getRatingSystem(params: GridValueGetterParams<ScoreboardRow>) {
     return formatRatingSystem(params.row.ratingSystem);
 }
 
-export function getStartRating(
-    params: GridValueGetterParams<any, ScoreboardRow>
-): number {
+export function getStartRating(params: GridValueGetterParams<ScoreboardRow>): number {
     if (isGraduation(params.row)) {
         return params.row.startRating;
     }
@@ -199,9 +197,7 @@ export function getStartRating(
     return getUserStartRating(params.row);
 }
 
-export function getCurrentRating(
-    params: GridValueGetterParams<any, ScoreboardRow>
-): number {
+export function getCurrentRating(params: GridValueGetterParams<ScoreboardRow>): number {
     if (isGraduation(params.row)) {
         return params.row.currentRating;
     }
@@ -209,7 +205,7 @@ export function getCurrentRating(
     return getUserCurrentRating(params.row);
 }
 
-export function getRatingChange(params: GridValueGetterParams<any, ScoreboardRow>) {
+export function getRatingChange(params: GridValueGetterParams<ScoreboardRow>) {
     const startRating = getStartRating(params);
     const currentRating = getCurrentRating(params);
     return currentRating - startRating;

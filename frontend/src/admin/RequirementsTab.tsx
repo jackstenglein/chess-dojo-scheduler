@@ -5,7 +5,7 @@ import {
     GridRowParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
@@ -44,7 +44,7 @@ const columns: GridColDef<Requirement>[] = [
     {
         field: 'numberOfPositions',
         headerName: 'Num Positions',
-        valueGetter: (params: GridValueGetterParams<any, Requirement>) =>
+        valueGetter: (params: GridValueGetterParams<Requirement>) =>
             params.row.positions?.length || 0,
         minWidth: 150,
         align: 'center',
@@ -52,7 +52,7 @@ const columns: GridColDef<Requirement>[] = [
     {
         field: 'numberOfVideos',
         headerName: 'Num Videos',
-        valueGetter: (params: GridValueGetterParams<any, Requirement>) =>
+        valueGetter: (params: GridValueGetterParams<Requirement>) =>
             params.row.videoUrls?.length || 0,
         minWidth: 150,
         align: 'center',
@@ -69,7 +69,7 @@ dojoCohorts.forEach((cohort) => {
     columns.push({
         field: cohort,
         headerName: cohort,
-        valueGetter: (params: GridValueGetterParams<any, Requirement>) =>
+        valueGetter: (params: GridValueGetterParams<Requirement>) =>
             params.row.counts[cohort] || 0,
         align: 'center',
     });
@@ -78,7 +78,6 @@ dojoCohorts.forEach((cohort) => {
 const RequirementsTab = () => {
     const api = useApi();
     const request = useRequest<Requirement[]>();
-    const [pageSize, setPageSize] = useState(10);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -117,9 +116,7 @@ const RequirementsTab = () => {
             <DataGrid
                 columns={columns}
                 rows={request.data ?? []}
-                pageSize={pageSize}
-                onPageSizeChange={(newSize) => setPageSize(newSize)}
-                rowsPerPageOptions={[5, 10, 20, 50]}
+                pageSizeOptions={[5, 10, 20, 50]}
                 sx={{ width: 1, mb: 4, height: 'calc(100vh - 120px)' }}
                 onRowClick={onClickRow}
             />
