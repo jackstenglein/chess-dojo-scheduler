@@ -309,10 +309,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
 
     // State variables for editing the form before clicking search
     const [editCohort, setCohort] = useState(
-        searchParams.get('cohort')!.replaceAll('%2B', '+')
+        (searchParams.get('cohort') || '').replaceAll('%2B', '+')
     );
-    const [editPlayer, setPlayer] = useState(searchParams.get('player')!);
-    const [editColor, setColor] = useState(searchParams.get('color')!);
+    const [editPlayer, setPlayer] = useState(searchParams.get('player') || '');
+    const [editColor, setColor] = useState(searchParams.get('color') || '');
 
     const paramsStartDate = searchParams.get('startDate');
     const paramsEndDate = searchParams.get('endDate');
