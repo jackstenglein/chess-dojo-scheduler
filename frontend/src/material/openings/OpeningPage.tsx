@@ -1,6 +1,16 @@
 import { useEffect, useMemo } from 'react';
-import { Container, Divider, Stack, Typography } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Container,
+    Divider,
+    Grid,
+    Stack,
+    Typography,
+} from '@mui/material';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -18,6 +28,7 @@ const OpeningPage = () => {
     const api = useApi();
     const params = useParams<OpeningPageParams>();
     const request = useRequest<Opening>();
+    const [searchParams, setSearchParams] = useSearchParams({ module: '0' });
 
     useEffect(() => {
         if (!request.isSent() && params.id) {
@@ -40,6 +51,17 @@ const OpeningPage = () => {
         );
     }, [request, params.levelName]);
 
+    const moduleIndex = parseInt(searchParams.get('module') || '0');
+    const module = useMemo(() => {
+        if (
+            openingLevel &&
+            moduleIndex >= 0 &&
+            moduleIndex < openingLevel.modules.length
+        ) {
+            return openingLevel.modules[moduleIndex];
+        }
+    }, [openingLevel, moduleIndex]);
+
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
     }
@@ -51,19 +73,78 @@ const OpeningPage = () => {
     return (
         <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
             {openingLevel && (
-                <Stack>
-                    <Typography variant='h4'>{request.data!.name}</Typography>
-                    <Typography variant='h5' color='text.secondary'>
-                        {openingLevel.name} ({openingLevel.cohortRange})
-                    </Typography>
-                    <Divider />
+                <Grid container rowGap={2}>
+                    <Grid item xs={12} sm={9}>
+                        <Stack>
+                            <Typography variant='h4'>{request.data!.name}</Typography>
+                            <Typography variant='h5' color='text.secondary'>
+                                {openingLevel.name} ({openingLevel.cohortRange})
+                            </Typography>
+                            <Divider />
 
-                    <Stack spacing={6} mt={2}>
-                        {openingLevel.modules.map((m) => (
-                            <Module key={m.name} module={m} />
-                        ))}
-                    </Stack>
-                </Stack>
+                            {module && (
+                                <Box mt={2}>
+                                    <Module module={module} />
+                                </Box>
+                            )}
+                        </Stack>
+                    </Grid>
+
+                    <Grid item xs={12} sm={9} md={3}>
+                        <Card variant='outlined'>
+                            <CardContent>
+                                <Typography>
+                                    {request.data!.name} - Table of Contents
+                                </Typography>
+                                <ul style={{ paddingLeft: '16px' }}>
+                                    <li>
+                                        {openingLevel.name} ({openingLevel.cohortRange})
+                                        <ol>
+                                            {openingLevel.modules.map((m, idx) => (
+                                                <Link key={m.name} to={`?module=${idx}`}>
+                                                    <li>{m.name}</li>
+                                                </Link>
+                                            ))}
+                                        </ol>
+                                    </li>
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={12} sm={9}>
+                        <Stack direction='row' justifyContent='space-between' mt={4}>
+                            {moduleIndex > 0 &&
+                                moduleIndex < openingLevel.modules.length && (
+                                    <Button
+                                        variant='contained'
+                                        onClick={() =>
+                                            setSearchParams({
+                                                module: `${moduleIndex - 1}`,
+                                            })
+                                        }
+                                    >
+                                        Previous:{' '}
+                                        {openingLevel.modules[moduleIndex - 1].name}
+                                    </Button>
+                                )}
+
+                            {moduleIndex >= 0 &&
+                                moduleIndex + 1 < openingLevel.modules.length && (
+                                    <Button
+                                        variant='contained'
+                                        onClick={() =>
+                                            setSearchParams({
+                                                module: `${moduleIndex + 1}`,
+                                            })
+                                        }
+                                    >
+                                        Next: {openingLevel.modules[moduleIndex + 1].name}
+                                    </Button>
+                                )}
+                        </Stack>
+                    </Grid>
+                </Grid>
             )}
 
             <RequestSnackbar request={request} />
