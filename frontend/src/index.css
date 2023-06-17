@@ -22,6 +22,18 @@ div #board {
         'tools';
 }
 
+div #board .opening {
+    width: 100% !important;
+    grid-template-columns: 100% !important;
+    grid-template-rows: 0px auto calc(min(500px, 100vw - 32px)) 37px 200px !important;
+    grid-template-areas:
+        'gameSelect'
+        'error'
+        'board'
+        'button'
+        'tools';
+}
+
 div #board #boardGames {
     grid-area: gameSelect;
 }
@@ -107,6 +119,16 @@ div#board div#editboardButton {
     div #board {
         grid-template-columns: 63% 37% !important;
         grid-template-rows: 0px auto calc((100vw - 48px) * 0.42) 37px !important;
+        grid-template-areas:
+            'gameSelect gameSelect'
+            'error error'
+            'board tools'
+            'button .';
+    }
+
+    div #board.opening {
+        grid-template-columns: 63% 37% !important;
+        grid-template-rows: 0px auto calc((100vw - 48px) * 0.4725) 37px !important;
         grid-template-areas:
             'gameSelect gameSelect'
             'error error'

@@ -1,6 +1,7 @@
 import { OpeningModule, OpeningModuleType } from '../../database/opening';
 import PgnViewerModule from './PgnViewerModule';
 import SparringPositionsModule from './SparringPositionsModule';
+import VideoModule from './VideoModule';
 
 export interface ModuleProps {
     module: OpeningModule;
@@ -9,7 +10,7 @@ export interface ModuleProps {
 const Module: React.FC<ModuleProps> = ({ module }) => {
     switch (module.type) {
         case OpeningModuleType.Video:
-            return null;
+            return <VideoModule module={module} />;
         case OpeningModuleType.PgnViewer:
             return <PgnViewerModule module={module} />;
         case OpeningModuleType.SparringPositions:

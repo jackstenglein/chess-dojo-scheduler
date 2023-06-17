@@ -43,15 +43,14 @@ const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {
             <Typography variant='h6'>{module.name}</Typography>
             <Typography>{module.description}</Typography>
 
-            <Grid container mt={1}>
-                <Grid item sm={12} md={8} lg={9}>
+            <Grid container mt={1} rowGap={2}>
+                <Grid item sm={12} md={12} lg={12}>
                     <div
                         id={boardId}
-                        className={user.enableDarkMode ? 'dark' : undefined}
+                        className={user.enableDarkMode ? 'opening dark' : 'opening'}
                     ></div>
                 </Grid>
-                <Grid item sm={12} md={4} lg={3}></Grid>
-                <Grid item xs={12} md={8} lg={9}>
+                <Grid item xs={12} mt={3}>
                     <CopyToClipboard text={module.pgn} onCopy={() => onCopy('pgn')}>
                         <Button
                             variant='contained'
