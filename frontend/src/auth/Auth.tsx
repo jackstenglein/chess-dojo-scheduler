@@ -126,6 +126,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(user);
         setStatus(AuthStatus.Authenticated);
         ReactGA.set({ userId: user.username });
+        ReactGA.gtag('set', 'user_properties', {
+            cohort: user.dojoCohort,
+        });
     }, []);
 
     const getCurrentUser = useCallback(async () => {
