@@ -10,6 +10,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { Auth as AmplifyAuth } from 'aws-amplify';
 import { v4 as uuidv4 } from 'uuid';
+import ReactGA from 'react-ga4';
 
 import {
     CognitoUser,
@@ -124,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('Got user: ', user);
         setUser(user);
         setStatus(AuthStatus.Authenticated);
+        ReactGA.set({ userId: user.username });
     }, []);
 
     const getCurrentUser = useCallback(async () => {
