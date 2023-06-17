@@ -32,6 +32,7 @@
         "react-charts": "^3.0.0-beta.38",
         "react-copy-to-clipboard": "^5.1.0",
         "react-dom": "^18.2.0",
+        "react-ga4": "^2.1.0",
         "react-google-button": "^0.7.2",
         "react-material-ui-carousel": "^3.4.2",
         "react-minimal-pie-chart": "^8.4.0",
