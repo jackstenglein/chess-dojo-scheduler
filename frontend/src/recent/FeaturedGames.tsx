@@ -1,108 +1,18 @@
-import {
-    Card,
-    CardActionArea,
-    CardContent,
-    CardHeader,
-    Divider,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
-import Carousel from 'react-material-ui-carousel';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { GameInfo } from '../database/game';
 import LoadingPage from '../loading/LoadingPage';
-import GraduationIcon from '../scoreboard/GraduationIcon';
-
-interface HeaderDisplayProps {
-    header: string;
-    value: string;
-}
-
-const HeaderDisplay: React.FC<HeaderDisplayProps> = ({ header, value }) => {
-    return (
-        <Stack direction='row' spacing={2} alignItems='center'>
-            <Typography variant='subtitle2' color='text.secondary'>
-                {header}
-            </Typography>
-            <Typography variant='body2' textAlign='right'>
-                {value}
-            </Typography>
-        </Stack>
-    );
-};
-
-interface GameInfoCardProps {
-    game: GameInfo;
-}
-
-const GameInfoCard: React.FC<GameInfoCardProps> = ({ game }) => {
-    const navigate = useNavigate();
-
-    const onClick = () => {
-        navigate(
-            `/games/${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
-                '?',
-                '%3F'
-            )}`
-        );
-    };
-
-    const onClickLink = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        event.stopPropagation();
-    };
-
-    return (
-        <Card variant='outlined'>
-            <CardActionArea onClick={onClick}>
-                <CardHeader
-                    title={
-                        <Stack direction='row' spacing={2}>
-                            <Typography variant='h4'>
-                                {'Annotation by '}
-                                {game.ownerDisplayName ? (
-                                    <Link
-                                        to={`/profile/${game.owner}`}
-                                        onClick={onClickLink}
-                                    >
-                                        {game.ownerDisplayName}
-                                    </Link>
-                                ) : (
-                                    'Unknown'
-                                )}
-                            </Typography>
-                            <GraduationIcon cohort={game.ownerPreviousCohort} />
-                        </Stack>
-                    }
-                    subheader={
-                        <Stack direction='row' alignItems='start'>
-                            <Typography variant='h5'>{game.cohort}</Typography>
-                        </Stack>
-                    }
-                />
-                <CardContent>
-                    <HeaderDisplay
-                        header='White'
-                        value={`${game.headers.White} (${game.headers.WhiteElo ?? '?'})`}
-                    />
-                    <HeaderDisplay
-                        header='Black'
-                        value={`${game.headers.Black} (${game.headers.BlackElo ?? '?'})`}
-                    />
-                    <HeaderDisplay header='Result' value={game.headers.Result} />
-                    <HeaderDisplay header='Date' value={game.headers.Date} />
-                </CardContent>
-            </CardActionArea>
-        </Card>
-    );
-};
+import { DataGrid, GridRowParams } from '@mui/x-data-grid';
+import { gameTableColumns } from '../games/list/ListGamesPage';
 
 const FeaturedGames = () => {
     const api = useApi();
     const request = useRequest<GameInfo[]>();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -120,6 +30,15 @@ const FeaturedGames = () => {
 
     const games = request.data ?? [];
 
+    const onClickRow = (params: GridRowParams<GameInfo>) => {
+        navigate(
+            `/games/${params.row.cohort.replaceAll(
+                '+',
+                '%2B'
+            )}/${params.row.id.replaceAll('?', '%3F')}`
+        );
+    };
+
     return (
         <Stack spacing={3}>
             <RequestSnackbar request={request} />
@@ -136,15 +55,23 @@ const FeaturedGames = () => {
                     <Typography>No featured games in the past month</Typography>
                 )
             ) : (
-                <Carousel
-                    sx={{ overflow: 'visible', px: '70px' }}
-                    navButtonsAlwaysVisible
-                    autoPlay={false}
-                >
-                    {games.map((g) => (
-                        <GameInfoCard key={g.id} game={g} />
-                    ))}
-                </Carousel>
+                <DataGrid
+                    columns={gameTableColumns}
+                    rows={games}
+                    pageSizeOptions={[5, 10, 25]}
+                    initialState={{
+                        pagination: {
+                            paginationModel: {
+                                page: 0,
+                                pageSize: 10,
+                            },
+                        },
+                    }}
+                    autoHeight
+                    rowHeight={70}
+                    onRowClick={onClickRow}
+                    sx={{ width: 1 }}
+                />
             )}
         </Stack>
     );
