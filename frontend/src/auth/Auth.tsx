@@ -25,6 +25,7 @@ import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import ForbiddenPage from './ForbiddenPage';
 import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
+import { EventType, trackEvent } from '../analytics/events';
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -58,6 +59,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>(null!);
 
 function socialSignin(provider: string) {
+    trackEvent(EventType.Login, { method: 'Google' });
     AmplifyAuth.federatedSignIn({
         provider: provider as CognitoHostedUIIdentityProvider,
     })
@@ -70,6 +72,7 @@ function socialSignin(provider: string) {
 }
 
 function signup(name: string, email: string, password: string) {
+    trackEvent(EventType.Signup);
     return AmplifyAuth.signUp({
         username: uuidv4(),
         password,
@@ -81,6 +84,7 @@ function signup(name: string, email: string, password: string) {
 }
 
 function confirmSignup(username: string, code: string) {
+    trackEvent(EventType.SignupConfirm);
     return AmplifyAuth.confirmSignUp(username, code, {
         forceAliasCreation: false,
     }).catch((err) => {
@@ -98,10 +102,12 @@ function resendSignupCode(username: string) {
 }
 
 function forgotPassword(email: string) {
+    trackEvent(EventType.ForgotPassword);
     return AmplifyAuth.forgotPassword(email);
 }
 
 function forgotPasswordConfirm(email: string, code: string, password: string) {
+    trackEvent(EventType.ForgotPasswordConfirm);
     return AmplifyAuth.forgotPasswordSubmit(email, code, password);
 }
 
@@ -159,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
                 console.log('Signing in');
                 const cognitoResponse = await AmplifyAuth.signIn(email, password);
+                trackEvent(EventType.Login, { method: 'Cognito' });
                 await handleCognitoResponse(cognitoResponse);
                 resolve();
             } catch (err) {
@@ -173,6 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             console.log('Signing out');
             await AmplifyAuth.signOut();
+            trackEvent(EventType.Logout);
             console.log('Signed out');
             setUser(undefined);
             setStatus(AuthStatus.Unauthenticated);
