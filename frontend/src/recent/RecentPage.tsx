@@ -4,7 +4,7 @@ import RecentGraduates from './RecentGraduates';
 
 const RecentPage = () => {
     return (
-        <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
+        <Container maxWidth='lg' sx={{ pt: 6, pb: 4 }}>
             <Stack spacing={5}>
                 <RecentGraduates />
                 <FeaturedGames />

@@ -1,78 +1,159 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-    Stack,
-    Typography,
-    Card,
-    CardHeader,
-    CardContent,
-    Divider,
-    FormControl,
-    MenuItem,
-    Select,
-} from '@mui/material';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import Carousel from 'react-material-ui-carousel';
+import { Stack, Typography, Divider, FormControl, MenuItem, Select } from '@mui/material';
 
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { Graduation } from '../database/graduation';
 import LoadingPage from '../loading/LoadingPage';
+import {
+    DataGrid,
+    GridColDef,
+    GridRenderCellParams,
+    GridValueFormatterParams,
+    GridValueGetterParams,
+} from '@mui/x-data-grid';
 
-interface GraduationCardProps {
-    graduation: Graduation;
+function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
+    return [...new Map(graduations.map((g) => [g.username, g])).values()];
 }
 
-const GraduationCard: React.FC<GraduationCardProps> = ({ graduation }) => {
-    const startDate = new Date(graduation.startedAt).toLocaleDateString();
-    const endDate = new Date(graduation.createdAt).toLocaleDateString();
+const graduationDayOfWeek = 2; // Tuesday
+const numberOfOptions = 2;
+const lastWeek = new Date();
+lastWeek.setDate(lastWeek.getDate() - 7);
 
-    return (
-        <Card variant='outlined'>
-            <CardHeader
-                title={
-                    <Stack direction='row' spacing={2}>
-                        <Link to={`/profile/${graduation.username}`}>
-                            <Typography variant='h4'>{graduation.displayName}</Typography>
-                        </Link>
-                        <GraduationIcon cohort={graduation.previousCohort} />
-                    </Stack>
-                }
-                subheader={
-                    <Stack>
-                        <Stack direction='row' alignItems='start'>
-                            <Typography variant='h5'>
-                                {graduation.previousCohort}
-                            </Typography>
-                            <ArrowForwardIcon sx={{ position: 'relative', top: '2px' }} />
-                            <Typography variant='h5'>{graduation.newCohort}</Typography>
-                        </Stack>
-                        <Stack direction='row' alignItems='start'>
-                            <Typography variant='h6'>
-                                {graduation.startedAt ? startDate : '??'}
-                            </Typography>
-                            <ArrowForwardIcon sx={{ position: 'relative', top: '2px' }} />
-                            <Typography variant='h6'>{endDate}</Typography>
-                        </Stack>
-                    </Stack>
-                }
-            />
-            {graduation.comments && (
-                <CardContent>
-                    <Typography sx={{ whiteSpace: 'pre-line' }}>
-                        "{graduation.comments}"{`\n- ${graduation.displayName}`}
-                    </Typography>
-                </CardContent>
-            )}
-        </Card>
-    );
+interface Timeframe {
+    minDate: string;
+    maxDate: string;
+}
+
+interface TimeframeOption {
+    label: string;
+    value: Timeframe;
+}
+
+const timeframeWeek = {
+    minDate: lastWeek.toISOString(),
+    maxDate: new Date().toISOString(),
 };
+
+function getTimeframeOptions() {
+    let currGraduation = new Date();
+    currGraduation.setUTCHours(5, 30, 0, 0);
+    currGraduation.setUTCDate(
+        currGraduation.getUTCDate() +
+            ((graduationDayOfWeek + 7 - currGraduation.getUTCDay()) % 7)
+    );
+
+    const options: TimeframeOption[] = [];
+
+    for (let i = 0; i < numberOfOptions; i++) {
+        let prevGraduation = new Date(currGraduation);
+        prevGraduation.setUTCDate(prevGraduation.getUTCDate() - 7);
+
+        options.push({
+            label: `Graduation of ${currGraduation.toLocaleDateString()}`,
+            value: {
+                minDate: prevGraduation.toISOString(),
+                maxDate: currGraduation.toISOString(),
+            },
+        });
+
+        currGraduation = prevGraduation;
+    }
+
+    return options;
+}
+
+const timeframeOptions = getTimeframeOptions();
+
+const graduateTableColumns: GridColDef<Graduation>[] = [
+    {
+        field: 'displayName',
+        headerName: 'Name',
+        minWidth: 200,
+        renderCell: (params: GridRenderCellParams<Graduation, string>) => {
+            return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;
+        },
+    },
+    {
+        field: 'graduations',
+        headerName: 'Graduated',
+        align: 'center',
+        headerAlign: 'center',
+        minWidth: 150,
+        valueGetter: (params: GridValueGetterParams<Graduation>) => {
+            if (params.row.graduationCohorts && params.row.graduationCohorts.length > 0) {
+                return params.row.graduationCohorts;
+            }
+            return params.row.previousCohort;
+        },
+        renderCell: (params: GridRenderCellParams<Graduation>) => {
+            let graduationCohorts = params.row.graduationCohorts;
+            if (graduationCohorts && graduationCohorts.length > 0) {
+                if (graduationCohorts.length > 3) {
+                    graduationCohorts = graduationCohorts.slice(
+                        graduationCohorts.length - 3
+                    );
+                }
+                return (
+                    <Stack direction='row'>
+                        {graduationCohorts.map((c) => (
+                            <GraduationIcon key={c} cohort={c} size={35} />
+                        ))}
+                    </Stack>
+                );
+            }
+            return <GraduationIcon cohort={params.row.previousCohort} size={35} />;
+        },
+    },
+    {
+        field: 'previousCohort',
+        headerName: 'Old Cohort',
+        minWidth: 150,
+        headerAlign: 'center',
+        align: 'center',
+    },
+    {
+        field: 'newCohort',
+        headerName: 'New Cohort',
+        minWidth: 150,
+        headerAlign: 'center',
+        align: 'center',
+    },
+    {
+        field: 'score',
+        headerName: 'Dojo Score',
+        headerAlign: 'center',
+        align: 'center',
+        valueFormatter: (params: GridValueFormatterParams<number>) => {
+            return Math.round(params.value * 100) / 100;
+        },
+    },
+    {
+        field: 'createdAt',
+        headerName: 'Date',
+        headerAlign: 'center',
+        align: 'center',
+        valueFormatter: (params: GridValueFormatterParams<string>) => {
+            return new Date(params.value).toLocaleDateString();
+        },
+    },
+    {
+        field: 'comments',
+        headerName: 'Comments',
+        headerAlign: 'center',
+        align: 'center',
+        minWidth: 250,
+    },
+];
 
 const RecentGraduates = () => {
     const api = useApi();
     const request = useRequest<Graduation[]>();
-    const [timeframe, setTimeframe] = useState('week');
+    const [timeframe, setTimeframe] = useState<Timeframe>(timeframeWeek);
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -88,15 +169,12 @@ const RecentGraduates = () => {
 
     const graduations = useMemo(() => {
         const gs = request.data ?? [];
-        if (timeframe === 'month') {
-            return gs;
-        }
 
-        const d = new Date();
-        d.setDate(d.getDate() - 7);
-
-        const weekAgo = d.toISOString();
-        return gs.filter((g) => g.createdAt >= weekAgo);
+        return getUniqueGraduations(
+            gs.filter(
+                (g) => g.createdAt >= timeframe.minDate && g.createdAt < timeframe.maxDate
+            )
+        );
     }, [request.data, timeframe]);
 
     return (
@@ -108,7 +186,7 @@ const RecentGraduates = () => {
                     <FormControl size='small' variant='standard'>
                         <Select
                             value={timeframe}
-                            onChange={(e) => setTimeframe(e.target.value)}
+                            onChange={(e) => setTimeframe(e.target.value as Timeframe)}
                             sx={{
                                 '::before': {
                                     border: 'none !important',
@@ -118,8 +196,12 @@ const RecentGraduates = () => {
                                 },
                             }}
                         >
-                            <MenuItem value='month'>Past Month</MenuItem>
-                            <MenuItem value='week'>Past Week</MenuItem>
+                            <MenuItem value={timeframeWeek as any}>Past Week</MenuItem>
+                            {timeframeOptions.map((option) => (
+                                <MenuItem key={option.label} value={option.value as any}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                 </Stack>
@@ -130,19 +212,37 @@ const RecentGraduates = () => {
                 request.isLoading() ? (
                     <LoadingPage />
                 ) : (
-                    <Typography>No graduations in the past month</Typography>
+                    <Typography>No graduations in the selected timeframe</Typography>
                 )
             ) : (
-                <Carousel
-                    sx={{ overflow: 'visible', px: '70px' }}
-                    navButtonsAlwaysVisible
-                    autoPlay={false}
-                    key={timeframe}
-                >
-                    {graduations.map((g) => (
-                        <GraduationCard key={g.createdAt} graduation={g} />
-                    ))}
-                </Carousel>
+                <DataGrid
+                    columns={graduateTableColumns}
+                    rows={graduations}
+                    getRowId={(row: Graduation) => row.username}
+                    getRowHeight={() => 'auto'}
+                    sx={{
+                        width: 1,
+                        '&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell': {
+                            py: '8px',
+                        },
+                        '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': {
+                            py: '15px',
+                        },
+                        '&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell': {
+                            py: '22px',
+                        },
+                    }}
+                    pageSizeOptions={[5, 10, 25]}
+                    initialState={{
+                        pagination: {
+                            paginationModel: {
+                                page: 0,
+                                pageSize: 10,
+                            },
+                        },
+                    }}
+                    autoHeight
+                />
             )}
         </Stack>
     );
