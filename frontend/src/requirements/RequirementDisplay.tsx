@@ -12,21 +12,19 @@ import {
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 import Position from './Position';
-import { useNavigate } from 'react-router-dom';
 import CustomTaskDisplay from './CustomTaskDisplay';
 
 interface RequirementDisplayProps {
     requirement: Requirement | CustomTask;
-    preview?: boolean;
+    onClose?: () => void;
 }
 
 const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
     requirement,
-    preview,
+    onClose,
 }) => {
     const user = useAuth().user!;
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-    const navigate = useNavigate();
 
     const cohort = useMemo(() => {
         if (!requirement) {
@@ -41,14 +39,10 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
     }, [requirement, user.dojoCohort]);
 
     if (!isRequirement(requirement)) {
-        return <CustomTaskDisplay task={requirement} />;
+        return <CustomTaskDisplay task={requirement} onClose={onClose} />;
     }
 
     const progress = user.progress[requirement.id];
-
-    const isSlider =
-        requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
-        requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
 
     const totalCount = requirement.counts[cohort] || requirement.counts[ALL_COHORTS];
     const currentCount = progress?.counts[cohort] || progress?.counts[ALL_COHORTS] || 0;
@@ -75,36 +69,24 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                             {requirement.category}
                         </Typography>
                     </Stack>
-                    {!preview && (
-                        <Stack direction='row' spacing={2} alignItems='center'>
-                            {isComplete && (
-                                <Chip
-                                    icon={<CheckIcon />}
-                                    label='Completed'
-                                    color='success'
-                                    onClick={() => setShowUpdateDialog(true)}
-                                />
-                            )}
-                            {!isComplete && (
-                                <Button
-                                    variant='contained'
-                                    onClick={() => setShowUpdateDialog(true)}
-                                >
-                                    {isSlider ? 'Update' : 'Complete'}
-                                </Button>
-                            )}
-                            {user.isAdmin && (
-                                <Button
-                                    variant='contained'
-                                    onClick={() =>
-                                        navigate(`/requirements/${requirement.id}/edit`)
-                                    }
-                                >
-                                    Edit Requirement
-                                </Button>
-                            )}
-                        </Stack>
-                    )}
+                    <Stack direction='row' spacing={2} alignItems='center'>
+                        {isComplete && (
+                            <Chip
+                                icon={<CheckIcon />}
+                                label='Completed'
+                                color='success'
+                                onClick={() => setShowUpdateDialog(true)}
+                            />
+                        )}
+                        {!isComplete && (
+                            <Button
+                                variant='contained'
+                                onClick={() => setShowUpdateDialog(true)}
+                            >
+                                Update Progress
+                            </Button>
+                        )}
+                    </Stack>
                 </Stack>
 
                 <Typography
@@ -138,16 +120,14 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                     ))}
             </Stack>
 
-            {!preview && (
-                <ProgressDialog
-                    open={showUpdateDialog}
-                    onClose={() => setShowUpdateDialog(false)}
-                    requirement={requirement}
-                    cohort={user.dojoCohort}
-                    progress={progress}
-                    selectCohort
-                />
-            )}
+            <ProgressDialog
+                open={showUpdateDialog}
+                onClose={() => setShowUpdateDialog(false)}
+                requirement={requirement}
+                cohort={user.dojoCohort}
+                progress={progress}
+                selectCohort
+            />
         </>
     );
 };

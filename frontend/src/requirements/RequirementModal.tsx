@@ -44,7 +44,7 @@ const RequirementModal: React.FC<RequirementModalProps> = ({
             TransitionComponent={Transition}
         >
             <DialogContent>
-                <RequirementDisplay requirement={requirement} />
+                <RequirementDisplay requirement={requirement} onClose={onClose} />
             </DialogContent>
         </Dialog>
     );

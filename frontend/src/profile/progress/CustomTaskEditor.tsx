@@ -100,15 +100,17 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             newTasks = [...(user.customTasks || []), newTask];
         }
 
+        const eventType = task ? EventType.EditNondojoTask : EventType.CreateNondojoTask;
+
         request.onStart();
         api.updateUser({
             customTasks: newTasks,
         })
             .then((resp) => {
                 console.log('updateUser: ', resp);
-                trackEvent(EventType.CreateNondojoTask, {
-                    name: name,
-                    dojo_cohort: user.dojoCohort,
+                trackEvent(eventType, {
+                    task_id: newTask.id,
+                    task_name: name,
                 });
                 request.onSuccess();
                 onClose();

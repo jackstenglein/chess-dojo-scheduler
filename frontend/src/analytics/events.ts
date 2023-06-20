@@ -18,6 +18,8 @@ export enum EventType {
     UpdateProgress = 'update_progress',
     UpdateTimeline = 'update_timeline',
     CreateNondojoTask = 'create_nondojo_task',
+    EditNondojoTask = 'edit_nondojo_task',
+    DeleteNondojoTask = 'delete_nondojo_task',
     ViewTaskDetails = 'view_task_details',
 
     // Game actions
