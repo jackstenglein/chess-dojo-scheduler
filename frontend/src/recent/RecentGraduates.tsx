@@ -115,6 +115,12 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         minWidth: 150,
         headerAlign: 'center',
         align: 'center',
+        valueGetter: (params: GridValueGetterParams<Graduation>) => {
+            return parseInt(params.row.previousCohort.split('-')[0]);
+        },
+        renderCell: (params: GridRenderCellParams<Graduation>) => {
+            return params.row.previousCohort;
+        },
     },
     {
         field: 'newCohort',
@@ -122,6 +128,12 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         minWidth: 150,
         headerAlign: 'center',
         align: 'center',
+        valueGetter: (params: GridValueGetterParams<Graduation>) => {
+            return parseInt(params.row.newCohort.replaceAll('+', '').split('-')[0]);
+        },
+        renderCell: (params: GridRenderCellParams<Graduation>) => {
+            return params.row.newCohort;
+        },
     },
     {
         field: 'score',
