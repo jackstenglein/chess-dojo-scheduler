@@ -3,7 +3,12 @@ import { Stack, TextField, MenuItem, Typography, Button } from '@mui/material';
 
 import { compareCohorts, User } from '../../database/user';
 import { useRequirements } from '../../api/cache/requirements';
-import { CustomTask, getCurrentScore, Requirement } from '../../database/requirement';
+import {
+    CustomTask,
+    getCurrentCount,
+    getCurrentScore,
+    Requirement,
+} from '../../database/requirement';
 import PieChart, { PieChartData } from './PieChart';
 import { CategoryColors, RequirementColors } from './activity';
 
@@ -56,6 +61,7 @@ function getCategoryScoreChartData(
         if (score === 0) {
             continue;
         }
+        const count = getCurrentCount(cohort, requirement, user.progress[requirement.id]);
 
         let name = requirement.name;
         const result = numberedReqRegex.exec(name);
@@ -65,6 +71,7 @@ function getCategoryScoreChartData(
 
         if (data[name]) {
             data[name].value += score;
+            data[name].count = (data[name].count || 0) + count;
         } else {
             data[name] = {
                 name,
@@ -72,6 +79,7 @@ function getCategoryScoreChartData(
                 color: RequirementColors[
                     Object.values(data).length % RequirementColors.length
                 ],
+                count,
             };
         }
     }
@@ -178,6 +186,17 @@ function getCategoryTimeChartData(
     return Object.values(data);
 }
 
+function getScoreChartTooltip(entry?: PieChartData) {
+    if (!entry) {
+        return '';
+    }
+    const score = Math.round(entry.value * 100) / 100;
+    if (entry.count) {
+        return `${entry.name} - Count: ${entry.count}, Score: ${score}`;
+    }
+    return `${entry.name} - ${score}`;
+}
+
 function getTimeChartTooltip(entry?: PieChartData) {
     if (!entry) {
         return '';
@@ -282,9 +301,7 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user }) => {
                         )}
                     </Stack>
                 )}
-                getTooltip={(entry?: PieChartData) =>
-                    entry ? `${entry.name} - ${Math.round(entry.value * 100) / 100}` : ''
-                }
+                getTooltip={getScoreChartTooltip}
                 onClick={onClickScoreChart}
             />
 

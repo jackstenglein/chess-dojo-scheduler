@@ -13,6 +13,7 @@ export interface PieChartData {
     name: string;
     value: number;
     color: string;
+    count?: number;
 }
 
 interface PieChartProps {
