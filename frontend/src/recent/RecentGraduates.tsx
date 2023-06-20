@@ -252,6 +252,9 @@ const RecentGraduates = () => {
                                 pageSize: 10,
                             },
                         },
+                        sorting: {
+                            sortModel: [{ field: 'newCohort', sort: 'asc' }],
+                        },
                     }}
                     autoHeight
                 />
