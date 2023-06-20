@@ -20,12 +20,14 @@ import {
     Requirement,
     ScoreboardDisplay,
     TimelineEntry,
+    isRequirement,
 } from '../../database/requirement';
 import { useAuth } from '../../auth/Auth';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { useTimeline } from '../activity/useTimeline';
 import LoadingPage from '../../loading/LoadingPage';
+import { EventType, trackEvent } from '../../analytics/events';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -375,6 +377,14 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
         )
             .then((response) => {
                 console.log('updateUserTimeline: ', response);
+                trackEvent(EventType.UpdateTimeline, {
+                    requirement_id: requirement.id,
+                    requirement_name: requirement.name,
+                    is_custom_requirement: !isRequirement(requirement),
+                    dojo_cohort: cohort,
+                    total_count: totalCount,
+                    total_minutes: totalTime,
+                });
                 onClose();
                 request.onSuccess(response);
             })

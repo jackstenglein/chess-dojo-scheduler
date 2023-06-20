@@ -13,6 +13,7 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 import { LoadingButton } from '@mui/lab';
 import { User } from '../../database/user';
+import { EventType, trackEvent } from '../../analytics/events';
 
 const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) => {
     const api = useApi();
@@ -36,10 +37,14 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) =>
         }
 
         request.onStart();
-        api.updateUser(update).catch((err) => {
-            console.error(err);
-            request.onFailure(err);
-        });
+        api.updateUser(update)
+            .then(() => {
+                trackEvent(EventType.CreateProfile);
+            })
+            .catch((err) => {
+                console.error(err);
+                request.onFailure(err);
+            });
     };
 
     return (

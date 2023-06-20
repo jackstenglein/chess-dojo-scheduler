@@ -26,6 +26,7 @@ import GraduationIcon from '../scoreboard/GraduationIcon';
 import { useCache } from '../api/cache/Cache';
 import LoadingPage from '../loading/LoadingPage';
 import { useAuth } from '../auth/Auth';
+import { EventType, trackEvent } from '../analytics/events';
 
 const MeetingPage = () => {
     const { meetingId } = useParams();
@@ -56,6 +57,9 @@ const MeetingPage = () => {
         api.cancelEvent(meetingId!)
             .then((response) => {
                 console.log('Cancel meeting response: ', response);
+                trackEvent(EventType.CancelMeeting, {
+                    meeting_id: meetingId,
+                });
                 cache.events.put(response.data);
                 cancelRequest.onSuccess();
                 setShowCancelDialog(false);

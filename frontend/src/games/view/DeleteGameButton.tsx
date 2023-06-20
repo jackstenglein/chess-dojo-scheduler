@@ -6,6 +6,7 @@ import { LoadingButton } from '@mui/lab';
 import { Game } from '../../database/game';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
+import { EventType, trackEvent } from '../../analytics/events';
 
 interface DeleteGameButtonProps {
     game: Game;
@@ -21,6 +22,9 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({ game }) => {
         request.onStart();
         api.deleteGame(game.cohort, game.id)
             .then(() => {
+                trackEvent(EventType.DeleteGame, {
+                    dojo_cohort: game.cohort,
+                });
                 request.onSuccess();
                 navigate('/profile?view=games');
             })

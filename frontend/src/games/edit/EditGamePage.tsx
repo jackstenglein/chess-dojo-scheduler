@@ -6,6 +6,7 @@ import { CreateGameRequest, GameHeader, isGame } from '../../api/gameApi';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import GameSubmissionForm from './GameSubmissionForm';
 import SubmitGamePreflight from './SubmitGamePreflight';
+import { EventType, trackEvent } from '../../analytics/events';
 
 interface Preflight {
     req: CreateGameRequest;
@@ -37,6 +38,10 @@ const EditGamePage = () => {
                     setPreflight({ req, headers: response.data.headers });
                 } else {
                     const count = response.data.count;
+                    trackEvent(EventType.SubmitGame, {
+                        count: count,
+                        method: req.type,
+                    });
                     request.onSuccess(`Created ${count} games`);
                     navigate('/profile?view=games');
                 }
@@ -54,6 +59,10 @@ const EditGamePage = () => {
         request.onStart();
         api.updateGame(cohort, id, req)
             .then(() => {
+                trackEvent(EventType.UpdateGame, {
+                    method: req.type,
+                    dojo_cohort: cohort,
+                });
                 navigate(`/games/${cohort}/${id}`);
                 request.onSuccess();
             })

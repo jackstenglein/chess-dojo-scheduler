@@ -20,6 +20,7 @@ import { dojoCohorts, formatRatingSystem, RatingSystem, User } from '../database
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { DefaultTimezone } from '../calendar/CalendarFilters';
+import { EventType, setUserCohort, trackEvent } from '../analytics/events';
 
 function parseRating(rating: string): number {
     rating = rating.trim();
@@ -275,6 +276,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         api.updateUser(update)
             .then(() => {
                 request.onSuccess('Profile updated');
+                trackEvent(EventType.EditProfile, {
+                    fields: Object.keys(update),
+                });
+                setUserCohort(update.dojoCohort);
                 navigate('..');
             })
             .catch((err) => {

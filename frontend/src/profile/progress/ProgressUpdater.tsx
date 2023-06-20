@@ -23,6 +23,7 @@ import {
 import InputSlider from './InputSlider';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
+import { EventType, trackEvent } from '../../analytics/events';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -145,6 +146,14 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
         )
             .then((response) => {
                 console.log('updateUserProgress: ', response);
+                trackEvent(EventType.UpdateProgress, {
+                    requirement_id: requirement.id,
+                    requirement_name: requirement.name,
+                    is_custom_requirement: !isRequirement(requirement),
+                    dojo_cohort: cohort,
+                    incremental_count: incrementalCount,
+                    incremental_minutes: hoursInt * 60 + minutesInt,
+                });
                 onClose();
                 setHours('');
                 setMinutes('');

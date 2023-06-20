@@ -1,5 +1,7 @@
 import ReactGA from 'react-ga4';
 
+import { User } from '../database/user';
+
 export enum EventType {
     // Auth events
     Login = 'login',
@@ -10,6 +12,7 @@ export enum EventType {
     ForgotPasswordConfirm = 'forgot_password_confirm',
 
     // Profile actions
+    CreateProfile = 'create_profile',
     EditProfile = 'edit_profile',
     Graduate = 'graduate',
     UpdateProgress = 'update_progress',
@@ -35,4 +38,17 @@ export enum EventType {
 
 export function trackEvent(type: EventType, params?: any) {
     ReactGA.event(type, params);
+}
+
+export function setUser(user: User) {
+    ReactGA.set({ userId: user.username });
+    setUserCohort(user.dojoCohort);
+}
+
+export function setUserCohort(cohort: string | undefined) {
+    if (cohort) {
+        ReactGA.gtag('set', 'user_properties', {
+            dojo_cohort: cohort,
+        });
+    }
 }

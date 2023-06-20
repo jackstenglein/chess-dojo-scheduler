@@ -37,6 +37,7 @@ import {
     getDefaultNumberOfParticipants,
     getDisplayString,
 } from '../database/event';
+import { trackEvent, EventType as AnalyticsEventType } from '../analytics/events';
 
 const ONE_HOUR = 60 * 60 * 1000;
 
@@ -278,6 +279,14 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             console.log('Got setEvent response: ', response);
             const availability = response.data;
 
+            trackEvent(AnalyticsEventType.SetAvailability, {
+                availability_id: availability.id,
+                type: type,
+                title: title,
+                availability_types: selectedTypes,
+                availability_cohorts: selectedCohorts,
+                max_participants: participants,
+            });
             cache.events.put(availability);
             request.onSuccess();
             scheduler.close();

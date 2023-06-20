@@ -25,7 +25,8 @@ import { dojoCohorts } from '../../database/user';
 import { useAuth } from '../../auth/Auth';
 import { useApi } from '../../api/Api';
 import { SearchFunc } from './pagination';
-import { useSearchParams } from 'react-router-dom';
+import { URLSearchParamsInit, useSearchParams } from 'react-router-dom';
+import { EventType, trackEvent } from '../../analytics/events';
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -390,8 +391,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     }, [type, onSearch, searchByOwner, searchByPlayer, searchByCohort]);
 
     // Functions that change the search params
+    const onSetSearchParams = (params: URLSearchParamsInit) => {
+        trackEvent(EventType.SearchGames, params);
+        setSearchParams(params);
+    };
+
     const onSearchByCohort = () => {
-        setSearchParams({
+        onSetSearchParams({
             type: SearchType.Cohort,
             cohort: editCohort,
             startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
@@ -400,7 +406,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     };
 
     const onSearchByPlayer = () => {
-        setSearchParams({
+        onSetSearchParams({
             type: SearchType.Player,
             player: editPlayer,
             color: editColor,
@@ -410,7 +416,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     };
 
     const onSearchByOwner = () => {
-        setSearchParams({
+        onSetSearchParams({
             type: SearchType.Owner,
             startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
             endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',

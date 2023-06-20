@@ -29,6 +29,7 @@ import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { AvailabilityType, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import LoadingPage from '../loading/LoadingPage';
+import { EventType, trackEvent } from '../analytics/events';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -122,6 +123,13 @@ const AvailabilityBooker = () => {
         api.bookEvent(availability.id, startTime!, selectedType!)
             .then((response) => {
                 console.log('Book response: ', response);
+                trackEvent(EventType.BookAvailability, {
+                    availability_id: availability.id,
+                    is_group: false,
+                    selected_type: selectedType,
+                    availability_types: availability.types,
+                    availability_cohorts: availability.cohorts,
+                });
                 request.onSuccess();
                 cache.events.put(response.data);
                 navigate(`/meeting/${response.data.id}`);
@@ -137,6 +145,13 @@ const AvailabilityBooker = () => {
         api.bookEvent(availability.id)
             .then((response) => {
                 console.log('Book response: ', response);
+                trackEvent(EventType.BookAvailability, {
+                    availability_id: availability.id,
+                    is_group: true,
+                    availability_types: availability.types,
+                    availability_cohorts: availability.cohorts,
+                    max_participants: availability.maxParticipants,
+                });
                 request.onSuccess();
                 cache.events.put(response.data);
                 navigate(`/group/${response.data.id}`);

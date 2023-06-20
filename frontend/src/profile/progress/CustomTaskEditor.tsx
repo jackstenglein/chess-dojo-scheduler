@@ -22,6 +22,7 @@ import { dojoCohorts } from '../../database/user';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
+import { EventType, trackEvent } from '../../analytics/events';
 
 interface CustomTaskEditorProps {
     task?: CustomTask;
@@ -105,6 +106,10 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
         })
             .then((resp) => {
                 console.log('updateUser: ', resp);
+                trackEvent(EventType.CreateNondojoTask, {
+                    name: name,
+                    dojo_cohort: user.dojoCohort,
+                });
                 request.onSuccess();
                 onClose();
             })

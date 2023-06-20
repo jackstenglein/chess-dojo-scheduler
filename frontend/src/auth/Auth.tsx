@@ -10,7 +10,6 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { Auth as AmplifyAuth } from 'aws-amplify';
 import { v4 as uuidv4 } from 'uuid';
-import ReactGA from 'react-ga4';
 
 import {
     CognitoUser,
@@ -25,7 +24,7 @@ import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import ForbiddenPage from './ForbiddenPage';
 import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
-import { EventType, trackEvent } from '../analytics/events';
+import { EventType, trackEvent, setUser as setAnalyticsUser } from '../analytics/events';
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -131,10 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('Got user: ', user);
         setUser(user);
         setStatus(AuthStatus.Authenticated);
-        ReactGA.set({ userId: user.username });
-        ReactGA.gtag('set', 'user_properties', {
-            cohort: user.dojoCohort,
-        });
+        setAnalyticsUser(user);
     }, []);
 
     const getCurrentUser = useCallback(async () => {

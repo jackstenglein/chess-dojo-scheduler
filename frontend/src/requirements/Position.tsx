@@ -16,6 +16,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 
 import { Position as PositionModel } from '../database/requirement';
 import { useRequest } from '../api/Request';
+import { EventType, trackEvent } from '../analytics/events';
 
 interface PositionProps {
     position: PositionModel;
@@ -32,6 +33,14 @@ const Position: React.FC<PositionProps> = ({ position }) => {
         }, 3000);
     };
 
+    const onCopyFen = () => {
+        trackEvent(EventType.CopyFen, {
+            position_fen: position.fen,
+            position_name: position.title,
+        });
+        onCopy('fen');
+    };
+
     const generateLichessUrl = () => {
         lichessRequest.onStart();
         axios
@@ -44,6 +53,12 @@ const Position: React.FC<PositionProps> = ({ position }) => {
             })
             .then((resp) => {
                 console.log('Generate Lichess URL: ', resp);
+                trackEvent(EventType.CreateSparringLink, {
+                    position_fen: position.fen,
+                    position_name: position.title,
+                    clock_limit: position.limitSeconds,
+                    clock_increment: position.incrementSeconds,
+                });
                 lichessRequest.onSuccess();
                 navigator.clipboard.writeText(resp.data.challenge.url);
                 onCopy('lichess');
@@ -88,7 +103,7 @@ const Position: React.FC<PositionProps> = ({ position }) => {
                 />
             </CardContent>
             <CardActions>
-                <CopyToClipboard text={position.fen} onCopy={() => onCopy('fen')}>
+                <CopyToClipboard text={position.fen} onCopy={onCopyFen}>
                     <Button
                         startIcon={
                             copied === 'fen' ? <CheckIcon /> : <ContentPasteIcon />

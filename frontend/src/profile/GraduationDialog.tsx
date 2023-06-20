@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useApi } from '../api/Api';
+import { EventType, trackEvent, setUserCohort } from '../analytics/events';
 
 interface GraduationDialogProps {
     open: boolean;
@@ -30,6 +31,12 @@ const GraduationDialog: React.FC<GraduationDialogProps> = ({ open, onClose, coho
             .then((response) => {
                 console.log('graduate: ', response);
                 request.onSuccess('Congratulations! You have successfully graduated!');
+                trackEvent(EventType.Graduate, {
+                    previous_cohort: response.data.graduation.previousCohort,
+                    new_cohort: response.data.graduation.newCohort,
+                    dojo_score: response.data.graduation.score,
+                });
+                setUserCohort(response.data.userUpdate.dojoCohort);
                 onClose();
             })
             .catch((err) => {
