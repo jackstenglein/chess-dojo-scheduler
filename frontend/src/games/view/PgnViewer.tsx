@@ -17,6 +17,7 @@ import { Game, isDefaultHeader } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import DeleteGameButton from './DeleteGameButton';
+import GameErrorBoundary from './GameErrorBoundary';
 
 interface HeaderDisplayProps {
     header: string;
@@ -139,15 +140,12 @@ const GameData: React.FC<GameDataProps> = ({ game }) => {
     );
 };
 
-interface PgnViewerProps {
+interface BoardProps {
     game: Game;
-    onFeature: () => void;
 }
 
-const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
+const Board: React.FC<BoardProps> = ({ game }) => {
     const user = useAuth().user!;
-    const navigate = useNavigate();
-
     const id = 'board';
 
     useLayoutEffect(() => {
@@ -160,6 +158,18 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
             resizable: false,
         });
     }, [id, game.pgn]);
+
+    return <div id={id} className={user.enableDarkMode ? 'dark' : undefined}></div>;
+};
+
+interface PgnViewerProps {
+    game: Game;
+    onFeature: () => void;
+}
+
+const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
+    const user = useAuth().user!;
+    const navigate = useNavigate();
 
     return (
         <Stack alignItems='center'>
@@ -194,10 +204,9 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
                 </Grid>
 
                 <Grid item sm={12} md={8} lg={9}>
-                    <div
-                        id={id}
-                        className={user.enableDarkMode ? 'dark' : undefined}
-                    ></div>
+                    <GameErrorBoundary game={game}>
+                        <Board game={game} />
+                    </GameErrorBoundary>
                 </Grid>
             </Grid>
         </Stack>
