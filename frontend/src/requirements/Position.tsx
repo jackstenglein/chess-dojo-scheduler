@@ -17,6 +17,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { Position as PositionModel } from '../database/requirement';
 import { useRequest } from '../api/Request';
 import { EventType, trackEvent } from '../analytics/events';
+import Board from '../board/Board';
 
 interface PositionProps {
     position: PositionModel;
@@ -93,14 +94,8 @@ const Position: React.FC<PositionProps> = ({ position }) => {
                     </Stack>
                 }
             />
-            <CardContent sx={{ pt: 0, px: 1, minWidth: '336px', height: '328px' }}>
-                <iframe
-                    src={position.embedUrl}
-                    title={position.embedUrl}
-                    frameBorder={0}
-                    style={{ width: '100%', height: '100%' }}
-                    scrolling='no'
-                />
+            <CardContent sx={{ pt: 0, px: 1, width: '336px', height: '336px' }}>
+                <Board config={{ fen: position.fen, viewOnly: true }} />
             </CardContent>
             <CardActions>
                 <CopyToClipboard text={position.fen} onCopy={onCopyFen}>

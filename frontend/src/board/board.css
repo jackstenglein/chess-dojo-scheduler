@@ -1,0 +1,75 @@
+@import '../../node_modules/chessground/assets/chessground.base.css';
+@import '../../node_modules/chessground/assets/chessground.brown.css';
+@import '../../node_modules/chessground/assets/chessground.cburnett.css';
+
+.cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.cg-wrap coords.ranks coord:nth-child(2n + 1),
+.cg-wrap coords.files coord:nth-child(2n) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.cg-wrap coords.ranks coord:nth-child(2n),
+.cg-wrap coords.files coord:nth-child(2n + 1) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+cg-board {
+    background-image: url('https://www.chess.com/boards/icy_sea/150.png') !important;
+}
+
+.cg-wrap piece.pawn.white {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/wp.png') !important;
+}
+.cg-wrap piece.bishop.white {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/wb.png') !important;
+}
+.cg-wrap piece.knight.white {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/wn.png') !important;
+}
+.cg-wrap piece.rook.white {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/wr.png') !important;
+}
+.cg-wrap piece.queen.white {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/wq.png') !important;
+}
+.cg-wrap piece.king.white {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/wk.png') !important;
+}
+.cg-wrap piece.pawn.black {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/bp.png') !important;
+}
+.cg-wrap piece.bishop.black {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/bb.png') !important;
+}
+.cg-wrap piece.knight.black {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/bn.png') !important;
+}
+.cg-wrap piece.rook.black {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/br.png') !important;
+}
+.cg-wrap piece.queen.black {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/bq.png') !important;
+}
+.cg-wrap piece.king.black {
+    background-image: url('https://www.chess.com/chess-themes/pieces/bases/150/bk.png') !important;
+}

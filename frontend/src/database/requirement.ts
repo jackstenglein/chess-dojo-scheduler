@@ -29,7 +29,6 @@ export interface CustomTask {
 export interface Position {
     title: string;
     fen: string;
-    embedUrl: string;
     limitSeconds: number;
     incrementSeconds: number;
     result: string;
