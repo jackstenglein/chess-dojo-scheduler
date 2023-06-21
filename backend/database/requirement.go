@@ -67,9 +67,6 @@ type Position struct {
 	// The FEN of the position
 	Fen string `dynamodbav:"fen" json:"fen"`
 
-	// The board embed URL of the position
-	EmbedUrl string `dynamodbav:"embedUrl" json:"embedUrl"`
-
 	// The time limit in seconds the position is meant to be played at
 	LimitSeconds int `dynamodbav:"limitSeconds" json:"limitSeconds"`
 

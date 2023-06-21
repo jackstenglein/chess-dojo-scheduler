@@ -78,13 +78,6 @@ def getPositions(row: dict):
 
     positions = []
     fens = row['FENs'].split(',')
-
-    if not row['Position URLs']:
-        raise Exception('Row Position URLs does not match FENs: ', row)
-    
-    embedUrls = row['Position URLs'].split(',')
-    if len(fens) != len(embedUrls):
-        raise Exception('Row FENs does not match Position URLs: ', row)
     
     limitSeconds = int(row['Limit Seconds'])
     incrementSeconds = int(row['Increment Seconds']) if row['Increment Seconds'] else 0
@@ -92,7 +85,7 @@ def getPositions(row: dict):
     title = row['Position Title']
 
     index = 1
-    for fen, url in zip(fens, embedUrls):
+    for fen in fens:
         ptitle = title
         if len(fens) > 1:
             ptitle = f'{title} #{index}'
@@ -102,7 +95,6 @@ def getPositions(row: dict):
         position = {
             'title': ptitle,
             'fen': fen,
-            'embedUrl': url,
             'limitSeconds': limitSeconds,
             'incrementSeconds': incrementSeconds,
             'result': result,
