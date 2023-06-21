@@ -159,7 +159,12 @@ const Board: React.FC<BoardProps> = ({ game }) => {
         });
     }, [id, game.pgn]);
 
-    return <div id={id} className={user.enableDarkMode ? 'dark' : undefined}></div>;
+    return (
+        <div
+            id={id}
+            className={user.enableDarkMode ? 'reactBoard dark' : 'reactBoard'}
+        ></div>
+    );
 };
 
 interface PgnViewerProps {

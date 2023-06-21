@@ -45,6 +45,7 @@ const (
 	SparringPositions OpeningModuleType = "SPARRING_POSITIONS"
 	ModelGames        OpeningModuleType = "MODEL_GAMES"
 	Themes            OpeningModuleType = "THEMES"
+	Exercises         OpeningModuleType = "EXERCISES"
 )
 
 // OpeningModule is a single section within an opening.
@@ -65,6 +66,10 @@ type OpeningModule struct {
 	// The PGN text of the module. Generally used only if type
 	// is PgnViewer.
 	Pgn string `dynamodbav:"pgn" json:"pgn"`
+
+	// A list of PGN texts for the module. Generally used only if type is
+	// Exercises.
+	Pgns []string `dynamodbav:"pgns" json:"pgns"`
 
 	// The positions of the module. Generally used only if type is
 	// SparringPositions or Themes.

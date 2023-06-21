@@ -62,6 +62,7 @@ export enum OpeningModuleType {
     SparringPositions = 'SPARRING_POSITIONS',
     ModelGames = 'MODEL_GAMES',
     Themes = 'THEMES',
+    Exercises = 'EXERCISES',
 }
 
 /**
@@ -93,6 +94,11 @@ export interface OpeningModule {
      * The PGN text of the module. Generally used only if type is PgnViewer.
      */
     pgn: string;
+
+    /**
+     * A list of PGNs for the module. Generally used only if type is Exercises.
+     */
+    pgns: string[];
 
     /**
      * The positions of the module. Generally used only if type is

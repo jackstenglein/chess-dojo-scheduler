@@ -10,7 +10,7 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-div #board {
+div .reactBoard {
     width: 100% !important;
     grid-template-columns: calc(min(500px, 100%)) !important;
     grid-template-rows: 0px auto calc(min(500px, 100vw - 32px)) 37px 200px !important;
@@ -22,7 +22,7 @@ div #board {
         'tools';
 }
 
-div #board .opening {
+div.reactBoard.opening {
     width: 100% !important;
     grid-template-columns: 100% !important;
     grid-template-rows: 0px auto calc(min(500px, 100vw - 32px)) 37px 200px !important;
@@ -34,89 +34,113 @@ div #board .opening {
         'tools';
 }
 
-div #board #boardGames {
+div.reactBoard.opening.exercise {
+    width: 100% !important;
+    grid-template-columns: 100% !important;
+    grid-template-rows: 0px auto calc(min(500px, 100vw - 32px)) 0px 200px !important;
+    grid-template-areas:
+        'gameSelect'
+        'error'
+        'board'
+        'button'
+        'tools';
+}
+
+div .reactBoard #boardGames {
     grid-area: gameSelect;
 }
 
-div #board #boardError {
+div .reactBoard #boardError {
     grid-area: error;
 }
 
-div #board .outerBoard #boardInner {
+div .reactBoard .outerBoard #boardInner {
     height: auto !important;
     aspect-ratio: 1 !important;
     width: 100% !important;
 }
 
-div #board .outerBoard {
+div .reactBoard .outerBoard {
     grid-area: board;
 }
 
-div #board .outerBoard .boardAnd {
+div .reactBoard .outerBoard .boardAnd {
     display: flex;
     justify-content: center;
 }
 
-div #board #boardMoves {
+div .reactBoard #boardMoves {
     grid-area: tools;
     color: inherit;
 }
 
-div #board #boardButton {
+div .reactBoard #boardButton {
     grid-area: button;
 }
 
-div#board.dark move-number {
+div.reactBoard .dark move-number {
     background: var(--gray-800);
 }
 
-div#board.dark span.comment.timeNormal {
+div.reactBoard .dark span.comment.timeNormal {
     background: none;
     color: rgba(255, 255, 255, 0.7);
 }
 
-div#board.dark .variation span.comment.afterComment {
+div.reactBoard .dark .variation span.comment.afterComment {
     background: none;
     color: rgba(255, 255, 255, 0.7);
 }
 
-div#board.dark span.comment {
+div.reactBoard .dark span.comment {
     color: rgba(255, 255, 255, 0.9);
     background: var(--gray-800);
 }
 
-div#board.dark move san:hover {
+div.reactBoard .dark move san:hover {
     color: var(--gray-800);
 }
 
-div#board div#boardMoves move {
-    flex-basis: 42.5%;
-}
-
-div#board div#boardMoves span.move.filler {
-    flex-basis: 42.5%;
-}
-
-div#board textarea#boardFen {
+div.reactBoard.hideMoves div#boardMoves {
     display: none;
 }
 
-div#board div#commentboardButton {
+div.reactBoard.opening.exercise div#boardButton {
     display: none;
 }
 
-div#board div#editboardButton {
+div.reactBoard div#boardMoves move {
+    flex-basis: 42.5%;
+}
+
+div.reactBoard div#boardMoves span.move.filler {
+    flex-basis: 42.5%;
+}
+
+div.reactBoard textarea#boardFen {
+    display: none;
+}
+
+div.reactBoard div#commentboardButton {
+    display: none;
+}
+
+div.reactBoard div#editboardButton {
     display: none;
 }
 
 @media screen and (min-width: 600px) {
-    div #board {
+    div .reactBoard {
         grid-template-rows: 0px auto calc(min(500px, 100vw - 48px)) 37px 200px !important;
+    }
+
+    div .reactBoard.opening.exercise {
+        grid-template-rows: 0px auto calc(min(500px, 100vw - 48px)) 0px 200px !important;
     }
 }
 
 @media screen and (min-width: 900px) {
-    div #board {
+    div .reactBoard {
         grid-template-columns: 63% 37% !important;
         grid-template-rows: 0px auto calc((100vw - 48px) * 0.42) 37px !important;
         grid-template-areas:
@@ -126,9 +150,19 @@ div#board div#editboardButton {
             'button .';
     }
 
-    div #board.opening {
+    div .reactBoard.opening {
         grid-template-columns: 63% 37% !important;
-        grid-template-rows: 0px auto calc((100vw - 48px) * 0.4725) 37px !important;
+        grid-template-rows: 0px auto calc((100vw - 48px) * 0.3544) 37px !important;
+        grid-template-areas:
+            'gameSelect gameSelect'
+            'error error'
+            'board tools'
+            'button .';
+    }
+
+    div .reactBoard.opening.exercise {
+        grid-template-columns: 63% 37% !important;
+        grid-template-rows: 0px auto calc((100vw - 48px) * 0.3544) 0px !important;
         grid-template-areas:
             'gameSelect gameSelect'
             'error error'
@@ -138,7 +172,15 @@ div#board div#editboardButton {
 }
 
 @media screen and (min-width: 1200px) {
-    div #board {
+    div .reactBoard {
         grid-template-rows: 0px auto calc((min(1536px, 100vw) - 48px) * 0.4725) 37px !important;
+    }
+
+    div .reactBoard.opening {
+        grid-template-rows: 0px auto calc((min(1536px, 100vw) - 48px) * 0.3544) 37px !important;
+    }
+
+    div .reactBoard.opening.exercise {
+        grid-template-rows: 0px auto calc((min(1536px, 100vw) - 48px) * 0.3544) 0px !important;
     }
 }

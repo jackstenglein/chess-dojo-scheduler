@@ -1,4 +1,5 @@
 import { OpeningModule, OpeningModuleType } from '../../database/opening';
+import ExercisesModule from './ExercisesModule';
 import PgnViewerModule from './PgnViewerModule';
 import SparringPositionsModule from './SparringPositionsModule';
 import VideoModule from './VideoModule';
@@ -19,6 +20,8 @@ const Module: React.FC<ModuleProps> = ({ module }) => {
             return null;
         case OpeningModuleType.Themes:
             return null;
+        case OpeningModuleType.Exercises:
+            return <ExercisesModule module={module} />;
         default:
             return null;
     }

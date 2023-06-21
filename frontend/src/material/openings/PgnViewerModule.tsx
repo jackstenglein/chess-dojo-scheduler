@@ -44,10 +44,14 @@ const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {
             <Typography>{module.description}</Typography>
 
             <Grid container mt={1} rowGap={2}>
-                <Grid item sm={12} md={12} lg={12}>
+                <Grid item sm={12} md={9}>
                     <div
                         id={boardId}
-                        className={user.enableDarkMode ? 'opening dark' : 'opening'}
+                        className={
+                            user.enableDarkMode
+                                ? 'reactBoard opening dark'
+                                : 'reactBoard opening'
+                        }
                     ></div>
                 </Grid>
                 <Grid item xs={12} mt={3}>
