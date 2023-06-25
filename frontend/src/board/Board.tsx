@@ -6,13 +6,17 @@ import { Api as BoardApi } from 'chessground/api';
 import { Config } from 'chessground/config';
 import { Key, Color } from 'chessground/types';
 
-import { Chess } from '@jackstenglein/chess';
-import { Move } from 'chess.js';
-import { SQUARES } from 'chess.js';
+import { Chess, Move, SQUARES } from '@jackstenglein/chess';
 
 import './board.css';
 
-export function toColor(chess: Chess): Color {
+export { Chess };
+export type { BoardApi };
+
+export function toColor(chess?: Chess): Color {
+    if (!chess) {
+        return 'white';
+    }
     return chess.turn() === 'w' ? 'white' : 'black';
 }
 
@@ -46,25 +50,44 @@ export function defaultOnMove(board: BoardApi, chess: Chess) {
     };
 }
 
+export interface BoardRef {
+    chess: Chess;
+    board: BoardApi | null;
+}
+
 interface BoardProps {
-    config: Config;
+    config?: Config;
+    onInitialize?: (board: BoardApi, chess: Chess) => void;
     onMove?: (board: BoardApi, chess: Chess) => (orig: Key, dest: Key) => void;
 }
 
-const Board: React.FC<BoardProps> = ({ config, onMove }) => {
+const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const chess = useState(new Chess())[0];
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         if (boardRef.current && !board) {
             const chessgroundApi = Chessground(boardRef.current, config);
             setBoard(chessgroundApi);
         } else if (boardRef.current && board) {
-            chess.load(config.fen!);
+            if (onInitialize) {
+                if (isInitialized) {
+                    return;
+                }
+                setIsInitialized(true);
+                onInitialize(board, chess);
+                return;
+            }
+
+            if (config && config.fen) {
+                chess.load(config.fen);
+            }
 
             board.set({
                 ...config,
+                fen: chess.fen(),
                 movable: {
                     color: toColor(chess),
                     free: false,
@@ -77,7 +100,16 @@ const Board: React.FC<BoardProps> = ({ config, onMove }) => {
                 },
             });
         }
-    }, [boardRef, board, chess, config, onMove]);
+    }, [
+        boardRef,
+        board,
+        chess,
+        config,
+        isInitialized,
+        setIsInitialized,
+        onMove,
+        onInitialize,
+    ]);
 
     return (
         <Box width={1} height={1}>

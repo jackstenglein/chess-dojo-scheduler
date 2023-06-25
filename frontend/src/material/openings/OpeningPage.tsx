@@ -74,7 +74,7 @@ const OpeningPage = () => {
         <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
             {openingLevel && (
                 <Grid container rowGap={2}>
-                    <Grid item xs={12} sm={9}>
+                    <Grid item xs={12} sm={12} md={9}>
                         <Stack>
                             <Typography variant='h4'>{request.data!.name}</Typography>
                             <Typography variant='h5' color='text.secondary'>
@@ -90,7 +90,7 @@ const OpeningPage = () => {
                         </Stack>
                     </Grid>
 
-                    <Grid item xs={12} sm={9} md={3}>
+                    <Grid item xs={12} sm={12} md={3}>
                         <Card variant='outlined'>
                             <CardContent>
                                 <Typography>
@@ -112,7 +112,7 @@ const OpeningPage = () => {
                         </Card>
                     </Grid>
 
-                    <Grid item xs={12} sm={9}>
+                    <Grid item xs={12} sm={12}>
                         <Stack direction='row' justifyContent='space-between' mt={4}>
                             {moduleIndex > 0 &&
                                 moduleIndex < openingLevel.modules.length && (
