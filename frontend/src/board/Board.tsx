@@ -15,6 +15,7 @@ export type { BoardApi };
 
 export function toColor(chess?: Chess): Color {
     if (!chess) {
+        console.log('Chess is null, returning white by default');
         return 'white';
     }
     return chess.turn() === 'w' ? 'white' : 'black';

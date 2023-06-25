@@ -107,7 +107,12 @@ const OpeningsTab = () => {
                                                     >
                                                         {opening.name}
                                                     </Typography>
-                                                    <ArrowForwardIosIcon htmlColor='rgba(0, 0, 0, 0.6)' />
+                                                    <Typography
+                                                        color='text.secondary'
+                                                        pt='3px'
+                                                    >
+                                                        <ArrowForwardIosIcon />
+                                                    </Typography>
                                                 </Stack>
                                             </Link>
                                         ))}

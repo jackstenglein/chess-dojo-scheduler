@@ -129,26 +129,12 @@ const CorrectMoveHint: React.FC<HintSectionProps> = ({ move, board, chess, onNex
     );
 };
 
-function getResultDisplay(result: string): string {
-    if (result === '1-0') {
-        return 'White wins.';
-    }
-    if (result === '0-1') {
-        return 'Black wins.';
-    }
-    if (result === '1/2-1/2') {
-        return 'Draw';
-    }
-    return '';
-}
-
 const CompleteHint: React.FC<HintSectionProps> = ({ board, chess, onRestart }) => {
-    const result = chess.pgn.header.tags.Result;
     const gameOver = chess.currentMove() === chess.lastMove();
 
     let comment = chess.currentMove()?.commentAfter;
     if (!comment && gameOver) {
-        comment = `${result} ${getResultDisplay(result)}`;
+        comment = `Correct!`;
     }
 
     return (

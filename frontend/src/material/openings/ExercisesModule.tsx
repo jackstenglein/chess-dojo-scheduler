@@ -25,7 +25,9 @@ const Exercise: React.FC<ExerciseProps> = ({ index, pgn }) => {
 const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
     const user = useAuth().user!;
 
-    console.log('Module: ', module);
+    if (!user.isAdmin && !user.isBetaTester) {
+        return <Typography>Coming Soon</Typography>;
+    }
 
     if (!module.pgns) {
         return null;
@@ -36,7 +38,7 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
             <Typography variant='h6'>{module.name}</Typography>
             <Typography>{module.description}</Typography>
 
-            <Stack pt={3}>
+            <Stack pt={3} spacing={6}>
                 {module.pgns.map((pgn, index) => (
                     <Exercise
                         key={index}
