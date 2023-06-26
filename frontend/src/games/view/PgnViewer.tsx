@@ -1,6 +1,5 @@
-import { useLayoutEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { pgnEdit } from '@mliebelt/pgn-viewer';
 import {
     Button,
     Grid,
@@ -18,6 +17,7 @@ import { useAuth } from '../../auth/Auth';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import DeleteGameButton from './DeleteGameButton';
 import GameErrorBoundary from './GameErrorBoundary';
+import PgnBoard from '../../board/pgn/PgnBoard';
 
 interface HeaderDisplayProps {
     header: string;
@@ -140,33 +140,6 @@ const GameData: React.FC<GameDataProps> = ({ game }) => {
     );
 };
 
-interface BoardProps {
-    game: Game;
-}
-
-const Board: React.FC<BoardProps> = ({ game }) => {
-    const user = useAuth().user!;
-    const id = 'board';
-
-    useLayoutEffect(() => {
-        pgnEdit(id, {
-            pgn: game.pgn,
-            pieceStyle: 'alpha',
-            theme: 'blue',
-            showResult: true,
-            notationLayout: 'list',
-            resizable: false,
-        });
-    }, [id, game.pgn]);
-
-    return (
-        <div
-            id={id}
-            className={user.enableDarkMode ? 'reactBoard dark' : 'reactBoard'}
-        ></div>
-    );
-};
-
 interface PgnViewerProps {
     game: Game;
     onFeature: () => void;
@@ -210,7 +183,7 @@ const PgnViewer: React.FC<PgnViewerProps> = ({ game, onFeature }) => {
 
                 <Grid item sm={12} md={8} lg={9}>
                     <GameErrorBoundary game={game}>
-                        <Board game={game} />
+                        <PgnBoard pgn={game.pgn} />
                     </GameErrorBoundary>
                 </Grid>
             </Grid>

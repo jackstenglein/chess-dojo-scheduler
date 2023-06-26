@@ -21,7 +21,10 @@ export function toColor(chess?: Chess): Color {
     return chess.turn() === 'w' ? 'white' : 'black';
 }
 
-export function toDests(chess: Chess): Map<Key, Key[]> {
+export function toDests(chess?: Chess): Map<Key, Key[]> {
+    if (!chess) {
+        return new Map();
+    }
     const dests = new Map();
     SQUARES.forEach((s) => {
         const moves = chess.moves({ square: s, verbose: true });
