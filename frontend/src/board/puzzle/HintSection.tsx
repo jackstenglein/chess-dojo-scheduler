@@ -182,7 +182,7 @@ const HintSection: React.FC<HintSectionProps> = (props) => {
             Component = <CompleteHint {...props} />;
     }
 
-    return <Stack ml={2}>{Component}</Stack>;
+    return <Stack>{Component}</Stack>;
 };
 
 export default HintSection;

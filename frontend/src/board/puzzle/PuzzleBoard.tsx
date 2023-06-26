@@ -29,6 +29,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
         board.set({
             fen: chess.fen(),
             turnColor: toColor(chess),
+            orientation: toColor(chess),
             movable: {
                 color: toColor(chess),
                 dests: toDests(chess),
@@ -141,6 +142,73 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
     };
 
     return (
+        <Box
+            sx={{
+                display: 'grid',
+                width: 1,
+                '--zoom': 85,
+                '--site-header-height': '80px',
+                '--site-header-margin': 0,
+                '--board-scale': 'calc((var(--zoom) / 100) * 0.75 + 0.25)',
+                '--gap': '16px',
+                '--main-margin': '1vw',
+                '--col2-board-width':
+                    'calc(min(calc( 100vw - 16px - 260px ), calc(100vh - 80px - 1rem)) * var(--board-scale))',
+                gridTemplateRows: {
+                    xs: 'auto auto var(--gap) minmax(20em, 30vh)',
+                    sm: 'fit-content(0)',
+                },
+                gridTemplateColumns: {
+                    xs: undefined,
+                    sm: 'var(--col2-board-width) var(--gap) minmax(240px, 400px)',
+                },
+                gridTemplateAreas: {
+                    xs: '"header" "board" "gap" "coach"',
+                    sm: '"header header header" "board gap coach"',
+                },
+            }}
+        >
+            {board && chess && (
+                <Typography gridArea='header' variant='subtitle2' color='text.secondary'>
+                    {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
+                </Typography>
+            )}
+            <Box
+                gridArea='board'
+                sx={{
+                    aspectRatio: 1,
+                    width: 1,
+                }}
+            >
+                <Board onInitialize={onInitialize} onMove={onMove} />
+            </Box>
+            {board && chess && (
+                <Stack
+                    gridArea='coach'
+                    height={1}
+                    justifyContent={{ xs: 'start', sm: 'flex-end' }}
+                >
+                    <HintSection
+                        status={status}
+                        move={move}
+                        board={board}
+                        chess={chess}
+                        onNext={onNext}
+                        onRetry={onRetry}
+                        onRestart={onRestart}
+                    />
+                </Stack>
+            )}
+        </Box>
+    );
+};
+
+export default PuzzleBoard;
+
+/*
+
+
+return (
         <Grid container mt={1} rowGap={2}>
             {board && chess && (
                 <Grid item xs={12}>
@@ -149,20 +217,20 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
                     </Typography>
                 </Grid>
             )}
-            <Grid item xs={12} sm={8} md={8}>
+            <Grid item xs={12} sm='auto'>
                 <Box
                     sx={{
                         aspectRatio: 1,
                         minHeight: '336px',
-                        maxWidth: '716px',
-                        width: 1,
+                        minWidth: '336px',
+                        maxWidth: 'calc(min(716px, 70vh))',
                     }}
                 >
                     <Board onInitialize={onInitialize} onMove={onMove} />
                 </Box>
             </Grid>
             {board && chess && (
-                <Grid item xs={12} sm={4} md={4}>
+                <Grid item xs={12} sm='auto'>
                     <Stack height={1} justifyContent='flex-end'>
                         <HintSection
                             status={status}
@@ -178,6 +246,4 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
             )}
         </Grid>
     );
-};
-
-export default PuzzleBoard;
+ */

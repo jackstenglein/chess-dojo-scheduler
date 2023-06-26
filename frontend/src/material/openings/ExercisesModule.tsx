@@ -14,7 +14,7 @@ const Exercise: React.FC<ExerciseProps> = ({ index, pgn }) => {
     return (
         <Stack alignItems='start'>
             <Typography variant='subtitle2' fontWeight='bold' color='text.secondary'>
-                Exercise #{index + 1}: Black to Play
+                Exercise #{index + 1}
             </Typography>
 
             <PuzzleBoard pgn={pgn} />
