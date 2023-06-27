@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { Move } from '@jackstenglein/chess';
 import { Box, Divider } from '@mui/material';
 
@@ -9,12 +10,11 @@ const lineInset = 8; // px
 
 interface LineProps {
     line: Move[];
-    currentMove: Move | null;
     depth: number;
     onClickMove: (m: Move) => void;
 }
 
-const Line: React.FC<LineProps> = ({ line, currentMove, depth, onClickMove }) => {
+const Line: React.FC<LineProps> = ({ line, depth, onClickMove }) => {
     const result: JSX.Element[] = [];
 
     for (let i = 0; i < line.length; i++) {
@@ -22,8 +22,8 @@ const Line: React.FC<LineProps> = ({ line, currentMove, depth, onClickMove }) =>
         if (i > 0 && move.variations.length > 0) {
             result.push(
                 <Lines
+                    key={`line-${i}`}
                     lines={[line.slice(i), ...move.variations]}
-                    currentMove={currentMove}
                     depth={depth + 1}
                     onClickMove={onClickMove}
                 />
@@ -32,16 +32,15 @@ const Line: React.FC<LineProps> = ({ line, currentMove, depth, onClickMove }) =>
         }
 
         result.push(
-            <>
+            <Fragment key={`fragment-${i}`}>
                 <MoveButton
                     inline
                     forceShowPly={i === 0}
                     move={move}
-                    currentMove={currentMove}
                     onClickMove={onClickMove}
                 />
                 <Comment text={move.commentAfter} inline />
-            </>
+            </Fragment>
         );
     }
 
@@ -65,12 +64,11 @@ const Line: React.FC<LineProps> = ({ line, currentMove, depth, onClickMove }) =>
 
 interface LinesProps {
     lines: Move[][];
-    currentMove: Move | null;
     depth?: number;
     onClickMove: (m: Move) => void;
 }
 
-const Lines: React.FC<LinesProps> = ({ lines, currentMove, depth, onClickMove }) => {
+const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove }) => {
     let d = depth || 0;
 
     return (
@@ -108,13 +106,7 @@ const Lines: React.FC<LinesProps> = ({ lines, currentMove, depth, onClickMove })
             )}
 
             {lines.map((l, idx) => (
-                <Line
-                    key={idx}
-                    line={l}
-                    currentMove={currentMove}
-                    depth={d}
-                    onClickMove={onClickMove}
-                />
+                <Line key={idx} line={l} depth={d} onClickMove={onClickMove} />
             ))}
         </Box>
     );

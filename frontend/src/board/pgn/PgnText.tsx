@@ -7,20 +7,15 @@ import GameComment from './GameComment';
 
 interface PgnTextProps {
     pgn: Pgn;
-    currentMove: Move | null;
     onClickMove: (m: Move) => void;
 }
 
-const PgnText: React.FC<PgnTextProps> = ({ pgn, currentMove, onClickMove }) => {
+const PgnText: React.FC<PgnTextProps> = ({ pgn, onClickMove }) => {
     return (
         <Card sx={{ overflowY: 'scroll' }}>
             <GameComment pgn={pgn} />
 
-            <Variation
-                moves={pgn.history.moves}
-                currentMove={currentMove}
-                onClickMove={onClickMove}
-            />
+            <Variation moves={pgn.history.moves} onClickMove={onClickMove} />
 
             <Result pgn={pgn} />
         </Card>

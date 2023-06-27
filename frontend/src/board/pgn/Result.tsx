@@ -18,6 +18,10 @@ const Result: React.FC<{ pgn: Pgn }> = ({ pgn }) => {
         description = 'Black Wins';
     }
 
+    if (!description) {
+        return null;
+    }
+
     return (
         <Stack alignItems='center'>
             <Divider sx={{ width: 1 }} />

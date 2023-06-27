@@ -50,7 +50,6 @@ const IncorrectMoveHint: React.FC<HintSectionProps> = ({
 }) => {
     const upHandler = useCallback(
         (event: KeyboardEvent) => {
-            console.log('Key up: ', event.key);
             if (event.key === 'Enter') {
                 event.stopPropagation();
                 onRetry(board, chess);
@@ -92,7 +91,6 @@ const IncorrectMoveHint: React.FC<HintSectionProps> = ({
 const CorrectMoveHint: React.FC<HintSectionProps> = ({ move, board, chess, onNext }) => {
     const upHandler = useCallback(
         (event: KeyboardEvent) => {
-            console.log('Key up: ', event.key);
             if (event.key === 'Enter') {
                 event.stopPropagation();
                 onNext(board, chess);

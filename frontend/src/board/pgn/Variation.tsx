@@ -8,35 +8,29 @@ import Interrupt, { hasInterrupt } from './Interrupt';
 
 interface VariationProps {
     moves: Move[];
-    currentMove: Move | null;
     depth?: number;
     onClickMove: (m: Move) => void;
 }
 
-const Variation: React.FC<VariationProps> = ({
-    moves,
-    currentMove,
-    depth = 0,
-    onClickMove,
-}) => {
+const Variation: React.FC<VariationProps> = ({ moves, depth = 0, onClickMove }) => {
     const renderVariation = (variation: Move[]): JSX.Element[] => {
         let needReminder = false;
         const items: JSX.Element[] = [];
 
         for (const move of variation) {
             if (move.ply % 2 === 1 || needReminder) {
-                items.push(<MoveNumber ply={move.ply} />);
+                items.push(<MoveNumber key={`move-number-${move.ply}`} ply={move.ply} />);
 
                 if (move.ply % 2 === 0) {
-                    items.push(<Ellipsis ply={move.ply} />);
+                    items.push(<Ellipsis key={`ellipsis-${move.ply}`} ply={move.ply} />);
                 }
             }
             needReminder = false;
 
             items.push(
                 <MoveButton
+                    key={`move-button-${move.ply}`}
                     move={move}
-                    currentMove={currentMove}
                     onClickMove={onClickMove}
                 />
             );
@@ -44,8 +38,8 @@ const Variation: React.FC<VariationProps> = ({
             if (hasInterrupt(move)) {
                 items.push(
                     <Interrupt
+                        key={`interrupt-${move.ply}`}
                         move={move}
-                        currentMove={currentMove}
                         onClickMove={onClickMove}
                     />
                 );
