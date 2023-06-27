@@ -14,9 +14,7 @@ const PgnText: React.FC<PgnTextProps> = ({ pgn, onClickMove }) => {
     return (
         <Card sx={{ overflowY: 'scroll' }}>
             <GameComment pgn={pgn} />
-
             <Variation moves={pgn.history.moves} onClickMove={onClickMove} />
-
             <Result pgn={pgn} />
         </Card>
     );

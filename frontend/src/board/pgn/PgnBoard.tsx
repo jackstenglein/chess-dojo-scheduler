@@ -1,10 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Stack, Typography } from '@mui/material';
 import { Chess, Move } from '@jackstenglein/chess';
+import { Box, Stack } from '@mui/material';
 
 import Board, { BoardApi, toColor, toDests } from '../Board';
 import PgnText from './PgnText';
 import { Key } from 'chessground/types';
+import Tools from './Tools';
 
 type CurrentMoveContextType = {
     currentMove: Move | null;
@@ -127,29 +128,25 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn }) => {
                 '--board-scale': 'calc((var(--zoom) / 100) * 0.75 + 0.25)',
                 '--gap': '16px',
                 '--main-margin': '1vw',
+                '--header-height': '24px',
                 '--col2-board-width':
                     'calc(min(calc( 100vw - 16px - 260px ), calc(100vh - 80px - 1rem)) * var(--board-scale))',
                 '--tools-width':
                     'calc(max(200px, min(70vw - var(--col2-board-width) - var(--gap), 400px)))',
                 gridTemplateRows: {
-                    xs: 'auto auto var(--gap) minmax(20em, 30vh)',
-                    sm: 'fit-content(0) var(--col2-board-width)',
+                    xs: 'auto auto auto var(--gap) auto minmax(20em, 30vh)',
+                    sm: 'fit-content(0) var(--col2-board-width) fit-content(0)',
                 },
                 gridTemplateColumns: {
                     xs: undefined,
                     sm: 'var(--col2-board-width) var(--gap) var(--tools-width)',
                 },
                 gridTemplateAreas: {
-                    xs: '"header" "board" "gap" "coach"',
-                    sm: '"header header header" "board gap coach"',
+                    xs: '"header" "board" "footer" "gap" "tools" "coach"',
+                    sm: '"header gap ." "board gap coach" "footer gap tools"',
                 },
             }}
         >
-            {board && chess && (
-                <Typography gridArea='header' variant='subtitle2' color='text.secondary'>
-                    {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
-                </Typography>
-            )}
             <Box
                 gridArea='board'
                 sx={{
@@ -160,11 +157,14 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn }) => {
                 <Board onInitialize={onInitialize} onMove={onMove} />
             </Box>
             {board && chess && (
-                <CurrentMoveContext.Provider value={{ currentMove: move }}>
-                    <Stack gridArea='coach' height={1}>
-                        <PgnText pgn={chess.pgn} onClickMove={onClickMove} />
-                    </Stack>
-                </CurrentMoveContext.Provider>
+                <>
+                    <Tools board={board} chess={chess} />
+                    <CurrentMoveContext.Provider value={{ currentMove: move }}>
+                        <Stack gridArea='coach' height={1}>
+                            <PgnText pgn={chess.pgn} onClickMove={onClickMove} />
+                        </Stack>
+                    </CurrentMoveContext.Provider>
+                </>
             )}
         </Box>
     );
