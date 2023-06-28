@@ -10,9 +10,10 @@ import PlayerHeader from './PlayerHeader';
 interface ToolsProps {
     board: BoardApi;
     chess: Chess;
+    showPlayerHeaders: boolean;
 }
 
-const Tools: React.FC<ToolsProps> = ({ board, chess }) => {
+const Tools: React.FC<ToolsProps> = ({ board, chess, showPlayerHeaders }) => {
     const [orientation, setOrientation] = useState<Color>('white');
 
     const toggleOrientation = useCallback(() => {
@@ -22,12 +23,20 @@ const Tools: React.FC<ToolsProps> = ({ board, chess }) => {
 
     return (
         <>
-            <PlayerHeader type='header' orientation={orientation} pgn={chess.pgn} />
-            <PlayerHeader
-                type='footer'
-                orientation={board.state.orientation}
-                pgn={chess.pgn}
-            />
+            {showPlayerHeaders && (
+                <>
+                    <PlayerHeader
+                        type='header'
+                        orientation={orientation}
+                        pgn={chess.pgn}
+                    />
+                    <PlayerHeader
+                        type='footer'
+                        orientation={board.state.orientation}
+                        pgn={chess.pgn}
+                    />
+                </>
+            )}
             <Stack direction='row' mt={0.5} gridArea='tools'>
                 <Tooltip title='Flip Board'>
                     <IconButton aria-label='flip board' onClick={toggleOrientation}>

@@ -36,9 +36,10 @@ function reconcile(chess?: Chess, board?: BoardApi) {
 
 interface PgnBoardProps {
     pgn: string;
+    showPlayerHeaders?: boolean;
 }
 
-const PgnBoard: React.FC<PgnBoardProps> = ({ pgn }) => {
+const PgnBoard: React.FC<PgnBoardProps> = ({ pgn, showPlayerHeaders = true }) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
     const [move, setMove] = useState<Move | null>(null);
@@ -158,7 +159,11 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn }) => {
             </Box>
             {board && chess && (
                 <>
-                    <Tools board={board} chess={chess} />
+                    <Tools
+                        board={board}
+                        chess={chess}
+                        showPlayerHeaders={showPlayerHeaders}
+                    />
                     <CurrentMoveContext.Provider value={{ currentMove: move }}>
                         <Stack gridArea='coach' height={1}>
                             <PgnText pgn={chess.pgn} onClickMove={onClickMove} />

@@ -13,7 +13,6 @@
         "@fortawesome/free-solid-svg-icons": "^6.4.0",
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@jackstenglein/chess": "^1.0.16",
-        "@mliebelt/pgn-viewer": "^1.6.6",
         "@mui/base": "^5.0.0-beta.4",
         "@mui/icons-material": "^5.11.16",
         "@mui/lab": "^5.0.0-alpha.134",
