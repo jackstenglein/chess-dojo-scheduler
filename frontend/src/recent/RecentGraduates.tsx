@@ -41,7 +41,7 @@ const timeframeWeek = {
 
 function getTimeframeOptions() {
     let currGraduation = new Date();
-    currGraduation.setUTCHours(5, 30, 0, 0);
+    currGraduation.setUTCHours(17, 30, 0, 0);
     currGraduation.setUTCDate(
         currGraduation.getUTCDate() +
             ((graduationDayOfWeek + 7 - currGraduation.getUTCDay()) % 7)
