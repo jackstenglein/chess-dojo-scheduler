@@ -41,9 +41,14 @@ const Interrupt: React.FC<InterruptProps> = ({ move, onClickMove }) => {
                                 height: '10px',
                                 zIndex: 1,
                                 top: '-5px',
-                                left: `calc(var(--tools-width) * ${
-                                    move.ply % 2 ? '2 / 12' : '7 / 12'
-                                } + 5px)`,
+                                left: {
+                                    xs: `calc(100% * ${
+                                        move.ply % 2 ? '2 / 12' : '7 / 12'
+                                    } + 5px)`,
+                                    md: `calc(var(--coach-width) * ${
+                                        move.ply % 2 ? '2 / 12' : '7 / 12'
+                                    } + 5px)`,
+                                },
                                 transform: 'rotate(45deg)',
                                 backgroundColor: 'inherit',
                                 backgroundImage: 'inherit',

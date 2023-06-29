@@ -47,7 +47,7 @@ const Variation: React.FC<VariationProps> = ({ moves, onClickMove }) => {
     }
 
     return (
-        <Paper elevation={4} sx={{ boxShadow: 'none' }}>
+        <Paper sx={{ boxShadow: 'none' }}>
             <Grid container>{items}</Grid>
         </Paper>
     );
