@@ -42,8 +42,10 @@ function reconcile(chess?: Chess, board?: BoardApi) {
 interface BoardDisplayProps {
     board?: BoardApi;
     chess?: Chess;
+    showPlayerHeaders: boolean;
     onInitialize: (board: BoardApi, chess: Chess) => void;
     onMove: (board: BoardApi, chess: Chess) => (from: Key, to: Key) => void;
+    onClickMove: (move: Move | null) => void;
 }
 
 const BoardDisplay: React.FC<BoardDisplayProps> = ({
@@ -51,6 +53,7 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
     chess,
     onInitialize,
     onMove,
+    onClickMove,
 }) => {
     const [orientation, setOrientation] = useState<Color>('white');
 
@@ -60,6 +63,28 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
             setOrientation(board.state.orientation);
         }
     }, [board, setOrientation]);
+
+    const onFirstMove = () => {
+        onClickMove(null);
+    };
+
+    const onPreviousMove = () => {
+        if (chess) {
+            onClickMove(chess.previousMove());
+        }
+    };
+
+    const onNextMove = () => {
+        if (chess) {
+            onClickMove(chess.nextMove());
+        }
+    };
+
+    const onLastMove = () => {
+        if (chess) {
+            onClickMove(chess.lastMove());
+        }
+    };
 
     return (
         <Box
@@ -83,25 +108,28 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
                 <Paper elevation={3} sx={{ mt: 1, boxShadow: 'none' }}>
                     <Stack direction='row' justifyContent='center'>
                         <Tooltip title='First Move'>
-                            <IconButton aria-label='first move'>
+                            <IconButton aria-label='first move' onClick={onFirstMove}>
                                 <FirstPageIcon sx={{ color: 'text.secondary' }} />
                             </IconButton>
                         </Tooltip>
 
                         <Tooltip title='Previous Move'>
-                            <IconButton aria-label='previous move'>
+                            <IconButton
+                                aria-label='previous move'
+                                onClick={onPreviousMove}
+                            >
                                 <ChevronLeftIcon sx={{ color: 'text.secondary' }} />
                             </IconButton>
                         </Tooltip>
 
                         <Tooltip title='Next Move'>
-                            <IconButton aria-label='next move'>
+                            <IconButton aria-label='next move' onClick={onNextMove}>
                                 <ChevronRightIcon sx={{ color: 'text.secondary' }} />
                             </IconButton>
                         </Tooltip>
 
                         <Tooltip title='Last Move'>
-                            <IconButton aria-label='last move'>
+                            <IconButton aria-label='last move' onClick={onLastMove}>
                                 <LastPageIcon sx={{ color: 'text.secondary' }} />
                             </IconButton>
                         </Tooltip>
@@ -197,7 +225,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn, showPlayerHeaders = true }) =>
     );
 
     const onClickMove = useCallback(
-        (move: Move) => {
+        (move: Move | null) => {
             chess?.seek(move);
             reconcile(chess, board);
             setMove(move);
@@ -228,8 +256,10 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn, showPlayerHeaders = true }) =>
             <BoardDisplay
                 board={board}
                 chess={chess}
+                showPlayerHeaders={showPlayerHeaders}
                 onInitialize={onInitialize}
                 onMove={onMove}
+                onClickMove={onClickMove}
             />
 
             {board && chess && (

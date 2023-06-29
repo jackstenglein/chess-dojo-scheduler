@@ -83,6 +83,7 @@ function renderNag(nag: string): string {
 
 interface MoveButtonProps {
     move: Move;
+    firstMove?: boolean;
     inline?: boolean;
     forceShowPly?: boolean;
     onClickMove: (m: Move) => void;
@@ -90,6 +91,7 @@ interface MoveButtonProps {
 
 const MoveButton: React.FC<MoveButtonProps> = ({
     move,
+    firstMove,
     inline,
     forceShowPly,
     onClickMove,
@@ -98,10 +100,13 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     const ref = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        if (currentMove === move && ref.current) {
+        if (
+            ref.current &&
+            (currentMove === move || (firstMove && currentMove === null))
+        ) {
             ref.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
-    }, [currentMove, move]);
+    }, [currentMove, move, firstMove]);
 
     let moveText = move.san;
     for (const nag of move.nags || []) {

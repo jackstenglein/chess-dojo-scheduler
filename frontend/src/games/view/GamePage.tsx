@@ -122,11 +122,11 @@ const GamePage = () => {
                 pb: 4,
                 '--gap': '16px',
                 '--site-header-height': '80px',
-                '--site-header-margin': '20px',
+                '--site-header-margin': '60px',
                 '--player-header-height': '28px',
                 '--coach-width': '400px',
                 '--tools-height': '40px',
-                '--board-width': 'calc(100vw - var(--coach-width) - 100px)',
+                '--board-width': 'calc(100vw - var(--coach-width) - 60px)',
                 '--board-height':
                     'calc(100vh - var(--site-header-height) - var(--site-header-margin) - var(--tools-height) - 8px - 2 * var(--player-header-height))',
                 '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
