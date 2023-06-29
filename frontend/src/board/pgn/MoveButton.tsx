@@ -1,5 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { Button, Grid } from '@mui/material';
 import { Move } from '@jackstenglein/chess';
+
 import { useCurrentMove } from './PgnBoard';
 
 function renderNag(nag: string): string {
@@ -93,6 +95,13 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     onClickMove,
 }) => {
     const currentMove = useCurrentMove().currentMove;
+    const ref = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        if (currentMove === move && ref.current) {
+            ref.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }, [currentMove, move]);
 
     let moveText = move.san;
     for (const nag of move.nags || []) {
@@ -112,6 +121,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
 
         return (
             <Button
+                ref={ref}
                 variant={move === currentMove ? 'contained' : 'text'}
                 disableElevation
                 sx={{
@@ -136,6 +146,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     return (
         <Grid key={'move-' + move.ply} item xs={5}>
             <Button
+                ref={ref}
                 variant={move === currentMove ? 'contained' : 'text'}
                 disableElevation
                 sx={{
