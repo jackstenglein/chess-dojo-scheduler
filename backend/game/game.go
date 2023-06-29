@@ -217,6 +217,10 @@ func GetGame(user *database.User, pgnText string, headerData *HeaderData) (*data
 		}, nil
 }
 
+func String(v string) *string {
+	return &v
+}
+
 func GetGameUpdate(pgnText string) (*database.GameUpdate, error) {
 	headers, err := GetHeaders(pgnText)
 	if err != nil {
@@ -242,8 +246,8 @@ func GetGameUpdate(pgnText string) (*database.GameUpdate, error) {
 	}
 
 	return &database.GameUpdate{
-		White:   &white,
-		Black:   &black,
+		White:   String(strings.ToLower(white)),
+		Black:   String(strings.ToLower(black)),
 		Headers: headers,
 		Pgn:     &pgnText,
 	}, nil
