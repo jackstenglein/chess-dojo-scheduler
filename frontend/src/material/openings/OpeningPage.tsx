@@ -71,7 +71,7 @@ const OpeningPage = () => {
     }
 
     return (
-        <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
+        <Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
             {openingLevel && (
                 <Grid container rowGap={2}>
                     <Grid item xs={12} sm={12} md={9.5}>

@@ -51,6 +51,7 @@ interface BoardDisplayProps {
 const BoardDisplay: React.FC<BoardDisplayProps> = ({
     board,
     chess,
+    showPlayerHeaders,
     onInitialize,
     onMove,
     onClickMove,
@@ -94,7 +95,14 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
             }}
         >
             <Stack>
-                <PlayerHeader type='header' orientation={orientation} pgn={chess?.pgn} />
+                {showPlayerHeaders && (
+                    <PlayerHeader
+                        type='header'
+                        orientation={orientation}
+                        pgn={chess?.pgn}
+                    />
+                )}
+
                 <Box
                     sx={{
                         aspectRatio: 1,
@@ -103,7 +111,14 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
                 >
                     <Board onInitialize={onInitialize} onMove={onMove} />
                 </Box>
-                <PlayerHeader type='footer' orientation={orientation} pgn={chess?.pgn} />
+
+                {showPlayerHeaders && (
+                    <PlayerHeader
+                        type='footer'
+                        orientation={orientation}
+                        pgn={chess?.pgn}
+                    />
+                )}
 
                 <Paper elevation={3} sx={{ mt: 1, boxShadow: 'none' }}>
                     <Stack direction='row' justifyContent='center'>

@@ -40,7 +40,6 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) =
             elevation={3}
             sx={{
                 boxShadow: 'none',
-                gridArea: type,
                 height: 'fit-content',
                 py: '3px',
                 pl: '3px',
