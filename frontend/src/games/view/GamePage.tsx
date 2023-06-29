@@ -1,28 +1,36 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {
+    Box,
     Button,
     CircularProgress,
     Container,
-    Grid,
+    IconButton,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import CheckIcon from '@mui/icons-material/Check';
 import LinkIcon from '@mui/icons-material/Link';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { Game } from '../../database/game';
-import PgnViewer from './PgnViewer';
-import { LoadingButton } from '@mui/lab';
 import CommentList from './CommentList';
+import { useAuth } from '../../auth/Auth';
+import DeleteGameButton from './DeleteGameButton';
+import GameErrorBoundary from './GameErrorBoundary';
+import PgnBoard from '../../board/pgn/PgnBoard';
 
 const GamePage = () => {
     const api = useApi();
+    const user = useAuth().user!;
+    const navigate = useNavigate();
     const request = useRequest<Game>();
     const commentRequest = useRequest();
     const featureRequest = useRequest();
@@ -107,77 +115,145 @@ const GamePage = () => {
     }
 
     return (
-        <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
-            <RequestSnackbar request={request} />
-            <RequestSnackbar request={commentRequest} showSuccess />
-            <RequestSnackbar request={featureRequest} showSuccess />
+        <Container
+            maxWidth={false}
+            sx={{
+                pt: 4,
+                pb: 4,
+                '--gap': '16px',
+                '--site-header-height': '80px',
+                '--site-header-margin': '20px',
+                '--player-header-height': '28px',
+                '--coach-width': '400px',
+                '--tools-height': '40px',
+                '--board-width': 'calc(100vw - var(--coach-width) - 100px)',
+                '--board-height':
+                    'calc(100vh - var(--site-header-height) - var(--site-header-margin) - var(--tools-height) - 8px - 2 * var(--player-header-height))',
+                '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
+            }}
+        >
+            <Box
+                sx={{
+                    display: 'grid',
+                    rowGap: '16px',
+                    gridTemplateRows: {
+                        xs: 'auto auto',
+                    },
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
+                    },
+                    gridTemplateAreas: {
+                        xs: '"pgn" "extras"',
+                        md: '"pgn pgn pgn pgn pgn" ". extras . . ."',
+                    },
+                }}
+            >
+                <RequestSnackbar request={request} />
+                <RequestSnackbar request={commentRequest} showSuccess />
+                <RequestSnackbar request={featureRequest} showSuccess />
 
-            {request.data?.pgn && <PgnViewer game={request.data} onFeature={onFeature} />}
+                {request.data?.pgn && (
+                    <GameErrorBoundary game={request.data}>
+                        <PgnBoard pgn={request.data.pgn} />
+                    </GameErrorBoundary>
+                )}
 
-            {request.data?.pgn && (
-                <Grid container justifyContent='flex-end' sx={{ mt: 0 }}>
-                    <Grid item xs={12} md={8} lg={9} mt={{ xs: 3, md: 2 }}>
-                        <Stack spacing={2}>
-                            <Stack direction='row' my={2} spacing={2}>
-                                <CopyToClipboard
-                                    text={window.location.href}
-                                    onCopy={() => onCopy('link')}
+                {request.data?.pgn && (
+                    <Stack gridArea='extras' spacing={2}>
+                        <Stack direction='row' my={2} spacing={2} flexWrap='wrap'>
+                            {user.isAdmin && (
+                                <Stack
+                                    direction='row'
+                                    alignSelf='start'
+                                    alignItems='center'
+                                    spacing={2}
+                                >
+                                    <Typography>Feature Game?</Typography>
+                                    <IconButton onClick={onFeature}>
+                                        {request.data.isFeatured === 'true' ? (
+                                            <CheckBoxIcon color='primary' />
+                                        ) : (
+                                            <CheckBoxOutlineBlankIcon />
+                                        )}
+                                    </IconButton>
+                                </Stack>
+                            )}
+
+                            {request.data.owner === user.username && (
+                                <Stack
+                                    direction='row'
+                                    alignSelf='start'
+                                    alignItems='center'
+                                    spacing={2}
+                                    sx={{ mb: 2 }}
                                 >
                                     <Button
                                         variant='contained'
-                                        startIcon={
-                                            copied === 'link' ? (
-                                                <CheckIcon />
-                                            ) : (
-                                                <LinkIcon />
-                                            )
-                                        }
+                                        onClick={() => navigate('edit')}
                                     >
-                                        {copied === 'link' ? 'Copied' : 'Copy Link'}
+                                        Update PGN
                                     </Button>
-                                </CopyToClipboard>
-                                <CopyToClipboard
-                                    text={request.data.pgn}
-                                    onCopy={() => onCopy('pgn')}
-                                >
-                                    <Button
-                                        variant='contained'
-                                        startIcon={
-                                            copied === 'pgn' ? (
-                                                <CheckIcon />
-                                            ) : (
-                                                <ContentPasteIcon />
-                                            )
-                                        }
-                                    >
-                                        {copied === 'pgn' ? 'Copied' : 'Copy PGN'}
-                                    </Button>
-                                </CopyToClipboard>
-                            </Stack>
-                            <Typography variant='h6'>Comments</Typography>
-                            <Stack spacing={1} alignItems='flex-end'>
-                                <TextField
-                                    label='Add a Comment'
-                                    fullWidth
-                                    multiline
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                />
-                                <LoadingButton
+                                    <DeleteGameButton game={request.data} />
+                                </Stack>
+                            )}
+
+                            <CopyToClipboard
+                                text={window.location.href}
+                                onCopy={() => onCopy('link')}
+                            >
+                                <Button
                                     variant='contained'
-                                    disabled={comment.trim().length === 0}
-                                    loading={commentRequest.isLoading()}
-                                    onClick={onSubmitComment}
+                                    startIcon={
+                                        copied === 'link' ? <CheckIcon /> : <LinkIcon />
+                                    }
                                 >
-                                    Submit
-                                </LoadingButton>
-                            </Stack>
+                                    {copied === 'link' ? 'Copied' : 'Copy Link'}
+                                </Button>
+                            </CopyToClipboard>
 
-                            <CommentList comments={request.data.comments} />
+                            <CopyToClipboard
+                                text={request.data.pgn}
+                                onCopy={() => onCopy('pgn')}
+                            >
+                                <Button
+                                    variant='contained'
+                                    startIcon={
+                                        copied === 'pgn' ? (
+                                            <CheckIcon />
+                                        ) : (
+                                            <ContentPasteIcon />
+                                        )
+                                    }
+                                >
+                                    {copied === 'pgn' ? 'Copied' : 'Copy PGN'}
+                                </Button>
+                            </CopyToClipboard>
                         </Stack>
-                    </Grid>
-                </Grid>
-            )}
+
+                        <Typography variant='h6'>Comments</Typography>
+                        <Stack spacing={1} alignItems='flex-end'>
+                            <TextField
+                                label='Add a Comment'
+                                fullWidth
+                                multiline
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                            />
+                            <LoadingButton
+                                variant='contained'
+                                disabled={comment.trim().length === 0}
+                                loading={commentRequest.isLoading()}
+                                onClick={onSubmitComment}
+                            >
+                                Submit
+                            </LoadingButton>
+                        </Stack>
+
+                        <CommentList comments={request.data.comments} />
+                    </Stack>
+                )}
+            </Box>
         </Container>
     );
 };

@@ -4,10 +4,14 @@ import { Divider, Paper, Stack, Typography } from '@mui/material';
 interface PlayerHeaderProps {
     type: 'header' | 'footer';
     orientation: 'white' | 'black';
-    pgn: Pgn;
+    pgn?: Pgn;
 }
 
 const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) => {
+    if (!pgn) {
+        return null;
+    }
+
     let playerName = '';
     let playerElo = '';
     let playerResult = '';

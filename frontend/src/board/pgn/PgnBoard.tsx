@@ -1,11 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Chess, Move } from '@jackstenglein/chess';
-import { Box, Stack } from '@mui/material';
+import { Box, IconButton, Paper, Stack, Tooltip } from '@mui/material';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import LastPageIcon from '@mui/icons-material/LastPage';
+import FlipIcon from '@mui/icons-material/WifiProtectedSetup';
 
 import Board, { BoardApi, toColor, toDests } from '../Board';
 import PgnText from './PgnText';
-import { Key } from 'chessground/types';
-import Tools from './Tools';
+import { Color, Key } from 'chessground/types';
+import PlayerHeader from './PlayerHeader';
 
 type CurrentMoveContextType = {
     currentMove: Move | null;
@@ -33,6 +38,88 @@ function reconcile(chess?: Chess, board?: BoardApi) {
         },
     });
 }
+
+interface BoardDisplayProps {
+    board?: BoardApi;
+    chess?: Chess;
+    onInitialize: (board: BoardApi, chess: Chess) => void;
+    onMove: (board: BoardApi, chess: Chess) => (from: Key, to: Key) => void;
+}
+
+const BoardDisplay: React.FC<BoardDisplayProps> = ({
+    board,
+    chess,
+    onInitialize,
+    onMove,
+}) => {
+    const [orientation, setOrientation] = useState<Color>('white');
+
+    const toggleOrientation = useCallback(() => {
+        if (board) {
+            board.toggleOrientation();
+            setOrientation(board.state.orientation);
+        }
+    }, [board, setOrientation]);
+
+    return (
+        <Box
+            gridArea='board'
+            sx={{
+                width: 1,
+            }}
+        >
+            <Stack>
+                <PlayerHeader type='header' orientation={orientation} pgn={chess?.pgn} />
+                <Box
+                    sx={{
+                        aspectRatio: 1,
+                        width: 1,
+                    }}
+                >
+                    <Board onInitialize={onInitialize} onMove={onMove} />
+                </Box>
+                <PlayerHeader type='footer' orientation={orientation} pgn={chess?.pgn} />
+
+                <Paper elevation={3} sx={{ mt: 1, boxShadow: 'none' }}>
+                    <Stack direction='row' justifyContent='center'>
+                        <Tooltip title='First Move'>
+                            <IconButton aria-label='first move'>
+                                <FirstPageIcon sx={{ color: 'text.secondary' }} />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title='Previous Move'>
+                            <IconButton aria-label='previous move'>
+                                <ChevronLeftIcon sx={{ color: 'text.secondary' }} />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title='Next Move'>
+                            <IconButton aria-label='next move'>
+                                <ChevronRightIcon sx={{ color: 'text.secondary' }} />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title='Last Move'>
+                            <IconButton aria-label='last move'>
+                                <LastPageIcon sx={{ color: 'text.secondary' }} />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title='Flip Board'>
+                            <IconButton
+                                aria-label='flip board'
+                                onClick={toggleOrientation}
+                            >
+                                <FlipIcon sx={{ color: 'text.secondary' }} />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
+                </Paper>
+            </Stack>
+        </Box>
+    );
+};
 
 interface PgnBoardProps {
     pgn: string;
@@ -121,51 +208,34 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn, showPlayerHeaders = true }) =>
     return (
         <Box
             sx={{
+                gridArea: 'pgn',
                 display: 'grid',
                 width: 1,
-                '--zoom': 85,
-                '--site-header-height': '80px',
-                '--site-header-margin': 0,
-                '--board-scale': 'calc((var(--zoom) / 100) * 0.75 + 0.25)',
-                '--gap': '16px',
-                '--main-margin': '1vw',
-                '--header-height': '24px',
-                '--col2-board-width':
-                    'calc(min(calc( 100vw - 16px - 260px ), calc(100vh - 80px - 1rem)) * var(--board-scale))',
-                '--tools-width':
-                    'calc(max(200px, min(70vw - var(--col2-board-width) - var(--gap), 400px)))',
                 gridTemplateRows: {
-                    xs: 'auto auto auto var(--gap) auto minmax(20em, 30vh)',
-                    sm: 'fit-content(0) var(--col2-board-width) fit-content(0)',
+                    xs: 'auto var(--gap) minmax(auto, 400px)',
+                    md: 'calc(var(--board-size) + var(--tools-height) + 8px + 2 * var(--player-header-height))',
                 },
                 gridTemplateColumns: {
-                    xs: undefined,
-                    sm: 'var(--col2-board-width) var(--gap) var(--tools-width)',
+                    xs: '1fr',
+                    md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
                 },
                 gridTemplateAreas: {
-                    xs: '"header" "board" "footer" "gap" "tools" "coach"',
-                    sm: '"header gap ." "board gap coach" "footer gap tools"',
+                    xs: '"board" "." "coach"',
+                    md: '". board . coach ."',
                 },
             }}
         >
-            <Box
-                gridArea='board'
-                sx={{
-                    aspectRatio: 1,
-                    width: 1,
-                }}
-            >
-                <Board onInitialize={onInitialize} onMove={onMove} />
-            </Box>
+            <BoardDisplay
+                board={board}
+                chess={chess}
+                onInitialize={onInitialize}
+                onMove={onMove}
+            />
+
             {board && chess && (
                 <>
-                    <Tools
-                        board={board}
-                        chess={chess}
-                        showPlayerHeaders={showPlayerHeaders}
-                    />
                     <CurrentMoveContext.Provider value={{ currentMove: move }}>
-                        <Stack gridArea='coach' height={1}>
+                        <Stack gridArea='coach' height={1} sx={{ overflowY: 'auto' }}>
                             <PgnText pgn={chess.pgn} onClickMove={onClickMove} />
                         </Stack>
                     </CurrentMoveContext.Provider>
