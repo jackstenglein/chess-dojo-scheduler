@@ -326,10 +326,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     );
 
     // Submitted variables that should be searched on
-    const type = searchParams.get('type');
-    const cohort = searchParams.get('cohort');
-    const player = searchParams.get('player');
-    const color = searchParams.get('color');
+    const type = searchParams.get('type') || SearchType.Cohort;
+    const cohort = searchParams.get('cohort') || user.dojoCohort;
+    const player = searchParams.get('player') || '';
+    const color = searchParams.get('color') || 'either';
     let startDateStr: string | undefined = undefined;
     let endDateStr: string | undefined = undefined;
     if (isValid(new Date(paramsStartDate || ''))) {
