@@ -2,10 +2,9 @@
 
 import { Container, Stack, Typography } from '@mui/material';
 import { Component } from 'react';
-import { Game } from '../../database/game';
 
-interface GameErrorBoundaryProps {
-    game: Game;
+interface PgnErrorBoundaryProps {
+    pgn: string;
 }
 
 interface ErrorBoundaryState {
@@ -14,12 +13,12 @@ interface ErrorBoundaryState {
     info: any;
 }
 
-class GameErrorBoundary extends Component<
-    React.PropsWithChildren<GameErrorBoundaryProps>,
+class PgnErrorBoundary extends Component<
+    React.PropsWithChildren<PgnErrorBoundaryProps>,
     ErrorBoundaryState,
     any
 > {
-    constructor(props: GameErrorBoundaryProps) {
+    constructor(props: PgnErrorBoundaryProps) {
         super(props);
         this.state = { hasError: false, error: null, info: null };
     }
@@ -71,7 +70,7 @@ class GameErrorBoundary extends Component<
                     <Typography variant='body1' whiteSpace='pre-line'>
                         {`Raw PGN:
                         
-                        ${this.props.game.pgn}`}
+                        ${this.props.pgn}`}
                     </Typography>
                 </Stack>
             </Container>
@@ -79,4 +78,4 @@ class GameErrorBoundary extends Component<
     }
 }
 
-export default GameErrorBoundary;
+export default PgnErrorBoundary;

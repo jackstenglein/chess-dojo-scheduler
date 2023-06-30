@@ -24,7 +24,7 @@ import { Game } from '../../database/game';
 import CommentList from './CommentList';
 import { useAuth } from '../../auth/Auth';
 import DeleteGameButton from './DeleteGameButton';
-import GameErrorBoundary from './GameErrorBoundary';
+import PgnErrorBoundary from './PgnErrorBoundary';
 import PgnBoard from '../../board/pgn/PgnBoard';
 
 const GamePage = () => {
@@ -154,9 +154,9 @@ const GamePage = () => {
                 <RequestSnackbar request={featureRequest} showSuccess />
 
                 {request.data?.pgn && (
-                    <GameErrorBoundary game={request.data}>
+                    <PgnErrorBoundary pgn={request.data.pgn}>
                         <PgnBoard pgn={request.data.pgn} />
-                    </GameErrorBoundary>
+                    </PgnErrorBoundary>
                 )}
 
                 {request.data?.pgn && (

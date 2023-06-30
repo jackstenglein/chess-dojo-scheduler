@@ -3,6 +3,7 @@ import { Stack, Typography } from '@mui/material';
 import { useAuth } from '../../auth/Auth';
 import { ModuleProps } from './Module';
 import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
+import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
 
 interface ExerciseProps {
     index: number;
@@ -17,7 +18,9 @@ const Exercise: React.FC<ExerciseProps> = ({ index, pgn }) => {
                 Exercise #{index + 1}
             </Typography>
 
-            <PuzzleBoard pgn={pgn} />
+            <PgnErrorBoundary pgn={pgn}>
+                <PuzzleBoard pgn={pgn} />
+            </PgnErrorBoundary>
         </Stack>
     );
 };
