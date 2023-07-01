@@ -36,7 +36,7 @@ const Position: React.FC<PositionProps> = ({ position }) => {
 
     const onCopyFen = () => {
         trackEvent(EventType.CopyFen, {
-            position_fen: position.fen,
+            position_fen: position.fen.trim(),
             position_name: position.title,
         });
         onCopy('fen');
@@ -48,14 +48,14 @@ const Position: React.FC<PositionProps> = ({ position }) => {
             .post('https://lichess.org/api/challenge/open', {
                 'clock.limit': position.limitSeconds,
                 'clock.increment': position.incrementSeconds,
-                fen: position.fen,
+                fen: position.fen.trim(),
                 name: `${position.title}`,
                 rules: 'noAbort',
             })
             .then((resp) => {
                 console.log('Generate Lichess URL: ', resp);
                 trackEvent(EventType.CreateSparringLink, {
-                    position_fen: position.fen,
+                    position_fen: position.fen.trim(),
                     position_name: position.title,
                     clock_limit: position.limitSeconds,
                     clock_increment: position.incrementSeconds,
@@ -95,10 +95,10 @@ const Position: React.FC<PositionProps> = ({ position }) => {
                 }
             />
             <CardContent sx={{ pt: 0, px: 1, width: '336px', height: '336px' }}>
-                <Board config={{ fen: position.fen, viewOnly: true }} />
+                <Board config={{ fen: position.fen.trim(), viewOnly: true }} />
             </CardContent>
             <CardActions>
-                <CopyToClipboard text={position.fen} onCopy={onCopyFen}>
+                <CopyToClipboard text={position.fen.trim()} onCopy={onCopyFen}>
                     <Button
                         startIcon={
                             copied === 'fen' ? <CheckIcon /> : <ContentPasteIcon />
