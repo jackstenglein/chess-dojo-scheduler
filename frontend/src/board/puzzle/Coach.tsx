@@ -1,11 +1,13 @@
 interface CoachProps {
-    src: string;
+    src?: string;
 }
+
+const defaultSrc = 'https://www.chess.com/chess-themes/pieces/bases/150/wn.png';
 
 const Coach: React.FC<CoachProps> = ({ src }) => {
     return (
         <img
-            src={src}
+            src={src || defaultSrc}
             style={{
                 maxHeight: '120px',
                 marginLeft: '1em',

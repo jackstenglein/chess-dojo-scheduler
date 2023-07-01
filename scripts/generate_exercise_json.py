@@ -7,7 +7,7 @@ def fetch_study(id: str):
 
 
 def main():
-    entries = fetch_study('A8DoAE3O')
+    entries = fetch_study('JKaBPigj')
 
     pgns = []
     for entry in entries:

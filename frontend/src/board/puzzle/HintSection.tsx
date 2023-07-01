@@ -15,12 +15,13 @@ interface HintSectionProps {
     move: Move | null;
     board: BoardApi;
     chess: Chess;
+    coachUrl?: string;
     onRestart: (board: BoardApi, chess: Chess) => void;
     onNext: (board: BoardApi, chess: Chess) => void;
     onRetry: (board: BoardApi, chess: Chess) => void;
 }
 
-const WaitingForMoveHint: React.FC<HintSectionProps> = ({ move, chess }) => {
+const WaitingForMoveHint: React.FC<HintSectionProps> = ({ move, chess, coachUrl }) => {
     let comment = move ? move.commentAfter : chess.pgn.gameComment;
     if (!comment || comment.includes('[#]')) {
         comment = 'What would you play in this position?';
@@ -40,7 +41,7 @@ const WaitingForMoveHint: React.FC<HintSectionProps> = ({ move, chess }) => {
                     </Typography>
                 </Stack>
 
-                <Coach src='/jesse.png' />
+                <Coach src={coachUrl} />
             </Stack>
         </>
     );
@@ -50,6 +51,7 @@ const IncorrectMoveHint: React.FC<HintSectionProps> = ({
     move,
     board,
     chess,
+    coachUrl,
     onRetry,
 }) => {
     const upHandler = useCallback(
@@ -86,13 +88,19 @@ const IncorrectMoveHint: React.FC<HintSectionProps> = ({
                     <br />
                     (Enter)
                 </Button>
-                <Coach src='/jesse.png' />
+                <Coach src={coachUrl} />
             </Stack>
         </>
     );
 };
 
-const CorrectMoveHint: React.FC<HintSectionProps> = ({ move, board, chess, onNext }) => {
+const CorrectMoveHint: React.FC<HintSectionProps> = ({
+    move,
+    board,
+    chess,
+    coachUrl,
+    onNext,
+}) => {
     const upHandler = useCallback(
         (event: KeyboardEvent) => {
             if (event.key === 'Enter') {
@@ -125,13 +133,18 @@ const CorrectMoveHint: React.FC<HintSectionProps> = ({ move, board, chess, onNex
                     <br />
                     (Enter)
                 </Button>
-                <Coach src='/jesse.png' />
+                <Coach src={coachUrl} />
             </Stack>
         </>
     );
 };
 
-const CompleteHint: React.FC<HintSectionProps> = ({ board, chess, onRestart }) => {
+const CompleteHint: React.FC<HintSectionProps> = ({
+    board,
+    chess,
+    coachUrl,
+    onRestart,
+}) => {
     const setMove = useCurrentMove().setMove;
 
     const onMove = useCallback(
@@ -213,7 +226,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({ board, chess, onRestart }) =
                     >
                         Restart
                     </Button>
-                    <Coach src='/jesse.png' />
+                    <Coach src={coachUrl} />
                 </Stack>
             </Stack>
         </>

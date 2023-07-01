@@ -16,9 +16,10 @@ export enum Status {
 
 interface PuzzleBoardProps {
     pgn: string;
+    coachUrl?: string;
 }
 
-const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
+const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn, coachUrl }) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
     const [status, setStatus] = useState(Status.WaitingForMove);
@@ -222,6 +223,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
                                 move={move}
                                 board={board}
                                 chess={chess}
+                                coachUrl={coachUrl}
                                 onNext={onNext}
                                 onRetry={onRetry}
                                 onRestart={onRestart}
