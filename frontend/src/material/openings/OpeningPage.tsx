@@ -12,14 +12,16 @@ import Contents from './Contents';
 
 type OpeningPageParams = {
     id: string;
-    chapter: string;
 };
 
 const OpeningPage = () => {
     const api = useApi();
     const params = useParams<OpeningPageParams>();
     const request = useRequest<Course>();
-    const [searchParams, setSearchParams] = useSearchParams({ module: '0' });
+    const [searchParams, setSearchParams] = useSearchParams({
+        chapter: '0',
+        module: '0',
+    });
 
     useEffect(() => {
         if (!request.isSent() && params.id) {
@@ -38,8 +40,8 @@ const OpeningPage = () => {
 
     const course = request.data;
     const chapter = useMemo(() => {
-        return course?.chapters[parseInt(params.chapter || '0')];
-    }, [course, params]);
+        return course?.chapters[parseInt(searchParams.get('chapter') || '0')];
+    }, [course, searchParams]);
 
     const moduleIndex = parseInt(searchParams.get('module') || '0');
     const module = useMemo(() => {

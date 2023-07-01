@@ -89,7 +89,7 @@ const OpeningsTab = () => {
                                         {color.courses.map((course) => (
                                             <Link
                                                 key={course.id}
-                                                to={`/openings/${course.id}/0`}
+                                                to={`/openings/${course.id}`}
                                                 style={{ textDecoration: 'none' }}
                                             >
                                                 <Stack

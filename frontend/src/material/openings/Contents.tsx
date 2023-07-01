@@ -5,13 +5,14 @@ import { Chapter, Course } from '../../database/opening';
 
 interface ChapterContentsProps {
     chapter: Chapter;
+    index: number;
 }
 
-const ChapterContents: React.FC<ChapterContentsProps> = ({ chapter }) => {
+const ChapterContents: React.FC<ChapterContentsProps> = ({ chapter, index }) => {
     return (
         <ol>
             {chapter.modules.map((m, idx) => (
-                <Link key={m.name} to={`?module=${idx}`}>
+                <Link key={m.name} to={`?chapter=${index}&module=${idx}`}>
                     <li>{m.name}</li>
                 </Link>
             ))}
@@ -32,14 +33,14 @@ const Contents: React.FC<ContentsProps> = ({ course }) => {
                         {course.chapters.map((c, idx) => (
                             <li key={idx}>
                                 {c.name}
-                                <ChapterContents chapter={c} />
+                                <ChapterContents chapter={c} index={idx} />
                             </li>
                         ))}
                     </ol>
                 )}
 
                 {course.chapters.length === 1 && (
-                    <ChapterContents chapter={course.chapters[0]} />
+                    <ChapterContents chapter={course.chapters[0]} index={0} />
                 )}
             </CardContent>
         </Card>

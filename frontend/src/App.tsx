@@ -127,7 +127,7 @@ function Router() {
                             <Route index element={<MaterialPage />} />
                         </Route>
 
-                        <Route path='openings/:id/:chapter' element={<OpeningPage />} />
+                        <Route path='openings/:id' element={<OpeningPage />} />
                     </Route>
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />
