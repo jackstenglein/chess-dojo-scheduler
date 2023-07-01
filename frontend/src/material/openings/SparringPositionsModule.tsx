@@ -16,7 +16,7 @@ const SparringPositionsModule: React.FC<ModuleProps> = ({ module }) => {
             <Grid container spacing={2} mt={0.5}>
                 {module.positions.map((p) => (
                     <Grid key={p.fen} item xs='auto'>
-                        <Position position={p} />
+                        <Position position={p} orientation={module.boardOrientation} />
                     </Grid>
                 ))}
             </Grid>

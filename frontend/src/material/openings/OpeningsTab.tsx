@@ -5,36 +5,35 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
-import { Opening } from '../../database/opening';
+import { Course } from '../../database/opening';
 import LoadingPage from '../../loading/LoadingPage';
 
 interface OpeningTabLevel {
     name: string;
-    cohortRange: string;
     colors: OpeningTabColor[];
 }
 
 interface OpeningTabColor {
     name: string;
-    openings: {
+    courses: {
         id: string;
         name: string;
     }[];
 }
 
 const OpeningsTab = () => {
-    const request = useRequest<Opening[]>();
+    const request = useRequest<Course[]>();
     const api = useApi();
 
     useEffect(() => {
         if (!request.isSent()) {
-            api.listOpenings()
-                .then((openings) => {
-                    request.onSuccess(openings);
-                    console.log('listOpenings: ', openings);
+            api.listCourses()
+                .then((courses) => {
+                    request.onSuccess(courses);
+                    console.log('listCourses: ', courses);
                 })
                 .catch((err) => {
-                    console.error('listOpenings: ', err);
+                    console.error('listCourses: ', err);
                     request.onFailure(err);
                 });
         }
@@ -43,22 +42,22 @@ const OpeningsTab = () => {
     const levels = useMemo(() => {
         const levels: OpeningTabLevel[] = [];
         if (request.data) {
-            for (const opening of request.data) {
-                for (const l of opening.levels) {
-                    let level: OpeningTabLevel | undefined = levels.find(
-                        (l1) => l1.name === l.name && l1.cohortRange === l.cohortRange
-                    );
-                    if (level === undefined) {
-                        level = { name: l.name, cohortRange: l.cohortRange, colors: [] };
-                        levels.push(level);
-                    }
-                    let color = level.colors.find((c) => c.name === opening.color);
-                    if (color === undefined) {
-                        color = { name: opening.color, openings: [] };
-                        level.colors.push(color);
-                    }
-                    color.openings.push({ id: opening.id, name: opening.name });
+            for (const course of request.data) {
+                let level: OpeningTabLevel | undefined = levels.find(
+                    (l1) => l1.name === course.cohortRange
+                );
+
+                if (level === undefined) {
+                    level = { name: course.cohortRange, colors: [] };
+                    levels.push(level);
                 }
+
+                let color = level.colors.find((c) => c.name === course.color);
+                if (color === undefined) {
+                    color = { name: course.color, courses: [] };
+                    level.colors.push(color);
+                }
+                color.courses.push({ id: course.id, name: course.name });
             }
         }
         return levels;
@@ -77,9 +76,7 @@ const OpeningsTab = () => {
             {levels.length > 0 &&
                 levels.map((level) => (
                     <Stack key={level.name} spacing={0.5}>
-                        <Typography variant='h5'>
-                            {level.name} ({level.cohortRange})
-                        </Typography>
+                        <Typography variant='h5'>{level.name}</Typography>
 
                         <Stack spacing={1} pl={3}>
                             {level.colors.map((color) => (
@@ -89,10 +86,10 @@ const OpeningsTab = () => {
                                     </Typography>
 
                                     <Stack spacing={1} pl={3}>
-                                        {color.openings.map((opening) => (
+                                        {color.courses.map((course) => (
                                             <Link
-                                                key={opening.id}
-                                                to={`/openings/${opening.id}/${level.name}`}
+                                                key={course.id}
+                                                to={`/openings/${course.id}/0`}
                                                 style={{ textDecoration: 'none' }}
                                             >
                                                 <Stack
@@ -105,7 +102,7 @@ const OpeningsTab = () => {
                                                         color='text.secondary'
                                                         sx={{ textDecoration: 'none' }}
                                                     >
-                                                        {opening.name}
+                                                        {course.name}
                                                     </Typography>
                                                     <Typography
                                                         color='text.secondary'

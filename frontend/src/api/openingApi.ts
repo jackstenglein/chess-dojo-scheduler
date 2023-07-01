@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { Opening } from '../database/opening';
+import { Course } from '../database/opening';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -10,58 +10,58 @@ const BASE_URL = getConfig().api.baseUrl;
  */
 export type OpeningApiContextType = {
     /**
-     * getOpening returns the opening with the provided id.
-     * @param id The id of the opening to fetch
-     * @returns An AxiosResponse containing the requested opening.
+     * getCourse returns the opening course with the provided id.
+     * @param id The id of the course to fetch
+     * @returns An AxiosResponse containing the requested course.
      */
-    getOpening: (id: string) => Promise<AxiosResponse<Opening>>;
+    getCourse: (id: string) => Promise<AxiosResponse<Course>>;
 
     /**
-     * listOpenings returns a list of all openings in the database.
+     * listCourses returns a list of all opening courses in the database.
      * @param startKey The optional start key to use when searching.
-     * @returns A list of all openings in the database.
+     * @returns A list of all courses in the database.
      */
-    listOpenings: (startKey?: string) => Promise<Opening[]>;
+    listCourses: (startKey?: string) => Promise<Course[]>;
 };
 
 /**
- * getOpening returns the opening with the provided id.
+ * getCourse returns the opening course with the provided id.
  * @param idToken The id token of the current signed-in user.
- * @param id The id of the opening to fetch
- * @returns An AxiosResponse containing the requested opening.
+ * @param id The id of the course to fetch
+ * @returns An AxiosResponse containing the requested course.
  */
-export function getOpening(idToken: string, id: string) {
-    return axios.get<Opening>(`${BASE_URL}/openings/${id}`, {
+export function getCourse(idToken: string, id: string) {
+    return axios.get<Course>(`${BASE_URL}/openings/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
     });
 }
 
-interface ListOpeningsResponse {
-    openings: Opening[];
+interface ListCoursesResponse {
+    courses: Course[];
     lastEvaluatedKey: string;
 }
 
 /**
- * listOpenings returns a list of all openings in the database.
+ * listCourses returns a list of all opening courses in the database.
  * @param idToken The id token of the current signed-in user.
  * @param startKey The optional start key to use when searching.
- * @returns A list of all openings in the database.
+ * @returns A list of all courses in the database.
  */
-export async function listOpenings(idToken: string, startKey?: string) {
+export async function listCourses(idToken: string, startKey?: string) {
     const params = { startKey };
-    const result: Opening[] = [];
+    const result: Course[] = [];
 
     do {
-        const resp = await axios.get<ListOpeningsResponse>(`${BASE_URL}/openings`, {
+        const resp = await axios.get<ListCoursesResponse>(`${BASE_URL}/openings`, {
             params,
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
         });
 
-        result.push(...resp.data.openings);
+        result.push(...resp.data.courses);
         params.startKey = resp.data.lastEvaluatedKey;
     } while (params.startKey);
 

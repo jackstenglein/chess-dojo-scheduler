@@ -19,11 +19,20 @@ import { useRequest } from '../api/Request';
 import { EventType, trackEvent } from '../analytics/events';
 import Board from '../board/Board';
 
-interface PositionProps {
-    position: PositionModel;
+function turnColor(fen: string): 'white' | 'black' {
+    const turn = fen.split(' ')[1];
+    if (turn === 'b') {
+        return 'black';
+    }
+    return 'white';
 }
 
-const Position: React.FC<PositionProps> = ({ position }) => {
+interface PositionProps {
+    position: PositionModel;
+    orientation?: 'white' | 'black';
+}
+
+const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     const [copied, setCopied] = useState('');
     const lichessRequest = useRequest();
 
@@ -70,6 +79,8 @@ const Position: React.FC<PositionProps> = ({ position }) => {
             });
     };
 
+    const turn = turnColor(position.fen);
+
     return (
         <Card variant='outlined' sx={{ px: 0 }}>
             <CardHeader
@@ -82,20 +93,25 @@ const Position: React.FC<PositionProps> = ({ position }) => {
                                 {position.limitSeconds / 60}+{position.incrementSeconds}
                             </Typography>
                         </Stack>
-                        {position.result && (
-                            <Typography
-                                variant='overline'
-                                color='text.secondary'
-                                sx={{ mb: -1 }}
-                            >
-                                {position.result}
+
+                        <Stack direction='row' justifyContent='space-between'>
+                            <Typography variant='body2' color='text.secondary'>
+                                {turn[0].toLocaleUpperCase() + turn.slice(1)} to play
+                                {position.result &&
+                                    ` and ${position.result.toLocaleLowerCase()}`}
                             </Typography>
-                        )}
+                        </Stack>
                     </Stack>
                 }
             />
             <CardContent sx={{ pt: 0, px: 1, width: '336px', height: '336px' }}>
-                <Board config={{ fen: position.fen.trim(), viewOnly: true }} />
+                <Board
+                    config={{
+                        fen: position.fen.trim(),
+                        viewOnly: true,
+                        orientation: orientation || turn,
+                    }}
+                />
             </CardContent>
             <CardActions>
                 <CopyToClipboard text={position.fen.trim()} onCopy={onCopyFen}>

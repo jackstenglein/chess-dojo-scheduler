@@ -23,12 +23,12 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.New(400, "Invalid request: id is required", "")), nil
 	}
 
-	opening, err := repository.GetOpening(id)
+	course, err := repository.GetCourse(id)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	return api.Success(funcName, opening), nil
+	return api.Success(funcName, course), nil
 }
 
 func main() {

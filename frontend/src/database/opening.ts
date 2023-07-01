@@ -2,53 +2,52 @@ import { Game } from './game';
 import { Position } from './requirement';
 
 /**
- * Opening contains the full information needed to store an opening repertoire and lessons
- * across all cohort ranges.
+ * Course contains the full information for an opening course. An opening course is
+ * defined as a series of related chapters designed for a specific cohort range.
  */
-export interface Opening {
+export interface Course {
     /**
-     * The primary key of the opening.
+     * The primary key of the course.
      */
     id: string;
 
     /**
-     * The name of the opening.
+     * The name of the course.
      */
     name: string;
 
     /**
-     * The color the opening is for.
+     * The color the opening course is designed for.
      */
     color: string;
 
     /**
-     * The list of levels associated with the opening (starter, expert, etc).
-     */
-    levels: OpeningLevel[];
-}
-
-/**
- * OpeningLevel contains the information needed to store an opening repertoire and lessons
- * at a single cohort range.
- */
-export interface OpeningLevel {
-    /**
-     * The name of the opening level.
-     */
-    name: string;
-
-    /**
-     * The cohorts the opening level applies to.
+     * The cohorts the opening course is designed for.
      */
     cohorts: string[];
 
     /**
-     * A human-readable range of the cohorts the level applies to (Ex: 1200-1800).
+     * A human-readable range of the cohorts the course applies to (Ex: 1200-1800).
      */
     cohortRange: string;
 
     /**
-     * The list of modules within the opening level.
+     * The list of chapters included in the opening course.
+     */
+    chapters: Chapter[];
+}
+
+/**
+ * Chapter contains the information for a single opening chapter.
+ */
+export interface Chapter {
+    /**
+     * The name of the chapter.
+     */
+    name: string;
+
+    /**
+     * The list of modules within the chapter.
      */
     modules: OpeningModule[];
 }
@@ -63,6 +62,12 @@ export enum OpeningModuleType {
     ModelGames = 'MODEL_GAMES',
     Themes = 'THEMES',
     Exercises = 'EXERCISES',
+}
+
+export enum Coach {
+    Jesse = 'JESSE',
+    Kostya = 'KOSTYA',
+    David = 'DAVID',
 }
 
 /**
@@ -91,14 +96,14 @@ export interface OpeningModule {
     videoUrls: string[];
 
     /**
-     * The PGN text of the module. Generally used only if type is PgnViewer.
-     */
-    pgn: string;
-
-    /**
-     * A list of PGNs for the module. Generally used only if type is Exercises.
+     * A list of PGNs for the module. Generally used only if type is PgnViewer or Exercises.
      */
     pgns: string[];
+
+    /**
+     * The coach to use for Exercises.
+     */
+    coach: string;
 
     /**
      * The positions of the module. Generally used only if type is
@@ -111,4 +116,9 @@ export interface OpeningModule {
      * is ModelGames.
      */
     games: Game[];
+
+    /**
+     * The default board orientation for the module.
+     */
+    boardOrientation: 'white' | 'black';
 }

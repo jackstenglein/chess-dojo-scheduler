@@ -4,7 +4,7 @@ import { ModuleProps } from './Module';
 import PgnBoard from '../../board/pgn/PgnBoard';
 
 const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {
-    if (!module.pgn) {
+    if (!module.pgns || module.pgns.length < 1) {
         return null;
     }
 
@@ -42,15 +42,20 @@ const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {
                         },
                         gridTemplateColumns: {
                             xs: '1fr',
-                            md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
+                            md: 'var(--board-size) var(--gap) var(--coach-width) auto',
                         },
                         gridTemplateAreas: {
                             xs: '"pgn" "extras"',
-                            md: '"pgn pgn pgn pgn pgn" ". extras . . ."',
+                            md: '"pgn pgn pgn pgn" "extras . . ."',
                         },
                     }}
                 >
-                    <PgnBoard pgn={module.pgn} showPlayerHeaders={false} />
+                    <PgnBoard
+                        key={module.pgns[0]}
+                        pgn={module.pgns[0]}
+                        showPlayerHeaders={false}
+                        startOrientation={module.boardOrientation}
+                    />
                 </Box>
             </Container>
         </Stack>

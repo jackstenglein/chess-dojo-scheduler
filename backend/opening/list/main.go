@@ -13,9 +13,9 @@ var repository database.OpeningLister = database.DynamoDB
 
 const funcName = "opening-list-handler"
 
-type ListOpeningsResponse struct {
-	Openings         []*database.Opening `json:"openings"`
-	LastEvaluatedKey string              `json:"lastEvaluatedKey,omitempty"`
+type ListCoursesResponse struct {
+	Courses          []*database.Course `json:"courses"`
+	LastEvaluatedKey string             `json:"lastEvaluatedKey,omitempty"`
 }
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
@@ -23,13 +23,13 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.Debugf("Event: %#v", event)
 
 	startKey, _ := event.QueryStringParameters["startKey"]
-	openings, lastKey, err := repository.ListOpenings(startKey)
+	courses, lastKey, err := repository.ListCourses(startKey)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	return api.Success(funcName, &ListOpeningsResponse{
-		Openings:         openings,
+	return api.Success(funcName, &ListCoursesResponse{
+		Courses:          courses,
 		LastEvaluatedKey: lastKey,
 	}), nil
 }

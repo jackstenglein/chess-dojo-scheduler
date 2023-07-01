@@ -5,35 +5,34 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-// Opening contains the full information needed to store an opening repertoire and lessons
-// across all cohort ranges.
-type Opening struct {
-	// The primary key of the opening.
+// Course contains the full information for an opening course. An opening course is
+// defined as a series of related chapters designed for a specific cohort range.
+type Course struct {
+	// The primary key of the course.
 	Id string `dynamodbav:"id" json:"id"`
 
-	// The name of the opening.
+	// The name of the course.
 	Name string `dynamodbav:"name" json:"name"`
 
-	// The color the opening is for.
+	// The color the opening course is designed for.
 	Color string `dynamodbav:"color" json:"color"`
 
-	// The list of levels associated with the opening (starter, expert, etc).
-	Levels []*OpeningLevel `dynamodbav:"levels" json:"levels"`
-}
+	// The cohorts the opening course is designed for.
+	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohort"`
 
-// OpeningLevel contains the information needed to store an opening repertoire and lessons
-// at a single cohort range.
-type OpeningLevel struct {
-	// The name of the opening level.
-	Name string `dynamodbav:"name" json:"name"`
-
-	// The cohorts the opening level applies to.
-	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
-
-	// A human-readable range of the cohorts the level applies to (Ex: 1200-1800).
+	// The human-readable range of the cohorts the opening course is designed for.
 	CohortRange string `dynamodbav:"cohortRange" json:"cohortRange"`
 
-	// The list of modules within the opening level.
+	// The list of chapters included in the opening course.
+	Chapters []*Chapter `dynamodbav:"chapters" json:"chapters"`
+}
+
+// Chapter contains the information for a single opening chapter.
+type Chapter struct {
+	// The name of the chapter.
+	Name string `dynamodbav:"name" json:"name"`
+
+	// The list of modules within the chapter.
 	Modules []*OpeningModule `dynamodbav:"modules" json:"modules"`
 }
 
@@ -44,11 +43,18 @@ const (
 	PgnViewer         OpeningModuleType = "PGN_VIEWER"
 	SparringPositions OpeningModuleType = "SPARRING_POSITIONS"
 	ModelGames        OpeningModuleType = "MODEL_GAMES"
-	Themes            OpeningModuleType = "THEMES"
 	Exercises         OpeningModuleType = "EXERCISES"
 )
 
-// OpeningModule is a single section within an opening.
+type Coach string
+
+const (
+	Jesse  Coach = "JESSE"
+	Kostya Coach = "KOSTYA"
+	David  Coach = "DAVID"
+)
+
+// OpeningModule is a single activity within an opening chapter.
 type OpeningModule struct {
 	// The name of the opening module.
 	Name string `dynamodbav:"name" json:"name"`
@@ -63,30 +69,32 @@ type OpeningModule struct {
 	// type is Video.
 	VideoUrls []string `dynamodbav:"videoUrls" json:"videoUrls"`
 
-	// The PGN text of the module. Generally used only if type
-	// is PgnViewer.
-	Pgn string `dynamodbav:"pgn" json:"pgn"`
-
 	// A list of PGN texts for the module. Generally used only if type is
-	// Exercises.
+	// PgnViewer or Exercises.
 	Pgns []string `dynamodbav:"pgns" json:"pgns"`
 
+	// The coach to use for Exercises
+	Coach Coach `dynamodbav:"coach" json:"coach"`
+
 	// The positions of the module. Generally used only if type is
-	// SparringPositions or Themes.
+	// SparringPositions.
 	Positions []*Position `dynamodbav:"positions" json:"positions"`
 
 	// The games associated with the module. Generally only used if type
 	// is ModelGames.
 	Games []*Game `dynamodbav:"games" json:"games"`
+
+	// The default board orientation for the module.
+	BoardOrientation string `dynamodbav:"boardOrientation" json:"boardOrientation"`
 }
 
 type OpeningGetter interface {
-	// GetOpening returns the opening with the provided id.
-	GetOpening(id string) (*Opening, error)
+	// GetCourse returns the opening course with the provided id.
+	GetCourse(id string) (*Course, error)
 }
 
-// GetOpening returns the opening with the provided id.
-func (repo *dynamoRepository) GetOpening(id string) (*Opening, error) {
+// GetCourse returns the opening course with the provided id.
+func (repo *dynamoRepository) GetCourse(id string) (*Course, error) {
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {S: aws.String(id)},
@@ -94,27 +102,27 @@ func (repo *dynamoRepository) GetOpening(id string) (*Opening, error) {
 		TableName: aws.String(openingTable),
 	}
 
-	opening := Opening{}
-	if err := repo.getItem(input, &opening); err != nil {
+	course := Course{}
+	if err := repo.getItem(input, &course); err != nil {
 		return nil, err
 	}
-	return &opening, nil
+	return &course, nil
 }
 
 type OpeningLister interface {
-	// ListOpenings returns a list of openings in the database.
-	ListOpenings(startKey string) ([]*Opening, string, error)
+	// ListCourses returns a list of opening courses in the database.
+	ListCourses(startKey string) ([]*Course, string, error)
 }
 
-// ListOpenings returns a list of openings in the database.
-func (repo *dynamoRepository) ListOpenings(startKey string) ([]*Opening, string, error) {
+// ListCourses returns a list of opening courses in the database.
+func (repo *dynamoRepository) ListCourses(startKey string) ([]*Course, string, error) {
 	input := &dynamodb.ScanInput{
 		TableName: aws.String(openingTable),
 	}
-	var openings []*Opening
-	lastKey, err := repo.scan(input, startKey, &openings)
+	var courses []*Course
+	lastKey, err := repo.scan(input, startKey, &courses)
 	if err != nil {
 		return nil, "", err
 	}
-	return openings, lastKey, nil
+	return courses, lastKey, nil
 }

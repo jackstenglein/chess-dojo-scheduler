@@ -23,6 +23,7 @@ interface BoardDisplayProps {
     board?: BoardApi;
     chess?: Chess;
     showPlayerHeaders: boolean;
+    startOrientation: Color;
     onInitialize: (board: BoardApi, chess: Chess) => void;
     onMove: (board: BoardApi, chess: Chess) => (from: Key, to: Key) => void;
     onClickMove: (move: Move | null) => void;
@@ -32,11 +33,12 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
     board,
     chess,
     showPlayerHeaders,
+    startOrientation,
     onInitialize,
     onMove,
     onClickMove,
 }) => {
-    const [orientation, setOrientation] = useState<Color>('white');
+    const [orientation, setOrientation] = useState<Color>(startOrientation);
 
     const toggleOrientation = useCallback(() => {
         if (board) {
@@ -115,9 +117,14 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
 interface PgnBoardProps {
     pgn: string;
     showPlayerHeaders?: boolean;
+    startOrientation?: Color;
 }
 
-const PgnBoard: React.FC<PgnBoardProps> = ({ pgn, showPlayerHeaders = true }) => {
+const PgnBoard: React.FC<PgnBoardProps> = ({
+    pgn,
+    showPlayerHeaders = true,
+    startOrientation = 'white',
+}) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
     const [move, setMove] = useState<Move | null>(null);
@@ -180,11 +187,12 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn, showPlayerHeaders = true }) =>
                 premovable: {
                     enabled: false,
                 },
+                orientation: startOrientation,
             });
             setBoard(board);
             setChess(chess);
         },
-        [pgn, setBoard, setChess, onMove]
+        [pgn, startOrientation, setBoard, setChess, onMove]
     );
 
     const onClickMove = useCallback(
@@ -220,6 +228,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn, showPlayerHeaders = true }) =>
                 board={board}
                 chess={chess}
                 showPlayerHeaders={showPlayerHeaders}
+                startOrientation={startOrientation}
                 onInitialize={onInitialize}
                 onMove={onMove}
                 onClickMove={onClickMove}
