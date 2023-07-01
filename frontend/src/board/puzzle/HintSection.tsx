@@ -2,10 +2,13 @@ import React, { useCallback, useEffect } from 'react';
 import { Stack, Typography, Button } from '@mui/material';
 import { Move } from '@jackstenglein/chess';
 
-import { BoardApi, toColor, Chess } from '../Board';
+import { BoardApi, toColor, Chess, reconcile } from '../Board';
 import ChatBubble from './ChatBubble';
 import { Status } from './PuzzleBoard';
 import Coach from './Coach';
+import PgnText from '../pgn/PgnText';
+import { useCurrentMove } from '../pgn/PgnBoard';
+import Tools from '../pgn/Tools';
 
 interface HintSectionProps {
     status: Status;
@@ -18,13 +21,14 @@ interface HintSectionProps {
 }
 
 const WaitingForMoveHint: React.FC<HintSectionProps> = ({ move, chess }) => {
+    let comment = move ? move.commentAfter : chess.pgn.gameComment;
+    if (!comment || comment.includes('[#]')) {
+        comment = 'What would you play in this position?';
+    }
+
     return (
         <>
-            <ChatBubble>
-                {move?.commentAfter ||
-                    (!move && chess.pgn.gameComment) ||
-                    'What would you play in this position?'}
-            </ChatBubble>
+            <ChatBubble>{comment}</ChatBubble>
 
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
                 <Stack>
@@ -128,36 +132,89 @@ const CorrectMoveHint: React.FC<HintSectionProps> = ({ move, board, chess, onNex
 };
 
 const CompleteHint: React.FC<HintSectionProps> = ({ board, chess, onRestart }) => {
-    const gameOver = chess.currentMove() === chess.lastMove();
+    const setMove = useCurrentMove().setMove;
 
-    let comment = chess.currentMove()?.commentAfter;
-    if (!comment && gameOver) {
-        comment = `Correct!`;
-    }
+    const onMove = useCallback(
+        (move: Move | null) => {
+            chess.seek(move);
+            reconcile(chess, board);
+            setMove(move);
+        },
+        [board, chess, setMove]
+    );
+
+    const onArrowKeys = useCallback(
+        (event: KeyboardEvent) => {
+            if (event.key === 'ArrowRight') {
+                const nextMove = chess.nextMove();
+                if (nextMove !== null) {
+                    onMove(nextMove);
+                }
+            } else if (event.key === 'ArrowLeft') {
+                const prevMove = chess.previousMove();
+                onMove(prevMove);
+            }
+        },
+        [chess, onMove]
+    );
+
+    useEffect(() => {
+        window.addEventListener('keyup', onArrowKeys);
+        return () => {
+            window.removeEventListener('keyup', onArrowKeys);
+        };
+    }, [onArrowKeys]);
+
+    const toggleOrientation = useCallback(() => {
+        board.toggleOrientation();
+    }, [board]);
+
+    const onFirstMove = () => {
+        onMove(null);
+    };
+
+    const onPreviousMove = () => {
+        onMove(chess.previousMove());
+    };
+
+    const onNextMove = () => {
+        if (chess.nextMove()) {
+            onMove(chess.nextMove());
+        }
+    };
+
+    const onLastMove = () => {
+        onMove(chess.lastMove());
+    };
 
     return (
         <>
-            <ChatBubble>
-                {comment}
-                {comment && (
-                    <>
-                        <br />
-                        <br />
-                    </>
-                )}
-                Great job completing this puzzle!
-            </ChatBubble>
-            <Stack direction='row' justifyContent='space-between'>
-                <Button
-                    variant='contained'
-                    disableElevation
-                    color='info'
-                    sx={{ flexGrow: 1 }}
-                    onClick={() => onRestart(board, chess)}
-                >
-                    Restart
-                </Button>
-                <Coach src='/jesse.png' />
+            <Stack flexGrow={1} spacing={1} sx={{ overflowY: 'hidden' }}>
+                <Stack sx={{ overflowY: 'scroll' }}>
+                    <PgnText pgn={chess.pgn} onClickMove={onMove} />
+                </Stack>
+                <Tools
+                    onFirstMove={onFirstMove}
+                    onPreviousMove={onPreviousMove}
+                    onNextMove={onNextMove}
+                    onLastMove={onLastMove}
+                    toggleOrientation={toggleOrientation}
+                />
+            </Stack>
+            <Stack>
+                <ChatBubble>Great job completing this puzzle!</ChatBubble>
+                <Stack direction='row' justifyContent='space-between'>
+                    <Button
+                        variant='contained'
+                        disableElevation
+                        color='info'
+                        sx={{ flexGrow: 1 }}
+                        onClick={() => onRestart(board, chess)}
+                    >
+                        Restart
+                    </Button>
+                    <Coach src='/jesse.png' />
+                </Stack>
             </Stack>
         </>
     );
@@ -180,7 +237,7 @@ const HintSection: React.FC<HintSectionProps> = (props) => {
             Component = <CompleteHint {...props} />;
     }
 
-    return <Stack>{Component}</Stack>;
+    return <>{Component}</>;
 };
 
 export default HintSection;

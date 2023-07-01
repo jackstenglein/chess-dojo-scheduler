@@ -96,7 +96,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     forceShowPly,
     onClickMove,
 }) => {
-    const currentMove = useCurrentMove().currentMove;
+    const currentMove = useCurrentMove().move;
     const ref = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {

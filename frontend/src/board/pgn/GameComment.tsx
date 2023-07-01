@@ -2,7 +2,7 @@ import { Pgn } from '@jackstenglein/chess';
 import { Divider, Paper, Stack, Typography } from '@mui/material';
 
 const GameComment: React.FC<{ pgn: Pgn }> = ({ pgn }) => {
-    if (!pgn.gameComment) {
+    if (!pgn.gameComment || pgn.gameComment.includes('[#]')) {
         return null;
     }
 

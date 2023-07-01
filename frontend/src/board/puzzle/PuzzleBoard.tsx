@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Container, Stack, Typography } from '@mui/material';
 import { Chess, Move } from '@jackstenglein/chess';
 
 import HintSection from './HintSection';
-import Board, { BoardApi, toColor, toDests } from '../Board';
+import Board, { BoardApi, reconcile, toColor, toDests, toShapes } from '../Board';
+import { CurrentMoveContext } from '../pgn/PgnBoard';
+import { Key } from 'chessground/types';
 
 export enum Status {
     WaitingForMove,
@@ -23,13 +25,14 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
     const [move, setMove] = useState<Move | null>(null);
     const [lastCorrectMove, setLastCorrectMove] = useState<Move | null>(null);
 
-    const onInitialize = (board: BoardApi, chess: Chess) => {
+    const onRestart = (board: BoardApi, chess: Chess) => {
         chess.loadPgn(pgn);
         chess.seek(null);
         board.set({
             fen: chess.fen(),
             turnColor: toColor(chess),
             orientation: toColor(chess),
+            lastMove: [],
             movable: {
                 color: toColor(chess),
                 dests: toDests(chess),
@@ -41,9 +44,15 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
             premovable: {
                 enabled: false,
             },
+            drawable: {
+                shapes: toShapes(chess),
+            },
         });
         setBoard(board);
         setChess(chess);
+        setStatus(Status.WaitingForMove);
+        setMove(null);
+        setLastCorrectMove(null);
     };
 
     const onMove = (board: BoardApi, chess: Chess) => {
@@ -67,6 +76,9 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
                 turnColor: toColor(chess),
                 movable: {
                     color: undefined,
+                },
+                drawable: {
+                    shapes: toShapes(chess),
                 },
             });
 
@@ -92,6 +104,9 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
                 color: toColor(chess),
                 dests: toDests(chess),
             },
+            drawable: {
+                shapes: toShapes(chess),
+            },
         });
         setStatus(Status.WaitingForMove);
         setMove(nextMove);
@@ -108,6 +123,9 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
                 color: toColor(chess),
                 dests: toDests(chess),
             },
+            drawable: {
+                shapes: toShapes(chess),
+            },
         });
         setStatus(Status.WaitingForMove);
         setMove(lastCorrectMove);
@@ -117,133 +135,103 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn }) => {
         board.set({
             fen: chess.fen(),
             movable: {
-                color: undefined,
-                dests: undefined,
+                color: toColor(chess),
+                dests: toDests(chess),
+                events: {
+                    after: (from: Key, to: Key) => {
+                        chess.move({ from, to });
+                        reconcile(chess, board);
+                        setMove(chess.currentMove());
+                    },
+                },
+            },
+            drawable: {
+                shapes: toShapes(chess),
             },
         });
         setStatus(Status.Complete);
         setMove(chess.currentMove());
     };
 
-    const onRestart = (board: BoardApi, chess: Chess) => {
-        chess.seek(null);
-        board.set({
-            fen: chess.fen(),
-            turnColor: toColor(chess),
-            lastMove: [],
-            movable: {
-                color: toColor(chess),
-                dests: toDests(chess),
-            },
-        });
-        setStatus(Status.WaitingForMove);
-        setMove(null);
-        setLastCorrectMove(null);
-    };
-
     return (
-        <Box
+        <Container
+            maxWidth={false}
             sx={{
-                display: 'grid',
-                width: 1,
-                '--zoom': 85,
-                '--site-header-height': '80px',
-                '--site-header-margin': 0,
-                '--board-scale': 'calc((var(--zoom) / 100) * 0.75 + 0.25)',
+                px: '0 !important',
+                justifyContent: 'start',
                 '--gap': '16px',
-                '--main-margin': '1vw',
-                '--col2-board-width':
-                    'calc(min(calc( 100vw - 16px - 260px ), calc(100vh - 80px - 1rem)) * var(--board-scale))',
-                gridTemplateRows: {
-                    xs: 'auto auto var(--gap) minmax(20em, 30vh)',
-                    sm: 'fit-content(0)',
-                },
-                gridTemplateColumns: {
-                    xs: undefined,
-                    sm: 'var(--col2-board-width) var(--gap) minmax(240px, 400px)',
-                },
-                gridTemplateAreas: {
-                    xs: '"header" "board" "gap" "coach"',
-                    sm: '"header header header" "board gap coach"',
-                },
+                '--site-header-height': '80px',
+                '--site-header-margin': '60px',
+                '--player-header-height': '0px',
+                '--toc-width': '21vw',
+                '--coach-width': '400px',
+                '--tools-height': '0px',
+                '--board-width':
+                    'calc(100vw - var(--coach-width) - 60px - var(--toc-width))',
+                '--board-height':
+                    'calc(100vh - var(--site-header-height) - var(--site-header-margin) - var(--tools-height) - 2 * var(--player-header-height))',
+                '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
             }}
         >
-            {board && chess && (
-                <Typography gridArea='header' variant='subtitle2' color='text.secondary'>
-                    {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
-                </Typography>
-            )}
             <Box
-                gridArea='board'
                 sx={{
-                    aspectRatio: 1,
-                    width: 1,
+                    display: 'grid',
+                    alignItems: 'end',
+                    gridTemplateRows: {
+                        xs: 'auto auto var(--gap) minmax(auto, 400px)',
+                        md: 'auto calc(var(--board-size) + var(--tools-height) + 2 * var(--player-header-height))',
+                    },
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'var(--board-size) var(--gap) var(--coach-width) auto',
+                    },
+                    gridTemplateAreas: {
+                        xs: '"header" "board" "." "coach"',
+                        md: '"header . . ." "board . coach ."',
+                    },
                 }}
             >
-                <Board onInitialize={onInitialize} onMove={onMove} />
-            </Box>
-            {board && chess && (
-                <Stack
-                    gridArea='coach'
-                    height={1}
-                    justifyContent={{ xs: 'start', sm: 'flex-end' }}
+                {board && chess && (
+                    <Typography
+                        variant='subtitle2'
+                        color='text.secondary'
+                        gridArea='header'
+                    >
+                        {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
+                    </Typography>
+                )}
+                <Box
+                    gridArea='board'
+                    sx={{
+                        aspectRatio: 1,
+                        width: 1,
+                    }}
                 >
-                    <HintSection
-                        status={status}
-                        move={move}
-                        board={board}
-                        chess={chess}
-                        onNext={onNext}
-                        onRetry={onRetry}
-                        onRestart={onRestart}
-                    />
-                </Stack>
-            )}
-        </Box>
+                    <Board onInitialize={onRestart} onMove={onMove} />
+                </Box>
+                {board && chess && (
+                    <Stack
+                        gridArea='coach'
+                        height={1}
+                        justifyContent={{ xs: 'start', sm: 'flex-end' }}
+                        spacing={2}
+                    >
+                        <CurrentMoveContext.Provider value={{ move, setMove }}>
+                            <HintSection
+                                status={status}
+                                move={move}
+                                board={board}
+                                chess={chess}
+                                onNext={onNext}
+                                onRetry={onRetry}
+                                onRestart={onRestart}
+                            />
+                        </CurrentMoveContext.Provider>
+                    </Stack>
+                )}
+            </Box>
+        </Container>
     );
 };
 
 export default PuzzleBoard;
-
-/*
-
-
-return (
-        <Grid container mt={1} rowGap={2}>
-            {board && chess && (
-                <Grid item xs={12}>
-                    <Typography variant='subtitle2' color='text.secondary'>
-                        {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
-                    </Typography>
-                </Grid>
-            )}
-            <Grid item xs={12} sm='auto'>
-                <Box
-                    sx={{
-                        aspectRatio: 1,
-                        minHeight: '336px',
-                        minWidth: '336px',
-                        maxWidth: 'calc(min(716px, 70vh))',
-                    }}
-                >
-                    <Board onInitialize={onInitialize} onMove={onMove} />
-                </Box>
-            </Grid>
-            {board && chess && (
-                <Grid item xs={12} sm='auto'>
-                    <Stack height={1} justifyContent='flex-end'>
-                        <HintSection
-                            status={status}
-                            move={move}
-                            board={board}
-                            chess={chess}
-                            onNext={onNext}
-                            onRetry={onRetry}
-                            onRestart={onRestart}
-                        />
-                    </Stack>
-                </Grid>
-            )}
-        </Grid>
-    );
- */

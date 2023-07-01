@@ -14,7 +14,7 @@ interface VariationProps {
 const Variation: React.FC<VariationProps> = ({ moves, onClickMove }) => {
     const items: JSX.Element[] = [];
 
-    let needReminder = false;
+    let needReminder = true;
     for (const move of moves) {
         if (move.ply % 2 === 1 || needReminder) {
             items.push(<MoveNumber key={`move-number-${move.ply}`} ply={move.ply} />);

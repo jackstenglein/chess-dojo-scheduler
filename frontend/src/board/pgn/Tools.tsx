@@ -1,50 +1,59 @@
-import { useCallback, useState } from 'react';
-import { Color } from 'chessground/types';
-import { Chess } from '@jackstenglein/chess';
-import { Stack, Tooltip, IconButton } from '@mui/material';
+import { Stack, Tooltip, IconButton, Paper } from '@mui/material';
 import FlipIcon from '@mui/icons-material/WifiProtectedSetup';
-
-import { BoardApi } from '../Board';
-import PlayerHeader from './PlayerHeader';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import LastPageIcon from '@mui/icons-material/LastPage';
 
 interface ToolsProps {
-    board: BoardApi;
-    chess: Chess;
-    showPlayerHeaders: boolean;
+    onFirstMove: () => void;
+    onPreviousMove: () => void;
+    onNextMove: () => void;
+    onLastMove: () => void;
+    toggleOrientation: () => void;
 }
 
-const Tools: React.FC<ToolsProps> = ({ board, chess, showPlayerHeaders }) => {
-    const [orientation, setOrientation] = useState<Color>('white');
-
-    const toggleOrientation = useCallback(() => {
-        board.toggleOrientation();
-        setOrientation(board.state.orientation);
-    }, [board, setOrientation]);
-
+const Tools: React.FC<ToolsProps> = ({
+    onFirstMove,
+    onPreviousMove,
+    onNextMove,
+    onLastMove,
+    toggleOrientation,
+}) => {
     return (
-        <>
-            {showPlayerHeaders && (
-                <>
-                    <PlayerHeader
-                        type='header'
-                        orientation={orientation}
-                        pgn={chess.pgn}
-                    />
-                    <PlayerHeader
-                        type='footer'
-                        orientation={board.state.orientation}
-                        pgn={chess.pgn}
-                    />
-                </>
-            )}
-            <Stack direction='row' mt={0.5} gridArea='tools'>
+        <Paper elevation={3} sx={{ mt: 1, boxShadow: 'none' }}>
+            <Stack direction='row' justifyContent='center'>
+                <Tooltip title='First Move'>
+                    <IconButton aria-label='first move' onClick={onFirstMove}>
+                        <FirstPageIcon sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title='Previous Move'>
+                    <IconButton aria-label='previous move' onClick={onPreviousMove}>
+                        <ChevronLeftIcon sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title='Next Move'>
+                    <IconButton aria-label='next move' onClick={onNextMove}>
+                        <ChevronRightIcon sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title='Last Move'>
+                    <IconButton aria-label='last move' onClick={onLastMove}>
+                        <LastPageIcon sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Tooltip>
+
                 <Tooltip title='Flip Board'>
                     <IconButton aria-label='flip board' onClick={toggleOrientation}>
                         <FlipIcon sx={{ color: 'text.secondary' }} />
                     </IconButton>
                 </Tooltip>
             </Stack>
-        </>
+        </Paper>
     );
 };
 

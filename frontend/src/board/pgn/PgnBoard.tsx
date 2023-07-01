@@ -1,42 +1,22 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Chess, Move } from '@jackstenglein/chess';
-import { Box, IconButton, Paper, Stack, Tooltip } from '@mui/material';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
-import FlipIcon from '@mui/icons-material/WifiProtectedSetup';
+import { Box, Stack } from '@mui/material';
 
-import Board, { BoardApi, toColor, toDests } from '../Board';
+import Board, { BoardApi, reconcile, toColor, toDests } from '../Board';
 import PgnText from './PgnText';
 import { Color, Key } from 'chessground/types';
 import PlayerHeader from './PlayerHeader';
+import Tools from './Tools';
 
 type CurrentMoveContextType = {
-    currentMove: Move | null;
+    move: Move | null;
+    setMove: (m: Move | null) => void;
 };
 
-const CurrentMoveContext = createContext<CurrentMoveContextType>(null!);
+export const CurrentMoveContext = createContext<CurrentMoveContextType>(null!);
 
 export function useCurrentMove() {
     return useContext(CurrentMoveContext);
-}
-
-function reconcile(chess?: Chess, board?: BoardApi) {
-    if (!chess || !board) {
-        return;
-    }
-
-    const currentMove = chess.currentMove();
-    board.set({
-        fen: chess.fen(),
-        turnColor: toColor(chess),
-        lastMove: currentMove ? [currentMove.from, currentMove.to] : [],
-        movable: {
-            color: toColor(chess),
-            dests: toDests(chess),
-        },
-    });
 }
 
 interface BoardDisplayProps {
@@ -120,45 +100,13 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
                     />
                 )}
 
-                <Paper elevation={3} sx={{ mt: 1, boxShadow: 'none' }}>
-                    <Stack direction='row' justifyContent='center'>
-                        <Tooltip title='First Move'>
-                            <IconButton aria-label='first move' onClick={onFirstMove}>
-                                <FirstPageIcon sx={{ color: 'text.secondary' }} />
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title='Previous Move'>
-                            <IconButton
-                                aria-label='previous move'
-                                onClick={onPreviousMove}
-                            >
-                                <ChevronLeftIcon sx={{ color: 'text.secondary' }} />
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title='Next Move'>
-                            <IconButton aria-label='next move' onClick={onNextMove}>
-                                <ChevronRightIcon sx={{ color: 'text.secondary' }} />
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title='Last Move'>
-                            <IconButton aria-label='last move' onClick={onLastMove}>
-                                <LastPageIcon sx={{ color: 'text.secondary' }} />
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title='Flip Board'>
-                            <IconButton
-                                aria-label='flip board'
-                                onClick={toggleOrientation}
-                            >
-                                <FlipIcon sx={{ color: 'text.secondary' }} />
-                            </IconButton>
-                        </Tooltip>
-                    </Stack>
-                </Paper>
+                <Tools
+                    onFirstMove={onFirstMove}
+                    onPreviousMove={onPreviousMove}
+                    onNextMove={onNextMove}
+                    onLastMove={onLastMove}
+                    toggleOrientation={toggleOrientation}
+                />
             </Stack>
         </Box>
     );
@@ -279,7 +227,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({ pgn, showPlayerHeaders = true }) =>
 
             {board && chess && (
                 <>
-                    <CurrentMoveContext.Provider value={{ currentMove: move }}>
+                    <CurrentMoveContext.Provider value={{ move, setMove }}>
                         <Stack gridArea='coach' height={1} sx={{ overflowY: 'auto' }}>
                             <PgnText pgn={chess.pgn} onClickMove={onClickMove} />
                         </Stack>
