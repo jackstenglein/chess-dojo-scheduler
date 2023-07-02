@@ -14,13 +14,17 @@
 }
 
 .cg-wrap coords.ranks coord:nth-child(2n + 1),
-.cg-wrap coords.files coord:nth-child(2n) {
+.cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.cg-wrap coords.files coord:nth-child(2n),
+.cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
     color: #7a9db2 !important;
     font-weight: 600;
 }
 
 .cg-wrap coords.ranks coord:nth-child(2n),
-.cg-wrap coords.files coord:nth-child(2n + 1) {
+.cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.cg-wrap coords.files coord:nth-child(2n + 1),
+.cg-wrap.orientation-black coords.files coord:nth-child(2n) {
     color: #c5d5dc !important;
     font-weight: 600;
 }

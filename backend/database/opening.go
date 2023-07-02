@@ -32,6 +32,12 @@ type Chapter struct {
 	// The name of the chapter.
 	Name string `dynamodbav:"name" json:"name"`
 
+	// The FEN to display as the thumbnail of the chapter.
+	ThumbnailFen string `dynamodbav:"thumbnailFen" json:"thumbnailFen"`
+
+	// The board orientation of the thumbnail.
+	ThumbnailOrientation string `dynamodbav:"thumbnailOrientation" json:"thumbnailOrientation"`
+
 	// The list of modules within the chapter.
 	Modules []*OpeningModule `dynamodbav:"modules" json:"modules"`
 }

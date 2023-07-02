@@ -47,6 +47,16 @@ export interface Chapter {
     name: string;
 
     /**
+     * The FEN to display as the thumbnail of the chapter.
+     */
+    thumbnailFen: string;
+
+    /**
+     * The board orientation of the thumbnail.
+     */
+    thumbnailOrientation: 'white' | 'black';
+
+    /**
      * The list of modules within the chapter.
      */
     modules: OpeningModule[];

@@ -1,12 +1,12 @@
-import { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Stack, Typography } from '@mui/material';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { Card, CardContent, CardHeader, Grid, Stack, Typography } from '@mui/material';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { Course } from '../../database/opening';
 import LoadingPage from '../../loading/LoadingPage';
+import Board from '../../board/Board';
 
 interface OpeningTabLevel {
     name: string;
@@ -15,10 +15,7 @@ interface OpeningTabLevel {
 
 interface OpeningTabColor {
     name: string;
-    courses: {
-        id: string;
-        name: string;
-    }[];
+    courses: Course[];
 }
 
 const OpeningsTab = () => {
@@ -57,7 +54,7 @@ const OpeningsTab = () => {
                     color = { name: course.color, courses: [] };
                     level.colors.push(color);
                 }
-                color.courses.push({ id: course.id, name: course.name });
+                color.courses.push(course);
             }
         }
         return levels;
@@ -85,35 +82,75 @@ const OpeningsTab = () => {
                                         {color.name}
                                     </Typography>
 
-                                    <Stack spacing={1} pl={3}>
+                                    <Grid container spacing={2}>
                                         {color.courses.map((course) => (
-                                            <Link
-                                                key={course.id}
-                                                to={`/openings/${course.id}`}
-                                                style={{ textDecoration: 'none' }}
-                                            >
-                                                <Stack
-                                                    direction='row'
-                                                    alignItems='center'
-                                                    spacing={2}
-                                                >
-                                                    <Typography
-                                                        variant='h6'
-                                                        color='text.secondary'
-                                                        sx={{ textDecoration: 'none' }}
-                                                    >
-                                                        {course.name}
-                                                    </Typography>
-                                                    <Typography
-                                                        color='text.secondary'
-                                                        pt='3px'
-                                                    >
-                                                        <ArrowForwardIosIcon />
-                                                    </Typography>
-                                                </Stack>
-                                            </Link>
+                                            <React.Fragment key={course.id}>
+                                                {course.chapters.length > 1 && (
+                                                    <Grid item xs={12}>
+                                                        <Typography
+                                                            variant='h6'
+                                                            color='text.secondary'
+                                                            sx={{
+                                                                textDecoration: 'none',
+                                                            }}
+                                                        >
+                                                            {course.name}
+                                                        </Typography>
+                                                    </Grid>
+                                                )}
+
+                                                {course.chapters.map((chapter, idx) => (
+                                                    <Grid item xs='auto'>
+                                                        <Link
+                                                            key={course.id}
+                                                            to={`/openings/${course.id}?chapter=${idx}`}
+                                                            style={{
+                                                                textDecoration: 'none',
+                                                            }}
+                                                        >
+                                                            <Card
+                                                                key={chapter.name}
+                                                                variant='outlined'
+                                                                sx={{ px: 0 }}
+                                                            >
+                                                                <CardHeader
+                                                                    sx={{ px: 1, py: 1 }}
+                                                                    subheader={
+                                                                        <Typography color='text.secondary'>
+                                                                            {course
+                                                                                .chapters
+                                                                                .length >
+                                                                            1
+                                                                                ? chapter.name
+                                                                                : course.name}
+                                                                        </Typography>
+                                                                    }
+                                                                />
+                                                                <CardContent
+                                                                    sx={{
+                                                                        p: 0,
+                                                                        pb: '0 !important',
+                                                                        width: '336px',
+                                                                        height: '336px',
+                                                                    }}
+                                                                >
+                                                                    <Board
+                                                                        config={{
+                                                                            fen: chapter.thumbnailFen.trim(),
+                                                                            viewOnly:
+                                                                                true,
+                                                                            orientation:
+                                                                                chapter.thumbnailOrientation,
+                                                                        }}
+                                                                    />
+                                                                </CardContent>
+                                                            </Card>
+                                                        </Link>
+                                                    </Grid>
+                                                ))}
+                                            </React.Fragment>
                                         ))}
-                                    </Stack>
+                                    </Grid>
                                 </Stack>
                             ))}
                         </Stack>
