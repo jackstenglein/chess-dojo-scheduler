@@ -81,6 +81,29 @@ function renderNag(nag: string): string {
     return '';
 }
 
+function getTextColor(move: Move, inline?: boolean): string {
+    for (const nag of move.nags || []) {
+        switch (nag) {
+            case '$1':
+                return '#5ddf73';
+            case '$2':
+                return '#e69d00';
+            case '$3':
+                return '#21c43a';
+            case '$4':
+                return '#df5353';
+            case '$5':
+                return '#f075e1';
+            case '$6':
+                return '#53b2ea';
+        }
+    }
+    if (inline) {
+        return 'text.secondary';
+    }
+    return 'text.primary';
+}
+
 interface MoveButtonProps {
     move: Move;
     firstMove?: boolean;
@@ -137,7 +160,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     py: '1px',
                     minWidth: 'fit-content',
                     display: 'inline-block',
-                    color: move === currentMove ? undefined : 'text.secondary',
+                    color: move === currentMove ? undefined : getTextColor(move, true),
                     backgroundColor: move === currentMove ? 'primary' : 'initial',
                     fontWeight: move === currentMove ? 'bold' : 'inherit',
                 }}
@@ -161,7 +184,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     justifyContent: 'start',
                     borderRadius: 0,
                     pl: 1,
-                    color: move === currentMove ? undefined : 'text.primary',
+                    color: move === currentMove ? undefined : getTextColor(move),
                     backgroundColor: move === currentMove ? 'primary' : 'initial',
                     fontWeight: move === currentMove ? 'bold' : 'inherit',
                 }}
