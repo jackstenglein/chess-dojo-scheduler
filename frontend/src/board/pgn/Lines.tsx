@@ -10,11 +10,12 @@ const lineInset = 8; // px
 
 interface LineProps {
     line: Move[];
+    scrollParent: HTMLDivElement | null;
     depth: number;
     onClickMove: (m: Move) => void;
 }
 
-const Line: React.FC<LineProps> = ({ line, depth, onClickMove }) => {
+const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) => {
     const result: JSX.Element[] = [];
 
     for (let i = 0; i < line.length; i++) {
@@ -24,6 +25,7 @@ const Line: React.FC<LineProps> = ({ line, depth, onClickMove }) => {
                 <Lines
                     key={`line-${i}`}
                     lines={[line.slice(i), ...move.variations]}
+                    scrollParent={scrollParent}
                     depth={depth + 1}
                     onClickMove={onClickMove}
                 />
@@ -37,6 +39,7 @@ const Line: React.FC<LineProps> = ({ line, depth, onClickMove }) => {
                     inline
                     forceShowPly={i === 0}
                     move={move}
+                    scrollParent={scrollParent}
                     onClickMove={onClickMove}
                 />
                 <Comment text={move.commentAfter} inline />
@@ -64,11 +67,12 @@ const Line: React.FC<LineProps> = ({ line, depth, onClickMove }) => {
 
 interface LinesProps {
     lines: Move[][];
+    scrollParent: HTMLDivElement | null;
     depth?: number;
     onClickMove: (m: Move) => void;
 }
 
-const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove }) => {
+const Lines: React.FC<LinesProps> = ({ lines, scrollParent, depth, onClickMove }) => {
     let d = depth || 0;
 
     return (
@@ -106,7 +110,13 @@ const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove }) => {
             )}
 
             {lines.map((l, idx) => (
-                <Line key={idx} line={l} depth={d} onClickMove={onClickMove} />
+                <Line
+                    key={idx}
+                    line={l}
+                    scrollParent={scrollParent}
+                    depth={d}
+                    onClickMove={onClickMove}
+                />
             ))}
         </Box>
     );

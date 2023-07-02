@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Move, Pgn } from '@jackstenglein/chess';
 import { Card } from '@mui/material';
 
@@ -11,10 +12,16 @@ interface PgnTextProps {
 }
 
 const PgnText: React.FC<PgnTextProps> = ({ pgn, onClickMove }) => {
+    const ref = useRef<HTMLDivElement>(null);
+
     return (
-        <Card sx={{ overflowY: 'scroll' }}>
+        <Card ref={ref} sx={{ overflowY: 'scroll' }}>
             <GameComment pgn={pgn} />
-            <Variation moves={pgn.history.moves} onClickMove={onClickMove} />
+            <Variation
+                scrollParent={ref.current}
+                moves={pgn.history.moves}
+                onClickMove={onClickMove}
+            />
             <Result pgn={pgn} />
         </Card>
     );

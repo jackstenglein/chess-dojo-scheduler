@@ -106,6 +106,7 @@ function getTextColor(move: Move, inline?: boolean): string {
 
 interface MoveButtonProps {
     move: Move;
+    scrollParent: HTMLDivElement | null;
     firstMove?: boolean;
     inline?: boolean;
     forceShowPly?: boolean;
@@ -114,6 +115,7 @@ interface MoveButtonProps {
 
 const MoveButton: React.FC<MoveButtonProps> = ({
     move,
+    scrollParent,
     firstMove,
     inline,
     forceShowPly,
@@ -125,11 +127,19 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     useEffect(() => {
         if (
             ref.current &&
+            scrollParent &&
             (currentMove === move || (firstMove && currentMove === null))
         ) {
-            ref.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            const parentRect = scrollParent.getBoundingClientRect();
+            const childRect = ref.current.getBoundingClientRect();
+
+            scrollParent.scrollTop =
+                childRect.top -
+                parentRect.top +
+                scrollParent.scrollTop -
+                scrollParent.clientHeight / 2;
         }
-    }, [currentMove, move, firstMove]);
+    }, [scrollParent, currentMove, move, firstMove]);
 
     let moveText = move.san;
     for (const nag of move.nags || []) {

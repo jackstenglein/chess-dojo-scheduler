@@ -8,10 +8,11 @@ import Interrupt, { hasInterrupt } from './Interrupt';
 
 interface VariationProps {
     moves: Move[];
+    scrollParent: HTMLDivElement | null;
     onClickMove: (m: Move) => void;
 }
 
-const Variation: React.FC<VariationProps> = ({ moves, onClickMove }) => {
+const Variation: React.FC<VariationProps> = ({ moves, scrollParent, onClickMove }) => {
     const items: JSX.Element[] = [];
 
     let needReminder = true;
@@ -29,6 +30,7 @@ const Variation: React.FC<VariationProps> = ({ moves, onClickMove }) => {
             <MoveButton
                 key={`move-button-${move.ply}`}
                 move={move}
+                scrollParent={scrollParent}
                 onClickMove={onClickMove}
                 firstMove={move === moves[0]}
             />
@@ -39,6 +41,7 @@ const Variation: React.FC<VariationProps> = ({ moves, onClickMove }) => {
                 <Interrupt
                     key={`interrupt-${move.ply}`}
                     move={move}
+                    scrollParent={scrollParent}
                     onClickMove={onClickMove}
                 />
             );
