@@ -1,6 +1,5 @@
 import { Stack, Typography } from '@mui/material';
 
-import { useAuth } from '../../auth/Auth';
 import { ModuleProps } from './Module';
 import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
 import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
@@ -13,12 +12,6 @@ const coachUrls = {
 };
 
 const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
-    const user = useAuth().user!;
-
-    if (!user.isAdmin && !user.isBetaTester) {
-        return <Typography>Coming Soon</Typography>;
-    }
-
     if (!module.pgns) {
         return null;
     }
