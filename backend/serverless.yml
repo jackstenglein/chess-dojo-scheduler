@@ -979,6 +979,11 @@ resources:
           - IsProd
           - PROVISIONED
           - PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
         ProvisionedThroughput: !If
           - IsProd
           - ReadCapacityUnits: 2
@@ -1033,6 +1038,11 @@ resources:
           - IsProd
           - PROVISIONED
           - PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
         ProvisionedThroughput: !If
           - IsProd
           - ReadCapacityUnits: 1
@@ -1104,6 +1114,11 @@ resources:
           - IsProd
           - PROVISIONED
           - PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
         ProvisionedThroughput: !If
           - IsProd
           - ReadCapacityUnits: 1
@@ -1138,6 +1153,11 @@ resources:
           - IsProd
           - PROVISIONED
           - PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
         ProvisionedThroughput: !If
           - IsProd
           - ReadCapacityUnits: 4
