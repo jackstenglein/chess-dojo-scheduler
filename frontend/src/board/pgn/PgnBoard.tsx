@@ -2,9 +2,15 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { Chess, Move } from '@jackstenglein/chess';
 import { Box, Stack } from '@mui/material';
 
-import Board, { BoardApi, reconcile, toColor, toDests } from '../Board';
+import Board, {
+    BoardApi,
+    BoardConfig,
+    PrimitiveMove,
+    onMoveFunc,
+    reconcile,
+} from '../Board';
 import PgnText from './PgnText';
-import { Color, Key } from 'chessground/types';
+import { Color } from 'chessground/types';
 import PlayerHeader from './PlayerHeader';
 import Tools from './Tools';
 
@@ -20,16 +26,18 @@ export function useCurrentMove() {
 }
 
 interface BoardDisplayProps {
+    config?: BoardConfig;
     board?: BoardApi;
     chess?: Chess;
     showPlayerHeaders: boolean;
     startOrientation: Color;
     onInitialize: (board: BoardApi, chess: Chess) => void;
-    onMove: (board: BoardApi, chess: Chess) => (from: Key, to: Key) => void;
+    onMove: onMoveFunc;
     onClickMove: (move: Move | null) => void;
 }
 
 const BoardDisplay: React.FC<BoardDisplayProps> = ({
+    config,
     board,
     chess,
     showPlayerHeaders,
@@ -91,7 +99,7 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
                         width: 1,
                     }}
                 >
-                    <Board onInitialize={onInitialize} onMove={onMove} />
+                    <Board config={config} onInitialize={onInitialize} onMove={onMove} />
                 </Box>
 
                 {showPlayerHeaders && (
@@ -159,40 +167,27 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     }, [onArrowKeys]);
 
     const onMove = useCallback(
-        (board: BoardApi, chess: Chess) => {
-            return (from: Key, to: Key) => {
-                const move = chess.move({ from, to });
-                reconcile(chess, board);
-                setMove(move);
-            };
+        (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
+            console.log('from: ', primMove.orig);
+            console.log('to: ', primMove.dest);
+            console.log('promotion: ', primMove.promotion);
+            const move = chess.move({
+                from: primMove.orig,
+                to: primMove.dest,
+                promotion: primMove.promotion,
+            });
+            reconcile(chess, board);
+            setMove(move);
         },
         [setMove]
     );
 
     const onInitialize = useCallback(
         (board: BoardApi, chess: Chess) => {
-            chess.loadPgn(pgn);
-            chess.seek(null);
-            board.set({
-                fen: chess.fen(),
-                turnColor: toColor(chess),
-                movable: {
-                    color: toColor(chess),
-                    dests: toDests(chess),
-                    events: {
-                        after: onMove(board, chess),
-                    },
-                    free: false,
-                },
-                premovable: {
-                    enabled: false,
-                },
-                orientation: startOrientation,
-            });
             setBoard(board);
             setChess(chess);
         },
-        [pgn, startOrientation, setBoard, setChess, onMove]
+        [setBoard, setChess]
     );
 
     const onClickMove = useCallback(
@@ -226,6 +221,10 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         >
             <CurrentMoveContext.Provider value={{ move, setMove }}>
                 <BoardDisplay
+                    config={{
+                        pgn,
+                        orientation: startOrientation,
+                    }}
                     board={board}
                     chess={chess}
                     showPlayerHeaders={showPlayerHeaders}

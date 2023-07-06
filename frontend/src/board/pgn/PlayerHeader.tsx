@@ -11,6 +11,9 @@ interface PlayerHeaderProps {
 
 function getInitialClock(pgn: Pgn): string | undefined {
     const timeControl = pgn.header.tags[TAGS.TimeControl];
+    if (!timeControl) {
+        return undefined;
+    }
     const startTime = parseInt(timeControl.split('+')[0]);
     if (isNaN(startTime) || startTime <= 0) {
         return undefined;

@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
-import { Box } from '@mui/material';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Box, ButtonBase, Dialog, DialogContent, Stack } from '@mui/material';
 
 import { Chessground } from 'chessground';
 import { Api as BoardApi } from 'chessground/api';
 import { Config } from 'chessground/config';
 import { Key, Color } from 'chessground/types';
 import { DrawShape } from 'chessground/draw';
-import { Chess, Move, SQUARES } from '@jackstenglein/chess';
+import { Chess, Move, SQUARES, Square } from '@jackstenglein/chess';
 
 import './board.css';
 
@@ -73,7 +73,7 @@ export function toShapes(chess?: Chess): DrawShape[] {
     return result;
 }
 
-export function reconcile(chess?: Chess, board?: BoardApi) {
+export function reconcile(chess?: Chess, board?: BoardApi | null) {
     if (!chess || !board) {
         return;
     }
@@ -93,62 +93,129 @@ export function reconcile(chess?: Chess, board?: BoardApi) {
     });
 }
 
-export function defaultOnMove(board: BoardApi, chess: Chess) {
-    return (orig: string, dest: string) => {
-        chess.move({ from: orig, to: dest });
-        reconcile(chess, board);
-    };
+export function defaultOnMove(board: BoardApi, chess: Chess, move: PrimitiveMove) {
+    console.log('Default onMove');
+    chess.move({ from: move.orig, to: move.dest, promotion: move.promotion });
+    reconcile(chess, board);
 }
 
-export interface BoardRef {
-    chess: Chess;
-    board: BoardApi | null;
+function checkPromotion(
+    board: BoardApi,
+    chess: Chess,
+    orig: Key,
+    dest: Key,
+    onPromotion: (move: PrePromotionMove) => void,
+    onMove: onMoveFunc
+) {
+    if (chess.get(orig as Square)?.type === 'p' && (dest[1] === '1' || dest[1] === '8')) {
+        onPromotion({ orig, dest, color: toColor(chess) });
+        return;
+    }
+    onMove(board, chess, { orig, dest });
 }
+
+interface PrePromotionMove {
+    orig: Key;
+    dest: Key;
+    color: Color;
+}
+
+export interface PrimitiveMove {
+    orig: Key;
+    dest: Key;
+    promotion?: string;
+}
+
+export type BoardConfig = Config & {
+    pgn?: string;
+};
+
+export type onMoveFunc = (board: BoardApi, chess: Chess, move: PrimitiveMove) => void;
 
 interface BoardProps {
-    config?: Config;
+    config?: BoardConfig;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
-    onMove?: (board: BoardApi, chess: Chess) => (orig: Key, dest: Key) => void;
+    onMove?: onMoveFunc;
 }
+
+const promotionPieces = ['q', 'n', 'r', 'b'];
 
 const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const chess = useState(new Chess())[0];
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [promotion, setPromotion] = useState<PrePromotionMove | null>(null);
+
+    const onStartPromotion = useCallback(
+        (move: PrePromotionMove) => {
+            setPromotion(move);
+        },
+        [setPromotion]
+    );
+
+    const onFinishPromotion = useCallback(
+        (piece: string) => {
+            if (board && chess && promotion) {
+                const func = onMove ? onMove : defaultOnMove;
+                func(board, chess, {
+                    orig: promotion.orig,
+                    dest: promotion.dest,
+                    promotion: piece,
+                });
+            }
+            setPromotion(null);
+        },
+        [board, chess, promotion, onMove, setPromotion]
+    );
+
+    const onCancelPromotion = useCallback(() => {
+        setPromotion(null);
+        reconcile(chess, board);
+    }, [board, chess]);
 
     useEffect(() => {
         if (boardRef.current && !board) {
             const chessgroundApi = Chessground(boardRef.current, config);
             setBoard(chessgroundApi);
-        } else if (boardRef.current && board) {
-            if (onInitialize) {
-                if (isInitialized) {
-                    return;
-                }
-                setIsInitialized(true);
-                onInitialize(board, chess);
-                return;
-            }
-
+        } else if (boardRef.current && board && !isInitialized) {
             if (config && config.fen) {
                 chess.load(config.fen);
+            }
+            if (config && config.pgn) {
+                chess.loadPgn(config.pgn);
+                chess.seek(null);
             }
 
             board.set({
                 ...config,
                 fen: chess.fen(),
+                turnColor: config?.turnColor || toColor(chess),
                 movable: {
-                    color: toColor(chess),
-                    free: false,
-                    dests: toDests(chess),
+                    color: config?.movable?.color || toColor(chess),
+                    free: config?.movable?.free || false,
+                    dests: config?.movable?.dests || toDests(chess),
                     events: {
-                        after: onMove
-                            ? onMove(board, chess)
-                            : defaultOnMove(board, chess),
+                        after: (orig, dest) =>
+                            checkPromotion(
+                                board,
+                                chess,
+                                orig,
+                                dest,
+                                onStartPromotion,
+                                onMove ? onMove : defaultOnMove
+                            ),
                     },
                 },
+                drawable: {
+                    shapes: config?.drawable?.shapes || toShapes(chess),
+                },
             });
+
+            if (onInitialize) {
+                onInitialize(board, chess);
+            }
+            setIsInitialized(true);
         }
     }, [
         boardRef,
@@ -159,11 +226,35 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         setIsInitialized,
         onMove,
         onInitialize,
+        onStartPromotion,
     ]);
 
     return (
         <Box width={1} height={1}>
             <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
+
+            <Dialog open={promotion !== null} onClose={onCancelPromotion}>
+                <DialogContent>
+                    <Stack direction='row'>
+                        {promotionPieces.map((piece) => (
+                            <ButtonBase
+                                key={piece}
+                                onClick={() => onFinishPromotion(piece)}
+                            >
+                                <Box
+                                    className={`${promotion?.color} ${piece}`}
+                                    sx={{
+                                        width: '75px',
+                                        aspectRatio: 1,
+                                        backgroundSize: 'cover',
+                                        backgroundImage: `url('https://www.chess.com/chess-themes/pieces/bases/150/${promotion?.color[0]}${piece}.png')`,
+                                    }}
+                                />
+                            </ButtonBase>
+                        ))}
+                    </Stack>
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 };
