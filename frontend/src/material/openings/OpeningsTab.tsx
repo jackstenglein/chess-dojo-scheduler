@@ -1,12 +1,13 @@
-import React, { useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, Grid, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { Course } from '../../database/opening';
 import LoadingPage from '../../loading/LoadingPage';
-import Board from '../../board/Board';
+
+const LEVELS = ['Starter (1200-1800)', 'Expert (1800+)'];
 
 interface OpeningTabLevel {
     name: string;
@@ -39,22 +40,23 @@ const OpeningsTab = () => {
     const levels = useMemo(() => {
         const levels: OpeningTabLevel[] = [];
         if (request.data) {
-            for (const course of request.data) {
-                let level: OpeningTabLevel | undefined = levels.find(
-                    (l1) => l1.name === course.cohortRange
-                );
+            for (const l of LEVELS) {
+                const courses = request.data.filter((c) => c.cohortRange === l);
+                const level = {
+                    name: l,
+                    colors: [
+                        {
+                            name: 'White',
+                            courses: courses.filter((c) => c.color === 'White'),
+                        },
+                        {
+                            name: 'Black',
+                            courses: courses.filter((c) => c.color === 'Black'),
+                        },
+                    ],
+                };
 
-                if (level === undefined) {
-                    level = { name: course.cohortRange, colors: [] };
-                    levels.push(level);
-                }
-
-                let color = level.colors.find((c) => c.name === course.color);
-                if (color === undefined) {
-                    color = { name: course.color, courses: [] };
-                    level.colors.push(color);
-                }
-                color.courses.push(course);
+                levels.push(level);
             }
         }
         return levels;
@@ -76,83 +78,33 @@ const OpeningsTab = () => {
                         <Typography variant='h5'>{level.name}</Typography>
 
                         <Stack spacing={1} pl={3}>
-                            {level.colors.map((color) => (
-                                <Stack key={color.name} spacing={0.5}>
-                                    <Typography variant='h6' color='text.secondary'>
-                                        {color.name}
-                                    </Typography>
+                            {level.colors.map((color) => {
+                                if (color.courses.length === 0) {
+                                    return null;
+                                }
 
-                                    <Grid container spacing={2}>
-                                        {color.courses.map((course) => (
-                                            <React.Fragment key={course.id}>
-                                                {course.chapters.length > 1 && (
-                                                    <Grid item xs={12}>
-                                                        <Typography
-                                                            variant='h6'
-                                                            color='text.secondary'
-                                                            sx={{
-                                                                textDecoration: 'none',
-                                                            }}
-                                                        >
-                                                            {course.name}
-                                                        </Typography>
-                                                    </Grid>
-                                                )}
+                                return (
+                                    <Stack key={color.name} spacing={0.5}>
+                                        <Typography variant='h6' color='text.secondary'>
+                                            {color.name}
+                                        </Typography>
 
-                                                {course.chapters.map((chapter, idx) => (
-                                                    <Grid item xs='auto'>
-                                                        <Link
-                                                            key={course.id}
-                                                            to={`/openings/${course.id}?chapter=${idx}`}
-                                                            style={{
-                                                                textDecoration: 'none',
-                                                            }}
-                                                        >
-                                                            <Card
-                                                                key={chapter.name}
-                                                                variant='outlined'
-                                                                sx={{ px: 0 }}
-                                                            >
-                                                                <CardHeader
-                                                                    sx={{ px: 1, py: 1 }}
-                                                                    subheader={
-                                                                        <Typography color='text.secondary'>
-                                                                            {course
-                                                                                .chapters
-                                                                                .length >
-                                                                            1
-                                                                                ? chapter.name
-                                                                                : course.name}
-                                                                        </Typography>
-                                                                    }
-                                                                />
-                                                                <CardContent
-                                                                    sx={{
-                                                                        p: 0,
-                                                                        pb: '0 !important',
-                                                                        width: '336px',
-                                                                        height: '336px',
-                                                                    }}
-                                                                >
-                                                                    <Board
-                                                                        config={{
-                                                                            fen: chapter.thumbnailFen.trim(),
-                                                                            viewOnly:
-                                                                                true,
-                                                                            orientation:
-                                                                                chapter.thumbnailOrientation,
-                                                                        }}
-                                                                    />
-                                                                </CardContent>
-                                                            </Card>
-                                                        </Link>
-                                                    </Grid>
-                                                ))}
-                                            </React.Fragment>
-                                        ))}
-                                    </Grid>
-                                </Stack>
-                            ))}
+                                        <ul>
+                                            {color.courses.map((course) => (
+                                                <Link
+                                                    key={course.id}
+                                                    to={`/openings/${course.id}`}
+                                                    style={{
+                                                        textDecoration: 'none',
+                                                    }}
+                                                >
+                                                    <li key={course.id}>{course.name}</li>
+                                                </Link>
+                                            ))}
+                                        </ul>
+                                    </Stack>
+                                );
+                            })}
                         </Stack>
                     </Stack>
                 ))}
