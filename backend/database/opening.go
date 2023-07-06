@@ -123,6 +123,7 @@ type OpeningLister interface {
 // ListCourses returns a list of opening courses in the database.
 func (repo *dynamoRepository) ListCourses(startKey string) ([]*Course, string, error) {
 	input := &dynamodb.ScanInput{
+		IndexName: aws.String("CourseIndex"),
 		TableName: aws.String(openingTable),
 	}
 	var courses []*Course

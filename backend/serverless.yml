@@ -1259,6 +1259,22 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+        GlobalSecondaryIndexes:
+          - IndexName: CourseIndex
+            KeySchema:
+              - AttributeName: id
+                KeyType: HASH
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - name
+                - cohortRange
+                - color
+            ProvisionedThroughput: !If
+              - IsProd
+              - ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+              - !Ref AWS::NoValue
 
     ############# S3 Resources #################
 
