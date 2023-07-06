@@ -224,25 +224,25 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 },
             }}
         >
-            <BoardDisplay
-                board={board}
-                chess={chess}
-                showPlayerHeaders={showPlayerHeaders}
-                startOrientation={startOrientation}
-                onInitialize={onInitialize}
-                onMove={onMove}
-                onClickMove={onClickMove}
-            />
+            <CurrentMoveContext.Provider value={{ move, setMove }}>
+                <BoardDisplay
+                    board={board}
+                    chess={chess}
+                    showPlayerHeaders={showPlayerHeaders}
+                    startOrientation={startOrientation}
+                    onInitialize={onInitialize}
+                    onMove={onMove}
+                    onClickMove={onClickMove}
+                />
 
-            {board && chess && (
-                <>
-                    <CurrentMoveContext.Provider value={{ move, setMove }}>
+                {board && chess && (
+                    <>
                         <Stack gridArea='coach' height={1} sx={{ overflowY: 'auto' }}>
                             <PgnText pgn={chess.pgn} onClickMove={onClickMove} />
                         </Stack>
-                    </CurrentMoveContext.Provider>
-                </>
-            )}
+                    </>
+                )}
+            </CurrentMoveContext.Provider>
         </Box>
     );
 };
