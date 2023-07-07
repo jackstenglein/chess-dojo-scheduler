@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { ModuleProps } from './Module';
 
@@ -8,10 +8,7 @@ const VideoModule: React.FC<ModuleProps> = ({ module }) => {
     }
 
     return (
-        <Stack>
-            <Typography variant='h6'>{module.name}</Typography>
-            <Typography>{module.description}</Typography>
-
+        <>
             {module.videoUrls.map((url, idx) => (
                 <Box
                     sx={{
@@ -35,7 +32,7 @@ const VideoModule: React.FC<ModuleProps> = ({ module }) => {
                     />
                 </Box>
             ))}
-        </Stack>
+        </>
     );
 };
 

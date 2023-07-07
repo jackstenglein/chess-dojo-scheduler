@@ -17,30 +17,25 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
     }
 
     return (
-        <Stack>
-            <Typography variant='h6'>{module.name}</Typography>
-            <Typography>{module.description}</Typography>
+        <Stack pt={3} spacing={6}>
+            {module.pgns.map((pgn, index) => (
+                <Stack key={index} alignItems='start'>
+                    <Typography
+                        variant='subtitle2'
+                        fontWeight='bold'
+                        color='text.secondary'
+                    >
+                        Exercise #{index + 1}
+                    </Typography>
 
-            <Stack pt={3} spacing={6}>
-                {module.pgns.map((pgn, index) => (
-                    <Stack key={index} alignItems='start'>
-                        <Typography
-                            variant='subtitle2'
-                            fontWeight='bold'
-                            color='text.secondary'
-                        >
-                            Exercise #{index + 1}
-                        </Typography>
-
-                        <PgnErrorBoundary pgn={pgn}>
-                            <PuzzleBoard
-                                pgn={pgn}
-                                coachUrl={coachUrls[module.coach as Coach]}
-                            />
-                        </PgnErrorBoundary>
-                    </Stack>
-                ))}
-            </Stack>
+                    <PgnErrorBoundary pgn={pgn}>
+                        <PuzzleBoard
+                            pgn={pgn}
+                            coachUrl={coachUrls[module.coach as Coach]}
+                        />
+                    </PgnErrorBoundary>
+                </Stack>
+            ))}
         </Stack>
     );
 };

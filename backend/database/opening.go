@@ -76,7 +76,7 @@ type OpeningModule struct {
 	VideoUrls []string `dynamodbav:"videoUrls" json:"videoUrls"`
 
 	// A list of PGN texts for the module. Generally used only if type is
-	// PgnViewer or Exercises.
+	// PgnViewer, ModelGames or Exercises.
 	Pgns []string `dynamodbav:"pgns" json:"pgns"`
 
 	// The coach to use for Exercises
@@ -85,10 +85,6 @@ type OpeningModule struct {
 	// The positions of the module. Generally used only if type is
 	// SparringPositions.
 	Positions []*Position `dynamodbav:"positions" json:"positions"`
-
-	// The games associated with the module. Generally only used if type
-	// is ModelGames.
-	Games []*Game `dynamodbav:"games" json:"games"`
 
 	// The default board orientation for the module.
 	BoardOrientation string `dynamodbav:"boardOrientation" json:"boardOrientation"`

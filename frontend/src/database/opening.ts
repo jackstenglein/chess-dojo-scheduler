@@ -1,4 +1,3 @@
-import { Game } from './game';
 import { Position } from './requirement';
 
 /**
@@ -106,7 +105,7 @@ export interface OpeningModule {
     videoUrls: string[];
 
     /**
-     * A list of PGNs for the module. Generally used only if type is PgnViewer or Exercises.
+     * A list of PGNs for the module. Generally used only if type is PgnViewer, ModelGames or Exercises.
      */
     pgns: string[];
 
@@ -120,12 +119,6 @@ export interface OpeningModule {
      * SparringPositions or Themes.
      */
     positions: Position[];
-
-    /**
-     * The games associated with the module. Generally only used if type
-     * is ModelGames.
-     */
-    games: Game[];
 
     /**
      * The default board orientation for the module.
