@@ -55,6 +55,18 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
         }
     }, [board, setOrientation]);
 
+    useEffect(() => {
+        const onArrowKeys = (event: KeyboardEvent) => {
+            if (event.key === 'f') {
+                toggleOrientation();
+            }
+        };
+        window.addEventListener('keyup', onArrowKeys);
+        return () => {
+            window.removeEventListener('keyup', onArrowKeys);
+        };
+    }, [toggleOrientation]);
+
     const onFirstMove = () => {
         onClickMove(null);
     };
@@ -168,9 +180,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
     const onMove = useCallback(
         (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
-            console.log('from: ', primMove.orig);
-            console.log('to: ', primMove.dest);
-            console.log('promotion: ', primMove.promotion);
             const move = chess.move({
                 from: primMove.orig,
                 to: primMove.dest,
