@@ -9,18 +9,18 @@ import ModelGamesTab from './ModelGamesTab';
 import OpeningsTab from './openings/OpeningsTab';
 
 const MaterialPage = () => {
-    const [searchParams, setSearchParams] = useSearchParams({ view: 'books' });
+    const [searchParams, setSearchParams] = useSearchParams({ view: 'openings' });
 
     return (
         <Container maxWidth='lg' sx={{ pt: 6, pb: 4 }}>
-            <TabContext value={searchParams.get('view') || 'books'}>
+            <TabContext value={searchParams.get('view') || 'openings'}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList
                         onChange={(_, t) => setSearchParams({ view: t })}
                         aria-label='profile tabs'
                     >
-                        <Tab label='Books' value='books' />
                         <Tab label='Openings' value='openings' />
+                        <Tab label='Books' value='books' />
                         <Tab label='Sparring Positions' value='sparring' />
                         <Tab label='Model Games' value='modelGames' />
                         <Tab label='Rating Conversions' value='ratings' />

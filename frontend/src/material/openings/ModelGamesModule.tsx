@@ -157,5 +157,3 @@ const ModelGamesModule: React.FC<ModuleProps> = ({ module }) => {
 };
 
 export default ModelGamesModule;
-
-// https://discord.com/channels/@me/1080486313721077850/1120781935673888920
