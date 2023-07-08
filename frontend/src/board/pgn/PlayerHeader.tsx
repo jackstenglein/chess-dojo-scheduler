@@ -53,7 +53,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) =
         playerName = pgn.header.tags.Black;
         playerElo = pgn.header.tags.BlackElo;
         const resultTokens = pgn.header.tags.Result?.split('-');
-        if (resultTokens.length > 1) {
+        if (resultTokens && resultTokens.length > 1) {
             playerResult = resultTokens[1];
         }
         if (currentMove?.color !== 'b') {
@@ -63,7 +63,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) =
         playerName = pgn.header.tags.White;
         playerElo = pgn.header.tags.WhiteElo;
         const resultTokens = pgn.header.tags.Result?.split('-');
-        if (resultTokens.length > 0) {
+        if (resultTokens && resultTokens.length > 0) {
             playerResult = resultTokens[0];
         }
         if (currentMove?.color !== 'w') {
