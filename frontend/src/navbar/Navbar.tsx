@@ -26,7 +26,7 @@ const Navbar = () => {
         return e.status !== AvailabilityStatus.Canceled && e.endTime >= filterTime;
     }).length;
 
-    const meetingText = count > 0 ? `Meetings (${count})` : `Meetings`;
+    const meetingText = count > 0 ? `(${count})` : ``;
 
     return (
         <AppBar position='sticky' sx={{ zIndex: 1300, height: '80px' }}>
