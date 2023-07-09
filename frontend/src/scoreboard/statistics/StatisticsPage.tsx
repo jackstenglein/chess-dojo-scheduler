@@ -9,6 +9,7 @@ import { useApi } from '../../api/Api';
 import { UserStatistics } from '../../database/statistics';
 import LoadingPage from '../../loading/LoadingPage';
 import Chart, { Datum, Series } from './Chart';
+import { useAuth } from '../../auth/Auth';
 
 const primaryAxis: AxisOptions<Datum> = {
     getValue: (datum) => datum.cohort,
@@ -59,6 +60,29 @@ const timeSecondaryAxes: AxisOptions<Datum>[] = [
 ];
 
 function getSeries(
+    label: string,
+    data: UserStatistics | undefined,
+    getValue: (d: UserStatistics, c: string) => number
+): Series[] {
+    if (!data) {
+        return [];
+    }
+
+    return [
+        {
+            label: label,
+            data: dojoCohorts.map((c) => {
+                const result = getValue(data, c);
+                return {
+                    cohort: c,
+                    value: isFinite(result) ? result : 0,
+                };
+            }),
+        },
+    ];
+}
+
+function getCategorizedSeries(
     data: UserStatistics | undefined,
     getActiveValue: (d: UserStatistics, c: string) => number,
     getInactiveValue: (d: UserStatistics, c: string) => number
@@ -95,6 +119,7 @@ const StatisticsPage = () => {
     const api = useApi();
     const navigate = useNavigate();
     const request = useRequest<UserStatistics>();
+    const user = useAuth().user!;
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -113,72 +138,84 @@ const StatisticsPage = () => {
 
     const totalRatingChangeData: Series[] = useMemo(() => {
         return getSeries(
+            'Rating Change',
             request.data,
-            (d, c) => d.cohorts[c].activeRatingChanges,
-            (d, c) => d.cohorts[c].inactiveRatingChanges
+            (d, c) =>
+                d.cohorts[c].activeRatingChanges + d.cohorts[c].inactiveRatingChanges
         );
     }, [request.data]);
 
     const avgRatingChangeData: Series[] = useMemo(() => {
         return getSeries(
+            'Average Rating Change',
             request.data,
-            (d, c) => d.cohorts[c].activeRatingChanges / d.cohorts[c].activeParticipants,
             (d, c) =>
-                d.cohorts[c].inactiveRatingChanges / d.cohorts[c].inactiveParticipants
+                (d.cohorts[c].activeRatingChanges + d.cohorts[c].inactiveRatingChanges) /
+                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants)
         );
     }, [request.data]);
 
     const totalTimeData: Series[] = useMemo(() => {
         return getSeries(
+            'Total Time',
             request.data,
-            (d, c) => d.cohorts[c].activeMinutesSpent,
-            (d, c) => d.cohorts[c].inactiveMinutesSpent
+            (d, c) => d.cohorts[c].activeMinutesSpent + d.cohorts[c].inactiveMinutesSpent
         );
     }, [request.data]);
 
     const avgTimeData: Series[] = useMemo(() => {
         return getSeries(
+            'Average Time',
             request.data,
-            (d, c) => d.cohorts[c].activeMinutesSpent / d.cohorts[c].activeParticipants,
             (d, c) =>
-                d.cohorts[c].inactiveMinutesSpent / d.cohorts[c].inactiveParticipants
+                (d.cohorts[c].activeMinutesSpent + d.cohorts[c].inactiveMinutesSpent) /
+                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants)
         );
     }, [request.data]);
 
     const avgRatingChangePerHourData: Series[] = useMemo(() => {
         return getSeries(
+            'Average Rating Change Per Hour',
             request.data,
             (d, c) =>
-                d.cohorts[c].activeRatingChangePerHour / d.cohorts[c].activeParticipants,
-            (d, c) =>
-                d.cohorts[c].inactiveRatingChangePerHour /
-                d.cohorts[c].inactiveParticipants
+                (d.cohorts[c].activeRatingChangePerHour +
+                    d.cohorts[c].inactiveRatingChangePerHour) /
+                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants)
         );
     }, [request.data]);
 
     const totalDojoScoreData: Series[] = useMemo(() => {
         return getSeries(
+            'Total Dojo Score',
             request.data,
-            (d, c) => d.cohorts[c].activeDojoScores,
-            (d, c) => d.cohorts[c].inactiveDojoScores
+            (d, c) => d.cohorts[c].activeDojoScores + d.cohorts[c].inactiveDojoScores
         );
     }, [request.data]);
 
     const avgDojoScoreData: Series[] = useMemo(() => {
         return getSeries(
+            'Average Dojo Score',
             request.data,
-            (d, c) => d.cohorts[c].activeDojoScores / d.cohorts[c].activeParticipants,
-            (d, c) => d.cohorts[c].inactiveDojoScores / d.cohorts[c].inactiveParticipants
+            (d, c) =>
+                (d.cohorts[c].activeDojoScores + d.cohorts[c].inactiveDojoScores) /
+                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants)
         );
     }, [request.data]);
 
     const participantsData: Series[] = useMemo(() => {
-        return getSeries(
-            request.data,
-            (d, c) => d.cohorts[c].activeParticipants,
-            (d, c) => d.cohorts[c].inactiveParticipants
-        );
-    }, [request.data]);
+        return user.isAdmin
+            ? getCategorizedSeries(
+                  request.data,
+                  (d, c) => d.cohorts[c].activeParticipants,
+                  (d, c) => d.cohorts[c].inactiveParticipants
+              )
+            : getSeries(
+                  'Participants',
+                  request.data,
+                  (d, c) =>
+                      d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants
+              );
+    }, [request.data, user.isAdmin]);
 
     const ratingSystemsData: Series[] = useMemo(() => {
         if (!request.data) {
