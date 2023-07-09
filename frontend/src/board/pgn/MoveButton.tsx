@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Button, Grid } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { Move } from '@jackstenglein/chess';
 
 import { useCurrentMove } from './PgnBoard';
@@ -182,7 +182,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     }
 
     return (
-        <Grid key={'move-' + move.ply} item xs={5}>
+        <Box sx={{ flexBasis: `${500 / 12}%`, maxWidth: `${500 / 12}%` }}>
             <Button
                 ref={ref}
                 variant={move === currentMove ? 'contained' : 'text'}
@@ -202,7 +202,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
             >
                 {moveText}
             </Button>
-        </Grid>
+        </Box>
     );
 };
 

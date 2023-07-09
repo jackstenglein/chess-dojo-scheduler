@@ -1,4 +1,4 @@
-import { Divider, Grid, Stack, Typography } from '@mui/material';
+import { Box, Divider, Stack, Typography } from '@mui/material';
 
 interface MoveNumberProps {
     ply: number;
@@ -11,7 +11,7 @@ const MoveNumber: React.FC<MoveNumberProps> = ({ ply }) => {
     }
 
     return (
-        <Grid key={'move-number-' + ply} item xs={2}>
+        <Box sx={{ flexBasis: `${200 / 12}%`, maxWidth: `${200 / 12}%` }}>
             <Stack
                 justifyContent='center'
                 alignItems='center'
@@ -20,7 +20,7 @@ const MoveNumber: React.FC<MoveNumberProps> = ({ ply }) => {
                 <Typography color='text.secondary'>{moveNumber}</Typography>
                 <Divider orientation='vertical' sx={{ position: 'absolute', right: 0 }} />
             </Stack>
-        </Grid>
+        </Box>
     );
 };
 

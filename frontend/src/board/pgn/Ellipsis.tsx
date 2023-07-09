@@ -1,12 +1,12 @@
-import { Grid, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 const Ellipsis: React.FC<{ ply: number }> = ({ ply }) => {
     return (
-        <Grid key={'ellipsis-' + ply} item xs={5}>
+        <Box sx={{ flexBasis: `${500 / 12}%`, maxWidth: `${500 / 12}%` }}>
             <Typography color='text.secondary' pl={1}>
                 ...
             </Typography>
-        </Grid>
+        </Box>
     );
 };
 

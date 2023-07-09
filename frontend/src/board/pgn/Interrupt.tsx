@@ -1,5 +1,5 @@
 import { Move } from '@jackstenglein/chess';
-import { Divider, Grid, Paper } from '@mui/material';
+import { Box, Divider, Paper } from '@mui/material';
 import Comment from './Comment';
 import Ellipsis from './Ellipsis';
 import Lines from './Lines';
@@ -22,7 +22,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, scrollParent, onClickMove }
     return (
         <>
             {move.ply % 2 === 1 && <Ellipsis ply={move.ply} />}
-            <Grid item xs={12}>
+            <Box sx={{ flexBasis: `100%`, maxWidth: `100%` }}>
                 <Paper elevation={3} sx={{ boxShadow: 'none' }}>
                     <Divider
                         sx={{
@@ -67,7 +67,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, scrollParent, onClickMove }
 
                     <Divider />
                 </Paper>
-            </Grid>
+            </Box>
         </>
     );
 };
