@@ -19,6 +19,7 @@ interface HintSectionProps {
     onRestart: (board: BoardApi, chess: Chess) => void;
     onNext: (board: BoardApi, chess: Chess) => void;
     onRetry: (board: BoardApi, chess: Chess) => void;
+    onNextPuzzle?: () => void;
 }
 
 const WaitingForMoveHint: React.FC<HintSectionProps> = ({ move, chess, coachUrl }) => {
@@ -144,6 +145,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
     chess,
     coachUrl,
     onRestart,
+    onNextPuzzle,
 }) => {
     const setMove = useCurrentMove().setMove;
 
@@ -203,9 +205,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
     return (
         <>
             <Stack flexGrow={1} spacing={1} sx={{ overflowY: 'hidden' }}>
-                <Stack sx={{ overflowY: 'scroll' }}>
-                    <PgnText pgn={chess.pgn} onClickMove={onMove} />
-                </Stack>
+                <PgnText pgn={chess.pgn} onClickMove={onMove} />
                 <Tools
                     pgn={chess.pgn.render()}
                     onFirstMove={onFirstMove}
@@ -218,15 +218,27 @@ const CompleteHint: React.FC<HintSectionProps> = ({
             <Stack>
                 <ChatBubble>Great job completing this puzzle!</ChatBubble>
                 <Stack direction='row' justifyContent='space-between'>
-                    <Button
-                        variant='contained'
-                        disableElevation
-                        color='info'
-                        sx={{ flexGrow: 1 }}
-                        onClick={() => onRestart(board, chess)}
-                    >
-                        Restart
-                    </Button>
+                    <Stack flexGrow={1} spacing={0.5}>
+                        <Button
+                            variant='contained'
+                            disableElevation
+                            sx={{ flexGrow: 1 }}
+                            onClick={() => onRestart(board, chess)}
+                        >
+                            Restart
+                        </Button>
+                        {onNextPuzzle && (
+                            <Button
+                                variant='contained'
+                                disableElevation
+                                color='info'
+                                sx={{ flexGrow: 1 }}
+                                onClick={onNextPuzzle}
+                            >
+                                Next Puzzle
+                            </Button>
+                        )}
+                    </Stack>
                     <Coach src={coachUrl} />
                 </Stack>
             </Stack>

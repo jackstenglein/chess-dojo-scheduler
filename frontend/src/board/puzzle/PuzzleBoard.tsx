@@ -17,9 +17,16 @@ export enum Status {
 interface PuzzleBoardProps {
     pgn: string;
     coachUrl?: string;
+    onComplete: () => void;
+    onNextPuzzle?: () => void;
 }
 
-const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn, coachUrl }) => {
+const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
+    pgn,
+    coachUrl,
+    onComplete: onCompletePuzzle,
+    onNextPuzzle,
+}) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
     const [status, setStatus] = useState(Status.WaitingForMove);
@@ -152,87 +159,67 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ pgn, coachUrl }) => {
         });
         setStatus(Status.Complete);
         setMove(chess.currentMove());
+        onCompletePuzzle();
     };
 
     return (
-        <Container
-            maxWidth={false}
+        <Box
             sx={{
-                px: '0 !important',
-                justifyContent: 'start',
-                '--gap': '16px',
-                '--site-header-height': '80px',
-                '--site-header-margin': '60px',
-                '--player-header-height': '0px',
-                '--toc-width': '21vw',
-                '--coach-width': '400px',
-                '--tools-height': '0px',
-                '--board-width':
-                    'calc(100vw - var(--coach-width) - 60px - var(--toc-width))',
-                '--board-height':
-                    'calc(100vh - var(--site-header-height) - var(--site-header-margin) - var(--tools-height) - 2 * var(--player-header-height))',
-                '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
+                gridArea: 'pgn',
+                display: 'grid',
+                width: 1,
+                alignItems: 'end',
+                gridTemplateRows: {
+                    xs: 'auto auto var(--gap) minmax(auto, 400px)',
+                    md: 'auto calc(var(--board-size) + var(--tools-height))',
+                },
+                gridTemplateColumns: {
+                    xs: '1fr',
+                    md: 'var(--board-size) var(--gap) var(--coach-width) auto',
+                },
+                gridTemplateAreas: {
+                    xs: '"header" "board" "." "coach"',
+                    md: '"header . . ." "board gap coach ."',
+                },
             }}
         >
+            {board && chess && (
+                <Typography variant='subtitle2' color='text.secondary' gridArea='header'>
+                    {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
+                </Typography>
+            )}
             <Box
+                gridArea='board'
                 sx={{
-                    display: 'grid',
-                    alignItems: 'end',
-                    gridTemplateRows: {
-                        xs: 'auto auto var(--gap) minmax(auto, 400px)',
-                        md: 'auto calc(var(--board-size) + var(--tools-height) + 2 * var(--player-header-height))',
-                    },
-                    gridTemplateColumns: {
-                        xs: '1fr',
-                        md: 'var(--board-size) var(--gap) var(--coach-width) auto',
-                    },
-                    gridTemplateAreas: {
-                        xs: '"header" "board" "." "coach"',
-                        md: '"header . . ." "board . coach ."',
-                    },
+                    aspectRatio: 1,
+                    width: 1,
                 }}
             >
-                {board && chess && (
-                    <Typography
-                        variant='subtitle2'
-                        color='text.secondary'
-                        gridArea='header'
-                    >
-                        {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
-                    </Typography>
-                )}
-                <Box
-                    gridArea='board'
-                    sx={{
-                        aspectRatio: 1,
-                        width: 1,
-                    }}
-                >
-                    <Board onInitialize={onRestart} onMove={onMove} />
-                </Box>
-                {board && chess && (
-                    <Stack
-                        gridArea='coach'
-                        height={1}
-                        justifyContent={{ xs: 'start', sm: 'flex-end' }}
-                        spacing={2}
-                    >
-                        <CurrentMoveContext.Provider value={{ move, setMove }}>
-                            <HintSection
-                                status={status}
-                                move={move}
-                                board={board}
-                                chess={chess}
-                                coachUrl={coachUrl}
-                                onNext={onNext}
-                                onRetry={onRetry}
-                                onRestart={onRestart}
-                            />
-                        </CurrentMoveContext.Provider>
-                    </Stack>
-                )}
+                <Board onInitialize={onRestart} onMove={onMove} />
             </Box>
-        </Container>
+            {board && chess && (
+                <Stack
+                    gridArea='coach'
+                    height={1}
+                    justifyContent={{ xs: 'start', sm: 'flex-end' }}
+                    spacing={2}
+                >
+                    <CurrentMoveContext.Provider value={{ move, setMove }}>
+                        <HintSection
+                            status={status}
+                            move={move}
+                            board={board}
+                            chess={chess}
+                            coachUrl={coachUrl}
+                            onNext={onNext}
+                            onRetry={onRetry}
+                            onRestart={onRestart}
+                            onNextPuzzle={onNextPuzzle}
+                        />
+                    </CurrentMoveContext.Provider>
+                </Stack>
+            )}
+        </Box>
     );
 };
 
