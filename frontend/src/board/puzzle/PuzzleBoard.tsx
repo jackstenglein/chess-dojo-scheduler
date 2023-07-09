@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Container, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { Chess, Move } from '@jackstenglein/chess';
 
 import HintSection from './HintSection';

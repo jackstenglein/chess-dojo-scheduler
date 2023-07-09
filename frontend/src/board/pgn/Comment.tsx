@@ -12,7 +12,12 @@ const Comment: React.FC<CommentProps> = ({ text, inline }) => {
 
     if (inline) {
         return (
-            <Typography variant='caption' color='text.secondary' display='inline'>
+            <Typography
+                variant='caption'
+                color='text.secondary'
+                display='inline'
+                mx='4px'
+            >
                 {text}
             </Typography>
         );

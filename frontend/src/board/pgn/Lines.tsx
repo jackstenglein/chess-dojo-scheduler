@@ -35,6 +35,7 @@ const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) =
 
         result.push(
             <Fragment key={`fragment-${i}`}>
+                {move.commentMove && <Comment text={move.commentMove} inline />}
                 <MoveButton
                     inline
                     forceShowPly={i === 0}

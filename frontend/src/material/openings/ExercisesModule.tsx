@@ -6,7 +6,6 @@ import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
 import { Coach } from '../../database/opening';
 import { useState } from 'react';
 import PgnSelector from './PgnSelector';
-import PgnBoard from '../../board/pgn/PgnBoard';
 
 const coachUrls = {
     [Coach.Jesse]: 'https://chess-dojo-images.s3.amazonaws.com/icons/jesse.png',
