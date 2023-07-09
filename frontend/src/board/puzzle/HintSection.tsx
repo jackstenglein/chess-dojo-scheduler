@@ -207,6 +207,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
                     <PgnText pgn={chess.pgn} onClickMove={onMove} />
                 </Stack>
                 <Tools
+                    pgn={chess.pgn.render()}
                     onFirstMove={onFirstMove}
                     onPreviousMove={onPreviousMove}
                     onNextMove={onNextMove}

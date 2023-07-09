@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {
     Box,
     Button,
@@ -12,9 +11,6 @@ import {
     Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import CheckIcon from '@mui/icons-material/Check';
-import LinkIcon from '@mui/icons-material/Link';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
@@ -37,7 +33,6 @@ const GamePage = () => {
     const { cohort, id } = useParams();
 
     const [comment, setComment] = useState('');
-    const [copied, setCopied] = useState('');
 
     useEffect(() => {
         if (!request.isSent() && cohort && id) {
@@ -93,13 +88,6 @@ const GamePage = () => {
                 console.error('updateGame: ', err);
                 featureRequest.onFailure(err);
             });
-    };
-
-    const onCopy = (name: string) => {
-        setCopied(name);
-        setTimeout(() => {
-            setCopied('');
-        }, 3000);
     };
 
     if (request.isLoading()) {
@@ -197,38 +185,6 @@ const GamePage = () => {
                                     <DeleteGameButton game={request.data} />
                                 </Stack>
                             )}
-
-                            <CopyToClipboard
-                                text={window.location.href}
-                                onCopy={() => onCopy('link')}
-                            >
-                                <Button
-                                    variant='contained'
-                                    startIcon={
-                                        copied === 'link' ? <CheckIcon /> : <LinkIcon />
-                                    }
-                                >
-                                    {copied === 'link' ? 'Copied' : 'Copy Link'}
-                                </Button>
-                            </CopyToClipboard>
-
-                            <CopyToClipboard
-                                text={request.data.pgn}
-                                onCopy={() => onCopy('pgn')}
-                            >
-                                <Button
-                                    variant='contained'
-                                    startIcon={
-                                        copied === 'pgn' ? (
-                                            <CheckIcon />
-                                        ) : (
-                                            <ContentPasteIcon />
-                                        )
-                                    }
-                                >
-                                    {copied === 'pgn' ? 'Copied' : 'Copy PGN'}
-                                </Button>
-                            </CopyToClipboard>
                         </Stack>
 
                         <Typography variant='h6'>Comments</Typography>

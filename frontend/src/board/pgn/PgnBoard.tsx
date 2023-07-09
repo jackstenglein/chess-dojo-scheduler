@@ -123,6 +123,7 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
                 )}
 
                 <Tools
+                    pgn={config?.pgn || ''}
                     onFirstMove={onFirstMove}
                     onPreviousMove={onPreviousMove}
                     onNextMove={onNextMove}
