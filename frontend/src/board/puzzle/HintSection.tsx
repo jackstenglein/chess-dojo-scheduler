@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Stack, Typography, Button } from '@mui/material';
 import { Move } from '@jackstenglein/chess';
 
@@ -147,6 +147,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
     onRestart,
     onNextPuzzle,
 }) => {
+    const keydownMap = useRef({ shift: false });
     const setMove = useCurrentMove().setMove;
 
     const onMove = useCallback(
@@ -158,11 +159,14 @@ const CompleteHint: React.FC<HintSectionProps> = ({
         [board, chess, setMove]
     );
 
-    const onArrowKeys = useCallback(
+    const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
             if (event.key === 'ArrowRight') {
-                const nextMove = chess.nextMove();
-                if (nextMove !== null) {
+                let nextMove = chess.nextMove();
+                if (keydownMap.current.shift && nextMove?.variations.length) {
+                    nextMove = nextMove.variations[0][0];
+                }
+                if (nextMove) {
                     onMove(nextMove);
                 }
             } else if (event.key === 'ArrowLeft') {
@@ -173,12 +177,20 @@ const CompleteHint: React.FC<HintSectionProps> = ({
         [chess, onMove]
     );
 
+    const onKeyUp = useCallback((event: KeyboardEvent) => {
+        if (event.key === 'Shift') {
+            keydownMap.current.shift = false;
+        }
+    }, []);
+
     useEffect(() => {
-        window.addEventListener('keyup', onArrowKeys);
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('keyup', onKeyUp);
         return () => {
-            window.removeEventListener('keyup', onArrowKeys);
+            window.removeEventListener('keydown', onKeyDown);
+            window.removeEventListener('keyup', onKeyUp);
         };
-    }, [onArrowKeys]);
+    }, [onKeyDown]);
 
     const toggleOrientation = useCallback(() => {
         board.toggleOrientation();

@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import { Chess, Move } from '@jackstenglein/chess';
 import { Box, Stack } from '@mui/material';
 
@@ -149,16 +156,23 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
     const [move, setMove] = useState<Move | null>(null);
+    const keydownMap = useRef({ shift: false });
 
-    const onArrowKeys = useCallback(
+    const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
             if (!chess || !board) {
                 return;
             }
 
-            if (event.key === 'ArrowRight') {
-                const nextMove = chess.nextMove();
-                if (nextMove !== null) {
+            if (event.key === 'Shift') {
+                keydownMap.current.shift = true;
+            } else if (event.key === 'ArrowRight') {
+                let nextMove = chess.nextMove();
+                if (keydownMap.current.shift && nextMove?.variations.length) {
+                    nextMove = nextMove.variations[0][0];
+                }
+
+                if (nextMove) {
                     chess.seek(nextMove);
                     reconcile(chess, board);
                     setMove(nextMove);
@@ -172,12 +186,20 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         [board, chess]
     );
 
+    const onKeyUp = useCallback((event: KeyboardEvent) => {
+        if (event.key === 'Shift') {
+            keydownMap.current.shift = false;
+        }
+    }, []);
+
     useEffect(() => {
-        window.addEventListener('keyup', onArrowKeys);
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('keyup', onKeyUp);
         return () => {
-            window.removeEventListener('keyup', onArrowKeys);
+            window.removeEventListener('keydown', onKeyDown);
+            window.removeEventListener('keyup', onKeyUp);
         };
-    }, [onArrowKeys]);
+    }, [onKeyDown, onKeyUp]);
 
     const onMove = useCallback(
         (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
