@@ -115,6 +115,7 @@ export interface User {
     isCalendarAdmin: boolean;
     isBetaTester: boolean;
     createdAt: string;
+    updatedAt: string;
     numberOfGraduations: number;
     previousCohort: string;
     graduationCohorts: string[];
@@ -561,4 +562,11 @@ export function hasCreatedProfile(user: User): boolean {
         return false;
     }
     return dojoCohorts.includes(user.dojoCohort);
+}
+
+export function isActive(user: User): boolean {
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 31);
+
+    return user.updatedAt >= monthAgo.toISOString();
 }

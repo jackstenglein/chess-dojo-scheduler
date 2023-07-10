@@ -1,12 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Container, Stack, Tab, Typography } from '@mui/material';
+import {
+    Box,
+    Button,
+    Chip,
+    Container,
+    Stack,
+    Tab,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
-import { User } from '../database/user';
+import { User, isActive } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import GamesTab from './GamesTab';
@@ -88,6 +97,8 @@ const ProfilePage = () => {
         return <NotFoundPage />;
     }
 
+    const isUserActive = isActive(user);
+
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
             <Stack spacing={5}>
@@ -98,7 +109,7 @@ const ProfilePage = () => {
                     flexWrap='wrap'
                     rowGap={2}
                 >
-                    <Stack>
+                    <Stack alignItems='start'>
                         <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
                             <Typography variant='h4'>{user.displayName}</Typography>
                             {user.graduationCohorts &&
@@ -122,6 +133,17 @@ const ProfilePage = () => {
                         <Typography variant='h5' color='text.secondary'>
                             {user.dojoCohort}
                         </Typography>
+
+                        {!isUserActive && (
+                            <Tooltip title='User has not updated progress in the past month'>
+                                <Chip
+                                    sx={{ my: 1 }}
+                                    label='Inactive'
+                                    color='error'
+                                    variant='outlined'
+                                />
+                            </Tooltip>
+                        )}
 
                         {user.createdAt && (
                             <Typography mt={1}>
