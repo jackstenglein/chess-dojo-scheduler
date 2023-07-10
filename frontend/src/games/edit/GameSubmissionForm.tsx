@@ -3,6 +3,7 @@ import {
     Container,
     FormControl,
     FormControlLabel,
+    FormLabel,
     Radio,
     RadioGroup,
     Stack,
@@ -51,6 +52,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
     const [type, setType] = useState<SubmissionType>(SubmissionType.LichessChapter);
     const [lichessUrl, setLichessUrl] = useState('');
     const [pgnText, setPgnText] = useState('');
+    const [orientation, setOrientation] = useState('white');
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSubmit = () => {
@@ -82,6 +84,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                     ? lichessUrl
                     : undefined,
             pgnText: type === SubmissionType.Manual ? pgnText : undefined,
+            orientation,
         });
     };
 
@@ -156,6 +159,26 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                         helperText={errors.pgnText}
                     />
                 )}
+
+                <FormControl sx={{ py: 3 }}>
+                    <FormLabel>Board Orientation</FormLabel>
+                    <RadioGroup
+                        row
+                        value={orientation}
+                        onChange={(e, v) => setOrientation(v)}
+                    >
+                        <FormControlLabel
+                            value='white'
+                            control={<Radio />}
+                            label='White'
+                        />
+                        <FormControlLabel
+                            value='black'
+                            control={<Radio />}
+                            label='Black'
+                        />
+                    </RadioGroup>
+                </FormControl>
 
                 <LoadingButton
                     variant='contained'

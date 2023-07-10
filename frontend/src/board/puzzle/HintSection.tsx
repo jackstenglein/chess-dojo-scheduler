@@ -190,7 +190,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
             window.removeEventListener('keydown', onKeyDown);
             window.removeEventListener('keyup', onKeyUp);
         };
-    }, [onKeyDown]);
+    }, [onKeyDown, onKeyUp]);
 
     const toggleOrientation = useCallback(() => {
         board.toggleOrientation();

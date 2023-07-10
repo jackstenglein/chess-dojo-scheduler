@@ -20,7 +20,6 @@ export interface GameInfo {
     id: string;
     date: string;
     owner: string;
-    // ownerDiscord: string;
     ownerDisplayName: string;
     ownerPreviousCohort: string;
     headers: PgnHeaders;
@@ -31,7 +30,6 @@ export interface GameInfo {
 export interface Comment {
     owner: string;
     ownerDisplayName: string;
-    // ownerDiscord: string;
     ownerCohort: string;
     ownerPreviousCohort: string;
     id: string;
@@ -43,6 +41,7 @@ export interface Comment {
 export type Game = GameInfo & {
     pgn: string;
     comments: Comment[];
+    orientation?: 'white' | 'black';
 };
 
 export function isDefaultHeader(header: string): boolean {

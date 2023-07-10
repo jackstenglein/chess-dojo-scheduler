@@ -145,7 +145,7 @@ func AddHeader(headers map[string]string, name, value, pgnText string) (string, 
 var dateRegex, _ = regexp.Compile(`^\d{4}\.\d{2}\.\d{2}$`)
 var dateRegexDash, _ = regexp.Compile(`^\d{4}-\d{2}-\d{2}$`)
 
-func GetGame(user *database.User, pgnText string, headerData *HeaderData) (*database.Game, *HeaderData, error) {
+func GetGame(user *database.User, pgnText string, headerData *HeaderData, orientation string) (*database.Game, *HeaderData, error) {
 	headers, err := GetHeaders(pgnText)
 	if err != nil {
 		return nil, nil, err
@@ -210,6 +210,7 @@ func GetGame(user *database.User, pgnText string, headerData *HeaderData) (*data
 			IsFeatured:          "false",
 			FeaturedAt:          "NOT_FEATURED",
 			Pgn:                 pgnText,
+			Orientation:         orientation,
 		}, &HeaderData{
 			White: white,
 			Black: black,
@@ -221,7 +222,7 @@ func String(v string) *string {
 	return &v
 }
 
-func GetGameUpdate(pgnText string) (*database.GameUpdate, error) {
+func GetGameUpdate(pgnText, orientation string) (*database.GameUpdate, error) {
 	headers, err := GetHeaders(pgnText)
 	if err != nil {
 		return nil, err
@@ -246,9 +247,10 @@ func GetGameUpdate(pgnText string) (*database.GameUpdate, error) {
 	}
 
 	return &database.GameUpdate{
-		White:   String(strings.ToLower(white)),
-		Black:   String(strings.ToLower(black)),
-		Headers: headers,
-		Pgn:     &pgnText,
+		White:       String(strings.ToLower(white)),
+		Black:       String(strings.ToLower(black)),
+		Headers:     headers,
+		Pgn:         &pgnText,
+		Orientation: &orientation,
 	}, nil
 }

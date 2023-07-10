@@ -16,9 +16,10 @@ import (
 )
 
 type CreateGameRequest struct {
-	Type    game.ImportType `json:"type"`
-	Url     string          `json:"url"`
-	PgnText string          `json:"pgnText"`
+	Type        game.ImportType `json:"type"`
+	Url         string          `json:"url"`
+	PgnText     string          `json:"pgnText"`
+	Orientation string          `json:"orientation"`
 }
 
 var repository database.GameUpdater = database.DynamoDB
@@ -95,6 +96,10 @@ func updatePgn(event api.Request) api.Response {
 		err = errors.Wrap(400, "Invalid request: body cannot be unmarshaled", "", err)
 		return api.Failure(funcName, err)
 	}
+	if req.Orientation != "white" && req.Orientation != "black" {
+		err := errors.New(400, "Invalid request: orientation must be `white` or `black`", "")
+		return api.Failure(funcName, err)
+	}
 
 	var pgnText string
 	var err error
@@ -110,7 +115,7 @@ func updatePgn(event api.Request) api.Response {
 		return api.Failure(funcName, err)
 	}
 
-	update, err := game.GetGameUpdate(pgnText)
+	update, err := game.GetGameUpdate(pgnText, req.Orientation)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}

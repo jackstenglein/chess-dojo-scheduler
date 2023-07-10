@@ -122,6 +122,7 @@ export interface CreateGameRequest {
     url?: string;
     pgnText?: string;
     headers?: GameHeader[];
+    orientation: string;
 }
 
 export interface GameHeader {

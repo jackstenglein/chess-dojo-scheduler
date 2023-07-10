@@ -14,10 +14,11 @@ import (
 )
 
 type CreateGameRequest struct {
-	Type    game.ImportType    `json:"type"`
-	Url     string             `json:"url"`
-	PgnText string             `json:"pgnText"`
-	Headers []*game.HeaderData `json:"headers"`
+	Type        game.ImportType    `json:"type"`
+	Url         string             `json:"url"`
+	PgnText     string             `json:"pgnText"`
+	Headers     []*game.HeaderData `json:"headers"`
+	Orientation string             `json:"orientation"`
 }
 
 type CreateGameResponse struct {
@@ -36,6 +37,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	req := CreateGameRequest{}
 	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
 		err = errors.Wrap(400, "Invalid request: body cannot be unmarshaled", "", err)
+		return api.Failure(funcName, err), nil
+	}
+	if req.Orientation != "white" && req.Orientation != "black" {
+		err := errors.New(400, "Invalid request: orientation must be `white` or `black`", "")
 		return api.Failure(funcName, err), nil
 	}
 
@@ -66,7 +71,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	games, headers, err := getGames(user, pgnTexts, req.Headers)
+	games, headers, err := getGames(user, pgnTexts, req.Headers, req.Orientation)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
@@ -95,7 +100,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	return api.Success(funcName, &CreateGameResponse{Count: updated}), nil
 }
 
-func getGames(user *database.User, pgnTexts []string, reqHeaders []*game.HeaderData) ([]*database.Game, []*game.HeaderData, error) {
+func getGames(user *database.User, pgnTexts []string, reqHeaders []*game.HeaderData, orientation string) ([]*database.Game, []*game.HeaderData, error) {
 	games := make([]*database.Game, 0, len(pgnTexts))
 	headerDatas := make([]*game.HeaderData, 0, len(pgnTexts))
 	missingData := false
@@ -108,7 +113,7 @@ func getGames(user *database.User, pgnTexts []string, reqHeaders []*game.HeaderD
 			reqHeader = reqHeaders[i]
 		}
 
-		g, headerData, err := game.GetGame(user, pgnText, reqHeader)
+		g, headerData, err := game.GetGame(user, pgnText, reqHeader, orientation)
 		if err != nil {
 			if aerr, ok := err.(*errors.Error); ok {
 				return nil, nil, errors.Wrap(400, fmt.Sprintf("Failed to read chapter %d: %s", i+1, aerr.PublicMessage), "", aerr)

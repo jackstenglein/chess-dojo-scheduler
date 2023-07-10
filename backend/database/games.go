@@ -108,6 +108,9 @@ type Game struct {
 
 	// The comments left on the game
 	Comments []*Comment `dynamodbav:"comments" json:"comments"`
+
+	// The default board orientation for the game
+	Orientation string `dynamodbav:"orientation" json:"orientation,omitempty"`
 }
 
 type GameUpdate struct {
@@ -128,6 +131,9 @@ type GameUpdate struct {
 
 	// The date the game was marked as featured
 	FeaturedAt *string `dynamodbav:"featuredAt,omitempty" json:"featuredAt"`
+
+	// The default board orientation for the game
+	Orientation *string `dynamodbav:"orientation,omitempty" json:"orientation"`
 }
 
 type GamePutter interface {
