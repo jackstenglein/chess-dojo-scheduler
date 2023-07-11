@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Grid } from '@mui/material';
-import { Move } from '@jackstenglein/chess';
+import { Event, EventType, Move } from '@jackstenglein/chess';
 
-import { useCurrentMove } from './PgnBoard';
+import { useChess } from './PgnBoard';
 
 function renderNag(nag: string): string {
     switch (nag) {
@@ -104,6 +104,22 @@ function getTextColor(move: Move, inline?: boolean): string {
     return 'text.primary';
 }
 
+function handleScroll(
+    child: HTMLButtonElement | null,
+    scrollParent: HTMLDivElement | null
+) {
+    if (child && scrollParent) {
+        const parentRect = scrollParent.getBoundingClientRect();
+        const childRect = child.getBoundingClientRect();
+
+        scrollParent.scrollTop =
+            childRect.top -
+            parentRect.top +
+            scrollParent.scrollTop -
+            scrollParent.clientHeight / 2;
+    }
+}
+
 interface MoveButtonProps {
     move: Move;
     scrollParent: HTMLDivElement | null;
@@ -121,25 +137,31 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     forceShowPly,
     onClickMove,
 }) => {
-    const currentMove = useCurrentMove().move;
+    const { chess } = useChess();
     const ref = useRef<HTMLButtonElement>(null);
+    const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
 
     useEffect(() => {
-        if (
-            ref.current &&
-            scrollParent &&
-            (currentMove === move || (firstMove && currentMove === null))
-        ) {
-            const parentRect = scrollParent.getBoundingClientRect();
-            const childRect = ref.current.getBoundingClientRect();
+        if (chess) {
+            const observer = {
+                types: [EventType.LegalMove, EventType.NewVariation],
+                handler: (event: Event) => {
+                    if (event.move === move) {
+                        setIsCurrentMove(true);
+                    } else if (event.previousMove === move) {
+                        setIsCurrentMove(false);
+                    }
 
-            scrollParent.scrollTop =
-                childRect.top -
-                parentRect.top +
-                scrollParent.scrollTop -
-                scrollParent.clientHeight / 2;
+                    if (event.move === move || (firstMove && event.move === null)) {
+                        handleScroll(ref.current, scrollParent);
+                    }
+                },
+            };
+
+            chess.addObserver(observer);
+            return () => chess.removeObserver(observer);
         }
-    }, [scrollParent, currentMove, move, firstMove]);
+    }, [chess, move, firstMove, scrollParent, setIsCurrentMove]);
 
     let moveText = move.san;
     for (const nag of move.nags || []) {
@@ -160,7 +182,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         return (
             <Button
                 ref={ref}
-                variant={move === currentMove ? 'contained' : 'text'}
+                variant={isCurrentMove ? 'contained' : 'text'}
                 disableElevation
                 sx={{
                     textTransform: 'none',
@@ -170,9 +192,9 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     py: '1px',
                     minWidth: 'fit-content',
                     display: 'inline-block',
-                    color: move === currentMove ? undefined : getTextColor(move, true),
-                    backgroundColor: move === currentMove ? 'primary' : 'initial',
-                    fontWeight: move === currentMove ? 'bold' : 'inherit',
+                    color: isCurrentMove ? undefined : getTextColor(move, true),
+                    backgroundColor: isCurrentMove ? 'primary' : 'initial',
+                    fontWeight: isCurrentMove ? 'bold' : 'inherit',
                 }}
                 onClick={() => onClickMove(move)}
             >
@@ -185,7 +207,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         <Grid key={'move-' + move.ply} item xs={5}>
             <Button
                 ref={ref}
-                variant={move === currentMove ? 'contained' : 'text'}
+                variant={isCurrentMove ? 'contained' : 'text'}
                 disableElevation
                 sx={{
                     width: 1,
@@ -194,9 +216,9 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     justifyContent: 'start',
                     borderRadius: 0,
                     pl: 1,
-                    color: move === currentMove ? undefined : getTextColor(move),
-                    backgroundColor: move === currentMove ? 'primary' : 'initial',
-                    fontWeight: move === currentMove ? 'bold' : 'inherit',
+                    color: isCurrentMove ? undefined : getTextColor(move),
+                    backgroundColor: isCurrentMove ? 'primary' : 'initial',
+                    fontWeight: isCurrentMove ? 'bold' : 'inherit',
                 }}
                 onClick={() => onClickMove(move)}
             >

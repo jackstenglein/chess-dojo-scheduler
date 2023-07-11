@@ -1,7 +1,8 @@
-import { Move, Pgn, TAGS } from '@jackstenglein/chess';
+import { EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
 import { Divider, Paper, Stack, Typography } from '@mui/material';
 
-import { useCurrentMove } from './PgnBoard';
+import { useChess } from './PgnBoard';
+import { useEffect, useState } from 'react';
 
 interface PlayerHeaderProps {
     type: 'header' | 'footer';
@@ -35,16 +36,33 @@ function getInitialClock(pgn: Pgn): string | undefined {
 }
 
 const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) => {
-    const { move: currentMove } = useCurrentMove();
+    const { chess } = useChess();
+    const [, setForceRender] = useState(0);
+
+    useEffect(() => {
+        if (chess) {
+            const observer = {
+                types: [EventType.LegalMove, EventType.NewVariation],
+                handler: () => {
+                    setForceRender((v) => v + 1);
+                },
+            };
+
+            chess.addObserver(observer);
+            return () => chess.removeObserver(observer);
+        }
+    }, [chess, setForceRender]);
 
     if (!pgn) {
         return null;
     }
 
+    const currentMove = chess?.currentMove();
+
     let playerName = '';
     let playerElo = '';
     let playerResult = '';
-    let move: Move | null = currentMove;
+    let move: Move | null | undefined = currentMove;
 
     if (
         (type === 'header' && orientation === 'white') ||

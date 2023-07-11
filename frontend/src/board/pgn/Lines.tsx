@@ -1,9 +1,10 @@
-import { Fragment } from 'react';
-import { Move } from '@jackstenglein/chess';
+import { Fragment, useEffect, useState } from 'react';
+import { Event, EventType, Move } from '@jackstenglein/chess';
 import { Box, Divider } from '@mui/material';
 
 import MoveButton from './MoveButton';
 import Comment from './Comment';
+import { useChess } from './PgnBoard';
 
 const borderWidth = 1.5; // px
 const lineInset = 8; // px
@@ -16,6 +17,25 @@ interface LineProps {
 }
 
 const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) => {
+    const chess = useChess().chess;
+    const [, setForceRender] = useState(0);
+
+    useEffect(() => {
+        if (chess) {
+            const observer = {
+                types: [EventType.NewVariation],
+                handler: (event: Event) => {
+                    if (event.previousMove && line.includes(event.previousMove)) {
+                        setForceRender((v) => v + 1);
+                    }
+                },
+            };
+
+            chess.addObserver(observer);
+            return () => chess.removeObserver(observer);
+        }
+    }, [chess, line, setForceRender]);
+
     const result: JSX.Element[] = [];
 
     for (let i = 0; i < line.length; i++) {

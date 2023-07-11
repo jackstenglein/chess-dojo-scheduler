@@ -3,6 +3,7 @@ import {
     useCallback,
     useContext,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -23,15 +24,14 @@ import Tools from './Tools';
 import Tags from './Tags';
 import { Game } from '../../database/game';
 
-type CurrentMoveContextType = {
-    move: Move | null;
-    setMove: (m: Move | null) => void;
+type ChessContextType = {
+    chess?: Chess;
 };
 
-export const CurrentMoveContext = createContext<CurrentMoveContextType>(null!);
+export const ChessContext = createContext<ChessContextType>(null!);
 
-export function useCurrentMove() {
-    return useContext(CurrentMoveContext);
+export function useChess() {
+    return useContext(ChessContext);
 }
 
 interface BoardDisplayProps {
@@ -172,9 +172,15 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 }) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
-    const [move, setMove] = useState<Move | null>(null);
     const [tagsVisible, setTagsVisible] = useState(false);
     const keydownMap = useRef({ shift: false });
+
+    const chessContext = useMemo(
+        () => ({
+            chess,
+        }),
+        [chess]
+    );
 
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
@@ -193,12 +199,10 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 if (nextMove) {
                     chess.seek(nextMove);
                     reconcile(chess, board);
-                    setMove(nextMove);
                 }
             } else if (event.key === 'ArrowLeft') {
-                const prevMove = chess.seek(chess.previousMove());
+                chess.seek(chess.previousMove());
                 reconcile(chess, board);
-                setMove(prevMove);
             }
         },
         [board, chess]
@@ -221,15 +225,14 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
     const onMove = useCallback(
         (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
-            const move = chess.move({
+            chess.move({
                 from: primMove.orig,
                 to: primMove.dest,
                 promotion: primMove.promotion,
             });
             reconcile(chess, board);
-            setMove(move);
         },
-        [setMove]
+        []
     );
 
     const onInitialize = useCallback(
@@ -244,9 +247,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         (move: Move | null) => {
             chess?.seek(move);
             reconcile(chess, board);
-            setMove(move);
         },
-        [chess, board, setMove]
+        [chess, board]
     );
 
     return (
@@ -272,7 +274,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 }
             }
         >
-            <CurrentMoveContext.Provider value={{ move, setMove }}>
+            <ChessContext.Provider value={chessContext}>
                 <BoardDisplay
                     config={{
                         pgn,
@@ -302,7 +304,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         <Tags tags={chess?.pgn.header.tags} game={game} />
                     </Box>
                 )}
-            </CurrentMoveContext.Provider>
+            </ChessContext.Provider>
         </Box>
     );
 };

@@ -7,7 +7,6 @@ import ChatBubble from './ChatBubble';
 import { Status } from './PuzzleBoard';
 import Coach from './Coach';
 import PgnText from '../pgn/PgnText';
-import { useCurrentMove } from '../pgn/PgnBoard';
 import Tools from '../pgn/Tools';
 
 interface HintSectionProps {
@@ -148,20 +147,20 @@ const CompleteHint: React.FC<HintSectionProps> = ({
     onNextPuzzle,
 }) => {
     const keydownMap = useRef({ shift: false });
-    const setMove = useCurrentMove().setMove;
 
     const onMove = useCallback(
         (move: Move | null) => {
             chess.seek(move);
             reconcile(chess, board);
-            setMove(move);
         },
-        [board, chess, setMove]
+        [board, chess]
     );
 
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
-            if (event.key === 'ArrowRight') {
+            if (event.key === 'Shift') {
+                keydownMap.current.shift = true;
+            } else if (event.key === 'ArrowRight') {
                 let nextMove = chess.nextMove();
                 if (keydownMap.current.shift && nextMove?.variations.length) {
                     nextMove = nextMove.variations[0][0];

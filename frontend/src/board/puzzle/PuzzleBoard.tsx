@@ -4,7 +4,7 @@ import { Chess, Move } from '@jackstenglein/chess';
 
 import HintSection from './HintSection';
 import Board, { BoardApi, reconcile, toColor, toDests, toShapes } from '../Board';
-import { CurrentMoveContext } from '../pgn/PgnBoard';
+import { ChessContext } from '../pgn/PgnBoard';
 import { Key } from 'chessground/types';
 
 export enum Status {
@@ -204,7 +204,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     justifyContent={{ xs: 'start', sm: 'flex-end' }}
                     spacing={2}
                 >
-                    <CurrentMoveContext.Provider value={{ move, setMove }}>
+                    <ChessContext.Provider value={{ chess }}>
                         <HintSection
                             status={status}
                             move={move}
@@ -216,7 +216,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                             onRestart={onRestart}
                             onNextPuzzle={onNextPuzzle}
                         />
-                    </CurrentMoveContext.Provider>
+                    </ChessContext.Provider>
                 </Stack>
             )}
         </Box>
