@@ -47,7 +47,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
         <Card
             sx={{
                 gridArea: 'extras',
-                maxWidth: 1,
+                width: 1,
                 maxHeight: fullHeight ? 1 : '18em',
                 overflowY: 'scroll',
                 flexGrow: fullHeight ? 1 : undefined,
