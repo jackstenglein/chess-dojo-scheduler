@@ -20,6 +20,8 @@ import PgnText from './PgnText';
 import { Color } from 'chessground/types';
 import PlayerHeader from './PlayerHeader';
 import Tools from './Tools';
+import Tags from './Tags';
+import { Game } from '../../database/game';
 
 type CurrentMoveContextType = {
     move: Move | null;
@@ -41,6 +43,8 @@ interface BoardDisplayProps {
     onInitialize: (board: BoardApi, chess: Chess) => void;
     onMove: onMoveFunc;
     onClickMove: (move: Move | null) => void;
+    tagsVisible?: boolean;
+    toggleTags?: () => void;
 }
 
 const BoardDisplay: React.FC<BoardDisplayProps> = ({
@@ -52,6 +56,8 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
     onInitialize,
     onMove,
     onClickMove,
+    tagsVisible,
+    toggleTags,
 }) => {
     const [orientation, setOrientation] = useState<Color>(startOrientation);
 
@@ -139,6 +145,8 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
                     onNextMove={onNextMove}
                     onLastMove={onLastMove}
                     toggleOrientation={toggleOrientation}
+                    tagsVisible={tagsVisible}
+                    toggleTags={toggleTags}
                 />
             </Stack>
         </Box>
@@ -148,12 +156,16 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
 interface PgnBoardProps {
     pgn: string;
     showPlayerHeaders?: boolean;
+    showTags?: boolean;
+    game?: Game;
     startOrientation?: Color;
     sx?: SxProps<Theme>;
 }
 
 const PgnBoard: React.FC<PgnBoardProps> = ({
     pgn,
+    showTags,
+    game,
     showPlayerHeaders = true,
     startOrientation = 'white',
     sx,
@@ -161,6 +173,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
     const [move, setMove] = useState<Move | null>(null);
+    const [tagsVisible, setTagsVisible] = useState(false);
     const keydownMap = useRef({ shift: false });
 
     const onKeyDown = useCallback(
@@ -243,17 +256,18 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     gridArea: 'pgn',
                     display: 'grid',
                     width: 1,
+                    rowGap: 'var(--gap)',
                     gridTemplateRows: {
-                        xs: 'auto var(--gap) minmax(auto, 400px)',
-                        md: 'calc(var(--board-size) + var(--tools-height) + 8px + 2 * var(--player-header-height))',
+                        xs: `auto ${tagsVisible ? 'auto' : ''} minmax(auto, 400px)`,
+                        md: 'calc(var(--board-size) + var(--tools-height) + 8px + 2 * var(--player-header-height)) auto',
                     },
                     gridTemplateColumns: {
                         xs: '1fr',
                         md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
                     },
                     gridTemplateAreas: {
-                        xs: '"board" "." "coach"',
-                        md: '". board . coach ."',
+                        xs: `"board" ${tagsVisible ? '"tags"' : ''} "coach"`,
+                        md: '". board . coach ." ". tags . . ."',
                     },
                 }
             }
@@ -268,6 +282,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     chess={chess}
                     showPlayerHeaders={showPlayerHeaders}
                     startOrientation={startOrientation}
+                    tagsVisible={tagsVisible}
+                    toggleTags={showTags ? () => setTagsVisible(!tagsVisible) : undefined}
                     onInitialize={onInitialize}
                     onMove={onMove}
                     onClickMove={onClickMove}
@@ -279,6 +295,12 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                             <PgnText pgn={chess.pgn} onClickMove={onClickMove} />
                         </Stack>
                     </>
+                )}
+
+                {tagsVisible && (
+                    <Box gridArea='tags'>
+                        <Tags tags={chess?.pgn.header.tags} game={game} />
+                    </Box>
                 )}
             </CurrentMoveContext.Provider>
         </Box>

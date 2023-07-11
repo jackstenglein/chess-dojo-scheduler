@@ -1,3 +1,5 @@
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { useState } from 'react';
 import { Stack, Tooltip, IconButton, Paper } from '@mui/material';
 import FlipIcon from '@mui/icons-material/WifiProtectedSetup';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
@@ -7,8 +9,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import LinkIcon from '@mui/icons-material/Link';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import CheckIcon from '@mui/icons-material/Check';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { useState } from 'react';
+import SellIcon from '@mui/icons-material/Sell';
 
 interface ToolsProps {
     pgn: string;
@@ -17,6 +18,8 @@ interface ToolsProps {
     onNextMove: () => void;
     onLastMove: () => void;
     toggleOrientation: () => void;
+    tagsVisible?: boolean;
+    toggleTags?: () => void;
 }
 
 const Tools: React.FC<ToolsProps> = ({
@@ -26,6 +29,8 @@ const Tools: React.FC<ToolsProps> = ({
     onNextMove,
     onLastMove,
     toggleOrientation,
+    tagsVisible,
+    toggleTags,
 }) => {
     const [copied, setCopied] = useState('');
 
@@ -100,7 +105,21 @@ const Tools: React.FC<ToolsProps> = ({
                     </Tooltip>
                 </Stack>
 
-                <Stack></Stack>
+                <Stack>
+                    {toggleTags && (
+                        <Tooltip title='PGN Tags'>
+                            <IconButton
+                                aria-label='pgn-tags'
+                                sx={{
+                                    color: tagsVisible ? 'info.main' : 'text.secondary',
+                                }}
+                                onClick={toggleTags}
+                            >
+                                <SellIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                </Stack>
             </Stack>
         </Paper>
     );

@@ -136,8 +136,10 @@ const GamePage = () => {
                 {request.data?.pgn && (
                     <PgnErrorBoundary pgn={request.data.pgn}>
                         <PgnBoard
+                            game={request.data}
                             pgn={request.data.pgn}
                             startOrientation={request.data.orientation}
+                            showTags
                         />
                     </PgnErrorBoundary>
                 )}
