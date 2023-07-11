@@ -88,9 +88,6 @@ type Game struct {
 	// The display name of the owner of this game
 	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
 
-	// The discord username of the owner of this game
-	// OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
-
 	// The cohort the owner most recently graduated from
 	OwnerPreviousCohort DojoCohort `dynamodbav:"ownerPreviousCohort" json:"ownerPreviousCohort"`
 

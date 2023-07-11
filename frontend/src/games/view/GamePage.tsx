@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
     Box,
     Button,
-    CircularProgress,
     Container,
     IconButton,
     Stack,
@@ -22,6 +21,7 @@ import { useAuth } from '../../auth/Auth';
 import DeleteGameButton from './DeleteGameButton';
 import PgnErrorBoundary from './PgnErrorBoundary';
 import PgnBoard from '../../board/pgn/PgnBoard';
+import LoadingPage from '../../loading/LoadingPage';
 
 const GamePage = () => {
     const api = useApi();
@@ -91,15 +91,7 @@ const GamePage = () => {
     };
 
     if (request.isLoading()) {
-        return (
-            <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
-                {request.isLoading() && (
-                    <Stack justifyContent='center' alignItems='center'>
-                        <CircularProgress />
-                    </Stack>
-                )}
-            </Container>
-        );
+        return <LoadingPage />;
     }
 
     return (

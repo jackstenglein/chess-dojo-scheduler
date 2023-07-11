@@ -7,7 +7,7 @@ import {
     useState,
 } from 'react';
 import { Chess, Move } from '@jackstenglein/chess';
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, SxProps, Theme } from '@mui/material';
 
 import Board, {
     BoardApi,
@@ -146,12 +146,14 @@ interface PgnBoardProps {
     pgn: string;
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
+    sx?: SxProps<Theme>;
 }
 
 const PgnBoard: React.FC<PgnBoardProps> = ({
     pgn,
     showPlayerHeaders = true,
     startOrientation = 'white',
+    sx,
 }) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
@@ -233,23 +235,25 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
     return (
         <Box
-            sx={{
-                gridArea: 'pgn',
-                display: 'grid',
-                width: 1,
-                gridTemplateRows: {
-                    xs: 'auto var(--gap) minmax(auto, 400px)',
-                    md: 'calc(var(--board-size) + var(--tools-height) + 8px + 2 * var(--player-header-height))',
-                },
-                gridTemplateColumns: {
-                    xs: '1fr',
-                    md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
-                },
-                gridTemplateAreas: {
-                    xs: '"board" "." "coach"',
-                    md: '". board . coach ."',
-                },
-            }}
+            sx={
+                sx || {
+                    gridArea: 'pgn',
+                    display: 'grid',
+                    width: 1,
+                    gridTemplateRows: {
+                        xs: 'auto var(--gap) minmax(auto, 400px)',
+                        md: 'calc(var(--board-size) + var(--tools-height) + 8px + 2 * var(--player-header-height))',
+                    },
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
+                    },
+                    gridTemplateAreas: {
+                        xs: '"board" "." "coach"',
+                        md: '". board . coach ."',
+                    },
+                }
+            }
         >
             <CurrentMoveContext.Provider value={{ move, setMove }}>
                 <BoardDisplay

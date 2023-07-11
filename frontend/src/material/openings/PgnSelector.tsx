@@ -9,41 +9,52 @@ import {
     Typography,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { PgnHeaders } from '../../database/game';
 
-function getPgnName(header: Header): string {
-    if (header.tags.PgnName) {
-        return header.tags.PgnName;
+function getPgnName(header: Record<string, string> | PgnHeaders): string {
+    if (header.PgnName) {
+        return header.PgnName;
     }
 
-    return `${header.tags.White} - ${header.tags.Black}`;
+    return `${header.White} - ${header.Black}`;
 }
 
 interface PgnSelectorProps {
-    pgns: string[];
+    pgns?: string[];
+    headers?: Array<Record<string, string> | PgnHeaders>;
     selectedIndex: number;
     setSelectedIndex: (i: number) => void;
     completed?: boolean[];
+    fullHeight?: boolean;
 }
 
 const PgnSelector: React.FC<PgnSelectorProps> = ({
     pgns,
+    headers,
     selectedIndex,
     setSelectedIndex,
     completed,
+    fullHeight,
 }) => {
-    const headers = pgns.map((pgn) => new Header(pgn));
+    let selectedHeaders: Array<Record<string, string> | PgnHeaders> = [];
+    if (headers) {
+        selectedHeaders = headers;
+    } else if (pgns) {
+        selectedHeaders = pgns.map((pgn) => new Header(pgn).tags);
+    }
 
     return (
         <Card
             sx={{
                 gridArea: 'extras',
                 maxWidth: 1,
-                maxHeight: '18em',
+                maxHeight: fullHeight ? 1 : '18em',
                 overflowY: 'scroll',
+                flexGrow: fullHeight ? 1 : undefined,
             }}
         >
             <List>
-                {headers.map((header, idx) => (
+                {selectedHeaders.map((header, idx) => (
                     <ListItem key={idx} disablePadding>
                         <ListItemButton
                             sx={{ pl: 0 }}
@@ -75,7 +86,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                                     completed[idx] && <CheckCircleIcon color='success' />
                                 ) : (
                                     <Typography variant='caption'>
-                                        {header.tags.Result}
+                                        {header.Result}
                                     </Typography>
                                 )}
                             </Stack>

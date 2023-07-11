@@ -12,7 +12,7 @@ const MaterialPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'openings' });
 
     return (
-        <Container maxWidth='lg' sx={{ pt: 6, pb: 4 }}>
+        <Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
             <TabContext value={searchParams.get('view') || 'openings'}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList
