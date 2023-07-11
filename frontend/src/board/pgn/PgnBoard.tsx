@@ -86,7 +86,10 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
 
     const onNextMove = () => {
         if (chess) {
-            onClickMove(chess.nextMove());
+            const nextMove = chess.nextMove();
+            if (nextMove) {
+                onClickMove(nextMove);
+            }
         }
     };
 
