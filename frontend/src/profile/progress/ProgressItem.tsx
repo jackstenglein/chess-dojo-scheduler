@@ -144,6 +144,12 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                             WebkitBoxOrient: 'vertical',
                             overflow: 'hidden',
                             whiteSpace: 'pre-wrap',
+                            '& ul': {
+                                display: 'none',
+                            },
+                            '& ol': {
+                                display: 'none',
+                            },
                         }}
                     />
                     <Typography color='primary' variant='caption'>
