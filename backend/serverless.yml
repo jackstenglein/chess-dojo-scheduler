@@ -1121,7 +1121,7 @@ resources:
             - false
         ProvisionedThroughput: !If
           - IsProd
-          - ReadCapacityUnits: 1
+          - ReadCapacityUnits: 5
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
 
