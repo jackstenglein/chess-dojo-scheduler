@@ -99,6 +99,11 @@ export interface OpeningModule {
     description: string;
 
     /**
+     * A body of text that appears after the main content of the module.
+     */
+    postscript: string;
+
+    /**
      * The URLs of embedded videos, if any exist. Generally used only if
      * type is Video.
      */

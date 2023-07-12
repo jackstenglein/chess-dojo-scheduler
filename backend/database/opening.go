@@ -71,6 +71,9 @@ type OpeningModule struct {
 	// The description of the opening module.
 	Description string `dynamodbav:"description" json:"description"`
 
+	// A body of text that appears after the main content of the module.
+	Postscript string `dynamodbav:"postscript" json:"postscript"`
+
 	// The URLs of embedded videos, if any exist. Generally used only if
 	// type is Video.
 	VideoUrls []string `dynamodbav:"videoUrls" json:"videoUrls"`

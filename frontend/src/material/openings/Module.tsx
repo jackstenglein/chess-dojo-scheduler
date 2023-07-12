@@ -46,6 +46,8 @@ const Module: React.FC<ModuleProps> = ({ module }) => {
             <Typography>{module.description}</Typography>
 
             {M}
+
+            {module.postscript && <Typography>{module.postscript}</Typography>}
         </Stack>
     );
 };
