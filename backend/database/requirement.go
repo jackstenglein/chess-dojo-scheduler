@@ -2,6 +2,7 @@ package database
 
 import (
 	"math"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -132,6 +133,9 @@ type Requirement struct {
 
 	// The priority in which to sort this requirement when displaying to the user
 	SortPriority string `dynamodbav:"sortPriority" json:"sortPriority"`
+
+	// The number of days after which completion of the requirement expires
+	ExpirationDays int `dynamodbav:"expirationDays" json:"expirationDays"`
 }
 
 // CalculateScore returns the score for the given requirement based on the provided
@@ -145,6 +149,16 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 	}
 	if _, ok := r.Counts[cohort]; !ok {
 		return 0
+	}
+
+	if r.ExpirationDays > 0 {
+		expirationDate, err := time.Parse(time.RFC3339, progress.UpdatedAt)
+		if err != nil {
+			expirationDate.Add(time.Duration(r.ExpirationDays) * time.Hour * 24)
+			if time.Now().After(expirationDate) {
+				return 0
+			}
+		}
 	}
 
 	var count int

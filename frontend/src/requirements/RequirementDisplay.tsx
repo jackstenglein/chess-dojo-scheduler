@@ -53,6 +53,8 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
         requirementName += ` (${totalCount})`;
     }
 
+    const expirationYears = requirement.expirationDays / 365;
+
     return (
         <>
             <Stack spacing={3}>
@@ -118,6 +120,16 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                             />
                         </Box>
                     ))}
+
+                {expirationYears > 0 && (
+                    <Typography>
+                        Progress on this task expires after{' '}
+                        {expirationYears >= 1
+                            ? `${expirationYears} year`
+                            : `${Math.round(expirationYears * 12)} month`}
+                        {expirationYears !== 1 && 's'}.
+                    </Typography>
+                )}
             </Stack>
 
             <ProgressDialog

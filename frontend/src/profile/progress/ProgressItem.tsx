@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { Typography, Stack, Checkbox, Divider, IconButton, Grid } from '@mui/material';
+import {
+    Typography,
+    Stack,
+    Checkbox,
+    Divider,
+    IconButton,
+    Grid,
+    Chip,
+    Tooltip,
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import {
@@ -7,6 +16,7 @@ import {
     formatTime,
     getCurrentCount,
     getTotalTime,
+    isExpired,
     isRequirement,
     Requirement,
     RequirementProgress,
@@ -47,6 +57,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
     const time = formatTime(getTotalTime(cohort, progress));
+    const expired = isExpired(requirement, progress);
 
     let DescriptionElement = null;
     let UpdateElement = null;
@@ -120,6 +131,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 columnGap={0.5}
                 alignItems='center'
                 justifyContent='space-between'
+                position='relative'
             >
                 <Grid
                     item
@@ -132,7 +144,15 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     onClick={() => setShowReqModal(true)}
                     sx={{ cursor: 'pointer', position: 'relative' }}
                 >
-                    <Typography>{requirementName}</Typography>
+                    <Stack
+                        direction='row'
+                        justifyContent='space-between'
+                        flexWrap='wrap'
+                        alignItems='center'
+                    >
+                        <Typography>{requirementName}</Typography>
+                    </Stack>
+
                     <Typography
                         color='text.secondary'
                         dangerouslySetInnerHTML={{
@@ -175,6 +195,17 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                         {UpdateElement}
                     </Stack>
                 </Grid>
+
+                {expired && (
+                    <Tooltip title='Your progress on this task has expired and it must be recompleted'>
+                        <Chip
+                            variant='outlined'
+                            color='error'
+                            label='Expired'
+                            sx={{ position: 'absolute', right: 0, top: 0 }}
+                        />
+                    </Tooltip>
+                )}
             </Grid>
             <Divider />
 

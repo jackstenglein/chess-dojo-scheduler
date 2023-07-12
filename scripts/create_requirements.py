@@ -4,7 +4,7 @@ import datetime
 from decimal import Decimal
 
 db = boto3.resource('dynamodb')
-table = db.Table('prod-requirements')
+table = db.Table('dev-requirements')
 
 cohorts = [
     "0-300",
@@ -155,6 +155,7 @@ def main():
                     'updatedAt': updatedAt,
                     'sortPriority': row['Sort Priority'],
                     'progressBarSuffix': row['Progress Bar Suffix'] if row['Progress Bar Suffix'] else '',
+                    'expirationDays': int(row['Expiration Days']) if row['Expiration Days'] else -1,
                 }
 
                 items.append(item)

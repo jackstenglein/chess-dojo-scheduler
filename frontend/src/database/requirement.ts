@@ -56,6 +56,7 @@ export interface Requirement {
     progressBarSuffix: string;
     updatedAt: string;
     sortPriority: string;
+    expirationDays: number;
 }
 
 export interface RequirementProgress {
@@ -111,6 +112,10 @@ export function getCurrentCount(
         return 0;
     }
 
+    if (isExpired(requirement, progress)) {
+        return 0;
+    }
+
     if (requirement.numberOfCohorts === 1 || requirement.numberOfCohorts === 0) {
         return progress.counts.ALL_COHORTS || 0;
     }
@@ -157,6 +162,25 @@ export function isComplete(
         getCurrentCount(cohort, requirement, progress) >=
         getTotalCount(cohort, requirement)
     );
+}
+
+export function isExpired(
+    requirement: Requirement,
+    progress?: RequirementProgress
+): boolean {
+    if (!progress) {
+        return false;
+    }
+
+    if (requirement.expirationDays > 0) {
+        const expirationDate = new Date(progress.updatedAt);
+        expirationDate.setDate(expirationDate.getDate() + requirement.expirationDays);
+
+        if (new Date().getTime() > expirationDate.getTime()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export function getCurrentScore(
