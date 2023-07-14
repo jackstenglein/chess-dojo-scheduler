@@ -16,17 +16,37 @@ interface MoveProps {
 const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
+    const [needReminder, setNeedReminder] = useState(
+        move.previous === null || hasInterrupt(move.previous)
+    );
 
     useEffect(() => {
         if (chess) {
             const observer = {
-                types: [EventType.NewVariation],
+                types: [EventType.NewVariation, EventType.UpdateComment],
                 handler: (event: Event) => {
                     if (
-                        move === event.previousMove?.next ||
-                        (move.ply % 2 === 0 && move === event.previousMove?.next?.next)
+                        event.type === EventType.NewVariation &&
+                        move === event.previousMove?.next
                     ) {
                         setForceRender((v) => v + 1);
+                    }
+                    if (event.type === EventType.UpdateComment && move === event.move) {
+                        setForceRender((v) => v + 1);
+                    }
+
+                    if (
+                        event.type === EventType.UpdateComment &&
+                        move === event.move?.next
+                    ) {
+                        setNeedReminder(hasInterrupt(event.move));
+                    }
+                    if (
+                        event.type === EventType.NewVariation &&
+                        move.ply % 2 === 0 &&
+                        move === event.previousMove?.next?.next
+                    ) {
+                        setNeedReminder(true);
                     }
                 },
             };
@@ -34,9 +54,7 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
             chess.addObserver(observer);
             return () => chess.removeObserver(observer);
         }
-    }, [chess, move, setForceRender]);
-
-    const needReminder = move.previous === null || hasInterrupt(move.previous);
+    }, [chess, move, setForceRender, setNeedReminder]);
 
     return (
         <>
