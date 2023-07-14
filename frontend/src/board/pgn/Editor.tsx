@@ -1,10 +1,50 @@
-import { CardContent, InputAdornment, Stack, TextField } from '@mui/material';
+import {
+    CardContent,
+    InputAdornment,
+    Stack,
+    TextField,
+    ToggleButton,
+    ToggleButtonGroup,
+    Typography,
+    ToggleButtonProps,
+    Tooltip,
+} from '@mui/material';
 import ClockIcon from '@mui/icons-material/AccessAlarm';
 
 import { useChess } from './PgnBoard';
 import { getInitialClock } from './PlayerHeader';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Event, EventType } from '@jackstenglein/chess';
+import {
+    Nag,
+    evalNags,
+    getNagInSet,
+    getNagsInSet,
+    moveNags,
+    nags,
+    positionalNags,
+    setNagInSet,
+    setNagsInSet,
+} from './Nag';
+
+interface NagButtonProps extends ToggleButtonProps {
+    text: string;
+    description: string;
+}
+
+const NagButton: React.FC<NagButtonProps> = ({ text, description, ...props }) => {
+    return (
+        <Tooltip title={description}>
+            <ToggleButton {...props} sx={{ width: `${100 / 8}%` }}>
+                <Stack alignItems='center' justifyContent='center'>
+                    <Typography sx={{ fontSize: '1.5rem', fontWeight: '600' }}>
+                        {text}
+                    </Typography>
+                </Stack>
+            </ToggleButton>
+        </Tooltip>
+    );
+};
 
 const Editor = () => {
     const { chess } = useChess();
@@ -18,6 +58,7 @@ const Editor = () => {
                     EventType.NewVariation,
                     EventType.UpdateCommand,
                     EventType.UpdateComment,
+                    EventType.UpdateNags,
                 ],
                 handler: (event: Event) => {
                     if (
@@ -38,16 +79,23 @@ const Editor = () => {
     let clock = '';
     let comment = '';
 
-    if (chess) {
-        const move = chess.currentMove();
-        if (move) {
-            clock = move.commentDiag?.clk || '';
-            comment = move.commentAfter || '';
-        } else {
-            clock = getInitialClock(chess.pgn) || '';
-            comment = chess.pgn.gameComment;
-        }
+    const move = chess?.currentMove();
+    if (move) {
+        clock = move.commentDiag?.clk || '';
+        comment = move.commentAfter || '';
+    } else {
+        clock = getInitialClock(chess?.pgn) || '';
+        comment = chess?.pgn.gameComment || '';
     }
+
+    const handleExclusiveNag = (nagSet: Nag[]) => (event: any, newNag: string | null) => {
+        const newNags = setNagInSet(newNag, nagSet, move?.nags);
+        chess?.setNags(newNags);
+    };
+
+    const handleMultiNags = (nagSet: Nag[]) => (event: any, newNags: string[]) => {
+        chess?.setNags(setNagsInSet(newNags, nagSet, move?.nags));
+    };
 
     return (
         <CardContent>
@@ -59,16 +107,14 @@ const Editor = () => {
                             <InputAdornment position='start'>
                                 <ClockIcon
                                     sx={{
-                                        color: !chess?.currentMove()
-                                            ? 'text.secondary'
-                                            : undefined,
+                                        color: !move ? 'text.secondary' : undefined,
                                     }}
                                 />
                             </InputAdornment>
                         ),
                     }}
                     value={clock}
-                    disabled={!chess?.currentMove()}
+                    disabled={!move}
                     onChange={(event) => chess?.setCommand('clk', event.target.value)}
                     fullWidth
                 />
@@ -77,11 +123,62 @@ const Editor = () => {
                     label='Comments'
                     multiline
                     minRows={3}
-                    maxRows={5}
+                    maxRows={9}
                     value={comment}
                     onChange={(event) => chess?.setComment(event.target.value)}
                     fullWidth
                 />
+
+                {move && (
+                    <Stack spacing={1}>
+                        <ToggleButtonGroup
+                            exclusive
+                            value={getNagInSet(moveNags, chess?.currentMove()?.nags)}
+                            onChange={handleExclusiveNag(moveNags)}
+                        >
+                            {moveNags.map((nag) => (
+                                <NagButton
+                                    key={nag}
+                                    value={nag}
+                                    text={nags[nag].label}
+                                    description={nags[nag].description}
+                                />
+                            ))}
+                        </ToggleButtonGroup>
+
+                        <ToggleButtonGroup
+                            exclusive
+                            value={getNagInSet(evalNags, chess?.currentMove()?.nags)}
+                            onChange={handleExclusiveNag(evalNags)}
+                        >
+                            {evalNags.map((nag) => (
+                                <NagButton
+                                    key={nag}
+                                    value={nag}
+                                    text={nags[nag].label}
+                                    description={nags[nag].description}
+                                />
+                            ))}
+                        </ToggleButtonGroup>
+
+                        <ToggleButtonGroup
+                            value={getNagsInSet(
+                                positionalNags,
+                                chess?.currentMove()?.nags
+                            )}
+                            onChange={handleMultiNags(positionalNags)}
+                        >
+                            {positionalNags.map((nag) => (
+                                <NagButton
+                                    key={nag}
+                                    value={nag}
+                                    text={nags[nag].label}
+                                    description={nags[nag].description}
+                                />
+                            ))}
+                        </ToggleButtonGroup>
+                    </Stack>
+                )}
             </Stack>
         </CardContent>
     );

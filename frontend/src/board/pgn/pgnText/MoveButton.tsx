@@ -3,99 +3,17 @@ import { Button, Grid } from '@mui/material';
 import { Event, EventType, Move } from '@jackstenglein/chess';
 
 import { useChess } from '../PgnBoard';
+import { nags } from '../Nag';
 
 function renderNag(nag: string): string {
-    switch (nag) {
-        case '$1':
-            return '!';
-        case '$2':
-            return '?';
-        case '$3':
-            return '!!';
-        case '$4':
-            return '??';
-        case '$5':
-            return '!?';
-        case '$6':
-            return '?!';
-        case '$7':
-            return '□';
-        case '$10':
-            return '=';
-        case '$11':
-            return '=';
-        case '$12':
-            return '=';
-        case '$13':
-            return '∞';
-        case '$14':
-            return '⩲';
-        case '$15':
-            return '⩱';
-        case '$16':
-            return '±';
-        case '$17':
-            return '∓';
-        case '$18':
-            return '+−';
-        case '$19':
-            return '−+';
-        case '$22':
-            return '⨀';
-        case '$23':
-            return '⨀';
-        case '$26':
-            return '○';
-        case '$27':
-            return '○';
-        case '$32':
-            return '⟳';
-        case '$33':
-            return '⟳';
-        case '$36':
-            return '↑';
-        case '$37':
-            return '↑';
-        case '$40':
-            return '→';
-        case '$41':
-            return '→';
-        case '$44':
-            return '=∞';
-        case '$45':
-            return '=∞';
-        case '$132':
-            return '⇆';
-        case '$133':
-            return '⇆';
-        case '$138':
-            return '⨁';
-        case '$139':
-            return '⨁';
-        case '$140':
-            return '∆';
-        case '$146':
-            return 'N';
-    }
-
-    return '';
+    return nags[nag].label || '';
 }
 
 function getTextColor(move: Move, inline?: boolean): string {
     for (const nag of move.nags || []) {
-        switch (nag) {
-            case '$1':
-                return '#5ddf73';
-            case '$2':
-                return '#e69d00';
-            case '$3':
-                return '#21c43a';
-            case '$4':
-                return '#df5353';
-            case '$5':
-                return '#f075e1';
-            case '$6':
-                return '#53b2ea';
+        const color = nags[nag].color;
+        if (color) {
+            return color;
         }
     }
     if (inline) {
@@ -140,16 +58,25 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     const { chess } = useChess();
     const ref = useRef<HTMLButtonElement>(null);
     const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
+    const [, setForceRender] = useState(0);
 
     useEffect(() => {
         if (chess) {
             const observer = {
-                types: [EventType.LegalMove, EventType.NewVariation],
+                types: [
+                    EventType.LegalMove,
+                    EventType.NewVariation,
+                    EventType.UpdateNags,
+                ],
                 handler: (event: Event) => {
                     if (event.move === move) {
                         setIsCurrentMove(true);
                     } else if (event.previousMove === move) {
                         setIsCurrentMove(false);
+                    }
+
+                    if (event.type === EventType.UpdateNags && event.move === move) {
+                        setForceRender((v) => v + 1);
                     }
 
                     if (event.move === move || (firstMove && event.move === null)) {
@@ -161,7 +88,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
             chess.addObserver(observer);
             return () => chess.removeObserver(observer);
         }
-    }, [chess, move, firstMove, scrollParent, setIsCurrentMove]);
+    }, [chess, move, firstMove, scrollParent, setIsCurrentMove, setForceRender]);
 
     let moveText = move.san;
     for (const nag of move.nags || []) {

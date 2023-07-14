@@ -9,7 +9,11 @@ interface PlayerHeaderProps {
     pgn?: Pgn;
 }
 
-export function getInitialClock(pgn: Pgn): string | undefined {
+export function getInitialClock(pgn?: Pgn): string | undefined {
+    if (!pgn) {
+        return undefined;
+    }
+
     const timeControl = pgn.header.tags[TAGS.TimeControl];
     if (!timeControl) {
         return undefined;
