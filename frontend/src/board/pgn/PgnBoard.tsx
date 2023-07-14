@@ -16,6 +16,7 @@ import { Color } from 'chessground/types';
 import BoardTools from './BoardTools';
 import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
+import { ClockTextFieldId, CommentTextFieldId } from './Editor';
 
 type ChessContextType = {
     chess?: Chess;
@@ -64,6 +65,13 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
             if (!chess || !board) {
+                return;
+            }
+
+            if (
+                document.activeElement?.id === ClockTextFieldId ||
+                document.activeElement?.id === CommentTextFieldId
+            ) {
                 return;
             }
 

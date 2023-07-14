@@ -27,6 +27,9 @@ import {
     setNagsInSet,
 } from './Nag';
 
+export const CommentTextFieldId = 'commentTextField';
+export const ClockTextFieldId = 'clockTextField';
+
 interface NagButtonProps extends ToggleButtonProps {
     text: string;
     description: string;
@@ -102,6 +105,7 @@ const Editor = () => {
             <Stack spacing={3}>
                 <TextField
                     label='Clock'
+                    id={ClockTextFieldId}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position='start'>
@@ -121,6 +125,7 @@ const Editor = () => {
 
                 <TextField
                     label='Comments'
+                    id={CommentTextFieldId}
                     multiline
                     minRows={3}
                     maxRows={9}

@@ -20,7 +20,7 @@ import { useChess } from './PgnBoard';
 import { Color } from 'chessground/types';
 import PlayerHeader from './PlayerHeader';
 import Tags from './Tags';
-import Editor from './Editor';
+import Editor, { ClockTextFieldId, CommentTextFieldId } from './Editor';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { EventType, trackEvent } from '../../analytics/events';
@@ -71,7 +71,11 @@ const BoardTools: React.FC<BoardToolsProps> = ({
 
     useEffect(() => {
         const onArrowKeys = (event: KeyboardEvent) => {
-            if (event.key === 'f') {
+            if (
+                event.key === 'f' &&
+                document.activeElement?.id !== ClockTextFieldId &&
+                document.activeElement?.id !== CommentTextFieldId
+            ) {
                 toggleOrientation();
             }
         };
