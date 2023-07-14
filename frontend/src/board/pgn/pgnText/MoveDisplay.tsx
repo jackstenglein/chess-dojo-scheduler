@@ -22,7 +22,10 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
             const observer = {
                 types: [EventType.NewVariation],
                 handler: (event: Event) => {
-                    if (event.previousMove?.next === move) {
+                    if (
+                        move === event.previousMove?.next ||
+                        (move.ply % 2 === 0 && move === event.previousMove?.next?.next)
+                    ) {
                         setForceRender((v) => v + 1);
                     }
                 },
