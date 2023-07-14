@@ -163,16 +163,25 @@ const ModelGamesTab = () => {
                                     display: 'grid',
                                     width: 1,
                                     gridTemplateRows: {
-                                        xs: 'auto var(--gap) minmax(auto, 400px)',
-                                        md: 'calc(var(--board-size) + var(--tools-height) + 8px + 2 * var(--player-header-height))',
+                                        xs: 'auto auto auto auto var(--gap) minmax(auto, 400px)',
+                                        md: 'var(--player-header-height) var(--board-size) var(--player-header-height) auto',
                                     },
                                     gridTemplateColumns: {
                                         xs: '1fr',
                                         md: 'var(--board-size) var(--gap) var(--coach-width)',
                                     },
                                     gridTemplateAreas: {
-                                        xs: '"board" "." "coach"',
-                                        md: '"board . coach"',
+                                        xs: `"playerheader"
+                                             "board" 
+                                             "playerfooter"
+                                             "boardButtons"
+                                             "." 
+                                             "coach"`,
+
+                                        md: `"playerheader . coach"
+                                             "board . coach" 
+                                             "playerfooter . coach"
+                                             "boardButtons . ."`,
                                     },
                                 }}
                             />

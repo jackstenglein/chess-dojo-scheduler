@@ -6,7 +6,7 @@ import { useChess } from '../PgnBoard';
 import { nags } from '../Nag';
 
 function renderNag(nag: string): string {
-    return nags[nag].label || '';
+    return nags[nag]?.label || '';
 }
 
 function getTextColor(move: Move, inline?: boolean): string {

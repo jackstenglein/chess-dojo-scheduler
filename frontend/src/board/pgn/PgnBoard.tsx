@@ -138,6 +138,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         [chess, board]
     );
 
+    const showUnderboard = showTags || showEditor;
+
     return (
         <Box
             sx={
@@ -153,7 +155,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     gridTemplateColumns: {
                         xs: '1fr',
                         md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
-                        xl: 'auto var(--coach-width) var(--gap) var(--board-size) var(--gap) var(--coach-width) auto',
+                        xl: `auto ${
+                            showUnderboard ? 'var(--coach-width) var(--gap)' : ''
+                        }  var(--board-size) var(--gap) var(--coach-width) auto`,
                     },
                     gridTemplateAreas: {
                         xs: `"playerheader"
@@ -169,10 +173,14 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                              ". boardButtons . . ." 
                              ". underboard . . ."`,
 
-                        xl: `". underboard . playerheader . coach ." 
-                             ". underboard . board . coach ." 
-                             ". underboard . playerfooter . coach ."
-                             ". . . boardButtons . . ."`,
+                        xl: `". ${
+                            showUnderboard ? 'underboard .' : ''
+                        } playerheader . coach ." 
+                             ". ${showUnderboard ? 'underboard .' : ''} board . coach ." 
+                             ". ${
+                                 showUnderboard ? 'underboard .' : ''
+                             } playerfooter . coach ."
+                             ". ${showUnderboard ? '. .' : ''} boardButtons . . ."`,
                     },
                 }
             }
