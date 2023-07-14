@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, Grid } from '@mui/material';
 import { Event, EventType, Move } from '@jackstenglein/chess';
 
-import { useChess } from './PgnBoard';
+import { useChess } from '../PgnBoard';
 
 function renderNag(nag: string): string {
     switch (nag) {

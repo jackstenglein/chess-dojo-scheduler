@@ -6,8 +6,8 @@ import { BoardApi, toColor, Chess, reconcile } from '../Board';
 import ChatBubble from './ChatBubble';
 import { Status } from './PuzzleBoard';
 import Coach from './Coach';
-import PgnText from '../pgn/PgnText';
-import Tools from '../pgn/Tools';
+import PgnText from '../pgn/pgnText/PgnText';
+import BoardTools from '../pgn/BoardTools';
 
 interface HintSectionProps {
     status: Status;
@@ -191,39 +191,14 @@ const CompleteHint: React.FC<HintSectionProps> = ({
         };
     }, [onKeyDown, onKeyUp]);
 
-    const toggleOrientation = useCallback(() => {
-        board.toggleOrientation();
-    }, [board]);
-
-    const onFirstMove = () => {
-        onMove(null);
-    };
-
-    const onPreviousMove = () => {
-        onMove(chess.previousMove());
-    };
-
-    const onNextMove = () => {
-        if (chess.nextMove()) {
-            onMove(chess.nextMove());
-        }
-    };
-
-    const onLastMove = () => {
-        onMove(chess.lastMove());
-    };
-
     return (
         <>
             <Stack flexGrow={1} spacing={1} sx={{ overflowY: 'hidden' }}>
                 <PgnText pgn={chess.pgn} onClickMove={onMove} />
-                <Tools
+                <BoardTools
+                    showPlayerHeaders={false}
                     pgn={chess.pgn.render()}
-                    onFirstMove={onFirstMove}
-                    onPreviousMove={onPreviousMove}
-                    onNextMove={onNextMove}
-                    onLastMove={onLastMove}
-                    toggleOrientation={toggleOrientation}
+                    onClickMove={onMove}
                 />
             </Stack>
             <Stack>

@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 
 interface PlayerHeaderProps {
     type: 'header' | 'footer';
-    orientation: 'white' | 'black';
     pgn?: Pgn;
 }
 
@@ -35,8 +34,8 @@ export function getInitialClock(pgn: Pgn): string | undefined {
     return result;
 }
 
-const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) => {
-    const { chess } = useChess();
+const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
+    const { chess, board } = useChess();
     const [, setForceRender] = useState(0);
 
     useEffect(() => {
@@ -63,7 +62,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) =
         }
     }, [chess, setForceRender]);
 
-    if (!pgn) {
+    if (!pgn || !board) {
         return null;
     }
 
@@ -75,8 +74,8 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) =
     let move: Move | null | undefined = currentMove;
 
     if (
-        (type === 'header' && orientation === 'white') ||
-        (type === 'footer' && orientation === 'black')
+        (type === 'header' && board.state.orientation === 'white') ||
+        (type === 'footer' && board.state.orientation === 'black')
     ) {
         playerName = pgn.header.tags.Black;
         playerElo = pgn.header.tags.BlackElo;
@@ -103,6 +102,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) =
         <Paper
             elevation={3}
             sx={{
+                gridArea: `player${type}`,
                 boxShadow: 'none',
                 height: 'fit-content',
                 py: '3px',

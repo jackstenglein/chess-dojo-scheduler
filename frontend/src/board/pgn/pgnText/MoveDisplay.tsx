@@ -5,7 +5,7 @@ import MoveNumber from './MoveNumber';
 import Ellipsis from './Ellipsis';
 import Interrupt, { hasInterrupt } from './Interrupt';
 import MoveButton from './MoveButton';
-import { useChess } from './PgnBoard';
+import { useChess } from '../PgnBoard';
 
 interface MoveProps {
     move: Move;

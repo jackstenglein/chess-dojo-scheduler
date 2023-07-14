@@ -4,7 +4,7 @@ import { Box, Divider } from '@mui/material';
 
 import MoveButton from './MoveButton';
 import Comment from './Comment';
-import { useChess } from './PgnBoard';
+import { useChess } from '../PgnBoard';
 
 const borderWidth = 1.5; // px
 const lineInset = 8; // px
