@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import {
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Tooltip,
+    IconButton,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 
 import { Game } from '../../database/game';
@@ -41,13 +50,11 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({ game }) => {
 
     return (
         <>
-            <Button
-                variant='contained'
-                color='error'
-                onClick={() => setShowDeleteModal(true)}
-            >
-                Delete Game
-            </Button>
+            <Tooltip title='Delete Game'>
+                <IconButton onClick={() => setShowDeleteModal(true)}>
+                    <DeleteIcon sx={{ color: 'text.secondary' }} />
+                </IconButton>
+            </Tooltip>
             <Dialog
                 open={showDeleteModal}
                 onClose={request.isLoading() ? undefined : onClose}

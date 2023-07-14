@@ -18,7 +18,6 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { Game } from '../../database/game';
 import CommentList from './CommentList';
 import { useAuth } from '../../auth/Auth';
-import DeleteGameButton from './DeleteGameButton';
 import PgnErrorBoundary from './PgnErrorBoundary';
 import PgnBoard from '../../board/pgn/PgnBoard';
 import LoadingPage from '../../loading/LoadingPage';
@@ -140,6 +139,7 @@ const GamePage = () => {
                             pgn={request.data.pgn}
                             startOrientation={request.data.orientation}
                             showTags
+                            showEditor
                         />
                     </PgnErrorBoundary>
                 )}
@@ -177,9 +177,8 @@ const GamePage = () => {
                                         variant='contained'
                                         onClick={() => navigate('edit')}
                                     >
-                                        Update PGN
+                                        Import PGN
                                     </Button>
-                                    <DeleteGameButton game={request.data} />
                                 </Stack>
                             )}
                         </Stack>

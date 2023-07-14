@@ -10,6 +10,11 @@ import LinkIcon from '@mui/icons-material/Link';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import CheckIcon from '@mui/icons-material/Check';
 import SellIcon from '@mui/icons-material/Sell';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+
+import DeleteGameButton from '../../games/view/DeleteGameButton';
+import { Game } from '../../database/game';
 
 interface ToolsProps {
     pgn: string;
@@ -18,8 +23,15 @@ interface ToolsProps {
     onNextMove: () => void;
     onLastMove: () => void;
     toggleOrientation: () => void;
-    tagsVisible?: boolean;
-    toggleTags?: () => void;
+
+    onSave?: () => void;
+    showDelete?: boolean;
+    game?: Game;
+
+    underboard?: string;
+    setUnderboard?: (value: string) => void;
+    showTags?: boolean;
+    showEditor?: boolean;
 }
 
 const Tools: React.FC<ToolsProps> = ({
@@ -29,8 +41,15 @@ const Tools: React.FC<ToolsProps> = ({
     onNextMove,
     onLastMove,
     toggleOrientation,
-    tagsVisible,
-    toggleTags,
+
+    onSave,
+    showDelete,
+    game,
+
+    underboard,
+    setUnderboard,
+    showTags,
+    showEditor,
 }) => {
     const [copied, setCopied] = useState('');
 
@@ -43,7 +62,7 @@ const Tools: React.FC<ToolsProps> = ({
 
     return (
         <Paper elevation={3} sx={{ mt: 1, boxShadow: 'none' }}>
-            <Stack direction='row' justifyContent='space-between'>
+            <Stack direction='row' justifyContent='space-between' flexWrap='wrap'>
                 <Stack direction='row'>
                     <CopyToClipboard
                         text={window.location.href}
@@ -71,6 +90,16 @@ const Tools: React.FC<ToolsProps> = ({
                             </IconButton>
                         </Tooltip>
                     </CopyToClipboard>
+
+                    {onSave && (
+                        <Tooltip title='Save PGN'>
+                            <IconButton onClick={onSave}>
+                                <SaveIcon sx={{ color: 'text.secondary' }} />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+
+                    {showDelete && game && <DeleteGameButton game={game} />}
                 </Stack>
 
                 <Stack direction='row'>
@@ -105,17 +134,41 @@ const Tools: React.FC<ToolsProps> = ({
                     </Tooltip>
                 </Stack>
 
-                <Stack>
-                    {toggleTags && (
+                <Stack direction='row'>
+                    {showTags && setUnderboard && (
                         <Tooltip title='PGN Tags'>
                             <IconButton
                                 aria-label='pgn-tags'
                                 sx={{
-                                    color: tagsVisible ? 'info.main' : 'text.secondary',
+                                    color:
+                                        underboard === 'tags'
+                                            ? 'info.main'
+                                            : 'text.secondary',
                                 }}
-                                onClick={toggleTags}
+                                onClick={() =>
+                                    setUnderboard(underboard === 'tags' ? '' : 'tags')
+                                }
                             >
                                 <SellIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+
+                    {showEditor && setUnderboard && (
+                        <Tooltip title='Edit PGN'>
+                            <IconButton
+                                aria-label='edit-pgn'
+                                sx={{
+                                    color:
+                                        underboard === 'editor'
+                                            ? 'info.main'
+                                            : 'text.secondary',
+                                }}
+                                onClick={() =>
+                                    setUnderboard(underboard === 'editor' ? '' : 'editor')
+                                }
+                            >
+                                <EditIcon />
                             </IconButton>
                         </Tooltip>
                     )}

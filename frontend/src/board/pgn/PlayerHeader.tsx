@@ -1,4 +1,4 @@
-import { EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
+import { Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
 import { Divider, Paper, Stack, Typography } from '@mui/material';
 
 import { useChess } from './PgnBoard';
@@ -10,7 +10,7 @@ interface PlayerHeaderProps {
     pgn?: Pgn;
 }
 
-function getInitialClock(pgn: Pgn): string | undefined {
+export function getInitialClock(pgn: Pgn): string | undefined {
     const timeControl = pgn.header.tags[TAGS.TimeControl];
     if (!timeControl) {
         return undefined;
@@ -42,8 +42,18 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, orientation, pgn }) =
     useEffect(() => {
         if (chess) {
             const observer = {
-                types: [EventType.LegalMove, EventType.NewVariation],
-                handler: () => {
+                types: [
+                    EventType.LegalMove,
+                    EventType.NewVariation,
+                    EventType.UpdateCommand,
+                ],
+                handler: (event: Event) => {
+                    if (
+                        event.type === EventType.UpdateCommand &&
+                        event.commandName !== 'clk'
+                    ) {
+                        return;
+                    }
                     setForceRender((v) => v + 1);
                 },
             };

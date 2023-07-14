@@ -23,6 +23,11 @@ import PlayerHeader from './PlayerHeader';
 import Tools from './Tools';
 import Tags from './Tags';
 import { Game } from '../../database/game';
+import Editor from './Editor';
+import { useAuth } from '../../auth/Auth';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useApi } from '../../api/Api';
+import { trackEvent, EventType } from '../../analytics/events';
 
 type ChessContextType = {
     chess?: Chess;
@@ -43,8 +48,14 @@ interface BoardDisplayProps {
     onInitialize: (board: BoardApi, chess: Chess) => void;
     onMove: onMoveFunc;
     onClickMove: (move: Move | null) => void;
-    tagsVisible?: boolean;
-    toggleTags?: () => void;
+    underboard?: string;
+    setUnderboard?: (v: string) => void;
+    showTags?: boolean;
+    showEditor?: boolean;
+
+    onSave?: () => void;
+    showDelete?: boolean;
+    game?: Game;
 }
 
 const BoardDisplay: React.FC<BoardDisplayProps> = ({
@@ -56,8 +67,13 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
     onInitialize,
     onMove,
     onClickMove,
-    tagsVisible,
-    toggleTags,
+    underboard,
+    setUnderboard,
+    showTags,
+    showEditor,
+    onSave,
+    showDelete,
+    game,
 }) => {
     const [orientation, setOrientation] = useState<Color>(startOrientation);
 
@@ -145,8 +161,13 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
                     onNextMove={onNextMove}
                     onLastMove={onLastMove}
                     toggleOrientation={toggleOrientation}
-                    tagsVisible={tagsVisible}
-                    toggleTags={toggleTags}
+                    underboard={underboard}
+                    setUnderboard={setUnderboard}
+                    showTags={showTags}
+                    showEditor={showEditor}
+                    onSave={onSave}
+                    showDelete={showDelete}
+                    game={game}
                 />
             </Stack>
         </Box>
@@ -157,6 +178,7 @@ interface PgnBoardProps {
     pgn: string;
     showPlayerHeaders?: boolean;
     showTags?: boolean;
+    showEditor?: boolean;
     game?: Game;
     startOrientation?: Color;
     sx?: SxProps<Theme>;
@@ -165,6 +187,7 @@ interface PgnBoardProps {
 const PgnBoard: React.FC<PgnBoardProps> = ({
     pgn,
     showTags,
+    showEditor,
     game,
     showPlayerHeaders = true,
     startOrientation = 'white',
@@ -172,7 +195,11 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 }) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
-    const [tagsVisible, setTagsVisible] = useState(false);
+    const [underboard, setUnderboard] = useState('');
+    const user = useAuth().user!;
+    const request = useRequest();
+    const api = useApi();
+
     const keydownMap = useRef({ shift: false });
 
     const chessContext = useMemo(
@@ -251,6 +278,30 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         [chess, board]
     );
 
+    const onSave = useCallback(() => {
+        if (!game || !chess) {
+            return;
+        }
+
+        request.onStart();
+        api.updateGame(game.cohort, game.id, {
+            type: 'manual',
+            pgnText: chess.renderPgn(),
+            orientation: game.orientation || 'white',
+        })
+            .then(() => {
+                trackEvent(EventType.UpdateGame, {
+                    method: 'manual',
+                    dojo_cohort: game.cohort,
+                });
+                request.onSuccess('Game updated');
+            })
+            .catch((err) => {
+                console.error('updateGame: ', err);
+                request.onFailure(err);
+            });
+    }, [chess, api, game, request]);
+
     return (
         <Box
             sx={
@@ -260,7 +311,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     width: 1,
                     rowGap: 'var(--gap)',
                     gridTemplateRows: {
-                        xs: `auto ${tagsVisible ? 'auto' : ''} minmax(auto, 400px)`,
+                        xs: `auto ${underboard ? 'auto' : ''} minmax(auto, 400px)`,
                         md: 'calc(var(--board-size) + var(--tools-height) + 8px + 2 * var(--player-header-height)) auto',
                     },
                     gridTemplateColumns: {
@@ -268,8 +319,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
                     },
                     gridTemplateAreas: {
-                        xs: `"board" ${tagsVisible ? '"tags"' : ''} "coach"`,
-                        md: '". board . coach ." ". tags . . ."',
+                        xs: `"board" ${underboard ? '"underboard"' : ''} "coach"`,
+                        md: '". board . coach ." ". underboard . . ."',
                     },
                 }
             }
@@ -284,8 +335,13 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     chess={chess}
                     showPlayerHeaders={showPlayerHeaders}
                     startOrientation={startOrientation}
-                    tagsVisible={tagsVisible}
-                    toggleTags={showTags ? () => setTagsVisible(!tagsVisible) : undefined}
+                    underboard={underboard}
+                    setUnderboard={setUnderboard}
+                    showTags={showTags}
+                    showEditor={showEditor && game?.owner === user.username}
+                    onSave={game?.owner === user.username ? onSave : undefined}
+                    showDelete={game?.owner === user.username}
+                    game={game}
                     onInitialize={onInitialize}
                     onMove={onMove}
                     onClickMove={onClickMove}
@@ -299,12 +355,17 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     </>
                 )}
 
-                {tagsVisible && (
-                    <Box gridArea='tags'>
-                        <Tags tags={chess?.pgn.header.tags} game={game} />
+                {underboard && (
+                    <Box gridArea='underboard'>
+                        {underboard === 'tags' && (
+                            <Tags tags={chess?.pgn.header.tags} game={game} />
+                        )}
+                        {underboard === 'editor' && <Editor />}
                     </Box>
                 )}
             </ChessContext.Provider>
+
+            <RequestSnackbar request={request} showSuccess />
         </Box>
     );
 };
