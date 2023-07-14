@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react';
-import { Event, EventType, Move } from '@jackstenglein/chess';
+import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { Box, Divider } from '@mui/material';
 
 import MoveButton from './MoveButton';
@@ -55,7 +55,7 @@ const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) =
 
         result.push(
             <Fragment key={`fragment-${i}`}>
-                {move.commentMove && <Comment text={move.commentMove} inline />}
+                <Comment move={move} type={CommentType.Before} inline />
                 <MoveButton
                     inline
                     forceShowPly={i === 0}
@@ -63,7 +63,7 @@ const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) =
                     scrollParent={scrollParent}
                     onClickMove={onClickMove}
                 />
-                <Comment text={move.commentAfter} inline />
+                <Comment move={move} inline />
             </Fragment>
         );
     }

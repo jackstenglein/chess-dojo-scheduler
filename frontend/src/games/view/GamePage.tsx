@@ -121,10 +121,12 @@ const GamePage = () => {
                     gridTemplateColumns: {
                         xs: '1fr',
                         md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
+                        xl: 'auto var(--coach-width) var(--gap) var(--board-size) var(--gap) var(--coach-width) auto',
                     },
                     gridTemplateAreas: {
                         xs: '"pgn" "extras"',
                         md: '"pgn pgn pgn pgn pgn" ". extras . . ."',
+                        xl: '"pgn pgn pgn pgn pgn pgn pgn" ". . . extras . . ."',
                     },
                 }}
             >

@@ -58,7 +58,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, scrollParent, onClickMove }
                         }}
                     />
 
-                    <Comment text={move.commentAfter} />
+                    <Comment move={move} />
 
                     <Lines
                         lines={move.variations}

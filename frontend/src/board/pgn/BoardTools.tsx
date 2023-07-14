@@ -1,7 +1,7 @@
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useCallback, useEffect, useState } from 'react';
 import { Move } from '@jackstenglein/chess';
-import { Stack, Tooltip, IconButton, Paper, Box } from '@mui/material';
+import { Stack, Tooltip, IconButton, Paper, Card } from '@mui/material';
 import FlipIcon from '@mui/icons-material/WifiProtectedSetup';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -58,7 +58,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
     const { chess, board } = useChess();
     const [copied, setCopied] = useState('');
     const [, setOrientation] = useState<Color>(startOrientation || 'white');
-    const [underboard, setUnderboard] = useState('');
+    const [underboard, setUnderboard] = useState(showTags ? 'tags' : '');
     const request = useRequest();
     const api = useApi();
 
@@ -275,12 +275,21 @@ const BoardTools: React.FC<BoardToolsProps> = ({
             </Paper>
 
             {underboard && (
-                <Box gridArea='underboard' mt={2}>
+                <Card
+                    elevation={3}
+                    sx={{
+                        gridArea: 'underboard',
+                        overflowY: 'scroll',
+                        boxShadow: 'none',
+                        maxHeight: { xs: '22em', xl: 1 },
+                        mt: { xs: 2, xl: 0 },
+                    }}
+                >
                     {underboard === 'tags' && (
                         <Tags tags={chess?.pgn.header.tags} game={game} />
                     )}
                     {underboard === 'editor' && <Editor />}
-                </Box>
+                </Card>
             )}
 
             <RequestSnackbar request={request} showSuccess />
