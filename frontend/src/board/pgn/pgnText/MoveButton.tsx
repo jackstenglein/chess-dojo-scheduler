@@ -11,7 +11,7 @@ function renderNag(nag: string): string {
 
 function getTextColor(move: Move, inline?: boolean): string {
     for (const nag of move.nags || []) {
-        const color = nags[nag].color;
+        const color = nags[nag]?.color;
         if (color) {
             return color;
         }
