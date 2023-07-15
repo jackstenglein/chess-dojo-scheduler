@@ -98,7 +98,6 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 
 	sb.WriteString("\nCohorts: ")
 	for i, c := range event.Cohorts {
-		sb.WriteString("@")
 		sb.WriteString(string(c))
 		if i+1 < len(event.Cohorts) {
 			sb.WriteString(", ")
