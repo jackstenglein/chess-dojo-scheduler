@@ -155,6 +155,36 @@ export const nags: Record<Nag, NagDetails> = {
     },
 };
 
+export function getStandardNag(nag: string): Nag {
+    switch (nag) {
+        case '$11':
+            return '$10';
+        case '$12':
+            return '$10';
+        case '$23':
+            return '$22';
+        case '$27':
+            return '$26';
+        case '$33':
+            return '$32';
+        case '$37':
+            return '$36';
+        case '$41':
+            return '$40';
+        case '$45':
+            return '$44';
+        case '$133':
+            return '$132';
+        case '$139':
+            return '$138';
+        case '$256':
+            return '$13';
+
+        default:
+            return nag;
+    }
+}
+
 export const moveNags: Nag[] = ['$3', '$1', '$5', '$6', '$2', '$4', '$7', '$22'];
 export const evalNags: Nag[] = ['$13', '$18', '$16', '$14', '$10', '$15', '$17', '$19'];
 export const positionalNags: Nag[] = [
@@ -174,8 +204,9 @@ export function getNagInSet(nagSet: Nag[], nags: string[] | undefined): Nag {
     }
 
     for (const nag of nags) {
-        if (nagSet.includes(nag)) {
-            return nag;
+        let stdNag = getStandardNag(nag);
+        if (nagSet.includes(stdNag)) {
+            return stdNag;
         }
     }
     return '';
@@ -189,18 +220,21 @@ export function setNagInSet(nag: Nag | null, nagSet: Nag[], nags?: string[]): Na
         return [];
     }
 
-    nags = nags.filter((n) => !nagSet.includes(n));
+    nags = nags.filter((n) => !nagSet.includes(getStandardNag(n)));
     if (nag) {
         nags.push(nag);
     }
-    return nags;
+    return nags.sort(compareNags);
 }
 
 export function getNagsInSet(nagSet: Nag[], nags?: string[]): Nag[] {
     if (!nags) {
         return [];
     }
-    return nags.filter((n) => nagSet.includes(n));
+    return nags
+        .map((n) => getStandardNag(n))
+        .filter((n) => nagSet.includes(n))
+        .sort(compareNags);
 }
 
 export function setNagsInSet(newNags: Nag[], nagSet: Nag[], nags?: string[]): Nag[] {
@@ -208,7 +242,17 @@ export function setNagsInSet(newNags: Nag[], nagSet: Nag[], nags?: string[]): Na
         return newNags;
     }
 
-    nags = nags.filter((n) => !nagSet.includes(n));
+    nags = nags.filter((n) => !nagSet.includes(getStandardNag(n)));
     nags.push(...newNags);
-    return nags;
+    return nags.sort(compareNags);
+}
+
+export function compareNags(lhs: Nag, rhs: Nag): number {
+    let lhsNum = parseInt(lhs.slice(1));
+    let rhsNum = parseInt(rhs.slice(1));
+
+    if (lhsNum < rhsNum) {
+        return -1;
+    }
+    return 1;
 }

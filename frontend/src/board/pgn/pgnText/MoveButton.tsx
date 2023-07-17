@@ -1,17 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Grid } from '@mui/material';
+import { Button, Grid, Tooltip, Typography } from '@mui/material';
 import { Event, EventType, Move } from '@jackstenglein/chess';
 
 import { useChess } from '../PgnBoard';
-import { nags } from '../Nag';
-
-function renderNag(nag: string): string {
-    return nags[nag]?.label || '';
-}
+import { compareNags, getStandardNag, nags } from '../Nag';
 
 function getTextColor(move: Move, inline?: boolean): string {
     for (const nag of move.nags || []) {
-        const color = nags[nag]?.color;
+        const color = nags[getStandardNag(nag)]?.color;
         if (color) {
             return color;
         }
@@ -91,9 +87,9 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     }, [chess, move, firstMove, scrollParent, setIsCurrentMove, setForceRender]);
 
     let moveText = move.san;
-    for (const nag of move.nags || []) {
-        moveText += renderNag(nag);
-    }
+    // for (const nag of move.nags?.sort(compareNags) || []) {
+    //     moveText += renderNag(nag);
+    // }
 
     if (inline) {
         let text = '';
@@ -126,6 +122,23 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 onClick={() => onClickMove(move)}
             >
                 {text}
+                {move.nags?.sort(compareNags).map((nag) => {
+                    const n = nags[getStandardNag(nag)];
+                    if (!n) return null;
+
+                    return (
+                        <Tooltip key={n.label} title={n.description}>
+                            <Typography
+                                display='inline'
+                                fontSize='inherit'
+                                lineHeight='inherit'
+                                fontWeight='inherit'
+                            >
+                                {n.label}
+                            </Typography>
+                        </Tooltip>
+                    );
+                })}
             </Button>
         );
     }
@@ -150,6 +163,23 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 onClick={() => onClickMove(move)}
             >
                 {moveText}
+                {move.nags?.sort(compareNags).map((nag) => {
+                    const n = nags[getStandardNag(nag)];
+                    if (!n) return null;
+
+                    return (
+                        <Tooltip key={n.label} title={n.description}>
+                            <Typography
+                                display='inline'
+                                fontSize='inherit'
+                                lineHeight='inherit'
+                                fontWeight='inherit'
+                            >
+                                {n.label}
+                            </Typography>
+                        </Tooltip>
+                    );
+                })}
             </Button>
         </Grid>
     );
