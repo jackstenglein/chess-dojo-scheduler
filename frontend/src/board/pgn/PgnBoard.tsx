@@ -205,16 +205,18 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     />
                 </Box>
 
-                <BoardTools
-                    pgn={pgn}
-                    showPlayerHeaders={showPlayerHeaders}
-                    onClickMove={onClickMove}
-                    showTags={showTags}
-                    showEditor={showEditor && game?.owner === user.username}
-                    showSave={game?.owner === user.username}
-                    showDelete={game?.owner === user.username}
-                    game={game}
-                />
+                {board && chess && (
+                    <BoardTools
+                        pgn={pgn}
+                        showPlayerHeaders={showPlayerHeaders}
+                        onClickMove={onClickMove}
+                        showTags={showTags}
+                        showEditor={showEditor && game?.owner === user.username}
+                        showSave={game?.owner === user.username}
+                        showDelete={game?.owner === user.username}
+                        game={game}
+                    />
+                )}
 
                 {board && chess && (
                     <>

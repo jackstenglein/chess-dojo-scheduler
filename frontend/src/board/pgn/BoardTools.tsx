@@ -1,6 +1,6 @@
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useCallback, useEffect, useState } from 'react';
-import { Move } from '@jackstenglein/chess';
+import { Move, EventType as ChessEventType, Event } from '@jackstenglein/chess';
 import { Stack, Tooltip, IconButton, Paper, Card } from '@mui/material';
 import FlipIcon from '@mui/icons-material/WifiProtectedSetup';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
@@ -24,6 +24,7 @@ import Editor, { ClockTextFieldId, CommentTextFieldId } from './Editor';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { EventType, trackEvent } from '../../analytics/events';
+import { unstable_usePrompt } from 'react-router-dom';
 
 interface BoardToolsProps {
     pgn: string;
@@ -61,6 +62,40 @@ const BoardTools: React.FC<BoardToolsProps> = ({
     const [underboard, setUnderboard] = useState(showTags ? 'tags' : '');
     const request = useRequest();
     const api = useApi();
+
+    const [initialPgn, setInitialPgn] = useState(chess?.renderPgn() || '');
+    const [editorPgn, setEditorPgn] = useState(initialPgn);
+    unstable_usePrompt({
+        when: !!showSave && initialPgn !== editorPgn,
+        message:
+            'Your PGN has unsaved changes that will be lost. Are you sure you want to leave?',
+    });
+
+    useEffect(() => {
+        if (chess) {
+            const observer = {
+                types: [
+                    ChessEventType.NewVariation,
+                    ChessEventType.UpdateComment,
+                    ChessEventType.UpdateCommand,
+                    ChessEventType.UpdateNags,
+                    ChessEventType.Initialized,
+                ],
+                handler: (event: Event) => {
+                    if (event.type === ChessEventType.Initialized) {
+                        const pgn = chess.renderPgn();
+                        setInitialPgn(pgn);
+                        setEditorPgn(pgn);
+                    } else {
+                        setEditorPgn(chess.renderPgn());
+                    }
+                },
+            };
+
+            chess.addObserver(observer);
+            return () => chess.removeObserver(observer);
+        }
+    }, [chess, setEditorPgn]);
 
     const toggleOrientation = useCallback(() => {
         if (board) {
@@ -134,12 +169,13 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                     dojo_cohort: game.cohort,
                 });
                 request.onSuccess('Game updated');
+                setInitialPgn(editorPgn);
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
                 request.onFailure(err);
             });
-    }, [chess, api, game, request]);
+    }, [chess, api, game, request, editorPgn]);
 
     return (
         <>
@@ -188,7 +224,14 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                         {showSave && (
                             <Tooltip title='Save PGN'>
                                 <IconButton onClick={onSave}>
-                                    <SaveIcon sx={{ color: 'text.secondary' }} />
+                                    <SaveIcon
+                                        sx={{
+                                            color:
+                                                editorPgn === initialPgn
+                                                    ? 'text.secondary'
+                                                    : 'warning.main',
+                                        }}
+                                    />
                                 </IconButton>
                             </Tooltip>
                         )}

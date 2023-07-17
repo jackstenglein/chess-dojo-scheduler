@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {
+    Route,
+    createBrowserRouter,
+    createRoutesFromElements,
+    RouterProvider,
+    Outlet,
+} from 'react-router-dom';
 import { Amplify } from 'aws-amplify';
 
 import { getConfig } from './config';
@@ -50,89 +56,85 @@ Amplify.configure({
     },
 });
 
+const router = createBrowserRouter(
+    createRoutesFromElements(
+        <Route path='/' element={<Root />}>
+            <Route index element={<LandingPage />} />
+            <Route path='signin' element={<SigninPage />} />
+            <Route path='signup' element={<SignupPage />} />
+            <Route path='verify-email' element={<VerifyEmailPage />} />
+            <Route path='forgot-password' element={<ForgotPasswordPage />} />
+            <Route path='help' element={<HelpPage />} />
+
+            <Route element={<RequireAuth />}>
+                <Route element={<GraduationPrompt />}>
+                    <Route path='profile'>
+                        <Route index element={<ProfilePage />} />
+                        <Route path='edit' element={<ProfileEditorPage />} />
+                        <Route path=':username' element={<ProfilePage />} />
+                    </Route>
+                    <Route path='admin' element={<AdminPage />} />
+
+                    <Route path='recent' element={<RecentPage />} />
+                    <Route path='calendar' element={<CalendarPage />}>
+                        <Route path='availability/:id' element={<AvailabilityBooker />} />
+                    </Route>
+                    <Route path='meeting'>
+                        <Route index element={<ListMeetingsPage />} />
+                        <Route path=':meetingId' element={<MeetingPage />} />
+                    </Route>
+                    <Route path='group/:availabilityId' element={<GroupMeetingPage />} />
+                    <Route path='games'>
+                        <Route index element={<ListGamesPage />} />
+                        <Route path='submit' element={<EditGamePage />} />
+                        <Route path=':cohort/:id'>
+                            <Route index element={<GamePage />} />
+                            <Route path='edit' element={<EditGamePage />} />
+                        </Route>
+                    </Route>
+
+                    <Route path='scoreboard'>
+                        <Route index element={<ScoreboardPage />} />
+                        <Route path=':cohort' element={<ScoreboardPage />} />
+                        <Route path='stats' element={<StatisticsPage />} />
+                    </Route>
+
+                    <Route path='requirements'>
+                        <Route path=':id' element={<RequirementPage />} />
+                    </Route>
+
+                    <Route path='material'>
+                        <Route index element={<MaterialPage />} />
+                    </Route>
+
+                    <Route path='openings/:id' element={<OpeningPage />} />
+                </Route>
+            </Route>
+            <Route path='*' element={<NotFoundPage />} />
+        </Route>
+    )
+);
+
 function App() {
     return (
         <AuthProvider>
             <ThemeProvider>
-                <BrowserRouter>
-                    <ApiProvider>
-                        <CacheProvider>
-                            <Navbar />
-                            <ErrorBoundary>
-                                <Router />
-                            </ErrorBoundary>
-                        </CacheProvider>
-                    </ApiProvider>
-                </BrowserRouter>
+                <RouterProvider router={router} />
             </ThemeProvider>
         </AuthProvider>
     );
 }
 
-function Router() {
+function Root() {
     return (
-        <Routes>
-            <Route path='/'>
-                <Route index element={<LandingPage />} />
-                <Route path='signin' element={<SigninPage />} />
-                <Route path='signup' element={<SignupPage />} />
-                <Route path='verify-email' element={<VerifyEmailPage />} />
-                <Route path='forgot-password' element={<ForgotPasswordPage />} />
-                <Route path='help' element={<HelpPage />} />
-
-                <Route element={<RequireAuth />}>
-                    <Route element={<GraduationPrompt />}>
-                        <Route path='profile'>
-                            <Route index element={<ProfilePage />} />
-                            <Route path='edit' element={<ProfileEditorPage />} />
-                            <Route path=':username' element={<ProfilePage />} />
-                        </Route>
-                        <Route path='admin' element={<AdminPage />} />
-
-                        <Route path='recent' element={<RecentPage />} />
-                        <Route path='calendar' element={<CalendarPage />}>
-                            <Route
-                                path='availability/:id'
-                                element={<AvailabilityBooker />}
-                            />
-                        </Route>
-                        <Route path='meeting'>
-                            <Route index element={<ListMeetingsPage />} />
-                            <Route path=':meetingId' element={<MeetingPage />} />
-                        </Route>
-                        <Route
-                            path='group/:availabilityId'
-                            element={<GroupMeetingPage />}
-                        />
-                        <Route path='games'>
-                            <Route index element={<ListGamesPage />} />
-                            <Route path='submit' element={<EditGamePage />} />
-                            <Route path=':cohort/:id'>
-                                <Route index element={<GamePage />} />
-                                <Route path='edit' element={<EditGamePage />} />
-                            </Route>
-                        </Route>
-
-                        <Route path='scoreboard'>
-                            <Route index element={<ScoreboardPage />} />
-                            <Route path=':cohort' element={<ScoreboardPage />} />
-                            <Route path='stats' element={<StatisticsPage />} />
-                        </Route>
-
-                        <Route path='requirements'>
-                            <Route path=':id' element={<RequirementPage />} />
-                        </Route>
-
-                        <Route path='material'>
-                            <Route index element={<MaterialPage />} />
-                        </Route>
-
-                        <Route path='openings/:id' element={<OpeningPage />} />
-                    </Route>
-                </Route>
-                <Route path='*' element={<NotFoundPage />} />
-            </Route>
-        </Routes>
+        <ApiProvider>
+            <CacheProvider>
+                <Navbar />
+                <ErrorBoundary>
+                    <Outlet />
+                </ErrorBoundary>
+            </CacheProvider>
+        </ApiProvider>
     );
 }
 
