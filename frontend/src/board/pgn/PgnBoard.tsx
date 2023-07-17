@@ -75,6 +75,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 return;
             }
 
+            event.preventDefault();
+            event.stopPropagation();
             if (event.key === 'Shift') {
                 keydownMap.current.shift = true;
             } else if (event.key === 'ArrowRight') {

@@ -158,6 +158,8 @@ const CompleteHint: React.FC<HintSectionProps> = ({
 
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
             if (event.key === 'Shift') {
                 keydownMap.current.shift = true;
             } else if (event.key === 'ArrowRight') {
