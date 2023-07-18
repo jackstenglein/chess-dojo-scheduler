@@ -86,7 +86,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	event, err := repository.GetEvent(id)
+	originalEvent, err := repository.GetEvent(id)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
@@ -96,7 +96,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		err := errors.New(400, "Invalid request: username is required", "")
 		return api.Failure(funcName, err), nil
 	}
-	if info.Username == event.Owner {
+	if info.Username == originalEvent.Owner {
 		err := errors.New(400, "Invalid request: you cannot book your own availability", "")
 		return api.Failure(funcName, err), nil
 	}
@@ -105,45 +105,45 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if err := checkCohort(event, user.DojoCohort); err != nil {
+	if err := checkCohort(originalEvent, user.DojoCohort); err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Type == database.EventTypeAvailability && event.MaxParticipants == 1 {
-		if err := checkType(event, body.Type); err != nil {
+	if originalEvent.Type == database.EventTypeAvailability && originalEvent.MaxParticipants == 1 {
+		if err := checkType(originalEvent, body.Type); err != nil {
 			return api.Failure(funcName, err), nil
 		}
-		if err := checkTimes(event, body.StartTime); err != nil {
+		if err := checkTimes(originalEvent, body.StartTime); err != nil {
 			return api.Failure(funcName, err), nil
 		}
 	}
 
-	event, err = repository.BookEvent(event, user, body.StartTime, body.Type)
+	newEvent, err := repository.BookEvent(originalEvent, user, body.StartTime, body.Type)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	if err := repository.RecordEventBooking(event); err != nil {
+	if err := repository.RecordEventBooking(newEvent); err != nil {
 		log.Error("Failed RecordEventBooking: ", err)
 	}
 
-	if event.MaxParticipants == 1 {
-		if err := discord.SendBookingNotification(event.Owner, event.Id); err != nil {
+	if newEvent.MaxParticipants == 1 {
+		if err := discord.SendBookingNotification(newEvent.Owner, newEvent.Id); err != nil {
 			log.Error("Failed SendBookingNotification: ", err)
 		}
-	} else if err := discord.SendGroupJoinNotification(event.Owner, event.Id); err != nil {
+	} else if err := discord.SendGroupJoinNotification(newEvent.Owner, newEvent.Id); err != nil {
 		log.Error("Failed SendGroupJoinNotification: ", err)
 	}
 
-	if event.Status == database.Booked {
-		if err := discord.DeleteMessage(event.DiscordMessageId); err != nil {
+	if newEvent.Status == database.Booked {
+		if err := discord.DeleteMessage(originalEvent.DiscordMessageId); err != nil {
 			log.Error("Failed to delete Discord message: ", err)
 		}
-	} else if _, err := discord.SendAvailabilityNotification(event); err != nil {
+	} else if _, err := discord.SendAvailabilityNotification(newEvent); err != nil {
 		log.Error("Failed SendAvailabilityNotification: ", err)
 	}
 
-	return api.Success(funcName, event), nil
+	return api.Success(funcName, newEvent), nil
 }
 
 func main() {
