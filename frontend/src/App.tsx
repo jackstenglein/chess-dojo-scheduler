@@ -39,6 +39,7 @@ import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import MaterialPage from './material/MaterialPage';
 import ErrorBoundary from './ErrorBoundary';
 import OpeningPage from './material/openings/OpeningPage';
+import ListTournamentsPage from './tournaments/ListTournamentsPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -91,6 +92,10 @@ const router = createBrowserRouter(
                             <Route index element={<GamePage />} />
                             <Route path='edit' element={<EditGamePage />} />
                         </Route>
+                    </Route>
+
+                    <Route path='tournaments'>
+                        <Route index element={<ListTournamentsPage />} />
                     </Route>
 
                     <Route path='scoreboard'>

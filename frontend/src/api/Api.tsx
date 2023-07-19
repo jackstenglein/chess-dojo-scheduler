@@ -60,6 +60,8 @@ import {
     setEvent,
 } from './eventApi';
 import { getCourse, listCourses, OpeningApiContextType } from './openingApi';
+import { listTournaments, TournamentApiContextType } from './tournamentApi';
+import { TournamentType } from '../database/tournament';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -70,7 +72,8 @@ type ApiContextType = AdminApiContextType &
     GameApiContextType &
     RequirementApiContextType &
     GraduationApiContextType &
-    OpeningApiContextType;
+    OpeningApiContextType &
+    TournamentApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -203,6 +206,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             getCourse: (id: string) => getCourse(idToken, id),
             listCourses: (startKey?: string) => listCourses(idToken, startKey),
+
+            listTournaments: (type: TournamentType, startKey?: string) =>
+                listTournaments(idToken, type, startKey),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

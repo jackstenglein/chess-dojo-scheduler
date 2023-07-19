@@ -884,6 +884,39 @@ functions:
           - dynamodb:Scan
         Resource: !GetAtt OpeningTable.Arn
 
+  ########## Tournament Endpoints ##############
+
+  createTournament:
+    handler: bin/tournament/create
+    package:
+      patterns:
+        - ./bin/tournament/create
+    events:
+      - httpApi:
+          path: /tournaments
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt TournamentsTable.Arn
+
+  listTournaments:
+    handler: bin/tournament/list
+    package:
+      patterns:
+        - ./bin/tournament/list
+    events:
+      - httpApi:
+          path: /tournaments
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt TournamentsTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -1275,6 +1308,30 @@ resources:
               - ReadCapacityUnits: 1
                 WriteCapacityUnits: 1
               - !Ref AWS::NoValue
+
+    TournamentsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-tournaments
+        AttributeDefinitions:
+          - AttributeName: type
+            AttributeType: S
+          - AttributeName: startsAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: type
+            KeyType: HASH
+          - AttributeName: startsAt
+            KeyType: RANGE
+        BillingMode: !If
+          - IsProd
+          - PROVISIONED
+          - PAY_PER_REQUEST
+        ProvisionedThroughput: !If
+          - IsProd
+          - ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          - !Ref AWS::NoValue
 
     ############# S3 Resources #################
 

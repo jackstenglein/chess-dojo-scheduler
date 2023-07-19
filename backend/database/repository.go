@@ -22,13 +22,15 @@ var DynamoDB = &dynamoRepository{
 	svc: dynamodb.New(session.New()),
 }
 
-var userTable = os.Getenv("stage") + "-users"
-var timelineTable = os.Getenv("stage") + "-timeline"
-var gameTable = os.Getenv("stage") + "-games"
-var requirementTable = os.Getenv("stage") + "-requirements"
-var graduationTable = os.Getenv("stage") + "-graduations"
-var eventTable = os.Getenv("stage") + "-events"
-var openingTable = os.Getenv("stage") + "-openings"
+var stage = os.Getenv("stage")
+var userTable = stage + "-users"
+var timelineTable = stage + "-timeline"
+var gameTable = stage + "-games"
+var requirementTable = stage + "-requirements"
+var graduationTable = stage + "-graduations"
+var eventTable = stage + "-events"
+var openingTable = stage + "-openings"
+var tournamentTable = stage + "-tournaments"
 
 // getItem handles sending a DynamoDB GetItem request and unmarshals the result into the provided output
 // value, which must be a non-nil pointer. If the result of the GetItem request is nil, then
