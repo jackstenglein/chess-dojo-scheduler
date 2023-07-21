@@ -37,7 +37,14 @@ export function toDests(chess?: Chess): Map<Key, Key[]> {
     return dests;
 }
 
-const colors: Record<string, string> = { Y: 'yellow', R: 'red', B: 'blue', G: 'green' };
+const colors: Record<string, string> = {
+    Y: 'yellow',
+    R: 'red',
+    B: 'blue',
+    G: 'green',
+    O: 'orange',
+    C: 'magenta',
+};
 
 export function toShapes(chess?: Chess): DrawShape[] {
     if (!chess) {
