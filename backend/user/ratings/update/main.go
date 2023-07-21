@@ -51,13 +51,13 @@ func fetchRating(username string, ratingSystem string, currentRating *int, start
 
 func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lichessRatings map[string]int) (*database.User, []*database.User) {
 	shouldUpdate := fetchRating(user.ChesscomUsername, "Chess.com", &user.CurrentChesscomRating, user.StartChesscomRating, ratings.FetchChesscomRating)
-	shouldUpdate = shouldUpdate || fetchRating(user.FideId, "FIDE", &user.CurrentFideRating, user.StartFideRating, ratings.FetchFideRating)
-	shouldUpdate = shouldUpdate || fetchRating(user.UscfId, "USCF", &user.CurrentUscfRating, user.StartUscfRating, ratings.FetchUscfRating)
-	shouldUpdate = shouldUpdate || fetchRating(user.EcfId, "ECF", &user.CurrentEcfRating, user.StartEcfRating, ratings.FetchEcfRating)
-	shouldUpdate = shouldUpdate || fetchRating(user.CfcId, "CFC", &user.CurrentCfcRating, user.StartCfcRating, ratings.FetchCfcRating)
-	shouldUpdate = shouldUpdate || fetchRating(user.DwzId, "DWZ", &user.CurrentDwzRating, user.StartDwzRating, ratings.FetchDwzRating)
+	shouldUpdate = fetchRating(user.FideId, "FIDE", &user.CurrentFideRating, user.StartFideRating, ratings.FetchFideRating) || shouldUpdate
+	shouldUpdate = fetchRating(user.UscfId, "USCF", &user.CurrentUscfRating, user.StartUscfRating, ratings.FetchUscfRating) || shouldUpdate
+	shouldUpdate = fetchRating(user.EcfId, "ECF", &user.CurrentEcfRating, user.StartEcfRating, ratings.FetchEcfRating) || shouldUpdate
+	shouldUpdate = fetchRating(user.CfcId, "CFC", &user.CurrentCfcRating, user.StartCfcRating, ratings.FetchCfcRating) || shouldUpdate
+	shouldUpdate = fetchRating(user.DwzId, "DWZ", &user.CurrentDwzRating, user.StartDwzRating, ratings.FetchDwzRating) || shouldUpdate
 
-	shouldUpdate = shouldUpdate || fetchRating(user.LichessUsername, "Lichess", &user.CurrentLichessRating, user.StartLichessRating,
+	shouldUpdate = fetchRating(user.LichessUsername, "Lichess", &user.CurrentLichessRating, user.StartLichessRating,
 		func(username string) (int, error) {
 			if rating, ok := lichessRatings[strings.ToLower(username)]; !ok {
 				return 0, errors.New("No Lichess rating found in cache")
@@ -65,9 +65,8 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lich
 				return rating, nil
 			}
 		},
-	)
+	) || shouldUpdate
 
-	// log.Infof("Username %s should update %t", user.Username, shouldUpdate)
 	if shouldUpdate {
 		queuedUpdates = append(queuedUpdates, user)
 		if len(queuedUpdates) == 25 {
