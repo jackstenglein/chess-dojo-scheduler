@@ -29,7 +29,10 @@ type LichessArenaResponse struct {
 	} `json:"clock"`
 	Rated       bool   `json:"rated"`
 	Description string `json:"description"`
-	Fen         string `json:"position"`
+	Position    struct {
+		Name string `json:"name"`
+		Fen  string `json:"fen"`
+	} `json:"position"`
 }
 
 const funcName = "tournament-create-handler"
@@ -105,7 +108,7 @@ func handleArena(url string) (*database.Tournament, error) {
 		Rated:            arena.Rated,
 		LimitSeconds:     arena.Clock.Limit,
 		IncrementSeconds: arena.Clock.Increment,
-		Fen:              arena.Fen,
+		Fen:              arena.Position.Fen,
 		Url:              url,
 		LengthMinutes:    arena.LengthMinutes,
 	}
