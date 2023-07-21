@@ -277,6 +277,15 @@ type User struct {
 
 	// Whether the user has finished creating their profile
 	HasCreatedProfile bool `dynamodbav:"hasCreatedProfile" json:"hasCreatedProfile"`
+
+	// A map from an opening module id to the user's progress on that opening module
+	OpeningProgress map[string]*UserOpeningModule `dynamodbav:"openingProgress" json:"openingProgress"`
+}
+
+// UserOpeningModule represents a user's progress on a specific opening module
+type UserOpeningModule struct {
+	// A list of booleans indicating whether the current exercise is complete
+	Exercises []bool `dynamodbav:"exercises,omitempty" json:"exercises,omitempty"`
 }
 
 // GetRatings returns the start and current ratings in the user's preferred rating system.
@@ -494,6 +503,9 @@ type UserUpdate struct {
 
 	// Whether the user has finished creating their profile
 	HasCreatedProfile *bool `dynamodbav:"hasCreatedProfile,omitempty" json:"hasCreatedProfile,omitempty"`
+
+	// A map from an opening id to the user's progress on that opening
+	OpeningProgress *map[string]*UserOpeningModule `dynamodbav:"openingProgress,omitempty" json:"openingProgress,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

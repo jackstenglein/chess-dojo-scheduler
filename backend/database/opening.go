@@ -62,6 +62,10 @@ const (
 
 // OpeningModule is a single activity within an opening chapter.
 type OpeningModule struct {
+	// The optional id of the opening module. Used mainly for exercises to
+	// persist progress on the exercises
+	Id string `dynamodbav:"id" json:"id"`
+
 	// The name of the opening module.
 	Name string `dynamodbav:"name" json:"name"`
 

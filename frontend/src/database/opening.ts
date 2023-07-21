@@ -84,6 +84,12 @@ export enum Coach {
  */
 export interface OpeningModule {
     /**
+     * The optional id of the opening module. Used mainly for exercises to persist progress
+     * on the exercises.
+     */
+    id: string;
+
+    /**
      * The name of the opening module.
      */
     name: string;

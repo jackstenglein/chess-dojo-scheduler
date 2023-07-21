@@ -127,6 +127,12 @@ export interface User {
     hasCreatedProfile: boolean;
 
     customTasks?: CustomTask[];
+
+    openingProgress?: {
+        [moduleId: string]: {
+            exercises?: boolean[];
+        };
+    };
 }
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser): User {

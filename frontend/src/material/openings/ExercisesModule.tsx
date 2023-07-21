@@ -3,9 +3,13 @@ import { Box, Container, Stack, Typography } from '@mui/material';
 import { ModuleProps } from './Module';
 import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
 import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
-import { Coach } from '../../database/opening';
+import { Coach, OpeningModule } from '../../database/opening';
 import { useState } from 'react';
 import PgnSelector from './PgnSelector';
+import { useAuth } from '../../auth/Auth';
+import { User } from '../../database/user';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useApi } from '../../api/Api';
 
 const coachUrls = {
     [Coach.Jesse]: 'https://chess-dojo-images.s3.amazonaws.com/icons/jesse.png',
@@ -13,20 +17,60 @@ const coachUrls = {
     [Coach.David]: 'https://chess-dojo-images.s3.amazonaws.com/icons/david.png',
 };
 
+function getCompleted(user: User, module: OpeningModule): boolean[] {
+    let exercises: boolean[] = [];
+    if (
+        user.openingProgress &&
+        user.openingProgress[module.id] &&
+        user.openingProgress[module.id].exercises
+    ) {
+        exercises = user.openingProgress[module.id].exercises!;
+    }
+
+    return module.pgns.map((_: string, idx: number) => {
+        if (exercises[idx]) {
+            return true;
+        }
+        return false;
+    });
+}
+
 const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
-    const [completed, setCompleted] = useState(module.pgns.map(() => false));
+    const user = useAuth().user!;
+    const [completed, setCompleted] = useState(getCompleted(user, module));
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const request = useRequest();
+    const api = useApi();
 
     if (!module.pgns || module.pgns.length < 1) {
         return null;
     }
 
     const onComplete = () => {
-        setCompleted([
+        const newCompleted = [
             ...completed.slice(0, selectedIndex),
             true,
             ...completed.slice(selectedIndex + 1),
-        ]);
+        ];
+        setCompleted(newCompleted);
+
+        request.onStart();
+        api.updateUser({
+            openingProgress: {
+                ...user.openingProgress,
+                [module.id]: {
+                    exercises: newCompleted,
+                },
+            },
+        })
+            .then((resp) => {
+                console.log('updateUserExercises: ', resp);
+                request.onSuccess();
+            })
+            .catch((err) => {
+                console.error('updateUserExercises: ', err);
+                request.onFailure(err);
+            });
     };
 
     const onNextPuzzle = () => {
@@ -103,6 +147,8 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                     />
                 </PgnErrorBoundary>
             </Box>
+
+            <RequestSnackbar request={request} />
         </Container>
     );
 };
