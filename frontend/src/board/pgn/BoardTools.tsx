@@ -25,6 +25,7 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { EventType, trackEvent } from '../../analytics/events';
 import { unstable_usePrompt } from 'react-router-dom';
+import { GameCommentTextFieldId } from '../../games/view/GamePage';
 
 interface BoardToolsProps {
     pgn: string;
@@ -110,7 +111,8 @@ const BoardTools: React.FC<BoardToolsProps> = ({
             if (
                 event.key === 'f' &&
                 document.activeElement?.id !== ClockTextFieldId &&
-                document.activeElement?.id !== CommentTextFieldId
+                document.activeElement?.id !== CommentTextFieldId &&
+                document.activeElement?.id !== GameCommentTextFieldId
             ) {
                 toggleOrientation();
             }

@@ -475,6 +475,18 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
 
     const profileCreated = hasCreatedProfile(auth.user!);
 
+    let startItemsJsx: JSX.Element[] = [];
+    if (profileCreated) {
+        startItemsJsx = startItems.slice(1).map((item) => (
+            <MenuItem key={item.name} onClick={handleClick(item.onClick)}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <Typography textAlign='center'>
+                    {item.name} {item.name === 'Meetings' && meetingText}
+                </Typography>
+            </MenuItem>
+        ));
+    }
+
     return (
         <Stack
             direction='row'
@@ -503,18 +515,8 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                     <ListItemIcon>{startItems[0].icon}</ListItemIcon>
                     <Typography textAlign='center'>{startItems[0].name}</Typography>
                 </MenuItem>
-                {profileCreated && (
-                    <>
-                        {startItems.slice(1).map((item) => (
-                            <MenuItem key={item.name} onClick={handleClick(item.onClick)}>
-                                <ListItemIcon>{item.icon}</ListItemIcon>
-                                <Typography textAlign='center'>
-                                    {item.name} {item.name === 'Meetings' && meetingText}
-                                </Typography>
-                            </MenuItem>
-                        ))}
-                    </>
-                )}
+
+                {startItemsJsx}
 
                 <MenuItem onClick={handleClick(() => navigate('/help'))}>
                     <ListItemIcon>

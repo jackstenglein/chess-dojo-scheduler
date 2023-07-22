@@ -17,6 +17,7 @@ import BoardTools from './BoardTools';
 import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
 import { ClockTextFieldId, CommentTextFieldId } from './Editor';
+import { GameCommentTextFieldId } from '../../games/view/GamePage';
 
 type ChessContextType = {
     chess?: Chess;
@@ -70,7 +71,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
             if (
                 document.activeElement?.id === ClockTextFieldId ||
-                document.activeElement?.id === CommentTextFieldId
+                document.activeElement?.id === CommentTextFieldId ||
+                document.activeElement?.id === GameCommentTextFieldId
             ) {
                 return;
             }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     Box,
@@ -22,16 +22,69 @@ import PgnErrorBoundary from './PgnErrorBoundary';
 import PgnBoard from '../../board/pgn/PgnBoard';
 import LoadingPage from '../../loading/LoadingPage';
 
+export const GameCommentTextFieldId = 'gameCommentTextField';
+
+interface CommentEditorProps {
+    cohort?: string;
+    id?: string;
+    onSuccess: (game: Game) => void;
+}
+
+const CommentEditor: React.FC<CommentEditorProps> = ({ cohort, id, onSuccess }) => {
+    const [comment, setComment] = useState('');
+    const commentRequest = useRequest();
+    const api = useApi();
+
+    const onSubmitComment = () => {
+        const content = comment.trim();
+        if (content.length === 0) {
+            return;
+        }
+
+        commentRequest.onStart();
+        api.createComment(cohort ?? '', id ?? '', content)
+            .then((response) => {
+                console.log(response);
+                setComment('');
+                commentRequest.onSuccess('Comment created');
+                onSuccess(response.data);
+            })
+            .catch((err) => {
+                console.error('Failed to create comment: ', err);
+                commentRequest.onFailure(err);
+            });
+    };
+
+    return (
+        <Stack spacing={1} alignItems='flex-end'>
+            <TextField
+                id={GameCommentTextFieldId}
+                label='Add a Comment'
+                fullWidth
+                multiline
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+            />
+            <LoadingButton
+                variant='contained'
+                disabled={comment.trim().length === 0}
+                loading={commentRequest.isLoading()}
+                onClick={onSubmitComment}
+            >
+                Submit
+            </LoadingButton>
+            <RequestSnackbar request={commentRequest} showSuccess />
+        </Stack>
+    );
+};
+
 const GamePage = () => {
     const api = useApi();
     const user = useAuth().user!;
     const navigate = useNavigate();
     const request = useRequest<Game>();
-    const commentRequest = useRequest();
     const featureRequest = useRequest();
     const { cohort, id } = useParams();
-
-    const [comment, setComment] = useState('');
 
     useEffect(() => {
         if (!request.isSent() && cohort && id) {
@@ -46,26 +99,6 @@ const GamePage = () => {
                 });
         }
     }, [request, api, cohort, id]);
-
-    const onSubmitComment = () => {
-        const content = comment.trim();
-        if (content.length === 0) {
-            return;
-        }
-
-        commentRequest.onStart();
-        api.createComment(cohort ?? '', id ?? '', content)
-            .then((response) => {
-                console.log(response);
-                commentRequest.onSuccess('Comment created');
-                request.onSuccess(response.data);
-                setComment('');
-            })
-            .catch((err) => {
-                console.error('Failed to create comment: ', err);
-                commentRequest.onFailure(err);
-            });
-    };
 
     const onFeature = () => {
         if (!request.data) {
@@ -131,7 +164,6 @@ const GamePage = () => {
                 }}
             >
                 <RequestSnackbar request={request} />
-                <RequestSnackbar request={commentRequest} showSuccess />
                 <RequestSnackbar request={featureRequest} showSuccess />
 
                 {request.data?.pgn && (
@@ -186,24 +218,11 @@ const GamePage = () => {
                         </Stack>
 
                         <Typography variant='h6'>Comments</Typography>
-                        <Stack spacing={1} alignItems='flex-end'>
-                            <TextField
-                                label='Add a Comment'
-                                fullWidth
-                                multiline
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                            />
-                            <LoadingButton
-                                variant='contained'
-                                disabled={comment.trim().length === 0}
-                                loading={commentRequest.isLoading()}
-                                onClick={onSubmitComment}
-                            >
-                                Submit
-                            </LoadingButton>
-                        </Stack>
-
+                        <CommentEditor
+                            cohort={cohort}
+                            id={id}
+                            onSuccess={request.onSuccess}
+                        />
                         <CommentList comments={request.data.comments} />
                     </Stack>
                 )}
