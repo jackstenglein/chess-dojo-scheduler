@@ -54,23 +54,25 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
         ];
         setCompleted(newCompleted);
 
-        request.onStart();
-        api.updateUser({
-            openingProgress: {
-                ...user.openingProgress,
-                [module.id]: {
-                    exercises: newCompleted,
+        if (module.id) {
+            request.onStart();
+            api.updateUser({
+                openingProgress: {
+                    ...user.openingProgress,
+                    [module.id]: {
+                        exercises: newCompleted,
+                    },
                 },
-            },
-        })
-            .then((resp) => {
-                console.log('updateUserExercises: ', resp);
-                request.onSuccess();
             })
-            .catch((err) => {
-                console.error('updateUserExercises: ', err);
-                request.onFailure(err);
-            });
+                .then((resp) => {
+                    console.log('updateUserExercises: ', resp);
+                    request.onSuccess();
+                })
+                .catch((err) => {
+                    console.error('updateUserExercises: ', err);
+                    request.onFailure(err);
+                });
+        }
     };
 
     const onNextPuzzle = () => {
@@ -147,8 +149,6 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                     />
                 </PgnErrorBoundary>
             </Box>
-
-            <RequestSnackbar request={request} />
         </Container>
     );
 };
