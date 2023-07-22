@@ -27,8 +27,13 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
                     EventType.NewVariation,
                     EventType.UpdateComment,
                     EventType.DeleteMove,
+                    EventType.PromoteVariation,
                 ],
                 handler: (event: Event) => {
+                    if (event.type === EventType.PromoteVariation) {
+                        console.log('Promote event: ', event);
+                    }
+
                     if (
                         event.type === EventType.NewVariation &&
                         move === event.previousMove?.next
@@ -41,6 +46,12 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
                     if (
                         event.type === EventType.DeleteMove &&
                         move === event.previousMove?.next
+                    ) {
+                        setForceRender((v) => v + 1);
+                    }
+                    if (
+                        event.type === EventType.PromoteVariation &&
+                        chess.isDescendant(move, event.move)
                     ) {
                         setForceRender((v) => v + 1);
                     }

@@ -11,6 +11,9 @@ import {
     Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Event, EventType, Move } from '@jackstenglein/chess';
 
 import { useChess } from '../PgnBoard';
@@ -110,14 +113,45 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
 
 interface MoveMenuProps {
     anchor?: HTMLElement;
+    move: Move;
     onDelete: () => void;
     onClose: () => void;
 }
 
-const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, onDelete, onClose }) => {
+const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) => {
+    const chess = useChess().chess!;
+
+    const canPromote = chess.canPromoteVariation(move);
+
+    const onPromote = () => {
+        chess.promoteVariation(move);
+        onClose();
+    };
+
     return (
         <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
             <MenuList>
+                <MenuItem disabled={chess.isInMainline(move)}>
+                    <ListItemIcon>
+                        <CheckIcon />
+                    </ListItemIcon>
+                    <ListItemText>Make main line</ListItemText>
+                </MenuItem>
+
+                <MenuItem disabled={!canPromote} onClick={onPromote}>
+                    <ListItemIcon>
+                        <ArrowUpwardIcon />
+                    </ListItemIcon>
+                    <ListItemText>Move variation up</ListItemText>
+                </MenuItem>
+
+                {/* <MenuItem disabled={!canDemoteVariation}>
+                    <ListItemIcon>
+                        <ArrowDownwardIcon />
+                    </ListItemIcon>
+                    <ListItemText>Move variation down</ListItemText>
+                </MenuItem> */}
+
                 <MenuItem onClick={onDelete}>
                     <ListItemIcon>
                         <DeleteIcon />
@@ -182,6 +216,11 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         }
     }, [chess, move, firstMove, scrollParent, setIsCurrentMove, setForceRender]);
 
+    useEffect(() => {
+        console.log('Use effect firing for move: ', move);
+        setIsCurrentMove(chess?.currentMove() === move);
+    }, [move, chess, setIsCurrentMove]);
+
     const onRightClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (config?.allowMoveDeletion) {
             event.preventDefault();
@@ -225,6 +264,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 />
                 <MoveMenu
                     anchor={menuAnchorEl}
+                    move={move}
                     onDelete={onDelete}
                     onClose={handleMenuClose}
                 />
@@ -245,6 +285,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
             />
             <MoveMenu
                 anchor={menuAnchorEl}
+                move={move}
                 onDelete={onDelete}
                 onClose={handleMenuClose}
             />
