@@ -8,7 +8,7 @@ import { useState } from 'react';
 import PgnSelector from './PgnSelector';
 import { useAuth } from '../../auth/Auth';
 import { User } from '../../database/user';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 
 const coachUrls = {

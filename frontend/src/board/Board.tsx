@@ -37,7 +37,7 @@ export function toDests(chess?: Chess): Map<Key, Key[]> {
     return dests;
 }
 
-const colors: Record<string, string> = {
+const boardColors: Record<string, string> = {
     Y: 'yellow',
     R: 'red',
     B: 'blue',
@@ -45,6 +45,10 @@ const colors: Record<string, string> = {
     O: 'orange',
     C: 'magenta',
 };
+
+const chessColors = Object.fromEntries(
+    Object.entries(boardColors).map(([k, v]) => [v, k])
+);
 
 export function toShapes(chess?: Chess): DrawShape[] {
     if (!chess) {
@@ -64,7 +68,7 @@ export function toShapes(chess?: Chess): DrawShape[] {
                 result.push({
                     orig: comm.substring(1, 3) as Key,
                     dest: comm.substring(3, 5) as Key,
-                    brush: colors[comm.substring(0, 1)],
+                    brush: boardColors[comm.substring(0, 1)],
                 });
             }
         }
@@ -72,7 +76,7 @@ export function toShapes(chess?: Chess): DrawShape[] {
             for (const comm of commentDiag.colorFields) {
                 result.push({
                     orig: comm.substring(1, 3) as Key,
-                    brush: colors[comm.substring(0, 1)],
+                    brush: boardColors[comm.substring(0, 1)],
                 });
             }
         }
@@ -101,9 +105,28 @@ export function reconcile(chess?: Chess, board?: BoardApi | null) {
 }
 
 export function defaultOnMove(board: BoardApi, chess: Chess, move: PrimitiveMove) {
-    console.log('Default onMove');
     chess.move({ from: move.orig, to: move.dest, promotion: move.promotion });
     reconcile(chess, board);
+}
+
+export function defaultOnDrawableChange(chess: Chess) {
+    return (shapes: DrawShape[]) => {
+        const arrows: string[] = [];
+        const fields: string[] = [];
+
+        shapes.forEach((s) => {
+            const color = chessColors[s.brush];
+            if (s.orig && color) {
+                if (s.dest) {
+                    arrows.push(`${color}${s.orig}${s.dest}`);
+                } else {
+                    fields.push(`${color}${s.orig}`);
+                }
+            }
+        });
+
+        chess.setDrawables(arrows, fields);
+    };
 }
 
 function checkPromotion(
@@ -216,6 +239,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 },
                 drawable: {
                     shapes: config?.drawable?.shapes || toShapes(chess),
+                    onChange:
+                        config?.drawable?.onChange || defaultOnDrawableChange(chess),
                 },
             });
 
