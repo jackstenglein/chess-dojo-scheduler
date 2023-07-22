@@ -1,8 +1,11 @@
 import { Stack, Divider, Typography } from '@mui/material';
-import { Pgn, TAGS } from '@jackstenglein/chess';
+import { TAGS } from '@jackstenglein/chess';
+import { useChess } from '../PgnBoard';
 
-const Result: React.FC<{ pgn: Pgn }> = ({ pgn }) => {
-    const result = pgn.header.tags[TAGS.Result];
+const Result = () => {
+    const { chess } = useChess();
+
+    const result = chess?.pgn.header.tags[TAGS.Result];
     if (!result) {
         return null;
     }

@@ -1,19 +1,39 @@
-import { Move } from '@jackstenglein/chess';
+import { useEffect, useState } from 'react';
+import { Move, EventType, Event } from '@jackstenglein/chess';
 import { Grid, Paper } from '@mui/material';
 
 import MoveDisplay from './MoveDisplay';
+import { useChess } from '../PgnBoard';
 
 interface VariationProps {
-    moves: Move[];
     scrollParent: HTMLDivElement | null;
     onClickMove: (m: Move) => void;
 }
 
-const Variation: React.FC<VariationProps> = ({ moves, scrollParent, onClickMove }) => {
+const Variation: React.FC<VariationProps> = ({ scrollParent, onClickMove }) => {
+    const { chess } = useChess();
+    const [, setForceRender] = useState(0);
+
+    useEffect(() => {
+        if (chess) {
+            const observer = {
+                types: [EventType.DeleteMove],
+                handler: (event: Event) => {
+                    if (!event.mainlineMove) {
+                        setForceRender((v) => v + 1);
+                    }
+                },
+            };
+
+            chess.addObserver(observer);
+            return () => chess.removeObserver(observer);
+        }
+    }, [chess, setForceRender]);
+
     return (
         <Paper sx={{ boxShadow: 'none' }}>
             <Grid container>
-                {moves.map((move) => {
+                {chess?.history().map((move) => {
                     return (
                         <MoveDisplay
                             move={move}

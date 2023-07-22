@@ -196,7 +196,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
     return (
         <>
             <Stack flexGrow={1} spacing={1} sx={{ overflowY: 'hidden' }}>
-                <PgnText pgn={chess.pgn} onClickMove={onMove} />
+                <PgnText onClickMove={onMove} />
                 <BoardTools
                     showPlayerHeaders={false}
                     pgn={chess.pgn.render()}

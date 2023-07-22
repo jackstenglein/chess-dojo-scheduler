@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Pgn, EventType, Event } from '@jackstenglein/chess';
+import { EventType, Event } from '@jackstenglein/chess';
 import { Divider, Paper, Stack, Typography } from '@mui/material';
 
 import { useChess } from '../PgnBoard';
 
-const GameComment: React.FC<{ pgn: Pgn }> = ({ pgn }) => {
+const GameComment = () => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
 

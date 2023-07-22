@@ -23,7 +23,7 @@ const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) =
     useEffect(() => {
         if (chess) {
             const observer = {
-                types: [EventType.NewVariation],
+                types: [EventType.NewVariation, EventType.DeleteMove],
                 handler: (event: Event) => {
                     if (event.previousMove && line.includes(event.previousMove)) {
                         setForceRender((v) => v + 1);

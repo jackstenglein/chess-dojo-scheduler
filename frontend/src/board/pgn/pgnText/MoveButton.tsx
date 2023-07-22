@@ -1,9 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
-import { Button, Grid, Tooltip, Typography } from '@mui/material';
+import React, { useEffect, useRef, useState, forwardRef } from 'react';
+import {
+    Button as MuiButton,
+    Grid,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+    MenuList,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Event, EventType, Move } from '@jackstenglein/chess';
 
 import { useChess } from '../PgnBoard';
 import { compareNags, getStandardNag, nags } from '../Nag';
+import { reconcile } from '../../Board';
 
 function getTextColor(move: Move, inline?: boolean): string {
     for (const nag of move.nags || []) {
@@ -34,6 +46,89 @@ function handleScroll(
     }
 }
 
+interface ButtonProps {
+    isCurrentMove: boolean;
+    inline?: boolean;
+    move: Move;
+    onClickMove: (m: Move) => void;
+    onRightClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    text: string;
+}
+
+const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+    const { isCurrentMove, inline, move, onClickMove, onRightClick, text } = props;
+    return (
+        <MuiButton
+            ref={ref}
+            variant={isCurrentMove ? 'contained' : 'text'}
+            disableElevation
+            sx={{
+                textTransform: 'none',
+                fontWeight: isCurrentMove ? 'bold' : 'inherit',
+                color: isCurrentMove ? undefined : getTextColor(move, inline),
+                backgroundColor: isCurrentMove ? 'primary' : 'initial',
+
+                // non-inline only props
+                width: inline ? undefined : 1,
+                height: inline ? undefined : 1,
+                justifyContent: inline ? undefined : 'start',
+                borderRadius: inline ? undefined : 0,
+                pl: inline ? undefined : 1,
+
+                // inline-only props
+                zIndex: inline ? 2 : undefined,
+                mx: inline ? 0 : undefined,
+                px: inline ? '3px' : undefined,
+                py: inline ? '1px' : undefined,
+                minWidth: inline ? 'fit-content' : undefined,
+                display: inline ? 'inline-block' : undefined,
+            }}
+            onClick={() => onClickMove(move)}
+            onContextMenu={onRightClick}
+        >
+            {text}
+            {move.nags?.sort(compareNags).map((nag) => {
+                const n = nags[getStandardNag(nag)];
+                if (!n) return null;
+
+                return (
+                    <Tooltip key={n.label} title={n.description}>
+                        <Typography
+                            display='inline'
+                            fontSize='inherit'
+                            lineHeight='inherit'
+                            fontWeight='inherit'
+                        >
+                            {n.label}
+                        </Typography>
+                    </Tooltip>
+                );
+            })}
+        </MuiButton>
+    );
+});
+
+interface MoveMenuProps {
+    anchor?: HTMLElement;
+    onDelete: () => void;
+    onClose: () => void;
+}
+
+const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, onDelete, onClose }) => {
+    return (
+        <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
+            <MenuList>
+                <MenuItem onClick={onDelete}>
+                    <ListItemIcon>
+                        <DeleteIcon />
+                    </ListItemIcon>
+                    <ListItemText>Delete from here</ListItemText>
+                </MenuItem>
+            </MenuList>
+        </Menu>
+    );
+};
+
 interface MoveButtonProps {
     move: Move;
     scrollParent: HTMLDivElement | null;
@@ -51,9 +146,10 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     forceShowPly,
     onClickMove,
 }) => {
-    const { chess } = useChess();
+    const { chess, board, config } = useChess();
     const ref = useRef<HTMLButtonElement>(null);
     const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
+    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
     const [, setForceRender] = useState(0);
 
     useEffect(() => {
@@ -86,10 +182,24 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         }
     }, [chess, move, firstMove, scrollParent, setIsCurrentMove, setForceRender]);
 
+    const onRightClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (config?.allowMoveDeletion) {
+            event.preventDefault();
+            event.stopPropagation();
+            setMenuAnchorEl(event.currentTarget);
+        }
+    };
+
+    const onDelete = () => {
+        chess?.delete(move);
+        reconcile(chess, board);
+    };
+
+    const handleMenuClose = () => {
+        setMenuAnchorEl(undefined);
+    };
+
     let moveText = move.san;
-    // for (const nag of move.nags?.sort(compareNags) || []) {
-    //     moveText += renderNag(nag);
-    // }
 
     if (inline) {
         let text = '';
@@ -103,43 +213,22 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         text += moveText;
 
         return (
-            <Button
-                ref={ref}
-                variant={isCurrentMove ? 'contained' : 'text'}
-                disableElevation
-                sx={{
-                    textTransform: 'none',
-                    zIndex: 2,
-                    mx: 0,
-                    px: '3px',
-                    py: '1px',
-                    minWidth: 'fit-content',
-                    display: 'inline-block',
-                    color: isCurrentMove ? undefined : getTextColor(move, true),
-                    backgroundColor: isCurrentMove ? 'primary' : 'initial',
-                    fontWeight: isCurrentMove ? 'bold' : 'inherit',
-                }}
-                onClick={() => onClickMove(move)}
-            >
-                {text}
-                {move.nags?.sort(compareNags).map((nag) => {
-                    const n = nags[getStandardNag(nag)];
-                    if (!n) return null;
-
-                    return (
-                        <Tooltip key={n.label} title={n.description}>
-                            <Typography
-                                display='inline'
-                                fontSize='inherit'
-                                lineHeight='inherit'
-                                fontWeight='inherit'
-                            >
-                                {n.label}
-                            </Typography>
-                        </Tooltip>
-                    );
-                })}
-            </Button>
+            <>
+                <Button
+                    ref={ref}
+                    isCurrentMove={isCurrentMove}
+                    inline={inline}
+                    move={move}
+                    onClickMove={onClickMove}
+                    onRightClick={onRightClick}
+                    text={text}
+                />
+                <MoveMenu
+                    anchor={menuAnchorEl}
+                    onDelete={onDelete}
+                    onClose={handleMenuClose}
+                />
+            </>
         );
     }
 
@@ -147,40 +236,18 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         <Grid key={'move-' + move.ply} item xs={5}>
             <Button
                 ref={ref}
-                variant={isCurrentMove ? 'contained' : 'text'}
-                disableElevation
-                sx={{
-                    width: 1,
-                    height: 1,
-                    textTransform: 'none',
-                    justifyContent: 'start',
-                    borderRadius: 0,
-                    pl: 1,
-                    color: isCurrentMove ? undefined : getTextColor(move),
-                    backgroundColor: isCurrentMove ? 'primary' : 'initial',
-                    fontWeight: isCurrentMove ? 'bold' : 'inherit',
-                }}
-                onClick={() => onClickMove(move)}
-            >
-                {moveText}
-                {move.nags?.sort(compareNags).map((nag) => {
-                    const n = nags[getStandardNag(nag)];
-                    if (!n) return null;
-
-                    return (
-                        <Tooltip key={n.label} title={n.description}>
-                            <Typography
-                                display='inline'
-                                fontSize='inherit'
-                                lineHeight='inherit'
-                                fontWeight='inherit'
-                            >
-                                {n.label}
-                            </Typography>
-                        </Tooltip>
-                    );
-                })}
-            </Button>
+                isCurrentMove={isCurrentMove}
+                inline={inline}
+                move={move}
+                onClickMove={onClickMove}
+                onRightClick={onRightClick}
+                text={moveText}
+            />
+            <MoveMenu
+                anchor={menuAnchorEl}
+                onDelete={onDelete}
+                onClose={handleMenuClose}
+            />
         </Grid>
     );
 };

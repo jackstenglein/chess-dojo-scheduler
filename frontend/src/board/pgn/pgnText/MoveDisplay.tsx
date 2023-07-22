@@ -23,7 +23,11 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
     useEffect(() => {
         if (chess) {
             const observer = {
-                types: [EventType.NewVariation, EventType.UpdateComment],
+                types: [
+                    EventType.NewVariation,
+                    EventType.UpdateComment,
+                    EventType.DeleteMove,
+                ],
                 handler: (event: Event) => {
                     if (
                         event.type === EventType.NewVariation &&
@@ -32,6 +36,12 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
                         setForceRender((v) => v + 1);
                     }
                     if (event.type === EventType.UpdateComment && move === event.move) {
+                        setForceRender((v) => v + 1);
+                    }
+                    if (
+                        event.type === EventType.DeleteMove &&
+                        move === event.previousMove?.next
+                    ) {
                         setForceRender((v) => v + 1);
                     }
 
@@ -47,6 +57,12 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
                         move === event.previousMove?.next?.next
                     ) {
                         setNeedReminder(true);
+                    }
+                    if (
+                        event.type === EventType.DeleteMove &&
+                        move === event.previousMove?.next?.next
+                    ) {
+                        setNeedReminder(hasInterrupt(event.previousMove.next));
                     }
                 },
             };

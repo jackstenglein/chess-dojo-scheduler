@@ -19,9 +19,14 @@ import { useAuth } from '../../auth/Auth';
 import { ClockTextFieldId, CommentTextFieldId } from './Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
 
+interface ChessConfig {
+    allowMoveDeletion?: boolean;
+}
+
 type ChessContextType = {
     chess?: Chess;
     board?: BoardApi;
+    config?: ChessConfig;
 };
 
 export const ChessContext = createContext<ChessContextType>(null!);
@@ -59,8 +64,11 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         () => ({
             chess,
             board,
+            config: {
+                allowMoveDeletion: game?.owner === user.username,
+            },
         }),
-        [chess, board]
+        [chess, board, game, user]
     );
 
     const onKeyDown = useCallback(
@@ -221,15 +229,13 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 )}
 
                 {board && chess && (
-                    <>
-                        <Stack
-                            gridArea='coach'
-                            height={1}
-                            sx={{ overflowY: 'auto', mt: { xs: 2, md: 0 } }}
-                        >
-                            <PgnText pgn={chess.pgn} onClickMove={onClickMove} />
-                        </Stack>
-                    </>
+                    <Stack
+                        gridArea='coach'
+                        height={1}
+                        sx={{ overflowY: 'auto', mt: { xs: 2, md: 0 } }}
+                    >
+                        <PgnText onClickMove={onClickMove} />
+                    </Stack>
                 )}
             </ChessContext.Provider>
         </Box>
