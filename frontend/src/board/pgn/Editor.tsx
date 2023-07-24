@@ -8,8 +8,12 @@ import {
     Typography,
     ToggleButtonProps,
     Tooltip,
+    Button,
 } from '@mui/material';
 import ClockIcon from '@mui/icons-material/AccessAlarm';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 import { useChess } from './PgnBoard';
 import { getInitialClock } from './PlayerHeader';
@@ -135,54 +139,82 @@ const Editor = () => {
                 />
 
                 {move && (
-                    <Stack spacing={1}>
-                        <ToggleButtonGroup
-                            exclusive
-                            value={getNagInSet(moveNags, chess?.currentMove()?.nags)}
-                            onChange={handleExclusiveNag(moveNags)}
-                        >
-                            {moveNags.map((nag) => (
-                                <NagButton
-                                    key={nag}
-                                    value={nag}
-                                    text={nags[nag].label}
-                                    description={nags[nag].description}
-                                />
-                            ))}
-                        </ToggleButtonGroup>
+                    <>
+                        <Stack spacing={1}>
+                            <ToggleButtonGroup
+                                exclusive
+                                value={getNagInSet(moveNags, chess?.currentMove()?.nags)}
+                                onChange={handleExclusiveNag(moveNags)}
+                            >
+                                {moveNags.map((nag) => (
+                                    <NagButton
+                                        key={nag}
+                                        value={nag}
+                                        text={nags[nag].label}
+                                        description={nags[nag].description}
+                                    />
+                                ))}
+                            </ToggleButtonGroup>
 
-                        <ToggleButtonGroup
-                            exclusive
-                            value={getNagInSet(evalNags, chess?.currentMove()?.nags)}
-                            onChange={handleExclusiveNag(evalNags)}
-                        >
-                            {evalNags.map((nag) => (
-                                <NagButton
-                                    key={nag}
-                                    value={nag}
-                                    text={nags[nag].label}
-                                    description={nags[nag].description}
-                                />
-                            ))}
-                        </ToggleButtonGroup>
+                            <ToggleButtonGroup
+                                exclusive
+                                value={getNagInSet(evalNags, chess?.currentMove()?.nags)}
+                                onChange={handleExclusiveNag(evalNags)}
+                            >
+                                {evalNags.map((nag) => (
+                                    <NagButton
+                                        key={nag}
+                                        value={nag}
+                                        text={nags[nag].label}
+                                        description={nags[nag].description}
+                                    />
+                                ))}
+                            </ToggleButtonGroup>
 
-                        <ToggleButtonGroup
-                            value={getNagsInSet(
-                                positionalNags,
-                                chess?.currentMove()?.nags
-                            )}
-                            onChange={handleMultiNags(positionalNags)}
-                        >
-                            {positionalNags.map((nag) => (
-                                <NagButton
-                                    key={nag}
-                                    value={nag}
-                                    text={nags[nag].label}
-                                    description={nags[nag].description}
-                                />
-                            ))}
-                        </ToggleButtonGroup>
-                    </Stack>
+                            <ToggleButtonGroup
+                                value={getNagsInSet(
+                                    positionalNags,
+                                    chess?.currentMove()?.nags
+                                )}
+                                onChange={handleMultiNags(positionalNags)}
+                            >
+                                {positionalNags.map((nag) => (
+                                    <NagButton
+                                        key={nag}
+                                        value={nag}
+                                        text={nags[nag].label}
+                                        description={nags[nag].description}
+                                    />
+                                ))}
+                            </ToggleButtonGroup>
+                        </Stack>
+
+                        <Stack spacing={1}>
+                            <Button
+                                startIcon={<CheckIcon />}
+                                variant='outlined'
+                                disabled={chess?.isInMainline(move)}
+                                onClick={() => chess?.promoteVariation(move, true)}
+                            >
+                                Make main line
+                            </Button>
+                            <Button
+                                startIcon={<ArrowUpwardIcon />}
+                                variant='outlined'
+                                disabled={!chess?.canPromoteVariation(move)}
+                                onClick={() => chess?.promoteVariation(move)}
+                            >
+                                Move variation up
+                            </Button>
+                            <Button
+                                startIcon={<DeleteIcon />}
+                                variant='outlined'
+                                onClick={() => chess?.delete(move)}
+                            >
+                                Delete from here
+                            </Button>
+                        </Stack>
+                    </>
                 )}
             </Stack>
         </CardContent>
