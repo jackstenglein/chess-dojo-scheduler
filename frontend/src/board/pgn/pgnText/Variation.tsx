@@ -17,9 +17,16 @@ const Variation: React.FC<VariationProps> = ({ scrollParent, onClickMove }) => {
     useEffect(() => {
         if (chess) {
             const observer = {
-                types: [EventType.DeleteMove],
+                types: [EventType.DeleteMove, EventType.PromoteVariation],
                 handler: (event: Event) => {
-                    if (!event.mainlineMove) {
+                    if (event.type === EventType.DeleteMove && !event.mainlineMove) {
+                        setForceRender((v) => v + 1);
+                    }
+                    if (
+                        event.type === EventType.PromoteVariation &&
+                        chess.isInMainline(event.variantRoot)
+                    ) {
+                        console.log('Variation forcing render: ', event);
                         setForceRender((v) => v + 1);
                     }
                 },

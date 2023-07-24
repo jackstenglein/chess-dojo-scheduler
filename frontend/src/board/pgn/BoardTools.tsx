@@ -83,6 +83,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                     ChessEventType.Initialized,
                     ChessEventType.UpdateDrawables,
                     ChessEventType.DeleteMove,
+                    ChessEventType.PromoteVariation,
                 ],
                 handler: (event: Event) => {
                     if (event.type === ChessEventType.Initialized) {

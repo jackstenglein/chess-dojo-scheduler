@@ -13,7 +13,6 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Event, EventType, Move } from '@jackstenglein/chess';
 
 import { useChess } from '../PgnBoard';
@@ -123,6 +122,11 @@ const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) 
 
     const canPromote = chess.canPromoteVariation(move);
 
+    const onMakeMainline = () => {
+        chess.promoteVariation(move, true);
+        onClose();
+    };
+
     const onPromote = () => {
         chess.promoteVariation(move);
         onClose();
@@ -131,7 +135,7 @@ const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) 
     return (
         <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
             <MenuList>
-                <MenuItem disabled={chess.isInMainline(move)}>
+                <MenuItem disabled={chess.isInMainline(move)} onClick={onMakeMainline}>
                     <ListItemIcon>
                         <CheckIcon />
                     </ListItemIcon>
@@ -144,13 +148,6 @@ const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) 
                     </ListItemIcon>
                     <ListItemText>Move variation up</ListItemText>
                 </MenuItem>
-
-                {/* <MenuItem disabled={!canDemoteVariation}>
-                    <ListItemIcon>
-                        <ArrowDownwardIcon />
-                    </ListItemIcon>
-                    <ListItemText>Move variation down</ListItemText>
-                </MenuItem> */}
 
                 <MenuItem onClick={onDelete}>
                     <ListItemIcon>

@@ -16,6 +16,7 @@ interface MoveProps {
 const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
+    const [, setHasComment] = useState(move.commentAfter && move.commentAfter !== '');
     const [needReminder, setNeedReminder] = useState(
         move.previous === null || hasInterrupt(move.previous)
     );
@@ -36,16 +37,16 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
 
                     if (
                         event.type === EventType.NewVariation &&
-                        move === event.previousMove?.next
+                        move === chess.getVariantParent(event.move)
                     ) {
                         setForceRender((v) => v + 1);
                     }
                     if (event.type === EventType.UpdateComment && move === event.move) {
-                        setForceRender((v) => v + 1);
+                        setHasComment(move.commentAfter && move.commentAfter !== '');
                     }
                     if (
                         event.type === EventType.DeleteMove &&
-                        move === event.previousMove?.next
+                        move === event.mainlineMove
                     ) {
                         setForceRender((v) => v + 1);
                     }
@@ -65,15 +66,15 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
                     if (
                         event.type === EventType.NewVariation &&
                         move.ply % 2 === 0 &&
-                        move === event.previousMove?.next?.next
+                        move === chess.getVariantParent(event.move)?.next
                     ) {
                         setNeedReminder(true);
                     }
                     if (
                         event.type === EventType.DeleteMove &&
-                        move === event.previousMove?.next?.next
+                        move === event.mainlineMove?.next
                     ) {
-                        setNeedReminder(hasInterrupt(event.previousMove.next));
+                        setNeedReminder(hasInterrupt(event.mainlineMove));
                     }
                 },
             };
@@ -82,6 +83,10 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
             return () => chess.removeObserver(observer);
         }
     }, [chess, move, setForceRender, setNeedReminder]);
+
+    useEffect(() => {
+        setNeedReminder(move.previous === null || hasInterrupt(move.previous));
+    }, [setNeedReminder, move]);
 
     return (
         <>
