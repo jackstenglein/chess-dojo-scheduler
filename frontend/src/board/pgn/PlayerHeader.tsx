@@ -1,5 +1,5 @@
 import { Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
-import { Divider, Paper, Stack, Typography } from '@mui/material';
+import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 
 import { useChess } from './PgnBoard';
 import { useEffect, useState } from 'react';
@@ -38,6 +38,11 @@ export function getInitialClock(pgn?: Pgn): string | undefined {
     return result;
 }
 
+export const ClockTypeDescriptions: Record<string, string> = {
+    emt: 'Elapsed Move Time. The time spent to play the current move. h:mm:ss',
+    clk: 'Clock Time. The time displayed on the clock after the current move was played. h:mm:ss',
+};
+
 const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
     const { chess, board } = useChess();
     const [, setForceRender] = useState(0);
@@ -53,7 +58,8 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
                 handler: (event: Event) => {
                     if (
                         event.type === EventType.UpdateCommand &&
-                        event.commandName !== 'clk'
+                        event.commandName !== 'clk' &&
+                        event.commandName !== 'emt'
                     ) {
                         return;
                     }
@@ -76,6 +82,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
     let playerElo = '';
     let playerResult = '';
     let move: Move | null | undefined = currentMove;
+    let clockCommand = move?.commentDiag?.emt ? 'emt' : 'clk';
 
     if (
         (type === 'header' && board.state.orientation === 'white') ||
@@ -145,7 +152,20 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
 
                 {move ? (
                     <Typography variant='subtitle2' color='text.secondary'>
-                        {move.commentDiag?.clk}
+                        {move.commentDiag && move.commentDiag[clockCommand] && (
+                            <>
+                                {move.commentDiag[clockCommand]}
+                                <Tooltip title={ClockTypeDescriptions[clockCommand]}>
+                                    <Typography
+                                        variant='subtitle2'
+                                        color='text.secondary'
+                                        display='inline'
+                                    >
+                                        {` (${clockCommand.toUpperCase()})`}
+                                    </Typography>
+                                </Tooltip>
+                            </>
+                        )}
                     </Typography>
                 ) : (
                     <Typography variant='subtitle2' color='text.secondary'>
