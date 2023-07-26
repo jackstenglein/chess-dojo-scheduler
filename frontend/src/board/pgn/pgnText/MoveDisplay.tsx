@@ -9,11 +9,11 @@ import { useChess } from '../PgnBoard';
 
 interface MoveProps {
     move: Move;
-    scrollParent: HTMLDivElement | null;
+    handleScroll: (child: HTMLButtonElement | null) => void;
     onClickMove: (m: Move) => void;
 }
 
-const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) => {
+const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll, onClickMove }) => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
     const [, setHasComment] = useState(move.commentAfter && move.commentAfter !== '');
@@ -103,7 +103,7 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
             <MoveButton
                 key={`move-button-${move.ply}`}
                 move={move}
-                scrollParent={scrollParent}
+                handleScroll={handleScroll}
                 onClickMove={onClickMove}
                 firstMove={move.previous === null}
             />
@@ -111,7 +111,7 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, scrollParent, onClickMove }) =
             <Interrupt
                 key={`interrupt-${move.ply}`}
                 move={move}
-                scrollParent={scrollParent}
+                handleScroll={handleScroll}
                 onClickMove={onClickMove}
             />
         </>

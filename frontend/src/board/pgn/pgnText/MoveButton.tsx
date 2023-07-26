@@ -32,21 +32,24 @@ function getTextColor(move: Move, inline?: boolean): string {
     return 'text.primary';
 }
 
-function handleScroll(
-    child: HTMLButtonElement | null,
-    scrollParent: HTMLDivElement | null
-) {
-    if (child && scrollParent) {
-        const parentRect = scrollParent.getBoundingClientRect();
-        const childRect = child.getBoundingClientRect();
+// function handleScroll(
+//     child: HTMLButtonElement | null,
+//     scrollParent: HTMLDivElement | null
+// ) {
+//     scrollParent = document.getElementById('pgn-text-scroll-parent') as HTMLDivElement;
 
-        scrollParent.scrollTop =
-            childRect.top -
-            parentRect.top +
-            scrollParent.scrollTop -
-            scrollParent.clientHeight / 2;
-    }
-}
+//     console.log('Handle scroll: ', child, scrollParent);
+//     if (child && scrollParent) {
+//         const parentRect = scrollParent.getBoundingClientRect();
+//         const childRect = child.getBoundingClientRect();
+
+//         scrollParent.scrollTop =
+//             childRect.top -
+//             parentRect.top +
+//             scrollParent.scrollTop -
+//             scrollParent.clientHeight / 2;
+//     }
+// }
 
 interface ButtonProps {
     isCurrentMove: boolean;
@@ -162,20 +165,20 @@ const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) 
 
 interface MoveButtonProps {
     move: Move;
-    scrollParent: HTMLDivElement | null;
     firstMove?: boolean;
     inline?: boolean;
     forceShowPly?: boolean;
     onClickMove: (m: Move) => void;
+    handleScroll: (child: HTMLButtonElement | null) => void;
 }
 
 const MoveButton: React.FC<MoveButtonProps> = ({
     move,
-    scrollParent,
     firstMove,
     inline,
     forceShowPly,
     onClickMove,
+    handleScroll,
 }) => {
     const { chess, board, config } = useChess();
     const ref = useRef<HTMLButtonElement>(null);
@@ -203,7 +206,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     }
 
                     if (event.move === move || (firstMove && event.move === null)) {
-                        handleScroll(ref.current, scrollParent);
+                        handleScroll(ref.current);
                     }
                 },
             };
@@ -211,7 +214,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
             chess.addObserver(observer);
             return () => chess.removeObserver(observer);
         }
-    }, [chess, move, firstMove, scrollParent, setIsCurrentMove, setForceRender]);
+    }, [chess, move, firstMove, handleScroll, setIsCurrentMove, setForceRender]);
 
     useEffect(() => {
         console.log('Use effect firing for move: ', move);

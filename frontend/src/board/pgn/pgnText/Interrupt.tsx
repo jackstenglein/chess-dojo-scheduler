@@ -11,11 +11,11 @@ export function hasInterrupt(move: Move): boolean {
 
 interface InterruptProps {
     move: Move;
-    scrollParent: HTMLDivElement | null;
     onClickMove: (m: Move) => void;
+    handleScroll: (child: HTMLButtonElement | null) => void;
 }
 
-const Interrupt: React.FC<InterruptProps> = ({ move, scrollParent, onClickMove }) => {
+const Interrupt: React.FC<InterruptProps> = ({ move, onClickMove, handleScroll }) => {
     if (!hasInterrupt(move)) {
         return null;
     }
@@ -62,8 +62,8 @@ const Interrupt: React.FC<InterruptProps> = ({ move, scrollParent, onClickMove }
 
                     <Lines
                         lines={move.variations}
-                        scrollParent={scrollParent}
                         onClickMove={onClickMove}
+                        handleScroll={handleScroll}
                     />
 
                     <Divider />

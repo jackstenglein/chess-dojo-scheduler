@@ -6,11 +6,11 @@ import MoveDisplay from './MoveDisplay';
 import { useChess } from '../PgnBoard';
 
 interface VariationProps {
-    scrollParent: HTMLDivElement | null;
+    handleScroll: (child: HTMLButtonElement | null) => void;
     onClickMove: (m: Move) => void;
 }
 
-const Variation: React.FC<VariationProps> = ({ scrollParent, onClickMove }) => {
+const Variation: React.FC<VariationProps> = ({ handleScroll, onClickMove }) => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
 
@@ -44,7 +44,7 @@ const Variation: React.FC<VariationProps> = ({ scrollParent, onClickMove }) => {
                     return (
                         <MoveDisplay
                             move={move}
-                            scrollParent={scrollParent}
+                            handleScroll={handleScroll}
                             onClickMove={onClickMove}
                             key={move.ply}
                         />

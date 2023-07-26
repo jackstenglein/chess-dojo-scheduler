@@ -11,12 +11,12 @@ const lineInset = 8; // px
 
 interface LineProps {
     line: Move[];
-    scrollParent: HTMLDivElement | null;
     depth: number;
     onClickMove: (m: Move) => void;
+    handleScroll: (child: HTMLButtonElement | null) => void;
 }
 
-const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) => {
+const Line: React.FC<LineProps> = ({ line, depth, onClickMove, handleScroll }) => {
     const chess = useChess().chess;
     const [, setForceRender] = useState(0);
 
@@ -45,9 +45,9 @@ const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) =
                 <Lines
                     key={`line-${i}`}
                     lines={[line.slice(i), ...move.variations]}
-                    scrollParent={scrollParent}
                     depth={depth + 1}
                     onClickMove={onClickMove}
+                    handleScroll={handleScroll}
                 />
             );
             break;
@@ -60,8 +60,8 @@ const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) =
                     inline
                     forceShowPly={i === 0}
                     move={move}
-                    scrollParent={scrollParent}
                     onClickMove={onClickMove}
+                    handleScroll={handleScroll}
                 />
                 <Comment move={move} inline />
             </Fragment>
@@ -88,12 +88,12 @@ const Line: React.FC<LineProps> = ({ line, scrollParent, depth, onClickMove }) =
 
 interface LinesProps {
     lines: Move[][];
-    scrollParent: HTMLDivElement | null;
     depth?: number;
     onClickMove: (m: Move) => void;
+    handleScroll: (child: HTMLButtonElement | null) => void;
 }
 
-const Lines: React.FC<LinesProps> = ({ lines, scrollParent, depth, onClickMove }) => {
+const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove, handleScroll }) => {
     let d = depth || 0;
 
     return (
@@ -134,9 +134,9 @@ const Lines: React.FC<LinesProps> = ({ lines, scrollParent, depth, onClickMove }
                 <Line
                     key={idx}
                     line={l}
-                    scrollParent={scrollParent}
                     depth={d}
                     onClickMove={onClickMove}
+                    handleScroll={handleScroll}
                 />
             ))}
         </Box>
