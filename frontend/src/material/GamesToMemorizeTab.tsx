@@ -87,6 +87,18 @@ const GamesToMemorizeTab = () => {
 
     return (
         <Stack>
+            <Typography sx={{ mb: 4 }}>
+                Games to memorize are also available in this{' '}
+                <a
+                    href='https://lichess.org/study/u9qJoSlL'
+                    target='_blank'
+                    rel='noreferrer'
+                >
+                    Lichess study
+                </a>
+                .
+            </Typography>
+
             <FormControl>
                 <FormLabel>Mode</FormLabel>
                 <RadioGroup row value={mode} onChange={(e) => setMode(e.target.value)}>
