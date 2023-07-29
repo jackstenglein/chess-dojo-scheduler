@@ -592,7 +592,7 @@ functions:
         - ./bin/game/update
     events:
       - httpApi:
-          path: /game/{cohort}/{id}
+          path: /game/{cohort}/{id+}
           method: put
           authorizer: serviceAuthorizer
     iamRoleStatements:
@@ -612,7 +612,7 @@ functions:
         - ./bin/game/delete
     events:
       - httpApi:
-          path: /game/{cohort}/{id}
+          path: /game/{cohort}/{id+}
           method: delete
           authorizer: serviceAuthorizer
     iamRoleStatements:
@@ -628,7 +628,7 @@ functions:
         - ./bin/game/get
     events:
       - httpApi:
-          path: /game/{cohort}/{id}
+          path: /game/{cohort}/{id+}
           method: get
           authorizer: serviceAuthorizer
     iamRoleStatements:
@@ -645,7 +645,7 @@ functions:
         - ./bin/game/comment/create
     events:
       - httpApi:
-          path: /game/{cohort}/{id}/comment
+          path: /game/{cohort}/{id+}
           method: post
           authorizer: serviceAuthorizer
     iamRoleStatements:
@@ -916,6 +916,16 @@ functions:
         Action:
           - dynamodb:Query
         Resource: !GetAtt TournamentsTable.Arn
+
+  updateTournamentLeaderboard:
+    handler: bin/tournament/leaderboard/update
+    package:
+      patterns:
+        - ./bin/tournament/leaderboard/update
+    events:
+      - httpApi:
+          path: /tournaments/leaderboard
+          method: post
 
 resources:
   Conditions:

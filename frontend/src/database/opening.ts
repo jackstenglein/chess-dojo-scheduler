@@ -79,6 +79,14 @@ export enum Coach {
     David = 'DAVID',
 }
 
+export const coachUrls = {
+    [Coach.Jesse]: 'https://chess-dojo-images.s3.amazonaws.com/icons/jesse.png',
+    [Coach.Kostya]: 'https://chess-dojo-images.s3.amazonaws.com/icons/kostya.png',
+    [Coach.David]: 'https://chess-dojo-images.s3.amazonaws.com/icons/david.png',
+};
+
+export const coaches = [Coach.Jesse, Coach.Kostya, Coach.David];
+
 /**
  * OpeningModule is a single section within an opening.
  */

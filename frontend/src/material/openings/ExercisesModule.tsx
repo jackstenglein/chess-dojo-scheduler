@@ -3,19 +3,13 @@ import { Box, Container, Stack, Typography } from '@mui/material';
 import { ModuleProps } from './Module';
 import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
 import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
-import { Coach, OpeningModule } from '../../database/opening';
+import { Coach, OpeningModule, coachUrls } from '../../database/opening';
 import { useState } from 'react';
 import PgnSelector from './PgnSelector';
 import { useAuth } from '../../auth/Auth';
 import { User } from '../../database/user';
 import { useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
-
-const coachUrls = {
-    [Coach.Jesse]: 'https://chess-dojo-images.s3.amazonaws.com/icons/jesse.png',
-    [Coach.Kostya]: 'https://chess-dojo-images.s3.amazonaws.com/icons/kostya.png',
-    [Coach.David]: 'https://chess-dojo-images.s3.amazonaws.com/icons/david.png',
-};
 
 function getCompleted(user: User, module: OpeningModule): boolean[] {
     let exercises: boolean[] = [];

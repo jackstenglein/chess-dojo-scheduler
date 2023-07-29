@@ -49,6 +49,7 @@ build: gomodgen
 
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/tournament/create tournament/create/main.go
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/tournament/list tournament/list/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/tournament/leaderboard/update tournament/leaderboard/update/main.go
 
 clean:
 	rm -rf ./bin ./vendor go.sum

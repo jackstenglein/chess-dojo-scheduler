@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -27,14 +27,18 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		err := errors.New(400, "Invalid request: cohort is required", "")
 		return api.Failure(funcName, err), nil
 	}
-	cohort = strings.ReplaceAll(cohort, "%2B", "+")
 
 	id, ok := event.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
 		return api.Failure(funcName, err), nil
 	}
-	id = strings.ReplaceAll(id, "%3F", "?")
+	if b, err := base64.StdEncoding.DecodeString(id); err != nil {
+		err = errors.Wrap(400, "Invalid request: id is not base64 encoded", "", err)
+		return api.Failure(funcName, err), nil
+	} else {
+		id = string(b)
+	}
 
 	comment := database.Comment{}
 	if err := json.Unmarshal([]byte(event.Body), &comment); err != nil {

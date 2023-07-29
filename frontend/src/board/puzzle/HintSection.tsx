@@ -15,16 +15,44 @@ interface HintSectionProps {
     board: BoardApi;
     chess: Chess;
     coachUrl?: string;
+    playBothSides?: boolean;
     onRestart: (board: BoardApi, chess: Chess) => void;
     onNext: (board: BoardApi, chess: Chess) => void;
     onRetry: (board: BoardApi, chess: Chess) => void;
     onNextPuzzle?: () => void;
 }
 
-const WaitingForMoveHint: React.FC<HintSectionProps> = ({ move, chess, coachUrl }) => {
+const TurnPrompt = ({
+    chess,
+    playBothSides,
+}: {
+    chess: Chess;
+    playBothSides: boolean;
+}) => {
+    return (
+        <Stack>
+            <Typography variant='h6' fontWeight='bold' color='text.secondary'>
+                Your turn
+            </Typography>
+            <Typography color='text.secondary'>
+                {playBothSides ? 'Recall the move for ' : 'Find the best move for '}
+                {toColor(chess)}.
+            </Typography>
+        </Stack>
+    );
+};
+
+const WaitingForMoveHint: React.FC<HintSectionProps> = ({
+    move,
+    chess,
+    coachUrl,
+    playBothSides = false,
+}) => {
     let comment = move ? move.commentAfter : chess.pgn.gameComment;
     if (!comment || comment.includes('[#]')) {
-        comment = 'What would you play in this position?';
+        comment = playBothSides
+            ? `What did ${toColor(chess)} play in this position?`
+            : 'What would you play in this position?';
     }
 
     return (
@@ -32,15 +60,7 @@ const WaitingForMoveHint: React.FC<HintSectionProps> = ({ move, chess, coachUrl 
             <ChatBubble>{comment}</ChatBubble>
 
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
-                <Stack>
-                    <Typography variant='h6' fontWeight='bold' color='text.secondary'>
-                        Your turn
-                    </Typography>
-                    <Typography color='text.secondary'>
-                        Find the best move for {toColor(chess)}.
-                    </Typography>
-                </Stack>
-
+                <TurnPrompt chess={chess} playBothSides={playBothSides} />
                 <Coach src={coachUrl} />
             </Stack>
         </>
@@ -99,16 +119,17 @@ const CorrectMoveHint: React.FC<HintSectionProps> = ({
     board,
     chess,
     coachUrl,
+    playBothSides,
     onNext,
 }) => {
     const upHandler = useCallback(
         (event: KeyboardEvent) => {
-            if (event.key === 'Enter') {
+            if (event.key === 'Enter' && !playBothSides) {
                 event.stopPropagation();
                 onNext(board, chess);
             }
         },
-        [onNext, board, chess]
+        [onNext, board, chess, playBothSides]
     );
 
     useEffect(() => {
@@ -118,21 +139,31 @@ const CorrectMoveHint: React.FC<HintSectionProps> = ({
         };
     }, [upHandler]);
 
+    let chatText = move?.commentAfter || 'Good move!';
+
+    if (playBothSides) {
+        chatText = `What did ${toColor(chess)} play in this position?`;
+    }
+
     return (
         <>
-            <ChatBubble>{move?.commentAfter || 'Good move!'}</ChatBubble>
-            <Stack direction='row' justifyContent='space-between'>
-                <Button
-                    variant='contained'
-                    disableElevation
-                    color='success'
-                    sx={{ flexGrow: 1 }}
-                    onClick={() => onNext(board, chess)}
-                >
-                    Next
-                    <br />
-                    (Enter)
-                </Button>
+            <ChatBubble>{chatText}</ChatBubble>
+            <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                {playBothSides ? (
+                    <TurnPrompt chess={chess} playBothSides={true} />
+                ) : (
+                    <Button
+                        variant='contained'
+                        disableElevation
+                        color='success'
+                        sx={{ flexGrow: 1 }}
+                        onClick={() => onNext(board, chess)}
+                    >
+                        Next
+                        <br />
+                        (Enter)
+                    </Button>
+                )}
                 <Coach src={coachUrl} />
             </Stack>
         </>
@@ -143,6 +174,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
     board,
     chess,
     coachUrl,
+    playBothSides,
     onRestart,
     onNextPuzzle,
 }) => {
@@ -193,6 +225,10 @@ const CompleteHint: React.FC<HintSectionProps> = ({
         };
     }, [onKeyDown, onKeyUp]);
 
+    const chatText = playBothSides
+        ? 'Great job memorizing this game!'
+        : 'Great job completing this puzzle';
+
     return (
         <>
             <Stack flexGrow={1} spacing={1} sx={{ overflowY: 'hidden' }}>
@@ -204,7 +240,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
                 />
             </Stack>
             <Stack>
-                <ChatBubble>Great job completing this puzzle!</ChatBubble>
+                <ChatBubble>{chatText}</ChatBubble>
                 <Stack direction='row' justifyContent='space-between'>
                     <Stack flexGrow={1} spacing={0.5}>
                         <Button

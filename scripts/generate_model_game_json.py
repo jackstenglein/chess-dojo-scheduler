@@ -26,7 +26,7 @@ def handle_game(game) -> bool:
         'white': white.lower(),
         'black': black.lower(),
         'date': date,
-        'owner': 'model_games',
+        'owner': 'games_to_memorize',
         'headers': headers,
         'pgn': str(game),
         'comments': [],
@@ -36,7 +36,7 @@ def handle_game(game) -> bool:
 
 
 def main():
-    pgn = codecs.open('1900-2000.pgn', encoding='utf-8', errors='ignore')
+    pgn = codecs.open('games_to_memorize.pgn', encoding='utf-8', errors='ignore')
     invalid_output = open('invalid_games.pgn', 'w')
 
     valid_games = 0

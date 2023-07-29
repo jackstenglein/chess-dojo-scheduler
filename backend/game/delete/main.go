@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"strings"
+	"encoding/base64"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -26,14 +26,18 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		err := errors.New(400, "Invalid request: cohort is required", "")
 		return api.Failure(funcName, err), nil
 	}
-	cohort = strings.ReplaceAll(cohort, "%2B", "+")
 
 	id, ok := event.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
 		return api.Failure(funcName, err), nil
 	}
-	id = strings.ReplaceAll(id, "%3F", "?")
+	if b, err := base64.StdEncoding.DecodeString(id); err != nil {
+		err = errors.Wrap(400, "Invalid request: id is not base64 encoded", "", err)
+		return api.Failure(funcName, err), nil
+	} else {
+		id = string(b)
+	}
 
 	game, err := repository.DeleteGame(info.Username, cohort, id)
 	if err != nil {

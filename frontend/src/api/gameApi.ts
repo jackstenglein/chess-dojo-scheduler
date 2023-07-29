@@ -162,10 +162,10 @@ export function createGame(idToken: string, req: CreateGameRequest) {
  * @returns An AxiosResponse containing the requested game.
  */
 export function getGame(idToken: string, cohort: string, id: string) {
-    const urlCohort = cohort.replaceAll('+', '%2B');
-    const urlId = id.replaceAll('?', '%3F');
+    cohort = encodeURIComponent(cohort);
+    id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.get<Game>(BASE_URL + `/game/${urlCohort}/${urlId}`, {
+    return axios.get<Game>(`${BASE_URL}/game/${cohort}/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -186,11 +186,11 @@ export function featureGame(
     id: string,
     featured: string
 ) {
-    const urlCohort = cohort.replaceAll('+', '%2B');
-    const urlId = id.replaceAll('?', '%3F');
+    cohort = encodeURIComponent(cohort);
+    id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
     return axios.put<Game>(
-        BASE_URL + `/game/${urlCohort}/${urlId}`,
+        BASE_URL + `/game/${cohort}/${id}`,
         {},
         {
             params: {
@@ -215,10 +215,10 @@ export function updateGame(
     id: string,
     req: CreateGameRequest
 ) {
-    const urlCohort = cohort.replaceAll('+', '%2B');
-    const urlId = id.replaceAll('?', '%3F');
+    cohort = encodeURIComponent(cohort);
+    id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.put<Game>(BASE_URL + `/game/${urlCohort}/${urlId}`, req, {
+    return axios.put<Game>(BASE_URL + `/game/${cohort}/${id}`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }
@@ -232,10 +232,10 @@ export function updateGame(
  * @returns The delete Game.
  */
 export function deleteGame(idToken: string, cohort: string, id: string) {
-    const urlCohort = cohort.replaceAll('+', '%2B');
-    const urlId = id.replaceAll('?', '%3F');
+    cohort = encodeURIComponent(cohort);
+    id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.delete<Game>(BASE_URL + `/game/${urlCohort}/${urlId}`, {
+    return axios.delete<Game>(BASE_URL + `/game/${cohort}/${id}`, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }
@@ -263,8 +263,8 @@ export function listGamesByCohort(
     endDate?: string
 ) {
     let params = { startDate, endDate, startKey };
-    const urlCohort = cohort.replaceAll('+', '%2B');
-    return axios.get<ListGamesResponse>(BASE_URL + `/game/${urlCohort}`, {
+    cohort = encodeURIComponent(cohort);
+    return axios.get<ListGamesResponse>(BASE_URL + `/game/${cohort}`, {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,
@@ -347,8 +347,10 @@ export function createComment(
         ownerPreviousCohort: commenter.previousCohort,
         content: content,
     };
+    cohort = encodeURIComponent(cohort);
+    id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.post<Game>(BASE_URL + `/game/${cohort}/${id}/comment`, comment, {
+    return axios.post<Game>(BASE_URL + `/game/${cohort}/${id}`, comment, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

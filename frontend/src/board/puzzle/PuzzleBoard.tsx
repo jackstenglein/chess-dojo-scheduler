@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, SxProps, Theme, Typography } from '@mui/material';
 import { Chess, Move } from '@jackstenglein/chess';
 
 import HintSection from './HintSection';
@@ -17,6 +17,9 @@ export enum Status {
 interface PuzzleBoardProps {
     pgn: string;
     coachUrl?: string;
+    sx?: SxProps<Theme>;
+    hideHeader?: boolean;
+    playBothSides?: boolean;
     onComplete: () => void;
     onNextPuzzle?: () => void;
 }
@@ -24,6 +27,9 @@ interface PuzzleBoardProps {
 const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     pgn,
     coachUrl,
+    sx,
+    hideHeader = false,
+    playBothSides = false,
     onComplete: onCompletePuzzle,
     onNextPuzzle,
 }) => {
@@ -65,7 +71,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
 
     const onMove = (board: BoardApi, chess: Chess) => {
         return (from: string, to: string) => {
-            if (chess.isMainline({ from, to })) {
+            const isCorrect = chess.isMainline({ from, to });
+            if (isCorrect) {
                 chess.seek(chess.nextMove());
                 if (
                     chess.lastMove() === chess.currentMove() ||
@@ -74,6 +81,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     return onComplete(board, chess);
                 }
                 setStatus(Status.CorrectMove);
+                console.log('Setting last correct move: ', chess.currentMove());
+                setLastCorrectMove(chess.currentMove());
             } else {
                 chess.move({ from, to });
                 setStatus(Status.IncorrectMove);
@@ -83,7 +92,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                 fen: chess.fen(),
                 turnColor: toColor(chess),
                 movable: {
-                    color: undefined,
+                    color: isCorrect && playBothSides ? toColor(chess) : undefined,
+                    dests: isCorrect && playBothSides ? toDests(chess) : undefined,
                 },
                 drawable: {
                     shapes: toShapes(chess),
@@ -118,6 +128,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
         });
         setStatus(Status.WaitingForMove);
         setMove(nextMove);
+        console.log('Setting last correct move: ', nextMove);
         setLastCorrectMove(nextMove);
     };
 
@@ -164,26 +175,28 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
 
     return (
         <Box
-            sx={{
-                gridArea: 'pgn',
-                display: 'grid',
-                width: 1,
-                alignItems: 'end',
-                gridTemplateRows: {
-                    xs: 'auto auto var(--gap) minmax(auto, 400px)',
-                    md: 'auto calc(var(--board-size) + var(--tools-height))',
-                },
-                gridTemplateColumns: {
-                    xs: '1fr',
-                    md: 'var(--board-size) var(--gap) var(--coach-width) auto',
-                },
-                gridTemplateAreas: {
-                    xs: '"header" "board" "." "coach"',
-                    md: '"header . . ." "board gap coach ."',
-                },
-            }}
+            sx={
+                sx || {
+                    gridArea: 'pgn',
+                    display: 'grid',
+                    width: 1,
+                    alignItems: 'end',
+                    gridTemplateRows: {
+                        xs: 'auto auto var(--gap) minmax(auto, 400px)',
+                        md: 'auto calc(var(--board-size) + var(--tools-height))',
+                    },
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'var(--board-size) var(--gap) var(--coach-width) auto',
+                    },
+                    gridTemplateAreas: {
+                        xs: '"header" "board" "." "coach"',
+                        md: '"header . . ." "board gap coach ."',
+                    },
+                }
+            }
         >
-            {board && chess && (
+            {board && chess && !hideHeader && (
                 <Typography variant='subtitle2' color='text.secondary' gridArea='header'>
                     {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
                 </Typography>
@@ -211,6 +224,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                             board={board}
                             chess={chess}
                             coachUrl={coachUrl}
+                            playBothSides={playBothSides}
                             onNext={onNext}
                             onRetry={onRetry}
                             onRestart={onRestart}

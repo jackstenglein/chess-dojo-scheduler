@@ -7,6 +7,7 @@ import RatingsTab from './RatingsTab';
 import SparringTab from './SparringTab';
 import ModelGamesTab from './ModelGamesTab';
 import OpeningsTab from './openings/OpeningsTab';
+import GamesToMemorizeTab from './GamesToMemorizeTab';
 
 const MaterialPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'openings' });
@@ -20,6 +21,7 @@ const MaterialPage = () => {
                         <Tab label='Books' value='books' />
                         <Tab label='Sparring Positions' value='sparring' />
                         <Tab label='Model Games' value='modelGames' />
+                        <Tab label='Games to Memorize' value='memorizeGames' />
                         <Tab label='Rating Conversions' value='ratings' />
                     </TabList>
                 </Box>
@@ -38,6 +40,10 @@ const MaterialPage = () => {
 
                 <TabPanel value='modelGames'>
                     <ModelGamesTab />
+                </TabPanel>
+
+                <TabPanel value='memorizeGames'>
+                    <GamesToMemorizeTab />
                 </TabPanel>
 
                 <TabPanel value='ratings' sx={{ px: { xs: 0, sm: 3 } }}>

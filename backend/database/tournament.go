@@ -56,6 +56,19 @@ type Tournament struct {
 	NumRounds int `dynamodbav:"numRounds,omitempty" json:"numRounds,omitempty"`
 }
 
+type LeaderboardPlayer struct {
+	Username string  `dynamodbav:"username" json:"username"`
+	Rating   int     `dynamodbav:"rating" json:"rating"`
+	Score    float32 `dynamodbav:"score" json:"score"`
+	Rank     int     `dynamodbav:"rank" json:"rank"`
+}
+
+type Leaderboard struct {
+	TimeControl string               `dynamodbav:"timeControl" json:"timeControl"`
+	Type        TournamentType       `dynamodbav:"type" json:"type"`
+	Players     []*LeaderboardPlayer `dynamodbav:"players" json:"players"`
+}
+
 // SetTournament inserts the provided tournament into the database.
 func (repo *dynamoRepository) SetTournament(tournament *Tournament) error {
 	if tournament == nil {

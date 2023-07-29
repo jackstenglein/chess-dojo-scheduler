@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -41,14 +41,18 @@ func featureGame(event api.Request) api.Response {
 		err := errors.New(400, "Invalid request: cohort is required", "")
 		return api.Failure(funcName, err)
 	}
-	cohort = strings.ReplaceAll(cohort, "%2B", "+")
 
 	id, ok := event.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
 		return api.Failure(funcName, err)
 	}
-	id = strings.ReplaceAll(id, "%3F", "?")
+	if b, err := base64.StdEncoding.DecodeString(id); err != nil {
+		err = errors.Wrap(400, "Invalid request: id is not base64 encoded", "", err)
+		return api.Failure(funcName, err)
+	} else {
+		id = string(b)
+	}
 
 	isFeatured, ok := event.QueryStringParameters["featured"]
 	if !ok || (isFeatured != "true" && isFeatured != "false") {
@@ -82,14 +86,18 @@ func updatePgn(event api.Request) api.Response {
 		err := errors.New(400, "Invalid request: cohort is required", "")
 		return api.Failure(funcName, err)
 	}
-	cohort = strings.ReplaceAll(cohort, "%2B", "+")
 
 	id, ok := event.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
 		return api.Failure(funcName, err)
 	}
-	id = strings.ReplaceAll(id, "%3F", "?")
+	if b, err := base64.StdEncoding.DecodeString(id); err != nil {
+		err = errors.Wrap(400, "Invalid request: id is not base64 encoded", "", err)
+		return api.Failure(funcName, err)
+	} else {
+		id = string(b)
+	}
 
 	req := CreateGameRequest{}
 	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
