@@ -1,3 +1,4 @@
+import copy from 'copy-to-clipboard';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useCallback, useEffect, useState } from 'react';
 import { Move, EventType as ChessEventType, Event } from '@jackstenglein/chess';
@@ -13,6 +14,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import SellIcon from '@mui/icons-material/Sell';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import DeleteGameButton from '../../games/view/DeleteGameButton';
 import { Game } from '../../database/game';
@@ -132,6 +134,11 @@ const BoardTools: React.FC<BoardToolsProps> = ({
         }, 2500);
     };
 
+    const onCopyFen = () => {
+        copy(chess?.fen() || '');
+        onCopy('fen');
+    };
+
     const onFirstMove = () => {
         onClickMove(null);
     };
@@ -211,6 +218,16 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                                 </IconButton>
                             </Tooltip>
                         </CopyToClipboard>
+
+                        <Tooltip title='Copy FEN'>
+                            <IconButton aria-label='copy-fen' onClick={onCopyFen}>
+                                {copied === 'fen' ? (
+                                    <CheckIcon sx={{ color: 'text.secondary' }} />
+                                ) : (
+                                    <ContentCopyIcon sx={{ color: 'text.secondary' }} />
+                                )}
+                            </IconButton>
+                        </Tooltip>
 
                         <CopyToClipboard text={pgn} onCopy={() => onCopy('pgn')}>
                             <Tooltip title='Copy PGN'>
