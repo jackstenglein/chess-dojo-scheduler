@@ -63,7 +63,7 @@ function getIncrementalCount(
         return currentCount;
     }
 
-    return totalCount;
+    return totalCount - currentCount;
 }
 
 interface ProgressUpdaterProps {
