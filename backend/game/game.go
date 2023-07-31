@@ -228,13 +228,13 @@ func GetGameUpdate(pgnText, orientation string) (*database.GameUpdate, error) {
 		return nil, err
 	}
 
-	white, ok := headers["White"]
-	if !ok {
+	white, _ := headers["White"]
+	if white == "" {
 		return nil, errors.New(400, "Invalid request: PGN missing `White` tag", "")
 	}
 
-	black, ok := headers["Black"]
-	if !ok {
+	black, _ := headers["Black"]
+	if black == "" {
 		return nil, errors.New(400, "Invalid request: PGN missing `Black` tag", "")
 	}
 

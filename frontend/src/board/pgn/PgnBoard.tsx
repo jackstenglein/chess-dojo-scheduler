@@ -18,6 +18,7 @@ import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
 import { ClockTextFieldId, CommentTextFieldId } from './Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
+import { TagTextFieldId } from './Tags';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -80,7 +81,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             if (
                 document.activeElement?.id === ClockTextFieldId ||
                 document.activeElement?.id === CommentTextFieldId ||
-                document.activeElement?.id === GameCommentTextFieldId
+                document.activeElement?.id === GameCommentTextFieldId ||
+                document.activeElement?.id === TagTextFieldId
             ) {
                 return;
             }

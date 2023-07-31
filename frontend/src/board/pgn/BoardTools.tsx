@@ -21,7 +21,7 @@ import { Game } from '../../database/game';
 import { useChess } from './PgnBoard';
 import { Color } from 'chessground/types';
 import PlayerHeader from './PlayerHeader';
-import Tags from './Tags';
+import Tags, { TagTextFieldId } from './Tags';
 import Editor, { ClockTextFieldId, CommentTextFieldId } from './Editor';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
@@ -86,6 +86,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                     ChessEventType.UpdateDrawables,
                     ChessEventType.DeleteMove,
                     ChessEventType.PromoteVariation,
+                    ChessEventType.UpdateHeader,
                 ],
                 handler: (event: Event) => {
                     if (event.type === ChessEventType.Initialized) {
@@ -116,7 +117,8 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                 event.key === 'f' &&
                 document.activeElement?.id !== ClockTextFieldId &&
                 document.activeElement?.id !== CommentTextFieldId &&
-                document.activeElement?.id !== GameCommentTextFieldId
+                document.activeElement?.id !== GameCommentTextFieldId &&
+                document.activeElement?.id !== TagTextFieldId
             ) {
                 toggleOrientation();
             }
@@ -355,7 +357,11 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                     }}
                 >
                     {underboard === 'tags' && (
-                        <Tags tags={chess?.pgn.header.tags} game={game} />
+                        <Tags
+                            tags={chess?.pgn.header.tags}
+                            game={game}
+                            allowEdits={showEditor}
+                        />
                     )}
                     {underboard === 'editor' && <Editor />}
                 </Card>
