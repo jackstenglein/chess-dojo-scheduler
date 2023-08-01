@@ -27,7 +27,7 @@
         "@types/react": "^18.2.12",
         "@types/react-dom": "^18.2.5",
         "aws-amplify": "^5.2.7",
-        "chessground": "^8.3.10",
+        "chessground": "^8.3.13",
         "copy-to-clipboard": "^3.3.3",
         "date-fns": "^2.30.0",
         "react": "^18.2.0",
