@@ -100,7 +100,7 @@ func handleArena(url string) (*database.Tournament, error) {
 	}
 
 	tournament := &database.Tournament{
-		Type:             database.Arena,
+		Type:             database.TournamentType_Arena,
 		StartsAt:         arena.StartsAt,
 		Id:               arena.Id,
 		Name:             arena.Name,

@@ -926,6 +926,26 @@ functions:
       - httpApi:
           path: /tournaments/leaderboard
           method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt TournamentsTable.Arn
+
+  getTournamentLeaderboard:
+    handler: bin/tournament/leaderboard/get
+    package:
+      patterns:
+        - ./bin/tournament/leaderboard/get
+    events:
+      - httpApi:
+          path: /tournaments/leaderboard
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt TournamentsTable.Arn
 
 resources:
   Conditions:
