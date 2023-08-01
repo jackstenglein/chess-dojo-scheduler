@@ -14,7 +14,7 @@
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@jackstenglein/chess": "^1.0.49",
         "@mui/base": "^5.0.0-beta.4",
-        "@mui/icons-material": "^5.11.16",
+        "@mui/icons-material": "^5.14.1",
         "@mui/lab": "^5.0.0-alpha.134",
         "@mui/material": "^5.13.5",
         "@mui/x-data-grid": "^6.7.0",
