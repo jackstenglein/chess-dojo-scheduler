@@ -32,25 +32,6 @@ function getTextColor(move: Move, inline?: boolean): string {
     return 'text.primary';
 }
 
-// function handleScroll(
-//     child: HTMLButtonElement | null,
-//     scrollParent: HTMLDivElement | null
-// ) {
-//     scrollParent = document.getElementById('pgn-text-scroll-parent') as HTMLDivElement;
-
-//     console.log('Handle scroll: ', child, scrollParent);
-//     if (child && scrollParent) {
-//         const parentRect = scrollParent.getBoundingClientRect();
-//         const childRect = child.getBoundingClientRect();
-
-//         scrollParent.scrollTop =
-//             childRect.top -
-//             parentRect.top +
-//             scrollParent.scrollTop -
-//             scrollParent.clientHeight / 2;
-//     }
-// }
-
 interface ButtonProps {
     isCurrentMove: boolean;
     inline?: boolean;
@@ -217,9 +198,17 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     }, [chess, move, firstMove, handleScroll, setIsCurrentMove, setForceRender]);
 
     useEffect(() => {
-        console.log('Use effect firing for move: ', move);
-        setIsCurrentMove(chess?.currentMove() === move);
-    }, [move, chess, setIsCurrentMove]);
+        setIsCurrentMove(
+            chess?.currentMove() === move ||
+                (!!firstMove && chess?.currentMove() === null)
+        );
+        if (
+            chess?.currentMove() === move ||
+            (firstMove && chess?.currentMove() === null)
+        ) {
+            handleScroll(ref.current);
+        }
+    }, [move, chess, setIsCurrentMove, firstMove, handleScroll]);
 
     const onRightClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (config?.allowMoveDeletion) {
