@@ -159,6 +159,7 @@ func GetGame(user *database.User, pgnText string, headerData *HeaderData, orient
 			return nil, nil, err
 		}
 	}
+	white = strings.TrimSpace(white)
 
 	black, _ := headers["Black"]
 	if headerData != nil && headerData.Black != "" {
@@ -168,6 +169,7 @@ func GetGame(user *database.User, pgnText string, headerData *HeaderData, orient
 			return nil, nil, err
 		}
 	}
+	black = strings.TrimSpace(black)
 
 	date, _ := headers["Date"]
 	if headerData != nil && headerData.Date != "" {
@@ -229,11 +231,13 @@ func GetGameUpdate(pgnText, orientation string) (*database.GameUpdate, error) {
 	}
 
 	white, _ := headers["White"]
+	white = strings.TrimSpace(white)
 	if white == "" {
 		return nil, errors.New(400, "Invalid request: PGN missing `White` tag", "")
 	}
 
 	black, _ := headers["Black"]
+	black = strings.TrimSpace(black)
 	if black == "" {
 		return nil, errors.New(400, "Invalid request: PGN missing `Black` tag", "")
 	}
