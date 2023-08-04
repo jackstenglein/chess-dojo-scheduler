@@ -205,7 +205,7 @@ const ProfilePage = () => {
                                 aria-label='profile tabs'
                             >
                                 <Tab label='Ratings' value='stats' />
-                                <Tab label='Progress' value='progress' />
+                                <Tab label='Training Plan' value='progress' />
                                 <Tab label='Activity' value='activity' />
                                 <Tab label='Games' value='games' />
                             </TabList>

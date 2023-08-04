@@ -8,7 +8,6 @@ import {
     Divider,
     TextField,
     MenuItem,
-    Chip,
     Button,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -20,10 +19,9 @@ import { dojoCohorts, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import ProgressItem from './ProgressItem';
 import { Graduation } from '../../database/graduation';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
 import { useRequirements } from '../../api/cache/requirements';
-import GraduationChips from '../../scoreboard/GraduationChips';
 import CustomTaskEditor from './CustomTaskEditor';
+import DojoScoreCard from '../stats/DojoScoreCard';
 
 interface Category {
     name: string;
@@ -50,7 +48,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         Opening: false,
         'Non-Dojo': false,
     });
-
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
 
     useEffect(() => {
@@ -162,25 +159,9 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                 ))}
             </TextField>
 
-            {graduationsRequest.data?.some((g) => g.previousCohort === cohort) ? (
-                <Chip
-                    variant='filled'
-                    color='success'
-                    label='Graduated'
-                    sx={{ mb: 3 }}
-                    icon={
-                        <GraduationIcon
-                            cohort={cohort}
-                            size={24}
-                            sx={{ marginLeft: '4px', marginRight: '-6px' }}
-                        />
-                    }
-                />
-            ) : (
-                <GraduationChips cohort={cohort} />
-            )}
+            <DojoScoreCard user={user} cohort={cohort} />
 
-            <Stack direction='row' spacing={1} width={1} justifyContent='end'>
+            <Stack direction='row' spacing={1} width={1} mt={3} justifyContent='end'>
                 <Button onClick={onExpandAll}>Expand All</Button>
                 <Button onClick={onCollapseAll}>Collapse All</Button>
             </Stack>

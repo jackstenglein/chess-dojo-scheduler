@@ -9,18 +9,33 @@ import {
     hideRatingUsername,
 } from '../../database/user';
 import RatingCard from './RatingCard';
-import DojoScoreCard from './DojoScoreCard';
 
 interface StatsTabProps {
     user: User;
 }
 
 const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
+    const preferredSystem = user.ratingSystem;
+    const currentRating = getSystemCurrentRating(user, preferredSystem);
+    const startRating = getSystemStartRating(user, preferredSystem);
+
     return (
         <Stack spacing={4}>
-            <DojoScoreCard user={user} />
+            <RatingCard
+                system={preferredSystem}
+                cohort={user.dojoCohort}
+                username={getRatingUsername(user, preferredSystem)}
+                usernameHidden={hideRatingUsername(user, preferredSystem)}
+                currentRating={currentRating}
+                startRating={startRating}
+                isPreferred={true}
+            />
 
             {Object.values(RatingSystem).map((rs) => {
+                if (rs === preferredSystem) {
+                    return null;
+                }
+
                 const currentRating = getSystemCurrentRating(user, rs);
                 const startRating = getSystemStartRating(user, rs);
 

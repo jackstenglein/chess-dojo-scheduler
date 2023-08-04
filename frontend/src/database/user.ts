@@ -540,6 +540,14 @@ export function getRatingBoundary(
     return boundary;
 }
 
+export function getMinRatingBoundary(cohort: string, ratingSystem: RatingSystem): number {
+    const cohortIdx = dojoCohorts.findIndex((c) => c === cohort);
+    if (cohortIdx <= 0) {
+        return 0;
+    }
+    return getRatingBoundary(dojoCohorts[cohortIdx - 1], ratingSystem) || 0;
+}
+
 export function shouldPromptGraduation(user?: User): boolean {
     if (!user || !user.dojoCohort || !user.ratingSystem) {
         return false;

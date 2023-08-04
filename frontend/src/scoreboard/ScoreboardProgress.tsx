@@ -36,6 +36,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     const onClick = canUpdate ? () => setShowUpdateDialog(true) : undefined;
 
     const normalized = ((value - min) * 100) / (max - min);
+    const displayValue = Math.min(Math.max(normalized, 0), 100);
 
     return (
         <>
@@ -49,7 +50,11 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 onClick={onClick}
             >
                 <Box sx={{ flexGrow: 1, mr: 1 }}>
-                    <LinearProgress variant='determinate' {...rest} value={normalized} />
+                    <LinearProgress
+                        variant='determinate'
+                        {...rest}
+                        value={displayValue}
+                    />
                 </Box>
                 <Box>
                     <Typography variant='body2' color='text.secondary'>

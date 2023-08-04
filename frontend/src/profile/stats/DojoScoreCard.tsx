@@ -5,10 +5,16 @@ import {
     getCohortScore,
     getTotalCategoryScore,
 } from '../../database/requirement';
-import { User } from '../../database/user';
+import {
+    User,
+    getCurrentRating,
+    getMinRatingBoundary,
+    getRatingBoundary,
+} from '../../database/user';
 import { useRequirements } from '../../api/cache/requirements';
 import { getTotalScore } from '../../database/requirement';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
+import React from 'react';
 
 const categories = [
     'Games + Analysis',
@@ -18,115 +24,105 @@ const categories = [
     'Opening',
 ];
 
-interface DojoScoreCardProps {
-    user: User;
+interface DojoScoreCardProgressBarProps {
+    title: string;
+    value: number;
+    min: number;
+    max: number;
+    label?: string;
 }
 
-const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user }) => {
-    const { requirements } = useRequirements(user.dojoCohort, false);
+const DojoScoreCardProgressBar: React.FC<DojoScoreCardProgressBarProps> = ({
+    title,
+    value,
+    min,
+    max,
+    label,
+}) => {
+    return (
+        <Grid
+            item
+            xs={12}
+            sm={4}
+            md={3}
+            display='flex'
+            justifyContent={{
+                xs: 'start',
+                sm: 'center',
+            }}
+        >
+            <Stack alignItems='start' width={{ xs: 1, sm: '154px' }}>
+                <Typography variant='subtitle2' color='text.secondary'>
+                    {title}
+                </Typography>
+                <ScoreboardProgress value={value} min={min} max={max} label={label} />
+            </Stack>
+        </Grid>
+    );
+};
 
-    const totalScore = getTotalScore(user.dojoCohort, requirements);
-    const cohortScore = getCohortScore(user, user.dojoCohort, requirements);
+interface DojoScoreCardProps {
+    user: User;
+    cohort: string;
+}
+
+const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
+    const { requirements } = useRequirements(cohort, false);
+
+    const totalScore = getTotalScore(cohort, requirements);
+    const cohortScore = getCohortScore(user, cohort, requirements);
     const percentComplete = Math.round((100 * cohortScore) / totalScore);
+
+    const graduationBoundary = getRatingBoundary(cohort, user.ratingSystem);
+    const minRatingBoundary = getMinRatingBoundary(cohort, user.ratingSystem);
 
     return (
         <Card variant='outlined'>
             <CardContent>
                 <Stack mb={2}>
-                    <Typography variant='h6'>Dojo Score</Typography>
+                    <Typography variant='h6'>Cohort Score</Typography>
                 </Stack>
 
                 <Grid container rowGap={2}>
-                    <Grid
-                        item
-                        xs={6}
-                        sm={4}
-                        md={3}
-                        display='flex'
-                        justifyContent={{
-                            xs: 'start',
-                            sm: 'center',
-                        }}
-                    >
-                        <Stack alignItems='start' width='154px'>
-                            <Typography variant='subtitle2' color='text.secondary'>
-                                Percent Complete
-                            </Typography>
-                            <ScoreboardProgress
-                                value={percentComplete}
-                                min={0}
-                                max={100}
-                                label={`${percentComplete}%`}
-                            />
-                        </Stack>
-                    </Grid>
+                    {graduationBoundary && (
+                        <DojoScoreCardProgressBar
+                            title='Graduation'
+                            value={getCurrentRating(user)}
+                            min={minRatingBoundary}
+                            max={graduationBoundary}
+                        />
+                    )}
 
-                    <Grid
-                        item
-                        xs={6}
-                        sm={4}
-                        md={3}
-                        display='flex'
-                        justifyContent={{
-                            xs: 'end',
-                            sm: 'center',
-                        }}
-                        pr={{
-                            xs: 1,
-                            sm: 0,
-                        }}
-                    >
-                        <Stack alignItems='start' width='154px'>
-                            <Typography variant='subtitle2' color='text.secondary'>
-                                All Requirements
-                            </Typography>
-                            <ScoreboardProgress
-                                value={cohortScore}
-                                min={0}
-                                max={Math.round(totalScore)}
-                            />
-                        </Stack>
-                    </Grid>
+                    <DojoScoreCardProgressBar
+                        title='Percent Complete'
+                        value={percentComplete}
+                        min={0}
+                        max={100}
+                        label={`${percentComplete}%`}
+                    />
+
+                    <DojoScoreCardProgressBar
+                        title='All Requirements'
+                        value={cohortScore}
+                        min={0}
+                        max={Math.round(totalScore)}
+                    />
 
                     {categories.map((c, idx) => (
-                        <Grid
-                            key={c}
-                            item
-                            xs={6}
-                            sm={4}
-                            md={3}
-                            display='flex'
-                            justifyContent={{
-                                xs: idx % 2 ? 'end' : 'start',
-                                sm: 'center',
-                            }}
-                            pr={{
-                                xs: idx % 2 ? 1 : 0,
-                                sm: 0,
-                            }}
-                        >
-                            <Stack alignItems='start' width='154px'>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    {c}
-                                </Typography>
-                                <ScoreboardProgress
-                                    value={getCategoryScore(
-                                        user,
-                                        user.dojoCohort,
-                                        c,
-                                        requirements
-                                    )}
-                                    min={0}
-                                    max={Math.round(
-                                        getTotalCategoryScore(
-                                            user.dojoCohort,
-                                            c,
-                                            requirements
-                                        )
-                                    )}
-                                />
-                            </Stack>
-                        </Grid>
+                        <DojoScoreCardProgressBar
+                            key={idx}
+                            title={c}
+                            value={getCategoryScore(
+                                user,
+                                user.dojoCohort,
+                                c,
+                                requirements
+                            )}
+                            min={0}
+                            max={Math.round(
+                                getTotalCategoryScore(user.dojoCohort, c, requirements)
+                            )}
+                        />
                     ))}
                 </Grid>
             </CardContent>
