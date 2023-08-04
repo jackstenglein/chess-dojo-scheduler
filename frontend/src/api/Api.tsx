@@ -60,7 +60,13 @@ import {
     setEvent,
 } from './eventApi';
 import { getCourse, listCourses, OpeningApiContextType } from './openingApi';
-import { listTournaments, TournamentApiContextType } from './tournamentApi';
+import {
+    getLeaderboard,
+    listTournaments,
+    TimeControl,
+    TimePeriod,
+    TournamentApiContextType,
+} from './tournamentApi';
 import { TournamentType } from '../database/tournament';
 
 /**
@@ -209,6 +215,11 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             listTournaments: (type: TournamentType, startKey?: string) =>
                 listTournaments(idToken, type, startKey),
+            getLeaderboard: (
+                timePeriod: TimePeriod,
+                tournamentType: TournamentType,
+                timeControl: TimeControl
+            ) => getLeaderboard(timePeriod, tournamentType, timeControl),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

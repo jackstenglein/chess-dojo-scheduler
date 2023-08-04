@@ -1,9 +1,12 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { Tournament, TournamentType } from '../database/tournament';
+import { Leaderboard, Tournament, TournamentType } from '../database/tournament';
 
 const BASE_URL = getConfig().api.baseUrl;
+
+export type TimePeriod = 'monthly' | 'yearly';
+export type TimeControl = 'blitz' | 'rapid' | 'classical';
 
 export type TournamentApiContextType = {
     /**
@@ -13,6 +16,19 @@ export type TournamentApiContextType = {
      * @returns A list of tournaments matching the provided type.
      */
     listTournaments: (type: TournamentType, startKey?: string) => Promise<Tournament[]>;
+
+    /**
+     * getLeaderboard returns the requested leaderboard.
+     * @param timePeriod The time period the leaderboard covers. Either monthly or yearly.
+     * @param tournamentType The type of the leaderboard. Valid values are arena, swiss and grand_prix.
+     * @param timeControl The time control of the leaderboard. Valid values are blitz, rapid and classical.
+     * @returns An AxiosResponse containing the requested leaderboard.
+     */
+    getLeaderboard: (
+        timePeriod: TimePeriod,
+        tournamentType: TournamentType,
+        timeControl: TimeControl
+    ) => Promise<AxiosResponse<Leaderboard>>;
 };
 
 interface ListTournamentsResponse {
@@ -48,4 +64,18 @@ export async function listTournaments(
     } while (params.startKey);
 
     return result;
+}
+
+export function getLeaderboard(
+    timePeriod: TimePeriod,
+    tournamentType: TournamentType,
+    timeControl: TimeControl
+) {
+    return axios.get<Leaderboard>(`${BASE_URL}/public/tournaments/leaderboard`, {
+        params: {
+            timePeriod,
+            tournamentType,
+            timeControl,
+        },
+    });
 }

@@ -939,7 +939,7 @@ functions:
         - ./bin/tournament/leaderboard/get
     events:
       - httpApi:
-          path: /tournaments/leaderboard
+          path: /public/tournaments/leaderboard
           method: get
     iamRoleStatements:
       - Effect: Allow
