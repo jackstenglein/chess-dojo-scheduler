@@ -137,6 +137,7 @@ func (repo *dynamoRepository) ListGraduationsByOwner(username, startKey string) 
 	return graduations, lastKey, nil
 }
 
+// ListGraduationsByDate returns a list of graduations more recent than the provided date.
 func (repo *dynamoRepository) ListGraduationsByDate(date, startKey string) ([]*Graduation, string, error) {
 	input := &dynamodb.ScanInput{
 		FilterExpression: aws.String("#date >= :date"),
@@ -146,6 +147,20 @@ func (repo *dynamoRepository) ListGraduationsByDate(date, startKey string) ([]*G
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":date": {S: aws.String(date)},
 		},
+		TableName: aws.String(graduationTable),
+	}
+
+	var graduations []*Graduation
+	lastKey, err := repo.scan(input, startKey, &graduations)
+	if err != nil {
+		return nil, "", err
+	}
+	return graduations, lastKey, nil
+}
+
+// ScanGraduations returns a list of all graduations in the table, paginated by the startKey.
+func (repo *dynamoRepository) ScanGraduations(startKey string) ([]*Graduation, string, error) {
+	input := &dynamodb.ScanInput{
 		TableName: aws.String(graduationTable),
 	}
 

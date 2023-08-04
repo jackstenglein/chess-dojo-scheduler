@@ -395,6 +395,10 @@ functions:
         Action:
           - dynamodb:Scan
         Resource: !GetAtt RequirementsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt GraduationsTable.Arn
 
   graduate:
     handler: bin/user/graduate

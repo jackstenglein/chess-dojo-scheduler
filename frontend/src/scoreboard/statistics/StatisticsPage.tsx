@@ -184,6 +184,22 @@ const StatisticsPage = () => {
         );
     }, [request.data]);
 
+    const numGraduationsData: Series[] = useMemo(() => {
+        return getSeries(
+            'Graduations',
+            request.data,
+            (d, c) => d.cohorts[c].numGraduations
+        );
+    }, [request.data]);
+
+    const graduationTimeData: Series[] = useMemo(() => {
+        return getSeries(
+            'Average Time to Graduate',
+            request.data,
+            (d, c) => d.cohorts[c].graduationMinutes / d.cohorts[c].numGraduations
+        );
+    }, [request.data]);
+
     const totalDojoScoreData: Series[] = useMemo(() => {
         return getSeries(
             'Total Dojo Score',
@@ -299,6 +315,21 @@ const StatisticsPage = () => {
                     series={avgRatingChangePerHourData}
                     primaryAxis={primaryAxis}
                     secondaryAxes={decimalSecondaryAxes}
+                    hideSums
+                />
+
+                <Chart
+                    title='Number of Graduations'
+                    series={numGraduationsData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={participantsSecondaryAxes}
+                />
+
+                <Chart
+                    title='Average Time to Graduate'
+                    series={graduationTimeData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={timeSecondaryAxes}
                     hideSums
                 />
 

@@ -73,6 +73,12 @@ type CohortStatistics struct {
 
 	// The sum of rating change per hour spent for inactive users in the cohort
 	InactiveRatingChangePerHour float32 `dynamodbav:"inactiveRatingChangePerHour" json:"inactiveRatingChangePerHour"`
+
+	// The number of graduations from the cohort
+	NumGraduations int `dynamodbav:"numGraduations" json:"numGraduations"`
+
+	// The sum of minutes taken to graduate from the cohort
+	GraduationMinutes int `dynamodbav:"graduationMinutes" json:"graduationMinutes"`
 }
 
 type UserStatistics struct {

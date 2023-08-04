@@ -20,6 +20,9 @@ export interface CohortStatistics {
 
     activeRatingChangePerHour: number;
     inactiveRatingChangePerHour: number;
+
+    numGraduations: number;
+    graduationMinutes: number;
 }
 
 export interface UserStatistics {

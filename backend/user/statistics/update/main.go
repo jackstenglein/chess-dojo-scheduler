@@ -16,8 +16,82 @@ type Event events.CloudWatchEvent
 const funcName = "user-statistics-update-handler"
 
 var repository = database.DynamoDB
-
 var monthAgo = time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
+
+func main() {
+	lambda.Start(Handler)
+}
+
+func Handler(ctx context.Context, event Event) (Event, error) {
+	log.Debugf("Event: %#v", event)
+	log.SetRequestId(event.ID)
+
+	requirements, err := fetchRequirements()
+	if err != nil {
+		return event, err
+	}
+
+	stats := database.NewUserStatistics()
+	for _, cohort := range database.Cohorts {
+		log.Debugf("Processing cohort %s", cohort)
+
+		var users []*database.User
+		var startKey = ""
+		for ok := true; ok; ok = startKey != "" {
+			users, startKey, err = repository.ListUserRatings(cohort, startKey)
+			if err != nil {
+				log.Errorf("Failed to scan users: %v", err)
+				return event, err
+			}
+
+			log.Infof("Processing %d users", len(users))
+			for _, u := range users {
+				updateStats(stats, u, requirements)
+			}
+		}
+	}
+
+	log.Debugf("Processing graduations")
+	var graduations []*database.Graduation
+	var startKey = ""
+	for ok := true; ok; ok = startKey != "" {
+		graduations, startKey, err = repository.ScanGraduations(startKey)
+		if err != nil {
+			log.Errorf("Failed to scan graduations: %v", err)
+			return event, err
+		}
+
+		log.Infof("Processing %d graduations", len(graduations))
+		for _, g := range graduations {
+			updateGradStats(stats, g)
+		}
+	}
+
+	if err := repository.SetUserStatistics(stats); err != nil {
+		log.Error(err)
+		return event, err
+	}
+
+	return event, nil
+}
+
+func fetchRequirements() ([]*database.Requirement, error) {
+	log.Debug("Fetching requirements")
+	var requirements []*database.Requirement
+	var rs []*database.Requirement
+	var startKey string
+	var err error
+	for ok := true; ok; ok = startKey != "" {
+		rs, startKey, err = repository.ScanRequirements("", startKey)
+		if err != nil {
+			log.Errorf("Failed to scan requirements: %v", err)
+			return nil, err
+		}
+		requirements = append(requirements, rs...)
+	}
+	log.Debugf("Got %d requirements", len(requirements))
+	return requirements, nil
+}
 
 func updateStats(stats *database.UserStatistics, user *database.User, requirements []*database.Requirement) {
 	if !user.DojoCohort.IsValid() || user.RatingSystem == "" {
@@ -56,53 +130,21 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 	}
 }
 
-func Handler(ctx context.Context, event Event) (Event, error) {
-	log.Debugf("Event: %#v", event)
-	log.SetRequestId(event.ID)
-
-	log.Debug("Fetching requirements")
-	var requirements []*database.Requirement
-	var rs []*database.Requirement
-	var startKey string
-	var err error
-	for ok := true; ok; ok = startKey != "" {
-		rs, startKey, err = repository.ScanRequirements("", startKey)
-		if err != nil {
-			log.Errorf("Failed to scan requirements: %v", err)
-			return event, err
-		}
-		requirements = append(requirements, rs...)
-	}
-	log.Debugf("Got %d requirements", len(requirements))
-
-	stats := database.NewUserStatistics()
-	for _, cohort := range database.Cohorts {
-		log.Debugf("Processing cohort %s", cohort)
-
-		var users []*database.User
-		startKey = ""
-		for ok := true; ok; ok = startKey != "" {
-			users, startKey, err = repository.ListUserRatings(cohort, startKey)
-			if err != nil {
-				log.Errorf("Failed to scan users: %v", err)
-				return event, err
-			}
-
-			log.Infof("Processing %d users", len(users))
-			for _, u := range users {
-				updateStats(stats, u, requirements)
-			}
-		}
+func updateGradStats(stats *database.UserStatistics, graduation *database.Graduation) {
+	if !graduation.PreviousCohort.IsValid() || graduation.Progress == nil {
+		return
 	}
 
-	if err := repository.SetUserStatistics(stats); err != nil {
-		log.Error(err)
-		return event, err
+	var minutes int
+	for _, progress := range graduation.Progress {
+		m, _ := progress.MinutesSpent[graduation.PreviousCohort]
+		minutes += m
+	}
+	if minutes == 0 {
+		return
 	}
 
-	return event, nil
-}
-
-func main() {
-	lambda.Start(Handler)
+	cohortStats := stats.Cohorts[graduation.PreviousCohort]
+	cohortStats.NumGraduations += 1
+	cohortStats.GraduationMinutes += minutes
 }
