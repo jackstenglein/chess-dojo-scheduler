@@ -461,7 +461,7 @@ type listGamesByPlayerStartKey struct {
 // ListGamesByPlayer returns a list of Games matching the provided player. The PGN text is excluded and must
 // be fetched separately with a call to GetGame.
 func (repo *dynamoRepository) ListGamesByPlayer(player string, color PlayerColor, startDate, endDate, startKey string) ([]*Game, string, error) {
-	player = strings.ToLower(player)
+	player = strings.ToLower(strings.TrimSpace(player))
 
 	startKeys := listGamesByPlayerStartKey{}
 	if startKey != "" {
