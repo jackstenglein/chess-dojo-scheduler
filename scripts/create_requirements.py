@@ -118,48 +118,43 @@ def main():
     updatedAt = datetime.datetime.utcnow().isoformat('T') + 'Z'
 
     with open('requirements.csv', newline='', encoding='utf8') as infile:
-        with open('out_requirements.csv', 'w') as outfile:
-            reader = csv.DictReader(infile)
-            writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames)
-            writer.writeheader()
+        reader = csv.DictReader(infile)
 
-            for row in reader:
-                if row['Requirement Name'] is None or row['Requirement Name'] == '':
-                    writer.writerow(row)
-                    continue
+        for row in reader:
+            if row['Requirement Name'] is None or row['Requirement Name'] == '':
+                continue
 
-                counts = getCounts(row)
-                startCount = getStartCount(row)
-                unitScoreOverride = getUnitScoreOverride(row)
-                positions = getPositions(row)
+            counts = getCounts(row)
+            startCount = getStartCount(row)
+            unitScoreOverride = getUnitScoreOverride(row)
+            positions = getPositions(row)
 
-                if not row['ID'] or row['ID'] == '':
-                    raise Exception('Row missing ID: ', row)
+            if not row['ID'] or row['ID'] == '':
+                raise Exception('Row missing ID: ', row)
 
-                writer.writerow(row)
-                item = {
-                    'id': row['ID'],
-                    'status': 'ACTIVE',
-                    'category': row['Category'],
-                    'name': row['Requirement Name'],
-                    'description': row['Description'] if row['Description'] else '',
-                    'counts': counts,
-                    'startCount': startCount,
-                    'numberOfCohorts': int(row['# of Cohorts']) if row['# of Cohorts'] else 1,
-                    'unitScore': Decimal(row['Unit Score']) if row['Unit Score'] else 0,
-                    'unitScoreOverride': unitScoreOverride,
-                    'totalScore': Decimal(row['Total Score']) if row['Total Score'] else 0,
-                    'videoUrls': row['Videos'].split(',') if row['Videos'] else [],
-                    'positions': positions,
-                    'scoreboardDisplay': row['Scoreboard Display'],
-                    'updatedAt': updatedAt,
-                    'sortPriority': row['Sort Priority'],
-                    'progressBarSuffix': row['Progress Bar Suffix'] if row['Progress Bar Suffix'] else '',
-                    'expirationDays': int(row['Expiration Days']) if row['Expiration Days'] else -1,
-                }
+            item = {
+                'id': row['ID'],
+                'status': 'ACTIVE',
+                'category': row['Category'],
+                'name': row['Requirement Name'],
+                'description': row['Description'] if row['Description'] else '',
+                'counts': counts,
+                'startCount': startCount,
+                'numberOfCohorts': int(row['# of Cohorts']) if row['# of Cohorts'] else 1,
+                'unitScore': Decimal(row['Unit Score']) if row['Unit Score'] else 0,
+                'unitScoreOverride': unitScoreOverride,
+                'totalScore': Decimal(row['Total Score']) if row['Total Score'] else 0,
+                'videoUrls': row['Videos'].split(',') if row['Videos'] else [],
+                'positions': positions,
+                'scoreboardDisplay': row['Scoreboard Display'],
+                'updatedAt': updatedAt,
+                'sortPriority': row['Sort Priority'],
+                'progressBarSuffix': row['Progress Bar Suffix'] if row['Progress Bar Suffix'] else '',
+                'expirationDays': int(row['Expiration Days']) if row['Expiration Days'] else -1,
+            }
 
-                items.append(item)
-                categories[row['Category']].append(item)
+            items.append(item)
+            categories[row['Category']].append(item)
 
     print(f'Got {len(items)} requirements')
     print(
