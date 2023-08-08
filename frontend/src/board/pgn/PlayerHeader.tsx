@@ -18,7 +18,10 @@ export function getInitialClock(pgn?: Pgn): string | undefined {
     if (!timeControl) {
         return undefined;
     }
-    const startTime = parseInt(timeControl.split('+')[0]);
+
+    const descriptor = timeControl.split(':')[0];
+    const time = descriptor.split('/').slice(-1)[0];
+    const startTime = parseInt(time?.split('+')[0]);
     if (isNaN(startTime) || startTime <= 0) {
         return undefined;
     }
