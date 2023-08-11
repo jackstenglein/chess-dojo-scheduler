@@ -933,6 +933,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:GetItem
         Resource: !GetAtt TournamentsTable.Arn
 
   getTournamentLeaderboard:
@@ -962,9 +963,6 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: !GetAtt TournamentsTable.Arn
-      - Effect: Allow
-        Action:
           - dynamodb:PutItem
         Resource: !GetAtt TournamentsTable.Arn
 
