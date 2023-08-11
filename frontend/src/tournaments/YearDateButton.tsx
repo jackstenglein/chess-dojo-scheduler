@@ -4,10 +4,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Button, Popover, Stack } from '@mui/material';
 import { format, getYear, setYear } from 'date-fns';
 
-import { LocaleArrow } from './MonthDateButton';
-
-const MIN_YEAR = 2023;
-const MIN_DATE = '2023-08-11';
+import { LocaleArrow, MIN_DATE, MIN_YEAR } from './MonthDateButton';
 
 interface YearDateButtonProps {
     selectedDate: Date;

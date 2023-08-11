@@ -7,9 +7,9 @@ import NavigateBeforeRoundedIcon from '@mui/icons-material/NavigateBeforeRounded
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
 import { IconButton, IconButtonProps } from '@mui/material';
 
-const MIN_YEAR = 2023;
-const MIN_MONTH = 8;
-const MIN_DATE = '2023-08-11';
+export const MIN_YEAR = 2023;
+export const MIN_MONTH = 6;
+export const MIN_DATE = '2023-07-11';
 
 interface LocaleArrowProps extends Omit<IconButtonProps, 'type'> {
     type: 'prev' | 'next';
@@ -67,6 +67,9 @@ const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
         const nextMonth = currentMonth + 1;
         onChange(setMonth(selectedDate, nextMonth));
     };
+
+    console.log('Current Month: ', currentMonth);
+    console.log('Current Year: ', currentYear);
 
     return (
         <Stack direction='row' alignItems='center'>

@@ -22,12 +22,14 @@ export type TournamentApiContextType = {
      * @param timePeriod The time period the leaderboard covers. Either monthly or yearly.
      * @param tournamentType The type of the leaderboard. Valid values are arena, swiss and grand_prix.
      * @param timeControl The time control of the leaderboard. Valid values are blitz, rapid and classical.
+     * @param date The ISO-3601 date of the leaderboard to fetch.
      * @returns An AxiosResponse containing the requested leaderboard.
      */
     getLeaderboard: (
         timePeriod: TimePeriod,
         tournamentType: TournamentType,
-        timeControl: TimeControl
+        timeControl: TimeControl,
+        date: string
     ) => Promise<AxiosResponse<Leaderboard>>;
 };
 
@@ -66,18 +68,21 @@ export async function listTournaments(type: TournamentType, startKey?: string) {
  * @param timePeriod The time period the leaderboard covers. Either monthly or yearly.
  * @param tournamentType The type of the leaderboard. Valid values are arena, swiss and grand_prix.
  * @param timeControl The time control of the leaderboard. Valid values are blitz, rapid and classical.
+ * @param date The ISO-3601 date of the leaderboard to fetch.
  * @returns An AxiosResponse containing the requested leaderboard.
  */
 export function getLeaderboard(
     timePeriod: TimePeriod,
     tournamentType: TournamentType,
-    timeControl: TimeControl
+    timeControl: TimeControl,
+    date: string
 ) {
     return axios.get<Leaderboard>(`${BASE_URL}/public/tournaments/leaderboard`, {
         params: {
             timePeriod,
             tournamentType,
             timeControl,
+            date,
         },
     });
 }

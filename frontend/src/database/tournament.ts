@@ -31,5 +31,5 @@ export interface Leaderboard {
     type: string;
     startsAt: string;
     timeControl: 'blitz' | 'rapid' | 'classical';
-    players: LeaderboardPlayer[];
+    players?: LeaderboardPlayer[];
 }

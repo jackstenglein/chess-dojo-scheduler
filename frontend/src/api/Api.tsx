@@ -218,8 +218,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getLeaderboard: (
                 timePeriod: TimePeriod,
                 tournamentType: TournamentType,
-                timeControl: TimeControl
-            ) => getLeaderboard(timePeriod, tournamentType, timeControl),
+                timeControl: TimeControl,
+                date: string
+            ) => getLeaderboard(timePeriod, tournamentType, timeControl, date),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

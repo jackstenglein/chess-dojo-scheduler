@@ -64,6 +64,20 @@ type LeaderboardType string
 
 const CurrentLeaderboard = "CURRENT"
 
+var LeaderboardNames = []LeaderboardType{
+	"ARENA",
+	"SWISS",
+	"GRAND_PRIX",
+	"MIDDLEGAME_SPARRING",
+	"ENDGAME_SPARRING",
+}
+
+var TimeControls = []string{
+	"BLITZ",
+	"RAPID",
+	"CLASSICAL",
+}
+
 // LeaderboardPlayer represents a single player in the tournament leaderboards.
 type LeaderboardPlayer struct {
 	// The Lichess username of the player.
@@ -78,7 +92,7 @@ type LeaderboardPlayer struct {
 
 type Leaderboard struct {
 	// The type of the leaderboard and the hash key of the table. Follows this format:
-	// LEADERBOARD_(MONTHLY|YEARLY)_(ARENA|SWISS|GRAND_PRIX)_(BLITZ|RAPID|CLASSICAL)
+	// LEADERBOARD_(MONTHLY|YEARLY)_(ARENA|SWISS|GRAND_PRIX|MIDDLEGAME_SPARRING|ENDGAME_SPARRING)_(BLITZ|RAPID|CLASSICAL)
 	Type LeaderboardType `dynamodbav:"type" json:"type"`
 
 	// The start of the period the leaderboard applies to and the range key of the table.
@@ -148,7 +162,8 @@ func (repo *dynamoRepository) SetLeaderboard(leaderboard Leaderboard) error {
 	return errors.Wrap(500, "Temporary server error", "Failed DynamoDB PutItem request", err)
 }
 
-func (repo *dynamoRepository) GetCurrentLeaderboard(timePeriod, tournamentType, timeControl string) (*Leaderboard, error) {
+// GetLeaderboard fetches the leaderboard with the provided values.
+func (repo *dynamoRepository) GetLeaderboard(timePeriod, tournamentType, timeControl, startsAt string) (*Leaderboard, error) {
 	timePeriod = strings.ToUpper(timePeriod)
 	tournamentType = strings.ToUpper(tournamentType)
 	timeControl = strings.ToUpper(timeControl)
@@ -160,7 +175,7 @@ func (repo *dynamoRepository) GetCurrentLeaderboard(timePeriod, tournamentType, 
 				S: aws.String(leaderboardType),
 			},
 			"startsAt": {
-				S: aws.String(CurrentLeaderboard),
+				S: aws.String(startsAt),
 			},
 		},
 		TableName: aws.String(tournamentTable),

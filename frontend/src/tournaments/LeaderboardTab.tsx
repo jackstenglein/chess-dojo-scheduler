@@ -47,12 +47,18 @@ const LeaderboardTab = () => {
     useEffect(() => {
         if (!request.isSent()) {
             request.onStart();
-            api.getLeaderboard(timePeriod, tournamentType, timeControl)
+            api.getLeaderboard(
+                timePeriod,
+                tournamentType,
+                timeControl,
+                selectedDate.toISOString()
+            )
                 .then((resp) => {
-                    resp.data.players = resp.data.players.map((p, idx) => ({
-                        ...p,
-                        rank: idx + 1,
-                    }));
+                    resp.data.players =
+                        resp.data.players?.map((p, idx) => ({
+                            ...p,
+                            rank: idx + 1,
+                        })) || [];
                     console.log('getLeaderboard: ', resp);
                     request.onSuccess(resp.data);
                 })
@@ -61,7 +67,7 @@ const LeaderboardTab = () => {
                     request.onFailure(err);
                 });
         }
-    }, [request, api, timePeriod, tournamentType, timeControl]);
+    }, [request, api, timePeriod, tournamentType, timeControl, selectedDate]);
 
     const reset = request.reset;
     useEffect(() => {

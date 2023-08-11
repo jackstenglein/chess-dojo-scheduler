@@ -67,6 +67,10 @@ func getLeaderboardTypes(leaderboard database.Leaderboard) (string, string, erro
 		tournamentType = "SWISS"
 	case "Grand Prix":
 		tournamentType = "GRAND_PRIX"
+	case "Middlegame Sparring Total":
+		tournamentType = "MIDDLEGAME_SPARRING"
+	case "Endgame Sparring Total":
+		tournamentType = "ENDGAME_SPARRING"
 	default:
 		return "", "", errors.New(400, fmt.Sprintf("Invalid request: type `%s` is invalid", leaderboard.Type), "")
 	}

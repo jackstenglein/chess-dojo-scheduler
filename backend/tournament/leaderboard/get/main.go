@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -13,6 +14,7 @@ import (
 const funcName = "tournament-leaderboard-get-handler"
 
 var repository = database.DynamoDB
+var now = time.Now()
 
 func main() {
 	lambda.Start(Handler)
@@ -25,9 +27,10 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	timePeriod, _ := request.QueryStringParameters["timePeriod"]
 	tournamentType, _ := request.QueryStringParameters["tournamentType"]
 	timeControl, _ := request.QueryStringParameters["timeControl"]
+	date, _ := request.QueryStringParameters["date"]
 
-	if timePeriod == "" {
-		err := errors.New(400, "Invalid request: timePeriod is required", "")
+	if timePeriod != "monthly" && timePeriod != "yearly" {
+		err := errors.New(400, "Invalid request: timePeriod must be `monthly` or `yearly`", "")
 		return api.Failure(funcName, err), nil
 	}
 	if tournamentType == "" {
@@ -38,8 +41,33 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		err := errors.New(400, "Invalid request: timeControl is required", "")
 		return api.Failure(funcName, err), nil
 	}
+	if date == "" {
+		err := errors.New(400, "Invalid request: date is required", "")
+		return api.Failure(funcName, err), nil
+	}
 
-	leaderboard, err := repository.GetCurrentLeaderboard(timePeriod, tournamentType, timeControl)
+	t, err := time.Parse(time.RFC3339, date)
+	if err != nil {
+		err = errors.Wrap(400, "Invalid request: date format is invalid", "time.Parse failure", err)
+		return api.Failure(funcName, err), nil
+	}
+
+	var startsAt string
+	if timePeriod == "monthly" {
+		if t.Month() == now.Month() && t.Year() == now.Year() {
+			startsAt = database.CurrentLeaderboard
+		} else {
+			startsAt = t.Format("2006-01")
+		}
+	} else {
+		if t.Year() == now.Year() {
+			startsAt = database.CurrentLeaderboard
+		} else {
+			startsAt = t.Format("2006")
+		}
+	}
+
+	leaderboard, err := repository.GetLeaderboard(timePeriod, tournamentType, timeControl, startsAt)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}

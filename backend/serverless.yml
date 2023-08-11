@@ -912,9 +912,8 @@ functions:
         - ./bin/tournament/list
     events:
       - httpApi:
-          path: /tournaments
+          path: /public/tournaments
           method: get
-          authorizer: serviceAuthorizer
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -949,6 +948,24 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
+        Resource: !GetAtt TournamentsTable.Arn
+
+  snapshotTournamentLeaderboard:
+    handler: bin/tournament/leaderboard/snapshot
+    package:
+      patterns:
+        - ./bin/tournament/leaderboard/snapshot
+    events:
+      - schedule:
+          rate: cron(0 0 1 * ? *)
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt TournamentsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
         Resource: !GetAtt TournamentsTable.Arn
 
 resources:
