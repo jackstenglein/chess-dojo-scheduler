@@ -93,6 +93,18 @@ const LeaderboardTab = () => {
                     <TextField
                         sx={{ minWidth: 130 }}
                         select
+                        label='Time Control'
+                        value={timeControl}
+                        onChange={(e) => setTimeControl(e.target.value as TimeControl)}
+                    >
+                        <MenuItem value={'blitz'}>Blitz</MenuItem>
+                        <MenuItem value={'rapid'}>Rapid</MenuItem>
+                        <MenuItem value={'classical'}>Classical</MenuItem>
+                    </TextField>
+
+                    <TextField
+                        sx={{ minWidth: 130 }}
+                        select
                         label='Tournament Type'
                         value={tournamentType}
                         onChange={(e) =>
@@ -108,18 +120,6 @@ const LeaderboardTab = () => {
                         <MenuItem value={TournamentType.EndgameSparring}>
                             Endgame Sparring
                         </MenuItem>
-                    </TextField>
-
-                    <TextField
-                        sx={{ minWidth: 130 }}
-                        select
-                        label='Time Control'
-                        value={timeControl}
-                        onChange={(e) => setTimeControl(e.target.value as TimeControl)}
-                    >
-                        <MenuItem value={'blitz'}>Blitz</MenuItem>
-                        <MenuItem value={'rapid'}>Rapid</MenuItem>
-                        <MenuItem value={'classical'}>Classical</MenuItem>
                     </TextField>
                 </Stack>
 

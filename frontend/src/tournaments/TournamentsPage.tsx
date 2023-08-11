@@ -9,13 +9,15 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useEffect, useMemo } from 'react';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest, Request } from '../api/Request';
-import { Tournament, TournamentType } from '../database/tournament';
 import LoadingPage from '../loading/LoadingPage';
 import { useSearchParams } from 'react-router-dom';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+
+import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { Tournament, TournamentType } from '../database/tournament';
 import LeaderboardTab from './LeaderboardTab';
+import InfoTab from './InfoTab';
 
 const now = new Date().toISOString();
 
@@ -142,10 +144,14 @@ const TournamentsPage = () => {
         <Container maxWidth='lg' sx={{ py: 5 }}>
             <TabContext value={searchParams.get('type') || TournamentType.Arena}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <TabList onChange={(_, t) => setSearchParams({ type: t })}>
+                    <TabList
+                        onChange={(_, t) => setSearchParams({ type: t })}
+                        variant='scrollable'
+                    >
                         <Tab label='Arenas' value={TournamentType.Arena} />
                         <Tab label='Swiss' value={TournamentType.Swiss} />
                         <Tab label='Leaderboard' value='leaderboard' />
+                        <Tab label='Info' value='info' />
                     </TabList>
                 </Box>
 
@@ -153,9 +159,14 @@ const TournamentsPage = () => {
                     <LeaderboardTab />
                 </TabPanel>
 
-                {searchParams.get('type') !== 'leaderboard' && (
-                    <TournamentsList type={searchParams.get('type')} />
-                )}
+                <TabPanel value='info'>
+                    <InfoTab />
+                </TabPanel>
+
+                {searchParams.get('type') !== 'leaderboard' &&
+                    searchParams.get('type') !== 'info' && (
+                        <TournamentsList type={searchParams.get('type')} />
+                    )}
             </TabContext>
         </Container>
     );
