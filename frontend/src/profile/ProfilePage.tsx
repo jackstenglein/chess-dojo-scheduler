@@ -203,6 +203,7 @@ const ProfilePage = () => {
                             <TabList
                                 onChange={(_, t) => setSearchParams({ view: t })}
                                 aria-label='profile tabs'
+                                variant='scrollable'
                             >
                                 <Tab label='Ratings' value='stats' />
                                 <Tab label='Training Plan' value='progress' />

@@ -16,7 +16,10 @@ const MaterialPage = () => {
         <Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
             <TabContext value={searchParams.get('view') || 'openings'}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <TabList onChange={(_, t) => setSearchParams({ view: t })}>
+                    <TabList
+                        onChange={(_, t) => setSearchParams({ view: t })}
+                        variant='scrollable'
+                    >
                         <Tab label='Openings' value='openings' />
                         <Tab label='Books' value='books' />
                         <Tab label='Sparring Positions' value='sparring' />
