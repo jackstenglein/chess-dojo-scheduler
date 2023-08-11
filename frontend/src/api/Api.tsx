@@ -214,7 +214,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             listCourses: (startKey?: string) => listCourses(idToken, startKey),
 
             listTournaments: (type: TournamentType, startKey?: string) =>
-                listTournaments(idToken, type, startKey),
+                listTournaments(type, startKey),
             getLeaderboard: (
                 timePeriod: TimePeriod,
                 tournamentType: TournamentType,

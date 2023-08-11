@@ -39,8 +39,7 @@ import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import MaterialPage from './material/MaterialPage';
 import ErrorBoundary from './ErrorBoundary';
 import OpeningPage from './material/openings/OpeningPage';
-import ListTournamentsPage from './tournaments/ListTournamentsPage';
-import LeaderboardPage from './tournaments/LeaderboardPage';
+import TournamentsPage from './tournaments/TournamentsPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -67,7 +66,7 @@ const router = createBrowserRouter(
             <Route path='verify-email' element={<VerifyEmailPage />} />
             <Route path='forgot-password' element={<ForgotPasswordPage />} />
             <Route path='help' element={<HelpPage />} />
-            <Route path='leaderboard' element={<LeaderboardPage />} />
+            <Route path='tournaments' element={<TournamentsPage />} />
 
             <Route element={<RequireAuth />}>
                 <Route element={<GraduationPrompt />}>
@@ -94,10 +93,6 @@ const router = createBrowserRouter(
                             <Route index element={<GamePage />} />
                             <Route path='edit' element={<EditGamePage />} />
                         </Route>
-                    </Route>
-
-                    <Route path='tournaments'>
-                        <Route index element={<ListTournamentsPage />} />
                     </Route>
 
                     <Route path='scoreboard'>

@@ -7,6 +7,10 @@ import NavigateBeforeRoundedIcon from '@mui/icons-material/NavigateBeforeRounded
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
 import { IconButton, IconButtonProps } from '@mui/material';
 
+const MIN_YEAR = 2023;
+const MIN_MONTH = 8;
+const MIN_DATE = '2023-08-11';
+
 interface LocaleArrowProps extends Omit<IconButtonProps, 'type'> {
     type: 'prev' | 'next';
     onClick?(e?: MouseEvent): void;
@@ -66,7 +70,12 @@ const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
 
     return (
         <Stack direction='row' alignItems='center'>
-            <LocaleArrow type='prev' onClick={handlePrev} aria-label='previous month' />
+            <LocaleArrow
+                type='prev'
+                onClick={handlePrev}
+                aria-label='previous month'
+                disabled={currentMonth <= MIN_MONTH && currentYear === MIN_YEAR}
+            />
             <Button
                 style={{ padding: 4 }}
                 onClick={handleOpen}
@@ -90,6 +99,7 @@ const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
                         value={selectedDate}
                         onChange={handleChange}
                         disableFuture
+                        minDate={new Date(MIN_DATE)}
                     />
                 </LocalizationProvider>
             </Popover>
@@ -98,8 +108,8 @@ const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
                 onClick={handleNext}
                 aria-label='next month'
                 disabled={
-                    currentMonth === getMonth(new Date()) &&
-                    currentYear === getYear(new Date())
+                    currentMonth >= getMonth(new Date()) &&
+                    currentYear >= getYear(new Date())
                 }
             />
         </Stack>

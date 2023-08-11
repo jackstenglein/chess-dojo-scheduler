@@ -6,6 +6,9 @@ import { format, getYear, setYear } from 'date-fns';
 
 import { LocaleArrow } from './MonthDateButton';
 
+const MIN_YEAR = 2023;
+const MIN_DATE = '2023-08-11';
+
 interface YearDateButtonProps {
     selectedDate: Date;
     onChange(value: Date): void;
@@ -35,7 +38,12 @@ const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
 
     return (
         <Stack direction='row' alignItems='center'>
-            <LocaleArrow type='prev' onClick={handlePrev} aria-label='previous year' />
+            <LocaleArrow
+                type='prev'
+                onClick={handlePrev}
+                aria-label='previous year'
+                disabled={currentYear <= MIN_YEAR}
+            />
             <Button
                 style={{ padding: 4 }}
                 onClick={handleOpen}
@@ -59,6 +67,7 @@ const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
                         value={selectedDate}
                         onChange={handleChange}
                         disableFuture
+                        minDate={new Date(MIN_DATE)}
                     />
                 </LocalizationProvider>
             </Popover>
@@ -66,7 +75,7 @@ const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
                 type='next'
                 onClick={handleNext}
                 aria-label='next year'
-                disabled={currentYear === getYear(new Date())}
+                disabled={currentYear >= getYear(new Date())}
             />
         </Stack>
     );

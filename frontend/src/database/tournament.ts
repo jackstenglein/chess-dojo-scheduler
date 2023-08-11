@@ -2,6 +2,8 @@ export enum TournamentType {
     Swiss = 'SWISS',
     Arena = 'ARENA',
     GrandPrix = 'GRAND_PRIX',
+    MiddlegameSparring = 'MIDDLEGAME_SPARRING',
+    EndgameSparring = 'ENDGAME_SPARRING',
 }
 
 export interface Tournament {
