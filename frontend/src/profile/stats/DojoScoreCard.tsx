@@ -77,7 +77,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     const minRatingBoundary = getMinRatingBoundary(cohort, user.ratingSystem);
 
     return (
-        <Card variant='outlined'>
+        <Card variant='outlined' id='cohort-score-card'>
             <CardContent>
                 <Stack mb={2}>
                     <Typography variant='h6'>Cohort Score</Typography>

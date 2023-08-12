@@ -40,6 +40,7 @@ import MaterialPage from './material/MaterialPage';
 import ErrorBoundary from './ErrorBoundary';
 import OpeningPage from './material/openings/OpeningPage';
 import TournamentsPage from './tournaments/TournamentsPage';
+import { TutorialProvider } from './tutorial/TutorialContext';
 
 const config = getConfig();
 Amplify.configure({
@@ -131,10 +132,12 @@ function Root() {
     return (
         <ApiProvider>
             <CacheProvider>
-                <Navbar />
-                <ErrorBoundary>
-                    <Outlet />
-                </ErrorBoundary>
+                <TutorialProvider>
+                    <Navbar />
+                    <ErrorBoundary>
+                        <Outlet />
+                    </ErrorBoundary>
+                </TutorialProvider>
             </CacheProvider>
         </ApiProvider>
     );

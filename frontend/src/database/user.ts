@@ -1,3 +1,4 @@
+import { TutorialName } from '../tutorial/tutorialNames';
 import { CustomTask, RequirementProgress } from './requirement';
 
 interface CognitoSession {
@@ -133,6 +134,8 @@ export interface User {
             exercises?: boolean[];
         };
     };
+
+    tutorials?: Record<TutorialName, boolean>;
 }
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser): User {

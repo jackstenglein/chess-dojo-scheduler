@@ -143,6 +143,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     }
                     onClick={() => setShowReqModal(true)}
                     sx={{ cursor: 'pointer', position: 'relative' }}
+                    id='task-details'
                 >
                     <Stack
                         direction='row'
@@ -177,7 +178,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     </Typography>
                     {DescriptionElement}
                 </Grid>
-                <Grid item xs={2} sm='auto'>
+                <Grid item xs={2} sm='auto' id='task-status'>
                     <Stack
                         direction='row'
                         alignItems='center'

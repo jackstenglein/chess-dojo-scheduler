@@ -1,27 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-    Stack,
-    Accordion,
-    AccordionSummary,
-    Typography,
-    AccordionDetails,
-    Divider,
-    TextField,
-    MenuItem,
-    Button,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Stack, TextField, MenuItem, Button } from '@mui/material';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { CustomTask, isComplete, Requirement } from '../../database/requirement';
 import { dojoCohorts, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import ProgressItem from './ProgressItem';
 import { Graduation } from '../../database/graduation';
 import { useRequirements } from '../../api/cache/requirements';
 import CustomTaskEditor from './CustomTaskEditor';
 import DojoScoreCard from '../stats/DojoScoreCard';
+import ProgressCategory from './ProgressCategory';
 
 interface Category {
     name: string;
@@ -145,6 +134,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             <RequestSnackbar request={requirementRequest} />
 
             <TextField
+                id='training-plan-cohort-select'
                 select
                 label='Cohort'
                 value={cohort}
@@ -167,55 +157,15 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             </Stack>
 
             {categories.map((c) => (
-                <Accordion
-                    key={c.name}
+                <ProgressCategory
+                    c={c}
                     expanded={expanded[c.name]}
-                    onChange={() => toggleExpand(c.name)}
-                    sx={{ width: 1 }}
-                >
-                    <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls={`${c.name}-content`}
-                        id={`${c.name}-header`}
-                    >
-                        <Stack
-                            direction='row'
-                            justifyContent='space-between'
-                            sx={{ width: 1, mr: 2 }}
-                        >
-                            <Typography fontWeight='bold'>{c.name}</Typography>
-                            {c.name === 'Non-Dojo' ? (
-                                <Typography color='text.secondary'>
-                                    {c.requirements.length} activities
-                                </Typography>
-                            ) : (
-                                <Typography color='text.secondary'>
-                                    {`${c.totalComplete}/${c.requirements.length} steps`}
-                                </Typography>
-                            )}
-                        </Stack>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Divider />
-                        {c.requirements.map((r) => (
-                            <ProgressItem
-                                key={r.id}
-                                requirement={r}
-                                progress={user.progress[r.id]}
-                                cohort={cohort}
-                                isCurrentUser={isCurrentUser}
-                            />
-                        ))}
-                        {c.name === 'Non-Dojo' && isCurrentUser && (
-                            <Button
-                                sx={{ mt: 2 }}
-                                onClick={() => setShowCustomTaskEditor(true)}
-                            >
-                                Add Custom Activity
-                            </Button>
-                        )}
-                    </AccordionDetails>
-                </Accordion>
+                    toggleExpand={toggleExpand}
+                    user={user}
+                    isCurrentUser={isCurrentUser}
+                    cohort={cohort}
+                    setShowCustomTaskEditor={setShowCustomTaskEditor}
+                />
             ))}
 
             <CustomTaskEditor

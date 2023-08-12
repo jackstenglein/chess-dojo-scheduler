@@ -6,10 +6,11 @@ import {
     Container,
     Stack,
     Tab,
+    Tabs,
     Tooltip,
     Typography,
 } from '@mui/material';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { TabContext, TabPanel } from '@mui/lab';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
@@ -25,6 +26,7 @@ import GraduationDialog from './GraduationDialog';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import StatsTab from './stats/StatsTab';
 import { DefaultTimezone } from '../calendar/CalendarFilters';
+import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
 
 const timezoneDisplayLabels: Record<string, string> = {
     'Etc/GMT+12': 'UTC-12',
@@ -175,6 +177,7 @@ const ProfilePage = () => {
                     {currentUserProfile && (
                         <Stack direction='row' spacing={2}>
                             <Button
+                                id='graduate-button'
                                 variant='contained'
                                 color='success'
                                 onClick={() => setShowGraduationDialog(true)}
@@ -182,6 +185,7 @@ const ProfilePage = () => {
                                 Graduate
                             </Button>
                             <Button
+                                id='edit-profile-button'
                                 variant='contained'
                                 onClick={() => navigate('/profile/edit')}
                             >
@@ -200,16 +204,21 @@ const ProfilePage = () => {
                 <Box sx={{ width: '100%', typography: 'body1' }}>
                     <TabContext value={searchParams.get('view') || 'stats'}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                            <TabList
+                            <Tabs
+                                value={searchParams.get('view') || 'stats'}
                                 onChange={(_, t) => setSearchParams({ view: t })}
                                 aria-label='profile tabs'
                                 variant='scrollable'
                             >
-                                <Tab label='Ratings' value='stats' />
-                                <Tab label='Training Plan' value='progress' />
+                                <Tab label='Ratings' value='stats' id='test' />
+                                <Tab
+                                    id='training-plan-tab'
+                                    label='Training Plan'
+                                    value='progress'
+                                />
                                 <Tab label='Activity' value='activity' />
                                 <Tab label='Games' value='games' />
-                            </TabList>
+                            </Tabs>
                         </Box>
                         <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
                             <StatsTab user={user} />
@@ -234,6 +243,8 @@ const ProfilePage = () => {
                     cohort={user.dojoCohort}
                 />
             )}
+
+            <ProfilePageTutorial />
         </Container>
     );
 };
