@@ -1,10 +1,7 @@
 import { ReactNode, createContext, useContext, useState } from 'react';
-import { Step } from 'react-joyride';
 
 export interface TutorialState {
     activeTutorial?: string;
-    activeStep?: Step;
-    nextDisabled?: boolean;
 }
 
 const initialTutorialState: TutorialState = {};

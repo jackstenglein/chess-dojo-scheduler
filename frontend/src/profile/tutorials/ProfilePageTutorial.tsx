@@ -1,13 +1,13 @@
-import ReactJoyride, { CallBackProps } from 'react-joyride';
+import ReactJoyride, { CallBackProps, Step } from 'react-joyride';
 
-import TutorialTooltip, { TutorialStep } from '../../tutorial/TutorialTooltip';
+import TutorialTooltip from '../../tutorial/TutorialTooltip';
 import { useAuth } from '../../auth/Auth';
 import { useTutorial } from '../../tutorial/TutorialContext';
 import { TutorialName } from '../../tutorial/tutorialNames';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useApi } from '../../api/Api';
 
-const steps: TutorialStep[] = [
+const steps: Step[] = [
     {
         target: 'body',
         placement: 'center',
@@ -44,9 +44,7 @@ const steps: TutorialStep[] = [
         target: '#Welcome-to-the-Dojo-header',
         title: 'Task Categories',
         content:
-            'Tasks are divided into 6 categories. Expand each category to view and update its tasks. Click on this category to open it.',
-        spotlightClicks: true,
-        nextDisabled: true,
+            'Tasks are divided into 6 categories. You can click on a category header to expand it and view/update the tasks within that category.',
     },
     {
         target: '#task-details',
@@ -109,14 +107,6 @@ const ProfilePageTutorial = () => {
                         setTutorialState({});
                     })
                     .catch((err) => console.error('completeTutorial: ', err));
-            } else {
-                setTutorialState((tutorialState) => {
-                    return {
-                        ...tutorialState,
-                        activeStep: state.step,
-                        nextDisabled: (state.step as TutorialStep).nextDisabled,
-                    };
-                });
             }
         },
         [setTutorialState, api, user.tutorials]

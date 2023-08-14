@@ -13,6 +13,8 @@ import ProgressItem from './ProgressItem';
 import { CustomTask, Requirement } from '../../database/requirement';
 import { User } from '../../database/user';
 import { useTutorial } from '../../tutorial/TutorialContext';
+import { useMemo } from 'react';
+import { TutorialName } from '../../tutorial/tutorialNames';
 
 export interface Category {
     name: string;
@@ -31,16 +33,15 @@ interface ProgressCategoryProps {
 }
 
 const TutorialProgressCategory: React.FC<ProgressCategoryProps> = (props) => {
-    const { setTutorialState } = useTutorial();
+    const { tutorialState } = useTutorial();
 
-    const handleExpand = () => {
-        props.toggleExpand(props.c.name);
-        setTutorialState((s) => {
-            return { ...s, nextDisabled: false };
-        });
-    };
+    const forceExpand = useMemo(() => {
+        return tutorialState.activeTutorial === TutorialName.ProfilePage;
+    }, [tutorialState.activeTutorial]);
 
-    return <DefaultProgressCategory {...props} toggleExpand={handleExpand} />;
+    return (
+        <DefaultProgressCategory {...props} expanded={forceExpand || props.expanded} />
+    );
 };
 
 const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({

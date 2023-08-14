@@ -7,20 +7,11 @@ import {
     Button,
     Box,
 } from '@mui/material';
-import { Step, TooltipRenderProps } from 'react-joyride';
+import { TooltipRenderProps } from 'react-joyride';
 
 import ScoreboardProgress from '../scoreboard/ScoreboardProgress';
-import { useTutorial } from './TutorialContext';
 
-export interface TutorialStep extends Step {
-    nextDisabled?: boolean;
-}
-
-interface TutorialTooltipProps extends TooltipRenderProps {
-    step: TutorialStep;
-}
-
-const TutorialTooltip: React.FC<TutorialTooltipProps> = ({
+const TutorialTooltip: React.FC<TooltipRenderProps> = ({
     index,
     step,
     tooltipProps,
@@ -29,8 +20,6 @@ const TutorialTooltip: React.FC<TutorialTooltipProps> = ({
     size,
     isLastStep,
 }) => {
-    const { tutorialState } = useTutorial();
-
     return (
         <Card sx={{ maxWidth: 'md' }} {...tooltipProps}>
             <CardHeader title={step.title} />
@@ -43,7 +32,6 @@ const TutorialTooltip: React.FC<TutorialTooltipProps> = ({
                     variant='contained'
                     color='primary'
                     onClick={primaryProps.onClick}
-                    disabled={tutorialState.nextDisabled}
                 >
                     {isLastStep ? 'Close' : 'Next'}
                 </Button>
