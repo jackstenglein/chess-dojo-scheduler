@@ -158,6 +158,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
             {categories.map((c) => (
                 <ProgressCategory
+                    key={c.name}
                     c={c}
                     expanded={expanded[c.name]}
                     toggleExpand={toggleExpand}

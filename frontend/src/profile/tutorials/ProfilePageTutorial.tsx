@@ -5,6 +5,7 @@ import { useAuth } from '../../auth/Auth';
 import { useTutorial } from '../../tutorial/TutorialContext';
 import { TutorialName } from '../../tutorial/tutorialNames';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useApi } from '../../api/Api';
 
 const steps: TutorialStep[] = [
     {
@@ -76,12 +77,13 @@ const steps: TutorialStep[] = [
         placement: 'center',
         title: 'Complete Tutorial',
         content:
-            'Great job completing this tutorial! If you ever need to see it again, use the help menu in the navbar.',
+            'Great job completing this tutorial! If you ever need to go through it again, check the help page in the navbar.',
     },
 ];
 
 const ProfilePageTutorial = () => {
     const user = useAuth().user!;
+    const api = useApi();
     const darkMode = user.enableDarkMode || false;
     const { tutorialState, setTutorialState } = useTutorial();
 
@@ -96,19 +98,31 @@ const ProfilePageTutorial = () => {
 
     const callback = useCallback(
         (state: CallBackProps) => {
-            setTutorialState((tutorialState) => {
-                return {
-                    ...tutorialState,
-                    activeStep: state.step,
-                    nextDisabled: (state.step as TutorialStep).nextDisabled,
-                };
-            });
+            if (state.status === 'finished') {
+                api.updateUser({
+                    tutorials: {
+                        ...user.tutorials,
+                        [TutorialName.ProfilePage]: true,
+                    },
+                })
+                    .then(() => {
+                        setTutorialState({});
+                    })
+                    .catch((err) => console.error('completeTutorial: ', err));
+            } else {
+                setTutorialState((tutorialState) => {
+                    return {
+                        ...tutorialState,
+                        activeStep: state.step,
+                        nextDisabled: (state.step as TutorialStep).nextDisabled,
+                    };
+                });
+            }
         },
-        [setTutorialState]
+        [setTutorialState, api, user.tutorials]
     );
 
     const activeTutorial = tutorialState.activeTutorial;
-
     const Joyride = useMemo(
         () => (
             <ReactJoyride

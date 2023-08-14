@@ -1,8 +1,19 @@
-import { Container, Divider, Stack, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Button, Container, Divider, Stack, Typography } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+
 import HelpItem from './HelpItem';
+import { useTutorial } from '../tutorial/TutorialContext';
+import { TutorialName } from '../tutorial/tutorialNames';
 
 const HelpPage = () => {
+    const navigate = useNavigate();
+    const { setTutorialState } = useTutorial();
+
+    const onProfilePageTutorial = () => {
+        navigate('/profile');
+        setTutorialState({ activeTutorial: TutorialName.ProfilePage });
+    };
+
     return (
         <Container sx={{ py: 4 }}>
             <Stack spacing={5}>
@@ -14,13 +25,28 @@ const HelpPage = () => {
                         before asking for help. If your issue is not listed here or is not
                         solved by the advice here, then send a Discord message in the{' '}
                         <a
-                            href='https://discord.com/channels/951958534113886238/1037811610586193950'
+                            href='https://discord.com/channels/951958534113886238/1095403018607923281'
                             target='_blank'
                             rel='noreferrer'
                         >
-                            ChessDojo Scheduler Discord Channel.
+                            Dojo Scoreboard Feedback Discord Channel.
                         </a>
                     </Typography>
+                </Stack>
+
+                <Stack>
+                    <Typography variant='h5'>Tutorials</Typography>
+                    <Divider />
+                    <ul>
+                        <li>
+                            <Button
+                                onClick={onProfilePageTutorial}
+                                sx={{ textTransform: 'none' }}
+                            >
+                                Launch Profile Page Tutorial
+                            </Button>
+                        </li>
+                    </ul>
                 </Stack>
 
                 <Stack>

@@ -280,6 +280,9 @@ type User struct {
 
 	// A map from an opening module id to the user's progress on that opening module
 	OpeningProgress map[string]*UserOpeningModule `dynamodbav:"openingProgress" json:"openingProgress"`
+
+	// A map from a tutorial name to a boolean indicating whether the user has completed that tutorial
+	Tutorials map[string]bool `dynamodbav:"tutorials" json:"tutorials"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
@@ -506,6 +509,9 @@ type UserUpdate struct {
 
 	// A map from an opening id to the user's progress on that opening
 	OpeningProgress *map[string]*UserOpeningModule `dynamodbav:"openingProgress,omitempty" json:"openingProgress,omitempty"`
+
+	// A map from a tutorial name to a boolean indicating whether the user has completed that tutorial
+	Tutorials *map[string]bool `dynamodbav:"tutorials,omitempty" json:"tutorials,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
