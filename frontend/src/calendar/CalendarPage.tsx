@@ -14,6 +14,7 @@ import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
 import { User } from '../database/user';
 import { Event, EventType, AvailabilityStatus } from '../database/event';
+import CalendarTutorial from './CalendarTutorial';
 
 function processAvailability(
     user: User,
@@ -355,6 +356,8 @@ export default function CalendarPage() {
                     />
                 </Grid>
             </Grid>
+
+            <CalendarTutorial />
 
             <Outlet />
         </Container>

@@ -9,14 +9,9 @@ const HelpPage = () => {
     const navigate = useNavigate();
     const { setTutorialState } = useTutorial();
 
-    const onProfilePageTutorial = () => {
-        navigate('/profile');
-        setTutorialState({ activeTutorial: TutorialName.ProfilePage });
-    };
-
-    const onScoreboardTutorial = () => {
-        navigate('/scoreboard');
-        setTutorialState({ activeTutorial: TutorialName.ScoreboardPage });
+    const onTutorial = (path: string, tutorialName: TutorialName) => {
+        navigate(path);
+        setTutorialState({ activeTutorial: tutorialName });
     };
 
     return (
@@ -45,7 +40,9 @@ const HelpPage = () => {
                     <ul>
                         <li>
                             <Button
-                                onClick={onProfilePageTutorial}
+                                onClick={() =>
+                                    onTutorial('/profile', TutorialName.ProfilePage)
+                                }
                                 sx={{ textTransform: 'none' }}
                             >
                                 Launch Profile Page Tutorial
@@ -53,10 +50,22 @@ const HelpPage = () => {
                         </li>
                         <li>
                             <Button
-                                onClick={onScoreboardTutorial}
+                                onClick={() =>
+                                    onTutorial('/scoreboard', TutorialName.ScoreboardPage)
+                                }
                                 sx={{ textTransform: 'none' }}
                             >
                                 Launch Scoreboard Page Tutorial
+                            </Button>
+                        </li>
+                        <li>
+                            <Button
+                                onClick={() =>
+                                    onTutorial('/calendar', TutorialName.CalendarPage)
+                                }
+                                sx={{ textTransform: 'none' }}
+                            >
+                                Launch Calendar Page Tutorial
                             </Button>
                         </li>
                     </ul>

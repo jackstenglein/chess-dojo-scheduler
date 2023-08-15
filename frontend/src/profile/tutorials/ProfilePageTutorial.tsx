@@ -69,7 +69,7 @@ const steps: Step[] = [
     {
         target: 'body',
         placement: 'center',
-        title: 'Complete Tutorial',
+        title: 'Tutorial Complete',
         content:
             'Great job completing this tutorial! If you ever need to go through it again, check the help page in the navbar.',
     },

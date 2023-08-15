@@ -217,7 +217,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
 
     return (
         <Stack sx={{ pt: 0.5, pb: 2 }} spacing={{ xs: 3, sm: 4 }}>
-            <Stack>
+            <Stack id='current-timezone'>
                 <Typography variant='h6' color='text.secondary' ml={1}>
                     Current Timezone
                 </Typography>
@@ -236,6 +236,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
             <Accordion
                 expanded={forceExpansion || expanded === 'myCalendar'}
                 onChange={handleChange('myCalendar')}
+                id='my-calendar-filters'
             >
                 <AccordionSummary
                     aria-controls='mycalendar-content'
@@ -279,8 +280,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                 onChange={handleChange('dojoCalendar')}
             >
                 <AccordionSummary
+                    id='dojo-calendar-filters'
                     aria-controls='dojocalendar-content'
-                    id='dojocalendar-header'
                     forceExpansion={forceExpansion}
                 >
                     <Typography variant='h6' color='text.secondary'>

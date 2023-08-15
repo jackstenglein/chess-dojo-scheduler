@@ -244,7 +244,7 @@ const ProfilePage = () => {
                 />
             )}
 
-            <ProfilePageTutorial />
+            {currentUserProfile && <ProfilePageTutorial />}
         </Container>
     );
 };

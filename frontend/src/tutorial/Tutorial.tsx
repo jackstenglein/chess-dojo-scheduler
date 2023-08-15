@@ -10,9 +10,10 @@ import TutorialTooltip from './TutorialTooltip';
 interface TutorialProps {
     name: TutorialName;
     steps: Step[];
+    zIndex?: number;
 }
 
-const Tutorial: React.FC<TutorialProps> = ({ name, steps }) => {
+const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
     const user = useAuth().user!;
     const api = useApi();
     const darkMode = user.enableDarkMode || false;
@@ -58,6 +59,7 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps }) => {
                 styles={{
                     options: {
                         arrowColor: darkMode ? '#1e1e1e' : 'white',
+                        zIndex: zIndex || 100,
                     },
                 }}
                 disableCloseOnEsc
@@ -66,7 +68,7 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps }) => {
                 callback={callback}
             />
         ),
-        [activeTutorial, callback, darkMode, steps, name]
+        [activeTutorial, callback, darkMode, steps, name, zIndex]
     );
 
     return <>{Joyride}</>;
