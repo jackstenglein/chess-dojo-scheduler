@@ -18,6 +18,7 @@ import {
     formatRatingSystem,
     getCurrentRating as getUserCurrentRating,
     getStartRating as getUserStartRating,
+    normalizeToFide,
     User,
 } from '../database/user';
 import { Graduation, isGraduation } from '../database/graduation';
@@ -209,4 +210,10 @@ export function getRatingChange(params: GridValueGetterParams<ScoreboardRow>) {
     const startRating = getStartRating(params);
     const currentRating = getCurrentRating(params);
     return currentRating - startRating;
+}
+
+export function getNormalizedRating(
+    params: GridValueGetterParams<ScoreboardRow>
+): number {
+    return normalizeToFide(getCurrentRating(params), params.row.ratingSystem);
 }

@@ -25,6 +25,7 @@ import {
     getStartRating,
     getTimeSpent,
     ScoreboardRow,
+    getNormalizedRating,
 } from './scoreboardData';
 import { dojoCohorts, User } from '../database/user';
 import { Graduation } from '../database/graduation';
@@ -57,6 +58,7 @@ const defaultColumnGroups: ColumnGroup[] = [
             { field: 'startRating' },
             { field: 'currentRating' },
             { field: 'ratingChange' },
+            { field: 'normalizedRating' },
         ],
     },
     {
@@ -132,6 +134,13 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
         headerName: 'Rating Change',
         minWidth: 150,
         valueGetter: getRatingChange,
+        align: 'center',
+    },
+    {
+        field: 'normalizedRating',
+        headerName: 'Normalized FIDE Rating',
+        minWidth: 200,
+        valueGetter: getNormalizedRating,
         align: 'center',
     },
 ];
