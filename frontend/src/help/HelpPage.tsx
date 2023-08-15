@@ -68,6 +68,16 @@ const HelpPage = () => {
                                 Launch Calendar Page Tutorial
                             </Button>
                         </li>
+                        <li>
+                            <Button
+                                onClick={() =>
+                                    onTutorial('/games', TutorialName.ListGamesPage)
+                                }
+                                sx={{ textTransform: 'none' }}
+                            >
+                                Launch Games Page Tutorial
+                            </Button>
+                        </li>
                     </ul>
                 </Stack>
 

@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import SearchFilters from './SearchFilters';
 
 import { usePagination } from './pagination';
+import ListGamesTutorial from './ListGamesTutorial';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
@@ -105,7 +106,11 @@ const ListGamesPage = () => {
 
                 <Grid item xs={12} md={3} lg={4} pr={2}>
                     <Stack spacing={4}>
-                        <Button variant='contained' onClick={() => navigate('submit')}>
+                        <Button
+                            id='submit-game-button'
+                            variant='contained'
+                            onClick={() => navigate('submit')}
+                        >
                             Submit a Game
                         </Button>
 
@@ -116,7 +121,11 @@ const ListGamesPage = () => {
                             onSearch={onSearch}
                         />
 
-                        <Typography variant='caption' alignSelf='end'>
+                        <Typography
+                            id='download-full-database'
+                            variant='caption'
+                            alignSelf='end'
+                        >
                             <a
                                 href='https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip'
                                 target='__blank'
@@ -128,6 +137,8 @@ const ListGamesPage = () => {
                     </Stack>
                 </Grid>
             </Grid>
+
+            <ListGamesTutorial />
         </Container>
     );
 };

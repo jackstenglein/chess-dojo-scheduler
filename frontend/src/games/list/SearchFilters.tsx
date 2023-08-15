@@ -426,6 +426,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     return (
         <Stack spacing={0}>
             <Accordion
+                id='search-by-cohort'
                 expanded={expanded === SearchType.Cohort}
                 onChange={onChangePanel(SearchType.Cohort)}
             >
@@ -446,6 +447,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 </AccordionDetails>
             </Accordion>
             <Accordion
+                id='search-by-player'
                 expanded={expanded === SearchType.Player}
                 onChange={onChangePanel(SearchType.Player)}
             >
