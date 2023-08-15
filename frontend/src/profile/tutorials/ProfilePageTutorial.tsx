@@ -1,11 +1,7 @@
-import ReactJoyride, { CallBackProps, Step } from 'react-joyride';
+import { Step } from 'react-joyride';
 
-import TutorialTooltip from '../../tutorial/TutorialTooltip';
-import { useAuth } from '../../auth/Auth';
-import { useTutorial } from '../../tutorial/TutorialContext';
 import { TutorialName } from '../../tutorial/tutorialNames';
-import { useCallback, useEffect, useMemo } from 'react';
-import { useApi } from '../../api/Api';
+import Tutorial from '../../tutorial/Tutorial';
 
 const steps: Step[] = [
     {
@@ -80,62 +76,7 @@ const steps: Step[] = [
 ];
 
 const ProfilePageTutorial = () => {
-    const user = useAuth().user!;
-    const api = useApi();
-    const darkMode = user.enableDarkMode || false;
-    const { tutorialState, setTutorialState } = useTutorial();
-
-    useEffect(() => {
-        if (
-            !user.tutorials?.ProfilePage &&
-            tutorialState.activeTutorial !== TutorialName.ProfilePage
-        ) {
-            setTutorialState({ activeTutorial: TutorialName.ProfilePage });
-        }
-    }, [user, tutorialState, setTutorialState]);
-
-    const callback = useCallback(
-        (state: CallBackProps) => {
-            if (state.status === 'finished') {
-                api.updateUser({
-                    tutorials: {
-                        ...user.tutorials,
-                        [TutorialName.ProfilePage]: true,
-                    },
-                })
-                    .then(() => {
-                        setTutorialState({});
-                    })
-                    .catch((err) => console.error('completeTutorial: ', err));
-            }
-        },
-        [setTutorialState, api, user.tutorials]
-    );
-
-    const activeTutorial = tutorialState.activeTutorial;
-    const Joyride = useMemo(
-        () => (
-            <ReactJoyride
-                run={activeTutorial === TutorialName.ProfilePage}
-                continuous
-                hideCloseButton
-                steps={steps}
-                tooltipComponent={TutorialTooltip}
-                styles={{
-                    options: {
-                        arrowColor: darkMode ? '#1e1e1e' : 'white',
-                    },
-                }}
-                disableCloseOnEsc
-                disableOverlayClose
-                scrollOffset={100}
-                callback={callback}
-            />
-        ),
-        [activeTutorial, callback, darkMode]
-    );
-
-    return <>{Joyride}</>;
+    return <Tutorial name={TutorialName.ProfilePage} steps={steps} />;
 };
 
 export default ProfilePageTutorial;

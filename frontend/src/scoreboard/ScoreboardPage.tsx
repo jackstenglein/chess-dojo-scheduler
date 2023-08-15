@@ -34,6 +34,7 @@ import { useRequirements } from '../api/cache/requirements';
 import ScoreboardProgress from './ScoreboardProgress';
 import GraduationChips from './GraduationChips';
 import { formatTime } from '../database/requirement';
+import ScoreboardTutorial from './ScoreboardTutorial';
 
 interface ColumnGroupChild {
     field: string;
@@ -272,6 +273,7 @@ const ScoreboardPage = () => {
             <RequestSnackbar request={requirementRequest} />
             <RequestSnackbar request={usersRequest} />
             <TextField
+                id='scoreboard-cohort-select'
                 select
                 label='Cohort'
                 value={cohort}
@@ -306,20 +308,27 @@ const ScoreboardPage = () => {
             />
 
             <Typography variant='h6'>Graduations</Typography>
-            <DataGrid
-                sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
-                experimentalFeatures={{ columnGrouping: true }}
-                columns={userInfoColumns.concat(cohortScoreColumns, requirementColumns)}
-                columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
-                rows={graduationsRequest.data ?? []}
-                loading={graduationsRequest.isLoading()}
-                getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
-                initialState={{
-                    sorting: {
-                        sortModel: [{ field: 'cohortScore', sort: 'desc' }],
-                    },
-                }}
-            />
+            <div id='graduation-scoreboard'>
+                <DataGrid
+                    sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
+                    experimentalFeatures={{ columnGrouping: true }}
+                    columns={userInfoColumns.concat(
+                        cohortScoreColumns,
+                        requirementColumns
+                    )}
+                    columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
+                    rows={graduationsRequest.data ?? []}
+                    loading={graduationsRequest.isLoading()}
+                    getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
+                    initialState={{
+                        sorting: {
+                            sortModel: [{ field: 'cohortScore', sort: 'desc' }],
+                        },
+                    }}
+                />
+            </div>
+
+            <ScoreboardTutorial />
         </Container>
     );
 };

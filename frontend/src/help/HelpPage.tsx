@@ -14,6 +14,11 @@ const HelpPage = () => {
         setTutorialState({ activeTutorial: TutorialName.ProfilePage });
     };
 
+    const onScoreboardTutorial = () => {
+        navigate('/scoreboard');
+        setTutorialState({ activeTutorial: TutorialName.ScoreboardPage });
+    };
+
     return (
         <Container sx={{ py: 4 }}>
             <Stack spacing={5}>
@@ -44,6 +49,14 @@ const HelpPage = () => {
                                 sx={{ textTransform: 'none' }}
                             >
                                 Launch Profile Page Tutorial
+                            </Button>
+                        </li>
+                        <li>
+                            <Button
+                                onClick={onScoreboardTutorial}
+                                sx={{ textTransform: 'none' }}
+                            >
+                                Launch Scoreboard Page Tutorial
                             </Button>
                         </li>
                     </ul>
