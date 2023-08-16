@@ -185,6 +185,9 @@ export function getStandardNag(nag: string): Nag {
     }
 }
 
+export const badMoveNags: Nag[] = ['$6', '$2', '$4'];
+export const goodMoveNags: Nag[] = ['$3', '$1', '$5'];
+
 export const moveNags: Nag[] = ['$3', '$1', '$5', '$6', '$2', '$4', '$7', '$22'];
 export const evalNags: Nag[] = ['$13', '$18', '$16', '$14', '$10', '$15', '$17', '$19'];
 export const positionalNags: Nag[] = [

@@ -174,6 +174,7 @@ const GamePage = () => {
                             startOrientation={request.data.orientation}
                             showTags
                             showEditor
+                            showAnnotationWarnings={request.data.owner === user.username}
                         />
                     </PgnErrorBoundary>
                 )}

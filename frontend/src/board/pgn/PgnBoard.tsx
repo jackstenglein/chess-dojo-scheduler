@@ -19,6 +19,7 @@ import { useAuth } from '../../auth/Auth';
 import { ClockTextFieldId, CommentTextFieldId } from './Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { TagTextFieldId } from './Tags';
+import AnnotationWarnings from './annotations/AnnotationWarnings';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -41,6 +42,7 @@ interface PgnBoardProps {
     showPlayerHeaders?: boolean;
     showTags?: boolean;
     showEditor?: boolean;
+    showAnnotationWarnings?: boolean;
     game?: Game;
     startOrientation?: Color;
     sx?: SxProps<Theme>;
@@ -50,6 +52,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     pgn,
     showTags,
     showEditor,
+    showAnnotationWarnings,
     game,
     showPlayerHeaders = true,
     startOrientation = 'white',
@@ -162,9 +165,15 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     display: 'grid',
                     width: 1,
                     gridTemplateRows: {
-                        xs: `auto auto auto auto auto minmax(auto, 400px)`,
-                        md: 'var(--player-header-height) var(--board-size) var(--player-header-height) auto auto',
-                        xl: 'var(--player-header-height) var(--board-size) var(--player-header-height) auto',
+                        xs: `${
+                            showAnnotationWarnings ? 'auto' : ''
+                        } auto auto auto auto auto minmax(auto, 400px)`,
+                        md: `${
+                            showAnnotationWarnings ? 'auto' : ''
+                        } var(--player-header-height) var(--board-size) var(--player-header-height) auto auto`,
+                        xl: `${
+                            showAnnotationWarnings ? 'auto' : ''
+                        } var(--player-header-height) var(--board-size) var(--player-header-height) auto`,
                     },
                     gridTemplateColumns: {
                         xs: '1fr',
@@ -174,20 +183,23 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         }  var(--board-size) var(--gap) var(--coach-width) auto`,
                     },
                     gridTemplateAreas: {
-                        xs: `"playerheader"
+                        xs: `${showAnnotationWarnings ? '"warnings"' : ''} "playerheader"
                              "board"
                              "playerfooter"
                              "boardButtons"
                              "underboard" 
                              "coach"`,
 
-                        md: `". playerheader . coach ." 
+                        md: `${
+                            showAnnotationWarnings ? '". warnings . . ."' : ''
+                        } ". playerheader . coach ." 
                              ". board . coach ." 
                              ". playerfooter . coach ."
                              ". boardButtons . . ." 
                              ". underboard . . ."`,
 
-                        xl: `". ${
+                        xl: `${showAnnotationWarnings ? '". . . warnings . . ."' : ''} 
+                        ". ${
                             showUnderboard ? 'underboard .' : ''
                         } playerheader . coach ." 
                              ". ${showUnderboard ? 'underboard .' : ''} board . coach ." 
@@ -216,6 +228,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         onMove={onMove}
                     />
                 </Box>
+
+                {showAnnotationWarnings && <AnnotationWarnings />}
 
                 {board && chess && (
                     <BoardTools

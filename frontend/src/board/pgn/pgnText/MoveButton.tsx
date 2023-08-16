@@ -198,10 +198,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     }, [chess, move, firstMove, handleScroll, setIsCurrentMove, setForceRender]);
 
     useEffect(() => {
-        setIsCurrentMove(
-            chess?.currentMove() === move ||
-                (!!firstMove && chess?.currentMove() === null)
-        );
+        setIsCurrentMove(chess?.currentMove() === move);
         if (
             chess?.currentMove() === move ||
             (firstMove && chess?.currentMove() === null)
