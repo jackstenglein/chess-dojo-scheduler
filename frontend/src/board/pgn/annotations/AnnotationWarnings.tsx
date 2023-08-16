@@ -100,7 +100,7 @@ const AnnotationWarnings = () => {
             </Alert>
 
             <Dialog open={showDetails} onClose={() => setShowDetails(false)}>
-                <DialogTitle>
+                <DialogTitle component='div'>
                     <Typography variant='h5'>Annotation Warnings</Typography>
                 </DialogTitle>
                 <DialogContent>

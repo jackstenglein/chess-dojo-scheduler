@@ -13,6 +13,13 @@ export interface Warning {
     moves: Array<Move | null>;
 }
 
+const ChesscomCommentAfterRegex =
+    /(BLUNDER|INACCURACY|MISSED MATE) \((((\+|-)\d+\.?\d*)|(♔ Mate in \d))\)/;
+const ChesscomCommentMoveRegex =
+    /(\((\+|-)\d+\.?\d*\) The best move was)|(\(♔ Mate in \d\) Checkmate after)/;
+
+const LichessCommentAfterRegex = /(Mistake|Inaccuracy|Blunder)\. .* was best\./;
+
 const rules: WarningRule[] = [
     {
         displayName: 'Missing Game Comment',
@@ -51,6 +58,26 @@ const rules: WarningRule[] = [
                 !move.commentAfter &&
                 move.variations.length === 0
             );
+        },
+    },
+    {
+        displayName: 'Chess.com Computer Analysis',
+        description:
+            "Your PGN appears to contain automated Chess.com computer analysis. Avoid using the computer until after you've completed your own analysis, or don't use it at all.",
+        predicate: (_, move) => {
+            return (
+                !!move &&
+                (ChesscomCommentAfterRegex.test(move.commentAfter || '') ||
+                    ChesscomCommentMoveRegex.test(move.commentMove || ''))
+            );
+        },
+    },
+    {
+        displayName: 'Lichess Computer Analysis',
+        description:
+            "Your PGN appears to contain automated Lichess computer analysis. Avoid using the computer until after you've completed your own analysis, or don't use it at all.",
+        predicate: (_, move) => {
+            return !!move && LichessCommentAfterRegex.test(move.commentAfter || '');
         },
     },
 ];
