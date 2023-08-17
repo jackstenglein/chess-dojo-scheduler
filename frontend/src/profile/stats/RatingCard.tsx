@@ -4,7 +4,12 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import HelpIcon from '@mui/icons-material/Help';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
-import { RatingSystem, formatRatingSystem, getRatingBoundary } from '../../database/user';
+import {
+    RatingSystem,
+    formatRatingSystem,
+    getRatingBoundary,
+    normalizeToFide,
+} from '../../database/user';
 
 function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     switch (ratingSystem) {
@@ -85,7 +90,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                 </Stack>
 
                 <Grid container justifyContent='space-around' rowGap={2}>
-                    <Grid item xs={6} sm={3} display='flex' justifyContent='center'>
+                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
                         <Stack direction='row' alignItems='end' width='82px'>
                             <Stack alignItems='end'>
                                 <Typography variant='subtitle2' color='text.secondary'>
@@ -110,7 +115,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         </Stack>
                     </Grid>
 
-                    <Grid item xs={6} sm={3} display='flex' justifyContent='center'>
+                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
                         <Stack alignItems='end' width='82px'>
                             <Typography variant='subtitle2' color='text.secondary'>
                                 Start
@@ -128,7 +133,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         </Stack>
                     </Grid>
 
-                    <Grid item xs={6} sm={3} display='flex' justifyContent='center'>
+                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
                         <Stack alignItems='end' width='82px'>
                             <Typography variant='subtitle2' color='text.secondary'>
                                 Change
@@ -171,7 +176,48 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         </Stack>
                     </Grid>
 
-                    <Grid item xs={6} sm={3} display='flex' justifyContent='center'>
+                    {system !== RatingSystem.Custom && (
+                        <Grid
+                            item
+                            xs={6}
+                            sm={3}
+                            md
+                            display='flex'
+                            justifyContent='center'
+                        >
+                            <Stack direction='row' alignItems='end' width='82px'>
+                                <Stack alignItems='end'>
+                                    <Typography
+                                        variant='subtitle2'
+                                        color='text.secondary'
+                                    >
+                                        Normalized
+                                    </Typography>
+
+                                    <Typography
+                                        sx={{
+                                            fontSize: '2.25rem',
+                                            lineHeight: 1,
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {normalizeToFide(currentRating, system)}
+                                    </Typography>
+                                </Stack>
+                                <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
+                                    <HelpIcon
+                                        sx={{
+                                            mb: '5px',
+                                            ml: '3px',
+                                            color: 'text.secondary',
+                                        }}
+                                    />
+                                </Tooltip>
+                            </Stack>
+                        </Grid>
+                    )}
+
+                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
                         <Stack alignItems='end' width='82px'>
                             <Typography
                                 variant='subtitle2'
