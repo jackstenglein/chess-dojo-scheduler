@@ -135,7 +135,14 @@ export interface User {
     };
 
     tutorials?: Record<string, boolean>;
+    minutesSpent?: Record<MinutesSpentKey, number>;
 }
+
+export type MinutesSpentKey =
+    | 'LAST_7_DAYS'
+    | 'LAST_30_DAYS'
+    | 'LAST_90_DAYS'
+    | 'LAST_365_DAYS';
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser): User {
     return {

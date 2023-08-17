@@ -400,6 +400,33 @@ functions:
           - dynamodb:Scan
         Resource: !GetAtt GraduationsTable.Arn
 
+  updateTimeSpent:
+    handler: bin/user/timeline/statistics
+    package:
+      patterns:
+        - ./bin/user/timeline/statistics
+    events:
+      - schedule:
+          rate: cron(30 0 * * ? *)
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt UsersTable.Arn
+                - '/index/CohortIdx'
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt TimelineTable.Arn
+
   graduate:
     handler: bin/user/graduate
     package:

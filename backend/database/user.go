@@ -283,6 +283,10 @@ type User struct {
 
 	// A map from a tutorial name to a boolean indicating whether the user has completed that tutorial
 	Tutorials map[string]bool `dynamodbav:"tutorials" json:"tutorials"`
+
+	// A map from a time period to the number of minutes the user has spent on tasks in that time period.
+	// Non-Dojo tasks are not included.
+	MinutesSpent map[string]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
@@ -512,6 +516,10 @@ type UserUpdate struct {
 
 	// A map from a tutorial name to a boolean indicating whether the user has completed that tutorial
 	Tutorials *map[string]bool `dynamodbav:"tutorials,omitempty" json:"tutorials,omitempty"`
+
+	// A map from a time period to the number of minutes the user has spent on tasks in that time period.
+	// Non-Dojo tasks are not included.
+	MinutesSpent *map[string]int `dynamodbav:"minutesSpent,omitempty" json:"minutesSpent,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
@@ -880,6 +888,41 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		if user.StartDwzRating == 0 {
 			sb.WriteString(fmt.Sprintf(" SET startDwzRating=%d", user.CurrentDwzRating))
 		}
+		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
+
+		statement := &dynamodb.BatchStatementRequest{
+			Statement: aws.String(sb.String()),
+		}
+		statements = append(statements, statement)
+
+		sb.Reset()
+	}
+
+	input := &dynamodb.BatchExecuteStatementInput{
+		Statements: statements,
+	}
+	log.Debugf("Batch execute statement input: %v", input)
+	output, err := repo.svc.BatchExecuteStatement(input)
+	log.Debugf("Batch execute statement output: %v", output)
+
+	return errors.Wrap(500, "Temporary server error", "Failed BatchExecuteStatement", err)
+}
+
+func (repo *dynamoRepository) UpdateUserTimes(users []*User) error {
+	if len(users) > 25 {
+		return errors.New(500, "Temporary server error", "UpdateUserTimes has max limit of 25 users")
+	}
+
+	var sb strings.Builder
+	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
+	for _, user := range users {
+		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
+		sb.WriteString(fmt.Sprintf(" SET minutesSpent={'7_DAYS_AGO': %d, '30_DAYS_AGO': %d, '90_DAYS_AGO': %d, '365_DAYS_AGO': %d}",
+			user.MinutesSpent["7_DAYS_AGO"],
+			user.MinutesSpent["30_DAYS_AGO"],
+			user.MinutesSpent["90_DAYS_AGO"],
+			user.MinutesSpent["365_DAYS_AGO"],
+		))
 		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 
 		statement := &dynamodb.BatchStatementRequest{

@@ -13,8 +13,6 @@ import (
 
 type Event events.CloudWatchEvent
 
-const funcName = "user-statistics-update-handler"
-
 var repository = database.DynamoDB
 var monthAgo = time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
 
@@ -63,7 +61,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 
 		log.Infof("Processing %d graduations", len(graduations))
 		for _, g := range graduations {
-			updateGradStats(stats, g)
+			updateGradStats(stats, g, requirements)
 		}
 	}
 
@@ -102,10 +100,17 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 	ratingChange := user.GetRatingChange()
 	score := user.CalculateScore(requirements)
 
+	requirementsMap := make(map[string]bool, len(requirements))
+	for _, r := range requirements {
+		requirementsMap[r.Id] = true
+	}
+
 	var minutes int
 	for _, progress := range user.Progress {
-		m, _ := progress.MinutesSpent[user.DojoCohort]
-		minutes += m
+		if isRequirement, _ := requirementsMap[progress.RequirementId]; isRequirement {
+			m, _ := progress.MinutesSpent[user.DojoCohort]
+			minutes += m
+		}
 	}
 
 	cohortStats := stats.Cohorts[user.DojoCohort]
@@ -130,15 +135,22 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 	}
 }
 
-func updateGradStats(stats *database.UserStatistics, graduation *database.Graduation) {
+func updateGradStats(stats *database.UserStatistics, graduation *database.Graduation, requirements []*database.Requirement) {
 	if !graduation.PreviousCohort.IsValid() || graduation.Progress == nil {
 		return
 	}
 
+	requirementsMap := make(map[string]bool, len(requirements))
+	for _, r := range requirements {
+		requirementsMap[r.Id] = true
+	}
+
 	var minutes int
 	for _, progress := range graduation.Progress {
-		m, _ := progress.MinutesSpent[graduation.PreviousCohort]
-		minutes += m
+		if isRequirement, _ := requirementsMap[progress.RequirementId]; isRequirement {
+			m, _ := progress.MinutesSpent[graduation.PreviousCohort]
+			minutes += m
+		}
 	}
 	if minutes == 0 {
 		return

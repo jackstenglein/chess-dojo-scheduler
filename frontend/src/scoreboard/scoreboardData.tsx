@@ -18,6 +18,7 @@ import {
     formatRatingSystem,
     getCurrentRating as getUserCurrentRating,
     getStartRating as getUserStartRating,
+    MinutesSpentKey,
     normalizeToFide,
     User,
 } from '../database/user';
@@ -131,17 +132,29 @@ export function getCohortScore(
     return Math.round(score * 100) / 100;
 }
 
-export function getTimeSpent(
+export function getTotalTime(
     params: GridValueGetterParams<ScoreboardRow>,
-    cohort: string | undefined
+    cohort: string | undefined,
+    nonDojoOnly: boolean,
+    requirements: Requirement[]
 ): number {
     if (!cohort) {
         return 0;
     }
 
+    const requirementIds = new Set(
+        requirements
+            .filter((r) => (r.category === 'Non-Dojo') === nonDojoOnly)
+            .map((r) => r.id)
+    );
+
     let result = 0;
     for (const progress of Object.values(params.row.progress)) {
-        if (progress.minutesSpent && progress.minutesSpent[cohort]) {
+        if (
+            progress.minutesSpent &&
+            progress.minutesSpent[cohort] &&
+            requirementIds.has(progress.requirementId)
+        ) {
             result += progress.minutesSpent[cohort];
         }
     }
@@ -216,4 +229,14 @@ export function getNormalizedRating(
     params: GridValueGetterParams<ScoreboardRow>
 ): number {
     return normalizeToFide(getCurrentRating(params), params.row.ratingSystem);
+}
+
+export function getMinutesSpent(
+    params: GridValueGetterParams<ScoreboardRow>,
+    key: MinutesSpentKey
+): number {
+    if (isGraduation(params.row)) {
+        return 0;
+    }
+    return params.row.minutesSpent ? params.row.minutesSpent[key] || 0 : 0;
 }

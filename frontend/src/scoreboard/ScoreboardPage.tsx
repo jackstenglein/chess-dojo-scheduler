@@ -1,5 +1,12 @@
 import { useEffect, useMemo } from 'react';
-import { Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+    Container,
+    MenuItem,
+    Stack,
+    TextField,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import {
     DataGrid,
@@ -8,7 +15,9 @@ import {
     GridRowModel,
     GridValueFormatterParams,
     GridValueGetterParams,
+    GridColumnGroupingModel,
 } from '@mui/x-data-grid';
+import HelpIcon from '@mui/icons-material/Help';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -23,9 +32,10 @@ import {
     getPercentComplete,
     getRatingChange,
     getStartRating,
-    getTimeSpent,
+    getTotalTime,
     ScoreboardRow,
     getNormalizedRating,
+    getMinutesSpent,
 } from './scoreboardData';
 import { dojoCohorts, User } from '../database/user';
 import { Graduation } from '../database/graduation';
@@ -49,7 +59,7 @@ type ScoreboardPageParams = {
     cohort: string;
 };
 
-const defaultColumnGroups: ColumnGroup[] = [
+const defaultColumnGroups: GridColumnGroupingModel = [
     {
         groupId: 'User Info',
         children: [
@@ -69,6 +79,27 @@ const defaultColumnGroups: ColumnGroup[] = [
             { field: 'cohortTime' },
             { field: 'percentComplete' },
         ],
+    },
+    {
+        groupId: 'Time Spent',
+        children: [
+            { field: 'cohortTime2' },
+            { field: 'last7DaysTime' },
+            { field: 'last30DaysTime' },
+            { field: 'last90DaysTime' },
+            { field: 'last365DaysTime' },
+            { field: 'nonDojoTime' },
+        ],
+        renderHeaderGroup: (params) => {
+            return (
+                <Stack direction='row' alignItems='center'>
+                    {params.groupId}
+                    <Tooltip title='Data for time spent in last X days is updated every 24 hours and does not include non-dojo activities'>
+                        <HelpIcon sx={{ ml: 1, color: 'text.secondary' }} />
+                    </Tooltip>
+                </Stack>
+            );
+        },
     },
 ];
 
@@ -155,7 +186,7 @@ const ScoreboardPage = () => {
     const navigate = useNavigate();
     const { requirements, request: requirementRequest } = useRequirements(
         cohort || '',
-        true
+        false
     );
 
     useEffect(() => {
@@ -194,16 +225,6 @@ const ScoreboardPage = () => {
                 align: 'center',
             },
             {
-                field: 'cohortTime',
-                headerName: 'Time Spent',
-                minWidth: 125,
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getTimeSpent(params, cohort),
-                valueFormatter: (params: GridValueFormatterParams<number>) =>
-                    formatTime(params.value),
-                align: 'center',
-            },
-            {
                 field: 'percentComplete',
                 headerName: 'Percent Complete',
                 minWidth: 175,
@@ -223,8 +244,84 @@ const ScoreboardPage = () => {
         [requirements, cohort]
     );
 
+    const timeColumns: GridColDef<ScoreboardRow>[] = useMemo(
+        () => [
+            {
+                field: 'cohortTime2',
+                headerName: 'Cohort Tasks',
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+                    getTotalTime(params, cohort, false, requirements),
+                valueFormatter: (params: GridValueFormatterParams<number>) =>
+                    formatTime(params.value),
+                align: 'center',
+                minWidth: 125,
+                headerAlign: 'center',
+            },
+            {
+                field: 'last7DaysTime',
+                headerName: 'Last 7 Days',
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+                    getMinutesSpent(params, 'LAST_7_DAYS'),
+                valueFormatter: (params: GridValueFormatterParams<number>) =>
+                    formatTime(params.value),
+                align: 'center',
+                minWidth: 125,
+                headerAlign: 'center',
+            },
+            {
+                field: 'last30DaysTime',
+                headerName: 'Last 30 Days',
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+                    getMinutesSpent(params, 'LAST_30_DAYS'),
+                valueFormatter: (params: GridValueFormatterParams<number>) =>
+                    formatTime(params.value),
+                align: 'center',
+                minWidth: 125,
+                headerAlign: 'center',
+            },
+            {
+                field: 'last90DaysTime',
+                headerName: 'Last 90 Days',
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+                    getMinutesSpent(params, 'LAST_90_DAYS'),
+                valueFormatter: (params: GridValueFormatterParams<number>) =>
+                    formatTime(params.value),
+                align: 'center',
+                minWidth: 125,
+                headerAlign: 'center',
+            },
+            {
+                field: 'last365DaysTime',
+                headerName: 'Last 365 Days',
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+                    getMinutesSpent(params, 'LAST_365_DAYS'),
+                valueFormatter: (params: GridValueFormatterParams<number>) =>
+                    formatTime(params.value),
+                align: 'center',
+                minWidth: 125,
+                headerAlign: 'center',
+            },
+            {
+                field: 'nonDojoTime',
+                headerName: 'Non-Dojo',
+                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+                    getTotalTime(params, cohort, true, requirements),
+                valueFormatter: (params: GridValueFormatterParams<number>) =>
+                    formatTime(params.value),
+                align: 'center',
+                minWidth: 125,
+                headerAlign: 'center',
+            },
+        ],
+        [requirements, cohort]
+    );
+
     const requirementColumns: GridColDef<ScoreboardRow>[] = useMemo(() => {
-        return requirements?.map((r) => getColumnDefinition(r, cohort!)) ?? [];
+        return (
+            requirements
+                ?.filter((r) => r.category !== 'Welcome to the Dojo')
+                .map((r) => getColumnDefinition(r, cohort!)) ?? []
+        );
     }, [requirements, cohort]);
 
     const columnGroups = useMemo(() => {
@@ -295,7 +392,11 @@ const ScoreboardPage = () => {
             <DataGrid
                 sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
                 experimentalFeatures={{ columnGrouping: true }}
-                columns={userInfoColumns.concat(cohortScoreColumns, requirementColumns)}
+                columns={userInfoColumns.concat(
+                    cohortScoreColumns,
+                    timeColumns,
+                    requirementColumns
+                )}
                 columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
                 rows={usersList}
                 loading={usersRequest.isLoading()}
@@ -314,6 +415,8 @@ const ScoreboardPage = () => {
                     experimentalFeatures={{ columnGrouping: true }}
                     columns={userInfoColumns.concat(
                         cohortScoreColumns,
+                        timeColumns.slice(0, 1),
+                        timeColumns.slice(-1),
                         requirementColumns
                     )}
                     columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
