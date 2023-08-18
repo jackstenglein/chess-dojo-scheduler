@@ -114,16 +114,16 @@ done:
 	yearAgoTime += ninetyDaysAgoTime
 
 	if len(user.MinutesSpent) == 0 ||
-		user.MinutesSpent["LAST_7_DAYS"] != weekAgoTime ||
-		user.MinutesSpent["LAST_30_DAYS"] != thirtyDaysAgoTime ||
-		user.MinutesSpent["LAST_90_DAYS"] != ninetyDaysAgoTime ||
-		user.MinutesSpent["LAST_365_DAYS"] != yearAgoTime {
+		user.MinutesSpent[database.Last7Days] != weekAgoTime ||
+		user.MinutesSpent[database.Last30Days] != thirtyDaysAgoTime ||
+		user.MinutesSpent[database.Last90Days] != ninetyDaysAgoTime ||
+		user.MinutesSpent[database.Last365Days] != yearAgoTime {
 
 		user.MinutesSpent = map[string]int{
-			"LAST_7_DAYS":   weekAgoTime,
-			"LAST_30_DAYS":  thirtyDaysAgoTime,
-			"LAST_90_DAYS":  ninetyDaysAgoTime,
-			"LAST_365_DAYS": yearAgoTime,
+			database.Last7Days:   weekAgoTime,
+			database.Last30Days:  thirtyDaysAgoTime,
+			database.Last90Days:  ninetyDaysAgoTime,
+			database.Last365Days: yearAgoTime,
 		}
 		return true
 	}

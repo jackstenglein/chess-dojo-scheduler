@@ -821,7 +821,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, updatedAt, progress, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
+const ratingsProjection = "username, dojoCohort, updatedAt, progress, minutesSpent, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
 	"uscfId, ecfId, cfcId, dwzId, startChesscomRating, currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, " +
 	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating, startCfcRating, currentCfcRating, " +
 	"startDwzRating, currentDwzRating"
@@ -908,6 +908,14 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 	return errors.Wrap(500, "Temporary server error", "Failed BatchExecuteStatement", err)
 }
 
+const (
+	Last7Days   = "LAST_7_DAYS"
+	Last30Days  = "LAST_30_DAYS"
+	Last90Days  = "LAST_90_DAYS"
+	Last365Days = "LAST_365_DAYS"
+)
+
+// UpdateUserTimes uses DynamoDB PartiQL to update the minutesSpent field on the provided users
 func (repo *dynamoRepository) UpdateUserTimes(users []*User) error {
 	if len(users) > 25 {
 		return errors.New(500, "Temporary server error", "UpdateUserTimes has max limit of 25 users")
@@ -917,11 +925,11 @@ func (repo *dynamoRepository) UpdateUserTimes(users []*User) error {
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
 		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
-		sb.WriteString(fmt.Sprintf(" SET minutesSpent={'7_DAYS_AGO': %d, '30_DAYS_AGO': %d, '90_DAYS_AGO': %d, '365_DAYS_AGO': %d}",
-			user.MinutesSpent["7_DAYS_AGO"],
-			user.MinutesSpent["30_DAYS_AGO"],
-			user.MinutesSpent["90_DAYS_AGO"],
-			user.MinutesSpent["365_DAYS_AGO"],
+		sb.WriteString(fmt.Sprintf(" SET minutesSpent={'%s': %d, '%s': %d, '%s': %d, '%s': %d}",
+			Last7Days, user.MinutesSpent[Last7Days],
+			Last30Days, user.MinutesSpent[Last30Days],
+			Last90Days, user.MinutesSpent[Last90Days],
+			Last365Days, user.MinutesSpent[Last365Days],
 		))
 		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 
