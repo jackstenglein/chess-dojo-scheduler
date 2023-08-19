@@ -115,7 +115,7 @@ export function defaultOnDrawableChange(chess: Chess) {
         const fields: string[] = [];
 
         shapes.forEach((s) => {
-            const color = chessColors[s.brush];
+            const color = chessColors[s.brush || 'red'];
             if (s.orig && color) {
                 if (s.dest) {
                     arrows.push(`${color}${s.orig}${s.dest}`);
