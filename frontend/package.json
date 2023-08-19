@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@aldabil/react-scheduler": "^2.7.13",
-        "@aws-amplify/auth": "^5.2.0",
+        "@aws-amplify/auth": "^5.6.2",
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
         "@fortawesome/fontawesome-free": "^6.4.0",
