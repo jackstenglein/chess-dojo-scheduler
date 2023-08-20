@@ -1,5 +1,5 @@
-import { Card, CardContent } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Card, CardContent, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { Chapter, Course } from '../../database/opening';
 
@@ -12,7 +12,11 @@ const ChapterContents: React.FC<ChapterContentsProps> = ({ chapter, index }) => 
     return (
         <ol>
             {chapter.modules.map((m, idx) => (
-                <Link key={m.name} to={`?chapter=${index}&module=${idx}`}>
+                <Link
+                    key={m.name}
+                    component={RouterLink}
+                    to={`?chapter=${index}&module=${idx}`}
+                >
                     <li>{m.name}</li>
                 </Link>
             ))}

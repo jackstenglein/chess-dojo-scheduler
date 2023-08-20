@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import {
     Dialog,
     AppBar,
@@ -17,6 +17,7 @@ import {
     Slide,
     Snackbar,
     Alert,
+    Link,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { TransitionProps } from '@mui/material/transitions';
@@ -212,7 +213,10 @@ const AvailabilityBooker = () => {
                             Owner
                         </Typography>
                         <Stack direction='row' spacing={2} alignItems='center'>
-                            <Link to={`/profile/${availability.owner}`}>
+                            <Link
+                                component={RouterLink}
+                                to={`/profile/${availability.owner}`}
+                            >
                                 <Typography variant='body1'>
                                     {availability.ownerDisplayName} (
                                     {availability.ownerCohort})
@@ -298,6 +302,7 @@ const AvailabilityBooker = () => {
                                     >
                                         <Link
                                             key={p.username}
+                                            component={RouterLink}
                                             to={`/profile/${p.username}`}
                                         >
                                             <Typography variant='body1'>

@@ -1,5 +1,12 @@
-import { CircularProgress, Container, Stack, TextField, Typography } from '@mui/material';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import {
+    CircularProgress,
+    Container,
+    Stack,
+    TextField,
+    Typography,
+    Link,
+} from '@mui/material';
+import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 
 import { AuthStatus, useAuth } from './Auth';
 import { useState } from 'react';
@@ -117,7 +124,10 @@ const SignupPage = () => {
                         Create Account
                     </LoadingButton>
                     <Typography variant='body2' component='div' gutterBottom>
-                        Already have an account? <Link to='/signin'>Sign In</Link>
+                        Already have an account?{' '}
+                        <Link component={RouterLink} to='/signin'>
+                            Sign In
+                        </Link>
                     </Typography>
                 </Stack>
             </Stack>

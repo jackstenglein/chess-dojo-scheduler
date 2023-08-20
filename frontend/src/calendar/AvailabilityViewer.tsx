@@ -1,8 +1,8 @@
 import React from 'react';
-import { Stack, Typography, Button } from '@mui/material';
+import { Stack, Typography, Button, Link } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
-import { Link, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import { Event, AvailabilityType, getDisplayString } from '../database/event';
 
@@ -28,7 +28,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
                         Owner
                     </Typography>
                     <Stack direction='row' spacing={2} alignItems='center'>
-                        <Link to={`/profile/${event.owner}`}>
+                        <Link component={RouterLink} to={`/profile/${event.owner}`}>
                             <Typography variant='body1'>
                                 {event.ownerDisplayName} ({event.ownerCohort})
                             </Typography>

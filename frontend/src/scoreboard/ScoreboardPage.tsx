@@ -6,8 +6,9 @@ import {
     TextField,
     Tooltip,
     Typography,
+    Link,
 } from '@mui/material';
-import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
+import { useParams, Navigate, Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
     DataGrid,
     GridColDef,
@@ -109,7 +110,11 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
         headerName: 'Name',
         minWidth: 250,
         renderCell: (params: GridRenderCellParams<ScoreboardRow, string>) => {
-            return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;
+            return (
+                <Link component={RouterLink} to={`/profile/${params.row.username}`}>
+                    {params.value}
+                </Link>
+            );
         },
     },
     {

@@ -1,5 +1,5 @@
-import { Stack, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Stack, Typography, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { Comment as CommentModel } from '../../database/game';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
@@ -14,7 +14,7 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
     return (
         <Stack>
             <Stack direction='row' spacing={1} alignItems='center'>
-                <Link to={`/profile/${comment.owner}`}>
+                <Link component={RouterLink} to={`/profile/${comment.owner}`}>
                     <Typography variant='subtitle1' color='text.secondary'>
                         {comment.ownerDisplayName} ({comment.ownerCohort})
                     </Typography>

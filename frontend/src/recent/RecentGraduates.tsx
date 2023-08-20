@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Stack, Typography, Divider, FormControl, MenuItem, Select } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+    Stack,
+    Typography,
+    Divider,
+    FormControl,
+    MenuItem,
+    Select,
+    Link,
+} from '@mui/material';
 
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import { useApi } from '../api/Api';
@@ -75,7 +83,11 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         headerName: 'Name',
         minWidth: 200,
         renderCell: (params: GridRenderCellParams<Graduation, string>) => {
-            return <Link to={`/profile/${params.row.username}`}>{params.value}</Link>;
+            return (
+                <Link component={RouterLink} to={`/profile/${params.row.username}`}>
+                    {params.value}
+                </Link>
+            );
         },
     },
     {

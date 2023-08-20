@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Stack, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import { Stack, Typography, Link } from '@mui/material';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
@@ -93,6 +93,7 @@ const OpeningsTab = () => {
                                             {color.courses.map((course) => (
                                                 <Link
                                                     key={course.id}
+                                                    component={RouterLink}
                                                     to={`/openings/${course.id}`}
                                                     style={{
                                                         textDecoration: 'none',

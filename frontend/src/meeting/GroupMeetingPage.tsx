@@ -5,8 +5,9 @@ import {
     Container,
     Stack,
     Typography,
+    Link,
 } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
+import { Link as RouterLink, useParams } from 'react-router-dom';
 
 import { useCache } from '../api/cache/Cache';
 import { getDisplayString } from '../database/event';
@@ -107,7 +108,10 @@ const GroupMeetingPage = () => {
                     <CardContent>
                         <Stack spacing={2}>
                             <Stack direction='row' spacing={2} alignItems='center'>
-                                <Link to={`/profile/${availability.owner}`}>
+                                <Link
+                                    component={RouterLink}
+                                    to={`/profile/${availability.owner}`}
+                                >
                                     <Typography variant='body1'>
                                         {availability.ownerDisplayName} (
                                         {availability.ownerCohort})
@@ -126,7 +130,10 @@ const GroupMeetingPage = () => {
                                     spacing={2}
                                     alignItems='center'
                                 >
-                                    <Link to={`/profile/${p.username}`}>
+                                    <Link
+                                        component={RouterLink}
+                                        to={`/profile/${p.username}`}
+                                    >
                                         <Typography variant='body1'>
                                             {p.displayName} ({p.cohort})
                                         </Typography>

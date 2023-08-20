@@ -9,11 +9,12 @@ import {
     TextField,
     Tooltip,
     Typography,
+    Link,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { EventType } from '@jackstenglein/chess';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import { Game } from '../../database/game';
@@ -154,7 +155,10 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                         <TableCell>Uploaded By</TableCell>
                         <TableCell>
                             <Stack direction='row' spacing={1} alignItems='center'>
-                                <Link to={`/profile/${game.owner}`}>
+                                <Link
+                                    component={RouterLink}
+                                    to={`/profile/${game.owner}`}
+                                >
                                     <Typography variant='body2'>
                                         {game.ownerDisplayName}
                                     </Typography>

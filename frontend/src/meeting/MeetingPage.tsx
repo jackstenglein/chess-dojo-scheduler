@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link as RouterLink, useParams } from 'react-router-dom';
 import {
     Container,
     Stack,
@@ -15,6 +15,7 @@ import {
     DialogContentText,
     DialogActions,
     IconButton,
+    Link,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { LoadingButton } from '@mui/lab';
@@ -211,7 +212,10 @@ const MeetingPage = () => {
                                     Name
                                 </Typography>
                                 <Stack direction='row' spacing={2} alignItems='center'>
-                                    <Link to={`/profile/${opponent.username}`}>
+                                    <Link
+                                        component={RouterLink}
+                                        to={`/profile/${opponent.username}`}
+                                    >
                                         <Typography variant='body1'>
                                             {opponent.displayName}
                                         </Typography>
