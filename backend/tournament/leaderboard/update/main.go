@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -17,6 +18,8 @@ const funcName = "tournament-leaderboard-update-handler"
 
 var repository = database.DynamoDB
 
+var botAccessToken = os.Getenv("botAccessToken")
+
 func main() {
 	lambda.Start(Handler)
 }
@@ -24,6 +27,12 @@ func main() {
 func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
 	log.Debugf("Request: %#v", request)
+
+	auth, _ := request.Headers["Authorization"]
+	if auth != fmt.Sprintf("Basic %s", botAccessToken) {
+		err := errors.New(401, "Authorization header is invalid", "")
+		return api.Failure(funcName, err), nil
+	}
 
 	leaderboardReq := database.Leaderboard{}
 	if err := json.Unmarshal([]byte(request.Body), &leaderboardReq); err != nil {

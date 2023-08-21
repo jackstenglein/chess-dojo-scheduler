@@ -931,6 +931,8 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: !GetAtt TournamentsTable.Arn
+    environment:
+      botAccessToken: ${file(./tournament.yml):botAccessToken}
 
   listTournaments:
     handler: bin/tournament/list
@@ -962,6 +964,8 @@ functions:
           - dynamodb:PutItem
           - dynamodb:GetItem
         Resource: !GetAtt TournamentsTable.Arn
+    environment:
+      botAccessToken: ${file(./tournament.yml):botAccessToken}
 
   getTournamentLeaderboard:
     handler: bin/tournament/leaderboard/get
@@ -992,6 +996,8 @@ functions:
           - dynamodb:GetItem
           - dynamodb:PutItem
         Resource: !GetAtt TournamentsTable.Arn
+    environment:
+      mongoConnectionString: ${file(./tournament.yml):mongoConnectionString}
 
 resources:
   Conditions:

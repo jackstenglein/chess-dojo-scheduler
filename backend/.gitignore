@@ -2,6 +2,7 @@
 oauth.yml
 discord.yml
 wix.yml
+tournament.yml
 
 # Serverless directories
 .serverless
