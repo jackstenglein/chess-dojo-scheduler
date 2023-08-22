@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
@@ -59,6 +60,10 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (events.CloudWat
 func snapshotLeaderboard(timeframe, startsAt string, name database.LeaderboardType, timeControl string) error {
 	leaderboard, err := repository.GetLeaderboard(timeframe, string(name), timeControl, database.CurrentLeaderboard)
 	if err != nil {
+		if lerr, ok := err.(*errors.Error); ok && lerr.Code == 404 {
+			// The leaderboard doesn't exist, so there is nothing to snapshot
+			return nil
+		}
 		return err
 	}
 

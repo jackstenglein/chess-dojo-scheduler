@@ -69,7 +69,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
 	log.Debugf("Request: %#v", request)
 
-	auth, _ := request.Headers["Authorization"]
+	auth, _ := request.Headers["authorization"]
 	if auth != fmt.Sprintf("Basic %s", botAccessToken) {
 		err := errors.New(401, "Authorization header is invalid", "")
 		return api.Failure(funcName, err), nil
