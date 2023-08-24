@@ -37,6 +37,7 @@ def update_users(users):
                         'requirementId': new_req_id,
                         'minutesSpent': req_progress['minutesSpent'],
                         'updatedAt': req_progress['updatedAt'],
+                        'counts': req_progress['counts'],
                     }
                 else:
                     new_progress['minutesSpent'] = mergeDictionary(new_progress['minutesSpent'], req_progress['minutesSpent'])
