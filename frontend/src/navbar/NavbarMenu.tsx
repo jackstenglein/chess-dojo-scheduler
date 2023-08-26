@@ -21,6 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MerchIcon from '@mui/icons-material/Sell';
+import TournamentsIcon from '@mui/icons-material/EmojiEvents';
 
 import { AuthStatus, useAuth } from '../auth/Auth';
 import PawnIcon from './PawnIcon';
@@ -55,7 +56,13 @@ const LargeMenuUnauthenticated = () => {
         <>
             <Logo />
             <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
-                <Typography color='white'>Chess Dojo Scoreboard</Typography>
+                <Button
+                    onClick={() => navigate('/tournaments')}
+                    sx={{ color: 'white' }}
+                    startIcon={<TournamentsIcon />}
+                >
+                    Tournaments
+                </Button>
             </Stack>
             <Stack spacing={1} direction='row'>
                 <Button onClick={() => navigate('/signin')} sx={{ color: 'white' }}>
@@ -104,6 +111,11 @@ function allStartItems(navigate: NavigateFunction): NavbarItem[] {
             name: 'Scoreboard',
             icon: <ScoreboardIcon />,
             onClick: () => navigate('/scoreboard'),
+        },
+        {
+            name: 'Tournaments',
+            icon: <TournamentsIcon />,
+            onClick: () => navigate('/tournaments'),
         },
         {
             name: 'Games',
@@ -166,11 +178,12 @@ function useNavbarItems() {
     const auth = useAuth();
     const navigate = useNavigate();
 
-    const showAll = useMediaQuery('(min-width:1336px)');
-    const hide2 = useMediaQuery('(min-width:1205px)');
-    const hide3 = useMediaQuery('(min-width:1000px)');
-    const hide4 = useMediaQuery('(min-width:870px)');
-    const hide5 = useMediaQuery('(min-width:735px)');
+    const showAll = useMediaQuery('(min-width:1372px)');
+    const hide2 = useMediaQuery('(min-width:1242px)');
+    const hide3 = useMediaQuery('(min-width:1148px)');
+    const hide4 = useMediaQuery('(min-width:1023px)');
+    const hide5 = useMediaQuery('(min-width:896px)');
+    const hide6 = useMediaQuery('(min-width:794px)');
     const showHelp = useMediaQuery('(min-width:635px)');
     const showSignout = useMediaQuery('(min-width:556px)');
 
@@ -187,8 +200,10 @@ function useNavbarItems() {
         startItemCount = startItems.length - 4;
     } else if (hide5) {
         startItemCount = startItems.length - 5;
-    } else {
+    } else if (hide6) {
         startItemCount = startItems.length - 6;
+    } else {
+        startItemCount = startItems.length - 7;
     }
 
     const shownStartItems: NavbarItem[] = startItems.slice(0, startItemCount);
@@ -381,6 +396,9 @@ const ExtraSmallMenuUnauthenticated = () => {
                 </MenuItem>
                 <MenuItem onClick={handleClick(() => navigate('/signup'))}>
                     <Typography textAlign='center'>Signup</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleClick(() => navigate('/tournaments'))}>
+                    <Typography textAlign='center'>Tournaments</Typography>
                 </MenuItem>
             </Menu>
         </Stack>
