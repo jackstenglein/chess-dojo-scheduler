@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "serverless-go-plugin": "^2.2.0",
     "serverless-plugin-custom-roles": "^3.1.1"
   }
 }

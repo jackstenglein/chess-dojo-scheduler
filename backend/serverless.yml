@@ -22,10 +22,12 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-plugin-custom-roles
+  - serverless-go-plugin
 
 provider:
   name: aws
-  runtime: go1.x
+  runtime: provided.al2
+  architecture: arm64
   region: us-east-1
   environment:
     stage: ${sls:stage}
@@ -45,19 +47,18 @@ provider:
         audience:
           - Ref: UserClient
 
-package:
-  individually: true
-  patterns:
-    - '!./**'
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
 
 functions:
   ######### Admin Endpoints ##############
 
   adminListUsers:
-    handler: bin/admin/user/list
-    package:
-      patterns:
-        - ./bin/admin/user/list
+    handler: admin/user/list/main.go
     events:
       - httpApi:
           path: /admin/user
@@ -71,10 +72,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   adminGetStatistics:
-    handler: bin/admin/statistics/get
-    package:
-      patterns:
-        - ./bin/admin/statistics/get
+    handler: admin/statistics/get/main.go
     events:
       - httpApi:
           path: /admin/statistics
@@ -88,10 +86,7 @@ functions:
           - !GetAtt UsersTable.Arn
 
   adminListRequirements:
-    handler: bin/admin/requirement/list
-    package:
-      patterns:
-        - ./bin/admin/requirement/list
+    handler: admin/requirement/list/main.go
     events:
       - httpApi:
           path: /admin/requirement
@@ -110,10 +105,7 @@ functions:
   ######### User Endpoints ###############
 
   linkProvider:
-    handler: bin/user/provider/link
-    package:
-      patterns:
-        - ./bin/user/provider/link
+    handler: user/provider/link/main.go
     events:
       - cognitoUserPool:
           pool: ${sls:stage}-chess-dojo-scheduler-auth-pool
@@ -127,10 +119,7 @@ functions:
         Resource: !GetAtt CognitoUserPool.Arn
 
   createUser:
-    handler: bin/user/create
-    package:
-      patterns:
-        - ./bin/user/create
+    handler: user/create/main.go
     events:
       - cognitoUserPool:
           pool: ${sls:stage}-chess-dojo-scheduler-auth-pool
@@ -143,10 +132,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   checkAccess:
-    handler: bin/user/access/check
-    package:
-      patterns:
-        - ./bin/user/access/check
+    handler: user/access/check/main.go
     events:
       - httpApi:
           path: /user/access
@@ -160,10 +146,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   updateUser:
-    handler: bin/user/update
-    package:
-      patterns:
-        - ./bin/user/update
+    handler: user/update/main.go
     events:
       - httpApi:
           path: /user
@@ -185,10 +168,7 @@ functions:
                 - '/index/WixEmailIndex'
 
   updateUserProgress:
-    handler: bin/user/progress/update
-    package:
-      patterns:
-        - ./bin/user/progress/update
+    handler: user/progress/update/main.go
     events:
       - httpApi:
           path: /user/progress
@@ -210,10 +190,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   updateUserTimeline:
-    handler: bin/user/progress/timeline
-    package:
-      patterns:
-        - ./bin/user/progress/timeline
+    handler: user/progress/timeline/main.go
     events:
       - httpApi:
           path: /user/progress/timeline
@@ -235,10 +212,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   getUser:
-    handler: bin/user/get
-    package:
-      patterns:
-        - ./bin/user/get
+    handler: user/get/main.go
     events:
       - httpApi:
           path: /user
@@ -254,10 +228,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   listUserTimeline:
-    handler: bin/user/timeline/list
-    package:
-      patterns:
-        - ./bin/user/timeline/list
+    handler: user/timeline/list/main.go
     events:
       - httpApi:
           path: /user/{owner}/timeline
@@ -270,10 +241,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   listUsers:
-    handler: bin/user/list
-    package:
-      patterns:
-        - ./bin/user/list
+    handler: user/list/main.go
     events:
       - httpApi:
           path: /user/{cohort}
@@ -290,10 +258,7 @@ functions:
                 - '/index/CohortIdx'
 
   updateRatings:
-    handler: bin/user/ratings/update
-    package:
-      patterns:
-        - ./bin/user/ratings/update
+    handler: user/ratings/update/main.go
     events:
       - schedule:
           rate: cron(0 0 * * ? *)
@@ -370,10 +335,7 @@ functions:
                 - '/index/CohortIdx'
 
   updateStatistics:
-    handler: bin/user/statistics/update
-    package:
-      patterns:
-        - ./bin/user/statistics/update
+    handler: user/statistics/update/main.go
     events:
       - schedule:
           rate: cron(20 0 * * ? *)
@@ -401,10 +363,7 @@ functions:
         Resource: !GetAtt GraduationsTable.Arn
 
   updateTimeSpent:
-    handler: bin/user/timeline/statistics
-    package:
-      patterns:
-        - ./bin/user/timeline/statistics
+    handler: user/timeline/statistics/main.go
     events:
       - schedule:
           rate: cron(30 0 * * ? *)
@@ -428,10 +387,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   graduate:
-    handler: bin/user/graduate
-    package:
-      patterns:
-        - ./bin/user/graduate
+    handler: user/graduate/main.go
     events:
       - httpApi:
           path: /user/graduate
@@ -457,10 +413,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   getUserStatistics:
-    handler: bin/user/statistics/get
-    package:
-      patterns:
-        - ./bin/user/statistics/get
+    handler: user/statistics/get/main.go
     events:
       - httpApi:
           path: /public/user/statistics
@@ -474,10 +427,7 @@ functions:
   ############## Event Endpoints #################
 
   bookEvent:
-    handler: bin/event/book
-    package:
-      patterns:
-        - ./bin/event/book
+    handler: event/book/main.go
     events:
       - httpApi:
           path: /event/{id}/book
@@ -495,10 +445,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   cancelEvent:
-    handler: bin/event/cancel
-    package:
-      patterns:
-        - ./bin/event/cancel
+    handler: event/cancel/main.go
     events:
       - httpApi:
           path: /event/{id}/cancel
@@ -514,10 +461,7 @@ functions:
           - !GetAtt EventsTable.Arn
 
   deleteEvent:
-    handler: bin/event/delete
-    package:
-      patterns:
-        - ./bin/event/delete
+    handler: event/delete/main.go
     events:
       - httpApi:
           path: /event/{id}
@@ -536,10 +480,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   getEvent:
-    handler: bin/event/get
-    package:
-      patterns:
-        - ./bin/event/get
+    handler: event/get/main.go
     events:
       - httpApi:
           path: /event/{id}
@@ -553,10 +494,7 @@ functions:
           - !GetAtt EventsTable.Arn
 
   listEvents:
-    handler: bin/event/list
-    package:
-      patterns:
-        - ./bin/event/list
+    handler: event/list/main.go
     events:
       - httpApi:
           path: /event
@@ -569,10 +507,7 @@ functions:
         Resource: !GetAtt EventsTable.Arn
 
   setEvent:
-    handler: bin/event/set
-    package:
-      patterns:
-        - ./bin/event/set
+    handler: event/set/main.go
     events:
       - httpApi:
           path: /event
@@ -593,10 +528,7 @@ functions:
 
   createGame:
     timeout: 28
-    handler: bin/game/create
-    package:
-      patterns:
-        - ./bin/game/create
+    handler: game/create/main.go
     events:
       - httpApi:
           path: /game
@@ -617,10 +549,7 @@ functions:
           - !GetAtt GamesTable.Arn
 
   updateGame:
-    handler: bin/game/update
-    package:
-      patterns:
-        - ./bin/game/update
+    handler: game/update/main.go
     events:
       - httpApi:
           path: /game/{cohort}/{id+}
@@ -637,10 +566,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   deleteGame:
-    handler: bin/game/delete
-    package:
-      patterns:
-        - ./bin/game/delete
+    handler: game/delete/main.go
     events:
       - httpApi:
           path: /game/{cohort}/{id+}
@@ -653,10 +579,7 @@ functions:
         Resource: !GetAtt GamesTable.Arn
 
   getGame:
-    handler: bin/game/get
-    package:
-      patterns:
-        - ./bin/game/get
+    handler: game/get/main.go
     events:
       - httpApi:
           path: /game/{cohort}/{id+}
@@ -670,10 +593,7 @@ functions:
           - !GetAtt GamesTable.Arn
 
   createGameComment:
-    handler: bin/game/comment/create
-    package:
-      patterns:
-        - ./bin/game/comment/create
+    handler: game/comment/create/main.go
     events:
       - httpApi:
           path: /game/{cohort}/{id+}
@@ -687,10 +607,7 @@ functions:
           - !GetAtt GamesTable.Arn
 
   listGamesByCohort:
-    handler: bin/game/list/cohort
-    package:
-      patterns:
-        - ./bin/game/list/cohort
+    handler: game/list/cohort/main.go
     events:
       - httpApi:
           path: /game/{cohort}
@@ -704,10 +621,7 @@ functions:
           - !GetAtt GamesTable.Arn
 
   listGamesByOwner:
-    handler: bin/game/list/owner
-    package:
-      patterns:
-        - ./bin/game/list/owner
+    handler: game/list/owner/main.go
     events:
       - httpApi:
           path: /game
@@ -732,10 +646,7 @@ functions:
                 - '/index/BlackIndex'
 
   listFeaturedGames:
-    handler: bin/game/list/featured
-    package:
-      patterns:
-        - ./bin/game/list/featured
+    handler: game/list/featured/main.go
     events:
       - httpApi:
           path: /game/featured
@@ -752,10 +663,7 @@ functions:
                 - '/index/FeaturedIdx'
 
   updateGameStatistics:
-    handler: bin/game/statistics/update
-    package:
-      patterns:
-        - ./bin/game/statistics/update
+    handler: game/statistics/update/main.go
     events:
       - schedule:
           rate: cron(20 0 * * ? *)
@@ -777,10 +685,7 @@ functions:
   ########## Requirement Endpoints ##############
 
   getRequirement:
-    handler: bin/requirement/get
-    package:
-      patterns:
-        - ./bin/requirement/get
+    handler: requirement/get/main.go
     events:
       - httpApi:
           path: /requirement/{id}
@@ -794,10 +699,7 @@ functions:
           - !GetAtt RequirementsTable.Arn
 
   listRequirements:
-    handler: bin/requirement/list
-    package:
-      patterns:
-        - ./bin/requirement/list
+    handler: requirement/list/main.go
     events:
       - httpApi:
           path: /requirements/{cohort}
@@ -812,10 +714,7 @@ functions:
           - !GetAtt RequirementsTable.Arn
 
   setRequirement:
-    handler: bin/requirement/set
-    package:
-      patterns:
-        - ./bin/requirement/set
+    handler: requirement/set/main.go
     events:
       - httpApi:
           path: /requirement
@@ -834,10 +733,7 @@ functions:
   ########## Graduation Endpoints ##############
 
   listGraduationsByCohort:
-    handler: bin/graduation/list
-    package:
-      patterns:
-        - ./bin/graduation/list
+    handler: graduation/list/main.go
     events:
       - httpApi:
           path: /graduations/{cohort}
@@ -850,10 +746,7 @@ functions:
         Resource: !GetAtt GraduationsTable.Arn
 
   listGraduationsByOwner:
-    handler: bin/graduation/list
-    package:
-      patterns:
-        - ./bin/graduation/list
+    handler: graduation/list/main.go
     events:
       - httpApi:
           path: /graduations/owner/{username}
@@ -866,10 +759,7 @@ functions:
         Resource: !GetAtt GraduationsTable.Arn
 
   listGraduationsByDate:
-    handler: bin/graduation/list
-    package:
-      patterns:
-        - ./bin/graduation/list
+    handler: graduation/list/main.go
     events:
       - httpApi:
           path: /graduations
@@ -884,10 +774,7 @@ functions:
   ########## Opening Endpoints ##############
 
   getOpening:
-    handler: bin/opening/get
-    package:
-      patterns:
-        - ./bin/opening/get
+    handler: opening/get/main.go
     events:
       - httpApi:
           path: /openings/{id}
@@ -900,10 +787,7 @@ functions:
         Resource: !GetAtt OpeningTable.Arn
 
   listOpenings:
-    handler: bin/opening/list
-    package:
-      patterns:
-        - ./bin/opening/list
+    handler: opening/list/main.go
     events:
       - httpApi:
           path: /openings
@@ -918,10 +802,7 @@ functions:
   ########## Tournament Endpoints ##############
 
   createTournament:
-    handler: bin/tournament/create
-    package:
-      patterns:
-        - ./bin/tournament/create
+    handler: tournament/create/main.go
     events:
       - httpApi:
           path: /tournaments
@@ -935,10 +816,7 @@ functions:
       botAccessToken: ${file(./tournament.yml):botAccessToken}
 
   listTournaments:
-    handler: bin/tournament/list
-    package:
-      patterns:
-        - ./bin/tournament/list
+    handler: tournament/list/main.go
     events:
       - httpApi:
           path: /public/tournaments
@@ -950,10 +828,7 @@ functions:
         Resource: !GetAtt TournamentsTable.Arn
 
   updateTournamentLeaderboard:
-    handler: bin/tournament/leaderboard/update
-    package:
-      patterns:
-        - ./bin/tournament/leaderboard/update
+    handler: tournament/leaderboard/update/main.go
     events:
       - httpApi:
           path: /tournaments/leaderboard
@@ -968,10 +843,7 @@ functions:
       botAccessToken: ${file(./tournament.yml):botAccessToken}
 
   getTournamentLeaderboard:
-    handler: bin/tournament/leaderboard/get
-    package:
-      patterns:
-        - ./bin/tournament/leaderboard/get
+    handler: tournament/leaderboard/get/main.go
     events:
       - httpApi:
           path: /public/tournaments/leaderboard
@@ -983,10 +855,7 @@ functions:
         Resource: !GetAtt TournamentsTable.Arn
 
   snapshotTournamentLeaderboard:
-    handler: bin/tournament/leaderboard/snapshot
-    package:
-      patterns:
-        - ./bin/tournament/leaderboard/snapshot
+    handler: tournament/leaderboard/snapshot/main.go
     events:
       - schedule:
           rate: cron(0 0 1 * ? *)
