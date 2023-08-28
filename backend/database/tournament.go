@@ -181,9 +181,11 @@ func (repo *dynamoRepository) GetLeaderboard(timePeriod, tournamentType, timeCon
 		TableName: aws.String(tournamentTable),
 	}
 
-	leaderboard := Leaderboard{}
-	if err := repo.getItem(input, &leaderboard); err != nil {
-		return nil, err
+	leaderboard := Leaderboard{
+		Type:        LeaderboardType(leaderboardType),
+		StartsAt:    startsAt,
+		TimeControl: timeControl,
 	}
-	return &leaderboard, nil
+	err := repo.getItem(input, &leaderboard)
+	return &leaderboard, err
 }
