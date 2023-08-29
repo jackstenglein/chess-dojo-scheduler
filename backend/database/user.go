@@ -105,6 +105,14 @@ var ratingSystems = []RatingSystem{
 	Custom,
 }
 
+type RatingHistory struct {
+	// The date of the rating in ISO format.
+	Date string `dynamodbav:"date" json:"date"`
+
+	// The rating the user had at the given date.
+	Rating int `dynamodbav:"rating" json:"rating"`
+}
+
 type User struct {
 	// The user's Cognito username. Uniquely identifies a user
 	Username string `dynamodbav:"username" json:"username"`
@@ -287,6 +295,9 @@ type User struct {
 	// A map from a time period to the number of minutes the user has spent on tasks in that time period.
 	// Non-Dojo tasks are not included.
 	MinutesSpent map[string]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
+
+	// A map from a rating system to a slice of RatingHistory objects for that rating system.
+	RatingHistories map[RatingSystem][]RatingHistory `dynamodbav:"ratingHistories" json:"ratingHistories"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module

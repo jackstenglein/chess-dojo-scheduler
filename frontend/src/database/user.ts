@@ -56,6 +56,11 @@ export function formatRatingSystem(ratingSystem: RatingSystem | string): string 
     return ratingSystem;
 }
 
+export interface RatingHistory {
+    date: string;
+    rating: number;
+}
+
 export interface User {
     cognitoUser?: CognitoUser;
 
@@ -136,6 +141,7 @@ export interface User {
 
     tutorials?: Record<string, boolean>;
     minutesSpent?: Record<MinutesSpentKey, number>;
+    ratingHistories?: Record<RatingSystem, RatingHistory[]>;
 }
 
 export type MinutesSpentKey =

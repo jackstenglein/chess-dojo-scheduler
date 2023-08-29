@@ -1,15 +1,28 @@
-import { Card, CardContent, Typography, Stack, Tooltip, Chip, Grid } from '@mui/material';
+import {
+    Card,
+    CardContent,
+    Typography,
+    Stack,
+    Tooltip,
+    Chip,
+    Grid,
+    Box,
+} from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import HelpIcon from '@mui/icons-material/Help';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 import {
+    RatingHistory,
     RatingSystem,
     formatRatingSystem,
     getRatingBoundary,
     normalizeToFide,
 } from '../../database/user';
+import { useMemo } from 'react';
+import { AxisOptions, Chart } from 'react-charts';
+import { useAuth } from '../../auth/Auth';
 
 function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     switch (ratingSystem) {
@@ -32,6 +45,26 @@ function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     }
 }
 
+interface Datum {
+    date: Date;
+    rating: number;
+}
+
+const primaryAxis: AxisOptions<Datum> = {
+    scaleType: 'time',
+    getValue: (datum) => datum.date,
+};
+
+const secondaryAxes: Array<AxisOptions<Datum>> = [
+    {
+        scaleType: 'linear',
+        getValue: (datum) => datum.rating,
+        formatters: {
+            scale: (value) => `${value}`,
+        },
+    },
+];
+
 interface RatingCardProps {
     system: RatingSystem;
     cohort: string;
@@ -40,6 +73,7 @@ interface RatingCardProps {
     currentRating: number;
     startRating: number;
     isPreferred?: boolean;
+    ratingHistory?: RatingHistory[];
 }
 
 const RatingCard: React.FC<RatingCardProps> = ({
@@ -50,9 +84,25 @@ const RatingCard: React.FC<RatingCardProps> = ({
     currentRating,
     startRating,
     isPreferred,
+    ratingHistory,
 }) => {
+    const dark = useAuth().user?.enableDarkMode;
     const ratingChange = currentRating - startRating;
     const graduation = getRatingBoundary(cohort, system);
+
+    const historyData = useMemo(() => {
+        return ratingHistory && ratingHistory.length > 0
+            ? [
+                  {
+                      label: 'Rating',
+                      data: ratingHistory?.map((r) => ({
+                          date: new Date(r.date),
+                          rating: r.rating,
+                      })),
+                  },
+              ]
+            : [];
+    }, [ratingHistory]);
 
     return (
         <Card variant='outlined'>
@@ -109,7 +159,11 @@ const RatingCard: React.FC<RatingCardProps> = ({
                             </Stack>
                             <Tooltip title='Ratings are updated every 24 hours'>
                                 <HelpIcon
-                                    sx={{ mb: '5px', ml: '3px', color: 'text.secondary' }}
+                                    sx={{
+                                        mb: '5px',
+                                        ml: '3px',
+                                        color: 'text.secondary',
+                                    }}
                                 />
                             </Tooltip>
                         </Stack>
@@ -239,6 +293,31 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         </Stack>
                     </Grid>
                 </Grid>
+
+                {historyData.length > 0 && (
+                    <Stack>
+                        <Box height={300} mt={2}>
+                            <Chart
+                                options={{
+                                    data: historyData,
+                                    primaryAxis,
+                                    secondaryAxes,
+                                    dark,
+                                    interactionMode: 'closest',
+                                    tooltip: false,
+                                }}
+                            />
+                        </Box>
+                        <Typography
+                            variant='caption'
+                            color='text.secondary'
+                            mt={0.5}
+                            ml={0.5}
+                        >
+                            *Graphs are updated weekly
+                        </Typography>
+                    </Stack>
+                )}
             </CardContent>
         </Card>
     );
