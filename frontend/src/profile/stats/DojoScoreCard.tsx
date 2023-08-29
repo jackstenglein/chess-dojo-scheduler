@@ -103,7 +103,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
 
                     <DojoScoreCardProgressBar
                         title='All Requirements'
-                        value={cohortScore}
+                        value={Math.round(cohortScore)}
                         min={0}
                         max={Math.round(totalScore)}
                     />
@@ -112,11 +112,8 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                         <DojoScoreCardProgressBar
                             key={idx}
                             title={c}
-                            value={getCategoryScore(
-                                user,
-                                user.dojoCohort,
-                                c,
-                                requirements
+                            value={Math.round(
+                                getCategoryScore(user, user.dojoCohort, c, requirements)
                             )}
                             min={0}
                             max={Math.round(
