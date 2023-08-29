@@ -40,24 +40,27 @@ def fetchRatings(fideId: str):
     result = []
     rows = tables[TABLE_INDEX].find_all('tr')
     for row in rows:
-        cells = row.find_all('td')
-        if len(cells) <= RATING_CELL_INDEX:
-            continue
+        try:
+            cells = row.find_all('td')
+            if len(cells) <= RATING_CELL_INDEX:
+                continue
 
-        rating = cells[RATING_CELL_INDEX].get_text()
-        if rating == None or len(rating) == 0:
-            continue
+            rating = cells[RATING_CELL_INDEX].get_text()
+            if rating == None or len(rating) == 0:
+                continue
 
-        rating = rating.strip()
-        if len(rating) == 0:
-            continue
+            rating = rating.strip()
+            if len(rating) == 0:
+                continue
 
-        date = cells[0].get_text().strip()
+            date = cells[0].get_text().strip()
+            result.append({
+                'date': convertDate(date),
+                'rating': int(rating),
+            })
+        except Exception:
+            pass
 
-        result.append({
-            'date': convertDate(date),
-            'rating': int(rating),
-        })
     result.reverse()
     return result
 
