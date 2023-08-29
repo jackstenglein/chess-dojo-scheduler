@@ -45,6 +45,59 @@ function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     }
 }
 
+function everySevenDays(startDate: Date, endDate: Date): Date[] {
+    const result: Date[] = [];
+    const currentDate = startDate;
+    while (currentDate <= endDate) {
+        result.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 7);
+    }
+    return result;
+}
+
+function getChartData(ratingHistory?: RatingHistory[]) {
+    if (!ratingHistory || ratingHistory.length === 0) {
+        return [];
+    }
+
+    const dates = everySevenDays(new Date(ratingHistory[0].date), new Date());
+
+    if (dates.length === ratingHistory.length) {
+        return [
+            {
+                label: 'Rating',
+                data: ratingHistory?.map((r) => ({
+                    date: new Date(r.date),
+                    rating: r.rating,
+                })),
+            },
+        ];
+    }
+
+    const data = [];
+    let historyIndex = 0;
+
+    for (const date of dates) {
+        if (
+            historyIndex < ratingHistory.length &&
+            date.toISOString() >= ratingHistory[historyIndex].date
+        ) {
+            data.push({
+                date,
+                rating: ratingHistory[historyIndex].rating,
+            });
+            historyIndex++;
+        } else {
+            data.push({
+                date,
+                rating: ratingHistory[historyIndex - 1].rating,
+            });
+        }
+    }
+
+    return [{ label: 'Rating', data }];
+}
+
 interface Datum {
     date: Date;
     rating: number;
@@ -91,17 +144,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
     const graduation = getRatingBoundary(cohort, system);
 
     const historyData = useMemo(() => {
-        return ratingHistory && ratingHistory.length > 0
-            ? [
-                  {
-                      label: 'Rating',
-                      data: ratingHistory?.map((r) => ({
-                          date: new Date(r.date),
-                          rating: r.rating,
-                      })),
-                  },
-              ]
-            : [];
+        return getChartData(ratingHistory);
     }, [ratingHistory]);
 
     return (
