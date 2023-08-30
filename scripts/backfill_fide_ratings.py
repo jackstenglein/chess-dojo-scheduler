@@ -8,9 +8,8 @@ from bs4 import BeautifulSoup
 db = boto3.resource('dynamodb')
 table = db.Table('prod-users')
 
-TABLE_INDEX = 4
 RATING_CELL_INDEX = 1
-
+EXPECTED_TABLE_CONTENTS = '2023-Aug'
 
 def convertDate(date: str):
     return date \
@@ -34,11 +33,20 @@ def fetchRatings(fideId: str):
     
     soup = BeautifulSoup(res.text, 'html.parser')
     tables = soup.find_all('tbody')
-    if len(tables) <= TABLE_INDEX:
+
+    table = None
+    for t in tables:
+        first_cell = t.find('td').get_text().strip()
+        if first_cell == EXPECTED_TABLE_CONTENTS:
+            table = t
+            break
+
+    if table is None:
+        print('Could not find correct table')
         return []
     
     result = []
-    rows = tables[TABLE_INDEX].find_all('tr')
+    rows = table.find_all('tr')
     for row in rows:
         try:
             cells = row.find_all('td')
@@ -58,8 +66,8 @@ def fetchRatings(fideId: str):
                 'date': convertDate(date),
                 'rating': int(rating),
             })
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
 
     result.reverse()
     return result
@@ -80,6 +88,8 @@ def update_users(users):
             if fideId is None or len(fideId) == 0: continue
 
             ratingHistories = user.get('ratingHistories', {})
+            if ratingHistories is not None and 'FIDE' in ratingHistories: continue
+
             createdAt = user.get('createdAt', '2022-05-01')
             if createdAt is None:
                 createdAt = '2022-05-01'
@@ -132,10 +142,10 @@ def main():
     try:
         updated = 0
 
-        res = table.scan()
-        lastKey = res.get('LastEvaluatedKey', None)
-        items = res.get('Items', [])
-        updated += update_users(items)
+        # res = table.scan()
+        lastKey = {'username': '638c143a-c149-4bcf-a9ca-0acc8b06e243'} # res.get('LastEvaluatedKey', None)
+        # items = res.get('Items', [])
+        # updated += update_users(items)
 
         while lastKey != None:
             time.sleep(5)
