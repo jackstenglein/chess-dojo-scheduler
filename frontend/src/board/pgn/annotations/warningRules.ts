@@ -1,5 +1,5 @@
 import { Chess, Move } from '@jackstenglein/chess';
-import { badMoveNags, getNagInSet, goodMoveNags } from '../Nag';
+import { badMoveNags, evalNags, getNagInSet, goodMoveNags } from '../Nag';
 
 export interface WarningRule {
     displayName: string;
@@ -35,28 +35,32 @@ const rules: WarningRule[] = [
     {
         displayName: 'Poor Move Missing Improvement',
         description:
-            "You marked a move as dubious, a mistake or a blunder, but didn't include a comment or variation. Consider adding a comment or variation to describe why the move is bad and what should have been played instead.",
-        predicate: (_, move) => {
+            "You marked a move as dubious, a mistake or a blunder, but didn't include a comment, variation or evaluation. Consider adding a comment, variation or eval symbol to describe why the move is bad and what should have been played instead.",
+        predicate: (chess, move) => {
             return (
                 !!move &&
                 !!getNagInSet(badMoveNags, move.nags) &&
                 !move.commentMove &&
                 !move.commentAfter &&
-                move.variations.length === 0
+                move.variations.length === 0 &&
+                (chess.isInMainline(move) ||
+                    (!move.next && !getNagInSet(evalNags, move.nags)))
             );
         },
     },
     {
         displayName: 'Good Move Missing Explanation',
         description:
-            "You marked a move as interesting, good or brilliant, but didn't include a comment or variation explaining why. Consider adding one to make your annotations clearer.",
-        predicate: (_, move) => {
+            "You marked a move as interesting, good or brilliant, but didn't include a comment, variation or evaluation explaining why. Consider adding a comment, variation or eval symbol to make your annotations clearer.",
+        predicate: (chess, move) => {
             return (
                 !!move &&
                 !!getNagInSet(goodMoveNags, move.nags) &&
                 !move.commentMove &&
                 !move.commentAfter &&
-                move.variations.length === 0
+                move.variations.length === 0 &&
+                (chess.isInMainline(move) ||
+                    (!move.next && !getNagInSet(evalNags, move.nags)))
             );
         },
     },
