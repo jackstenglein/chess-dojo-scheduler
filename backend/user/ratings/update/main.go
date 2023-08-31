@@ -78,7 +78,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lich
 			shouldUpdate = updateRating(rating, string(system), ratingFetchFuncs[system]) || shouldUpdate
 		}
 
-		if now.Weekday() == time.Thursday {
+		if now.Weekday() == time.Monday {
 			history := user.RatingHistories[system]
 			if history == nil || history[len(history)-1].Rating != rating.CurrentRating {
 				if user.RatingHistories == nil {
