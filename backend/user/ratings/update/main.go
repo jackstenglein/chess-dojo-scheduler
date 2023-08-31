@@ -21,7 +21,7 @@ const funcName = "user-ratings-update-handler"
 
 var repository = database.DynamoDB
 
-var monthAgo = time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
+var now = time.Now()
 
 type ratingFetchFunc func(username string) (int, error)
 
@@ -76,6 +76,20 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lich
 	for system, rating := range user.Ratings {
 		if system != database.Custom {
 			shouldUpdate = updateRating(rating, string(system), ratingFetchFuncs[system]) || shouldUpdate
+		}
+
+		if now.Weekday() == time.Thursday {
+			history := user.RatingHistories[system]
+			if history == nil || history[len(history)-1].Rating != rating.CurrentRating {
+				if user.RatingHistories == nil {
+					user.RatingHistories = make(map[database.RatingSystem][]database.RatingHistory)
+				}
+				user.RatingHistories[system] = append(history, database.RatingHistory{
+					Date:   now.Format(time.RFC3339),
+					Rating: rating.CurrentRating,
+				})
+				shouldUpdate = true
+			}
 		}
 	}
 

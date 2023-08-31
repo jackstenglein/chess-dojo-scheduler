@@ -55,44 +55,54 @@ function everySevenDays(startDate: Date, endDate: Date): Date[] {
     return result;
 }
 
-function getChartData(ratingHistory?: RatingHistory[]) {
+function datesAreSameDay(first: Date, second: Date) {
+    return (
+        first.getFullYear() === second.getFullYear() &&
+        first.getMonth() === second.getMonth() &&
+        first.getDate() === second.getDate()
+    );
+}
+
+function getChartData(ratingHistory: RatingHistory[] | undefined, currentRating: number) {
     if (!ratingHistory || ratingHistory.length === 0) {
         return [];
     }
 
     const dates = everySevenDays(new Date(ratingHistory[0].date), new Date());
+    let data = [];
 
     if (dates.length === ratingHistory.length) {
-        return [
-            {
-                label: 'Rating',
-                data: ratingHistory?.map((r) => ({
-                    date: new Date(r.date),
-                    rating: r.rating,
-                })),
-            },
-        ];
+        data = ratingHistory?.map((r) => ({
+            date: new Date(r.date),
+            rating: r.rating,
+        }));
+    } else {
+        let historyIndex = 0;
+        for (const date of dates) {
+            if (
+                historyIndex < ratingHistory.length &&
+                date >= new Date(ratingHistory[historyIndex].date)
+            ) {
+                data.push({
+                    date,
+                    rating: ratingHistory[historyIndex].rating,
+                });
+                historyIndex++;
+            } else if (historyIndex > 0) {
+                data.push({
+                    date,
+                    rating: ratingHistory[historyIndex - 1].rating,
+                });
+            }
+        }
     }
 
-    const data = [];
-    let historyIndex = 0;
-
-    for (const date of dates) {
-        if (
-            historyIndex < ratingHistory.length &&
-            date.toISOString() >= ratingHistory[historyIndex].date
-        ) {
-            data.push({
-                date,
-                rating: ratingHistory[historyIndex].rating,
-            });
-            historyIndex++;
-        } else {
-            data.push({
-                date,
-                rating: ratingHistory[historyIndex - 1].rating,
-            });
-        }
+    const now = new Date();
+    if (data.length > 0 && !datesAreSameDay(now, data[data.length - 1].date)) {
+        data.push({
+            date: now,
+            rating: currentRating,
+        });
     }
 
     return [{ label: 'Rating', data }];
@@ -139,13 +149,15 @@ const RatingCard: React.FC<RatingCardProps> = ({
     isPreferred,
     ratingHistory,
 }) => {
+    console.log('Rendering RatingCard for system: ', system);
+
     const dark = useAuth().user?.enableDarkMode;
     const ratingChange = currentRating - startRating;
     const graduation = getRatingBoundary(cohort, system);
 
     const historyData = useMemo(() => {
-        return getChartData(ratingHistory);
-    }, [ratingHistory]);
+        return getChartData(ratingHistory, currentRating);
+    }, [ratingHistory, currentRating]);
 
     return (
         <Card variant='outlined'>

@@ -159,6 +159,99 @@ type User struct {
 	// The user's ratings in each rating system
 	Ratings map[RatingSystem]*Rating `dynamodbav:"ratings" json:"ratings"`
 
+	// A map from a rating system to a slice of RatingHistory objects for that rating system.
+	RatingHistories map[RatingSystem][]RatingHistory `dynamodbav:"ratingHistories" json:"ratingHistories"`
+
+	// The user's Chess.com username
+	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
+
+	// Whether to hide the user's Chess.com username from other users
+	HideChesscomUsername bool `dynamodbav:"hideChesscomUsername" json:"hideChesscomUsername"`
+
+	// The user's starting Chess.com rating
+	StartChesscomRating int `dynamodbav:"startChesscomRating" json:"startChesscomRating"`
+
+	// The user's current Chess.com rating
+	CurrentChesscomRating int `dynamodbav:"currentChesscomRating" json:"currentChesscomRating"`
+
+	// The user's Lichess username
+	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
+
+	// Whether to hide the user's Lichess username from other users
+	HideLichessUsername bool `dynamodbav:"hideLichessUsername" json:"hideLichessUsername"`
+
+	// The user's starting Lichess rating
+	StartLichessRating int `dynamodbav:"startLichessRating" json:"startLichessRating"`
+
+	// The user's current Lichess rating
+	CurrentLichessRating int `dynamodbav:"currentLichessRating" json:"currentLichessRating"`
+
+	// The user's FIDE Id
+	FideId string `dynamodbav:"fideId" json:"fideId"`
+
+	// Whether to hide the user's FIDE ID from other users
+	HideFideId bool `dynamodbav:"hideFideId" json:"hideFideId"`
+
+	// The user's starting FIDE rating
+	StartFideRating int `dynamodbav:"startFideRating" json:"startFideRating"`
+
+	// The user's current FIDE rating
+	CurrentFideRating int `dynamodbav:"currentFideRating" json:"currentFideRating"`
+
+	// The user's USCF Id
+	UscfId string `dynamodbav:"uscfId" json:"uscfId"`
+
+	// Whether to hide the user's USCF ID from other users
+	HideUscfId bool `dynamodbav:"hideUscfId" json:"hideUscfId"`
+
+	// The user's starting USCF rating
+	StartUscfRating int `dynamodbav:"startUscfRating" json:"startUscfRating"`
+
+	// The user's current Uscf rating
+	CurrentUscfRating int `dynamodbav:"currentUscfRating" json:"currentUscfRating"`
+
+	// The user's ECF Id
+	EcfId string `dynamodbav:"ecfId" json:"ecfId"`
+
+	// Whether to hide the user's ECF ID from other users
+	HideEcfId bool `dynamodbav:"hideEcfId" json:"hideEcfId"`
+
+	// The user's starting ECF rating
+	StartEcfRating int `dynamodbav:"startEcfRating" json:"startEcfRating"`
+
+	// The user's current ECF rating
+	CurrentEcfRating int `dynamodbav:"currentEcfRating" json:"currentEcfRating"`
+
+	// The user's CFC id
+	CfcId string `dynamodbav:"cfcId" json:"cfcId"`
+
+	// Whether to hide the user's CFC ID from other users
+	HideCfcId bool `dynamodbav:"hideCfcId" json:"hideCfcId"`
+
+	// The user's starting CFC rating
+	StartCfcRating int `dynamodbav:"startCfcRating" json:"startCfcRating"`
+
+	// The user's current CFC rating
+	CurrentCfcRating int `dynamodbav:"currentCfcRating" json:"currentCfcRating"`
+
+	// The user's DWZ id
+	DwzId string `dynamodbav:"dwzId" json:"dwzId"`
+
+	// Whether to hide the user's DWZ ID from other users
+	HideDwzId bool `dynamodbav:"hideDwzId" json:"hideDwzId"`
+
+	// The user's starting DWZ rating
+	StartDwzRating int `dynamodbav:"startDwzRating" json:"startDwzRating"`
+
+	// The user's current DWZ rating
+	CurrentDwzRating int `dynamodbav:"currentDwzRating" json:"currentDwzRating"`
+
+	// The user's start custom rating
+	StartCustomRating int `dynamodbav:"startCustomRating" json:"startCustomRating"`
+
+	// The user's current custom rating
+	CurrentCustomRating int `dynamodbav:"currentCustomRating" json:"currentCustomRating"`
+
 	// The user's Dojo cohort
 	DojoCohort DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
 
@@ -222,9 +315,6 @@ type User struct {
 	// A map from a time period to the number of minutes the user has spent on tasks in that time period.
 	// Non-Dojo tasks are not included.
 	MinutesSpent map[string]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
-
-	// A map from a rating system to a slice of RatingHistory objects for that rating system.
-	RatingHistories map[RatingSystem][]RatingHistory `dynamodbav:"ratingHistories" json:"ratingHistories"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
@@ -630,7 +720,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, updatedAt, progress, minutesSpent, ratingSystem, ratings"
+const ratingsProjection = "username, dojoCohort, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories"
 
 // ListUserRatings returns a list of Users matching the provided cohort, up to 1MB of data.
 // Only the fields necessary for the rating/statistics update are returned.
@@ -665,14 +755,14 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		params, err := dynamodbattribute.MarshalList([]interface{}{user.Ratings, user.Username})
+		params, err := dynamodbattribute.MarshalList([]interface{}{user.Ratings, user.RatingHistories, user.Username})
 		if err != nil {
 			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.Ratings", err)
 		}
 
 		statement := &dynamodb.BatchStatementRequest{
 			Statement: aws.String(fmt.Sprintf(
-				"UPDATE \"%s\" SET ratings=? WHERE username=?", userTable,
+				"UPDATE \"%s\" SET ratings=? SET ratingHistories=? WHERE username=?", userTable,
 			)),
 			Parameters: params,
 		}
