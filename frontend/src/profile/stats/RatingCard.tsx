@@ -149,8 +149,6 @@ const RatingCard: React.FC<RatingCardProps> = ({
     isPreferred,
     ratingHistory,
 }) => {
-    console.log('Rendering RatingCard for system: ', system);
-
     const dark = useAuth().user?.enableDarkMode;
     const ratingChange = currentRating - startRating;
     const graduation = getRatingBoundary(cohort, system);

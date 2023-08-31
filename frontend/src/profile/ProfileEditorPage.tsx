@@ -258,7 +258,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
             newErrors.ratingSystem = 'This field is required';
         }
 
-        if (!ratingEditors[ratingSystem]?.username.trim()) {
+        if (
+            ratingSystem !== RatingSystem.Custom &&
+            !ratingEditors[ratingSystem]?.username.trim()
+        ) {
             newErrors[
                 `${ratingSystem}Username`
             ] = `This field is required when using ${formatRatingSystem(
@@ -285,6 +288,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
 
         setErrors(newErrors);
         if (Object.entries(newErrors).length > 0) {
+            console.log('New Errors: ', newErrors);
             return;
         }
 
