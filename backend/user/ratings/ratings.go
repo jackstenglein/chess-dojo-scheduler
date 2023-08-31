@@ -13,6 +13,7 @@ import (
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
 var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
@@ -45,6 +46,18 @@ type CfcResponse struct {
 	Player struct {
 		Rating int `json:"regular_rating"`
 	} `json:"player"`
+}
+
+type RatingFetchFunc func(username string) (int, error)
+
+var RatingFetchFuncs map[database.RatingSystem]RatingFetchFunc = map[database.RatingSystem]RatingFetchFunc{
+	database.Chesscom: FetchChesscomRating,
+	database.Lichess:  FetchLichessRating,
+	database.Fide:     FetchFideRating,
+	database.Uscf:     FetchUscfRating,
+	database.Ecf:      FetchEcfRating,
+	database.Cfc:      FetchCfcRating,
+	database.Dwz:      FetchDwzRating,
 }
 
 func FetchChesscomRating(chesscomUsername string) (int, error) {
@@ -93,6 +106,9 @@ func FetchLichessRating(lichessUsername string) (int, error) {
 
 func FetchBulkLichessRatings(lichessUsernames []string) (map[string]int, error) {
 	log.Debugf("Fetching bulk lichess usernames: %#v", lichessUsernames)
+	if len(lichessUsernames) == 0 {
+		return make(map[string]int, 0), nil
+	}
 
 	resp, err := http.Post("https://lichess.org/api/users", "text/plain", strings.NewReader(strings.Join(lichessUsernames, ",")))
 	if err != nil {
@@ -110,7 +126,7 @@ func FetchBulkLichessRatings(lichessUsernames []string) (map[string]int, error) 
 	for _, r := range rs {
 		result[r.Id] = r.Performances.Classical.Rating
 	}
-	log.Debugf("Bluk Lichess result: %#v", result)
+	log.Debugf("Bulk Lichess result: %#v", result)
 	return result, nil
 }
 

@@ -28,45 +28,23 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 const { Custom, ...RatingSystems } = RatingSystem;
 
 function getUpdate(
+    user: User,
     usernames: Record<RatingSystem, string>,
     hideUsernames: Record<RatingSystem, boolean>
 ): Partial<User> {
-    const result: Partial<User> = {};
+    const ratings = Object.assign({}, user.ratings);
+
     Object.entries(usernames).forEach(([rs, username]) => {
         if (username.trim() !== '') {
-            switch (rs) {
-                case RatingSystem.Chesscom:
-                    result.chesscomUsername = username;
-                    result.hideChesscomUsername = hideUsernames[rs];
-                    break;
-                case RatingSystem.Lichess:
-                    result.lichessUsername = username;
-                    result.hideLichessUsername = hideUsernames[rs];
-                    break;
-                case RatingSystem.Fide:
-                    result.fideId = username;
-                    result.hideFideId = hideUsernames[rs];
-                    break;
-                case RatingSystem.Uscf:
-                    result.uscfId = username;
-                    result.hideUscfId = hideUsernames[rs];
-                    break;
-                case RatingSystem.Cfc:
-                    result.cfcId = username;
-                    result.hideCfcId = hideUsernames[rs];
-                    break;
-                case RatingSystem.Ecf:
-                    result.ecfId = username;
-                    result.hideEcfId = hideUsernames[rs];
-                    break;
-                case RatingSystem.Dwz:
-                    result.dwzId = username;
-                    result.hideDwzId = hideUsernames[rs];
-                    break;
-            }
+            ratings[rs as RatingSystem] = {
+                username,
+                hideUsername: hideUsernames[rs as RatingSystem],
+                startRating: 0,
+                currentRating: 0,
+            };
         }
     });
-    return result;
+    return { ratings };
 }
 
 const ExtraRatingSystemsForm: React.FC<ProfileCreatorFormProps> = ({
@@ -106,7 +84,7 @@ const ExtraRatingSystemsForm: React.FC<ProfileCreatorFormProps> = ({
     };
 
     const onSave = () => {
-        const update = getUpdate(usernames, hideUsernames);
+        const update = getUpdate(user, usernames, hideUsernames);
         if (Object.values(update).length === 0) {
             onNextStep();
             return;

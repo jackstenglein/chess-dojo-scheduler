@@ -83,38 +83,17 @@ function getUpdate(
     username: string,
     hideUsername: boolean
 ): Partial<User> {
-    const result: Partial<User> = { ratingSystem: rs };
-
-    switch (rs) {
-        case RatingSystem.Chesscom:
-            result.chesscomUsername = username;
-            result.hideChesscomUsername = hideUsername;
-            break;
-        case RatingSystem.Lichess:
-            result.lichessUsername = username;
-            result.hideLichessUsername = hideUsername;
-            break;
-        case RatingSystem.Fide:
-            result.fideId = username;
-            result.hideFideId = hideUsername;
-            break;
-        case RatingSystem.Uscf:
-            result.uscfId = username;
-            result.hideUscfId = hideUsername;
-            break;
-        case RatingSystem.Ecf:
-            result.ecfId = username;
-            result.hideEcfId = hideUsername;
-            break;
-        case RatingSystem.Cfc:
-            result.cfcId = username;
-            result.hideCfcId = hideUsername;
-            break;
-        case RatingSystem.Dwz:
-            result.dwzId = username;
-            result.hideDwzId = hideUsername;
-            break;
-    }
+    const result: Partial<User> = {
+        ratingSystem: rs,
+        ratings: {
+            [rs]: {
+                username,
+                hideUsername,
+                startRating: 0,
+                currentRating: 0,
+            },
+        },
+    };
 
     return result;
 }

@@ -21,78 +21,33 @@ const funcName = "user-update-handler"
 
 var repository database.UserUpdater = database.DynamoDB
 
-type ratingFetchFunc func(username string) (int, error)
+func fetchCurrentRating(rating *database.Rating, fetcher ratings.RatingFetchFunc) error {
+	rating.Username = strings.TrimSpace(rating.Username)
+	if rating.Username == "" {
+		rating.CurrentRating = 0
+		rating.StartRating = 0
+		return nil
+	}
 
-func fetchCurrentRating(username **string, currentRating **int, fetcher ratingFetchFunc) error {
-	if *username == nil {
-		return nil
+	currentRating, err := fetcher(rating.Username)
+	rating.CurrentRating = currentRating
+	if rating.StartRating == 0 {
+		rating.StartRating = currentRating
 	}
-	trimmedUsername := strings.TrimSpace(**username)
-	*username = &trimmedUsername
-	if trimmedUsername == "" {
-		*currentRating = aws.Int(0)
-		return nil
-	}
-	rating, err := fetcher(trimmedUsername)
-	*currentRating = &rating
 	return err
 }
 
 func fetchRatings(user *database.User, update *database.UserUpdate) error {
-	if update.ChesscomUsername != nil {
-		if err := fetchCurrentRating(&update.ChesscomUsername, &update.CurrentChesscomRating, ratings.FetchChesscomRating); err != nil {
-			return err
-		}
-		if user.StartChesscomRating == 0 && update.StartChesscomRating == nil {
-			update.StartChesscomRating = update.CurrentChesscomRating
-		}
+	if update.Ratings == nil {
+		return nil
 	}
-	if update.LichessUsername != nil {
-		if err := fetchCurrentRating(&update.LichessUsername, &update.CurrentLichessRating, ratings.FetchLichessRating); err != nil {
-			return err
-		}
-		if user.StartLichessRating == 0 && update.StartLichessRating == nil {
-			update.StartLichessRating = update.CurrentLichessRating
-		}
-	}
-	if update.FideId != nil {
-		if err := fetchCurrentRating(&update.FideId, &update.CurrentFideRating, ratings.FetchFideRating); err != nil {
-			return err
-		}
-		if user.StartFideRating == 0 && update.StartFideRating == nil {
-			update.StartFideRating = update.CurrentFideRating
-		}
-	}
-	if update.UscfId != nil {
-		if err := fetchCurrentRating(&update.UscfId, &update.CurrentUscfRating, ratings.FetchUscfRating); err != nil {
-			return err
-		}
-		if user.StartUscfRating == 0 && update.StartUscfRating == nil {
-			update.StartUscfRating = update.CurrentUscfRating
-		}
-	}
-	if update.EcfId != nil {
-		if err := fetchCurrentRating(&update.EcfId, &update.CurrentEcfRating, ratings.FetchEcfRating); err != nil {
-			return err
-		}
-		if user.StartEcfRating == 0 && update.StartEcfRating == nil {
-			update.StartEcfRating = update.CurrentEcfRating
-		}
-	}
-	if update.CfcId != nil {
-		if err := fetchCurrentRating(&update.CfcId, &update.CurrentCfcRating, ratings.FetchCfcRating); err != nil {
-			return err
-		}
-		if user.StartCfcRating == 0 && update.StartCfcRating == nil {
-			update.StartCfcRating = update.CurrentCfcRating
-		}
-	}
-	if update.DwzId != nil {
-		if err := fetchCurrentRating(&update.DwzId, &update.CurrentDwzRating, ratings.FetchDwzRating); err != nil {
-			return err
-		}
-		if user.StartDwzRating == 0 && update.StartDwzRating == nil {
-			update.StartDwzRating = update.CurrentDwzRating
+
+	for system, rating := range *update.Ratings {
+		if system != database.Custom && (rating.Username != user.Ratings[system].Username ||
+			rating.CurrentRating == 0 || rating.StartRating == 0) {
+			if err := fetchCurrentRating(rating, ratings.RatingFetchFuncs[system]); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

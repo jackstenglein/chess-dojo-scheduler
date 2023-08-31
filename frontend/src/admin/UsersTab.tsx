@@ -37,20 +37,6 @@ const columns: GridColDef[] = [
             params.row.dojoCohort || 'N/A',
         flex: 1,
     },
-    {
-        field: 'chesscomUsername',
-        headerName: 'Chess.com Username',
-        valueGetter: (params: GridValueGetterParams<User, any>) =>
-            params.row.chesscomUsername || 'N/A',
-        flex: 1,
-    },
-    {
-        field: 'lichessUsername',
-        headerName: 'Lichess Username',
-        valueGetter: (params: GridValueGetterParams<User, any>) =>
-            params.row.lichessUsername || 'N/A',
-        flex: 1,
-    },
 ];
 
 const UsersTab = () => {

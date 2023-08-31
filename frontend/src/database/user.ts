@@ -56,6 +56,13 @@ export function formatRatingSystem(ratingSystem: RatingSystem | string): string 
     return ratingSystem;
 }
 
+export interface Rating {
+    username: string;
+    hideUsername: boolean;
+    startRating: number;
+    currentRating: number;
+}
+
 export interface RatingHistory {
     date: string;
     rating: number;
@@ -74,44 +81,8 @@ export interface User {
     isForbidden: boolean;
 
     ratingSystem: RatingSystem;
-
-    chesscomUsername: string;
-    hideChesscomUsername: boolean;
-    startChesscomRating: number;
-    currentChesscomRating: number;
-
-    lichessUsername: string;
-    hideLichessUsername: boolean;
-    startLichessRating: number;
-    currentLichessRating: number;
-
-    fideId: string;
-    hideFideId: boolean;
-    startFideRating: number;
-    currentFideRating: number;
-
-    uscfId: string;
-    hideUscfId: boolean;
-    startUscfRating: number;
-    currentUscfRating: number;
-
-    ecfId: string;
-    hideEcfId: boolean;
-    startEcfRating: number;
-    currentEcfRating: number;
-
-    cfcId: string;
-    hideCfcId: boolean;
-    startCfcRating: number;
-    currentCfcRating: number;
-
-    dwzId: string;
-    hideDwzId: boolean;
-    startDwzRating: number;
-    currentDwzRating: number;
-
-    startCustomRating: number;
-    currentCustomRating: number;
+    ratings: Partial<Record<RatingSystem, Rating>>;
+    ratingHistories?: Record<RatingSystem, RatingHistory[]>;
 
     progress: { [requirementId: string]: RequirementProgress };
     disableBookingNotifications: boolean;
@@ -141,7 +112,6 @@ export interface User {
 
     tutorials?: Record<string, boolean>;
     minutesSpent?: Record<MinutesSpentKey, number>;
-    ratingHistories?: Record<RatingSystem, RatingHistory[]>;
 }
 
 export type MinutesSpentKey =
@@ -171,24 +141,8 @@ export function getSystemStartRating(
     if (!user) {
         return 0;
     }
-    switch (ratingSystem) {
-        case RatingSystem.Chesscom:
-            return user.startChesscomRating;
-        case RatingSystem.Lichess:
-            return user.startLichessRating;
-        case RatingSystem.Fide:
-            return user.startFideRating;
-        case RatingSystem.Uscf:
-            return user.startUscfRating;
-        case RatingSystem.Ecf:
-            return user.startEcfRating;
-        case RatingSystem.Cfc:
-            return user.startCfcRating;
-        case RatingSystem.Dwz:
-            return user.startDwzRating;
-        case RatingSystem.Custom:
-            return user.startCustomRating;
-    }
+    const rating = user.ratings[ratingSystem];
+    return rating?.startRating || 0;
 }
 
 export function getCurrentRating(user?: User): number {
@@ -205,24 +159,8 @@ export function getSystemCurrentRating(
     if (!user) {
         return 0;
     }
-    switch (ratingSystem) {
-        case RatingSystem.Chesscom:
-            return user.currentChesscomRating;
-        case RatingSystem.Lichess:
-            return user.currentLichessRating;
-        case RatingSystem.Fide:
-            return user.currentFideRating;
-        case RatingSystem.Uscf:
-            return user.currentUscfRating;
-        case RatingSystem.Ecf:
-            return user.currentEcfRating;
-        case RatingSystem.Cfc:
-            return user.currentCfcRating;
-        case RatingSystem.Dwz:
-            return user.currentDwzRating;
-        case RatingSystem.Custom:
-            return user.currentCustomRating;
-    }
+    const rating = user.ratings[ratingSystem];
+    return rating?.currentRating || 0;
 }
 
 export function getRatingUsername(
@@ -232,24 +170,8 @@ export function getRatingUsername(
     if (!user) {
         return '';
     }
-    switch (ratingSystem) {
-        case RatingSystem.Chesscom:
-            return user.chesscomUsername;
-        case RatingSystem.Lichess:
-            return user.lichessUsername;
-        case RatingSystem.Fide:
-            return user.fideId;
-        case RatingSystem.Uscf:
-            return user.uscfId;
-        case RatingSystem.Ecf:
-            return user.ecfId;
-        case RatingSystem.Cfc:
-            return user.cfcId;
-        case RatingSystem.Dwz:
-            return user.dwzId;
-        case RatingSystem.Custom:
-            return '';
-    }
+    const rating = user.ratings[ratingSystem];
+    return rating?.username || '';
 }
 
 export function hideRatingUsername(
@@ -259,24 +181,8 @@ export function hideRatingUsername(
     if (!user) {
         return true;
     }
-    switch (ratingSystem) {
-        case RatingSystem.Chesscom:
-            return user.hideChesscomUsername;
-        case RatingSystem.Lichess:
-            return user.hideLichessUsername;
-        case RatingSystem.Fide:
-            return user.hideFideId;
-        case RatingSystem.Uscf:
-            return user.hideUscfId;
-        case RatingSystem.Ecf:
-            return user.hideEcfId;
-        case RatingSystem.Cfc:
-            return user.hideCfcId;
-        case RatingSystem.Dwz:
-            return user.hideDwzId;
-        case RatingSystem.Custom:
-            return true;
-    }
+    const rating = user.ratings[ratingSystem];
+    return rating?.hideUsername || false;
 }
 
 export const dojoCohorts: string[] = [

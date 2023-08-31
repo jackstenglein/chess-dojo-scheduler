@@ -36,17 +36,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	if user.Username != info.Username {
-		if user.HideChesscomUsername {
-			user.ChesscomUsername = ""
-		}
-		if user.HideLichessUsername {
-			user.LichessUsername = ""
-		}
-		if user.HideFideId {
-			user.FideId = ""
-		}
-		if user.HideUscfId {
-			user.UscfId = ""
+		for _, rating := range user.Ratings {
+			if rating.HideUsername {
+				rating.Username = ""
+			}
 		}
 		user.WixEmail = ""
 	}

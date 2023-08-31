@@ -16,13 +16,99 @@ import {
 import { LoadingButton } from '@mui/lab';
 
 import { useAuth } from '../auth/Auth';
-import { dojoCohorts, formatRatingSystem, RatingSystem, User } from '../database/user';
+import {
+    dojoCohorts,
+    formatRatingSystem,
+    Rating,
+    RatingSystem,
+    User,
+} from '../database/user';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { DefaultTimezone } from '../calendar/CalendarFilters';
 import { EventType, setUserCohort, trackEvent } from '../analytics/events';
 
-function parseRating(rating: string): number {
+const ratingSystemForms = [
+    {
+        system: RatingSystem.Chesscom,
+        label: 'Chess.com Username',
+        hideLabel: 'Hide Username',
+    },
+    {
+        system: RatingSystem.Lichess,
+        label: 'Lichess Username',
+        hideLabel: 'Hide Username',
+    },
+    {
+        system: RatingSystem.Fide,
+        label: 'FIDE ID',
+        hideLabel: 'Hide ID',
+    },
+    {
+        system: RatingSystem.Uscf,
+        label: 'USCF ID',
+        hideLabel: 'Hide ID',
+    },
+    {
+        system: RatingSystem.Ecf,
+        label: 'ECF Rating Code',
+        hideLabel: 'Hide Rating Code',
+    },
+    {
+        system: RatingSystem.Cfc,
+        label: 'CFC ID',
+        hideLabel: 'Hide ID',
+    },
+    {
+        system: RatingSystem.Dwz,
+        label: 'DWZ ID',
+        hideLabel: 'Hide ID',
+    },
+];
+
+interface RatingEditor {
+    username: string;
+    hideUsername: boolean;
+    startRating: string;
+    currentRating: string;
+}
+
+function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
+    const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(
+        RatingSystem
+    ).reduce((m, rs) => {
+        m[rs] = {
+            username: ratings[rs]?.username || '',
+            hideUsername: ratings[rs]?.hideUsername || false,
+            startRating: `${ratings[rs]?.startRating || 0}`,
+            currentRating: `${ratings[rs]?.currentRating || 0}`,
+        };
+        return m;
+    }, {} as Record<RatingSystem, RatingEditor>);
+    return ratingEditors;
+}
+
+function getRatingsFromEditors(ratingEditors: Record<RatingSystem, RatingEditor>) {
+    const ratings: Record<RatingSystem, Rating> = Object.values(RatingSystem).reduce(
+        (m, rs) => {
+            m[rs] = {
+                username: ratingEditors[rs].username || '',
+                hideUsername: ratingEditors[rs].hideUsername || false,
+                startRating: parseRating(ratingEditors[rs].startRating),
+                currentRating: parseRating(ratingEditors[rs].currentRating),
+            };
+            return m;
+        },
+        {} as Record<RatingSystem, Rating>
+    );
+    return ratings;
+}
+
+function parseRating(rating: string | undefined): number {
+    if (!rating) {
+        return 0;
+    }
+
     rating = rating.trim();
     if (!rating) {
         return 0;
@@ -88,49 +174,47 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
     );
 
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
+    const [ratingEditors, setRatingEditors] = useState(getRatingEditors(user.ratings));
 
-    const [chesscomUsername, setChesscomUsername] = useState(user.chesscomUsername);
-    const [startChesscomRating, setStartChesscomRating] = useState(
-        `${user.startChesscomRating}`
-    );
-    const [hideChesscomUsername, setHideChesscomUsername] = useState(
-        user.hideChesscomUsername
-    );
+    const setUsername = (ratingSystem: RatingSystem, username: string) => {
+        setRatingEditors({
+            ...ratingEditors,
+            [ratingSystem]: {
+                ...ratingEditors[ratingSystem],
+                username,
+            },
+        });
+    };
 
-    const [lichessUsername, setLichessUsername] = useState(user.lichessUsername);
-    const [startLichessRating, setStartLichessRating] = useState(
-        `${user.startLichessRating}`
-    );
-    const [hideLichessUsername, setHideLichessUsername] = useState(
-        user.hideLichessUsername
-    );
+    const setCurrentRating = (ratingSystem: RatingSystem, value: string) => {
+        setRatingEditors({
+            ...ratingEditors,
+            [ratingSystem]: {
+                ...ratingEditors[ratingSystem],
+                currentRating: value,
+            },
+        });
+    };
 
-    const [fideId, setFideId] = useState(user.fideId);
-    const [startFideRating, setStartFideRating] = useState(`${user.startFideRating}`);
-    const [hideFideId, setHideFideId] = useState(user.hideFideId);
+    const setStartRating = (ratingSystem: RatingSystem, value: string) => {
+        setRatingEditors({
+            ...ratingEditors,
+            [ratingSystem]: {
+                ...ratingEditors[ratingSystem],
+                startRating: value,
+            },
+        });
+    };
 
-    const [uscfId, setUscfId] = useState(user.uscfId);
-    const [startUscfRating, setStartUscfRating] = useState(`${user.startUscfRating}`);
-    const [hideUscfId, setHideUscfId] = useState(user.hideUscfId);
-
-    const [ecfId, setEcfId] = useState(user.ecfId);
-    const [startEcfRating, setStartEcfRating] = useState(`${user.startEcfRating}`);
-    const [hideEcfId, setHideEcfId] = useState(user.hideEcfId);
-
-    const [cfcId, setCfcId] = useState(user.cfcId);
-    const [startCfcRating, setStartCfcRating] = useState(`${user.startCfcRating}`);
-    const [hideCfcId, setHideCfcId] = useState(user.hideCfcId);
-
-    const [dwzId, setDwzId] = useState(user.dwzId);
-    const [startDwzRating, setStartDwzRating] = useState(`${user.startDwzRating}`);
-    const [hideDwzId, setHideDwzId] = useState(user.hideDwzId);
-
-    const [currentCustomRating, setCurrentCustomRating] = useState(
-        `${user.currentCustomRating}`
-    );
-    const [startCustomRating, setStartCustomRating] = useState(
-        `${user.startCustomRating}`
-    );
+    const setHidden = (ratingSystem: RatingSystem, value: boolean) => {
+        setRatingEditors({
+            ...ratingEditors,
+            [ratingSystem]: {
+                ...ratingEditors[ratingSystem],
+                hideUsername: value,
+            },
+        });
+    };
 
     const [disableBookingNotifications, setDisableBookingNotifications] = useState(
         user.disableBookingNotifications
@@ -150,37 +234,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         bio,
         timezoneOverride: timezone === '' ? user.timezoneOverride : timezone,
         ratingSystem,
-
-        chesscomUsername: chesscomUsername.trim(),
-        startChesscomRating: parseRating(startChesscomRating),
-        hideChesscomUsername,
-
-        lichessUsername: lichessUsername.trim(),
-        startLichessRating: parseRating(startLichessRating),
-        hideLichessUsername,
-
-        fideId: fideId.trim(),
-        startFideRating: parseRating(startFideRating),
-        hideFideId,
-
-        uscfId: uscfId.trim(),
-        startUscfRating: parseRating(startUscfRating),
-        hideUscfId,
-
-        ecfId: ecfId.trim(),
-        startEcfRating: parseRating(startEcfRating),
-        hideEcfId,
-
-        cfcId: cfcId.trim(),
-        startCfcRating: parseRating(startCfcRating),
-        hideCfcId,
-
-        dwzId: dwzId.trim(),
-        startDwzRating: parseRating(startDwzRating),
-        hideDwzId,
-
-        currentCustomRating: parseRating(currentCustomRating),
-        startCustomRating: parseRating(startCustomRating),
+        ratings: getRatingsFromEditors(ratingEditors),
 
         disableBookingNotifications,
         disableCancellationNotifications,
@@ -204,63 +258,26 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
             newErrors.ratingSystem = 'This field is required';
         }
 
-        if (ratingSystem === RatingSystem.Chesscom && !chesscomUsername.trim()) {
-            newErrors.chesscomUsername =
-                'This field is required when using Chess.com rating system.';
-        }
-        if (parseRating(startChesscomRating) < 0) {
-            newErrors.startChesscomRating = 'Rating must be an integer >= 0';
-        }
-
-        if (ratingSystem === RatingSystem.Lichess && !lichessUsername.trim()) {
-            newErrors.lichessUsername =
-                'This field is required when using Lichess rating system.';
-        }
-        if (parseRating(startLichessRating) < 0) {
-            newErrors.startLichessRating = 'Rating must be an integer >= 0';
+        if (!ratingEditors[ratingSystem]?.username.trim()) {
+            newErrors[
+                `${ratingSystem}Username`
+            ] = `This field is required when using ${formatRatingSystem(
+                ratingSystem
+            )} rating system.`;
         }
 
-        if (ratingSystem === RatingSystem.Fide && !fideId.trim()) {
-            newErrors.fideId = 'This field is required when using FIDE rating system.';
-        }
-        if (parseRating(startFideRating) < 0) {
-            newErrors.startFideRating = 'Rating must be an integer >= 0';
-        }
-
-        if (ratingSystem === RatingSystem.Uscf && !uscfId.trim()) {
-            newErrors.uscfId = 'This field is required when using USCF rating system.';
-        }
-        if (parseRating(startUscfRating) < 0) {
-            newErrors.startUscfRating = 'Rating must be an integer >= 0';
-        }
-
-        if (ratingSystem === RatingSystem.Ecf && !ecfId.trim()) {
-            newErrors.ecfId = 'This field is required when using ECF rating system.';
-        }
-        if (parseRating(startEcfRating) < 0) {
-            newErrors.startEcfRating = 'Rating must be an integer >= 0';
-        }
-
-        if (ratingSystem === RatingSystem.Cfc && !cfcId.trim()) {
-            newErrors.cfcId = 'This field is required when using CFC rating system.';
-        }
-        if (parseRating(startCfcRating) < 0) {
-            newErrors.startCfcRating = 'Rating must be an integer >= 0';
-        }
-
-        if (ratingSystem === RatingSystem.Dwz && !dwzId.trim()) {
-            newErrors.dwzId = 'This field is required when using DWZ rating system.';
-        }
-        if (parseRating(startDwzRating) < 0) {
-            newErrors.startDwzRating = 'Rating must be an integer >= 0';
+        for (const rs of Object.keys(ratingEditors)) {
+            if (parseRating(ratingEditors[rs as RatingSystem]?.startRating) < 0) {
+                newErrors[`${rs}StartRating`] = 'Rating must be an integer >= 0';
+            }
         }
 
         if (ratingSystem === RatingSystem.Custom) {
-            if (parseRating(currentCustomRating) <= 0) {
+            if (parseRating(ratingEditors[RatingSystem.Custom]?.currentRating) <= 0) {
                 newErrors.currentCustomRating =
                     'This field is required when using Custom rating system.';
             }
-            if (parseRating(startCustomRating) <= 0) {
+            if (parseRating(ratingEditors[RatingSystem.Custom]?.startRating) <= 0) {
                 newErrors.startCustomRating =
                     'This field is required when using Custom rating system.';
             }
@@ -288,99 +305,19 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
             });
     };
 
-    const ratingSystems = [
-        {
-            required: ratingSystem === RatingSystem.Chesscom,
-            label: 'Chess.com Username',
-            hideLabel: 'Hide Username',
-            username: chesscomUsername,
-            setUsername: setChesscomUsername,
-            startRating: startChesscomRating,
-            setStartRating: setStartChesscomRating,
-            hidden: hideChesscomUsername,
-            setHidden: setHideChesscomUsername,
-            usernameError: errors.chesscomUsername,
-            startRatingError: errors.startChesscomRating,
-        },
-        {
-            required: ratingSystem === RatingSystem.Lichess,
-            label: 'Lichess Username',
-            hideLabel: 'Hide Username',
-            username: lichessUsername,
-            setUsername: setLichessUsername,
-            startRating: startLichessRating,
-            setStartRating: setStartLichessRating,
-            hidden: hideLichessUsername,
-            setHidden: setHideLichessUsername,
-            usernameError: errors.lichessUsername,
-            startRatingError: errors.startLichessRating,
-        },
-        {
-            required: ratingSystem === RatingSystem.Fide,
-            label: 'FIDE ID',
-            hideLabel: 'Hide ID',
-            username: fideId,
-            setUsername: setFideId,
-            startRating: startFideRating,
-            setStartRating: setStartFideRating,
-            hidden: hideFideId,
-            setHidden: setHideFideId,
-            usernameError: errors.fideId,
-            startRatingError: errors.startFideRating,
-        },
-        {
-            required: ratingSystem === RatingSystem.Uscf,
-            label: 'USCF ID',
-            hideLabel: 'Hide ID',
-            username: uscfId,
-            setUsername: setUscfId,
-            startRating: startUscfRating,
-            setStartRating: setStartUscfRating,
-            hidden: hideUscfId,
-            setHidden: setHideUscfId,
-            usernameError: errors.uscfId,
-            startRatingError: errors.startUscfRating,
-        },
-        {
-            required: ratingSystem === RatingSystem.Ecf,
-            label: 'ECF Rating Code',
-            hideLabel: 'Hide Rating Code',
-            username: ecfId,
-            setUsername: setEcfId,
-            startRating: startEcfRating,
-            setStartRating: setStartEcfRating,
-            hidden: hideEcfId,
-            setHidden: setHideEcfId,
-            usernameError: errors.ecfId,
-            startRatingError: errors.startEcfRating,
-        },
-        {
-            required: ratingSystem === RatingSystem.Cfc,
-            label: 'CFC ID',
-            hideLabel: 'Hide ID',
-            username: cfcId,
-            setUsername: setCfcId,
-            startRating: startCfcRating,
-            setStartRating: setStartCfcRating,
-            hidden: hideCfcId,
-            setHidden: setHideCfcId,
-            usernameError: errors.cfcId,
-            startRatingError: errors.startCfcRating,
-        },
-        {
-            required: ratingSystem === RatingSystem.Dwz,
-            label: 'DWZ ID',
-            hideLabel: 'Hide ID',
-            username: dwzId,
-            setUsername: setDwzId,
-            startRating: startDwzRating,
-            setStartRating: setStartDwzRating,
-            hidden: hideDwzId,
-            setHidden: setHideDwzId,
-            usernameError: errors.dwzId,
-            startRatingError: errors.startDwzRating,
-        },
-    ];
+    const ratingSystems = ratingSystemForms.map((rsf) => ({
+        required: ratingSystem === rsf.system,
+        label: rsf.label,
+        hideLabel: rsf.hideLabel,
+        username: ratingEditors[rsf.system]?.username,
+        setUsername: (value: string) => setUsername(rsf.system, value),
+        startRating: ratingEditors[rsf.system]?.startRating,
+        setStartRating: (value: string) => setStartRating(rsf.system, value),
+        hidden: ratingEditors[rsf.system]?.hideUsername,
+        setHidden: (value: boolean) => setHidden(rsf.system, value),
+        usernameError: errors[`${rsf.system}Username`],
+        startRatingError: errors[`${rsf.system}StartRating`],
+    }));
 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
@@ -583,9 +520,12 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                             <TextField
                                 required={ratingSystem === RatingSystem.Custom}
                                 label='Current Rating (Custom)'
-                                value={currentCustomRating}
+                                value={ratingEditors[RatingSystem.Custom]?.currentRating}
                                 onChange={(event) =>
-                                    setCurrentCustomRating(event.target.value)
+                                    setCurrentRating(
+                                        RatingSystem.Custom,
+                                        event.target.value
+                                    )
                                 }
                                 error={!!errors.currentCustomRating}
                                 helperText={
@@ -600,9 +540,12 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                             <TextField
                                 required={ratingSystem === RatingSystem.Custom}
                                 label='Start Rating (Custom)'
-                                value={startCustomRating}
+                                value={ratingEditors[RatingSystem.Custom]?.startRating}
                                 onChange={(event) =>
-                                    setStartCustomRating(event.target.value)
+                                    setStartRating(
+                                        RatingSystem.Custom,
+                                        event.target.value
+                                    )
                                 }
                                 error={!!errors.startCustomRating}
                                 helperText={

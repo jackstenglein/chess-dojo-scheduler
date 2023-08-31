@@ -105,6 +105,20 @@ var ratingSystems = []RatingSystem{
 	Custom,
 }
 
+type Rating struct {
+	// The username/id of the user in this rating system
+	Username string `dynamodbav:"username" json:"username"`
+
+	// Whether to hide the username/id from other users
+	HideUsername bool `dynamodbav:"hideUsername" json:"hideUsername"`
+
+	// The user's rating at the time they joined the Dojo
+	StartRating int `dynamodbav:"startRating" json:"startRating"`
+
+	// The user's current rating
+	CurrentRating int `dynamodbav:"currentRating" json:"currentRating"`
+}
+
 type RatingHistory struct {
 	// The date of the rating in ISO format.
 	Date string `dynamodbav:"date" json:"date"`
@@ -142,95 +156,8 @@ type User struct {
 	// The user's preferred rating system
 	RatingSystem RatingSystem `dynamodbav:"ratingSystem" json:"ratingSystem"`
 
-	// The user's Chess.com username
-	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
-
-	// Whether to hide the user's Chess.com username from other users
-	HideChesscomUsername bool `dynamodbav:"hideChesscomUsername" json:"hideChesscomUsername"`
-
-	// The user's starting Chess.com rating
-	StartChesscomRating int `dynamodbav:"startChesscomRating" json:"startChesscomRating"`
-
-	// The user's current Chess.com rating
-	CurrentChesscomRating int `dynamodbav:"currentChesscomRating" json:"currentChesscomRating"`
-
-	// The user's Lichess username
-	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
-
-	// Whether to hide the user's Lichess username from other users
-	HideLichessUsername bool `dynamodbav:"hideLichessUsername" json:"hideLichessUsername"`
-
-	// The user's starting Lichess rating
-	StartLichessRating int `dynamodbav:"startLichessRating" json:"startLichessRating"`
-
-	// The user's current Lichess rating
-	CurrentLichessRating int `dynamodbav:"currentLichessRating" json:"currentLichessRating"`
-
-	// The user's FIDE Id
-	FideId string `dynamodbav:"fideId" json:"fideId"`
-
-	// Whether to hide the user's FIDE ID from other users
-	HideFideId bool `dynamodbav:"hideFideId" json:"hideFideId"`
-
-	// The user's starting FIDE rating
-	StartFideRating int `dynamodbav:"startFideRating" json:"startFideRating"`
-
-	// The user's current FIDE rating
-	CurrentFideRating int `dynamodbav:"currentFideRating" json:"currentFideRating"`
-
-	// The user's USCF Id
-	UscfId string `dynamodbav:"uscfId" json:"uscfId"`
-
-	// Whether to hide the user's USCF ID from other users
-	HideUscfId bool `dynamodbav:"hideUscfId" json:"hideUscfId"`
-
-	// The user's starting USCF rating
-	StartUscfRating int `dynamodbav:"startUscfRating" json:"startUscfRating"`
-
-	// The user's current Uscf rating
-	CurrentUscfRating int `dynamodbav:"currentUscfRating" json:"currentUscfRating"`
-
-	// The user's ECF Id
-	EcfId string `dynamodbav:"ecfId" json:"ecfId"`
-
-	// Whether to hide the user's ECF ID from other users
-	HideEcfId bool `dynamodbav:"hideEcfId" json:"hideEcfId"`
-
-	// The user's starting ECF rating
-	StartEcfRating int `dynamodbav:"startEcfRating" json:"startEcfRating"`
-
-	// The user's current ECF rating
-	CurrentEcfRating int `dynamodbav:"currentEcfRating" json:"currentEcfRating"`
-
-	// The user's CFC id
-	CfcId string `dynamodbav:"cfcId" json:"cfcId"`
-
-	// Whether to hide the user's CFC ID from other users
-	HideCfcId bool `dynamodbav:"hideCfcId" json:"hideCfcId"`
-
-	// The user's starting CFC rating
-	StartCfcRating int `dynamodbav:"startCfcRating" json:"startCfcRating"`
-
-	// The user's current CFC rating
-	CurrentCfcRating int `dynamodbav:"currentCfcRating" json:"currentCfcRating"`
-
-	// The user's DWZ id
-	DwzId string `dynamodbav:"dwzId" json:"dwzId"`
-
-	// Whether to hide the user's DWZ ID from other users
-	HideDwzId bool `dynamodbav:"hideDwzId" json:"hideDwzId"`
-
-	// The user's starting DWZ rating
-	StartDwzRating int `dynamodbav:"startDwzRating" json:"startDwzRating"`
-
-	// The user's current DWZ rating
-	CurrentDwzRating int `dynamodbav:"currentDwzRating" json:"currentDwzRating"`
-
-	// The user's start custom rating
-	StartCustomRating int `dynamodbav:"startCustomRating" json:"startCustomRating"`
-
-	// The user's current custom rating
-	CurrentCustomRating int `dynamodbav:"currentCustomRating" json:"currentCustomRating"`
+	// The user's ratings in each rating system
+	Ratings map[RatingSystem]*Rating `dynamodbav:"ratings" json:"ratings"`
 
 	// The user's Dojo cohort
 	DojoCohort DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
@@ -312,26 +239,8 @@ func (u *User) GetRatings() (int, int) {
 		return 0, 0
 	}
 
-	switch u.RatingSystem {
-	case Chesscom:
-		return u.StartChesscomRating, u.CurrentChesscomRating
-	case Lichess:
-		return u.StartLichessRating, u.CurrentLichessRating
-	case Fide:
-		return u.StartFideRating, u.CurrentFideRating
-	case Uscf:
-		return u.StartUscfRating, u.CurrentUscfRating
-	case Ecf:
-		return u.StartEcfRating, u.CurrentEcfRating
-	case Cfc:
-		return u.StartCfcRating, u.CurrentCfcRating
-	case Dwz:
-		return u.StartDwzRating, u.CurrentDwzRating
-	case Custom:
-		return u.StartCustomRating, u.CurrentCustomRating
-	default:
-		return 0, 0
-	}
+	r := u.Ratings[u.RatingSystem]
+	return r.StartRating, r.CurrentRating
 }
 
 // CalculateScore returns the user's score for the given list of requirements. The
@@ -380,102 +289,8 @@ type UserUpdate struct {
 	// The user's preferred rating system
 	RatingSystem *RatingSystem `dynamodbav:"ratingSystem,omitempty" json:"ratingSystem,omitempty"`
 
-	// The user's Chess.com username
-	ChesscomUsername *string `dynamodbav:"chesscomUsername,omitempty" json:"chesscomUsername,omitempty"`
-
-	// Whether to hide the user's Chess.com username from other users
-	HideChesscomUsername *bool `dynamodbav:"hideChesscomUsername,omitempty" json:"hideChesscomUsername,omitempty"`
-
-	// The user's starting Chess.com rating
-	StartChesscomRating *int `dynamodbav:"startChesscomRating,omitempty" json:"startChesscomRating,omitempty"`
-
-	// The user's current Chess.com rating
-	// Cannot be manually passed by the user and is updated automatically by the server.
-	CurrentChesscomRating *int `dynamodbav:"currentChesscomRating,omitempty" json:"-"`
-
-	// The user's Lichess username
-	LichessUsername *string `dynamodbav:"lichessUsername,omitempty" json:"lichessUsername,omitempty"`
-
-	// Whether to hide the user's Lichess username from other users
-	HideLichessUsername *bool `dynamodbav:"hideLichessUsername,omitempty" json:"hideLichessUsername,omitempty"`
-
-	// The user's starting Lichess rating
-	StartLichessRating *int `dynamodbav:"startLichessRating,omitempty" json:"startLichessRating,omitempty"`
-
-	// The user's current Lichess rating
-	// Cannot be manually passed by the user and is updated automatically by the server.
-	CurrentLichessRating *int `dynamodbav:"currentLichessRating,omitempty" json:"-"`
-
-	// The user's FIDE Id
-	FideId *string `dynamodbav:"fideId,omitempty" json:"fideId,omitempty"`
-
-	// Whether to hide the user's FIDE ID from other users
-	HideFideId *bool `dynamodbav:"hideFideId,omitempty" json:"hideFideId,omitempty"`
-
-	// The user's starting FIDE rating
-	StartFideRating *int `dynamodbav:"startFideRating,omitempty" json:"startFideRating,omitempty"`
-
-	// The user's current FIDE rating
-	// Cannot be manually passed by the user and is updated automatically by the server.
-	CurrentFideRating *int `dynamodbav:"currentFideRating,omitempty" json:"-"`
-
-	// The user's USCF Id
-	UscfId *string `dynamodbav:"uscfId,omitempty" json:"uscfId,omitempty"`
-
-	// Whether to hide the user's USCF ID from other users
-	HideUscfId *bool `dynamodbav:"hideUscfId,omitempty" json:"hideUscfId,omitempty"`
-
-	// The user's starting USCF rating
-	StartUscfRating *int `dynamodbav:"startUscfRating,omitempty" json:"startUscfRating,omitempty"`
-
-	// The user's current USCF rating
-	// Cannot be manually passed by the user and is updated automatically by the server.
-	CurrentUscfRating *int `dynamodbav:"currentUscfRating,omitempty" json:"-"`
-
-	// The user's ECF Id
-	EcfId *string `dynamodbav:"ecfId,omitempty" json:"ecfId,omitempty"`
-
-	// Whether to hide the user's ECF ID from other users
-	HideEcfId *bool `dynamodbav:"hideEcfId,omitempty" json:"hideEcfId,omitempty"`
-
-	// The user's starting ECF rating
-	StartEcfRating *int `dynamodbav:"startEcfRating,omitempty" json:"startEcfRating,omitempty"`
-
-	// The user's current Ecf rating
-	// Cannot be manually passed by the user and is updated automatically by the server.
-	CurrentEcfRating *int `dynamodbav:"currentEcfRating,omitempty" json:"-"`
-
-	// The user's CFC id
-	CfcId *string `dynamodbav:"cfcId,omitempty" json:"cfcId,omitempty"`
-
-	// Whether to hide the user's CFC ID from other users
-	HideCfcId *bool `dynamodbav:"hideCfcId,omitempty" json:"hideCfcId,omitempty"`
-
-	// The user's starting CFC rating
-	StartCfcRating *int `dynamodbav:"startCfcRating,omitempty" json:"startCfcRating,omitempty"`
-
-	// The user's current CFC rating
-	// Cannot be manually passed by the user and is updated automatically by the server.
-	CurrentCfcRating *int `dynamodbav:"currentCfcRating,omitempty" json:"-"`
-
-	// The user's DWZ id
-	DwzId *string `dynamodbav:"dwzId,omitempty" json:"dwzId,omitempty"`
-
-	// Whether to hide the user's DWZ ID from other users
-	HideDwzId *bool `dynamodbav:"hideDwzId,omitempty" json:"hideDwzId,omitempty"`
-
-	// The user's starting DWZ rating
-	StartDwzRating *int `dynamodbav:"startDwzRating,omitempty" json:"startDwzRating,omitempty"`
-
-	// The user's current DWZ rating
-	// Cannot be manually passed by the user and is updated automatically by the server.
-	CurrentDwzRating *int `dynamodbav:"currentDwzRating,omitempty" json:"-"`
-
-	// The user's start custom rating
-	StartCustomRating *int `dynamodbav:"startCustomRating,omitempty" json:"startCustomRating,omitempty"`
-
-	// The user's current custom rating
-	CurrentCustomRating *int `dynamodbav:"currentCustomRating,omitempty" json:"currentCustomRating,omitempty"`
+	// The user's ratings in each rating system
+	Ratings *map[RatingSystem]*Rating `dynamodbav:"ratings,omitempty" json:"ratings,omitempty"`
 
 	// The user's Dojo cohort
 	DojoCohort *DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort,omitempty"`
@@ -536,34 +351,17 @@ type UserUpdate struct {
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
 // and current rating fields. The chosen cohort is returned.
 func (u *UserUpdate) AutopickCohort() DojoCohort {
-	if u == nil || u.RatingSystem == nil {
+	if u == nil || u.RatingSystem == nil || u.Ratings == nil {
 		return NoCohort
 	}
 
-	var currentRating *int
-
-	switch *u.RatingSystem {
-	case Chesscom:
-		currentRating = u.CurrentChesscomRating
-	case Lichess:
-		currentRating = u.CurrentLichessRating
-	case Fide:
-		currentRating = u.CurrentFideRating
-	case Uscf:
-		currentRating = u.CurrentUscfRating
-	case Ecf:
-		currentRating = u.CurrentEcfRating
-	case Cfc:
-		currentRating = u.CurrentCfcRating
-	case Dwz:
-		currentRating = u.CurrentDwzRating
-	}
-
-	if currentRating == nil {
+	rating, ok := (*u.Ratings)[*u.RatingSystem]
+	if !ok {
 		return NoCohort
 	}
 
-	cohort := getCohort(*u.RatingSystem, *currentRating)
+	currentRating := rating.CurrentRating
+	cohort := getCohort(*u.RatingSystem, currentRating)
 	u.DojoCohort = &cohort
 	return cohort
 }
@@ -832,10 +630,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, updatedAt, progress, minutesSpent, ratingSystem, chesscomUsername, lichessUsername, fideId, " +
-	"uscfId, ecfId, cfcId, dwzId, startChesscomRating, currentChesscomRating, startLichessRating, currentLichessRating, startFideRating, " +
-	"currentFideRating, startUscfRating, currentUscfRating, startEcfRating, currentEcfRating, startCfcRating, currentCfcRating, " +
-	"startDwzRating, currentDwzRating"
+const ratingsProjection = "username, dojoCohort, updatedAt, progress, minutesSpent, ratingSystem, ratings"
 
 // ListUserRatings returns a list of Users matching the provided cohort, up to 1MB of data.
 // Only the fields necessary for the rating/statistics update are returned.
@@ -868,45 +663,20 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 		return errors.New(500, "Temporary server error", "UpdateUserRatings has max limit of 25 users")
 	}
 
-	var sb strings.Builder
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
-		sb.WriteString(fmt.Sprintf(" SET currentChesscomRating=%d SET currentLichessRating=%d", user.CurrentChesscomRating, user.CurrentLichessRating))
-		sb.WriteString(fmt.Sprintf(" SET currentFideRating=%d SET currentUscfRating=%d", user.CurrentFideRating, user.CurrentUscfRating))
-		sb.WriteString(fmt.Sprintf(" SET currentEcfRating=%d", user.CurrentEcfRating))
-		sb.WriteString(fmt.Sprintf(" SET currentCfcRating=%d", user.CurrentCfcRating))
-		sb.WriteString(fmt.Sprintf(" SET currentDwzRating=%d", user.CurrentDwzRating))
-
-		if user.StartChesscomRating == 0 {
-			sb.WriteString(fmt.Sprintf(" SET startChesscomRating=%d", user.CurrentChesscomRating))
+		params, err := dynamodbattribute.MarshalList([]interface{}{user.Ratings, user.Username})
+		if err != nil {
+			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.Ratings", err)
 		}
-		if user.StartLichessRating == 0 {
-			sb.WriteString(fmt.Sprintf(" SET startLichessRating=%d", user.CurrentLichessRating))
-		}
-		if user.StartFideRating == 0 {
-			sb.WriteString(fmt.Sprintf(" SET startFideRating=%d", user.CurrentFideRating))
-		}
-		if user.StartUscfRating == 0 {
-			sb.WriteString(fmt.Sprintf(" SET startUscfRating=%d", user.CurrentUscfRating))
-		}
-		if user.StartEcfRating == 0 {
-			sb.WriteString(fmt.Sprintf(" SET startEcfRating=%d", user.CurrentEcfRating))
-		}
-		if user.StartCfcRating == 0 {
-			sb.WriteString(fmt.Sprintf(" SET startCfcRating=%d", user.CurrentCfcRating))
-		}
-		if user.StartDwzRating == 0 {
-			sb.WriteString(fmt.Sprintf(" SET startDwzRating=%d", user.CurrentDwzRating))
-		}
-		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 
 		statement := &dynamodb.BatchStatementRequest{
-			Statement: aws.String(sb.String()),
+			Statement: aws.String(fmt.Sprintf(
+				"UPDATE \"%s\" SET ratings=? WHERE username=?", userTable,
+			)),
+			Parameters: params,
 		}
 		statements = append(statements, statement)
-
-		sb.Reset()
 	}
 
 	input := &dynamodb.BatchExecuteStatementInput{
