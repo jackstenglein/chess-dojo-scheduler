@@ -89,10 +89,10 @@ export function getDefaultNumberOfParticipants(type: AvailabilityType): number {
         case AvailabilityType.RookEndgameProgression:
             return 1;
         case AvailabilityType.ClassicAnalysis:
-            return 4;
+            return 100;
         case AvailabilityType.AnalyzeOwnGame:
-            return 4;
+            return 100;
         case AvailabilityType.BookStudy:
-            return 4;
+            return 100;
     }
 }

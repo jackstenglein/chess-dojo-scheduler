@@ -108,7 +108,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
 
     let defaultMaxParticipants = 1;
     if (allTypes) {
-        defaultMaxParticipants = 4;
+        defaultMaxParticipants = 100;
     } else {
         Object.entries(types).forEach(([type, enabled]) => {
             if (enabled) {
