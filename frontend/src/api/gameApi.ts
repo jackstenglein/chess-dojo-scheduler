@@ -98,6 +98,22 @@ export type GameApiContextType = {
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 
     /**
+     * listGamesByOpening returns a list of GameInfo objects with the provided ECO code,
+     * as well as the next start key for pagination.
+     * @param eco The ECO to search for.
+     * @param startKey The optional startKey to use when searching.
+     * @param startDate The optional start date to limit the search to.
+     * @param endDate The optional end date to limit the search to.
+     * @returns A list of games matching the provided ECO.
+     */
+    listGamesByOpening: (
+        eco: string,
+        startKey?: string,
+        startDate?: string,
+        endDate?: string
+    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+
+    /**
      * listFeaturedGames returns a list of games featured in the past month.
      * @param startKey The optional startKey to use when searching.
      * @returns A list of featured games.
@@ -294,6 +310,31 @@ export function listGamesByOwner(
 ) {
     let params = { owner, startKey, startDate, endDate, player, color };
     return axios.get<ListGamesResponse>(BASE_URL + '/game', {
+        params,
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+}
+
+/**
+ * listGamesByOpening returns a list of GameInfo objects with the provided ECO code,
+ * as well as the next start key for pagination.
+ * @param eco The ECO to search for.
+ * @param startKey The optional startKey to use when searching.
+ * @param startDate The optional start date to limit the search to.
+ * @param endDate The optional end date to limit the search to.
+ * @returns A list of games matching the provided ECO.
+ */
+export function listGamesByOpening(
+    idToken: string,
+    eco: string,
+    startKey?: string,
+    startDate?: string,
+    endDate?: string
+) {
+    let params = { eco, startKey, startDate, endDate };
+    return axios.get<ListGamesResponse>(BASE_URL + '/game/opening', {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,

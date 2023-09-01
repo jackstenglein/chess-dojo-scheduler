@@ -177,6 +177,10 @@ type GameLister interface {
 	// ListFeaturedGames returns a list of Games featured more recently than the provided date.
 	ListFeaturedGames(date, startKey string) ([]*Game, string, error)
 
+	// ListGamesByEco returns a list of Games matching the provided ECO. The PGN text is excluded and must be
+	// fetched separately with a call to GetGame.
+	ListGamesByEco(eco, startDate, endDate, startKey string) ([]*Game, string, error)
+
 	// ScanGames returns a list of all Games in the database.
 	ScanGames(startKey string) ([]*Game, string, error)
 }
@@ -555,6 +559,38 @@ func (repo *dynamoRepository) ListFeaturedGames(date, startKey string) ([]*Game,
 
 	var games []*Game
 	lastKey, err := repo.query(input, startKey, &games)
+	if err != nil {
+		return nil, "", err
+	}
+	return games, lastKey, nil
+}
+
+// ListGamesByEco returns a list of Games matching the provided ECO. The PGN text is excluded and must be
+// fetched separately with a call to GetGame.
+func (repo *dynamoRepository) ListGamesByEco(eco, startDate, endDate, startKey string) ([]*Game, string, error) {
+	filterExpression := "#h.#eco = :eco"
+	expressionAttributeNames := map[string]*string{
+		"#h":   aws.String("headers"),
+		"#eco": aws.String("ECO"),
+	}
+	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
+		":eco": {
+			S: aws.String(eco),
+		},
+	}
+
+	filterExpression = addDates(filterExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
+
+	input := &dynamodb.ScanInput{
+		FilterExpression:          aws.String(filterExpression),
+		ExpressionAttributeNames:  expressionAttributeNames,
+		ExpressionAttributeValues: expressionAttributeValues,
+		IndexName:                 aws.String("OwnerIndex"),
+		TableName:                 aws.String(gameTable),
+	}
+
+	var games []*Game
+	lastKey, err := repo.scan(input, startKey, &games)
 	if err != nil {
 		return nil, "", err
 	}

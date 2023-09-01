@@ -276,10 +276,69 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
     );
 };
 
+type SearchByOpeningProps = BaseFilterProps & {
+    eco: string;
+    setEco: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const SearchByOpening: React.FC<SearchByOpeningProps> = ({
+    eco,
+    startDate,
+    endDate,
+    isLoading,
+    setEco,
+    setStartDate,
+    setEndDate,
+    onSearch,
+}) => {
+    return (
+        <Stack spacing={2}>
+            <FormControl>
+                <TextField
+                    value={eco}
+                    label='Opening ECO'
+                    onChange={(e) => setEco(e.target.value)}
+                />
+            </FormControl>
+
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                    <Grid item xs={12} md={12} lg>
+                        <DatePicker
+                            label='Start Date'
+                            value={startDate}
+                            onChange={(newValue) => {
+                                setStartDate(newValue);
+                            }}
+                            slotProps={{ textField: { fullWidth: true } }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={12} lg>
+                        <DatePicker
+                            label='End Date'
+                            value={endDate}
+                            onChange={(newValue) => {
+                                setEndDate(newValue);
+                            }}
+                            slotProps={{ textField: { fullWidth: true } }}
+                        />
+                    </Grid>
+                </Grid>
+            </LocalizationProvider>
+
+            <LoadingButton variant='outlined' loading={isLoading} onClick={onSearch}>
+                Search
+            </LoadingButton>
+        </Stack>
+    );
+};
+
 enum SearchType {
     Cohort = 'cohort',
     Player = 'player',
     Owner = 'owner',
+    Opening = 'opening',
 }
 
 function isValid(d: Date | null): boolean {
@@ -299,6 +358,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         cohort: user.dojoCohort,
         player: '',
         color: 'either',
+        eco: '',
         type: SearchType.Cohort,
     });
 
@@ -314,6 +374,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     );
     const [editPlayer, setPlayer] = useState(searchParams.get('player') || '');
     const [editColor, setColor] = useState(searchParams.get('color') || '');
+    const [editEco, setEditEco] = useState(searchParams.get('eco') || '');
 
     const paramsStartDate = searchParams.get('startDate');
     const paramsEndDate = searchParams.get('endDate');
@@ -330,6 +391,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const cohort = searchParams.get('cohort') || user.dojoCohort;
     const player = searchParams.get('player') || '';
     const color = searchParams.get('color') || 'either';
+    const eco = searchParams.get('eco') || '';
     let startDateStr: string | undefined = undefined;
     let endDateStr: string | undefined = undefined;
     if (isValid(new Date(paramsStartDate || ''))) {
@@ -371,6 +433,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         [api, user.username, startDateStr, endDateStr]
     );
 
+    const searchByOpening = useCallback(
+        (startKey: string) =>
+            api.listGamesByOpening(eco, startKey, startDateStr, endDateStr),
+        [api, eco, startDateStr, endDateStr]
+    );
+
     // Search is called every time the above functions change, which should
     // happen only when the searchParams change
     useEffect(() => {
@@ -384,11 +452,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 break;
 
             case SearchType.Cohort:
-            default:
                 onSearch(searchByCohort);
                 break;
+
+            case SearchType.Opening:
+                onSearch(searchByOpening);
         }
-    }, [type, onSearch, searchByOwner, searchByPlayer, searchByCohort]);
+    }, [type, onSearch, searchByOwner, searchByPlayer, searchByCohort, searchByOpening]);
 
     // Functions that change the search params
     const onSetSearchParams = (params: URLSearchParamsInit) => {
@@ -410,6 +480,15 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
             type: SearchType.Player,
             player: editPlayer,
             color: editColor,
+            startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
+            endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+        });
+    };
+
+    const onSearchByOpening = () => {
+        onSetSearchParams({
+            type: SearchType.Opening,
+            eco: editEco,
             startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
             endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
         });
@@ -466,6 +545,27 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                         setEndDate={setEndDate}
                         isLoading={isLoading}
                         onSearch={onSearchByPlayer}
+                    />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion
+                id='search-by-opening'
+                expanded={expanded === SearchType.Opening}
+                onChange={onChangePanel(SearchType.Opening)}
+            >
+                <AccordionSummary>
+                    <Typography>Search By Opening</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <SearchByOpening
+                        eco={editEco}
+                        setEco={setEditEco}
+                        startDate={editStartDate}
+                        setStartDate={setStartDate}
+                        endDate={editEndDate}
+                        setEndDate={setEndDate}
+                        isLoading={isLoading}
+                        onSearch={onSearchByOpening}
                     />
                 </AccordionDetails>
             </Accordion>

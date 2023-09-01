@@ -97,13 +97,13 @@ export function usePagination(
 
         searchFunc(startKey)
             .then((response) => {
-                console.log('ListGamesByCohort: ', response);
+                console.log('ListGames: ', response);
                 request.onSuccess();
                 setGames(games.concat(response.data.games));
                 setStartKey(response.data.lastEvaluatedKey);
             })
             .catch((err) => {
-                console.error('ListGamesByCohort: ', err);
+                console.error('ListGames: ', err);
                 request.onFailure(err);
             });
     }, [page, pageSize, games, startKey, searchFunc, request]);

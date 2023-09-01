@@ -645,6 +645,24 @@ functions:
               - - !GetAtt GamesTable.Arn
                 - '/index/BlackIndex'
 
+  listGamesByOpening:
+    handler: game/list/opening/main.go
+    events:
+      - httpApi:
+          path: /game/opening
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - !GetAtt GamesTable.Arn
+          - Fn::Join:
+              - ''
+              - - !GetAtt GamesTable.Arn
+                - '/index/OwnerIndex'
+
   listFeaturedGames:
     handler: game/list/featured/main.go
     events:
