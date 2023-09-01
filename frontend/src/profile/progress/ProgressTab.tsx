@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Stack, TextField, MenuItem, Button } from '@mui/material';
+import {
+    Stack,
+    TextField,
+    MenuItem,
+    Button,
+    FormGroup,
+    FormControlLabel,
+    Checkbox,
+} from '@mui/material';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -28,6 +36,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     const graduationsRequest = useRequest<Graduation[]>();
     const [cohort, setCohort] = useState(user.dojoCohort);
     const { requirements, request: requirementRequest } = useRequirements(cohort, false);
+    const [hideCompleted, setHideCompleted] = useState(false);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({
         'Welcome to the Dojo': false,
         'Games + Analysis': false,
@@ -60,6 +69,10 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         requirements?.forEach((r) => {
             const c = categories.find((c) => c.name === r.category);
             const complete = isComplete(cohort, r, user.progress[r.id]);
+            if (complete && hideCompleted) {
+                return;
+            }
+
             if (c === undefined) {
                 categories.push({
                     name: r.category,
@@ -88,7 +101,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             }
         });
         return categories;
-    }, [requirements, user, cohort]);
+    }, [requirements, user, cohort, hideCompleted]);
 
     if (requirementRequest.isLoading() || categories.length === 0) {
         return <LoadingPage />;
@@ -151,9 +164,33 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
             <DojoScoreCard user={user} cohort={cohort} />
 
-            <Stack direction='row' spacing={1} width={1} mt={3} justifyContent='end'>
-                <Button onClick={onExpandAll}>Expand All</Button>
-                <Button onClick={onCollapseAll}>Collapse All</Button>
+            <Stack
+                direction='row'
+                justifyContent='space-between'
+                width={1}
+                flexWrap='wrap'
+                alignItems='end'
+                mt={3}
+            >
+                <FormGroup>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                size='small'
+                                checked={hideCompleted}
+                                onChange={(e) => setHideCompleted(e.target.checked)}
+                            />
+                        }
+                        label='Hide Completed Tasks'
+                        slotProps={{
+                            typography: { variant: 'body2', color: 'text.secondary' },
+                        }}
+                    />
+                </FormGroup>
+                <Stack direction='row' spacing={1} justifyContent='end'>
+                    <Button onClick={onExpandAll}>Expand All</Button>
+                    <Button onClick={onCollapseAll}>Collapse All</Button>
+                </Stack>
             </Stack>
 
             {categories.map((c) => (
