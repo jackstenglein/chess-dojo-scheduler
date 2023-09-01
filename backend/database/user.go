@@ -529,9 +529,15 @@ func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) 
 	}
 
 	// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
+	emptyMap := make(map[string]*dynamodb.AttributeValue)
 	if len(user.Progress) == 0 {
-		emptyMap := make(map[string]*dynamodb.AttributeValue)
 		item["progress"] = &dynamodb.AttributeValue{M: emptyMap}
+	}
+	if len(user.Ratings) == 0 {
+		item["ratings"] = &dynamodb.AttributeValue{M: emptyMap}
+	}
+	if len(user.RatingHistories) == 0 {
+		item["ratingHistories"] = &dynamodb.AttributeValue{M: emptyMap}
 	}
 
 	input := &dynamodb.PutItemInput{

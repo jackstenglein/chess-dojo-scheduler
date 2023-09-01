@@ -43,7 +43,8 @@ func fetchRatings(user *database.User, update *database.UserUpdate) error {
 	}
 
 	for system, rating := range *update.Ratings {
-		if system != database.Custom && (rating.Username != user.Ratings[system].Username ||
+		existingRating, _ := user.Ratings[system]
+		if system != database.Custom && (existingRating == nil || rating.Username != existingRating.Username ||
 			rating.CurrentRating == 0 || rating.StartRating == 0) {
 			if err := fetchCurrentRating(rating, ratings.RatingFetchFuncs[system]); err != nil {
 				return err
