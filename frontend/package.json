@@ -15,7 +15,7 @@
         "@jackstenglein/chess": "^1.0.49",
         "@mui/base": "^5.0.0-beta.11",
         "@mui/icons-material": "^5.14.3",
-        "@mui/lab": "^5.0.0-alpha.140",
+        "@mui/lab": "^5.0.0-alpha.142",
         "@mui/material": "^5.14.5",
         "@mui/x-data-grid": "^6.11.2",
         "@mui/x-date-pickers": "^6.11.2",
