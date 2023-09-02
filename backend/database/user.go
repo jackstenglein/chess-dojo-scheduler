@@ -150,6 +150,11 @@ type User struct {
 	// The user's Discord username
 	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
+	// A search field of the form display:DisplayName_discord:DiscordUsername_[ratingSystem:RatingSystem.Username]
+	// Stored in all lowercase. Each rating's username is only included if its HideUsername field is false.
+	// Ex: display:jackst_discord:jackstenglein_chesscom:jackstenglein_uscf:12345
+	SearchKey string `dynamodbav:"searchKey" json:"searchKey"`
+
 	// The user's bio
 	Bio string `dynamodbav:"bio" json:"bio"`
 
@@ -161,96 +166,6 @@ type User struct {
 
 	// A map from a rating system to a slice of RatingHistory objects for that rating system.
 	RatingHistories map[RatingSystem][]RatingHistory `dynamodbav:"ratingHistories" json:"ratingHistories"`
-
-	// The user's Chess.com username
-	ChesscomUsername string `dynamodbav:"chesscomUsername" json:"chesscomUsername"`
-
-	// Whether to hide the user's Chess.com username from other users
-	HideChesscomUsername bool `dynamodbav:"hideChesscomUsername" json:"hideChesscomUsername"`
-
-	// The user's starting Chess.com rating
-	StartChesscomRating int `dynamodbav:"startChesscomRating" json:"startChesscomRating"`
-
-	// The user's current Chess.com rating
-	CurrentChesscomRating int `dynamodbav:"currentChesscomRating" json:"currentChesscomRating"`
-
-	// The user's Lichess username
-	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
-
-	// Whether to hide the user's Lichess username from other users
-	HideLichessUsername bool `dynamodbav:"hideLichessUsername" json:"hideLichessUsername"`
-
-	// The user's starting Lichess rating
-	StartLichessRating int `dynamodbav:"startLichessRating" json:"startLichessRating"`
-
-	// The user's current Lichess rating
-	CurrentLichessRating int `dynamodbav:"currentLichessRating" json:"currentLichessRating"`
-
-	// The user's FIDE Id
-	FideId string `dynamodbav:"fideId" json:"fideId"`
-
-	// Whether to hide the user's FIDE ID from other users
-	HideFideId bool `dynamodbav:"hideFideId" json:"hideFideId"`
-
-	// The user's starting FIDE rating
-	StartFideRating int `dynamodbav:"startFideRating" json:"startFideRating"`
-
-	// The user's current FIDE rating
-	CurrentFideRating int `dynamodbav:"currentFideRating" json:"currentFideRating"`
-
-	// The user's USCF Id
-	UscfId string `dynamodbav:"uscfId" json:"uscfId"`
-
-	// Whether to hide the user's USCF ID from other users
-	HideUscfId bool `dynamodbav:"hideUscfId" json:"hideUscfId"`
-
-	// The user's starting USCF rating
-	StartUscfRating int `dynamodbav:"startUscfRating" json:"startUscfRating"`
-
-	// The user's current Uscf rating
-	CurrentUscfRating int `dynamodbav:"currentUscfRating" json:"currentUscfRating"`
-
-	// The user's ECF Id
-	EcfId string `dynamodbav:"ecfId" json:"ecfId"`
-
-	// Whether to hide the user's ECF ID from other users
-	HideEcfId bool `dynamodbav:"hideEcfId" json:"hideEcfId"`
-
-	// The user's starting ECF rating
-	StartEcfRating int `dynamodbav:"startEcfRating" json:"startEcfRating"`
-
-	// The user's current ECF rating
-	CurrentEcfRating int `dynamodbav:"currentEcfRating" json:"currentEcfRating"`
-
-	// The user's CFC id
-	CfcId string `dynamodbav:"cfcId" json:"cfcId"`
-
-	// Whether to hide the user's CFC ID from other users
-	HideCfcId bool `dynamodbav:"hideCfcId" json:"hideCfcId"`
-
-	// The user's starting CFC rating
-	StartCfcRating int `dynamodbav:"startCfcRating" json:"startCfcRating"`
-
-	// The user's current CFC rating
-	CurrentCfcRating int `dynamodbav:"currentCfcRating" json:"currentCfcRating"`
-
-	// The user's DWZ id
-	DwzId string `dynamodbav:"dwzId" json:"dwzId"`
-
-	// Whether to hide the user's DWZ ID from other users
-	HideDwzId bool `dynamodbav:"hideDwzId" json:"hideDwzId"`
-
-	// The user's starting DWZ rating
-	StartDwzRating int `dynamodbav:"startDwzRating" json:"startDwzRating"`
-
-	// The user's current DWZ rating
-	CurrentDwzRating int `dynamodbav:"currentDwzRating" json:"currentDwzRating"`
-
-	// The user's start custom rating
-	StartCustomRating int `dynamodbav:"startCustomRating" json:"startCustomRating"`
-
-	// The user's current custom rating
-	CurrentCustomRating int `dynamodbav:"currentCustomRating" json:"currentCustomRating"`
 
 	// The user's Dojo cohort
 	DojoCohort DojoCohort `dynamodbav:"dojoCohort" json:"dojoCohort"`
@@ -355,6 +270,28 @@ func (u *User) GetRatingChange() int {
 	return current - start
 }
 
+func (u *User) getDisplayName() string {
+	if u == nil {
+		return ""
+	}
+	return u.DisplayName
+}
+
+func (u *User) getDiscordName() string {
+	if u == nil {
+		return ""
+	}
+	return u.DiscordUsername
+}
+
+func (u *User) getRating(rs RatingSystem) (string, bool) {
+	if u == nil || u.Ratings == nil || u.Ratings[rs] == nil {
+		return "", false
+	}
+	rating := u.Ratings[rs]
+	return rating.Username, rating.HideUsername
+}
+
 // UserUpdate contains pointers to fields included in the update of a user record. If a field
 // should not be updated in a particular request, then it is set to nil.
 // Some fields from the User type are removed as they cannot be updated. Other fields
@@ -372,6 +309,12 @@ type UserUpdate struct {
 
 	// The user's Discord username
 	DiscordUsername *string `dynamodbav:"discordUsername,omitempty" json:"discordUsername,omitempty"`
+
+	// A search field of the form display:DisplayName_discord:DiscordUsername_[ratingSystem:RatingSystem.Username]
+	// Stored in all lowercase. Each rating's username is only included if its HideUsername field is false.
+	// Ex: display:jackst_discord:jackstenglein_chesscom:jackstenglein_uscf:12345
+	// Cannot be manually passed by the user and is automatically set when any of the inner fields are updated.
+	SearchKey *string `dynamodbav:"searchKey,omitempty" json:"-"`
 
 	// The user's bio
 	Bio *string `dynamodbav:"bio,omitempty" json:"bio,omitempty"`
@@ -454,6 +397,64 @@ func (u *UserUpdate) AutopickCohort() DojoCohort {
 	cohort := getCohort(*u.RatingSystem, currentRating)
 	u.DojoCohort = &cohort
 	return cohort
+}
+
+func (u *UserUpdate) getDisplayName() string {
+	if u == nil {
+		return ""
+	}
+	if u.DisplayName == nil {
+		return ""
+	}
+	return *u.DisplayName
+}
+
+func (u *UserUpdate) getDiscordName() string {
+	if u == nil {
+		return ""
+	}
+	if u.DiscordUsername == nil {
+		return ""
+	}
+	return *u.DiscordUsername
+}
+
+func (u *UserUpdate) getRating(rs RatingSystem) (string, bool) {
+	if u == nil || u.Ratings == nil || (*u.Ratings)[rs] == nil {
+		return "", false
+	}
+	rating := (*u.Ratings)[rs]
+	return rating.Username, rating.HideUsername
+}
+
+func GetSearchKey(user *User, update *UserUpdate) string {
+	if user == nil && update == nil {
+		return ""
+	}
+
+	displayName, discordName := update.getDisplayName(), update.getDiscordName()
+	if displayName == "" {
+		displayName = user.getDisplayName()
+	}
+	if discordName == "" {
+		discordName = user.getDiscordName()
+	}
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("display:%s_discord:%s", displayName, discordName))
+
+	for _, rs := range ratingSystems {
+		username, hideUsername := update.getRating(rs)
+		if username == "" {
+			username, hideUsername = user.getRating(rs)
+		}
+
+		if username != "" && !hideUsername {
+			sb.WriteString(fmt.Sprintf("_%s:%s", rs, username))
+		}
+	}
+
+	return strings.ToLower(sb.String())
 }
 
 type UserCreator interface {

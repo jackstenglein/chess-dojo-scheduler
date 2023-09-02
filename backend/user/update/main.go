@@ -155,6 +155,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		update.IsForbidden = aws.Bool(false)
 	}
 
+	update.SearchKey = aws.String(database.GetSearchKey(user, update))
 	user, err = repository.UpdateUser(info.Username, update)
 	if err != nil {
 		return api.Failure(funcName, err), nil
