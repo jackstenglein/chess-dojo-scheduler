@@ -21,8 +21,9 @@ type Tournament struct {
 	// The type of the tournament and the hash key of the table
 	Type TournamentType `dynamodbav:"type" json:"type"`
 
-	// The time the tournament starts at in ISO-8601 format and
-	// the range key of the table.
+	// The range key of the table. It's of the form isoTime#id in
+	// order to prevent tournaments at the same time from overwriting
+	// each other.
 	StartsAt string `dynamodbav:"startsAt" json:"startsAt"`
 
 	// The Lichess id of the tournament

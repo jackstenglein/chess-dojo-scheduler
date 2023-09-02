@@ -127,7 +127,7 @@ func handleArena(url string) (*database.Tournament, error) {
 
 	tournament := &database.Tournament{
 		Type:             database.TournamentType_Arena,
-		StartsAt:         arena.StartsAt,
+		StartsAt:         fmt.Sprintf("%s#%s", arena.StartsAt, arena.Id),
 		Id:               arena.Id,
 		Name:             arena.Name,
 		Description:      arena.Description,
@@ -168,7 +168,7 @@ func handleSwiss(url string) (*database.Tournament, error) {
 
 	tournament := &database.Tournament{
 		Type:             database.TournamentType_Swiss,
-		StartsAt:         swiss.StartsAt,
+		StartsAt:         fmt.Sprintf("%s#%s", swiss.StartsAt, swiss.Id),
 		Id:               swiss.Id,
 		Name:             swiss.Name,
 		Description:      swiss.Description,

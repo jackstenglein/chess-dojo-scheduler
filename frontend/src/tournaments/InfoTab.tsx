@@ -19,7 +19,7 @@ const InfoTab = () => {
                     <li>
                         Join{' '}
                         <a
-                            href='https://lichess.com/team/chessdojo'
+                            href='https://lichess.org/team/chessdojo'
                             target='_blank'
                             rel='noreferrer'
                         >

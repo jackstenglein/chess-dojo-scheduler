@@ -22,6 +22,8 @@ import InfoTab from './InfoTab';
 const now = new Date().toISOString();
 
 const TournamentListItem: React.FC<{ tournament: Tournament }> = ({ tournament }) => {
+    const tournamentDate = new Date(tournament.startsAt.split('#')[0]);
+
     return (
         <a
             href={tournament.url}
@@ -35,11 +37,7 @@ const TournamentListItem: React.FC<{ tournament: Tournament }> = ({ tournament }
                     subheader={
                         <Stack>
                             <Typography color='text.secondary'>
-                                {`${new Date(
-                                    tournament.startsAt
-                                ).toLocaleDateString()} • ${new Date(
-                                    tournament.startsAt
-                                ).toLocaleTimeString()}`}
+                                {`${tournamentDate.toLocaleDateString()} • ${tournamentDate.toLocaleTimeString()}`}
                             </Typography>
 
                             <Typography color='text.secondary'>
@@ -90,10 +88,12 @@ const TournamentsList: React.FC<{ type: string | null }> = ({ type }) => {
     }, [reset, tournamentType]);
 
     const upcoming = useMemo(() => {
-        return request.data?.filter((t) => t.startsAt >= now).reverse() || [];
+        return (
+            request.data?.filter((t) => t.startsAt.split('#')[0] >= now).reverse() || []
+        );
     }, [request]);
     const previous = useMemo(() => {
-        return request.data?.filter((t) => t.startsAt < now) || [];
+        return request.data?.filter((t) => t.startsAt.split('#')[0] < now) || [];
     }, [request]);
 
     if (request.isLoading() || !request.isSent()) {
