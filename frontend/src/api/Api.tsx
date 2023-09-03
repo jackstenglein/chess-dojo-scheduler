@@ -17,6 +17,7 @@ import {
     getUser,
     getUserPublic,
     listUsersByCohort,
+    searchUsers,
     updateUser,
     updateUserProgress,
     graduate,
@@ -115,6 +116,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listUserTimeline(idToken, owner, startKey),
             listUsersByCohort: (cohort: string, startKey?: string) =>
                 listUsersByCohort(idToken, cohort, startKey),
+            searchUsers,
             updateUser: (update: Partial<User>, autopickCohort?: boolean) =>
                 updateUser(idToken, update, auth.updateUser, autopickCohort),
             updateUserProgress: (

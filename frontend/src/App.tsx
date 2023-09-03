@@ -41,6 +41,7 @@ import ErrorBoundary from './ErrorBoundary';
 import OpeningPage from './material/openings/OpeningPage';
 import TournamentsPage from './tournaments/TournamentsPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
+import SearchPage from './scoreboard/search/SeachPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -100,6 +101,7 @@ const router = createBrowserRouter(
                         <Route index element={<ScoreboardPage />} />
                         <Route path=':cohort' element={<ScoreboardPage />} />
                         <Route path='stats' element={<StatisticsPage />} />
+                        <Route path='search' element={<SearchPage />} />
                     </Route>
 
                     <Route path='requirements'>

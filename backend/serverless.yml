@@ -257,6 +257,18 @@ functions:
               - - !GetAtt UsersTable.Arn
                 - '/index/CohortIdx'
 
+  searchUsers:
+    handler: user/search/main.go
+    events:
+      - httpApi:
+          path: /public/user/search
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt UsersTable.Arn
+
   updateRatings:
     handler: user/ratings/update/main.go
     events:

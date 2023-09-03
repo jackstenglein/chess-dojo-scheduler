@@ -377,12 +377,13 @@ const ScoreboardPage = () => {
             <TextField
                 id='scoreboard-cohort-select'
                 select
-                label='Cohort'
+                label='View'
                 value={cohort}
                 onChange={(event) => onChangeCohort(event.target.value)}
                 sx={{ mb: 3 }}
                 fullWidth
             >
+                <MenuItem value='search'>User Search</MenuItem>
                 <MenuItem value='stats'>Statistics</MenuItem>
                 {dojoCohorts.map((option) => (
                     <MenuItem key={option} value={option}>

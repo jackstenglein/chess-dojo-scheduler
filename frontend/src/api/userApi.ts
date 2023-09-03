@@ -51,6 +51,15 @@ export type UserApiContextType = {
     listUsersByCohort: (cohort: string, startKey?: string) => Promise<User[]>;
 
     /**
+     * searchUsers returns a list of users matching the provided search query.
+     * @param query The query to match users against.
+     * @param fields The fields to check the query against.
+     * @param startKey The optional startKey to use for pagination.
+     * @returns A list of users matching the provided query and fields.
+     */
+    searchUsers: (query: string, fields: string[], startKey?: string) => Promise<User[]>;
+
+    /**
      * updateUser applies the given updates to the current signed-in user.
      * @param update The updates to apply.
      * @param autopickCohort Whether to automatically pick a cohort for the user based on the rating system and username.
@@ -203,6 +212,31 @@ export async function listUsersByCohort(
         result.push(...resp.data.users);
         params.startKey = resp.data.lastEvaluatedKey;
     } while (params.startKey);
+    return result;
+}
+
+/**
+ * searchUsers returns a list of users matching the provided search query.
+ * @param query The query to match users against.
+ * @param fields The fields to check the query against.
+ * @param startKey The optional startKey to use for pagination.
+ * @returns A list of users matching the provided query and fields.
+ */
+export async function searchUsers(query: string, fields: string[], startKey?: string) {
+    let params = { query, fields: fields.join(','), startKey };
+    const result: User[] = [];
+
+    do {
+        const resp = await axios.get<ListUsersResponse>(
+            BASE_URL + '/public/user/search',
+            {
+                params,
+            }
+        );
+        result.push(...resp.data.users);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+
     return result;
 }
 

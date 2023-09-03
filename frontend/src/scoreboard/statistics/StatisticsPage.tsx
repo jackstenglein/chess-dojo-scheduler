@@ -266,12 +266,13 @@ const StatisticsPage = () => {
 
             <TextField
                 select
-                label='Cohort'
+                label='View'
                 value='stats'
                 onChange={(event) => onChangeCohort(event.target.value)}
                 sx={{ mb: 3 }}
                 fullWidth
             >
+                <MenuItem value='search'>User Search</MenuItem>
                 <MenuItem value='stats'>Statistics</MenuItem>
                 {dojoCohorts.map((option) => (
                     <MenuItem key={option} value={option}>

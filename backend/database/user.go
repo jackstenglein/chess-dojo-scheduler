@@ -472,6 +472,11 @@ type UserLister interface {
 	// startKey is an optional parameter that can be used to perform pagination.
 	// The list of users and the next start key are returned.
 	ListUsersByCohort(cohort DojoCohort, startKey string) ([]*User, string, error)
+
+	// SearchUsers returns a list of users whose SearchKey field matches the provided query string and fields.
+	// fields should be an array like ["display", "discord", "chesscom"] etc. The special value "all" can be
+	// provided to indicate all fields are a match.
+	SearchUsers(query string, fields []string, startKey string) ([]*User, string, error)
 }
 
 type UserUpdater interface {
@@ -873,6 +878,50 @@ func (repo *dynamoRepository) FindUsersByWixEmail(wixEmail, startKey string) ([]
 
 	var users []*User
 	lastKey, err := repo.query(input, startKey, &users)
+	if err != nil {
+		return nil, "", err
+	}
+	return users, lastKey, nil
+}
+
+// SearchUsers returns a list of users whose SearchKey field matches the provided query string and fields.
+// fields should be an array like ["display", "discord", "chesscom"] etc. The special value "all" can be
+// provided to indicate all fields are a match.
+func (repo *dynamoRepository) SearchUsers(query string, fields []string, startKey string) ([]*User, string, error) {
+	query = strings.ToLower(query)
+
+	var filter strings.Builder
+	expressionAttrNames := map[string]*string{
+		"#search": aws.String("searchKey"),
+	}
+	expressionAttrValues := make(map[string]*dynamodb.AttributeValue)
+
+	for i, field := range fields {
+		var attrValue *dynamodb.AttributeValue
+
+		field = strings.ToLower(field)
+		if field == "all" {
+			attrValue = &dynamodb.AttributeValue{S: aws.String(query)}
+		} else {
+			attrValue = &dynamodb.AttributeValue{S: aws.String(fmt.Sprintf("%s:%s", field, query))}
+		}
+
+		if i > 0 {
+			filter.WriteString(" OR ")
+		}
+		filter.WriteString(fmt.Sprintf("contains (#search, :field%d)", i))
+		expressionAttrValues[fmt.Sprintf(":field%d", i)] = attrValue
+	}
+
+	input := &dynamodb.ScanInput{
+		FilterExpression:          aws.String(filter.String()),
+		ExpressionAttributeNames:  expressionAttrNames,
+		ExpressionAttributeValues: expressionAttrValues,
+		TableName:                 aws.String(userTable),
+	}
+
+	var users []*User
+	lastKey, err := repo.scan(input, startKey, &users)
 	if err != nil {
 		return nil, "", err
 	}
