@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
@@ -25,14 +24,9 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.Debugf("Request: %#v", request)
 
 	info := api.GetUserInfo(request)
-	if info.Username == "" {
-		err := errors.New(403, "Invalid request: not authenticated", "Username from Cognito token was empty")
-		return api.Failure(funcName, err), nil
-	}
-
 	startKey, _ := request.QueryStringParameters["startKey"]
 
-	events, lastKey, err := repository.ScanEvents(startKey)
+	events, lastKey, err := repository.ScanEvents(info.Username == "", startKey)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}

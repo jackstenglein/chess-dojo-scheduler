@@ -144,6 +144,17 @@ export function getDefaultNumberOfParticipants(type: AvailabilityType): number {
     }
 }
 
+export function displayTournamentType(type: TournamentType | null | undefined): string {
+    if (!type) return '';
+
+    switch (type) {
+        case TournamentType.Arena:
+            return 'Arena';
+        case TournamentType.Swiss:
+            return 'Swiss';
+    }
+}
+
 export function displayTimeControlType(type: TimeControlType | null | undefined): string {
     if (!type) return '';
 

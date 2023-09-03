@@ -25,7 +25,7 @@ import ActivityTab from './activity/ActivityTab';
 import GraduationDialog from './GraduationDialog';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import StatsTab from './stats/StatsTab';
-import { DefaultTimezone } from '../calendar/CalendarFilters';
+import { DefaultTimezone } from '../calendar/filters/CalendarFilters';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
 
 const timezoneDisplayLabels: Record<string, string> = {

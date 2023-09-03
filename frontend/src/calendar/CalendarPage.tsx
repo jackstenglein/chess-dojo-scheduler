@@ -8,7 +8,12 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { useApi } from '../api/Api';
 import AvailabilityEditor from './AvailabilityEditor';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { CalendarFilters, DefaultTimezone, Filters, useFilters } from './CalendarFilters';
+import {
+    CalendarFilters,
+    DefaultTimezone,
+    Filters,
+    useFilters,
+} from './filters/CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
 import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
@@ -159,7 +164,7 @@ function processLigaTournament(
     if (!event.ligaTournament) {
         return null;
     }
-    if (!filters.tournamentTypes[event.ligaTournament.timeControlType]) {
+    if (!filters.tournamentTimeControls[event.ligaTournament.timeControlType]) {
         return null;
     }
 
@@ -357,20 +362,20 @@ export default function CalendarPage() {
                             weekDays: [0, 1, 2, 3, 4, 5, 6],
                             weekStartOn: 0,
                             startHour: 0,
-                            endHour: 23,
+                            endHour: 24,
                             navigation: true,
                         }}
                         week={{
                             weekDays: [0, 1, 2, 3, 4, 5, 6],
                             weekStartOn: 0,
                             startHour: 0,
-                            endHour: 23,
+                            endHour: 24,
                             step: 60,
                             navigation: true,
                         }}
                         day={{
                             startHour: 0,
-                            endHour: 23,
+                            endHour: 24,
                             step: 60,
                             navigation: true,
                         }}

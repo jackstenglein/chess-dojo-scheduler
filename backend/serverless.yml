@@ -512,6 +512,9 @@ functions:
           path: /event
           method: get
           authorizer: serviceAuthorizer
+      - httpApi:
+          path: /public/event
+          method: get
     iamRoleStatements:
       - Effect: Allow
         Action:

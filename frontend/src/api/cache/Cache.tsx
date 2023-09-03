@@ -169,7 +169,7 @@ export function useEvents(): UseEventsResponse {
     const events = useMemo(() => cache.events.list(), [cache.events]);
 
     useEffect(() => {
-        if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
+        if (auth.status !== AuthStatus.Loading && !request.isSent()) {
             request.onStart();
             cache.setIsLoading(true);
 

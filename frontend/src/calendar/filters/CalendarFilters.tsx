@@ -4,19 +4,17 @@ import {
     FormControlLabel,
     Checkbox,
     useMediaQuery,
-    Select,
-    MenuItem,
-    FormControl,
     Tooltip,
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import {
     AvailabilityType,
     TimeControlType,
+    TournamentType,
     displayTimeControlType,
     getDisplayString,
-} from '../database/event';
-import { dojoCohorts } from '../database/user';
+} from '../../database/event';
+import { dojoCohorts } from '../../database/user';
 
 import { styled } from '@mui/material/styles';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
@@ -25,12 +23,12 @@ import MuiAccordionSummary, {
     AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import { useAuth } from '../auth/Auth';
-import { useApi } from '../api/Api';
+import { useAuth } from '../../auth/Auth';
+import TimezoneFilter from './TimezoneFilter';
 
 export const DefaultTimezone = 'DEFAULT';
 
-const Accordion = styled((props: AccordionProps) => (
+export const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(() => ({
     '&:before': {
@@ -38,7 +36,7 @@ const Accordion = styled((props: AccordionProps) => (
     },
 }));
 
-const AccordionSummary = styled(
+export const AccordionSummary = styled(
     ({
         forceExpansion,
         ...props
@@ -67,7 +65,7 @@ const AccordionSummary = styled(
     },
 }));
 
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     borderTop: '1px solid rgba(0, 0, 0, .125)',
     padding: 0,
     paddingLeft: theme.spacing(1),
@@ -98,16 +96,21 @@ export interface Filters {
     cohorts: Record<string, boolean>;
     setCohorts: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 
-    tournamentTypes: Record<TimeControlType, boolean>;
+    tournamentTypes: Record<TournamentType, boolean>;
     setTournamentTypes: React.Dispatch<
+        React.SetStateAction<Record<TournamentType, boolean>>
+    >;
+
+    tournamentTimeControls: Record<TimeControlType, boolean>;
+    setTournamentTimeControls: React.Dispatch<
         React.SetStateAction<Record<TimeControlType, boolean>>
     >;
 }
 
 export function useFilters(): Filters {
-    const user = useAuth().user!;
+    const user = useAuth().user;
 
-    const [timezone, setTimezone] = useState(user.timezoneOverride || DefaultTimezone);
+    const [timezone, setTimezone] = useState(user?.timezoneOverride || DefaultTimezone);
     const [availabilities, setAvailabilities] = useState(true);
     const [meetings, setMeetings] = useState(true);
     const [dojoEvents, setDojoEvents] = useState(true);
@@ -129,6 +132,15 @@ export function useFilters(): Filters {
     );
 
     const [tournamentTypes, setTournamentTypes] = useState<
+        Record<TournamentType, boolean>
+    >(
+        Object.values(TournamentType).reduce((map, type) => {
+            map[type] = true;
+            return map;
+        }, {} as Record<TournamentType, boolean>)
+    );
+
+    const [tournamentTimeControls, setTournamentTimeControls] = useState<
         Record<TimeControlType, boolean>
     >(
         Object.values(TimeControlType).reduce((map, type) => {
@@ -157,6 +169,8 @@ export function useFilters(): Filters {
             setCohorts,
             tournamentTypes,
             setTournamentTypes,
+            tournamentTimeControls,
+            setTournamentTimeControls,
         }),
         [
             timezone,
@@ -177,24 +191,12 @@ export function useFilters(): Filters {
             setCohorts,
             tournamentTypes,
             setTournamentTypes,
+            tournamentTimeControls,
+            setTournamentTimeControls,
         ]
     );
 
     return result;
-}
-
-function getTimezoneOptions() {
-    const options = [];
-    for (let i = -12; i <= 14; i++) {
-        const displayLabel = i < 0 ? `UTC${i}` : `UTC+${i}`;
-        const value = i <= 0 ? `Etc/GMT+${Math.abs(i)}` : `Etc/GMT-${i}`;
-        options.push(
-            <MenuItem key={i} value={value}>
-                {displayLabel}
-            </MenuItem>
-        );
-    }
-    return options;
 }
 
 interface CalendarFiltersProps {
@@ -202,8 +204,6 @@ interface CalendarFiltersProps {
 }
 
 export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => {
-    const api = useApi();
-
     const [expanded, setExpanded] = useState<string | boolean>(false);
     const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
 
@@ -235,35 +235,13 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         });
     };
 
-    const onChangeTimezone = (timezone: string) => {
-        filters.setTimezone(timezone);
-        api.updateUser({ timezoneOverride: timezone });
-    };
-
-    // Time in hours between UTC and local. The value is positive if the local time zone is
-    // behind UTC and negative if the local time zone is ahead of UTC.
-    const timezoneOffset = new Date().getTimezoneOffset() / 60;
-    const browserDefaultLabel =
-        timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
-
     return (
         <Stack sx={{ pt: 0.5, pb: 2 }} spacing={{ xs: 3, sm: 4 }}>
-            <Stack id='current-timezone'>
-                <Typography variant='h6' color='text.secondary' ml={1}>
-                    Current Timezone
-                </Typography>
-                <FormControl size='small'>
-                    <Select
-                        value={filters.timezone}
-                        onChange={(e) => onChangeTimezone(e.target.value)}
-                    >
-                        <MenuItem value={DefaultTimezone}>
-                            Browser Default ({browserDefaultLabel})
-                        </MenuItem>
-                        {getTimezoneOptions()}
-                    </Select>
-                </FormControl>
-            </Stack>
+            <TimezoneFilter
+                timezone={filters.timezone}
+                setTimezone={filters.setTimezone}
+            />
+
             <Accordion
                 expanded={forceExpansion || expanded === 'myCalendar'}
                 onChange={handleChange('myCalendar')}
@@ -352,7 +330,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                         <Checkbox
                                             checked={
                                                 filters.dojoEvents &&
-                                                filters.tournamentTypes[type]
+                                                filters.tournamentTimeControls[type]
                                             }
                                             onChange={(event) =>
                                                 onChangeTournamentType(

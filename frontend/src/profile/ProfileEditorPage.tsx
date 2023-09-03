@@ -25,7 +25,7 @@ import {
 } from '../database/user';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { DefaultTimezone } from '../calendar/CalendarFilters';
+import { DefaultTimezone } from '../calendar/filters/CalendarFilters';
 import { EventType, setUserCohort, trackEvent } from '../analytics/events';
 
 const ratingSystemForms = [

@@ -45,7 +45,8 @@ export type EventApiContextType = {
     getEvent: (id: string) => Promise<AxiosResponse<Event, any>>;
 
     /**
-     * listEvents returns a list of all upcoming Events.
+     * listEvents returns a list of all upcoming Events. If the current user is not logged in,
+     * only public events are returned.
      * @param startKey The first startKey to use when searching for Events.
      * @returns A list of Events.
      */
@@ -141,12 +142,17 @@ export async function listEvents(idToken: string, startKey?: string) {
     const result: Event[] = [];
 
     do {
-        const resp = await axios.get<ListEventsResponse>(`${BASE_URL}/event`, {
-            params,
-            headers: {
-                Authorization: 'Bearer ' + idToken,
-            },
-        });
+        const resp = await axios.get<ListEventsResponse>(
+            idToken ? `${BASE_URL}/event` : `${BASE_URL}/public/event`,
+            {
+                params,
+                headers: idToken
+                    ? {
+                          Authorization: 'Bearer ' + idToken,
+                      }
+                    : undefined,
+            }
+        );
 
         result.push(...resp.data.events);
         params.startKey = resp.data.lastEvaluatedKey;

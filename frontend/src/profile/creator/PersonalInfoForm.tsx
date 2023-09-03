@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MenuItem, Stack, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-import { DefaultTimezone } from '../../calendar/CalendarFilters';
+import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';

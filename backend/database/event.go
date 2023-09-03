@@ -274,9 +274,10 @@ type EventBooker interface {
 
 type EventLister interface {
 	// ScanEvents returns a list of all Events in the database, up to 1MB of data.
+	// If public is true, only public events will be included in the results.
 	// startKey is an optional parameter that can be used to perform pagination.
 	// The list of meetings and the next start key are returned.
-	ScanEvents(startKey string) ([]*Event, string, error)
+	ScanEvents(public bool, startKey string) ([]*Event, string, error)
 }
 
 // SetEvent inserts the provided Event into the database.
@@ -468,15 +469,29 @@ func (repo *dynamoRepository) CancelEvent(event *Event) (*Event, error) {
 // ScanEvents returns a list of all Events in the database, up to 1MB of data.
 // startKey is an optional parameter that can be used to perform pagination.
 // The list of meetings and the next start key are returned.
-func (repo *dynamoRepository) ScanEvents(startKey string) ([]*Event, string, error) {
+func (repo *dynamoRepository) ScanEvents(public bool, startKey string) ([]*Event, string, error) {
+	filterExpression := "id <> :statistics"
+	if public {
+		filterExpression += " AND #type <> :availability"
+	}
+
 	input := &dynamodb.ScanInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":statistics": {
 				S: aws.String("STATISTICS"),
 			},
 		},
-		FilterExpression: aws.String("id <> :statistics"),
+		FilterExpression: aws.String(filterExpression),
 		TableName:        aws.String(eventTable),
+	}
+
+	if public {
+		input.ExpressionAttributeValues[":availability"] = &dynamodb.AttributeValue{
+			S: aws.String(string(EventTypeAvailability)),
+		}
+		input.ExpressionAttributeNames = map[string]*string{
+			"#type": aws.String("type"),
+		}
 	}
 
 	var events []*Event
