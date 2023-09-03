@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -14,6 +15,13 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
+
+const funcName = "tournament-create-handler"
+const lichessArenaPrefix = "https://lichess.org/tournament/"
+const lichessSwissPrefix = "https://lichess.org/swiss/"
+
+var repository = database.DynamoDB
+var botAccessToken = os.Getenv("botAccessToken")
 
 type CreateTournamentsRequest struct {
 	Url string `json:"url"`
@@ -34,6 +42,43 @@ type LichessArenaResponse struct {
 		Name string `json:"name"`
 		Fen  string `json:"fen"`
 	} `json:"position"`
+	Perf struct {
+		Key string `json:"key"`
+	} `json:"perf"`
+}
+
+func (a LichessArenaResponse) ToEvent() (*database.Event, error) {
+	startTime, err := time.Parse(time.RFC3339, a.StartsAt)
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to parse Lichess StartsAt time", err)
+		return nil, err
+	}
+	endTime := startTime.Add(time.Duration(a.LengthMinutes) * time.Minute)
+	expirationTime := endTime.Add(6 * 7 * 24 * time.Hour)
+
+	event := &database.Event{
+		Id:               a.Id,
+		Type:             database.EventTypeLigaTournament,
+		Owner:            "Sensei",
+		OwnerDisplayName: "Sensei",
+		Title:            a.Name,
+		StartTime:        a.StartsAt,
+		EndTime:          endTime.Format(time.RFC3339),
+		ExpirationTime:   expirationTime.Unix(),
+		Status:           database.Scheduled,
+		Location:         fmt.Sprintf("%s%s", lichessArenaPrefix, a.Id),
+		Description:      a.Description,
+		LigaTournament: &database.LigaTournament{
+			Type:             database.TournamentType_Arena,
+			Id:               a.Id,
+			Rated:            a.Rated,
+			TimeControlType:  database.TimeControlType(strings.ToUpper(a.Perf.Key)),
+			LimitSeconds:     a.Clock.Limit,
+			IncrementSeconds: a.Clock.Increment,
+			Fen:              a.Position.Fen,
+		},
+	}
+	return event, nil
 }
 
 type LichessSwissResponse struct {
@@ -53,13 +98,69 @@ type LichessSwissResponse struct {
 	} `json:"position"`
 }
 
-const funcName = "tournament-create-handler"
-const lichessArenaPrefix = "https://lichess.org/tournament/"
-const lichessSwissPrefix = "https://lichess.org/swiss/"
+func (s LichessSwissResponse) TimeControlType() (database.TimeControlType, error) {
+	if s.Clock.Limit == 900 && s.Clock.Increment == 5 {
+		return database.TimeControlType_Rapid, nil
+	}
+	if s.Clock.Limit == 300 && s.Clock.Increment == 3 {
+		return database.TimeControlType_Blitz, nil
+	}
+	if s.Clock.Limit == 5400 && s.Clock.Increment == 30 {
+		return database.TimeControlType_Classical, nil
+	}
+	if s.Clock.Limit == 3600 && s.Clock.Increment == 30 {
+		return database.TimeControlType_Classical, nil
+	}
+	if s.Clock.Limit == 2700 && s.Clock.Increment == 30 {
+		return database.TimeControlType_Classical, nil
+	}
+	if s.Clock.Limit == 180 && s.Clock.Increment == 2 {
+		return database.TimeControlType_Blitz, nil
+	}
 
-var repository = database.DynamoDB
+	return "", errors.New(400, fmt.Sprintf("Invalid time control %d+%d", s.Clock.Limit, s.Clock.Increment), "")
+}
 
-var botAccessToken = os.Getenv("botAccessToken")
+func (s LichessSwissResponse) ToEvent(round int) (*database.Event, error) {
+	timeControl, err := s.TimeControlType()
+	if err != nil {
+		return nil, err
+	}
+
+	startTime, err := time.Parse(time.RFC3339, s.StartsAt)
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to parse Lichess StartsAt time", err)
+		return nil, err
+	}
+
+	startTime = startTime.Add(time.Duration(round) * 7 * 24 * time.Hour)
+	endTime := startTime.Add(60 * time.Minute)
+	expirationTime := endTime.Add(6 * 7 * 24 * time.Hour)
+
+	event := &database.Event{
+		Id:               fmt.Sprintf("%s-round-%d", s.Id, round+1),
+		Type:             database.EventTypeLigaTournament,
+		Owner:            "Sensei",
+		OwnerDisplayName: "Sensei",
+		Title:            s.Name,
+		StartTime:        startTime.Format(time.RFC3339),
+		EndTime:          endTime.Format(time.RFC3339),
+		ExpirationTime:   expirationTime.Unix(),
+		Status:           database.Scheduled,
+		Location:         fmt.Sprintf("%s%s", lichessSwissPrefix, s.Id),
+		Description:      s.Description,
+		LigaTournament: &database.LigaTournament{
+			Type:             database.TournamentType_Swiss,
+			Id:               s.Id,
+			Rated:            s.Rated,
+			TimeControlType:  timeControl,
+			LimitSeconds:     s.Clock.Limit,
+			IncrementSeconds: s.Clock.Increment,
+			Fen:              s.Position.Fen,
+		},
+	}
+	return event, nil
+}
 
 func main() {
 	lambda.Start(Handler)
@@ -81,26 +182,32 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
-	var tournament *database.Tournament
+	var events []*database.Event
 	if strings.HasPrefix(req.Url, lichessArenaPrefix) {
-		tournament, err = handleArena(req.Url)
+		event, err := handleArena(req.Url)
+		if err != nil {
+			return api.Failure(funcName, err), nil
+		}
+		events = append(events, event)
 	} else if strings.HasPrefix(req.Url, lichessSwissPrefix) {
-		tournament, err = handleSwiss(req.Url)
+		e, err := handleSwiss(req.Url)
+		if err != nil {
+			return api.Failure(funcName, err), nil
+		}
+		events = append(events, e...)
 	} else {
 		return api.Failure(funcName, errors.New(400, "Invalid request: unknown URL format", "")), nil
 	}
 
-	if err != nil {
-		return api.Failure(funcName, err), nil
+	for _, event := range events {
+		if err := repository.SetEvent(event); err != nil {
+			return api.Failure(funcName, err), nil
+		}
 	}
-
-	if err := repository.SetTournament(tournament); err != nil {
-		return api.Failure(funcName, err), nil
-	}
-	return api.Success(funcName, tournament), nil
+	return api.Success(funcName, events), nil
 }
 
-func handleArena(url string) (*database.Tournament, error) {
+func handleArena(url string) (*database.Event, error) {
 	id := strings.TrimPrefix(url, lichessArenaPrefix)
 	if id == "" {
 		return nil, errors.New(400, "Invalid request: Lichess arena id must not be empty", "")
@@ -125,23 +232,10 @@ func handleArena(url string) (*database.Tournament, error) {
 		return nil, err
 	}
 
-	tournament := &database.Tournament{
-		Type:             database.TournamentType_Arena,
-		StartsAt:         fmt.Sprintf("%s#%s", arena.StartsAt, arena.Id),
-		Id:               arena.Id,
-		Name:             arena.Name,
-		Description:      arena.Description,
-		Rated:            arena.Rated,
-		LimitSeconds:     arena.Clock.Limit,
-		IncrementSeconds: arena.Clock.Increment,
-		Fen:              arena.Position.Fen,
-		Url:              url,
-		LengthMinutes:    arena.LengthMinutes,
-	}
-	return tournament, nil
+	return arena.ToEvent()
 }
 
-func handleSwiss(url string) (*database.Tournament, error) {
+func handleSwiss(url string) ([]*database.Event, error) {
 	id := strings.TrimPrefix(url, lichessSwissPrefix)
 	if id == "" {
 		return nil, errors.New(400, "Invalid request: Lichess swiss id must not be empty", "")
@@ -166,18 +260,17 @@ func handleSwiss(url string) (*database.Tournament, error) {
 		return nil, err
 	}
 
-	tournament := &database.Tournament{
-		Type:             database.TournamentType_Swiss,
-		StartsAt:         fmt.Sprintf("%s#%s", swiss.StartsAt, swiss.Id),
-		Id:               swiss.Id,
-		Name:             swiss.Name,
-		Description:      swiss.Description,
-		Rated:            swiss.Rated,
-		LimitSeconds:     swiss.Clock.Limit,
-		IncrementSeconds: swiss.Clock.Increment,
-		Fen:              swiss.Position.Fen,
-		Url:              url,
-		NumRounds:        swiss.NumRounds,
+	var result []*database.Event
+	isMonthly := strings.Index(swiss.Name, "Monthly") >= 0
+	i := 0
+
+	for ok := true; ok; ok = isMonthly && i < swiss.NumRounds {
+		event, err := swiss.ToEvent(i)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, event)
+		i++
 	}
-	return tournament, nil
+	return result, nil
 }

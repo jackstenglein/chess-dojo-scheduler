@@ -1,7 +1,7 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Box, Link, Stack, Typography } from '@mui/material';
 
-import { Event, LigaTournament, TournamentType } from '../database/event';
+import { LigaTournament } from '../database/event';
 import Board from '../board/Board';
 import { useEffect, useState } from 'react';
 

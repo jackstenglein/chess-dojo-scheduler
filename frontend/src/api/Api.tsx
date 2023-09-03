@@ -64,7 +64,6 @@ import {
 import { getCourse, listCourses, OpeningApiContextType } from './openingApi';
 import {
     getLeaderboard,
-    listTournaments,
     TimeControl,
     TimePeriod,
     TournamentApiContextType,
@@ -222,8 +221,6 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getCourse: (id: string) => getCourse(idToken, id),
             listCourses: (startKey?: string) => listCourses(idToken, startKey),
 
-            listTournaments: (type: TournamentType, startKey?: string) =>
-                listTournaments(type, startKey),
             getLeaderboard: (
                 timePeriod: TimePeriod,
                 tournamentType: TournamentType,

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { Leaderboard, Tournament, TournamentType } from '../database/tournament';
+import { Leaderboard, TournamentType } from '../database/tournament';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -9,14 +9,6 @@ export type TimePeriod = 'monthly' | 'yearly';
 export type TimeControl = 'blitz' | 'rapid' | 'classical';
 
 export type TournamentApiContextType = {
-    /**
-     * listTournaments fetches a list of tournaments matching the provided type.
-     * @param type The type of tournament to fetch.
-     * @param startKey An optional start key to use when fetching.
-     * @returns A list of tournaments matching the provided type.
-     */
-    listTournaments: (type: TournamentType, startKey?: string) => Promise<Tournament[]>;
-
     /**
      * getLeaderboard returns the requested leaderboard.
      * @param timePeriod The time period the leaderboard covers. Either monthly or yearly.
@@ -32,36 +24,6 @@ export type TournamentApiContextType = {
         date: string
     ) => Promise<AxiosResponse<Leaderboard>>;
 };
-
-interface ListTournamentsResponse {
-    tournaments: Tournament[];
-    lastEvaluatedKey: string;
-}
-
-/**
- * listTournaments fetches a list of tournaments matching the provided type.
- * @param type The type of tournaments to fetch.
- * @param startKey An optional start key to use when fetching.
- * @returns A list of tournaments matching the provided type.
- */
-export async function listTournaments(type: TournamentType, startKey?: string) {
-    const params = { type, startKey };
-    const result: Tournament[] = [];
-
-    do {
-        const resp = await axios.get<ListTournamentsResponse>(
-            `${BASE_URL}/public/tournaments`,
-            {
-                params,
-            }
-        );
-
-        result.push(...resp.data.tournaments);
-        params.startKey = resp.data.lastEvaluatedKey;
-    } while (params.startKey);
-
-    return result;
-}
 
 /**
  * getLeaderboard returns the requested leaderboard.

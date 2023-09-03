@@ -46,6 +46,7 @@ def event_from_arena(arena):
         'status': 'SCHEDULED',
         'location': arena.get('url'),
         'description': arena.get('description', ''),
+        'participants': [],
         'ligaTournament': {
             'type': 'ARENA',
             'id': arena.get('id'),
@@ -82,6 +83,7 @@ def events_from_swiss(swiss):
                 'status': 'SCHEDULED',
                 'location': swiss.get('url'),
                 'description': swiss.get('description', ''),
+                'participants': [],
                 'ligaTournament': {
                     'type': 'SWISS',
                     'id': swiss.get('id'),
@@ -112,6 +114,7 @@ def events_from_swiss(swiss):
             'status': 'SCHEDULED',
             'location': swiss.get('url'),
             'description': swiss.get('description', ''),
+            'participants': [],
             'ligaTournament': {
                 'type': 'SWISS',
                 'id': swiss.get('id'),
