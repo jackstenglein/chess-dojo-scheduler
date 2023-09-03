@@ -1,6 +1,7 @@
 export enum EventType {
     Availability = 'AVAILABILITY',
     Dojo = 'DOJO',
+    LigaTournament = 'LIGA_TOURNAMENT',
 }
 
 export interface Event {
@@ -21,10 +22,56 @@ export interface Event {
     location: string;
     description: string;
     maxParticipants: number;
-    participants: Participant[];
+    participants?: Participant[];
     discordMessageId: string;
     privateDiscordEventId: string;
     publicDiscordEventId: string;
+
+    // The LigaTournament information for this event. Only present for LigaTournaments.
+    ligaTournament?: LigaTournament;
+}
+
+export enum TournamentType {
+    Swiss = 'SWISS',
+    Arena = 'ARENA',
+}
+
+export enum TimeControlType {
+    Blitz = 'BLITZ',
+    Rapid = 'RAPID',
+    Classical = 'CLASSICAL',
+}
+
+export interface LigaTournament {
+    // The type of the tournament (IE: Swiss or Arena)
+    type: TournamentType;
+
+    // The Lichess id of the tournament
+    id: string;
+
+    // Whether the tournament is rated or not
+    rated: boolean;
+
+    // The time control type of the tournament (blitz, rapid, classical)
+    timeControlType: TimeControlType;
+
+    // The initial time limit in seconds
+    limitSeconds: number;
+
+    // The time increment in seconds
+    incrementSeconds: number;
+
+    // The FEN of the starting position, if the tournament uses a custom position
+    fen?: string;
+
+    // The Lichess URL of the tournament
+    url: string;
+
+    // The number of rounds in the tournament. Only present for Swiss tournaments.
+    numRounds?: number;
+
+    // The current round this LigaTournament object refers to. Only present for Swiss tournaments.
+    currentRound?: number;
 }
 
 export interface Participant {
@@ -94,5 +141,18 @@ export function getDefaultNumberOfParticipants(type: AvailabilityType): number {
             return 100;
         case AvailabilityType.BookStudy:
             return 100;
+    }
+}
+
+export function displayTimeControlType(type: TimeControlType | null | undefined): string {
+    if (!type) return '';
+
+    switch (type) {
+        case TimeControlType.Blitz:
+            return 'Blitz';
+        case TimeControlType.Classical:
+            return 'Classical';
+        case TimeControlType.Rapid:
+            return 'Rapid';
     }
 }

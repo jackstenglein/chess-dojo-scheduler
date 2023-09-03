@@ -68,8 +68,9 @@ func GetDisplayNames(types []AvailabilityType) []string {
 type EventType string
 
 const (
-	EventTypeAvailability EventType = "AVAILABILITY"
-	EventTypeDojo         EventType = "DOJO"
+	EventTypeAvailability   EventType = "AVAILABILITY"
+	EventTypeDojo           EventType = "DOJO"
+	EventTypeLigaTournament EventType = "LIGA_TOURNAMENT"
 )
 
 // SchedulingStatus represents the status for events.
@@ -98,27 +99,27 @@ type Participant struct {
 }
 
 type Event struct {
-	// A v4 UUID identifying this event.
+	// A v4 UUID identifying this event or the Lichess id for LigaTournaments.
 	Id string `dynamodbav:"id" json:"id"`
 
 	// The type of the event.
 	Type EventType `dynamodbav:"type" json:"type"`
 
-	// The username of the creator of this event, or `Sensei` if the type
-	// is EventTypeDojo.
+	// The username of the creator of this event, or `Sensei` if the event
+	// is an admin event.
 	Owner string `dynamodbav:"owner" json:"owner"`
 
-	// The display name of the owner, or `Sensei` if the type is EventTypeDojo.
+	// The display name of the owner, or `Sensei` if the event is an admin event.
 	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
 
-	// The cohort of the owner or an empty string if the type is EventTypeDojo.
+	// The cohort of the owner or an empty string if the event is an admin event.
 	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
 
 	// The cohort the owner most recently graduated from, or an empty string
-	// if the type is EventTypeDojo.
+	// if the event is an admin event.
 	OwnerPreviousCohort DojoCohort `dynamodbav:"ownerPreviousCohort" json:"ownerPreviousCohort"`
 
-	// The title of the event. This field is only used if type is EventTypeDojo.
+	// The title of the event. This field is only used if the event is an admin event.
 	Title string `dynamodbav:"title" json:"title"`
 
 	// The time the event starts, in full ISO-8601 format. For availabilities,
@@ -129,20 +130,21 @@ type Event struct {
 	// this is the latest that the owner is willing to start their game/meeting.
 	EndTime string `dynamodbav:"endTime" json:"endTime"`
 
-	// The booked time chosen for 1 on 1 events. This field is unused if type
-	// is EventTypeDojo.
+	// The booked time chosen for 1 on 1 events. This field is unused if the
+	// event is an admin event
 	BookedStartTime string `dynamodbav:"bookedStartTime" json:"bookedStartTime"`
 
 	// The time that the event will be deleted from the database. This is set
-	// to 48 hours after the end time.
+	// to 48 hours after the end time for most events. For LigaTournaments,
+	// this is set to 1 week after the end time.
 	ExpirationTime int64 `dynamodbav:"expirationTime" json:"-"`
 
 	// The game/meeting types that the owner is willing to play. This field is
-	// unused if type is EventTypeDojo.
+	// unused if the event is an admin event.
 	Types []AvailabilityType `dynamodbav:"types" json:"types"`
 
-	// The booked type chosen for 1 on 1 events. This field is unused if type
-	// is EventTypeDojo.
+	// The booked type chosen for 1 on 1 events. This field is unused if the
+	// event is an admin event.
 	BookedType AvailabilityType `dynamodbav:"bookedType" json:"bookedType"`
 
 	// The dojo cohorts for which the event is viewable/bookable.
@@ -151,22 +153,22 @@ type Event struct {
 	// The status of the event.
 	Status SchedulingStatus `dynamodbav:"status" json:"status"`
 
-	// Contains either a zoom link, discord, discord classroom, etc.
+	// Contains either a zoom link, discord, discord classroom, Lichess url, etc.
 	Location string `dynamodbav:"location" json:"location"`
 
 	// An optional description for sparring positions, etc.
 	Description string `dynamodbav:"description" json:"description"`
 
 	// The maximum number of people that can join the meeting. This field is
-	// unused if type is EventTypeDojo.
+	// unused if the event is an admin event.
 	MaxParticipants int `dynamodbav:"maxParticipants" json:"maxParticipants"`
 
 	// A list containing the participants in the event. This field is unused
-	// if type is EventTypeDojo.
+	// if the event is an admin event.
 	Participants []*Participant `dynamodbav:"participants" json:"participants"`
 
 	// The ID of the Discord notification message for this event. This field
-	// is unused if type is EventTypeDojo.
+	// is unused if the event is an admin event.
 	DiscordMessageId string `dynamodbav:"discordMessageId" json:"discordMessageId"`
 
 	// The ID of the private Discord guild event for this event. This field is unused if
@@ -176,6 +178,46 @@ type Event struct {
 	// The ID of the public Discord guild event for this event. This field is unused if
 	// type is EventTypeAvailability.
 	PublicDiscordEventId string `dynamodbav:"publicDiscordEventId" json:"publicDiscordEventId"`
+
+	// The LigaTournament information for this event. Only present for LigaTournaments.
+	LigaTournament *LigaTournament `dynamodbav:"ligaTournament,omitempty" json:"ligaTournament,omitempty"`
+}
+
+type TimeControlType string
+
+const (
+	TimeControlType_Blitz     TimeControlType = "BLITZ"
+	TimeControlType_Rapid     TimeControlType = "RAPID"
+	TimeControlType_Classical TimeControlType = "CLASSICAL"
+)
+
+type LigaTournament struct {
+	// The type of the tournament (IE: Swiss or Arena)
+	Type TournamentType `dynamodbav:"type" json:"type"`
+
+	// The Lichess id of the tournament
+	Id string `dynamodbav:"id" json:"id"`
+
+	// Whether the tournament is rated or not
+	Rated bool `dynamodbav:"rated" json:"rated"`
+
+	// The time control type of the tournament (blitz, rapid, classical)
+	TimeControlType TimeControlType `dynamodbav:"timeControlType" json:"timeControlType"`
+
+	// The initial time limit in seconds
+	LimitSeconds int `dynamodbav:"limitSeconds" json:"limitSeconds"`
+
+	// The time increment in seconds
+	IncrementSeconds int `dynamodbav:"incrementSeconds" json:"incrementSeconds"`
+
+	// The FEN of the starting position, if the tournament uses a custom position
+	Fen string `dynamodbav:"fen,omitempty" json:"fen,omitempty"`
+
+	// The number of rounds in the tournament. Only present for Swiss tournaments.
+	NumRounds int `dynamodbav:"numRounds,omitempty" json:"numRounds,omitempty"`
+
+	// The current round this LigaTournament object refers to. Only present for monthly Swiss tournaments.
+	CurrentRound int `dynamodbav:"currentRound,omitempty" json:"currentRound,omitempty"`
 }
 
 type EventSetter interface {

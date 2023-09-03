@@ -7,9 +7,15 @@ import {
     Select,
     MenuItem,
     FormControl,
+    Tooltip,
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
-import { AvailabilityType, getDisplayString } from '../database/event';
+import {
+    AvailabilityType,
+    TimeControlType,
+    displayTimeControlType,
+    getDisplayString,
+} from '../database/event';
 import { dojoCohorts } from '../database/user';
 
 import { styled } from '@mui/material/styles';
@@ -91,6 +97,11 @@ export interface Filters {
 
     cohorts: Record<string, boolean>;
     setCohorts: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+
+    tournamentTypes: Record<TimeControlType, boolean>;
+    setTournamentTypes: React.Dispatch<
+        React.SetStateAction<Record<TimeControlType, boolean>>
+    >;
 }
 
 export function useFilters(): Filters {
@@ -117,6 +128,15 @@ export function useFilters(): Filters {
         }, {} as Record<string, boolean>)
     );
 
+    const [tournamentTypes, setTournamentTypes] = useState<
+        Record<TimeControlType, boolean>
+    >(
+        Object.values(TimeControlType).reduce((map, type) => {
+            map[type] = true;
+            return map;
+        }, {} as Record<TimeControlType, boolean>)
+    );
+
     const result = useMemo(
         () => ({
             timezone,
@@ -135,6 +155,8 @@ export function useFilters(): Filters {
             setAllCohorts,
             cohorts,
             setCohorts,
+            tournamentTypes,
+            setTournamentTypes,
         }),
         [
             timezone,
@@ -153,6 +175,8 @@ export function useFilters(): Filters {
             setAllCohorts,
             cohorts,
             setCohorts,
+            tournamentTypes,
+            setTournamentTypes,
         ]
     );
 
@@ -201,6 +225,13 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         filters.setCohorts({
             ...filters.cohorts,
             [cohort]: value,
+        });
+    };
+
+    const onChangeTournamentType = (type: TimeControlType, value: boolean) => {
+        filters.setTournamentTypes({
+            ...filters.tournamentTypes,
+            [type]: value,
         });
     };
 
@@ -300,6 +331,44 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                         }
                         label='Dojo Events'
                     />
+
+                    <Tooltip
+                        arrow
+                        title={
+                            filters.dojoEvents
+                                ? ''
+                                : 'Dojo Events must be enabled to view tournaments'
+                        }
+                    >
+                        <Stack pt={2}>
+                            <Typography variant='subtitle2' color='text.secondary'>
+                                Tournament Types
+                            </Typography>
+
+                            {Object.values(TimeControlType).map((type) => (
+                                <FormControlLabel
+                                    key={type}
+                                    control={
+                                        <Checkbox
+                                            checked={
+                                                filters.dojoEvents &&
+                                                filters.tournamentTypes[type]
+                                            }
+                                            onChange={(event) =>
+                                                onChangeTournamentType(
+                                                    type,
+                                                    event.target.checked
+                                                )
+                                            }
+                                            disabled={!filters.dojoEvents}
+                                        />
+                                    }
+                                    label={displayTimeControlType(type)}
+                                />
+                            ))}
+                        </Stack>
+                    </Tooltip>
+
                     <Stack pt={2}>
                         <Typography variant='subtitle2' color='text.secondary'>
                             Meeting Types

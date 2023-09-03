@@ -28,8 +28,8 @@ function processAvailability(
     // This user's joined meetings
     if (
         (event.owner === user.username ||
-            event.participants.some((p) => p.username === user.username)) &&
-        event.participants.length > 0
+            event.participants!.some((p) => p.username === user.username)) &&
+        event.participants!.length > 0
     ) {
         if (!filters.meetings) {
             return null;
@@ -38,10 +38,12 @@ function processAvailability(
         const title =
             event.maxParticipants === 1
                 ? 'Meeting'
-                : `Group Meeting (${event.participants.length}/${event.maxParticipants})`;
+                : `Group Meeting (${event.participants!.length}/${
+                      event.maxParticipants
+                  })`;
 
         const isOwner = event.owner === user.username;
-        const editable = isOwner && event.participants.length < event.maxParticipants;
+        const editable = isOwner && event.participants!.length < event.maxParticipants;
 
         return {
             event_id: event.id,
@@ -98,7 +100,9 @@ function processAvailability(
         event_id: event.id,
         title:
             event.maxParticipants > 1
-                ? `Bookable - Group (${event.participants.length}/${event.maxParticipants})`
+                ? `Bookable - Group (${event.participants!.length}/${
+                      event.maxParticipants
+                  })`
                 : `Bookable - ${event.ownerDisplayName}`,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
@@ -144,6 +148,35 @@ function processDojoEvent(
     };
 }
 
+function processLigaTournament(
+    user: User,
+    filters: Filters,
+    event: Event
+): ProcessedEvent | null {
+    if (!filters.dojoEvents) {
+        return null;
+    }
+    if (!event.ligaTournament) {
+        return null;
+    }
+    if (!filters.tournamentTypes[event.ligaTournament.timeControlType]) {
+        return null;
+    }
+
+    return {
+        event_id: event.id,
+        title: event.title,
+        start: new Date(event.startTime),
+        end: new Date(event.endTime),
+        color: '#66bb6a',
+        editable: user.isAdmin || user.isCalendarAdmin,
+        deletable: user.isAdmin || user.isCalendarAdmin,
+        draggable: user.isAdmin || user.isCalendarAdmin,
+        isOwner: false,
+        event,
+    };
+}
+
 function getProcessedEvents(
     user: User,
     filters: Filters,
@@ -158,6 +191,8 @@ function getProcessedEvents(
             processedEvent = processAvailability(user, filters, event);
         } else if (event.type === EventType.Dojo) {
             processedEvent = processDojoEvent(user, filters, event);
+        } else if (event.type === EventType.LigaTournament) {
+            processedEvent = processLigaTournament(user, filters, event);
         }
 
         if (processedEvent !== null) {

@@ -44,7 +44,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
                         Number of Participants
                     </Typography>
                     <Typography variant='body1'>
-                        {event.participants.length} / {event.maxParticipants}
+                        {event.participants!.length} / {event.maxParticipants}
                     </Typography>
                 </Stack>
             )}

@@ -75,7 +75,7 @@ const MeetingPage = () => {
     const startDate = start.toLocaleDateString();
     const startTime = start.toLocaleTimeString();
 
-    let opponent: Participant = meeting.participants[0];
+    let opponent: Participant = meeting.participants![0];
     if (opponent.username === user.username) {
         opponent = {
             username: meeting.owner,

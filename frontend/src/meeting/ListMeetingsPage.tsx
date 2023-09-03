@@ -18,7 +18,7 @@ const ListMeetingsPage = () => {
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
 
     const meetingFilter = (e: Event) => {
-        if (e.participants.length === 0) {
+        if (!e.participants || e.participants.length === 0) {
             return false;
         }
         if (

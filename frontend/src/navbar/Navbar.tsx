@@ -14,7 +14,7 @@ const Navbar = () => {
     const { events } = useEvents();
 
     const count = events.filter((e: Event) => {
-        if (e.participants.length === 0) {
+        if (!e.participants || e.participants.length === 0) {
             return false;
         }
         if (

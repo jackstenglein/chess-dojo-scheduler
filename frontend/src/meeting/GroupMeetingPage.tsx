@@ -123,7 +123,7 @@ const GroupMeetingPage = () => {
                                 />
                             </Stack>
 
-                            {availability.participants.map((p) => (
+                            {availability.participants!.map((p) => (
                                 <Stack
                                     key={p.username}
                                     direction='row'
