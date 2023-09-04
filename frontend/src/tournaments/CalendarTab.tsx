@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
+import {
+    ProcessedEvent,
+    SchedulerHelpers,
+    SchedulerRef,
+} from '@aldabil/react-scheduler/types';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { Grid, Theme, useTheme } from '@mui/material';
 
@@ -49,15 +53,20 @@ function getProcessedEvents(
             start: new Date(event.startTime),
             end: new Date(event.endTime),
             color: getColor(event.ligaTournament.timeControlType, theme),
-            editable: false,
-            deletable: false,
-            draggable: false,
             isOwner: false,
             event,
         });
     }
 
     return result;
+}
+
+function CustomEditor(scheduler: SchedulerHelpers): JSX.Element {
+    useEffect(() => {
+        scheduler.close();
+    }, [scheduler]);
+
+    return <></>;
 }
 
 const CalendarTab = () => {
@@ -90,6 +99,9 @@ const CalendarTab = () => {
             <Grid item xs={12} md={9.5}>
                 <Scheduler
                     ref={calendarRef}
+                    editable={false}
+                    deletable={false}
+                    draggable={false}
                     month={{
                         weekDays: [0, 1, 2, 3, 4, 5, 6],
                         weekStartOn: 0,
@@ -114,6 +126,7 @@ const CalendarTab = () => {
                     viewerExtraComponent={(_, event) => (
                         <ProcessedEventViewer processedEvent={event} />
                     )}
+                    customEditor={CustomEditor}
                     events={[]}
                     timeZone={
                         filters.timezone === DefaultTimezone
