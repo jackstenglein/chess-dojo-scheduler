@@ -917,6 +917,7 @@ func (repo *dynamoRepository) SearchUsers(query string, fields []string, startKe
 		FilterExpression:          aws.String(filter.String()),
 		ExpressionAttributeNames:  expressionAttrNames,
 		ExpressionAttributeValues: expressionAttrValues,
+		IndexName:                 aws.String("SearchIdx"),
 		TableName:                 aws.String(userTable),
 	}
 

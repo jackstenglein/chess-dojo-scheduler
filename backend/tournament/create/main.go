@@ -117,6 +117,9 @@ func (s LichessSwissResponse) TimeControlType() (database.TimeControlType, error
 	if s.Clock.Limit == 180 && s.Clock.Increment == 2 {
 		return database.TimeControlType_Blitz, nil
 	}
+	if s.Clock.Limit == 180 && s.Clock.Increment == 0 {
+		return database.TimeControlType_Blitz, nil
+	}
 
 	return "", errors.New(400, fmt.Sprintf("Invalid time control %d+%d", s.Clock.Limit, s.Clock.Increment), "")
 }
