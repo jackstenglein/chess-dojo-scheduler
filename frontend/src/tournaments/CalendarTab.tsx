@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
-import {
-    ProcessedEvent,
-    SchedulerHelpers,
-    SchedulerRef,
-} from '@aldabil/react-scheduler/types';
+import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Scheduler } from '@aldabil/react-scheduler';
-import { Grid, Theme, useTheme } from '@mui/material';
+import { Grid } from '@mui/material';
 
 import ProcessedEventViewer from '../calendar/ProcessedEventViewer';
 import {
@@ -17,22 +13,18 @@ import TournamentCalendarFilters from './TournamentCalendarFilters';
 import { useEvents } from '../api/cache/Cache';
 import { Event, EventType, TimeControlType } from '../database/event';
 
-function getColor(timeControlType: TimeControlType, theme: Theme) {
+function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
         case TimeControlType.Blitz:
-            return theme.palette.warning.main;
+            return 'warning.main';
         case TimeControlType.Rapid:
-            return theme.palette.info.main;
+            return 'info.main';
         case TimeControlType.Classical:
-            return theme.palette.success.main;
+            return 'success.main';
     }
 }
 
-function getProcessedEvents(
-    filters: Filters,
-    events: Event[],
-    theme: Theme
-): ProcessedEvent[] {
+function getProcessedEvents(filters: Filters, events: Event[]): ProcessedEvent[] {
     const result: ProcessedEvent[] = [];
 
     for (const event of events) {
@@ -52,7 +44,7 @@ function getProcessedEvents(
             title: event.title,
             start: new Date(event.startTime),
             end: new Date(event.endTime),
-            color: getColor(event.ligaTournament.timeControlType, theme),
+            color: getColor(event.ligaTournament.timeControlType),
             isOwner: false,
             event,
         });
@@ -61,23 +53,14 @@ function getProcessedEvents(
     return result;
 }
 
-function CustomEditor(scheduler: SchedulerHelpers): JSX.Element {
-    useEffect(() => {
-        scheduler.close();
-    }, [scheduler]);
-
-    return <></>;
-}
-
 const CalendarTab = () => {
     const calendarRef = useRef<SchedulerRef>(null);
     const { events } = useEvents();
     const filters = useFilters();
-    const theme = useTheme();
 
     const processedEvents = useMemo(() => {
-        return getProcessedEvents(filters, events, theme);
-    }, [filters, events, theme]);
+        return getProcessedEvents(filters, events);
+    }, [filters, events]);
 
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(processedEvents, 'events');
@@ -126,7 +109,6 @@ const CalendarTab = () => {
                     viewerExtraComponent={(_, event) => (
                         <ProcessedEventViewer processedEvent={event} />
                     )}
-                    customEditor={CustomEditor}
                     events={[]}
                     timeZone={
                         filters.timezone === DefaultTimezone
