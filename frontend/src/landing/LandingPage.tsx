@@ -35,10 +35,10 @@ const LandingPage = () => {
         <Container maxWidth='md' sx={{ pt: 10 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <Stack alignItems='center' spacing={2}>
-                    <Typography variant='h4' textAlign='center'>
+                    <Typography variant='h4' textAlign='center' data-cy='title'>
                         Chess Dojo Scoreboard
                     </Typography>
-                    <Typography variant='h5' textAlign='center'>
+                    <Typography variant='h5' textAlign='center' data-cy='subtitle'>
                         A structured plan to hold yourself accountable and a group to do
                         it with
                     </Typography>

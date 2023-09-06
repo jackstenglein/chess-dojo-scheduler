@@ -22,7 +22,6 @@
         "@testing-library/jest-dom": "^6.1.2",
         "@testing-library/react": "^14.0.0",
         "@testing-library/user-event": "^14.4.3",
-        "@types/jest": "^29.5.4",
         "@types/node": "^20.5.9",
         "@types/react": "^18.2.21",
         "@types/react-dom": "^18.2.7",
@@ -57,7 +56,8 @@
     "eslintConfig": {
         "extends": [
             "react-app",
-            "react-app/jest"
+            "react-app/jest",
+            "plugin:cypress/recommended"
         ]
     },
     "browserslist": {
@@ -75,6 +75,8 @@
     "devDependencies": {
         "@types/react-copy-to-clipboard": "^5.0.4",
         "@types/react-resizable": "^3.0.4",
-        "@types/uuid": "^9.0.3"
+        "@types/uuid": "^9.0.3",
+        "cypress": "^13.1.0",
+        "eslint-plugin-cypress": "^2.14.0"
     }
 }
