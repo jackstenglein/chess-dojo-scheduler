@@ -11,13 +11,13 @@ describe('Signin Page', () => {
         cy.get('[data-cy="warning"]').should('contain', 'This account is separate');
     });
 
-    it('should redirect to signup', () => {
+    it('should link to signup', () => {
         cy.get('[data-cy="signup-button"]').click();
 
         cy.location('pathname').should('equal', '/signup');
     });
 
-    it('should redirect to forgot password', () => {
+    it('should link to forgot password', () => {
         cy.get('[data-cy="forgot-password-button"]').click();
 
         cy.location('pathname').should('equal', '/forgot-password');

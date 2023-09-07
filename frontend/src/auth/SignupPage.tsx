@@ -76,10 +76,12 @@ const SignupPage = () => {
                 <RequestSnackbar request={request} />
 
                 <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center'>
+                    <Typography variant='h4' textAlign='center' data-cy='title'>
                         Chess Dojo Scoreboard
                     </Typography>
-                    <Typography variant='h6'>Create Account</Typography>
+                    <Typography variant='h6' data-cy='subtitle'>
+                        Create Account
+                    </Typography>
                 </Stack>
 
                 <Stack width={0.75} spacing={4} alignItems='center'>
@@ -115,6 +117,7 @@ const SignupPage = () => {
                         helperText={errors.password}
                     />
                     <LoadingButton
+                        data-cy='submit-button'
                         variant='contained'
                         fullWidth
                         sx={{ textTransform: 'none' }}
@@ -125,7 +128,7 @@ const SignupPage = () => {
                     </LoadingButton>
                     <Typography variant='body2' component='div' gutterBottom>
                         Already have an account?{' '}
-                        <Link component={RouterLink} to='/signin'>
+                        <Link component={RouterLink} to='/signin' data-cy='signin-button'>
                             Sign In
                         </Link>
                     </Typography>
