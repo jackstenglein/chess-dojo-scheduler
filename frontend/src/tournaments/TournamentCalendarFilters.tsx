@@ -14,6 +14,7 @@ import {
     AccordionSummary,
 } from '../calendar/filters/CalendarFilters';
 import {
+    PositionType,
     TimeControlType,
     TournamentType,
     displayTimeControlType,
@@ -29,6 +30,15 @@ function getColor(timeControlType: TimeControlType) {
             return 'info';
         case TimeControlType.Classical:
             return 'success';
+    }
+}
+
+function displayPositionType(type: PositionType): string {
+    switch (type) {
+        case PositionType.Standard:
+            return 'Standard';
+        case PositionType.Custom:
+            return 'Custom';
     }
 }
 
@@ -59,6 +69,13 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
     const onChangeTournamentTimeControl = (type: TimeControlType, value: boolean) => {
         filters.setTournamentTimeControls({
             ...filters.tournamentTimeControls,
+            [type]: value,
+        });
+    };
+
+    const onChangeTournamentPositions = (type: PositionType, value: boolean) => {
+        filters.setTournamentPositions({
+            ...filters.tournamentPositions,
             [type]: value,
         });
     };
@@ -133,6 +150,38 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                     />
                                 }
                                 label={displayTimeControlType(type)}
+                            />
+                        ))}
+                    </Stack>
+                </AccordionDetails>
+            </Accordion>
+
+            <Accordion
+                expanded={forceExpansion || expanded === 'positions'}
+                onChange={handleChange('positions')}
+            >
+                <AccordionSummary forceExpansion={forceExpansion}>
+                    <Typography variant='h6' color='text.secondary'>
+                        Starting Position
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Stack>
+                        {Object.values(PositionType).map((type) => (
+                            <FormControlLabel
+                                key={type}
+                                control={
+                                    <Checkbox
+                                        checked={filters.tournamentPositions[type]}
+                                        onChange={(event) =>
+                                            onChangeTournamentPositions(
+                                                type,
+                                                event.target.checked
+                                            )
+                                        }
+                                    />
+                                }
+                                label={displayPositionType(type)}
                             />
                         ))}
                     </Stack>

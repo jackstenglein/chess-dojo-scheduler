@@ -11,7 +11,7 @@ import {
 } from '../calendar/filters/CalendarFilters';
 import TournamentCalendarFilters from './TournamentCalendarFilters';
 import { useEvents } from '../api/cache/Cache';
-import { Event, EventType, TimeControlType } from '../database/event';
+import { Event, EventType, PositionType, TimeControlType } from '../database/event';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
@@ -35,6 +35,19 @@ function getProcessedEvents(filters: Filters, events: Event[]): ProcessedEvent[]
         if (
             !filters.tournamentTypes[event.ligaTournament.type] ||
             !filters.tournamentTimeControls[event.ligaTournament.timeControlType]
+        ) {
+            continue;
+        }
+
+        if (
+            !filters.tournamentPositions[PositionType.Custom] &&
+            event.ligaTournament.fen
+        ) {
+            continue;
+        }
+        if (
+            !filters.tournamentPositions[PositionType.Standard] &&
+            !event.ligaTournament.fen
         ) {
             continue;
         }

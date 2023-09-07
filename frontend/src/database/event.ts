@@ -42,6 +42,11 @@ export enum TimeControlType {
     Classical = 'CLASSICAL',
 }
 
+export enum PositionType {
+    Standard = 'STANDARD',
+    Custom = 'CUSTOM',
+}
+
 export interface LigaTournament {
     // The type of the tournament (IE: Swiss or Arena)
     type: TournamentType;

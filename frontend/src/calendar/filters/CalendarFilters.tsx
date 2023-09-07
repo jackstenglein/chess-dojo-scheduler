@@ -9,6 +9,7 @@ import {
 import React, { useMemo, useState } from 'react';
 import {
     AvailabilityType,
+    PositionType,
     TimeControlType,
     TournamentType,
     displayTimeControlType,
@@ -105,6 +106,11 @@ export interface Filters {
     setTournamentTimeControls: React.Dispatch<
         React.SetStateAction<Record<TimeControlType, boolean>>
     >;
+
+    tournamentPositions: Record<PositionType, boolean>;
+    setTournamentPositions: React.Dispatch<
+        React.SetStateAction<Record<PositionType, boolean>>
+    >;
 }
 
 export function useFilters(): Filters {
@@ -149,6 +155,13 @@ export function useFilters(): Filters {
         }, {} as Record<TimeControlType, boolean>)
     );
 
+    const [tournamentPositions, setTournamentPositions] = useState(
+        Object.values(PositionType).reduce((m, t) => {
+            m[t] = true;
+            return m;
+        }, {} as Record<PositionType, boolean>)
+    );
+
     const result = useMemo(
         () => ({
             timezone,
@@ -171,6 +184,8 @@ export function useFilters(): Filters {
             setTournamentTypes,
             tournamentTimeControls,
             setTournamentTimeControls,
+            tournamentPositions,
+            setTournamentPositions,
         }),
         [
             timezone,
@@ -193,6 +208,8 @@ export function useFilters(): Filters {
             setTournamentTypes,
             tournamentTimeControls,
             setTournamentTimeControls,
+            tournamentPositions,
+            setTournamentPositions,
         ]
     );
 
