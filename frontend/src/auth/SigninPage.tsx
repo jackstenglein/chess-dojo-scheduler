@@ -75,12 +75,14 @@ const SigninPage = () => {
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <RequestSnackbar request={request} />
                 <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center'>
+                    <Typography variant='h4' textAlign='center' data-cy='title'>
                         Chess Dojo Scoreboard
                     </Typography>
-                    <Typography variant='h6'>Signin</Typography>
+                    <Typography variant='h6' data-cy='subtitle'>
+                        Signin
+                    </Typography>
 
-                    <Alert severity='warning' sx={{ mt: 2 }}>
+                    <Alert severity='warning' sx={{ mt: 2 }} data-cy='warning'>
                         This account is separate from your account on chessdojo.club. Do
                         not try to use your chessdojo.club account to login. You must
                         first create an account on this site to login.
@@ -110,6 +112,7 @@ const SigninPage = () => {
                         helperText={errors.password}
                     />
                     <LoadingButton
+                        data-cy='signin-button'
                         variant='contained'
                         fullWidth
                         sx={{ textTransform: 'none' }}
@@ -124,6 +127,7 @@ const SigninPage = () => {
                         sx={{ width: 1 }}
                     >
                         <Button
+                            data-cy='signup-button'
                             variant='text'
                             sx={{ textTransform: 'none' }}
                             onClick={() => navigate('/signup')}
@@ -131,6 +135,7 @@ const SigninPage = () => {
                             No account? Sign Up
                         </Button>
                         <Button
+                            data-cy='forgot-password-button'
                             variant='text'
                             sx={{ textTransform: 'none', alignSelf: 'end' }}
                             onClick={() => navigate('/forgot-password')}

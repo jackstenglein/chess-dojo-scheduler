@@ -24,4 +24,10 @@ describe('Landing Page', () => {
 
         cy.url().should('contain', '/signin');
     });
+
+    it('should redirect unauthenticated user to landing', () => {
+        cy.visit('/profile');
+
+        cy.location('pathname').should('equal', '/');
+    });
 });
