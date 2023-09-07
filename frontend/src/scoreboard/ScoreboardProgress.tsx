@@ -58,7 +58,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 </Box>
                 <Box>
                     <Typography variant='body2' color='text.secondary'>
-                        {label ? label : `${value}/${max}${suffix || ''}`}
+                        {label ? label : `${Math.max(value, min)}/${max}${suffix || ''}`}
                     </Typography>
                 </Box>
             </Box>
