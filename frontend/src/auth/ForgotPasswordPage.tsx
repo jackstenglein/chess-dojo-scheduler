@@ -82,10 +82,12 @@ const ForgotPasswordPage = () => {
                 <RequestSnackbar request={request} />
 
                 <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center'>
+                    <Typography variant='h4' textAlign='center' data-cy='title'>
                         Chess Dojo Scoreboard
                     </Typography>
-                    <Typography variant='h6'>Forgot Password</Typography>
+                    <Typography variant='h6' data-cy='subtitle'>
+                        Forgot Password
+                    </Typography>
                 </Stack>
                 <Stack
                     direction='column'
@@ -144,6 +146,7 @@ const StartStep: React.FC<StartStepProps> = ({
                 component='div'
                 gutterBottom
                 textAlign='center'
+                data-cy='description'
             >
                 Enter your email, and we'll send you a code to reset your password.
             </Typography>
@@ -160,6 +163,7 @@ const StartStep: React.FC<StartStepProps> = ({
             />
 
             <LoadingButton
+                data-cy='submit-button'
                 variant='contained'
                 onClick={onSubmit}
                 fullWidth
@@ -169,7 +173,12 @@ const StartStep: React.FC<StartStepProps> = ({
                 Send Email
             </LoadingButton>
 
-            <Button variant='text' sx={{ textTransform: 'none' }} onClick={onCancel}>
+            <Button
+                data-cy='cancel-button'
+                variant='text'
+                sx={{ textTransform: 'none' }}
+                onClick={onCancel}
+            >
                 Cancel
             </Button>
         </>
@@ -241,6 +250,7 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
                 component='div'
                 gutterBottom
                 textAlign='center'
+                data-cy='description'
             >
                 Email sent! Enter the code to reset your password.
             </Typography>
@@ -286,6 +296,7 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
                 fullWidth
                 sx={{ textTransform: 'none' }}
                 loading={request.isLoading()}
+                data-cy='submit-button'
             >
                 Reset Password
             </LoadingButton>
@@ -311,6 +322,7 @@ const SuccessStep = () => {
                 component='div'
                 gutterBottom
                 textAlign='center'
+                data-cy='description'
             >
                 You can now sign in using your new password.
             </Typography>
@@ -320,6 +332,7 @@ const SuccessStep = () => {
                 onClick={onSignin}
                 fullWidth
                 sx={{ textTransform: 'none' }}
+                data-cy='signin-button'
             >
                 Sign In
             </Button>
