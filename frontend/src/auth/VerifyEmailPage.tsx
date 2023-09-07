@@ -99,10 +99,12 @@ const VerifyEmailPage = () => {
 
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center'>
+                    <Typography variant='h4' textAlign='center' data-cy='title'>
                         Chess Dojo Scoreboard
                     </Typography>
-                    <Typography variant='h6'>Verify Email</Typography>
+                    <Typography variant='h6' data-cy='subtitle'>
+                        Verify Email
+                    </Typography>
                 </Stack>
 
                 <Typography
@@ -110,6 +112,7 @@ const VerifyEmailPage = () => {
                     component='div'
                     gutterBottom
                     textAlign='center'
+                    data-cy='description'
                 >
                     In order to complete your account creation, please enter the
                     verification code sent to {email}.
@@ -134,6 +137,7 @@ const VerifyEmailPage = () => {
                         fullWidth
                         sx={{ textTransform: 'none' }}
                         onClick={onSubmit}
+                        data-cy='verify-button'
                     >
                         Verify Email
                     </LoadingButton>
@@ -143,6 +147,7 @@ const VerifyEmailPage = () => {
                         sx={{ textTransform: 'none' }}
                         onClick={onResendCode}
                         loading={codeRequest.isLoading()}
+                        data-cy='resend-button'
                     >
                         Send New Code
                     </LoadingButton>
