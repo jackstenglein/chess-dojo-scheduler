@@ -30,4 +30,16 @@ describe('Landing Page', () => {
 
         cy.location('pathname').should('equal', '/');
     });
+
+    it('redirects authenticated user to profile', () => {
+        cy.loginByCognitoApi(
+            'landingPage',
+            Cypress.env('cognito_username'),
+            Cypress.env('cognito_password')
+        );
+
+        cy.visit('/');
+
+        cy.location('pathname').should('equal', '/profile');
+    });
 });
