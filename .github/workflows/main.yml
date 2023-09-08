@@ -16,6 +16,7 @@ jobs:
           working-directory: frontend
           build: npm run build
           start: npm start
+          wait-on: 'http://localhost:3000'
         env:
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
