@@ -17,6 +17,8 @@ jobs:
           build: npm run build
           start: npm start
         env:
+          AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
+          AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
           AWS_COGNITO_REGION: 'us-east-1'
           AWS_COGNITO_USER_POOL_ID: 'us-east-1_apywr6kwu'
           AWS_COGNITO_USER_POOL_WEB_CLIENT_ID: '76en8knncv8bfpfgbheua6j6k'
