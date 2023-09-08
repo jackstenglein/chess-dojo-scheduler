@@ -29,7 +29,7 @@ const Navbar = () => {
     const meetingText = count > 0 ? `(${count})` : ``;
 
     return (
-        <AppBar position='sticky' sx={{ zIndex: 1300, height: '80px' }}>
+        <AppBar data-cy='navbar' position='sticky' sx={{ zIndex: 1300, height: '80px' }}>
             <Container maxWidth='xl' sx={{ height: 1 }}>
                 <Toolbar disableGutters sx={{ height: 1 }}>
                     <NavbarMenu meetingText={meetingText} />

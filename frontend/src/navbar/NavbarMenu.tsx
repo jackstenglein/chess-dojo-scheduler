@@ -310,6 +310,7 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                 {menuItems.length > 0 && (
                     <>
                         <Button
+                            data-cy='navbar-more-button'
                             onClick={handleOpen}
                             sx={{ color: 'white' }}
                             endIcon={<ExpandMoreIcon />}
@@ -376,6 +377,7 @@ const ExtraSmallMenuUnauthenticated = () => {
         >
             <Logo />
             <IconButton
+                data-cy='navbar-more-button'
                 size='medium'
                 aria-label='navigation menu'
                 aria-controls='menu-appbar'
@@ -433,6 +435,7 @@ const ExtraSmallMenuForbidden = () => {
         >
             <Logo />
             <IconButton
+                data-cy='navbar-more-button'
                 size='medium'
                 aria-label='navigation menu'
                 aria-controls='menu-appbar'
@@ -514,6 +517,7 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
         >
             <Logo />
             <IconButton
+                data-cy='navbar-more-button'
                 size='medium'
                 aria-label='navigation menu'
                 aria-controls='menu-appbar'
