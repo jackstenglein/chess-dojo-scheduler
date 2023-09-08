@@ -1,5 +1,3 @@
-const credentials = require('../../fixtures/auth/signinCredentials.json');
-
 describe('Signin Page', () => {
     beforeEach(() => {
         cy.visit('/signin');
@@ -60,8 +58,8 @@ describe('Signin Page', () => {
     });
 
     it('logs in with correct credentials', () => {
-        cy.get('#email').type(credentials.email);
-        cy.get('#password').type(credentials.password);
+        cy.get('#email').type(Cypress.env('cognito_username'));
+        cy.get('#password').type(Cypress.env('cognito_password'));
 
         cy.get('[data-cy="signin-button"]').click();
 
