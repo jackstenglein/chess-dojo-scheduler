@@ -21,7 +21,7 @@ const TutorialTooltip: React.FC<TooltipRenderProps> = ({
     isLastStep,
 }) => {
     return (
-        <Card sx={{ maxWidth: 'md' }} {...tooltipProps}>
+        <Card data-cy='tutorial-tooltip' sx={{ maxWidth: 'md' }} {...tooltipProps}>
             <CardHeader title={step.title} />
             <CardContent>
                 <Typography>{step.content}</Typography>
