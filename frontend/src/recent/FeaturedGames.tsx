@@ -56,6 +56,7 @@ const FeaturedGames = () => {
                 )
             ) : (
                 <DataGrid
+                    data-cy='featured-games-table'
                     columns={gameTableColumns}
                     rows={games}
                     pageSizeOptions={[5, 10, 25]}

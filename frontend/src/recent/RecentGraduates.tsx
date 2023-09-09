@@ -207,7 +207,11 @@ const RecentGraduates = () => {
             <Stack>
                 <Stack direction='row' justifyContent='space-between' alignItems='center'>
                     <Typography variant='h6'>Recent Graduates</Typography>
-                    <FormControl size='small' variant='standard'>
+                    <FormControl
+                        data-cy='graduates-timeframe-select'
+                        size='small'
+                        variant='standard'
+                    >
                         <Select
                             value={timeframe}
                             onChange={(e) => setTimeframe(e.target.value as Timeframe)}
@@ -222,7 +226,11 @@ const RecentGraduates = () => {
                         >
                             <MenuItem value={timeframeWeek as any}>Past Week</MenuItem>
                             {timeframeOptions.map((option) => (
-                                <MenuItem key={option.label} value={option.value as any}>
+                                <MenuItem
+                                    data-cy={option.label}
+                                    key={option.label}
+                                    value={option.value as any}
+                                >
                                     {option.label}
                                 </MenuItem>
                             ))}
@@ -240,6 +248,7 @@ const RecentGraduates = () => {
                 )
             ) : (
                 <DataGrid
+                    data-cy='recent-graduates-table'
                     columns={graduateTableColumns}
                     rows={graduations}
                     getRowId={(row: Graduation) => row.username}

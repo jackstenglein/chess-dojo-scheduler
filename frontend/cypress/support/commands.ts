@@ -8,5 +8,9 @@
 import './auth-provider-commands/cognito';
 
 Cypress.Commands.add('getBySel', (selector, ...args) => {
-    return cy.get(`[data-cy=${selector}]`, ...args);
+    return cy.get(`[data-cy="${selector}"]`, ...args);
+});
+
+Cypress.Commands.add('interceptApi', (method, url, response) => {
+    return cy.intercept(method, `${Cypress.env('apiBaseUrl')}${url}`, response);
 });

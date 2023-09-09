@@ -12,6 +12,8 @@ export default defineConfig({
     },
 
     env: {
+        apiBaseUrl: 'https://c2qamdaw08.execute-api.us-east-1.amazonaws.com',
+
         cognito_username: process.env.AWS_COGNITO_USERNAME,
         cognito_password: process.env.AWS_COGNITO_PASSWORD,
         cognito_region: process.env.AWS_COGNITO_REGION,

@@ -1,0 +1,92 @@
+const now = new Date(2023, 8, 8); // month is 0-indexed
+
+describe('Graduations', () => {
+    beforeEach(() => {
+        cy.clock(now);
+        cy.loginByCognitoApi(
+            'recent',
+            Cypress.env('cognito_username'),
+            Cypress.env('cognito_password')
+        );
+        cy.visit('/recent');
+    });
+
+    it('displays correct message when no graduations', () => {
+        cy.interceptApi('GET', '/graduations', {
+            fixture: 'recent/noGraduations.json',
+        });
+        cy.contains('No graduations in the selected timeframe');
+    });
+
+    it('displays correct columns for graduations', () => {
+        cy.interceptApi('GET', '/graduations', {
+            fixture: 'recent/graduations.json',
+        });
+
+        [
+            'Name',
+            'Graduated',
+            'Old Cohort',
+            'New Cohort',
+            'Dojo Score',
+            'Date',
+            'Comments',
+        ].forEach((col) =>
+            cy
+                .getBySel('recent-graduates-table')
+                .get('.MuiDataGrid-columnHeaders')
+                .contains(col)
+        );
+    });
+
+    it('displays correct graduations from past week', () => {
+        cy.interceptApi('GET', '/graduations', {
+            fixture: 'recent/graduations.json',
+        });
+
+        cy.getBySel('recent-graduates-table').contains('1–7 of 7');
+        cy.getBySel('recent-graduates-table')
+            .contains('QuiteKnight')
+            .should('have.attr', 'href', '/profile/f3ed6d22-4b50-4049-b65f-ff2b1131ba4a');
+    });
+
+    it('displays correct graduations for other timeframes', () => {
+        cy.interceptApi('GET', '/graduations', {
+            fixture: 'recent/graduations.json',
+        });
+
+        cy.getBySel('graduates-timeframe-select').click();
+        cy.getBySel('Graduation of 9/12/2023').click();
+        cy.getBySel('recent-graduates-table').contains('1–3 of 3');
+        cy.getBySel('recent-graduates-table')
+            .contains('JoaQ')
+            .should('have.attr', 'href', '/profile/google_114110636308651003202');
+    });
+});
+
+describe('Featured Games', () => {
+    beforeEach(() => {
+        cy.clock(now);
+        cy.loginByCognitoApi(
+            'recent',
+            Cypress.env('cognito_username'),
+            Cypress.env('cognito_password')
+        );
+        cy.visit('/recent');
+    });
+
+    it('displays correct message when no featured games', () => {
+        cy.interceptApi('GET', '/game/featured', {
+            fixture: 'recent/noGames.json',
+        });
+        cy.contains('No featured games in the past month');
+    });
+
+    it.only('displays featured games', () => {
+        cy.interceptApi('GET', '/game/featured', {
+            fixture: 'recent/games.json',
+        });
+
+        cy.getBySel('featured-games-table').contains('Beingbadatchess');
+    });
+});
