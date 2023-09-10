@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Stack, TextField, MenuItem, Typography, Button } from '@mui/material';
+import { Stack, TextField, MenuItem, Typography, Button, Grid } from '@mui/material';
 
 import { compareCohorts, User } from '../../database/user';
 import { useRequirements } from '../../api/cache/requirements';
@@ -123,85 +123,99 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
     };
 
     return (
-        <Stack spacing={3} justifyContent='center' alignItems='center'>
-            <TextField
-                select
-                label='Cohort'
-                value={cohort}
-                onChange={(event) => onChangeCohort(event.target.value)}
-                sx={{ mb: 3 }}
-                fullWidth
-            >
-                {cohortOptions.map((option) => (
-                    <MenuItem key={option} value={option}>
-                        {option}
-                    </MenuItem>
-                ))}
-            </TextField>
+        <Grid container columnSpacing={1} justifyContent='center'>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                    select
+                    label='Cohort'
+                    value={cohort}
+                    onChange={(event) => onChangeCohort(event.target.value)}
+                    sx={{ mb: 3 }}
+                    fullWidth
+                >
+                    {cohortOptions.map((option) => (
+                        <MenuItem key={option} value={option}>
+                            {option}
+                        </MenuItem>
+                    ))}
+                </TextField>
+            </Grid>
 
-            <TextField
-                select
-                label='Timeframe'
-                value={timeframe}
-                onChange={(event) => onChangeTimeframe(event.target.value as Timeframe)}
-                sx={{ mb: 3 }}
-                fullWidth
-            >
-                {Object.values(Timeframe).map((option) => (
-                    <MenuItem key={option} value={option}>
-                        {displayTimeframe(option)}
-                    </MenuItem>
-                ))}
-            </TextField>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                    select
+                    label='Timeframe'
+                    value={timeframe}
+                    onChange={(event) =>
+                        onChangeTimeframe(event.target.value as Timeframe)
+                    }
+                    sx={{ mb: 3 }}
+                    fullWidth
+                >
+                    {Object.values(Timeframe).map((option) => (
+                        <MenuItem key={option} value={option}>
+                            {displayTimeframe(option)}
+                        </MenuItem>
+                    ))}
+                </TextField>
+            </Grid>
 
-            <Typography variant='body2' color='text.secondary'>
-                Click on a segment of the pie chart to see more details
-            </Typography>
+            <Grid item xs={12}>
+                <Typography variant='body2' color='text.secondary' textAlign='center'>
+                    Click on a segment of the pie chart to see more details
+                </Typography>
+            </Grid>
 
-            <PieChart
-                id='score-chart'
-                title={`Score Breakdown${
-                    scoreChartCategory && `: ${scoreChartCategory}`
-                }`}
-                data={scoreChartData}
-                renderTotal={(score) => (
-                    <Stack alignItems='center'>
-                        <Typography variant='subtitle1'>
-                            Total {scoreChartCategory ? 'Category' : 'Cohort'} Score:{' '}
-                            {Math.round(score * 100) / 100}
-                        </Typography>
-                        {scoreChartCategory && (
-                            <Button onClick={() => setScoreChartCategory('')}>
-                                Back to Cohort
-                            </Button>
-                        )}
-                    </Stack>
-                )}
-                getTooltip={getScoreChartTooltip}
-                onClick={onClickScoreChart}
-            />
+            <Grid item xs={12} sm={6} md={6} mt={4}>
+                <PieChart
+                    id='score-chart'
+                    title={`Score Breakdown${
+                        scoreChartCategory && `: ${scoreChartCategory}`
+                    }`}
+                    data={scoreChartData}
+                    renderTotal={(score) => (
+                        <Stack alignItems='center'>
+                            <Typography variant='subtitle1'>
+                                Total {scoreChartCategory ? 'Category' : 'Cohort'} Score:{' '}
+                                {Math.round(score * 100) / 100}
+                            </Typography>
+                            {scoreChartCategory && (
+                                <Button onClick={() => setScoreChartCategory('')}>
+                                    Back to Cohort
+                                </Button>
+                            )}
+                        </Stack>
+                    )}
+                    getTooltip={getScoreChartTooltip}
+                    onClick={onClickScoreChart}
+                />
+            </Grid>
 
-            <PieChart
-                id='time-chart'
-                title={`Time Breakdown${timeChartCategory && `: ${timeChartCategory}`}`}
-                data={timeChartData}
-                renderTotal={(time) => (
-                    <Stack alignItems='center'>
-                        <Typography variant='subtitle1'>
-                            Total {timeChartCategory ? 'Category' : 'Cohort'} Time:{' '}
-                            {getTimeDisplay(time)}
-                        </Typography>
-                        {timeChartCategory && (
-                            <Button onClick={() => setTimeChartCategory('')}>
-                                Back to Cohort
-                            </Button>
-                        )}
-                    </Stack>
-                )}
-                getTooltip={getTimeChartTooltip}
-                onClick={onClickTimeChart}
-            />
-        </Stack>
+            <Grid item xs={12} sm={6} md={6} mt={4}>
+                <PieChart
+                    id='time-chart'
+                    title={`Time Breakdown${
+                        timeChartCategory && `: ${timeChartCategory}`
+                    }`}
+                    data={timeChartData}
+                    renderTotal={(time) => (
+                        <Stack alignItems='center'>
+                            <Typography variant='subtitle1'>
+                                Total {timeChartCategory ? 'Category' : 'Cohort'} Time:{' '}
+                                {getTimeDisplay(time)}
+                            </Typography>
+                            {timeChartCategory && (
+                                <Button onClick={() => setTimeChartCategory('')}>
+                                    Back to Cohort
+                                </Button>
+                            )}
+                        </Stack>
+                    )}
+                    getTooltip={getTimeChartTooltip}
+                    onClick={onClickTimeChart}
+                />
+            </Grid>
+        </Grid>
     );
 };
 
