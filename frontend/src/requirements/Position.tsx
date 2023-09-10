@@ -114,7 +114,11 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 />
             </CardContent>
             <CardActions>
-                <CopyToClipboard text={position.fen.trim()} onCopy={onCopyFen}>
+                <CopyToClipboard
+                    data-cy='position-fen-copy'
+                    text={position.fen.trim()}
+                    onCopy={onCopyFen}
+                >
                     <Button
                         startIcon={
                             copied === 'fen' ? <CheckIcon /> : <ContentPasteIcon />
@@ -124,6 +128,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     </Button>
                 </CopyToClipboard>
                 <LoadingButton
+                    data-cy='position-challenge-url'
                     startIcon={
                         copied === 'lichess' ? <CheckIcon /> : <ContentPasteIcon />
                     }

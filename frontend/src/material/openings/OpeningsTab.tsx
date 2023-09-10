@@ -74,7 +74,7 @@ const OpeningsTab = () => {
 
             {levels.length > 0 &&
                 levels.map((level) => (
-                    <Stack key={level.name} spacing={0.5}>
+                    <Stack key={level.name} spacing={0.5} data-cy={level.name}>
                         <Typography variant='h5'>{level.name}</Typography>
 
                         <Stack spacing={1} pl={3}>
