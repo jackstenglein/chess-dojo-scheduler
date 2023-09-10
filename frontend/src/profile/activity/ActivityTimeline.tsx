@@ -17,7 +17,7 @@ import { User } from '../../database/user';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import { CategoryColors } from './activity';
-import { useTimeline } from './useTimeline';
+import { UseTimelineResponse } from './useTimeline';
 import LoadingPage from '../../loading/LoadingPage';
 
 const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
@@ -147,10 +147,11 @@ function getCreatedAtItem(createdAt: string) {
 
 interface ActivityTimelineProps {
     user: User;
+    timeline: UseTimelineResponse;
 }
 
-const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user }) => {
-    const { request, entries, hasMore, onLoadMore } = useTimeline(user.username);
+const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) => {
+    const { request, entries, hasMore, onLoadMore } = timeline;
 
     if (request.isLoading() && entries.length === 0) {
         return (

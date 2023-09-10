@@ -279,3 +279,14 @@ export function getTotalCategoryScore(
         requirements.filter((r) => r.category === category)
     );
 }
+
+export function getUnitScore(cohort: string, requirement: Requirement): number {
+    let unitScore = requirement.unitScore;
+    if (
+        requirement.unitScoreOverride &&
+        requirement.unitScoreOverride[cohort] !== undefined
+    ) {
+        unitScore = requirement.unitScoreOverride[cohort];
+    }
+    return unitScore;
+}

@@ -3,7 +3,7 @@ import { useApi } from '../../api/Api';
 import { TimelineEntry } from '../../database/requirement';
 import { Request, useRequest } from '../../api/Request';
 
-interface UseTimelineResponse {
+export interface UseTimelineResponse {
     request: Request;
     entries: TimelineEntry[];
     hasMore: boolean;
