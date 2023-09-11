@@ -245,9 +245,9 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         });
     };
 
-    const onChangeTournamentType = (type: TimeControlType, value: boolean) => {
-        filters.setTournamentTypes({
-            ...filters.tournamentTypes,
+    const onChangeTournamentTimeControls = (type: TimeControlType, value: boolean) => {
+        filters.setTournamentTimeControls({
+            ...filters.tournamentTimeControls,
             [type]: value,
         });
     };
@@ -350,7 +350,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                                 filters.tournamentTimeControls[type]
                                             }
                                             onChange={(event) =>
-                                                onChangeTournamentType(
+                                                onChangeTournamentTimeControls(
                                                     type,
                                                     event.target.checked
                                                 )
