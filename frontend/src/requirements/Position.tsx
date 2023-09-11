@@ -70,8 +70,9 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     clock_increment: position.incrementSeconds,
                 });
                 lichessRequest.onSuccess();
-                navigator.clipboard.writeText(resp.data.challenge.url);
-                onCopy('lichess');
+                navigator.clipboard.writeText(resp.data.challenge.url).then(() => {
+                    onCopy('lichess');
+                });
             })
             .catch((err) => {
                 console.error(err);

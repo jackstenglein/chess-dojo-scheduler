@@ -47,7 +47,7 @@ describe('Sparring Positions Tab', () => {
     it('should allow copying FENs', { browser: 'electron' }, () => {
         cy.contains('Middlegame Win Conversions').click();
         cy.contains('600-700').click();
-        cy.getBySel('position-fen-copy').first().click();
+        cy.getBySel('position-fen-copy').first().focus().realClick();
 
         cy.window()
             .its('navigator.clipboard')
@@ -69,7 +69,7 @@ describe('Sparring Positions Tab', () => {
 
         cy.contains('Middlegame Win Conversions').click();
         cy.contains('600-700').click();
-        cy.getBySel('position-challenge-url').first().click();
+        cy.getBySel('position-challenge-url').first().focus().realClick();
         cy.wait('@lichessRequest');
 
         cy.window()
