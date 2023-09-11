@@ -44,10 +44,10 @@ describe('Sparring Positions Tab', () => {
         cy.getBySel('position-challenge-url');
     });
 
-    it('should allow copying FENs', { browser: 'electron' }, () => {
+    it('should allow copying FENs', () => {
         cy.contains('Middlegame Win Conversions').click();
         cy.contains('600-700').click();
-        cy.getBySel('position-fen-copy').first().focus().realClick();
+        cy.getBySel('position-fen-copy').first().click();
 
         cy.window()
             .its('navigator.clipboard')
@@ -58,7 +58,7 @@ describe('Sparring Positions Tab', () => {
             );
     });
 
-    it('should allow copying Lichess URL', { browser: 'electron' }, () => {
+    it('should allow copying Lichess URL', () => {
         cy.intercept('POST', 'https://lichess.org/api/challenge/open', {
             body: {
                 challenge: {
@@ -69,7 +69,7 @@ describe('Sparring Positions Tab', () => {
 
         cy.contains('Middlegame Win Conversions').click();
         cy.contains('600-700').click();
-        cy.getBySel('position-challenge-url').first().focus().realClick();
+        cy.getBySel('position-challenge-url').first().click();
         cy.wait('@lichessRequest');
 
         cy.window()
