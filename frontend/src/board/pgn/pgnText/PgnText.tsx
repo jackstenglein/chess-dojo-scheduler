@@ -28,7 +28,7 @@ const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
     };
 
     return (
-        <Card ref={ref} sx={{ overflowY: 'scroll' }}>
+        <Card data-cy='pgn-text' ref={ref} sx={{ overflowY: 'scroll' }}>
             <GameComment />
             <Variation handleScroll={handleScroll} onClickMove={onClickMove} />
             <Result />

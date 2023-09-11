@@ -120,6 +120,7 @@ const ModelGamesTab = () => {
                 >
                     <Stack gridArea='extras' height={1} alignItems='center'>
                         <TextField
+                            data-cy='cohort-select'
                             select
                             label='Cohort'
                             value={cohort}

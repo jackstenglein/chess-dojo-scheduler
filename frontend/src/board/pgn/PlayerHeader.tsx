@@ -114,6 +114,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
 
     return (
         <Paper
+            data-cy={`player-header-${type}`}
             elevation={3}
             sx={{
                 gridArea: `player${type}`,

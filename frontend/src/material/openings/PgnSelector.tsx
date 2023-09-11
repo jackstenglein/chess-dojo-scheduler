@@ -55,7 +55,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
         >
             <List>
                 {selectedHeaders.map((header, idx) => (
-                    <ListItem key={idx} disablePadding>
+                    <ListItem data-cy='pgn-selector-item' key={idx} disablePadding>
                         <ListItemButton
                             sx={{ pl: 0 }}
                             selected={selectedIndex === idx}
