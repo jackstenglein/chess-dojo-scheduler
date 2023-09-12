@@ -44,7 +44,7 @@ import GraduationIcon from './GraduationIcon';
 import { useRequirements } from '../api/cache/requirements';
 import ScoreboardProgress from './ScoreboardProgress';
 import GraduationChips from './GraduationChips';
-import { formatTime } from '../database/requirement';
+import { ScoreboardDisplay, formatTime } from '../database/requirement';
 import ScoreboardTutorial from './ScoreboardTutorial';
 
 interface ColumnGroupChild {
@@ -324,7 +324,12 @@ const ScoreboardPage = () => {
     const requirementColumns: GridColDef<ScoreboardRow>[] = useMemo(() => {
         return (
             requirements
-                ?.filter((r) => r.category !== 'Welcome to the Dojo')
+                ?.filter(
+                    (r) =>
+                        r.category !== 'Welcome to the Dojo' &&
+                        r.category !== 'Non-Dojo' &&
+                        r.scoreboardDisplay !== ScoreboardDisplay.Hidden
+                )
                 .map((r) => getColumnDefinition(r, cohort!)) ?? []
         );
     }, [requirements, cohort]);
@@ -371,10 +376,11 @@ const ScoreboardPage = () => {
     }
 
     return (
-        <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
+        <Container maxWidth={false} sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={requirementRequest} />
             <RequestSnackbar request={usersRequest} />
             <TextField
+                data-cy='scoreboard-cohort-select'
                 id='scoreboard-cohort-select'
                 select
                 label='View'
@@ -396,6 +402,7 @@ const ScoreboardPage = () => {
 
             <Typography variant='h6'>Current Members</Typography>
             <DataGrid
+                data-cy='current-members-scoreboard'
                 sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
                 experimentalFeatures={{ columnGrouping: true }}
                 columns={userInfoColumns.concat(
@@ -417,6 +424,7 @@ const ScoreboardPage = () => {
             <Typography variant='h6'>Graduations</Typography>
             <div id='graduation-scoreboard'>
                 <DataGrid
+                    data-cy='graduates-scoreboard'
                     sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
                     experimentalFeatures={{ columnGrouping: true }}
                     columns={userInfoColumns.concat(
