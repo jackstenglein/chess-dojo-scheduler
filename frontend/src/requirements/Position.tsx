@@ -13,6 +13,7 @@ import { LoadingButton } from '@mui/lab';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import CheckIcon from '@mui/icons-material/Check';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import copy from 'copy-to-clipboard';
 
 import { Position as PositionModel } from '../database/requirement';
 import { useRequest } from '../api/Request';
@@ -70,9 +71,8 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     clock_increment: position.incrementSeconds,
                 });
                 lichessRequest.onSuccess();
-                navigator.clipboard.writeText(resp.data.challenge.url).then(() => {
-                    onCopy('lichess');
-                });
+                copy(resp.data.challenge.url);
+                onCopy('lichess');
             })
             .catch((err) => {
                 console.error(err);
