@@ -380,7 +380,7 @@ const ScoreboardPage = () => {
             <RequestSnackbar request={requirementRequest} />
             <RequestSnackbar request={usersRequest} />
             <TextField
-                data-cy='scoreboard-cohort-select'
+                data-cy='scoreboard-view-selector'
                 id='scoreboard-cohort-select'
                 select
                 label='View'

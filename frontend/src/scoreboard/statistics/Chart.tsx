@@ -46,7 +46,9 @@ const Chart: React.FC<ChartProps> = ({
 
     return (
         <Stack>
-            <Typography variant='subtitle1'>{title}</Typography>
+            <Typography data-cy='chart-title' variant='subtitle1'>
+                {title}
+            </Typography>
             {!hideSums && (
                 <Stack direction='row' spacing={1} mb={1} rowGap={1} flexWrap='wrap'>
                     {series.map((s, i) => {

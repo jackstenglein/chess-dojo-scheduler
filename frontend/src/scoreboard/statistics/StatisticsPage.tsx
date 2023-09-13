@@ -265,6 +265,7 @@ const StatisticsPage = () => {
             <RequestSnackbar request={request} />
 
             <TextField
+                data-cy='scoreboard-view-selector'
                 select
                 label='View'
                 value='stats'

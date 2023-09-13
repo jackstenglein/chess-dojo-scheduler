@@ -198,6 +198,7 @@ const SearchPage = () => {
 
             <Stack spacing={4}>
                 <TextField
+                    data-cy='scoreboard-view-selector'
                     select
                     label='View'
                     value='search'
@@ -216,6 +217,7 @@ const SearchPage = () => {
 
                 <Stack spacing={1} alignItems='start'>
                     <TextField
+                        data-cy='search-query'
                         label='Search Query'
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
@@ -230,6 +232,7 @@ const SearchPage = () => {
                         </Typography>
                         <FormControl error={!!errors.fields}>
                             <FormControlLabel
+                                data-cy='search-field'
                                 control={
                                     <Checkbox
                                         checked={allFields}
@@ -250,6 +253,7 @@ const SearchPage = () => {
                                     }
                                     return (
                                         <FormControlLabel
+                                            data-cy='search-field'
                                             key={field}
                                             control={
                                                 <Checkbox
@@ -273,6 +277,7 @@ const SearchPage = () => {
                     </Stack>
 
                     <LoadingButton
+                        data-cy='search-button'
                         variant='contained'
                         onClick={onSearch}
                         loading={request.isLoading()}
@@ -283,6 +288,7 @@ const SearchPage = () => {
 
                 {request.data && (
                     <DataGrid
+                        data-cy='search-results'
                         autoHeight
                         columns={columns}
                         rows={request.data ?? []}

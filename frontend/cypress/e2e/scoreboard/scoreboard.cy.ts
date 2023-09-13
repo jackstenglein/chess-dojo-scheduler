@@ -12,6 +12,13 @@ describe('Scoreboard Page', () => {
         cy.location('pathname').should('match', /^\/scoreboard\/\d+-\d+$/);
     });
 
+    it('has selector to change views', () => {
+        cy.getBySel('scoreboard-view-selector').click();
+        cy.contains('User Search').click();
+
+        cy.location('pathname').should('equal', '/scoreboard/search');
+    });
+
     it('contains tables for current members and graduates', () => {
         cy.getBySel('current-members-scoreboard');
         cy.getBySel('graduates-scoreboard');
@@ -48,7 +55,7 @@ describe('Scoreboard Page', () => {
         );
     });
 
-    it.only('contains default columns', () => {
+    it('contains default columns', () => {
         cy.viewport(15000, 660);
 
         const defaultColumns = [
