@@ -16,6 +16,7 @@ const TournamentsPage = () => {
             <TabContext value={searchParams.get('type') || 'calendar'}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList
+                        data-cy='tournaments-tab-list'
                         onChange={(_, t) => setSearchParams({ type: t })}
                         variant='scrollable'
                     >

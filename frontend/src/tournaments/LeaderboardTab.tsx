@@ -91,6 +91,7 @@ const LeaderboardTab = () => {
             >
                 <Stack direction='row' spacing={2}>
                     <TextField
+                        data-cy='time-control-selector'
                         sx={{ minWidth: 130 }}
                         select
                         label='Time Control'
@@ -103,6 +104,7 @@ const LeaderboardTab = () => {
                     </TextField>
 
                     <TextField
+                        data-cy='tournament-type-selector'
                         sx={{ minWidth: 130 }}
                         select
                         label='Tournament Type'
@@ -153,6 +155,7 @@ const LeaderboardTab = () => {
             </Stack>
 
             <DataGrid
+                data-cy='leaderboard'
                 autoHeight
                 columns={columns}
                 rows={request.data?.players || []}

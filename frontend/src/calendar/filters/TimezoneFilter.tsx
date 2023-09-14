@@ -45,6 +45,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ timezone, setTimezone }
             </Typography>
             <FormControl size='small'>
                 <Select
+                    data-cy='timezone-selector'
                     value={timezone}
                     onChange={(e) => onChangeTimezone(e.target.value)}
                 >

@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Stack, Typography, Link } from '@mui/material';
 
 const InfoTab = () => {
     return (
@@ -18,13 +18,14 @@ const InfoTab = () => {
                 <ol>
                     <li>
                         Join{' '}
-                        <a
+                        <Link
+                            data-cy='lichess-team-link'
                             href='https://lichess.org/team/chessdojo'
                             target='_blank'
                             rel='noreferrer'
                         >
                             ChessDojo's Team
-                        </a>{' '}
+                        </Link>{' '}
                         on Lichess. A team admin will approve your entry.
                     </li>
                     <li>

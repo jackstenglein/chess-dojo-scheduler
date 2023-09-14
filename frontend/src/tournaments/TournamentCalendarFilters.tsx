@@ -82,6 +82,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
 
     return (
         <Stack
+            data-cy='calendar-filters'
             sx={{ pt: 0.5, pb: 2, position: { md: 'sticky' }, top: { md: '88px' } }}
             spacing={{ xs: 3, sm: 4 }}
         >
