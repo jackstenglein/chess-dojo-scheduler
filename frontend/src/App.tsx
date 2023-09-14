@@ -40,6 +40,7 @@ import MaterialPage from './material/MaterialPage';
 import ErrorBoundary from './ErrorBoundary';
 import OpeningPage from './material/openings/OpeningPage';
 import TournamentsPage from './tournaments/TournamentsPage';
+import RegistrationPage from './tournaments/openClassical/RegistrationPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 import SearchPage from './scoreboard/search/SeachPage';
 
@@ -68,7 +69,10 @@ const router = createBrowserRouter(
             <Route path='verify-email' element={<VerifyEmailPage />} />
             <Route path='forgot-password' element={<ForgotPasswordPage />} />
             <Route path='help' element={<HelpPage />} />
-            <Route path='tournaments' element={<TournamentsPage />} />
+            <Route path='tournaments'>
+                <Route index element={<TournamentsPage />} />
+                <Route path='open-classical' element={<RegistrationPage />} />
+            </Route>
 
             <Route element={<RequireAuth />}>
                 <Route element={<GraduationPrompt />}>
