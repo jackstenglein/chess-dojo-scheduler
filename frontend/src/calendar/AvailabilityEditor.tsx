@@ -299,15 +299,26 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
     };
 
     return (
-        <Dialog fullScreen open={true} TransitionComponent={Transition}>
+        <Dialog
+            data-cy='availability-editor'
+            fullScreen
+            open={true}
+            TransitionComponent={Transition}
+        >
             <RequestSnackbar request={request} />
 
             <AppBar sx={{ position: 'relative' }}>
                 <Toolbar>
-                    <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
+                    <Typography
+                        data-cy='availability-editor-title'
+                        sx={{ ml: 2, flex: 1 }}
+                        variant='h6'
+                        component='div'
+                    >
                         Set Availability
                     </Typography>
                     <Button
+                        data-cy='cancel-button'
                         color='inherit'
                         onClick={scheduler.close}
                         disabled={request.isLoading()}
@@ -315,6 +326,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                         Cancel
                     </Button>
                     <LoadingButton
+                        data-cy='save-button'
                         color='inherit'
                         loading={request.isLoading()}
                         onClick={onSubmit}
@@ -324,7 +336,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                 </Toolbar>
             </AppBar>
 
-            <DialogTitle>
+            <DialogTitle data-cy='availability-editor-date'>
                 {defaultStart.toLocaleDateString('en-US', {
                     weekday: 'long',
                     month: 'short',
@@ -405,6 +417,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                 }}
                                 slotProps={{
                                     textField: {
+                                        id: 'start-time',
                                         fullWidth: true,
                                         error: !!errors.start,
                                         helperText: errors.start,
@@ -419,6 +432,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                 onChange={(value) => setEnd(value)}
                                 slotProps={{
                                     textField: {
+                                        id: 'end-time',
                                         fullWidth: true,
                                         error: !!errors.end,
                                         helperText: errors.end,
@@ -439,6 +453,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                             Add a Zoom link, specify a Discord classroom, etc.
                         </Typography>
                         <TextField
+                            data-cy='location-textfield'
                             fullWidth
                             label='Location'
                             variant='outlined'
@@ -460,6 +475,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                 : 'This description will be visible in the calendar and the Discord events.'}
                         </Typography>
                         <TextField
+                            data-cy='description-textfield'
                             label='Description'
                             multiline
                             minRows={3}
@@ -471,7 +487,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
 
                     {isAvailability && (
                         <>
-                            <Stack>
+                            <Stack data-cy='availability-types-section'>
                                 <Typography variant='h6'>Availability Types</Typography>
                                 <Typography variant='subtitle1' color='text.secondary'>
                                     Choose the meeting types you are available for.
@@ -526,6 +542,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                     (not including yourself).
                                 </Typography>
                                 <TextField
+                                    data-cy='participants-textfield'
                                     fullWidth
                                     label='Max Participants'
                                     variant='outlined'
@@ -577,6 +594,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                         key={cohort}
                                         control={
                                             <Checkbox
+                                                data-cy={`cohort-checkbox-${cohort}`}
                                                 checked={allCohorts || cohorts[cohort]}
                                                 onChange={(event) =>
                                                     onChangeCohort(

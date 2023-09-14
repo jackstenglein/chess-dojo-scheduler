@@ -21,7 +21,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
     };
 
     return (
-        <Stack sx={{ pt: 2 }} spacing={2}>
+        <Stack data-cy='availability-viewer' sx={{ pt: 2 }} spacing={2}>
             {!isOwner && (
                 <Stack>
                     <Typography variant='subtitle2' color='text.secondary'>
@@ -77,7 +77,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
             </Stack>
 
             {!isOwner && (
-                <Button variant='contained' onClick={startBooking}>
+                <Button data-cy='book-button' variant='contained' onClick={startBooking}>
                     Book
                 </Button>
             )}

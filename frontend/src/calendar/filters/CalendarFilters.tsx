@@ -253,7 +253,11 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
     };
 
     return (
-        <Stack sx={{ pt: 0.5, pb: 2 }} spacing={{ xs: 3, sm: 4 }}>
+        <Stack
+            data-cy='calendar-filters'
+            sx={{ pt: 0.5, pb: 2 }}
+            spacing={{ xs: 3, sm: 4 }}
+        >
             <TimezoneFilter
                 timezone={filters.timezone}
                 setTimezone={filters.setTimezone}

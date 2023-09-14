@@ -171,7 +171,12 @@ const AvailabilityBooker = () => {
     };
 
     return (
-        <Dialog fullScreen open={true} TransitionComponent={Transition}>
+        <Dialog
+            data-cy='availability-booker'
+            fullScreen
+            open={true}
+            TransitionComponent={Transition}
+        >
             <RequestSnackbar request={request} />
 
             <AppBar sx={{ position: 'relative' }}>
@@ -180,6 +185,7 @@ const AvailabilityBooker = () => {
                         {isGroup ? 'Join Group Meeting' : 'Book Meeting'}
                     </Typography>
                     <Button
+                        data-cy='cancel-button'
                         color='inherit'
                         onClick={() => navigate('/calendar')}
                         disabled={request.status === RequestStatus.Loading}
@@ -187,6 +193,7 @@ const AvailabilityBooker = () => {
                         Cancel
                     </Button>
                     <LoadingButton
+                        data-cy='book-button'
                         color='inherit'
                         loading={request.status === RequestStatus.Loading}
                         onClick={confirmBooking}
@@ -335,7 +342,9 @@ const AvailabilityBooker = () => {
                                     {availability.types.map((t) => (
                                         <FormControlLabel
                                             key={t}
-                                            control={<Radio />}
+                                            control={
+                                                <Radio data-cy='meeting-type-radio' />
+                                            }
                                             value={t}
                                             label={getDisplayString(t)}
                                         />

@@ -53,7 +53,14 @@ const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40, sx }
 
     return (
         <Tooltip title={`Graduated from ${cohort}`}>
-            <img src={url} alt='' width={size} height={size} style={sx} />
+            <img
+                data-cy='graduation-icon'
+                src={url}
+                alt=''
+                width={size}
+                height={size}
+                style={sx}
+            />
         </Tooltip>
     );
 };
