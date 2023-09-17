@@ -43,6 +43,7 @@ import TournamentsPage from './tournaments/TournamentsPage';
 import RegistrationPage from './tournaments/openClassical/RegistrationPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 import SearchPage from './scoreboard/search/SeachPage';
+import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -71,7 +72,10 @@ const router = createBrowserRouter(
             <Route path='help' element={<HelpPage />} />
             <Route path='tournaments'>
                 <Route index element={<TournamentsPage />} />
-                <Route path='open-classical' element={<RegistrationPage />} />
+                <Route path='open-classical'>
+                    <Route path='register' element={<RegistrationPage />} />
+                    <Route path='submit-results' element={<SubmitResultsPage />} />
+                </Route>
             </Route>
 
             <Route element={<RequireAuth />}>
