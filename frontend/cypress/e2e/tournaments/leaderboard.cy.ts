@@ -44,7 +44,7 @@ describe('Leaderboard Tab', () => {
         columns.forEach((col) => cy.getBySel('leaderboard').contains(col));
     });
 
-    it.only('displays correct data', () => {
+    it('displays correct data', () => {
         cy.getBySel('leaderboard').contains('agedwhitecheddar');
         cy.getBySel('leaderboard').contains('1–10 of 189');
 

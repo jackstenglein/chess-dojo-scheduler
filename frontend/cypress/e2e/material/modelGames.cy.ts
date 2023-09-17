@@ -20,10 +20,10 @@ describe('Model Games Tab', () => {
     it('allows switching cohorts', () => {
         cy.getBySel('cohort-select').click();
         cy.contains('1400-1500').click();
-        cy.getBySel('player-header-header').contains('Evan');
+        cy.getBySel('pgn-selector').contains('Opponent - Evan');
 
         cy.getBySel('cohort-select').click();
         cy.contains('1500-1600').click();
-        cy.getBySel('player-header-header').contains('Adithya Chitta');
+        cy.getBySel('pgn-selector').contains('Clarke VandenHoven - Adithya Chitta');
     });
 });

@@ -1,4 +1,4 @@
-const now = new Date(2023, 8, 8); // month is 0-indexed
+const now = new Date(2023, 8, 7); // month is 0-indexed
 
 describe('Graduations', () => {
     beforeEach(() => {
@@ -44,7 +44,7 @@ describe('Graduations', () => {
             fixture: 'recent/graduations.json',
         });
 
-        cy.getBySel('recent-graduates-table').contains('1–7 of 7');
+        cy.getBySel('recent-graduates-table').contains('1–9 of 9');
         cy.getBySel('recent-graduates-table')
             .contains('QuiteKnight')
             .should('have.attr', 'href', '/profile/f3ed6d22-4b50-4049-b65f-ff2b1131ba4a');
@@ -56,11 +56,11 @@ describe('Graduations', () => {
         });
 
         cy.getBySel('graduates-timeframe-select').click();
-        cy.getBySel('Graduation of 9/12/2023').click();
-        cy.getBySel('recent-graduates-table').contains('1–3 of 3');
+        cy.getBySel('Graduation of 8/31/2023').click();
+        cy.getBySel('recent-graduates-table').contains('1–10 of 10');
         cy.getBySel('recent-graduates-table')
-            .contains('JoaQ')
-            .should('have.attr', 'href', '/profile/google_114110636308651003202');
+            .contains('Bodheen')
+            .should('have.attr', 'href', '/profile/372ae346-b786-4000-9fc8-36005eb29415');
     });
 });
 
@@ -82,7 +82,7 @@ describe('Featured Games', () => {
         cy.contains('No featured games in the past month');
     });
 
-    it.only('displays featured games', () => {
+    it('displays featured games', () => {
         cy.interceptApi('GET', '/game/featured', {
             fixture: 'recent/games.json',
         });

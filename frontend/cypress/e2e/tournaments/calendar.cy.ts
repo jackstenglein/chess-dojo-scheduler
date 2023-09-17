@@ -119,7 +119,7 @@ describe('Calendar Tab', () => {
         cy.get('.MuiPopover-root').find('cg-board');
     });
 
-    it.only('allows switching between month, week and day views', () => {
+    it('allows switching between month, week and day views', () => {
         cy.contains('Month').click();
         cy.get('.rs__cell').should('have.length', 6 * 7);
 

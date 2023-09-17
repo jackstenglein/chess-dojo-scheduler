@@ -52,6 +52,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                 overflowY: 'scroll',
                 flexGrow: fullHeight ? 1 : undefined,
             }}
+            data-cy='pgn-selector'
         >
             <List>
                 {selectedHeaders.map((header, idx) => (

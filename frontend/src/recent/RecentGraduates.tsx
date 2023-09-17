@@ -27,8 +27,8 @@ function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];
 }
 
-const graduationDayOfWeek = 2; // Tuesday
-const numberOfOptions = 2;
+const graduationDayOfWeek = 4; // Thursday
+const numberOfOptions = 3;
 const lastWeek = new Date();
 lastWeek.setDate(lastWeek.getDate() - 7);
 
@@ -41,11 +41,6 @@ interface TimeframeOption {
     label: string;
     value: Timeframe;
 }
-
-const timeframeWeek = {
-    minDate: lastWeek.toISOString(),
-    maxDate: new Date().toISOString(),
-};
 
 function getTimeframeOptions() {
     let currGraduation = new Date();
@@ -177,7 +172,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
 const RecentGraduates = () => {
     const api = useApi();
     const request = useRequest<Graduation[]>();
-    const [timeframe, setTimeframe] = useState<Timeframe>(timeframeWeek);
+    const [timeframe, setTimeframe] = useState<Timeframe>(timeframeOptions[0]?.value);
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -224,7 +219,6 @@ const RecentGraduates = () => {
                                 },
                             }}
                         >
-                            <MenuItem value={timeframeWeek as any}>Past Week</MenuItem>
                             {timeframeOptions.map((option) => (
                                 <MenuItem
                                     data-cy={option.label}
