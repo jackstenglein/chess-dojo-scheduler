@@ -141,6 +141,9 @@ type User struct {
 	// missing Wix subscription
 	IsForbidden bool `dynamodbav:"isForbidden" json:"isForbidden"`
 
+	// Whether the frontend should override the isForbidden flag
+	OverrideIsForbidden bool `dynamodbav:"overrideIsForbidden" json:"overrideIsForbidden"`
+
 	// The user's subscription status
 	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
 

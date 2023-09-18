@@ -15,6 +15,7 @@ import { User } from '../../database/user';
 import { useTutorial } from '../../tutorial/TutorialContext';
 import { useMemo } from 'react';
 import { TutorialName } from '../../tutorial/tutorialNames';
+import { useFreeTier } from '../../auth/Auth';
 
 export interface Category {
     name: string;
@@ -53,6 +54,8 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
     cohort,
     setShowCustomTaskEditor,
 }) => {
+    const isFreeTier = useFreeTier();
+
     return (
         <Accordion
             key={c.name}
@@ -98,6 +101,22 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                         Add Custom Activity
                     </Button>
                 )}
+
+                {/* {isFreeTier && (
+                    <Stack mt={2} spacing={2} alignItems='center'>
+                        <Typography>
+                            Unlock 6 More Tasks by Upgrading to a Full Account
+                        </Typography>
+                        <Button
+                            variant='outlined'
+                            href='https://www.chessdojo.club/plans-pricing'
+                            target='_blank'
+                            rel='noreferrer'
+                        >
+                            View Pricing Plans
+                        </Button>
+                    </Stack>
+                )} */}
             </AccordionDetails>
         </Accordion>
     );

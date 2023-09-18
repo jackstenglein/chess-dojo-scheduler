@@ -230,13 +230,19 @@ export function RequireAuth() {
             api.checkUserAccess()
                 .then(() => {
                     request.onSuccess();
-                    auth.updateUser({ isForbidden: false });
+                    auth.updateUser({
+                        isForbidden: false,
+                        subscriptionStatus: SubscriptionStatus.Subscribed,
+                    });
                 })
                 .catch((err) => {
                     console.log('Check user access error: ', err.response);
                     request.onFailure(err);
                     if (err.response?.status === 403) {
-                        auth.updateUser({ isForbidden: true });
+                        auth.updateUser({
+                            isForbidden: true,
+                            subscriptionStatus: SubscriptionStatus.FreeTier,
+                        });
                     }
                 });
         }
@@ -250,7 +256,7 @@ export function RequireAuth() {
         return <Navigate to='/' replace />;
     }
 
-    if (user.isForbidden) {
+    if (user.isForbidden && !user.overrideIsForbidden) {
         return <ForbiddenPage />;
     }
 

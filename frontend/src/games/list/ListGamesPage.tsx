@@ -14,6 +14,9 @@ import SearchFilters from './SearchFilters';
 
 import { usePagination } from './pagination';
 import ListGamesTutorial from './ListGamesTutorial';
+import { useFreeTier } from '../../auth/Auth';
+import { useState } from 'react';
+import UpsellDialog from '../../upsell/UpsellDialog';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
@@ -61,6 +64,8 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
 
 const ListGamesPage = () => {
     const navigate = useNavigate();
+    const isFreeTier = useFreeTier();
+    const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
 
     const { request, data, rowCount, page, pageSize, setPage, setPageSize, onSearch } =
         usePagination(null, 0, 10);
@@ -83,9 +88,18 @@ const ListGamesPage = () => {
         }
     };
 
+    const onSubmit = () => {
+        if (isFreeTier) {
+            setUpsellDialogOpen(true);
+        } else {
+            navigate('submit');
+        }
+    };
+
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
+            <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
 
             <Grid container spacing={5} wrap='wrap-reverse'>
                 <Grid item xs={12} md={9} lg={8}>
@@ -109,7 +123,7 @@ const ListGamesPage = () => {
                         <Button
                             id='submit-game-button'
                             variant='contained'
-                            onClick={() => navigate('submit')}
+                            onClick={onSubmit}
                         >
                             Submit a Game
                         </Button>

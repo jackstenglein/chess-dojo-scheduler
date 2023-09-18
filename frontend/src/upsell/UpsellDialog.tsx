@@ -24,7 +24,8 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({ open, onClose }) => {
             <DialogTitle>Upgrade to a Full Account</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Subscribe to the full training plan to:
+                    You're currently on the free plan. Subscribe to the full training plan
+                    to:
                 </DialogContentText>
                 <DialogContentText component='div'>
                     <ul>
@@ -32,7 +33,14 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({ open, onClose }) => {
                         <li>Access all opening courses</li>
                         <li>Submit games to the Dojo Database</li>
                         <li>Get added to the Dojo Scoreboard</li>
+                        <li>
+                            Graduate and get featured in the graduation shows on Twitch
+                        </li>
                     </ul>
+                </DialogContentText>
+                <DialogContentText>
+                    Your progress on the free plan will be carried over when you
+                    subscribe.
                 </DialogContentText>
             </DialogContent>
             <DialogActions>

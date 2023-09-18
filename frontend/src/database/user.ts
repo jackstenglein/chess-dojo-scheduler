@@ -85,6 +85,7 @@ export interface User {
     wixEmail: string;
     isForbidden: boolean;
     subscriptionStatus: string;
+    overrideIsForbidden?: boolean;
 
     ratingSystem: RatingSystem;
     ratings: Partial<Record<RatingSystem, Rating>>;

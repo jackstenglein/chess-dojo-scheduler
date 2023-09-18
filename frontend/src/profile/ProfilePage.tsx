@@ -10,13 +10,14 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import WarningIcon from '@mui/icons-material/Warning';
 import { TabContext, TabPanel } from '@mui/lab';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
-import { User, isActive } from '../database/user';
+import { useAuth, useFreeTier } from '../auth/Auth';
+import { SubscriptionStatus, User, isActive } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import GamesTab from './GamesTab';
@@ -27,6 +28,7 @@ import GraduationIcon from '../scoreboard/GraduationIcon';
 import StatsTab from './stats/StatsTab';
 import { DefaultTimezone } from '../calendar/filters/CalendarFilters';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
+import UpsellDialog from '../upsell/UpsellDialog';
 
 const timezoneDisplayLabels: Record<string, string> = {
     'Etc/GMT+12': 'UTC-12',
@@ -68,6 +70,7 @@ const ProfilePage = () => {
     const api = useApi();
     const currentUser = useAuth().user!;
     const request = useRequest<User>();
+    const isFreeTier = useFreeTier();
 
     const currentUserProfile = !username || username === currentUser.username;
 
@@ -75,6 +78,7 @@ const ProfilePage = () => {
         currentUserProfile ? { view: 'progress' } : { view: 'stats' }
     );
 
+    const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     useEffect(() => {
@@ -101,6 +105,14 @@ const ProfilePage = () => {
 
     const isUserActive = isActive(user);
 
+    const onGraduate = () => {
+        if (isFreeTier) {
+            setUpsellDialogOpen(true);
+        } else {
+            setShowGraduationDialog(true);
+        }
+    };
+
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
             <Stack spacing={5}>
@@ -112,8 +124,19 @@ const ProfilePage = () => {
                     rowGap={2}
                 >
                     <Stack alignItems='start'>
-                        <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
+                        <Stack
+                            direction='row'
+                            alignItems='center'
+                            spacing={2}
+                            flexWrap='wrap'
+                            rowGap={1}
+                        >
                             <Typography variant='h4'>{user.displayName}</Typography>
+                            {user.subscriptionStatus === SubscriptionStatus.FreeTier && (
+                                <Tooltip title='This account is on the free tier and has limited access to the site'>
+                                    <WarningIcon color='warning' />
+                                </Tooltip>
+                            )}
                             {user.graduationCohorts &&
                             user.graduationCohorts.length > 0 ? (
                                 <Stack
@@ -180,7 +203,7 @@ const ProfilePage = () => {
                                 id='graduate-button'
                                 variant='contained'
                                 color='success'
-                                onClick={() => setShowGraduationDialog(true)}
+                                onClick={onGraduate}
                             >
                                 Graduate
                             </Button>
@@ -237,14 +260,16 @@ const ProfilePage = () => {
             </Stack>
 
             {currentUserProfile && (
-                <GraduationDialog
-                    open={showGraduationDialog}
-                    onClose={() => setShowGraduationDialog(false)}
-                    cohort={user.dojoCohort}
-                />
+                <>
+                    <GraduationDialog
+                        open={showGraduationDialog}
+                        onClose={() => setShowGraduationDialog(false)}
+                        cohort={user.dojoCohort}
+                    />
+                    <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
+                    <ProfilePageTutorial />
+                </>
             )}
-
-            {currentUserProfile && <ProfilePageTutorial />}
         </Container>
     );
 };
