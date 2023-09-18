@@ -15,7 +15,7 @@ import { User } from '../../database/user';
 import { useTutorial } from '../../tutorial/TutorialContext';
 import { useMemo } from 'react';
 import { TutorialName } from '../../tutorial/tutorialNames';
-import { useFreeTier } from '../../auth/Auth';
+// import { useFreeTier } from '../../auth/Auth';
 
 export interface Category {
     name: string;
@@ -54,7 +54,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
     cohort,
     setShowCustomTaskEditor,
 }) => {
-    const isFreeTier = useFreeTier();
+    // const isFreeTier = useFreeTier();
 
     return (
         <Accordion

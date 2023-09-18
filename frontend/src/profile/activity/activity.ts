@@ -204,7 +204,11 @@ function getTimeframeScoreChartData(
             }
         } else {
             const unitScore = getUnitScore(cohort, requirement);
-            score = Math.max(entry.newCount - entry.previousCount, 0) * unitScore;
+            score =
+                Math.max(
+                    entry.newCount - entry.previousCount - requirement.startCount,
+                    0
+                ) * unitScore;
         }
 
         if (data[requirement.category]) {
@@ -271,7 +275,11 @@ function getCategoryScoreChartData(
             }
         } else {
             const unitScore = getUnitScore(cohort, requirement);
-            score = Math.max(entry.newCount - entry.previousCount, 0) * unitScore;
+            score =
+                Math.max(
+                    entry.newCount - entry.previousCount - requirement.startCount,
+                    0
+                ) * unitScore;
         }
         if (score === 0) {
             continue;
