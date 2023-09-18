@@ -3,22 +3,48 @@ name: Cypress Tests
 on: push
 
 jobs:
-  cypress-run:
+  install:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
-      matrix:
-        containers: [1, 2] # Uses 2 parallel instances
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      # Install NPM dependencies, cache them correctly
-      # and run all Cypress tests
-      - name: Cypress run
+
+      - name: Build
+        run: npm run build
+        working-directory: ./frontend
+
+      - name: Save Build Folder
+        uses: actions/upload-artifact@v3
+        working-directory: ./frontend
+        with:
+          name: build
+          path: build
+          if-no-files-found: error
+
+  cypress-run:
+    timeout-minutes: 15
+    runs-on: ubuntu-22.04
+    needs: install
+    strategy:
+      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
+      matrix:
+        containers: [1, 2, 3] # Uses parallel instances
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download Build Folder
+        uses: actions/download-artifact@v3
+        working-directory: ./frontend
+        with:
+          name: build
+          path: build
+
+      - name: Cypress Run
         uses: cypress-io/github-action@v6
         with:
           working-directory: frontend
-          build: npm run build
+          build: npx cypress info
           start: npm start
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
@@ -26,6 +52,7 @@ jobs:
           parallel: true # Runs test in parallel using settings above
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
           AWS_COGNITO_REGION: 'us-east-1'
