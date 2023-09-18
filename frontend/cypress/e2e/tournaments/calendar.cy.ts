@@ -82,17 +82,20 @@ describe('Calendar Tab', () => {
     });
 
     it('displays correct popup for events', () => {
-        cy.get('.rs__event__item').first().click();
+        cy.get('.rs__event__item').contains('Monday Weekly Rapid No. 2').first().click();
 
-        cy.get('.MuiPopover-root').contains('Sunday Blitz Arena Arena');
-        cy.get('.MuiPopover-root').contains('Rated Arena');
+        cy.get('.MuiPopover-root').contains('Monday Weekly Rapid No. 2');
+        cy.get('.MuiPopover-root').contains('Rated Swiss');
         cy.get('.MuiPopover-root').contains('Location');
         cy.get('.MuiPopover-root')
             .contains('https://lichess.org')
-            .should('have.attr', 'href', 'https://lichess.org/tournament/m72MSFYY');
+            .should('have.attr', 'href', 'https://lichess.org/swiss/emvDaOFv');
 
         cy.get('.MuiPopover-root').contains('Time Control');
-        cy.get('.MuiPopover-root').contains('3+2');
+        cy.get('.MuiPopover-root').contains('15+5');
+
+        cy.get('.MuiPopover-root').contains('Rounds');
+        cy.get('.MuiPopover-root').contains('3');
     });
 
     it('displays board in custom position event popups', () => {

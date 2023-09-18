@@ -1,7 +1,7 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Box, Link, Stack, Typography } from '@mui/material';
 
-import { LigaTournament } from '../database/event';
+import { LigaTournament, displayTournamentType } from '../database/event';
 import Board from '../board/Board';
 import { useEffect, useState } from 'react';
 
@@ -28,7 +28,8 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
     return (
         <Stack sx={{ py: 2 }} spacing={2}>
             <Typography variant='body1'>
-                {ligaTournament.rated ? 'Rated' : 'Unrated'} Arena
+                {ligaTournament.rated ? 'Rated' : 'Unrated'}{' '}
+                {displayTournamentType(ligaTournament.type)}
             </Typography>
 
             {processedEvent.event.location && (
