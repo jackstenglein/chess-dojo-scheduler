@@ -59,4 +59,12 @@ describe('Openings Tab', () => {
             }
         }
     });
+
+    it('should show upsell dialog for free user', () => {
+        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.visit('/material');
+
+        cy.contains('Caro Kann').click();
+        cy.getBySel('upsell-dialog');
+    });
 });

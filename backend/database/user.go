@@ -141,6 +141,9 @@ type User struct {
 	// missing Wix subscription
 	IsForbidden bool `dynamodbav:"isForbidden" json:"isForbidden"`
 
+	// The user's subscription status
+	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+
 	// The name of the user
 	Name string `dynamodbav:"name" json:"-"`
 
@@ -303,6 +306,9 @@ type UserUpdate struct {
 	// Whether the user is forbidden from accessing the site due to
 	// missing Wix subscription. Cannot be passed by the user.
 	IsForbidden *bool `dynamodbav:"isForbidden,omitempty" json:"-"`
+
+	// The user's subscription status. Cannot be passed by the user.
+	SubscriptionStatus *string `dynamodbav:"subscriptionStatus,omitempty" json:"-"`
 
 	// The user's preferred display name on the site
 	DisplayName *string `dynamodbav:"displayName,omitempty" json:"displayName,omitempty"`

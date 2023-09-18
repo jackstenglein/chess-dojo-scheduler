@@ -153,6 +153,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 			return api.Failure(funcName, err), nil
 		}
 		update.IsForbidden = aws.Bool(false)
+		update.SubscriptionStatus = aws.String("SUBSCRIBED")
 	}
 
 	update.SearchKey = aws.String(database.GetSearchKey(user, update))

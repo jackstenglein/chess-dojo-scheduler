@@ -68,6 +68,11 @@ export interface RatingHistory {
     rating: number;
 }
 
+export enum SubscriptionStatus {
+    Subscribed = 'SUBSCRIBED',
+    FreeTier = 'FREE_TIER',
+}
+
 export interface User {
     cognitoUser?: CognitoUser;
 
@@ -79,6 +84,7 @@ export interface User {
 
     wixEmail: string;
     isForbidden: boolean;
+    subscriptionStatus: string;
 
     ratingSystem: RatingSystem;
     ratings: Partial<Record<RatingSystem, Rating>>;

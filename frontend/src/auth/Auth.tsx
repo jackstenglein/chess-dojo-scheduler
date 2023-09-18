@@ -16,6 +16,7 @@ import {
     hasCreatedProfile,
     parseCognitoResponse,
     parseUser,
+    SubscriptionStatus,
     User,
 } from '../database/user';
 import { getUser } from '../api/userApi';
@@ -112,6 +113,10 @@ function forgotPasswordConfirm(email: string, code: string, password: string) {
 
 export function useAuth() {
     return useContext(AuthContext);
+}
+
+export function useFreeTier() {
+    return useAuth().user?.subscriptionStatus === SubscriptionStatus.FreeTier;
 }
 
 async function fetchUser(cognitoUser: CognitoUser) {

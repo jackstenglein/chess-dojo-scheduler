@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Stack, Typography, Link } from '@mui/material';
 
@@ -6,6 +6,8 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { Course } from '../../database/opening';
 import LoadingPage from '../../loading/LoadingPage';
+import { useFreeTier } from '../../auth/Auth';
+import UpsellDialog from '../../upsell/UpsellDialog';
 
 const LEVELS = ['Starter (1200-1800)', 'Expert (1800+)'];
 
@@ -22,6 +24,8 @@ interface OpeningTabColor {
 const OpeningsTab = () => {
     const request = useRequest<Course[]>();
     const api = useApi();
+    const isFreeTier = useFreeTier();
+    const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -66,6 +70,13 @@ const OpeningsTab = () => {
         return <LoadingPage />;
     }
 
+    const onClickLink = (event: React.MouseEvent<HTMLAnchorElement>) => {
+        if (isFreeTier) {
+            event.preventDefault();
+            setUpsellDialogOpen(true);
+        }
+    };
+
     console.log('levels: ', levels);
 
     return (
@@ -98,6 +109,7 @@ const OpeningsTab = () => {
                                                     style={{
                                                         textDecoration: 'none',
                                                     }}
+                                                    onClick={onClickLink}
                                                 >
                                                     <li key={course.id}>{course.name}</li>
                                                 </Link>
@@ -113,6 +125,8 @@ const OpeningsTab = () => {
             {(request.data === undefined || levels.length === 0) && (
                 <Typography>No openings found</Typography>
             )}
+
+            <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
         </Stack>
     );
 };

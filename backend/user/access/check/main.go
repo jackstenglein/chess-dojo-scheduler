@@ -26,12 +26,17 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	isForbidden, err := access.IsForbidden(user.WixEmail)
+	subscriptionStatus := "SUBSCRIBED"
+	if isForbidden {
+		subscriptionStatus = "FREE_TIER"
+	}
 
-	if isForbidden != user.IsForbidden {
+	if isForbidden != user.IsForbidden || subscriptionStatus != user.SubscriptionStatus {
 		// Cache the user's forbidden status, that way future reloads of the
 		// frontend immediately show or hide the site
 		_, err := repository.UpdateUser(info.Username, &database.UserUpdate{
-			IsForbidden: aws.Bool(isForbidden),
+			IsForbidden:        aws.Bool(isForbidden),
+			SubscriptionStatus: aws.String(subscriptionStatus),
 		})
 		if err != nil {
 			log.Error("Failed UpdateUser: ", err)
