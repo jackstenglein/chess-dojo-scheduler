@@ -15,10 +15,9 @@ jobs:
 
       - name: Save Build Folder
         uses: actions/upload-artifact@v3
-        working-directory: ./frontend
         with:
           name: build
-          path: build
+          path: frontend/build
           if-no-files-found: error
 
   cypress-run:
@@ -35,10 +34,9 @@ jobs:
 
       - name: Download Build Folder
         uses: actions/download-artifact@v3
-        working-directory: ./frontend
         with:
           name: build
-          path: build
+          path: frontend/build
 
       - name: Cypress Run
         uses: cypress-io/github-action@v6
