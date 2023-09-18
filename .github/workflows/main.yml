@@ -19,6 +19,7 @@ jobs:
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
         env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
           AWS_COGNITO_REGION: 'us-east-1'

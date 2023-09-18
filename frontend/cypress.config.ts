@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.test.local' });
 
 export default defineConfig({
+    projectId: 'ut1fmk',
+
     e2e: {
         setupNodeEvents(on, config) {
             // implement node event listeners here
