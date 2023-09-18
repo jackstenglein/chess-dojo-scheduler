@@ -9,6 +9,8 @@ import LoadingPage from '../../loading/LoadingPage';
 import Module from './Module';
 import NotFoundPage from '../../NotFoundPage';
 import Contents from './Contents';
+import { useFreeTier } from '../../auth/Auth';
+import UpsellPage from '../../upsell/UpsellPage';
 
 type OpeningPageParams = {
     id: string;
@@ -22,6 +24,7 @@ const OpeningPage = () => {
         chapter: '0',
         module: '0',
     });
+    const isFreeTier = useFreeTier();
 
     useEffect(() => {
         if (!request.isSent() && params.id) {
@@ -49,6 +52,10 @@ const OpeningPage = () => {
             return chapter?.modules[moduleIndex];
         }
     }, [chapter, moduleIndex]);
+
+    if (isFreeTier) {
+        return <UpsellPage redirectTo='/material' />;
+    }
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
