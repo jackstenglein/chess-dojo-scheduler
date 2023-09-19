@@ -136,6 +136,9 @@ type Requirement struct {
 
 	// The number of days after which completion of the requirement expires
 	ExpirationDays int `dynamodbav:"expirationDays" json:"expirationDays"`
+
+	// Whether the requirement is available on the free tier or not
+	IsFree bool `dynamodbav:"isFree" json:"isFree"`
 }
 
 // CalculateScore returns the score for the given requirement based on the provided

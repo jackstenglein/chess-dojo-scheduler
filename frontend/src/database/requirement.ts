@@ -24,6 +24,7 @@ export interface CustomTask {
     scoreboardDisplay: ScoreboardDisplay;
     category: string;
     updatedAt: string;
+    isFree?: boolean;
 }
 
 export interface Position {
@@ -57,6 +58,7 @@ export interface Requirement {
     updatedAt: string;
     sortPriority: string;
     expirationDays: number;
+    isFree: boolean;
 }
 
 export interface RequirementProgress {

@@ -151,6 +151,7 @@ def main():
                 'sortPriority': row['Sort Priority'],
                 'progressBarSuffix': row['Progress Bar Suffix'] if row['Progress Bar Suffix'] else '',
                 'expirationDays': int(row['Expiration Days']) if row['Expiration Days'] else -1,
+                'isFree': row['Free?'] == '1',
             }
 
             items.append(item)

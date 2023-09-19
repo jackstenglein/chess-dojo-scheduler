@@ -331,7 +331,8 @@ const ScoreboardPage = () => {
                     (r) =>
                         r.category !== 'Welcome to the Dojo' &&
                         r.category !== 'Non-Dojo' &&
-                        r.scoreboardDisplay !== ScoreboardDisplay.Hidden
+                        r.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
+                        (!isFreeTier || r.isFree)
                 )
                 .map((r) => getColumnDefinition(r, cohort!)) ?? []
         );
@@ -406,8 +407,8 @@ const ScoreboardPage = () => {
                             </Button>
                         }
                     >
-                        Free-tier users are not included in the scoreboard. Upgrade to get
-                        your account added.
+                        Free-tier users are not displayed on the scoreboard. Upgrade to
+                        get your account added.
                     </Alert>
                 </Stack>
             )}

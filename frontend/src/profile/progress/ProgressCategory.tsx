@@ -15,7 +15,7 @@ import { User } from '../../database/user';
 import { useTutorial } from '../../tutorial/TutorialContext';
 import { useMemo } from 'react';
 import { TutorialName } from '../../tutorial/tutorialNames';
-// import { useFreeTier } from '../../auth/Auth';
+import { useFreeTier } from '../../auth/Auth';
 
 export interface Category {
     name: string;
@@ -54,7 +54,14 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
     cohort,
     setShowCustomTaskEditor,
 }) => {
-    // const isFreeTier = useFreeTier();
+    const isFreeTier = useFreeTier();
+
+    const hiddenTaskCount = useMemo(() => {
+        if (!isFreeTier) {
+            return 0;
+        }
+        return c.requirements.filter((r) => !r.isFree).length;
+    }, [c.requirements, isFreeTier]);
 
     return (
         <Accordion
@@ -87,25 +94,32 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
             </AccordionSummary>
             <AccordionDetails>
                 <Divider />
-                {c.requirements.map((r) => (
-                    <ProgressItem
-                        key={r.id}
-                        requirement={r}
-                        progress={user.progress[r.id]}
-                        cohort={cohort}
-                        isCurrentUser={isCurrentUser}
-                    />
-                ))}
-                {c.name === 'Non-Dojo' && isCurrentUser && (
+                {c.requirements.map((r) => {
+                    if (isFreeTier && !r.isFree) {
+                        return null;
+                    }
+                    return (
+                        <ProgressItem
+                            key={r.id}
+                            requirement={r}
+                            progress={user.progress[r.id]}
+                            cohort={cohort}
+                            isCurrentUser={isCurrentUser}
+                        />
+                    );
+                })}
+
+                {!isFreeTier && c.name === 'Non-Dojo' && isCurrentUser && (
                     <Button sx={{ mt: 2 }} onClick={() => setShowCustomTaskEditor(true)}>
                         Add Custom Activity
                     </Button>
                 )}
 
-                {/* {isFreeTier && (
+                {isFreeTier && c.name !== 'Non-Dojo' && hiddenTaskCount > 0 && (
                     <Stack mt={2} spacing={2} alignItems='center'>
                         <Typography>
-                            Unlock 6 More Tasks by Upgrading to a Full Account
+                            Unlock {hiddenTaskCount} more tasks by upgrading to a full
+                            account
                         </Typography>
                         <Button
                             variant='outlined'
@@ -113,10 +127,26 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                             target='_blank'
                             rel='noreferrer'
                         >
-                            View Pricing Plans
+                            View Prices
                         </Button>
                     </Stack>
-                )} */}
+                )}
+
+                {isFreeTier && c.name === 'Non-Dojo' && (
+                    <Stack mt={2} spacing={2} alignItems='center'>
+                        <Typography>
+                            Upgrade to a full account to create your own custom tasks
+                        </Typography>
+                        <Button
+                            variant='outlined'
+                            href='https://www.chessdojo.club/plans-pricing'
+                            target='_blank'
+                            rel='noreferrer'
+                        >
+                            View Prices
+                        </Button>
+                    </Stack>
+                )}
             </AccordionDetails>
         </Accordion>
     );
