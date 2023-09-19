@@ -336,7 +336,7 @@ const ScoreboardPage = () => {
                 )
                 .map((r) => getColumnDefinition(r, cohort!)) ?? []
         );
-    }, [requirements, cohort]);
+    }, [requirements, cohort, isFreeTier]);
 
     const columnGroups = useMemo(() => {
         const categories: Record<string, ColumnGroup> = {};
