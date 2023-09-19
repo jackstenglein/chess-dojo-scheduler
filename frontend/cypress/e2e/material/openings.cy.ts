@@ -62,6 +62,7 @@ describe('Openings Tab', () => {
 
     it('should show upsell dialog for free user', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/material');
 
         cy.contains('Caro Kann').click();

@@ -32,6 +32,15 @@ describe('Scoreboard Page', () => {
         );
     });
 
+    it('hides free-tier users', () => {
+        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
+        cy.visit('/scoreboard');
+
+        cy.getBySel('free-tier-alert');
+        cy.getBySel('current-members-scoreboard').contains('No rows');
+    });
+
     it('contains column groups', () => {
         cy.viewport(15000, 660);
 

@@ -7,6 +7,8 @@ import {
     Tooltip,
     Typography,
     Link,
+    Alert,
+    Button,
 } from '@mui/material';
 import { useParams, Navigate, Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
@@ -38,7 +40,7 @@ import {
     getNormalizedRating,
     getMinutesSpent,
 } from './scoreboardData';
-import { dojoCohorts, User } from '../database/user';
+import { dojoCohorts, SubscriptionStatus, User } from '../database/user';
 import { Graduation } from '../database/graduation';
 import GraduationIcon from './GraduationIcon';
 import { useRequirements } from '../api/cache/requirements';
@@ -184,6 +186,7 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
 
 const ScoreboardPage = () => {
     const user = useAuth().user!;
+    const isFreeTier = user.subscriptionStatus === SubscriptionStatus.FreeTier;
     const { cohort } = useParams<ScoreboardPageParams>();
     const usersRequest = useRequest<User[]>();
     const graduationsRequest = useRequest<Graduation[]>();
@@ -350,13 +353,18 @@ const ScoreboardPage = () => {
     }, [requirements]);
 
     const usersList = useMemo(() => {
-        if (cohort === user.dojoCohort) {
-            return [user].concat(
-                usersRequest.data?.filter((u) => u.username !== user.username) ?? []
-            );
+        const paidUsers =
+            usersRequest.data?.filter(
+                (u) =>
+                    u.subscriptionStatus !== SubscriptionStatus.FreeTier &&
+                    u.username !== user.username
+            ) ?? [];
+
+        if (cohort === user.dojoCohort && !isFreeTier) {
+            return [user].concat(paidUsers);
         }
-        return usersRequest.data ?? [];
-    }, [user, usersRequest.data, cohort]);
+        return paidUsers;
+    }, [user, isFreeTier, usersRequest.data, cohort]);
 
     const onChangeCohort = (cohort: string) => {
         navigate(`../${cohort}`);
@@ -379,6 +387,31 @@ const ScoreboardPage = () => {
         <Container maxWidth={false} sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={requirementRequest} />
             <RequestSnackbar request={usersRequest} />
+
+            {isFreeTier && (
+                <Stack alignItems='center' mb={3}>
+                    <Alert
+                        data-cy='free-tier-alert'
+                        severity='warning'
+                        variant='filled'
+                        action={
+                            <Button
+                                color='inherit'
+                                href='https://www.chessdojo.club/plans-pricing'
+                                target='_blank'
+                                rel='noreferrer'
+                                size='small'
+                            >
+                                View Prices
+                            </Button>
+                        }
+                    >
+                        Free-tier users are not included in the scoreboard. Upgrade to get
+                        your account added.
+                    </Alert>
+                </Stack>
+            )}
+
             <TextField
                 data-cy='scoreboard-view-selector'
                 id='scoreboard-cohort-select'

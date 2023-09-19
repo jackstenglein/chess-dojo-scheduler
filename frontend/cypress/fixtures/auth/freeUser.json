@@ -2,6 +2,7 @@
     "username": "398ee7df-13a1-4fbf-bae3-e156f252512d",
     "wixEmail": "jackstenglein@gmail.com",
     "isForbidden": false,
+    "overrideIsForbidden": true,
     "subscriptionStatus": "FREE_TIER",
     "displayName": "Test Account",
     "discordUsername": "",
