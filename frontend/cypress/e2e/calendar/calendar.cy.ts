@@ -48,33 +48,33 @@ describe('Calendar Page', () => {
             .should('have.attr', 'href', 'https://www.chessdojo.club/plans-pricing');
     });
 
-    // it('displays correct events for tournament filters', () => {
-    //     cy.get('.rs__event__item').should('have.length', 27);
+    it('displays correct events for tournament filters', () => {
+        cy.get('.rs__event__item').should('have.length', 27);
 
-    //     cy.getBySel('calendar-filters').contains('Blitz').click();
-    //     cy.get('.rs__event__item').should('have.length', 12);
+        cy.getBySel('calendar-filters').contains('Blitz').click();
+        cy.get('.rs__event__item').should('have.length', 12);
 
-    //     cy.getBySel('calendar-filters').contains('Rapid').click();
-    //     cy.getBySel('calendar-filters').contains('Classical').click();
-    //     cy.get('.rs__event__item').should('have.length', 3);
-    // });
+        cy.getBySel('calendar-filters').contains('Rapid').click();
+        cy.getBySel('calendar-filters').contains('Classical').click();
+        cy.get('.rs__event__item').should('have.length', 3);
+    });
 
-    // it('displays correct events for dojo events filter', () => {
-    //     cy.get('.rs__event__item').should('have.length', 27);
+    it('displays correct events for dojo events filter', () => {
+        cy.get('.rs__event__item').should('have.length', 27);
 
-    //     cy.getBySel('calendar-filters').contains('Dojo Events').click();
-    //     cy.get('.rs__event__item').should('have.length', 2);
-    // });
+        cy.getBySel('calendar-filters').contains('Dojo Events').click();
+        cy.get('.rs__event__item').should('have.length', 2);
+    });
 
-    // it('displays correct events for meeting types filter', () => {
-    //     cy.get('.rs__event__item').should('have.length', 27);
+    it('displays correct events for meeting types filter', () => {
+        cy.get('.rs__event__item').should('have.length', 27);
 
-    //     cy.getBySel('calendar-filters').contains('All Types').click();
-    //     cy.get('.rs__event__item').should('have.length', 25);
+        cy.getBySel('calendar-filters').contains('All Types').click();
+        cy.get('.rs__event__item').should('have.length', 25);
 
-    //     cy.getBySel('calendar-filters').contains('Classical Game').click();
-    //     cy.get('.rs__event__item').should('have.length', 27);
-    // });
+        cy.getBySel('calendar-filters').contains('Classical Game').click();
+        cy.get('.rs__event__item').should('have.length', 27);
+    });
 
     // it('displays correct events for cohort filter', () => {
     //     cy.get('.rs__event__item').should('have.length', 27);
