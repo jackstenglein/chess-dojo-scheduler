@@ -35,6 +35,7 @@ describe('Calendar Page', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/calendar');
+        cy.getBySel('calendar-filters').contains('Dojo Events').click();
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
