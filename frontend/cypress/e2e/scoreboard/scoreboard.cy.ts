@@ -37,7 +37,9 @@ describe('Scoreboard Page', () => {
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/scoreboard');
 
-        cy.getBySel('free-tier-alert');
+        cy.getBySel('upsell-alert')
+            .contains('View Prices')
+            .should('have.attr', 'href', 'https://www.chessdojo.club/plans-pricing');
         cy.getBySel('current-members-scoreboard').contains('No rows');
     });
 

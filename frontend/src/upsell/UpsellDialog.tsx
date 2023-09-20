@@ -29,8 +29,9 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({ open, onClose }) => {
                 </DialogContentText>
                 <DialogContentText component='div'>
                     <ul>
-                        <li>Access all training plan tasks for all cohorts</li>
+                        <li>Access all training plan tasks for all cohorts (0-2500)</li>
                         <li>Access all opening courses</li>
+                        <li>Add events to the Dojo Calendar</li>
                         <li>Submit games to the Dojo Database</li>
                         <li>Get added to the Dojo Scoreboard</li>
                         <li>

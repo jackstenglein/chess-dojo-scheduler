@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Container, Grid } from '@mui/material';
+import { Container, Grid, Stack } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import type { SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
@@ -16,10 +16,12 @@ import {
 } from './filters/CalendarFilters';
 import ProcessedEventViewer from './ProcessedEventViewer';
 import { useEvents } from '../api/cache/Cache';
-import { useAuth } from '../auth/Auth';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import { User } from '../database/user';
 import { Event, EventType, AvailabilityStatus } from '../database/event';
 import CalendarTutorial from './CalendarTutorial';
+import UpsellDialog from '../upsell/UpsellDialog';
+import UpsellAlert from '../upsell/UpsellAlert';
 
 function processAvailability(
     user: User,
@@ -211,6 +213,7 @@ function getProcessedEvents(
 export default function CalendarPage() {
     const user = useAuth().user!;
     const api = useApi();
+    const isFreeTier = useFreeTier();
 
     const { events, putEvent, removeEvent, request } = useEvents();
 
@@ -356,44 +359,58 @@ export default function CalendarPage() {
                     <CalendarFilters filters={filters} />
                 </Grid>
                 <Grid item xs={12} md={9.5}>
-                    <Scheduler
-                        ref={calendarRef}
-                        month={{
-                            weekDays: [0, 1, 2, 3, 4, 5, 6],
-                            weekStartOn: 0,
-                            startHour: 0,
-                            endHour: 24,
-                            navigation: true,
-                        }}
-                        week={{
-                            weekDays: [0, 1, 2, 3, 4, 5, 6],
-                            weekStartOn: 0,
-                            startHour: 0,
-                            endHour: 24,
-                            step: 60,
-                            navigation: true,
-                        }}
-                        day={{
-                            startHour: 0,
-                            endHour: 24,
-                            step: 60,
-                            navigation: true,
-                        }}
-                        customEditor={(scheduler) => (
-                            <AvailabilityEditor scheduler={scheduler} />
+                    <Stack spacing={3}>
+                        {isFreeTier && (
+                            <UpsellAlert>
+                                Free-tier users can book events but cannot post their own
+                                events. Upgrade your account to add new events to the
+                                calendar.
+                            </UpsellAlert>
                         )}
-                        onDelete={deleteAvailability}
-                        onEventDrop={copyAvailability}
-                        viewerExtraComponent={(fields, event) => (
-                            <ProcessedEventViewer processedEvent={event} />
-                        )}
-                        events={processedEvents}
-                        timeZone={
-                            filters.timezone === DefaultTimezone
-                                ? undefined
-                                : filters.timezone
-                        }
-                    />
+
+                        <Scheduler
+                            ref={calendarRef}
+                            month={{
+                                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                                weekStartOn: 0,
+                                startHour: 0,
+                                endHour: 24,
+                                navigation: true,
+                            }}
+                            week={{
+                                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                                weekStartOn: 0,
+                                startHour: 0,
+                                endHour: 24,
+                                step: 60,
+                                navigation: true,
+                            }}
+                            day={{
+                                startHour: 0,
+                                endHour: 24,
+                                step: 60,
+                                navigation: true,
+                            }}
+                            customEditor={(scheduler) =>
+                                isFreeTier ? (
+                                    <UpsellDialog open={true} onClose={scheduler.close} />
+                                ) : (
+                                    <AvailabilityEditor scheduler={scheduler} />
+                                )
+                            }
+                            onDelete={deleteAvailability}
+                            onEventDrop={copyAvailability}
+                            viewerExtraComponent={(fields, event) => (
+                                <ProcessedEventViewer processedEvent={event} />
+                            )}
+                            events={processedEvents}
+                            timeZone={
+                                filters.timezone === DefaultTimezone
+                                    ? undefined
+                                    : filters.timezone
+                            }
+                        />
+                    </Stack>
                 </Grid>
             </Grid>
 

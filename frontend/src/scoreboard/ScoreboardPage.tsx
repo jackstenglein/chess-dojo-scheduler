@@ -7,8 +7,6 @@ import {
     Tooltip,
     Typography,
     Link,
-    Alert,
-    Button,
 } from '@mui/material';
 import { useParams, Navigate, Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
@@ -48,6 +46,7 @@ import ScoreboardProgress from './ScoreboardProgress';
 import GraduationChips from './GraduationChips';
 import { ScoreboardDisplay, formatTime } from '../database/requirement';
 import ScoreboardTutorial from './ScoreboardTutorial';
+import UpsellAlert from '../upsell/UpsellAlert';
 
 interface ColumnGroupChild {
     field: string;
@@ -391,25 +390,10 @@ const ScoreboardPage = () => {
 
             {isFreeTier && (
                 <Stack alignItems='center' mb={3}>
-                    <Alert
-                        data-cy='free-tier-alert'
-                        severity='warning'
-                        variant='filled'
-                        action={
-                            <Button
-                                color='inherit'
-                                href='https://www.chessdojo.club/plans-pricing'
-                                target='_blank'
-                                rel='noreferrer'
-                                size='small'
-                            >
-                                View Prices
-                            </Button>
-                        }
-                    >
+                    <UpsellAlert>
                         Free-tier users are not displayed on the scoreboard. Upgrade to
                         get your account added.
-                    </Alert>
+                    </UpsellAlert>
                 </Stack>
             )}
 

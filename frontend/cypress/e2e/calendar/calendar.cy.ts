@@ -31,6 +31,22 @@ describe('Calendar Page', () => {
         cy.getBySel('calendar-filters').contains('Cohorts');
     });
 
+    it('prevents free users from adding events', () => {
+        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
+        cy.visit('/calendar');
+
+        cy.getBySel('upsell-alert')
+            .contains('View Prices')
+            .should('have.attr', 'href', 'https://www.chessdojo.club/plans-pricing');
+
+        cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
+
+        cy.getBySel('upsell-dialog')
+            .contains('View Prices')
+            .should('have.attr', 'href', 'https://www.chessdojo.club/plans-pricing');
+    });
+
     // it('displays correct events for tournament filters', () => {
     //     cy.get('.rs__event__item').should('have.length', 27);
 
