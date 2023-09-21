@@ -15,6 +15,10 @@ import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
 import { useRequest } from '../../api/Request';
 
+function gamePlayed(result: string): boolean {
+    return result !== '0-0' && result !== '1-0F' && result !== '0-1F';
+}
+
 const SubmitResultsPage = () => {
     const auth = useAuth();
     const user = auth.user;
@@ -83,7 +87,7 @@ const SubmitResultsPage = () => {
         if (round.trim() === '') {
             newErrors.round = 'This field is required';
         }
-        if (result !== '0-0' && gameUrl.trim() === '') {
+        if (gamePlayed(result) && gameUrl.trim() === '') {
             newErrors.gameUrl = 'This field is required';
         }
         if (white.trim() === '') {
@@ -107,22 +111,27 @@ const SubmitResultsPage = () => {
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>
             <Stack spacing={4}>
-                <Typography variant='h6'>
+                <Typography data-cy='title' variant='h6'>
                     Submit Results for the Open Classical
                 </Typography>
 
                 {!user && (
                     <TextField
+                        data-cy='email'
                         label='Email'
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         error={Boolean(errors.email)}
-                        helperText={errors.email}
+                        helperText={
+                            errors.email ||
+                            'Please provide the same email addess you used to register for the tournament'
+                        }
                     />
                 )}
 
                 <TextField
+                    data-cy='section'
                     label='Section'
                     select
                     required
@@ -136,6 +145,7 @@ const SubmitResultsPage = () => {
                 </TextField>
 
                 <TextField
+                    data-cy='round'
                     label='Round'
                     select
                     required
@@ -152,32 +162,42 @@ const SubmitResultsPage = () => {
                 </TextField>
 
                 <TextField
+                    data-cy='game-url'
                     label='Game URL'
                     value={gameUrl}
                     onChange={(e) => setGameUrl(e.target.value)}
                     onBlur={onBlurGameUrl}
                     error={Boolean(errors.gameUrl)}
-                    helperText={errors.gameUrl}
+                    helperText={errors.gameUrl || 'Please provide a link to the game'}
                 />
 
                 <TextField
+                    data-cy='white'
                     label='White'
                     required
                     value={white}
                     onChange={(e) => setWhite(e.target.value)}
                     error={Boolean(errors.white)}
-                    helperText={errors.white}
+                    helperText={
+                        errors.white ||
+                        'Lichess username of the player with the white pieces'
+                    }
                 />
                 <TextField
+                    data-cy='black'
                     label='Black'
                     required
                     value={black}
                     onChange={(e) => setBlack(e.target.value)}
                     error={Boolean(errors.black)}
-                    helperText={errors.black}
+                    helperText={
+                        errors.black ||
+                        'Lichess username of the player with the black pieces'
+                    }
                 />
 
                 <TextField
+                    data-cy='result'
                     label='Result'
                     select
                     required
@@ -189,11 +209,14 @@ const SubmitResultsPage = () => {
                     <MenuItem value='1-0'>White Wins (1-0)</MenuItem>
                     <MenuItem value='0-1'>Black Wins (0-1)</MenuItem>
                     <MenuItem value='1/2-1/2'>Draw (1/2-1/2)</MenuItem>
-                    <MenuItem value='0-0'>Did Not Play (0-0)</MenuItem>
+                    <MenuItem value='0-0'>Did Not Play (1/2-1/2)</MenuItem>
+                    <MenuItem value='0-1F'>White Forfeits (0-1F)</MenuItem>
+                    <MenuItem value='1-0F'>Black Forfeits (1-0F)</MenuItem>
                 </TextField>
 
-                {result === '0-0' && (
+                {(result === '0-1F' || result === '1-0F') && (
                     <FormControlLabel
+                        data-cy='report-opponent'
                         control={
                             <Checkbox
                                 checked={reportOpponent}
@@ -207,6 +230,7 @@ const SubmitResultsPage = () => {
                 )}
 
                 <TextField
+                    data-cy='notes'
                     label='Notes'
                     multiline
                     minRows={3}
@@ -215,6 +239,7 @@ const SubmitResultsPage = () => {
                 />
 
                 <LoadingButton
+                    data-cy='submit-button'
                     variant='contained'
                     loading={request.isLoading()}
                     onClick={onSubmit}
