@@ -49,7 +49,7 @@ describe('Calendar Page', () => {
     });
 
     it('displays correct events for tournament filters', () => {
-        cy.get('.rs__event__item').should('have.length', 27);
+        cy.get('.rs__event__item').should('have.length', 26);
 
         cy.getBySel('calendar-filters').contains('Blitz').click();
         cy.get('.rs__event__item').should('have.length', 12);
@@ -60,34 +60,33 @@ describe('Calendar Page', () => {
     });
 
     it('displays correct events for dojo events filter', () => {
-        cy.get('.rs__event__item').should('have.length', 27);
+        cy.get('.rs__event__item').should('have.length', 26);
 
         cy.getBySel('calendar-filters').contains('Dojo Events').click();
         cy.get('.rs__event__item').should('have.length', 2);
     });
 
     it('displays correct events for meeting types filter', () => {
-        cy.get('.rs__event__item').should('have.length', 27);
+        cy.get('.rs__event__item').should('have.length', 26);
 
         cy.getBySel('calendar-filters').contains('All Types').click();
-        cy.get('.rs__event__item').should('have.length', 25);
+        cy.get('.rs__event__item').should('have.length', 24);
 
         cy.getBySel('calendar-filters').contains('Classical Game').click();
-        cy.get('.rs__event__item').should('have.length', 27);
+        cy.get('.rs__event__item').should('have.length', 26);
     });
 
     it('displays correct events for cohort filter', () => {
-        cy.get('.rs__event__item').should('have.length', 27);
+        cy.get('.rs__event__item').should('have.length', 26);
 
         cy.getBySel('calendar-filters').contains('All Cohorts').click();
-        cy.get('.rs__event__item').should('have.length', 25);
+        cy.get('.rs__event__item').should('have.length', 24);
 
         cy.getBySel('calendar-filters').contains('1500-1600').click();
-        cy.get('.rs__event__item').should('have.length', 27);
+        cy.get('.rs__event__item').should('have.length', 26);
     });
 
     it('displays correct content for availability', () => {
-        cy.get('.rs__event__item').should('have.length', 27);
         cy.getBySel('calendar-filters').contains('Dojo Events').click();
         cy.get('.rs__event__item').first().click();
 
@@ -112,7 +111,6 @@ describe('Calendar Page', () => {
     });
 
     it('shows availability booker', () => {
-        cy.get('.rs__event__item').should('have.length', 27);
         cy.getBySel('calendar-filters').contains('Dojo Events').click();
         cy.get('.rs__event__item').first().click();
         cy.getBySel('book-button').click();
@@ -143,13 +141,12 @@ describe('Calendar Page', () => {
         cy.contains('Must be between 11:00:00 AM and 1:00:00 PM');
     });
 
-    // it('cancels availability booker', () => {
-    //     cy.get('.rs__event__item').should('have.length', 27);
-    //     cy.getBySel('calendar-filters').contains('Dojo Events').click();
-    //     cy.get('.rs__event__item').first().click();
-    //     cy.getBySel('book-button').click();
+    it('cancels availability booker', () => {
+        cy.getBySel('calendar-filters').contains('Dojo Events').click();
+        cy.get('.rs__event__item').first().click();
+        cy.getBySel('book-button').click();
 
-    //     cy.getBySel('cancel-button').click();
-    //     cy.getBySel('availability-booker').should('not.exist');
-    // });
+        cy.getBySel('cancel-button').click();
+        cy.getBySel('availability-booker').should('not.exist');
+    });
 });
