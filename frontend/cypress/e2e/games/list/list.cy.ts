@@ -102,7 +102,7 @@ describe('List Games Page', () => {
         cy.getBySel('games-table').contains('CornerPawn');
     });
 
-    it.only('allows searching current user uploads', () => {
+    it('allows searching current user uploads', () => {
         cy.contains('Search My Uploads').click();
         cy.getBySel('cohort-select').should('not.be.visible');
         cy.getBySel('search-by-owner').within(() => {
@@ -113,5 +113,11 @@ describe('List Games Page', () => {
         cy.getBySel('owner-search-button').click();
 
         cy.location('search').should('equal', '?type=owner&startDate=&endDate=');
+    });
+
+    it('links to game page on row click', () => {
+        cy.getBySel('games-table').find('.MuiDataGrid-row').first().click();
+
+        cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
     });
 });
