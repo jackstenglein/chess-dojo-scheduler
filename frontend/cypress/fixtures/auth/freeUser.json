@@ -147,7 +147,8 @@
     "tutorials": {
         "CalendarPage": true,
         "ProfilePage": true,
-        "ScoreboardPage": true
+        "ScoreboardPage": true,
+        "ListGamesPage": true
     },
     "minutesSpent": {
         "30_DAYS_AGO": 0,

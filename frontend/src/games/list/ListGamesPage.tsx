@@ -104,6 +104,7 @@ const ListGamesPage = () => {
             <Grid container spacing={5} wrap='wrap-reverse'>
                 <Grid item xs={12} md={9} lg={8}>
                     <DataGrid
+                        data-cy='games-table'
                         columns={gameTableColumns}
                         rows={data}
                         rowCount={rowCount}
@@ -121,6 +122,7 @@ const ListGamesPage = () => {
                 <Grid item xs={12} md={3} lg={4} pr={2}>
                     <Stack spacing={4}>
                         <Button
+                            data-cy='submit-game-button'
                             id='submit-game-button'
                             variant='contained'
                             onClick={onSubmit}
@@ -136,6 +138,7 @@ const ListGamesPage = () => {
                         />
 
                         <Typography
+                            data-cy='download-database-button'
                             id='download-full-database'
                             variant='caption'
                             alignSelf='end'

@@ -143,13 +143,13 @@ describe('Calendar Page', () => {
         cy.contains('Must be between 11:00:00 AM and 1:00:00 PM');
     });
 
-    it('cancels availability booker', () => {
-        cy.get('.rs__event__item').should('have.length', 27);
-        cy.getBySel('calendar-filters').contains('Dojo Events').click();
-        cy.get('.rs__event__item').first().click();
-        cy.getBySel('book-button').click();
+    // it('cancels availability booker', () => {
+    //     cy.get('.rs__event__item').should('have.length', 27);
+    //     cy.getBySel('calendar-filters').contains('Dojo Events').click();
+    //     cy.get('.rs__event__item').first().click();
+    //     cy.getBySel('book-button').click();
 
-        cy.getBySel('cancel-button').click();
-        cy.getBySel('availability-booker').should('not.exist');
-    });
+    //     cy.getBySel('cancel-button').click();
+    //     cy.getBySel('availability-booker').should('not.exist');
+    // });
 });

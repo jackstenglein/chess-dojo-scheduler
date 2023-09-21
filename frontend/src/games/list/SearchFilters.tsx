@@ -87,10 +87,11 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
     onSearch,
 }) => {
     return (
-        <Stack spacing={2}>
+        <Stack data-cy='search-by-cohort' spacing={2}>
             <FormControl>
                 <InputLabel>Cohort</InputLabel>
                 <Select
+                    data-cy='cohort-select'
                     value={cohort}
                     label='Cohort'
                     onChange={(e) => setCohort(e.target.value)}
@@ -112,7 +113,9 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                             onChange={(newValue) => {
                                 setStartDate(newValue);
                             }}
-                            slotProps={{ textField: { fullWidth: true } }}
+                            slotProps={{
+                                textField: { id: 'cohort-start-date', fullWidth: true },
+                            }}
                         />
                     </Grid>
 
@@ -123,13 +126,20 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                             }}
-                            slotProps={{ textField: { fullWidth: true } }}
+                            slotProps={{
+                                textField: { id: 'cohort-end-date', fullWidth: true },
+                            }}
                         />
                     </Grid>
                 </Grid>
             </LocalizationProvider>
 
-            <LoadingButton variant='outlined' loading={isLoading} onClick={onSearch}>
+            <LoadingButton
+                data-cy='cohort-search-button'
+                variant='outlined'
+                loading={isLoading}
+                onClick={onSearch}
+            >
                 Search
             </LoadingButton>
         </Stack>
@@ -145,10 +155,10 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
     onSearch,
 }) => {
     return (
-        <Stack spacing={2}>
-            <Typography gutterBottom>
-                Find games that you have uploaded through Chess Dojo Scheduler. Note that
-                games uploaded previously through the Google Form submission will not be
+        <Stack data-cy='search-by-owner' spacing={2}>
+            <Typography data-cy='owner-search-description' gutterBottom>
+                Find games that you have uploaded to the Dojo Database. Note that games
+                uploaded previously through Dojo 1.0's Google Form submission will not be
                 matched.
             </Typography>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -160,7 +170,9 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                             onChange={(newValue) => {
                                 setStartDate(newValue);
                             }}
-                            slotProps={{ textField: { fullWidth: true } }}
+                            slotProps={{
+                                textField: { id: 'owner-start-date', fullWidth: true },
+                            }}
                         />
                     </Grid>
 
@@ -171,13 +183,20 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                             }}
-                            slotProps={{ textField: { fullWidth: true } }}
+                            slotProps={{
+                                textField: { id: 'owner-end-date', fullWidth: true },
+                            }}
                         />
                     </Grid>
                 </Grid>
             </LocalizationProvider>
 
-            <LoadingButton variant='outlined' loading={isLoading} onClick={onSearch}>
+            <LoadingButton
+                data-cy='owner-search-button'
+                variant='outlined'
+                loading={isLoading}
+                onClick={onSearch}
+            >
                 Search
             </LoadingButton>
         </Stack>
@@ -220,12 +239,13 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
     };
 
     return (
-        <Stack spacing={2}>
+        <Stack data-cy='search-by-player' spacing={2}>
             <Typography gutterBottom>
                 Find games based on player name. Note this is the name as it was recorded
                 in the PGN file.
             </Typography>
             <TextField
+                data-cy='player-name'
                 label='Player Name'
                 value={player}
                 onChange={(e) => setPlayer(e.target.value)}
@@ -234,6 +254,7 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
             />
 
             <Select
+                data-cy='color'
                 value={color}
                 label='Color'
                 onChange={(e) => setColor(e.target.value)}
@@ -252,7 +273,9 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                             onChange={(newValue) => {
                                 setStartDate(newValue);
                             }}
-                            slotProps={{ textField: { fullWidth: true } }}
+                            slotProps={{
+                                textField: { id: 'player-start-date', fullWidth: true },
+                            }}
                         />
                     </Grid>
 
@@ -263,13 +286,20 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                             }}
-                            slotProps={{ textField: { fullWidth: true } }}
+                            slotProps={{
+                                textField: { id: 'player-end-date', fullWidth: true },
+                            }}
                         />
                     </Grid>
                 </Grid>
             </LocalizationProvider>
 
-            <LoadingButton variant='outlined' loading={isLoading} onClick={handleSearch}>
+            <LoadingButton
+                data-cy='player-search-button'
+                variant='outlined'
+                loading={isLoading}
+                onClick={handleSearch}
+            >
                 Search
             </LoadingButton>
         </Stack>
@@ -292,9 +322,10 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
     onSearch,
 }) => {
     return (
-        <Stack spacing={2}>
+        <Stack data-cy='search-by-opening' spacing={2}>
             <FormControl>
                 <TextField
+                    data-cy='opening-eco'
                     value={eco}
                     label='Opening ECO'
                     onChange={(e) => setEco(e.target.value)}
@@ -310,7 +341,9 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                             onChange={(newValue) => {
                                 setStartDate(newValue);
                             }}
-                            slotProps={{ textField: { fullWidth: true } }}
+                            slotProps={{
+                                textField: { id: 'opening-start-date', fullWidth: true },
+                            }}
                         />
                     </Grid>
 
@@ -321,13 +354,20 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                             }}
-                            slotProps={{ textField: { fullWidth: true } }}
+                            slotProps={{
+                                textField: { id: 'opening-end-date', fullWidth: true },
+                            }}
                         />
                     </Grid>
                 </Grid>
             </LocalizationProvider>
 
-            <LoadingButton variant='outlined' loading={isLoading} onClick={onSearch}>
+            <LoadingButton
+                data-cy='opening-search-button'
+                variant='outlined'
+                loading={isLoading}
+                onClick={onSearch}
+            >
                 Search
             </LoadingButton>
         </Stack>
