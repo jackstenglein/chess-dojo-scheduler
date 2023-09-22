@@ -118,7 +118,8 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                 {isFreeTier && c.name !== 'Non-Dojo' && hiddenTaskCount > 0 && (
                     <Stack mt={2} spacing={2} alignItems='center'>
                         <Typography>
-                            Unlock {hiddenTaskCount} more tasks by upgrading to a full
+                            Unlock {hiddenTaskCount} more task
+                            {hiddenTaskCount > 1 ? 's' : ''} by upgrading to a full
                             account
                         </Typography>
                         <Button

@@ -57,10 +57,16 @@ func getDiscordIdByDiscordUsername(discord *discordgo.Session, fullDiscordUserna
 
 	discordUsers, err := discord.GuildMembersSearch(privateGuildId, discordUsername, 1000)
 	if err != nil {
-		return "", errors.Wrap(500, "Temporary server error", "Failed to search for guild members", err)
+		return "", errors.Wrap(500, "Temporary server error", "Failed to search for private guild members", err)
 	}
 	if len(discordUsers) == 0 {
-		return "", errors.New(404, fmt.Sprintf("Discord username `%s` not found in ChessDojo Training Program server", discordUsername), "")
+		discordUsers, err = discord.GuildMembersSearch(publicGuildId, discordUsername, 1000)
+		if err != nil {
+			return "", errors.Wrap(500, "Temporary server error", "Failed to search for public guild members", err)
+		}
+		if len(discordUsers) == 0 {
+			return "", errors.New(404, fmt.Sprintf("Discord username `%s` not found in the ChessDojo server or the ChessDojo Training Program server. Please join either server and try again.", discordUsername), "")
+		}
 	}
 
 	if len(discordUsers) == 1 && discordDiscriminator == "" {

@@ -2,4 +2,4 @@ stage: dev
 frontendHost: 'http://localhost:3000'
 discordFindGameChannelId: '1078714829709262858'
 discordPrivateGuildId: '691123894001598536'
-discordPublicGuildId: ''
+discordPublicGuildId: '1154831716100341810'

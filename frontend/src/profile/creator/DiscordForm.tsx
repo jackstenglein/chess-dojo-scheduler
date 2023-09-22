@@ -3,21 +3,26 @@ import {
     Button,
     Checkbox,
     FormControlLabel,
+    Link,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
-import { LoadingButton } from '@mui/lab';
 import { User } from '../../database/user';
 import { EventType, trackEvent } from '../../analytics/events';
+import { useFreeTier } from '../../auth/Auth';
+import UpsellDialog from '../../upsell/UpsellDialog';
 
 const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) => {
     const api = useApi();
     const request = useRequest();
+    const isFreeTier = useFreeTier();
+    const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
 
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [disableBookingNotifications, setDisableBookingNotifications] = useState(
@@ -47,14 +52,29 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) =>
             });
     };
 
+    const onClickLink = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setUpsellDialogOpen(true);
+    };
+
     return (
         <Stack spacing={4}>
+            {isFreeTier && (
+                <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
+            )}
+
             <Typography>
                 We have an <strong>optional</strong> private Discord available only to
                 those in the training program.{' '}
-                <a href='https://discord.gg/br4MB6ur66' target='_blank' rel='noreferrer'>
+                <Link
+                    href={isFreeTier ? undefined : 'https://discord.gg/br4MB6ur66'}
+                    target='_blank'
+                    rel='noreferrer'
+                    onClick={isFreeTier ? onClickLink : undefined}
+                    sx={{ cursor: 'pointer' }}
+                >
                     Joining
-                </a>{' '}
+                </Link>{' '}
                 will allow you to message other members in the program, hear about new
                 announcements, participate in group study sessions and receive
                 notifications about meetings.

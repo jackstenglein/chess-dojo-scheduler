@@ -34,6 +34,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({ open, onClose }) => {
                         <li>Add events to the Dojo Calendar</li>
                         <li>Submit games to the Dojo Database</li>
                         <li>Get added to the Dojo Scoreboard</li>
+                        <li>Join the Training Program Discord server</li>
                         <li>
                             Graduate and get featured in the graduation shows on Twitch
                         </li>

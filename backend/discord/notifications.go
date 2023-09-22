@@ -7,6 +7,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
@@ -78,13 +79,15 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 		return "", errors.Wrap(400, "Invalid request: availability.endTime cannot be parsed", "", err)
 	}
 
+	var sb strings.Builder
+
 	discordId, err := getDiscordIdByCognitoUsername(discord, event.Owner)
 	if err != nil {
-		return "", err
+		log.Errorf("Failed to get discordId: %v", err)
+		sb.WriteString(fmt.Sprintf("Availability posted by %s", event.OwnerDisplayName))
+	} else {
+		sb.WriteString(fmt.Sprintf("Availability posted by <@%s>", discordId))
 	}
-
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Availability posted by <@%s>", discordId))
 
 	sb.WriteString(fmt.Sprintf("\nStart Time: <t:%d:f>", startTime.Unix()))
 	sb.WriteString(fmt.Sprintf("\nEnd Time: <t:%d:f>", endTime.Unix()))
@@ -105,7 +108,7 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 	}
 
 	sb.WriteString(fmt.Sprintf("\nCurrent Participants: %d/%d", len(event.Participants), event.MaxParticipants))
-	sb.WriteString(fmt.Sprintf("\n%s/calendar/availability/%s", frontendHost, event.Id))
+	sb.WriteString(fmt.Sprintf("\n[Click to Book](%s/calendar/availability/%s)", frontendHost, event.Id))
 
 	if event.DiscordMessageId == "" {
 		msg, err := discord.ChannelMessageSend(findGameChannelId, sb.String())
