@@ -66,7 +66,6 @@
                 "currentRound": 3
             }
         },
-
         {
             "id": "PksdGSFV",
             "type": "LIGA_TOURNAMENT",
@@ -129,7 +128,6 @@
                 "incrementSeconds": 2
             }
         },
-
         {
             "id": "emvDaOFv",
             "type": "LIGA_TOURNAMENT",
@@ -162,7 +160,6 @@
                 "numRounds": 3
             }
         },
-
         {
             "id": "f1lEkeGu",
             "type": "LIGA_TOURNAMENT",
@@ -260,38 +257,6 @@
             }
         },
         {
-            "id": "NXBnJsP2",
-            "type": "LIGA_TOURNAMENT",
-            "owner": "Sensei",
-            "ownerDisplayName": "Sensei",
-            "ownerCohort": "",
-            "ownerPreviousCohort": "",
-            "title": "Saturday Blitz Arena",
-            "startTime": "2023-09-10T00:00:00Z",
-            "endTime": "2023-09-10T01:00:00+00:00",
-            "bookedStartTime": "",
-            "types": null,
-            "bookedType": "",
-            "cohorts": null,
-            "status": "SCHEDULED",
-            "location": "https://lichess.org/tournament/NXBnJsP2",
-            "description": "DojoLiga Daily Blitz Arena, happening every day at this time",
-            "maxParticipants": 0,
-            "participants": [],
-            "discordMessageId": "",
-            "privateDiscordEventId": "",
-            "publicDiscordEventId": "",
-            "ligaTournament": {
-                "type": "ARENA",
-                "id": "NXBnJsP2",
-                "rated": true,
-                "timeControlType": "BLITZ",
-                "limitSeconds": 180,
-                "incrementSeconds": 2
-            }
-        },
-
-        {
             "id": "78dvgE8D",
             "type": "LIGA_TOURNAMENT",
             "owner": "Sensei",
@@ -377,7 +342,6 @@
                 "fen": "3rr3/4kppp/p7/1ppR4/4n3/P3PN1P/1P3PP1/2R2K2 w - -"
             }
         },
-
         {
             "id": "DhwgElh8",
             "type": "LIGA_TOURNAMENT",
@@ -502,7 +466,6 @@
             "privateDiscordEventId": "",
             "publicDiscordEventId": ""
         },
-
         {
             "id": "dab744a1-96f7-454c-9eff-f0232a419012",
             "type": "AVAILABILITY",
@@ -533,7 +496,6 @@
             "privateDiscordEventId": "",
             "publicDiscordEventId": ""
         },
-
         {
             "id": "bMxnYVpU",
             "type": "LIGA_TOURNAMENT",
