@@ -15,6 +15,7 @@ import {
     AccordionSummary as MuiAccordionSummary,
     AccordionSummaryProps,
     AccordionDetails as MuiAccordionDetails,
+    Tooltip,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -22,7 +23,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 
 import { dojoCohorts } from '../../database/user';
-import { useAuth } from '../../auth/Auth';
+import { useAuth, useFreeTier } from '../../auth/Auth';
 import { useApi } from '../../api/Api';
 import { SearchFunc } from './pagination';
 import { URLSearchParamsInit, useSearchParams } from 'react-router-dom';
@@ -222,6 +223,7 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
     setEndDate,
     onSearch,
 }) => {
+    const isFreeTier = useFreeTier();
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSearch = () => {
@@ -299,9 +301,19 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                 variant='outlined'
                 loading={isLoading}
                 onClick={handleSearch}
+                disabled={isFreeTier}
             >
                 Search
             </LoadingButton>
+            {isFreeTier && (
+                <Typography
+                    variant='caption'
+                    color='text.secondary'
+                    sx={{ mt: '0 !important', alignSelf: 'center' }}
+                >
+                    Free-tier users are not able to search by player name
+                </Typography>
+            )}
         </Stack>
     );
 };

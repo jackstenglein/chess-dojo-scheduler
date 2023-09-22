@@ -28,7 +28,7 @@ import GraduationIcon from '../scoreboard/GraduationIcon';
 import StatsTab from './stats/StatsTab';
 import { DefaultTimezone } from '../calendar/filters/CalendarFilters';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
-import UpsellDialog from '../upsell/UpsellDialog';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 
 const timezoneDisplayLabels: Record<string, string> = {
     'Etc/GMT+12': 'UTC-12',
@@ -266,7 +266,11 @@ const ProfilePage = () => {
                         onClose={() => setShowGraduationDialog(false)}
                         cohort={user.dojoCohort}
                     />
-                    <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
+                    <UpsellDialog
+                        open={upsellDialogOpen}
+                        onClose={setUpsellDialogOpen}
+                        currentAction={RestrictedAction.Graduate}
+                    />
                     <ProfilePageTutorial />
                 </>
             )}

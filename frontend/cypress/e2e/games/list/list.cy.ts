@@ -41,6 +41,19 @@ describe('List Games Page', () => {
         );
     });
 
+    it('blocks link to full database on free tier', () => {
+        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
+        cy.visit('/games');
+
+        cy.contains('Download full database (updated every 24 hours)').should(
+            'not.have.attr',
+            'href'
+        );
+        cy.contains('Download full database').click();
+        cy.getBySel('upsell-dialog').should('be.visible');
+    });
+
     it('populates table with initial cohort', () => {
         cy.getBySel('games-table').contains('1500-1600');
         cy.getBySel('games-table').contains('JackStenglein');
@@ -84,6 +97,28 @@ describe('List Games Page', () => {
         );
     });
 
+    it('prevents searching by player on free tier', () => {
+        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
+        cy.visit('/games');
+
+        cy.contains('Search By Player').click();
+        cy.getBySel('player-search-button').should('be.disabled');
+        cy.getBySel('search-by-player').contains(
+            'Free-tier users are not able to search by player name'
+        );
+    });
+
+    it('prevents searching by player through URL', () => {
+        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
+        cy.visit(
+            '/games?type=player&player=JackStenglein&color=either&startDate=&endDate='
+        );
+
+        cy.getBySel('upsell-dialog').should('be.visible');
+    });
+
     it('allows searching by opening', () => {
         cy.contains('Search By Opening').click();
         cy.getBySel('cohort-select').should('not.be.visible');
@@ -119,5 +154,14 @@ describe('List Games Page', () => {
         cy.getBySel('games-table').find('.MuiDataGrid-row').first().click();
 
         cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
+    });
+
+    it('blocks pagination on free tier', () => {
+        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
+        cy.visit('/games');
+
+        cy.getBySel('upsell-alert').should('be.visible');
+        cy.get('[data-testid="KeyboardArrowRightIcon"]').parent().should('be.disabled');
     });
 });

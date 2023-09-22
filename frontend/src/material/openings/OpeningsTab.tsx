@@ -7,7 +7,7 @@ import { useApi } from '../../api/Api';
 import { Course } from '../../database/opening';
 import LoadingPage from '../../loading/LoadingPage';
 import { useFreeTier } from '../../auth/Auth';
-import UpsellDialog from '../../upsell/UpsellDialog';
+import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 
 const LEVELS = ['Starter (1200-1800)', 'Expert (1800+)'];
 
@@ -126,7 +126,11 @@ const OpeningsTab = () => {
                 <Typography>No openings found</Typography>
             )}
 
-            <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
+            <UpsellDialog
+                open={upsellDialogOpen}
+                onClose={setUpsellDialogOpen}
+                currentAction={RestrictedAction.AccessOpenings}
+            />
         </Stack>
     );
 };

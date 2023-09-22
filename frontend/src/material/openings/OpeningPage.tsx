@@ -11,6 +11,7 @@ import NotFoundPage from '../../NotFoundPage';
 import Contents from './Contents';
 import { useFreeTier } from '../../auth/Auth';
 import UpsellPage from '../../upsell/UpsellPage';
+import { RestrictedAction } from '../../upsell/UpsellDialog';
 
 type OpeningPageParams = {
     id: string;
@@ -54,7 +55,12 @@ const OpeningPage = () => {
     }, [chapter, moduleIndex]);
 
     if (isFreeTier) {
-        return <UpsellPage redirectTo='/material' />;
+        return (
+            <UpsellPage
+                redirectTo='/material'
+                currentAction={RestrictedAction.AccessOpenings}
+            />
+        );
     }
 
     if (!request.isSent() || request.isLoading()) {

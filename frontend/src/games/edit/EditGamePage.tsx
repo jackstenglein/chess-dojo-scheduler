@@ -9,6 +9,7 @@ import SubmitGamePreflight from './SubmitGamePreflight';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useFreeTier } from '../../auth/Auth';
 import UpsellPage from '../../upsell/UpsellPage';
+import { RestrictedAction } from '../../upsell/UpsellDialog';
 
 interface Preflight {
     req: CreateGameRequest;
@@ -88,7 +89,12 @@ const EditGamePage = () => {
     const onSubmit = cohort && id ? onEdit : onCreate;
 
     if (isFreeTier) {
-        return <UpsellPage redirectTo='/games' />;
+        return (
+            <UpsellPage
+                redirectTo='/games'
+                currentAction={RestrictedAction.SubmitGames}
+            />
+        );
     }
 
     return (

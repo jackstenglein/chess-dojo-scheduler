@@ -1,4 +1,4 @@
-import { Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
+import { Button, Container, Divider, Grid, Link, Stack, Typography } from '@mui/material';
 import {
     DataGrid,
     GridColDef,
@@ -9,14 +9,16 @@ import {
 import { GameInfo } from '../../database/game';
 import { RenderPlayers, RenderResult } from './GameListItem';
 import { RequestSnackbar } from '../../api/Request';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SearchFilters from './SearchFilters';
 
 import { usePagination } from './pagination';
 import ListGamesTutorial from './ListGamesTutorial';
 import { useFreeTier } from '../../auth/Auth';
 import { useState } from 'react';
-import UpsellDialog from '../../upsell/UpsellDialog';
+import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import UpsellAlert from '../../upsell/UpsellAlert';
+import UpsellPage from '../../upsell/UpsellPage';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
@@ -66,6 +68,8 @@ const ListGamesPage = () => {
     const navigate = useNavigate();
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
+    const [upsellAction, setUpsellAction] = useState('');
+    const location = useLocation();
 
     const { request, data, rowCount, page, pageSize, setPage, setPageSize, onSearch } =
         usePagination(null, 0, 10);
@@ -90,24 +94,55 @@ const ListGamesPage = () => {
 
     const onSubmit = () => {
         if (isFreeTier) {
+            setUpsellAction(RestrictedAction.SubmitGames);
             setUpsellDialogOpen(true);
         } else {
             navigate('submit');
         }
     };
 
+    const onDownloadDatabase = () => {
+        setUpsellAction(RestrictedAction.DownloadDatabase);
+        setUpsellDialogOpen(true);
+    };
+
+    if (isFreeTier && location.search.includes('type=player')) {
+        return (
+            <UpsellPage
+                redirectTo='/games'
+                currentAction={RestrictedAction.SearchDatabase}
+            />
+        );
+    }
+
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
-            <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
+
+            {isFreeTier && (
+                <>
+                    <Stack alignItems='center' mb={5}>
+                        <UpsellAlert>
+                            To avoid unfair preparation against Dojo members, free-tier
+                            users have limited access to the Dojo Database. Upgrade your
+                            account to view the full Database.
+                        </UpsellAlert>
+                    </Stack>
+                    <UpsellDialog
+                        open={upsellDialogOpen}
+                        onClose={setUpsellDialogOpen}
+                        currentAction={upsellAction}
+                    />
+                </>
+            )}
 
             <Grid container spacing={5} wrap='wrap-reverse'>
                 <Grid item xs={12} md={9} lg={8}>
                     <DataGrid
                         data-cy='games-table'
                         columns={gameTableColumns}
-                        rows={data}
-                        rowCount={rowCount}
+                        rows={isFreeTier ? data.slice(0, 10) : data}
+                        rowCount={isFreeTier ? Math.min(rowCount, 10) : rowCount}
                         pageSizeOptions={[5, 10, 25]}
                         paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
                         onPaginationModelChange={onPaginationModelChange}
@@ -143,13 +178,18 @@ const ListGamesPage = () => {
                             variant='caption'
                             alignSelf='end'
                         >
-                            <a
-                                href='https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip'
+                            <Link
+                                href={
+                                    isFreeTier
+                                        ? undefined
+                                        : 'https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip'
+                                }
                                 target='__blank'
                                 rel='noreferrer'
+                                onClick={isFreeTier ? onDownloadDatabase : undefined}
                             >
                                 Download full database (updated every 24 hours)
-                            </a>
+                            </Link>
                         </Typography>
                     </Stack>
                 </Grid>

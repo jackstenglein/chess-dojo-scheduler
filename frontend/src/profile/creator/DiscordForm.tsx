@@ -16,7 +16,7 @@ import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 import { User } from '../../database/user';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useFreeTier } from '../../auth/Auth';
-import UpsellDialog from '../../upsell/UpsellDialog';
+import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 
 const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) => {
     const api = useApi();
@@ -60,7 +60,11 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) =>
     return (
         <Stack spacing={4}>
             {isFreeTier && (
-                <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
+                <UpsellDialog
+                    open={upsellDialogOpen}
+                    onClose={setUpsellDialogOpen}
+                    currentAction={RestrictedAction.JoinDiscord}
+                />
             )}
 
             <Typography>

@@ -10,7 +10,8 @@ import { User } from '../database/user';
 import { gameTableColumns } from '../games/list/ListGamesPage';
 import { usePagination } from '../games/list/pagination';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import UpsellDialog from '../upsell/UpsellDialog';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
+import UpsellAlert from '../upsell/UpsellAlert';
 
 interface GamesTabProps {
     user: User;
@@ -60,7 +61,11 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     return (
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
-            <UpsellDialog open={upsellDialogOpen} onClose={setUpsellDialogOpen} />
+            <UpsellDialog
+                open={upsellDialogOpen}
+                onClose={setUpsellDialogOpen}
+                currentAction={RestrictedAction.SubmitGames}
+            />
 
             {currentUser.username === user.username && (
                 <Button variant='contained' onClick={onSubmit}>
@@ -68,20 +73,32 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 </Button>
             )}
 
-            <DataGrid
-                columns={gameTableColumns}
-                rows={data}
-                rowCount={rowCount}
-                pageSizeOptions={[5, 10, 25]}
-                paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
-                onPaginationModelChange={onPaginationModelChange}
-                paginationMode='server'
-                loading={request.isLoading()}
-                autoHeight
-                rowHeight={70}
-                onRowClick={onClickRow}
-                sx={{ width: 1 }}
-            />
+            {isFreeTier && currentUser.username !== user.username && (
+                <Stack alignItems='center' mb={5}>
+                    <UpsellAlert>
+                        To avoid unfair preparation against Dojo members, free-tier users
+                        cannot view games by a specific player. Upgrade your account to
+                        view the full Dojo Database.
+                    </UpsellAlert>
+                </Stack>
+            )}
+
+            {(!isFreeTier || currentUser.username === user.username) && (
+                <DataGrid
+                    columns={gameTableColumns}
+                    rows={data}
+                    rowCount={rowCount}
+                    pageSizeOptions={[5, 10, 25]}
+                    paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
+                    onPaginationModelChange={onPaginationModelChange}
+                    paginationMode='server'
+                    loading={request.isLoading()}
+                    autoHeight
+                    rowHeight={70}
+                    onRowClick={onClickRow}
+                    sx={{ width: 1 }}
+                />
+            )}
         </Stack>
     );
 };

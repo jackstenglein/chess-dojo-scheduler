@@ -20,7 +20,7 @@ import { useAuth, useFreeTier } from '../auth/Auth';
 import { User } from '../database/user';
 import { Event, EventType, AvailabilityStatus } from '../database/event';
 import CalendarTutorial from './CalendarTutorial';
-import UpsellDialog from '../upsell/UpsellDialog';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import UpsellAlert from '../upsell/UpsellAlert';
 
 function processAvailability(
@@ -393,7 +393,11 @@ export default function CalendarPage() {
                             }}
                             customEditor={(scheduler) =>
                                 isFreeTier ? (
-                                    <UpsellDialog open={true} onClose={scheduler.close} />
+                                    <UpsellDialog
+                                        open={true}
+                                        onClose={scheduler.close}
+                                        currentAction={RestrictedAction.AddCalendarEvents}
+                                    />
                                 ) : (
                                     <AvailabilityEditor scheduler={scheduler} />
                                 )
