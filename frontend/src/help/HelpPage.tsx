@@ -4,18 +4,35 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import HelpItem from './HelpItem';
 import { useTutorial } from '../tutorial/TutorialContext';
 import { TutorialName } from '../tutorial/tutorialNames';
+import { useFreeTier } from '../auth/Auth';
+import { useState } from 'react';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 
 const HelpPage = () => {
     const navigate = useNavigate();
     const { setTutorialState } = useTutorial();
+    const isFreeTier = useFreeTier();
+    const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
 
     const onTutorial = (path: string, tutorialName: TutorialName) => {
         navigate(path);
         setTutorialState({ activeTutorial: tutorialName });
     };
 
+    const onClickDiscord = () => {
+        setUpsellDialogOpen(true);
+    };
+
     return (
         <Container sx={{ py: 4 }}>
+            {isFreeTier && (
+                <UpsellDialog
+                    open={upsellDialogOpen}
+                    onClose={setUpsellDialogOpen}
+                    currentAction={RestrictedAction.JoinDiscord}
+                />
+            )}
+
             <Stack spacing={5}>
                 <Stack>
                     <Typography variant='h4'>Help/FAQs</Typography>
@@ -25,9 +42,14 @@ const HelpPage = () => {
                         before asking for help. If your issue is not listed here or is not
                         solved by the advice here, then send a Discord message in the{' '}
                         <Link
-                            href='https://discord.com/channels/951958534113886238/1095403018607923281'
+                            href={
+                                isFreeTier
+                                    ? undefined
+                                    : 'https://discord.com/channels/951958534113886238/1095403018607923281'
+                            }
                             target='_blank'
                             rel='noreferrer'
+                            onClick={isFreeTier ? onClickDiscord : undefined}
                         >
                             Dojo Scoreboard Feedback Discord Channel.
                         </Link>
@@ -143,9 +165,14 @@ const HelpPage = () => {
                             . If your usernames are correct and your ratings are still not
                             updating, please send a Discord message in the{' '}
                             <Link
-                                href='https://discord.com/channels/951958534113886238/1037811610586193950'
+                                href={
+                                    isFreeTier
+                                        ? undefined
+                                        : 'https://discord.com/channels/951958534113886238/1037811610586193950'
+                                }
                                 target='_blank'
                                 rel='noreferrer'
+                                onClick={isFreeTier ? onClickDiscord : undefined}
                             >
                                 ChessDojo Scheduler Discord Channel.
                             </Link>
