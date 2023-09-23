@@ -1,5 +1,6 @@
 import {
     Box,
+    Button,
     Collapse,
     Divider,
     Grid,
@@ -17,6 +18,7 @@ import { ALL_COHORTS, dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import { Requirement } from '../database/requirement';
 import Position from '../requirements/Position';
+import { useFreeTier } from '../auth/Auth';
 
 interface SparringRequirementProps {
     requirement: Requirement;
@@ -136,6 +138,34 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                                 forceExpanded={subsection.requirements.length === 1}
                             />
                         ))}
+
+                        {subsection.hidden > 0 && (
+                            <Grid item xs='auto'>
+                                <Stack
+                                    data-cy='upsell-message'
+                                    px={1}
+                                    mt={2}
+                                    spacing={2}
+                                    alignItems='center'
+                                    justifyContent='center'
+                                    height={1}
+                                >
+                                    <Typography textAlign='center'>
+                                        Unlock {subsection.hidden} more position
+                                        {subsection.hidden > 1 ? 's' : ''} by upgrading to
+                                        a full account
+                                    </Typography>
+                                    <Button
+                                        variant='outlined'
+                                        href='https://www.chessdojo.club/plans-pricing'
+                                        target='_blank'
+                                        rel='noreferrer'
+                                    >
+                                        View Prices
+                                    </Button>
+                                </Stack>
+                            </Grid>
+                        )}
                     </Grid>
                 )}
             </Collapse>
@@ -189,6 +219,7 @@ interface Subsection {
     name: string;
     requirements: Requirement[];
     stacked?: boolean;
+    hidden: number;
 }
 
 interface Section {
@@ -259,6 +290,7 @@ const sectionData = [
 
 const SparringTab = () => {
     const { requirements, request } = useRequirements(ALL_COHORTS, true);
+    const isFreeTier = useFreeTier();
 
     const sections = useMemo(() => {
         const sections = [];
@@ -268,23 +300,41 @@ const SparringTab = () => {
                 subsections: [],
             };
             if (datum.subsections) {
-                section.subsections = datum.subsections.map((s) => ({
-                    name: s.title,
-                    requirements: requirements.filter(s.selector),
-                }));
+                section.subsections = datum.subsections.map((s) => {
+                    let reqs = requirements.filter(s.selector);
+                    const originalCount = reqs.length;
+                    if (isFreeTier) {
+                        reqs = reqs.filter((r) => r.isFree);
+                    }
+
+                    return {
+                        name: s.title,
+                        requirements: reqs,
+                        hidden: originalCount - reqs.length,
+                    };
+                });
             } else {
-                section.subsections = dojoCohorts.map((cohort) => ({
-                    name: cohort,
-                    stacked: datum.stacked,
-                    requirements: requirements.filter(
+                section.subsections = dojoCohorts.map((cohort) => {
+                    let reqs = requirements.filter(
                         (r) => datum.selector(r) && r.counts[cohort]
-                    ),
-                }));
+                    );
+                    const originalCount = reqs.length;
+                    if (isFreeTier) {
+                        reqs = reqs.filter((r) => r.isFree);
+                    }
+
+                    return {
+                        name: cohort,
+                        stacked: datum.stacked,
+                        requirements: reqs,
+                        hidden: originalCount - reqs.length,
+                    };
+                });
             }
             sections.push(section);
         }
         return sections;
-    }, [requirements]);
+    }, [requirements, isFreeTier]);
 
     if (request.isLoading()) {
         return <LoadingPage />;
