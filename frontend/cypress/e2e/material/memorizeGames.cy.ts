@@ -42,4 +42,13 @@ describe('Memorize Games Tab', () => {
         cy.contains("Scholar's Mate").click();
         cy.getBySel('pgn-text-move-button').first().should('have.text', 'e4');
     });
+
+    it.only('should restrict free tier users', () => {
+        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
+        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
+        cy.visit('/material?view=memorizeGames');
+
+        cy.getBySel('pgn-selector-item').should('have.length', 3);
+        cy.getBySel('upsell-message').should('be.visible');
+    });
 });

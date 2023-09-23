@@ -1,5 +1,6 @@
 import { Header } from '@jackstenglein/chess';
 import {
+    Button,
     Card,
     List,
     ListItem,
@@ -26,6 +27,7 @@ interface PgnSelectorProps {
     setSelectedIndex: (i: number) => void;
     completed?: boolean[];
     fullHeight?: boolean;
+    hiddenCount?: number;
 }
 
 const PgnSelector: React.FC<PgnSelectorProps> = ({
@@ -35,6 +37,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
     setSelectedIndex,
     completed,
     fullHeight,
+    hiddenCount,
 }) => {
     let selectedHeaders: Array<Record<string, string> | PgnHeaders> = [];
     if (headers) {
@@ -95,6 +98,29 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                     </ListItem>
                 ))}
             </List>
+
+            {hiddenCount && (
+                <Stack
+                    data-cy='upsell-message'
+                    px={1}
+                    mt={2}
+                    spacing={2}
+                    alignItems='center'
+                >
+                    <Typography textAlign='center'>
+                        Unlock {hiddenCount} more game
+                        {hiddenCount > 1 ? 's' : ''} by upgrading to a full account
+                    </Typography>
+                    <Button
+                        variant='outlined'
+                        href='https://www.chessdojo.club/plans-pricing'
+                        target='_blank'
+                        rel='noreferrer'
+                    >
+                        View Prices
+                    </Button>
+                </Stack>
+            )}
         </Card>
     );
 };

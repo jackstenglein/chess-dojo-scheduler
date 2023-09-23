@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { Game, GameInfo } from '../database/game';
-import { useAuth } from '../auth/Auth';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import { useApi } from '../api/Api';
 import { compareCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
@@ -11,6 +11,7 @@ import {
     FormControl,
     FormControlLabel,
     FormLabel,
+    Link,
     Radio,
     RadioGroup,
     Stack,
@@ -29,6 +30,7 @@ const GamesToMemorizeTab = () => {
     const getRequest = useRequest<Game>();
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [mode, setMode] = useState('study');
+    const isFreeTier = useFreeTier();
 
     useEffect(() => {
         if (!listRequest.isSent()) {
@@ -85,19 +87,23 @@ const GamesToMemorizeTab = () => {
         }
     };
 
+    const games = isFreeTier ? listRequest.data.slice(0, 3) : listRequest.data;
+
     return (
         <Stack>
-            <Typography sx={{ mb: 4 }}>
-                Games to memorize are also available in this{' '}
-                <a
-                    href='https://lichess.org/study/u9qJoSlL'
-                    target='_blank'
-                    rel='noreferrer'
-                >
-                    Lichess study
-                </a>
-                .
-            </Typography>
+            {!isFreeTier && (
+                <Typography sx={{ mb: 4 }}>
+                    Games to memorize are also available in this{' '}
+                    <Link
+                        href='https://lichess.org/study/u9qJoSlL'
+                        target='_blank'
+                        rel='noreferrer'
+                    >
+                        Lichess study
+                    </Link>
+                    .
+                </Typography>
+            )}
 
             <FormControl>
                 <FormLabel>Mode</FormLabel>
@@ -148,10 +154,13 @@ const GamesToMemorizeTab = () => {
                 >
                     <Stack gridArea='extras' height={1} alignItems='center'>
                         <PgnSelector
-                            headers={listRequest.data.map((g) => g.headers)}
+                            headers={games.map((g) => g.headers)}
                             selectedIndex={selectedIndex}
                             setSelectedIndex={onSwitchGame}
                             fullHeight
+                            hiddenCount={
+                                isFreeTier ? listRequest.data.length - games.length : 0
+                            }
                         />
                     </Stack>
 
