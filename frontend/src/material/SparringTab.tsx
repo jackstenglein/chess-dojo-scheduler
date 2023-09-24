@@ -252,7 +252,7 @@ const sectionData = [
             r.category === 'Endgame' && r.name.startsWith('Win Conversion'),
     },
     {
-        title: 'Endgame Positional Sparring',
+        title: 'Endgame Sparring',
         selector: (r: Requirement) =>
             r.category === 'Endgame' && r.name.startsWith('Positional Sparring'),
     },
