@@ -215,8 +215,8 @@ type User struct {
 	// When the user was most recently updated (not including nightly rating updates)
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
 
-	// Whether to enable dark mode on the site
-	EnableDarkMode bool `dynamodbav:"enableDarkMode" json:"enableDarkMode"`
+	// Whether to enable light mode on the site
+	EnableLightMode bool `dynamodbav:"enableLightMode" json:"enableLightMode"`
 
 	// The user's preferred timezone on the calendar
 	TimezoneOverride string `dynamodbav:"timezoneOverride" json:"timezoneOverride"`
@@ -367,8 +367,8 @@ type UserUpdate struct {
 	// Cannot be manually passed by the user. The user should instead call the user/progress/timeline function
 	Progress *map[string]*RequirementProgress `dynamodbav:"progress,omitempty" json:"-"`
 
-	// Whether to enable dark mode on the site
-	EnableDarkMode *bool `dynamodbav:"enableDarkMode,omitempty" json:"enableDarkMode,omitempty"`
+	// Whether to enable light mode on the site
+	EnableLightMode *bool `dynamodbav:"enableLightMode,omitempty" json:"enableLightMode,omitempty"`
 
 	// The user's preferred timezone on the calendar
 	TimezoneOverride *string `dynamodbav:"timezoneOverride,omitempty" json:"timezoneOverride,omitempty"`

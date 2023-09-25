@@ -79,7 +79,7 @@ const Chart: React.FC<ChartProps> = ({
                         data: series,
                         primaryAxis,
                         secondaryAxes,
-                        dark: user?.enableDarkMode,
+                        dark: !user?.enableLightMode,
                     }}
                 />
             </Box>

@@ -16,7 +16,7 @@ interface TutorialProps {
 const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
     const user = useAuth().user!;
     const api = useApi();
-    const darkMode = user.enableDarkMode || false;
+    const darkMode = !user.enableLightMode;
     const { tutorialState, setTutorialState } = useTutorial();
 
     useEffect(() => {

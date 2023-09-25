@@ -222,7 +222,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
     const [disableCancellationNotifications, setDisableCancellationNotifications] =
         useState(user.disableCancellationNotifications);
 
-    const [enableDarkMode, setEnableDarkMode] = useState(user.enableDarkMode);
+    const [enableLightMode, setEnableLightMode] = useState(user.enableLightMode);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
@@ -239,7 +239,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         disableBookingNotifications,
         disableCancellationNotifications,
 
-        enableDarkMode,
+        enableLightMode,
     });
     const changesMade = update !== undefined;
 
@@ -610,13 +610,13 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={enableDarkMode}
+                                    checked={enableLightMode}
                                     onChange={(event) =>
-                                        setEnableDarkMode(event.target.checked)
+                                        setEnableLightMode(event.target.checked)
                                     }
                                 />
                             }
-                            label='Enable Dark Mode (Warning: experimental, some UI elements may be hard to view)'
+                            label='Enable Light Mode (Warning: experimental, some UI elements may be hard to view)'
                             sx={{ mb: 1.5 }}
                         />
                     </Stack>

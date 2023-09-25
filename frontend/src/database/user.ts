@@ -102,7 +102,7 @@ export interface User {
     graduationCohorts: string[];
     lastGraduatedAt: string;
 
-    enableDarkMode: boolean;
+    enableLightMode: boolean;
     timezoneOverride: string;
 
     hasCreatedProfile: boolean;

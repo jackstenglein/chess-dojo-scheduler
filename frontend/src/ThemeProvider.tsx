@@ -33,12 +33,12 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const user = useAuth().user;
     const [colorMode, setColorMode] = useLocalStorage(
         'colorMode',
-        user?.enableDarkMode ? 'dark' : 'light'
+        user?.enableLightMode ? 'light' : 'dark'
     );
 
     useEffect(() => {
         if (user) {
-            setColorMode(user.enableDarkMode ? 'dark' : 'light');
+            setColorMode(user.enableLightMode ? 'light' : 'dark');
         }
     }, [setColorMode, user]);
 
