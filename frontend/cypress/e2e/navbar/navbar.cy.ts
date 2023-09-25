@@ -13,14 +13,14 @@ const navbarStartItems = [
 const navbarEndItems = ['Help', 'Sign Out'];
 
 const viewPortWidths = [
-    { width: 1372, hidden: 0, endHidden: 0 },
-    { width: 1242, hidden: 2, endHidden: 0 },
-    { width: 1148, hidden: 3, endHidden: 0 },
-    { width: 1023, hidden: 4, endHidden: 0 },
-    { width: 896, hidden: 5, endHidden: 0 },
-    { width: 794, hidden: 6, endHidden: 0 },
-    { width: 634, hidden: 7, endHidden: 1 },
-    { width: 555, hidden: 7, endHidden: 2 },
+    { width: 1427, hidden: 0, endHidden: 0 },
+    { width: 1298, hidden: 2, endHidden: 0 },
+    { width: 1189, hidden: 3, endHidden: 0 },
+    { width: 1064, hidden: 4, endHidden: 0 },
+    { width: 937, hidden: 5, endHidden: 0 },
+    { width: 836, hidden: 6, endHidden: 0 },
+    { width: 675, hidden: 7, endHidden: 1 },
+    { width: 611, hidden: 7, endHidden: 2 },
     { width: 449, hidden: 9, endHidden: 2 },
 ];
 

@@ -9,6 +9,7 @@ import {
     Stack,
     Typography,
     useMediaQuery,
+    Badge,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Person2Icon from '@mui/icons-material/Person2';
@@ -22,10 +23,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MerchIcon from '@mui/icons-material/Sell';
 import TournamentsIcon from '@mui/icons-material/EmojiEvents';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 import { AuthStatus, useAuth } from '../auth/Auth';
 import PawnIcon from './PawnIcon';
 import { hasCreatedProfile } from '../database/user';
+import NotificationButton from '../notifications/NotificationButton';
+import { useNotifications } from '../api/cache/Cache';
 
 const Logo = () => {
     const navigate = useNavigate();
@@ -165,18 +169,82 @@ function adminPortalItem(navigate: NavigateFunction): NavbarItem {
     };
 }
 
-function useNavbarItems() {
+function NotificationsMenuItem({
+    handleClick,
+}: {
+    handleClick: (func: () => void) => () => void;
+}): JSX.Element {
+    const { notifications } = useNotifications();
+    const navigate = useNavigate();
+
+    return (
+        <MenuItem onClick={handleClick(() => navigate('/notifications'))}>
+            <ListItemIcon>
+                <Badge
+                    badgeContent={notifications.length}
+                    color='secondary'
+                    overlap='circular'
+                >
+                    <NotificationsIcon />
+                </Badge>
+            </ListItemIcon>
+            <Typography textAlign='center'>Notifications</Typography>
+        </MenuItem>
+    );
+}
+
+function renderStartItem(item: NavbarItem, meetingText: string) {
+    return (
+        <Button
+            key={item.name}
+            onClick={item.onClick}
+            sx={{ color: 'white' }}
+            startIcon={item.icon}
+        >
+            {item.name} {item.name === 'Meetings' && meetingText}
+        </Button>
+    );
+}
+
+function renderMenuItem(
+    item: NavbarItem,
+    handleClick: (func: () => void) => () => void,
+    meetingText?: string
+) {
+    return (
+        <MenuItem key={item.name} onClick={handleClick(item.onClick)}>
+            <ListItemIcon>{item.icon}</ListItemIcon>
+            <Typography textAlign='center'>
+                {item.name} {item.name === 'Meetings' && meetingText}
+            </Typography>
+        </MenuItem>
+    );
+}
+
+function renderEndItem(item: NavbarItem) {
+    return (
+        <Button key={item.name} onClick={item.onClick} sx={{ color: 'white' }}>
+            {item.name}
+        </Button>
+    );
+}
+
+function useNavbarItems(
+    meetingText: string,
+    handleClick: (func: () => void) => () => void
+) {
     const auth = useAuth();
     const navigate = useNavigate();
 
-    const showAll = useMediaQuery('(min-width:1372px)');
-    const hide2 = useMediaQuery('(min-width:1242px)');
-    const hide3 = useMediaQuery('(min-width:1148px)');
-    const hide4 = useMediaQuery('(min-width:1023px)');
-    const hide5 = useMediaQuery('(min-width:896px)');
-    const hide6 = useMediaQuery('(min-width:794px)');
-    const showHelp = useMediaQuery('(min-width:635px)');
-    const showSignout = useMediaQuery('(min-width:556px)');
+    const showAll = useMediaQuery('(min-width:1427px)');
+    const hide2 = useMediaQuery('(min-width:1298px)');
+    const hide3 = useMediaQuery('(min-width:1189px)');
+    const hide4 = useMediaQuery('(min-width:1064px)');
+    const hide5 = useMediaQuery('(min-width:937px)');
+    const hide6 = useMediaQuery('(min-width:836px)');
+    const showHelp = useMediaQuery('(min-width:676px)');
+    const showSignout = useMediaQuery('(min-width:612px)');
+    const showNotifications = useMediaQuery('(min-width:502px)');
 
     const startItems = allStartItems(navigate);
 
@@ -197,27 +265,41 @@ function useNavbarItems() {
         startItemCount = startItems.length - 7;
     }
 
-    const shownStartItems: NavbarItem[] = startItems.slice(0, startItemCount);
-    const menuItems: NavbarItem[] = startItems.slice(startItemCount);
-    const endItems: NavbarItem[] = [];
+    const shownStartItems: JSX.Element[] = startItems
+        .slice(0, startItemCount)
+        .map((item) => renderStartItem(item, meetingText));
+
+    const menuItems: JSX.Element[] = startItems
+        .slice(startItemCount)
+        .map((item) => renderMenuItem(item, handleClick, meetingText));
+
+    const endItems: JSX.Element[] = [];
+
+    if (showNotifications) {
+        endItems.push(<NotificationButton key='notifications' />);
+    } else {
+        menuItems.push(
+            <NotificationsMenuItem key='notifications' handleClick={handleClick} />
+        );
+    }
 
     if (showHelp) {
-        endItems.push(helpItem(navigate));
+        endItems.push(renderEndItem(helpItem(navigate)));
     } else {
-        menuItems.push(helpItem(navigate));
+        menuItems.push(renderMenuItem(helpItem(navigate), handleClick));
     }
 
     if (showSignout) {
-        endItems.push(signoutItem(auth.signout));
+        endItems.push(renderEndItem(signoutItem(auth.signout)));
     } else {
-        menuItems.push(signoutItem(auth.signout));
+        menuItems.push(renderMenuItem(signoutItem(auth.signout), handleClick));
     }
 
     if (auth.user?.isAdmin) {
         if (showAll) {
-            endItems.push(adminPortalItem(navigate));
+            endItems.push(renderEndItem(adminPortalItem(navigate)));
         } else {
-            menuItems.push(adminPortalItem(navigate));
+            menuItems.push(renderMenuItem(adminPortalItem(navigate), handleClick));
         }
     }
 
@@ -232,11 +314,6 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const auth = useAuth();
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const { startItems, menuItems, endItems } = useNavbarItems();
-
-    if (auth.status === AuthStatus.Unauthenticated) {
-        return <LargeMenuUnauthenticated />;
-    }
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -252,6 +329,12 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
             handleClose();
         };
     };
+
+    const { startItems, menuItems, endItems } = useNavbarItems(meetingText, handleClick);
+
+    if (auth.status === AuthStatus.Unauthenticated) {
+        return <LargeMenuUnauthenticated />;
+    }
 
     const profileCreated = hasCreatedProfile(auth.user!);
 
@@ -284,16 +367,7 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
         <>
             <Logo />
             <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
-                {startItems.map((item) => (
-                    <Button
-                        key={item.name}
-                        onClick={item.onClick}
-                        sx={{ color: 'white' }}
-                        startIcon={item.icon}
-                    >
-                        {item.name} {item.name === 'Meetings' && meetingText}
-                    </Button>
-                ))}
+                {startItems}
 
                 {menuItems.length > 0 && (
                     <>
@@ -311,28 +385,13 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            {menuItems.map((item) => (
-                                <MenuItem
-                                    key={item.name}
-                                    onClick={handleClick(item.onClick)}
-                                >
-                                    <ListItemIcon>{item.icon}</ListItemIcon>
-                                    <Typography textAlign='center'>
-                                        {item.name}{' '}
-                                        {item.name === 'Meetings' && meetingText}
-                                    </Typography>
-                                </MenuItem>
-                            ))}
+                            {menuItems}
                         </Menu>
                     </>
                 )}
             </Stack>
 
-            {endItems.map((item) => (
-                <Button key={item.name} onClick={item.onClick} sx={{ color: 'white' }}>
-                    {item.name}
-                </Button>
-            ))}
+            {endItems}
         </>
     );
 };
@@ -406,6 +465,7 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const auth = useAuth();
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const { notifications } = useNotifications();
     const isAdmin = auth.user?.isAdmin;
 
     const startItems = allStartItems(navigate);
@@ -474,6 +534,19 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                 </MenuItem>
 
                 {startItemsJsx}
+
+                <MenuItem onClick={handleClick(() => navigate('/notifications'))}>
+                    <ListItemIcon>
+                        <Badge
+                            badgeContent={notifications.length}
+                            color='secondary'
+                            overlap='circular'
+                        >
+                            <NotificationsIcon />
+                        </Badge>
+                    </ListItemIcon>
+                    <Typography textAlign='center'>Notifications</Typography>
+                </MenuItem>
 
                 <MenuItem onClick={handleClick(() => navigate('/help'))}>
                     <ListItemIcon>

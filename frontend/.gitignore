@@ -10,6 +10,7 @@ cypress/fixtures/auth/signinCredentials.json
 
 # testing
 /coverage
+cypress/screenshots/
 
 # production
 /build

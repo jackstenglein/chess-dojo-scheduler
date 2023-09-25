@@ -13,6 +13,7 @@ import { useApi } from '../Api';
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import { Requirement } from '../../database/requirement';
 import { Event } from '../../database/event';
+import { Notification } from '../../database/notification';
 
 interface Identifiable {
     id: string;
@@ -104,6 +105,7 @@ type CacheContextType = {
 
     events: IdentifiableCache<Event>;
     requirements: IdentifiableCache<Requirement> & CohortCache;
+    notifications: IdentifiableCache<Notification>;
 };
 
 const CacheContext = createContext<CacheContextType>(null!);
@@ -124,6 +126,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(false);
     const events = useIdentifiableCache<Event>();
     const requirements = useIdentifiableCache<Requirement>();
+    const notifications = useIdentifiableCache<Notification>();
 
     const [fetchedCohorts, setFetchedCohorts] = useState<Record<string, boolean>>({});
 
@@ -149,6 +152,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         setIsLoading,
         events,
         requirements: { ...requirements, isFetched, markFetched },
+        notifications,
     };
     return <CacheContext.Provider value={value}>{children}</CacheContext.Provider>;
 }
@@ -195,5 +199,46 @@ export function useEvents(): UseEventsResponse {
 
         putEvent: cache.events.put,
         removeEvent: cache.events.remove,
+    };
+}
+
+interface UseNotificationsResponse {
+    notifications: Notification[];
+    request: Request;
+    removeNotification: (id: string) => void;
+}
+
+export function useNotifications(): UseNotificationsResponse {
+    const auth = useAuth();
+    const api = useApi();
+    const cache = useCache();
+    const request = useRequest();
+
+    const notifications = useMemo(
+        () => cache.notifications.list(),
+        [cache.notifications]
+    );
+
+    useEffect(() => {
+        if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
+            request.onStart();
+
+            api.listNotifications()
+                .then((resp) => {
+                    request.onSuccess();
+                    cache.notifications.putMany(resp.data.notifications);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    request.onFailure(err);
+                });
+        }
+    }, [auth.status, request, api, cache]);
+
+    return {
+        notifications,
+        request,
+
+        removeNotification: cache.notifications.remove,
     };
 }

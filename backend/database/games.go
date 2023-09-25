@@ -44,9 +44,6 @@ type Comment struct {
 	// The display name of the poster of the comment
 	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
 
-	// The discord username of the poster of the comment
-	// OwnerDiscord string `dynamodbav:"ownerDiscord" json:"ownerDiscord"`
-
 	// The cohort of the poster of the comment
 	OwnerCohort DojoCohort `dynamodbav:"ownerCohort" json:"ownerCohort"`
 
@@ -188,6 +185,9 @@ type GameLister interface {
 type GameCommenter interface {
 	// CreateComment appends the provided comment to the provided Game's comment list.
 	CreateComment(cohort, id string, comment *Comment) (*Game, error)
+
+	// PutNotification inserts the provided notification into the database.
+	PutNotification(n *Notification) error
 }
 
 // BatchPutGames inserts the provided list of games into the database. The number of successfully

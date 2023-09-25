@@ -441,6 +441,32 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
 
+  listNotifications:
+    handler: user/notifications/list/main.go
+    events:
+      - httpApi:
+          path: /user/notifications
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt NotificationsTable.Arn
+
+  deleteNotification:
+    handler: user/notifications/delete/main.go
+    events:
+      - httpApi:
+          path: /user/notifications/{id}
+          method: delete
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt NotificationsTable.Arn
+
   ############## Event Endpoints #################
 
   bookEvent:
@@ -625,6 +651,11 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - !GetAtt GamesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt NotificationsTable.Arn
 
   listGamesByCohort:
     handler: game/list/cohort/main.go
@@ -1317,6 +1348,30 @@ resources:
           - AttributeName: type
             KeyType: HASH
           - AttributeName: startsAt
+            KeyType: RANGE
+        BillingMode: !If
+          - IsProd
+          - PROVISIONED
+          - PAY_PER_REQUEST
+        ProvisionedThroughput: !If
+          - IsProd
+          - ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          - !Ref AWS::NoValue
+
+    NotificationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-notifications
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+          - AttributeName: id
             KeyType: RANGE
         BillingMode: !If
           - IsProd

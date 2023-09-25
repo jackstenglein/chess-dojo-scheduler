@@ -218,7 +218,9 @@ const GamePage = () => {
                             )}
                         </Stack>
 
-                        <Typography variant='h6'>Comments</Typography>
+                        <Typography id='comments' variant='h6'>
+                            Comments
+                        </Typography>
                         <CommentEditor
                             cohort={cohort}
                             id={id}

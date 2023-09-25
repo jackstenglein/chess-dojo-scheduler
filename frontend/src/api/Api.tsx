@@ -69,6 +69,11 @@ import {
     TournamentApiContextType,
 } from './tournamentApi';
 import { TournamentType } from '../database/tournament';
+import {
+    NotificationApiContextType,
+    listNotifications,
+    deleteNotification,
+} from './notificationApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -80,7 +85,8 @@ type ApiContextType = AdminApiContextType &
     RequirementApiContextType &
     GraduationApiContextType &
     OpeningApiContextType &
-    TournamentApiContextType;
+    TournamentApiContextType &
+    NotificationApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -227,6 +233,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 timeControl: TimeControl,
                 date: string
             ) => getLeaderboard(timePeriod, tournamentType, timeControl, date),
+
+            listNotifications: (startKey?: string) =>
+                listNotifications(idToken, startKey),
+            deleteNotification: (id: string) => deleteNotification(idToken, id),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

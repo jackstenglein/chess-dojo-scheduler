@@ -75,6 +75,13 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	if comment.Owner != game.Owner {
+		notification := database.GameCommentNotification(game)
+		if err := repository.PutNotification(notification); err != nil {
+			log.Error("Failed to create game comment notification:", err)
+		}
+	}
+
 	return api.Success(funcName, game), nil
 }
 
