@@ -437,7 +437,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                     <TextField
                         required
                         select
-                        label='Chess Dojo Cohort'
+                        label='ChessDojo Cohort'
                         value={dojoCohort}
                         onChange={(event) => setDojoCohort(event.target.value)}
                         error={!!errors.dojoCohort}

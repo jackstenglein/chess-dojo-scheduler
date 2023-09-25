@@ -4,19 +4,19 @@ describe('Signin Page', () => {
     });
 
     it('has correct content', () => {
-        cy.get('[data-cy="title"]').should('have.text', 'Chess Dojo Scoreboard');
-        cy.get('[data-cy="subtitle"]').should('have.text', 'Signin');
-        cy.get('[data-cy="warning"]').should('contain', 'This account is separate');
+        cy.getBySel('title').should('have.text', 'ChessDojo Scoreboard');
+        cy.getBySel('subtitle').should('have.text', 'Sign In');
+        cy.getBySel('warning').should('contain', 'This account is separate');
     });
 
     it('should link to signup', () => {
-        cy.get('[data-cy="signup-button"]').click();
+        cy.getBySel('signup-button').click();
 
         cy.location('pathname').should('equal', '/signup');
     });
 
     it('should link to forgot password', () => {
-        cy.get('[data-cy="forgot-password-button"]').click();
+        cy.getBySel('forgot-password-button').click();
 
         cy.location('pathname').should('equal', '/forgot-password');
     });

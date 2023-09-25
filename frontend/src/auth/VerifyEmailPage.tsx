@@ -100,7 +100,7 @@ const VerifyEmailPage = () => {
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <Stack alignItems='center'>
                     <Typography variant='h4' textAlign='center' data-cy='title'>
-                        Chess Dojo Scoreboard
+                        ChessDojo Scoreboard
                     </Typography>
                     <Typography variant='h6' data-cy='subtitle'>
                         Verify Email

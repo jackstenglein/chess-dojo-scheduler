@@ -63,13 +63,22 @@ const LargeMenuUnauthenticated = () => {
                 >
                     Tournaments
                 </Button>
+                <Button
+                    href='https://www.chessdojo.club/shop'
+                    target='_blank'
+                    rel='noreferrer'
+                    sx={{ color: 'white' }}
+                    startIcon={<MerchIcon />}
+                >
+                    Merch
+                </Button>
             </Stack>
             <Stack spacing={1} direction='row'>
                 <Button onClick={() => navigate('/signin')} sx={{ color: 'white' }}>
-                    Signin
+                    Sign In
                 </Button>
                 <Button onClick={() => navigate('/signup')} sx={{ color: 'white' }}>
-                    Signup
+                    Sign Up
                 </Button>
             </Stack>
         </>
@@ -373,13 +382,20 @@ const ExtraSmallMenuUnauthenticated = () => {
                 onClose={handleClose}
             >
                 <MenuItem onClick={handleClick(() => navigate('/signin'))}>
-                    <Typography textAlign='center'>Signin</Typography>
+                    <Typography textAlign='center'>Sign In</Typography>
                 </MenuItem>
                 <MenuItem onClick={handleClick(() => navigate('/signup'))}>
-                    <Typography textAlign='center'>Signup</Typography>
+                    <Typography textAlign='center'>Sign Up</Typography>
                 </MenuItem>
                 <MenuItem onClick={handleClick(() => navigate('/tournaments'))}>
                     <Typography textAlign='center'>Tournaments</Typography>
+                </MenuItem>
+                <MenuItem
+                    onClick={() =>
+                        window.open('https://www.chessdojo.club/shop', '_blank')
+                    }
+                >
+                    <Typography textAlign='center'>Merch</Typography>
                 </MenuItem>
             </Menu>
         </Stack>

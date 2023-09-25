@@ -6,12 +6,15 @@ import { CssBaseline, PaletteMode } from '@mui/material';
 import { useAuth } from './auth/Auth';
 
 declare module '@mui/material/styles' {
-    interface Theme {
-        zIndex: {
-            tooltip: number;
-        };
+    interface Palette {
+        dojoOrange: Palette['primary'];
+    }
+    interface PaletteOptions {
+        dojoOrange?: PaletteOptions['primary'];
     }
 }
+
+const defaultTheme = createTheme({});
 
 function useLocalStorage(
     storageKey: string,
@@ -42,10 +45,15 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const theme = useMemo(
         () =>
             createTheme({
-                zIndex: {
-                    tooltip: 1299,
+                palette: {
+                    mode: colorMode as PaletteMode,
+                    dojoOrange: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#F7941F',
+                        },
+                        name: 'dojoOrange',
+                    }),
                 },
-                palette: { mode: colorMode as PaletteMode },
             }),
         [colorMode]
     );

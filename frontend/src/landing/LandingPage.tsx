@@ -1,54 +1,95 @@
-import {
-    Button,
-    CircularProgress,
-    Container,
-    Divider,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Button, Container, Grid, Stack, Typography } from '@mui/material';
 import { Navigate, useNavigate } from 'react-router-dom';
-import GoogleButton from 'react-google-button';
 
 import { AuthStatus, useAuth } from '../auth/Auth';
+import LoadingPage from '../loading/LoadingPage';
 
 const LandingPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
 
     if (auth.status === AuthStatus.Loading) {
-        return (
-            <Stack sx={{ pt: 6, pb: 4 }} justifyContent='center' alignItems='center'>
-                <CircularProgress />
-            </Stack>
-        );
+        return <LoadingPage />;
     }
 
     if (auth.status === AuthStatus.Authenticated) {
         return <Navigate to='/profile' />;
     }
 
-    const onGoogleSignIn = () => {
-        auth.socialSignin('Google');
-    };
-
     return (
-        <Container maxWidth='md' sx={{ pt: 10 }}>
-            <Stack justifyContent='center' alignItems='center' spacing={6}>
-                <Stack alignItems='center' spacing={2}>
-                    <Typography variant='h4' textAlign='center' data-cy='title'>
-                        Chess Dojo Scoreboard
-                    </Typography>
-                    <Typography variant='h5' textAlign='center' data-cy='subtitle'>
-                        A structured plan to hold yourself accountable and a group to do
-                        it with
-                    </Typography>
-                </Stack>
-                <GoogleButton onClick={onGoogleSignIn} />
-                <Divider sx={{ width: 0.5 }}>Or</Divider>
-                <Button variant='contained' onClick={() => navigate('/signin')}>
-                    Continue with Email
-                </Button>
-            </Stack>
+        <Container data-cy='landing-page' maxWidth={false} sx={{ py: 5 }}>
+            <Grid container rowSpacing={4} columnSpacing={2}>
+                <Grid item xs={12} md={6} justifyContent='center'>
+                    <Stack
+                        height={1}
+                        justifyContent='center'
+                        alignItems='center'
+                        spacing={6}
+                    >
+                        <Stack alignItems='center' spacing={2}>
+                            <Typography variant='h2' textAlign='center' data-cy='title'>
+                                ChessDojo Scoreboard
+                            </Typography>
+                            <Typography
+                                variant='h5'
+                                textAlign='center'
+                                data-cy='subtitle'
+                            >
+                                The ChessDojo{' '}
+                                <Typography
+                                    variant='h5'
+                                    color='dojoOrange.main'
+                                    component='span'
+                                >
+                                    Training Program
+                                </Typography>{' '}
+                                offers structured training plans for all levels 0-2500,
+                                along with an active and supportive community
+                            </Typography>
+                        </Stack>
+
+                        <Stack direction='row' spacing={3}>
+                            <Button
+                                variant='contained'
+                                onClick={() => navigate('/signup')}
+                                sx={{
+                                    fontSize: '1rem',
+                                    textTransform: 'none',
+                                    fontWeight: '600',
+                                    py: 1.5,
+                                    px: 2.5,
+                                }}
+                            >
+                                Sign Up for Free
+                            </Button>
+                            <Button
+                                variant='outlined'
+                                onClick={() => navigate('/signin')}
+                                sx={{
+                                    fontSize: '1rem',
+                                    textTransform: 'none',
+                                    fontWeight: '600',
+                                    py: 1.5,
+                                    px: 2.5,
+                                }}
+                            >
+                                Sign In
+                            </Button>
+                        </Stack>
+                    </Stack>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                    <Stack height={1} justifyContent='center' alignItems='center'>
+                        <img
+                            alt=''
+                            src='https://static.wixstatic.com/media/cfd2ae_25636fbb6a6c4d07b3559de681014ec4~mv2.gif'
+                            width='100%'
+                            style={{ borderRadius: '6px' }}
+                        />
+                    </Stack>
+                </Grid>
+            </Grid>
         </Container>
     );
 };

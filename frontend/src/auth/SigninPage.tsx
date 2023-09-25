@@ -76,10 +76,10 @@ const SigninPage = () => {
                 <RequestSnackbar request={request} />
                 <Stack alignItems='center'>
                     <Typography variant='h4' textAlign='center' data-cy='title'>
-                        Chess Dojo Scoreboard
+                        ChessDojo Scoreboard
                     </Typography>
                     <Typography variant='h6' data-cy='subtitle'>
-                        Signin
+                        Sign In
                     </Typography>
 
                     <Alert severity='warning' sx={{ mt: 2 }} data-cy='warning'>
@@ -119,7 +119,7 @@ const SigninPage = () => {
                         onClick={onSignin}
                         loading={request.isLoading()}
                     >
-                        Sign in
+                        Sign In
                     </LoadingButton>
                     <Stack
                         direction='row'

@@ -83,7 +83,7 @@ const ForgotPasswordPage = () => {
 
                 <Stack alignItems='center'>
                     <Typography variant='h4' textAlign='center' data-cy='title'>
-                        Chess Dojo Scoreboard
+                        ChessDojo Scoreboard
                     </Typography>
                     <Typography variant='h6' data-cy='subtitle'>
                         Forgot Password

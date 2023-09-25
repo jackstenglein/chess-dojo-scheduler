@@ -229,7 +229,7 @@ const MeetingPage = () => {
 
                             <Stack>
                                 <Typography variant='subtitle2' color='text.secondary'>
-                                    Chess Dojo Cohort
+                                    Cohort
                                 </Typography>
                                 <Typography variant='body1'>{opponent.cohort}</Typography>
                             </Stack>

@@ -1,6 +1,6 @@
 {
-    "short_name": "Chess Dojo",
-    "name": "Chess Dojo Scoreboard",
+    "short_name": "ChessDojo",
+    "name": "ChessDojo Scoreboard",
     "icons": [
         {
             "src": "favicon.ico",

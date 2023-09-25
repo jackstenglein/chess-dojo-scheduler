@@ -4,25 +4,24 @@ describe('Landing Page', () => {
     });
 
     it('has correct content', () => {
-        cy.get('[data-cy="title"]').should('contain', 'Chess Dojo Scoreboard');
-        cy.get('[data-cy="subtitle"]').should(
+        cy.getBySel('title').should('contain', 'ChessDojo Scoreboard');
+        cy.getBySel('subtitle').should(
             'contain',
-            'A structured plan to hold yourself accountable and a group to do it with'
+            'The ChessDojo Training Program offers structured training plans'
         );
+        cy.get('img').should('be.visible');
     });
 
-    it('has sign in with google button', () => {
-        cy.contains('Sign in with Google').click();
+    it('has sign up button', () => {
+        cy.getBySel('landing-page').contains('Sign Up for Free').click();
 
-        cy.origin('https://accounts.google.com', () => {
-            cy.url().should('contain', 'accounts.google.com');
-        });
+        cy.location('pathname').should('equal', '/signup');
     });
 
-    it('has sign in with email button', () => {
-        cy.contains('Continue with Email').click();
+    it('has sign in button', () => {
+        cy.getBySel('landing-page').contains('Sign In').click();
 
-        cy.url().should('contain', '/signin');
+        cy.location('pathname').should('equal', '/signin');
     });
 
     it('should redirect unauthenticated user to landing', () => {

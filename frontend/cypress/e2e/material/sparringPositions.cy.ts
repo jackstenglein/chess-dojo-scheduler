@@ -19,7 +19,7 @@ describe('Sparring Positions Tab', () => {
             'Middlegame Sparring',
             'Endgame Algorithms',
             'Endgame Win Conversions',
-            'Endgame Positional Sparring',
+            'Endgame Sparring',
             'Rook Endgame Progression',
         ].forEach((title) => cy.contains(title));
     });

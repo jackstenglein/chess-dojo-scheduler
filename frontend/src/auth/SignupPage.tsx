@@ -5,13 +5,15 @@ import {
     TextField,
     Typography,
     Link,
+    Divider,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
+import GoogleButton from 'react-google-button';
 
 import { AuthStatus, useAuth } from './Auth';
 import { useState } from 'react';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { LoadingButton } from '@mui/lab';
 
 const SignupPage = () => {
     const auth = useAuth();
@@ -35,7 +37,7 @@ const SignupPage = () => {
         return <Navigate to='/' />;
     }
 
-    const onSignin = () => {
+    const onSignup = () => {
         const errors: Record<string, string> = {};
         if (name.trim().length === 0) {
             errors.name = 'Name is required';
@@ -70,6 +72,10 @@ const SignupPage = () => {
             });
     };
 
+    const onGoogleSignIn = () => {
+        auth.socialSignin('Google');
+    };
+
     return (
         <Container maxWidth='md' sx={{ pt: 10 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
@@ -77,12 +83,16 @@ const SignupPage = () => {
 
                 <Stack alignItems='center'>
                     <Typography variant='h4' textAlign='center' data-cy='title'>
-                        Chess Dojo Scoreboard
+                        ChessDojo Scoreboard
                     </Typography>
                     <Typography variant='h6' data-cy='subtitle'>
                         Create Account
                     </Typography>
                 </Stack>
+
+                <GoogleButton onClick={onGoogleSignIn} label='Sign up with Google' />
+
+                <Divider sx={{ width: 1 }}>Or</Divider>
 
                 <Stack width={0.75} spacing={4} alignItems='center'>
                     <TextField
@@ -121,7 +131,7 @@ const SignupPage = () => {
                         variant='contained'
                         fullWidth
                         sx={{ textTransform: 'none' }}
-                        onClick={onSignin}
+                        onClick={onSignup}
                         loading={request.isLoading()}
                     >
                         Create Account
