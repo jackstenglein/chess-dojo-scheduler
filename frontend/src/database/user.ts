@@ -83,9 +83,7 @@ export interface User {
     bio: string;
 
     wixEmail: string;
-    isForbidden: boolean;
     subscriptionStatus: string;
-    overrideIsForbidden?: boolean;
 
     ratingSystem: RatingSystem;
     ratings: Partial<Record<RatingSystem, Rating>>;

@@ -23,7 +23,6 @@ import { getUser } from '../api/userApi';
 import LoadingPage from '../loading/LoadingPage';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
-import ForbiddenPage from './ForbiddenPage';
 import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
 import { EventType, trackEvent, setUser as setAnalyticsUser } from '../analytics/events';
 
@@ -231,7 +230,6 @@ export function RequireAuth() {
                 .then(() => {
                     request.onSuccess();
                     auth.updateUser({
-                        isForbidden: false,
                         subscriptionStatus: SubscriptionStatus.Subscribed,
                     });
                 })
@@ -240,7 +238,6 @@ export function RequireAuth() {
                     request.onFailure(err);
                     if (err.response?.status === 403) {
                         auth.updateUser({
-                            isForbidden: true,
                             subscriptionStatus: SubscriptionStatus.FreeTier,
                         });
                     }
@@ -254,10 +251,6 @@ export function RequireAuth() {
 
     if (auth.status === AuthStatus.Unauthenticated || !user) {
         return <Navigate to='/' replace />;
-    }
-
-    if (user.isForbidden && !user.overrideIsForbidden) {
-        return <ForbiddenPage />;
     }
 
     if (!hasCreatedProfile(user)) {
