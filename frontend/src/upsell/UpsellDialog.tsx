@@ -55,7 +55,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
         if (open) {
             trackEvent(EventType.ViewUpsellDialog, { current_action: currentAction });
         }
-    }, [open]);
+    }, [open, currentAction]);
 
     return (
         <Dialog

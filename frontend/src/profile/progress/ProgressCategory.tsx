@@ -87,7 +87,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                         </Typography>
                     ) : (
                         <Typography color='text.secondary'>
-                            {`${c.totalComplete}/${c.requirements.length} steps`}
+                            {`${c.totalComplete}/${c.requirements.length} tasks`}
                         </Typography>
                     )}
                 </Stack>
