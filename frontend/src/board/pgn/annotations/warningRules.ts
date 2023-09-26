@@ -22,17 +22,6 @@ const LichessCommentAfterRegex = /(Mistake|Inaccuracy|Blunder)\. .* was best\./;
 
 const rules: WarningRule[] = [
     {
-        displayName: 'Missing Game Comment',
-        description:
-            'Consider adding a game comment before the first move as an introduction to the game or as a summary of the overall narrative of the game.',
-        predicate: (chess, move) => {
-            return (
-                move === null &&
-                (chess.pgn.gameComment.trim() === '[#]' || chess.pgn.gameComment === '')
-            );
-        },
-    },
-    {
         displayName: 'Poor Move Missing Improvement',
         description:
             "You marked a move as dubious, a mistake or a blunder, but didn't include a comment, variation or evaluation. Consider adding a comment, variation or eval symbol to describe why the move is bad and what should have been played instead.",
