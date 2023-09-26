@@ -152,7 +152,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		if _, err = access.IsForbidden(*update.WixEmail); err != nil {
 			return api.Failure(funcName, err), nil
 		}
-		update.IsForbidden = aws.Bool(false)
 		update.SubscriptionStatus = aws.String("SUBSCRIBED")
 	}
 

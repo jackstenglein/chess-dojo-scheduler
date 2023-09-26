@@ -44,6 +44,15 @@ type CohortStatistics struct {
 	// The number of inactive participants in the cohort
 	InactiveParticipants int `dynamodbav:"inactiveParticipants" json:"inactiveParticipants"`
 
+	// The number of free participants in the cohort
+	FreeParticipants int `dynamodbav:"freeParticipants" json:"freeParticipants"`
+
+	// The number of conversions from free tier to subscribed in the cohort
+	FreeTierConversions int `dynamodbav:"freeTierConversions" json:"freeTierConversions"`
+
+	// The number of conversions from subscribed to free tier in the cohort
+	SubscriptionCancelations int `dynamodbav:"subscriptionCancelations" json:"subscriptionCancelations"`
+
 	// The sum of active dojo scores in the cohort
 	ActiveDojoScores float32 `dynamodbav:"activeDojoScores" json:"activeDojoScores"`
 
@@ -300,4 +309,48 @@ func (repo *dynamoRepository) RecordEventCancelation(event *Event) error {
 	}
 	_, err := repo.svc.UpdateItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed to update event statistics record", err)
+}
+
+// RecordSubscriptionCancelation adds 1 cancelation to the user statistics for
+// the given cohort.
+func (repo *dynamoRepository) RecordSubscriptionCancelation(cohort DojoCohort) error {
+	input := &dynamodb.UpdateItemInput{
+		UpdateExpression: aws.String("ADD #cohorts.#c.#cancelations :q"),
+		ExpressionAttributeNames: map[string]*string{
+			"#cohorts":      aws.String("cohorts"),
+			"#c":            aws.String(string(cohort)),
+			"#cancelations": aws.String("subscriptionCancelations"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":q": {N: aws.String("1")},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {S: aws.String("STATISTICS")},
+		},
+		TableName: aws.String(userTable),
+	}
+	_, err := repo.svc.UpdateItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed to update user statistics record", err)
+}
+
+// RecordFreeTierConversion adds 1 conversion to the user statistics for
+// the given cohort.
+func (repo *dynamoRepository) RecordFreeTierConversion(cohort DojoCohort) error {
+	input := &dynamodb.UpdateItemInput{
+		UpdateExpression: aws.String("ADD #cohorts.#c.#conversions :q"),
+		ExpressionAttributeNames: map[string]*string{
+			"#cohorts":     aws.String("cohorts"),
+			"#c":           aws.String(string(cohort)),
+			"#conversions": aws.String("freeTierConversions"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":q": {N: aws.String("1")},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {S: aws.String("STATISTICS")},
+		},
+		TableName: aws.String(userTable),
+	}
+	_, err := repo.svc.UpdateItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed to update user statistics record", err)
 }

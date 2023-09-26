@@ -137,13 +137,6 @@ type User struct {
 	// The user's email address used to log into the wix site
 	WixEmail string `dynamodbav:"wixEmail" json:"wixEmail"`
 
-	// Whether the user is forbidden from accessing the site due to
-	// missing Wix subscription
-	IsForbidden bool `dynamodbav:"isForbidden" json:"isForbidden"`
-
-	// Whether the frontend should override the isForbidden flag
-	OverrideIsForbidden bool `dynamodbav:"overrideIsForbidden" json:"overrideIsForbidden"`
-
 	// The user's subscription status
 	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
 
@@ -305,10 +298,6 @@ func (u *User) getRating(rs RatingSystem) (string, bool) {
 type UserUpdate struct {
 	// The user's email address used to log into the wix site
 	WixEmail *string `dynamodbav:"wixEmail,omitempty" json:"wixEmail,omitempty"`
-
-	// Whether the user is forbidden from accessing the site due to
-	// missing Wix subscription. Cannot be passed by the user.
-	IsForbidden *bool `dynamodbav:"isForbidden,omitempty" json:"-"`
 
 	// The user's subscription status. Cannot be passed by the user.
 	SubscriptionStatus *string `dynamodbav:"subscriptionStatus,omitempty" json:"-"`
@@ -496,6 +485,14 @@ type UserUpdater interface {
 
 	// FindUsersByWixEmail returns a list of users with the given wixEmail.
 	FindUsersByWixEmail(wixEmail, startKey string) ([]*User, string, error)
+
+	// RecordSubscriptionCancelation adds 1 cancelation to the user statistics for
+	// the given cohort.
+	RecordSubscriptionCancelation(cohort DojoCohort) error
+
+	// RecordFreeTierConversion adds 1 conversion to the user statistics for
+	// the given cohort.
+	RecordFreeTierConversion(cohort DojoCohort) error
 }
 
 type UserProgressUpdater interface {
@@ -741,7 +738,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories"
+const ratingsProjection = "username, dojoCohort, subscriptionStatus, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories"
 
 // ListUserRatings returns a list of Users matching the provided cohort, up to 1MB of data.
 // Only the fields necessary for the rating/statistics update are returned.

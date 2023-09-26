@@ -29,7 +29,17 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 		return event, err
 	}
 
+	currentStats, err := repository.GetUserStatistics()
+	if err != nil {
+		return event, err
+	}
+
 	stats := database.NewUserStatistics()
+	for _, cohort := range database.Cohorts {
+		stats.Cohorts[cohort].FreeTierConversions = currentStats.Cohorts[cohort].FreeTierConversions
+		stats.Cohorts[cohort].SubscriptionCancelations = currentStats.Cohorts[cohort].SubscriptionCancelations
+	}
+
 	for _, cohort := range database.Cohorts {
 		log.Debugf("Processing cohort %s", cohort)
 
@@ -93,6 +103,10 @@ func fetchRequirements() ([]*database.Requirement, error) {
 
 func updateStats(stats *database.UserStatistics, user *database.User, requirements []*database.Requirement) {
 	if !user.DojoCohort.IsValid() || user.RatingSystem == "" {
+		return
+	}
+	if user.SubscriptionStatus == "FREE_TIER" {
+		stats.Cohorts[user.DojoCohort].FreeParticipants += 1
 		return
 	}
 

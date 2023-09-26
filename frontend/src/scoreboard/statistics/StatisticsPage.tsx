@@ -82,6 +82,45 @@ function getSeries(
     ];
 }
 
+function getAdminParticipantsSeries(data: UserStatistics | undefined): Series[] {
+    if (!data) {
+        return [];
+    }
+
+    return [
+        {
+            label: 'Active',
+            data: dojoCohorts.map((c) => {
+                const result = data.cohorts[c].activeParticipants || 0;
+                return {
+                    cohort: c,
+                    value: isFinite(result) ? result : 0,
+                };
+            }),
+        },
+        {
+            label: 'Inactive',
+            data: dojoCohorts.map((c) => {
+                const result = data.cohorts[c].inactiveParticipants || 0;
+                return {
+                    cohort: c,
+                    value: isFinite(result) ? result : 0,
+                };
+            }),
+        },
+        {
+            label: 'Free',
+            data: dojoCohorts.map((c) => {
+                const result = data.cohorts[c].freeParticipants || 0;
+                return {
+                    cohort: c,
+                    value: isFinite(result) ? result : 0,
+                };
+            }),
+        },
+    ];
+}
+
 function getCategorizedSeries(
     data: UserStatistics | undefined,
     getActiveValue: (d: UserStatistics, c: string) => number,
@@ -220,16 +259,14 @@ const StatisticsPage = () => {
 
     const participantsData: Series[] = useMemo(() => {
         return user.isAdmin
-            ? getCategorizedSeries(
-                  request.data,
-                  (d, c) => d.cohorts[c].activeParticipants,
-                  (d, c) => d.cohorts[c].inactiveParticipants
-              )
+            ? getAdminParticipantsSeries(request.data)
             : getSeries(
                   'Participants',
                   request.data,
                   (d, c) =>
-                      d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants
+                      d.cohorts[c].activeParticipants +
+                      d.cohorts[c].inactiveParticipants +
+                      d.cohorts[c].freeParticipants
               );
     }, [request.data, user.isAdmin]);
 
@@ -247,6 +284,34 @@ const StatisticsPage = () => {
             })),
         }));
     }, [request.data]);
+
+    const subscriptionChangesData: Series[] = useMemo(() => {
+        if (!request.data || !user.isAdmin) {
+            return [];
+        }
+        return [
+            {
+                label: 'Free -> Subscribed',
+                data: dojoCohorts.map((c) => {
+                    const result = request.data?.cohorts[c].freeTierConversions || 0;
+                    return {
+                        cohort: c,
+                        value: isFinite(result) ? result : 0,
+                    };
+                }),
+            },
+            {
+                label: 'Subscribed -> Free',
+                data: dojoCohorts.map((c) => {
+                    const result = request.data?.cohorts[c].subscriptionCancelations || 0;
+                    return {
+                        cohort: c,
+                        value: isFinite(result) ? result : 0,
+                    };
+                }),
+            },
+        ];
+    }, [request.data, user.isAdmin]);
 
     if (request.isLoading() && request.data === undefined) {
         return <LoadingPage />;
@@ -356,6 +421,15 @@ const StatisticsPage = () => {
                     primaryAxis={primaryAxis}
                     secondaryAxes={participantsSecondaryAxes}
                 />
+
+                {user.isAdmin && (
+                    <Chart
+                        title='Subscription Changes'
+                        series={subscriptionChangesData}
+                        primaryAxis={primaryAxis}
+                        secondaryAxes={participantsSecondaryAxes}
+                    />
+                )}
 
                 <Chart
                     title='Rating Systems'

@@ -31,15 +31,23 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		subscriptionStatus = "FREE_TIER"
 	}
 
-	if isForbidden != user.IsForbidden || subscriptionStatus != user.SubscriptionStatus {
-		// Cache the user's forbidden status, that way future reloads of the
-		// frontend immediately show or hide the site
+	if subscriptionStatus != user.SubscriptionStatus {
+		// Cache the user's subscription status, that way future reloads of the
+		// frontend immediately show the correct version of the site
 		_, err := repository.UpdateUser(info.Username, &database.UserUpdate{
-			IsForbidden:        aws.Bool(isForbidden),
 			SubscriptionStatus: aws.String(subscriptionStatus),
 		})
 		if err != nil {
 			log.Error("Failed UpdateUser: ", err)
+		}
+
+		if user.SubscriptionStatus == "SUBSCRIBED" {
+			err = repository.RecordSubscriptionCancelation(user.DojoCohort)
+		} else if user.SubscriptionStatus == "FREE_TIER" {
+			err = repository.RecordFreeTierConversion(user.DojoCohort)
+		}
+		if err != nil {
+			log.Error("Failed to update statistics: ", err)
 		}
 	}
 

@@ -361,6 +361,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:GetItem
         Resource: !GetAtt UsersTable.Arn
       - Effect: Allow
         Action:
