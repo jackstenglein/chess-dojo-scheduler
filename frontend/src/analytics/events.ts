@@ -36,6 +36,9 @@ export enum EventType {
     // Material actions
     CreateSparringLink = 'create_sparring_link',
     CopyFen = 'copy_fen',
+
+    // Upsell
+    ViewUpsellDialog = 'view_upsell_dialog',
 }
 
 export function trackEvent(type: EventType, params?: any) {

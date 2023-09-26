@@ -6,6 +6,8 @@ import {
     DialogContentText,
     DialogTitle,
 } from '@mui/material';
+import { useEffect } from 'react';
+import { EventType, trackEvent } from '../analytics/events';
 
 export enum RestrictedAction {
     AccessAllTasks = 'Access all training plan tasks for all cohorts (0-2500)',
@@ -49,6 +51,12 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
         ];
     }
 
+    useEffect(() => {
+        if (open) {
+            trackEvent(EventType.ViewUpsellDialog, { current_action: currentAction });
+        }
+    }, [open]);
+
     return (
         <Dialog
             data-cy='upsell-dialog'
@@ -81,7 +89,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
                 <Button
                     href='https://www.chessdojo.club/plans-pricing'
                     target='_blank'
-                    rel='noreferrer'
+                    rel='noopener'
                 >
                     View Prices
                 </Button>

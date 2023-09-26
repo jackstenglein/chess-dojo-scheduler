@@ -15,7 +15,7 @@ const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
                     color='inherit'
                     href='https://www.chessdojo.club/plans-pricing'
                     target='_blank'
-                    rel='noreferrer'
+                    rel='noopener'
                     size='small'
                 >
                     View Prices

@@ -70,7 +70,7 @@ const LargeMenuUnauthenticated = () => {
                 <Button
                     href='https://www.chessdojo.club/shop'
                     target='_blank'
-                    rel='noreferrer'
+                    rel='noopener'
                     sx={{ color: 'white' }}
                     startIcon={<MerchIcon />}
                 >

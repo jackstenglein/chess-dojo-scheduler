@@ -159,7 +159,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                                         variant='outlined'
                                         href='https://www.chessdojo.club/plans-pricing'
                                         target='_blank'
-                                        rel='noreferrer'
+                                        rel='noopener'
                                     >
                                         View Prices
                                     </Button>

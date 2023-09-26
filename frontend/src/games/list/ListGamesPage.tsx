@@ -184,7 +184,7 @@ const ListGamesPage = () => {
                                         ? undefined
                                         : 'https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip'
                                 }
-                                target='__blank'
+                                target='_blank'
                                 rel='noreferrer'
                                 onClick={isFreeTier ? onDownloadDatabase : undefined}
                             >
