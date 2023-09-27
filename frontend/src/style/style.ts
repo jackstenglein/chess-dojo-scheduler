@@ -38,6 +38,10 @@ export function avatarProps(name: string, size: number = 74) {
             .join('');
     }
 
+    if (uppercaseLetters.length === 0) {
+        uppercaseLetters = name.slice(0, 1);
+    }
+
     return {
         sx: {
             bgcolor: stringToColor(name),
