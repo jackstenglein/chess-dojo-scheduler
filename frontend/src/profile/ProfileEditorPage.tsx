@@ -7,6 +7,7 @@ import {
     Container,
     Divider,
     FormControlLabel,
+    FormLabel,
     Grid,
     MenuItem,
     Stack,
@@ -14,6 +15,8 @@ import {
     Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import UploadIcon from '@mui/icons-material/Upload';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import { useAuth } from '../auth/Auth';
 import {
@@ -27,6 +30,12 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { DefaultTimezone } from '../calendar/filters/CalendarFilters';
 import { EventType, setUserCohort, trackEvent } from '../analytics/events';
+import Avatar from './Avatar';
+import { useCache } from '../api/cache/Cache';
+
+const MAX_PROFILE_PICTURE_SIZE_MB = 9;
+
+type UserUpdate = Partial<User & { profilePictureData: string }>;
 
 const ratingSystemForms = [
     {
@@ -124,13 +133,21 @@ function parseRating(rating: string | undefined): number {
     return -1;
 }
 
-function getUpdate(user: User, formFields: Partial<User>): Partial<User> | undefined {
-    const update: Partial<User> = {};
+function getUpdate(
+    user: User,
+    formFields: Partial<User>,
+    profilePictureData?: string
+): Partial<UserUpdate> | undefined {
+    const update: Partial<UserUpdate> = {};
 
     for (const [key, value] of Object.entries(formFields)) {
         if ((user as any)[key] !== value) {
             (update as any)[key] = value;
         }
+    }
+
+    if (profilePictureData !== undefined) {
+        update.profilePictureData = profilePictureData;
     }
 
     if (Object.entries(update).length === 0) {
@@ -154,6 +171,22 @@ function getTimezoneOptions() {
     return options;
 }
 
+function encodeFileToBase64(file: File): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        let reader = new FileReader();
+        reader.onloadend = function () {
+            const base64string = reader.result as string;
+            console.log('Base 64 string: ', base64string);
+            const encodedString = base64string.split(',')[1];
+            resolve(encodedString);
+        };
+        reader.onerror = () => {
+            reject(new Error('Failed to read the file.'));
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 interface ProfileEditorPageProps {
     isCreating?: boolean;
 }
@@ -162,6 +195,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
     const user = useAuth().user!;
     const api = useApi();
     const navigate = useNavigate();
+    const { setImageBypass } = useCache();
 
     const [displayName, setDisplayName] = useState(user.displayName);
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
@@ -224,23 +258,55 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
 
     const [enableLightMode, setEnableLightMode] = useState(user.enableLightMode);
 
+    const [profilePictureUrl, setProfilePictureUrl] = useState<string>();
+    const [profilePictureData, setProfilePictureData] = useState<string>();
+
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
-    const update = getUpdate(user, {
-        displayName: displayName.trim(),
-        discordUsername: discordUsername.trim(),
-        dojoCohort,
-        bio,
-        timezoneOverride: timezone === '' ? user.timezoneOverride : timezone,
-        ratingSystem,
-        ratings: getRatingsFromEditors(ratingEditors),
+    const onChangeProfilePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files.length) {
+            if (files[0].size / 1024 / 1024 > MAX_PROFILE_PICTURE_SIZE_MB) {
+                request.onFailure({ message: 'Profile picture must be 9MB or smaller' });
+                return;
+            }
 
-        disableBookingNotifications,
-        disableCancellationNotifications,
+            encodeFileToBase64(files[0])
+                .then((encoded) => {
+                    setProfilePictureData(encoded);
+                    setProfilePictureUrl(URL.createObjectURL(files[0]));
+                })
+                .catch((err) => {
+                    console.log(err);
+                    request.onFailure(err);
+                });
+        }
+    };
 
-        enableLightMode,
-    });
+    const onDeleteProfilePicture = () => {
+        setProfilePictureUrl('');
+        setProfilePictureData('');
+    };
+
+    const update = getUpdate(
+        user,
+        {
+            displayName: displayName.trim(),
+            discordUsername: discordUsername.trim(),
+            dojoCohort,
+            bio,
+            timezoneOverride: timezone === '' ? user.timezoneOverride : timezone,
+            ratingSystem,
+            ratings: getRatingsFromEditors(ratingEditors),
+
+            disableBookingNotifications,
+            disableCancellationNotifications,
+
+            enableLightMode,
+        },
+        profilePictureData
+    );
     const changesMade = update !== undefined;
 
     const onSave = () => {
@@ -301,6 +367,10 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                     fields: Object.keys(update),
                 });
                 setUserCohort(update.dojoCohort);
+
+                if (update.profilePictureData !== undefined) {
+                    setImageBypass(Date.now());
+                }
                 navigate('..');
             })
             .catch((err) => {
@@ -382,6 +452,35 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                     <Stack>
                         <Typography variant='h6'>Personal</Typography>
                         <Divider />
+                    </Stack>
+
+                    <Stack>
+                        <FormLabel sx={{ mb: 1 }}>Profile Picture</FormLabel>
+                        <Stack direction='row' alignItems='center' spacing={3}>
+                            <Avatar user={user} size={150} url={profilePictureUrl} />
+                            <Stack spacing={2} alignItems='start'>
+                                <Button
+                                    component='label'
+                                    variant='outlined'
+                                    startIcon={<UploadIcon />}
+                                >
+                                    Upload Photo
+                                    <input
+                                        type='file'
+                                        accept='image/*'
+                                        hidden
+                                        onChange={onChangeProfilePicture}
+                                    />
+                                </Button>
+                                <Button
+                                    variant='outlined'
+                                    startIcon={<DeleteIcon />}
+                                    onClick={onDeleteProfilePicture}
+                                >
+                                    Delete Photo
+                                </Button>
+                            </Stack>
+                        </Stack>
                     </Stack>
 
                     <TextField

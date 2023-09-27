@@ -106,6 +106,9 @@ type CacheContextType = {
     events: IdentifiableCache<Event>;
     requirements: IdentifiableCache<Requirement> & CohortCache;
     notifications: IdentifiableCache<Notification>;
+
+    imageBypass: number;
+    setImageBypass: (v: number) => void;
 };
 
 const CacheContext = createContext<CacheContextType>(null!);
@@ -127,6 +130,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const events = useIdentifiableCache<Event>();
     const requirements = useIdentifiableCache<Requirement>();
     const notifications = useIdentifiableCache<Notification>();
+    const [imageBypass, setImageBypass] = useState(Date.now());
 
     const [fetchedCohorts, setFetchedCohorts] = useState<Record<string, boolean>>({});
 
@@ -153,6 +157,8 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         events,
         requirements: { ...requirements, isFetched, markFetched },
         notifications,
+        imageBypass,
+        setImageBypass,
     };
     return <CacheContext.Provider value={value}>{children}</CacheContext.Provider>;
 }

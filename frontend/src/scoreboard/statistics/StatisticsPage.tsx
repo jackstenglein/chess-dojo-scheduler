@@ -121,39 +121,6 @@ function getAdminParticipantsSeries(data: UserStatistics | undefined): Series[] 
     ];
 }
 
-function getCategorizedSeries(
-    data: UserStatistics | undefined,
-    getActiveValue: (d: UserStatistics, c: string) => number,
-    getInactiveValue: (d: UserStatistics, c: string) => number
-): Series[] {
-    if (!data) {
-        return [];
-    }
-
-    return [
-        {
-            label: 'Active',
-            data: dojoCohorts.map((c) => {
-                const result = getActiveValue(data, c);
-                return {
-                    cohort: c,
-                    value: isFinite(result) ? result : 0,
-                };
-            }),
-        },
-        {
-            label: 'Inactive',
-            data: dojoCohorts.map((c) => {
-                const result = getInactiveValue(data, c);
-                return {
-                    cohort: c,
-                    value: isFinite(result) ? result : 0,
-                };
-            }),
-        },
-    ];
-}
-
 const StatisticsPage = () => {
     const api = useApi();
     const navigate = useNavigate();

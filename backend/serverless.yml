@@ -166,6 +166,15 @@ functions:
               - ''
               - - !GetAtt UsersTable.Arn
                 - '/index/WixEmailIndex'
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:DeleteObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref PicturesBucket
+            - /profile/*
 
   updateUserProgress:
     handler: user/progress/update/main.go
@@ -1408,6 +1417,30 @@ resources:
                 - - 'arn:aws:s3:::'
                   - !Ref GameDatabaseBucket
                   - /dojo_database.zip
+              Principal: '*'
+
+    PicturesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: chess-dojo-${sls:stage}-pictures
+        PublicAccessBlockConfiguration:
+          BlockPublicPolicy: false
+
+    PicturesBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref PicturesBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref PicturesBucket
+                  - /profile/*
               Principal: '*'
 
     ############# End S3 Resources ##############

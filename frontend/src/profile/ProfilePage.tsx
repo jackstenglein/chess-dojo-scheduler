@@ -29,6 +29,7 @@ import StatsTab from './stats/StatsTab';
 import { DefaultTimezone } from '../calendar/filters/CalendarFilters';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
+import Avatar from './Avatar';
 
 const timezoneDisplayLabels: Record<string, string> = {
     'Etc/GMT+12': 'UTC-12',
@@ -124,40 +125,51 @@ const ProfilePage = () => {
                     rowGap={2}
                 >
                     <Stack alignItems='start'>
-                        <Stack
-                            direction='row'
-                            alignItems='center'
-                            spacing={2}
-                            flexWrap='wrap'
-                            rowGap={1}
-                        >
-                            <Typography variant='h4'>{user.displayName}</Typography>
-                            {user.subscriptionStatus === SubscriptionStatus.FreeTier && (
-                                <Tooltip title='This account is on the free tier and has limited access to the site'>
-                                    <WarningIcon color='warning' />
-                                </Tooltip>
-                            )}
-                            {user.graduationCohorts &&
-                            user.graduationCohorts.length > 0 ? (
+                        <Stack direction='row' spacing={2} mb={2}>
+                            <Avatar user={user} />
+
+                            <Stack>
                                 <Stack
                                     direction='row'
-                                    spacing={0.5}
+                                    alignItems='center'
+                                    spacing={2}
                                     flexWrap='wrap'
                                     rowGap={1}
                                 >
-                                    {user.graduationCohorts.map((c) => (
-                                        <GraduationIcon key={c} cohort={c} />
-                                    ))}
+                                    <Typography variant='h4'>
+                                        {user.displayName}
+                                    </Typography>
+                                    {user.subscriptionStatus ===
+                                        SubscriptionStatus.FreeTier && (
+                                        <Tooltip title='This account is on the free tier and has limited access to the site'>
+                                            <WarningIcon color='warning' />
+                                        </Tooltip>
+                                    )}
+                                    {user.graduationCohorts &&
+                                    user.graduationCohorts.length > 0 ? (
+                                        <Stack
+                                            direction='row'
+                                            spacing={0.5}
+                                            flexWrap='wrap'
+                                            rowGap={1}
+                                        >
+                                            {user.graduationCohorts.map((c) => (
+                                                <GraduationIcon key={c} cohort={c} />
+                                            ))}
+                                        </Stack>
+                                    ) : (
+                                        user.previousCohort && (
+                                            <GraduationIcon
+                                                cohort={user.previousCohort}
+                                            />
+                                        )
+                                    )}
                                 </Stack>
-                            ) : (
-                                user.previousCohort && (
-                                    <GraduationIcon cohort={user.previousCohort} />
-                                )
-                            )}
+                                <Typography variant='h5' color='text.secondary'>
+                                    {user.dojoCohort}
+                                </Typography>
+                            </Stack>
                         </Stack>
-                        <Typography variant='h5' color='text.secondary'>
-                            {user.dojoCohort}
-                        </Typography>
 
                         {!isUserActive && (
                             <Tooltip title='User has not updated progress in the past month'>

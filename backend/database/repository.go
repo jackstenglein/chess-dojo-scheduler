@@ -17,9 +17,11 @@ type dynamoRepository struct {
 	svc *dynamodb.DynamoDB
 }
 
+var sess = session.Must(session.NewSession())
+
 // DynamoDB implements a database using AWS DynamoDB.
 var DynamoDB = &dynamoRepository{
-	svc: dynamodb.New(session.New()),
+	svc: dynamodb.New(sess),
 }
 
 var stage = os.Getenv("stage")

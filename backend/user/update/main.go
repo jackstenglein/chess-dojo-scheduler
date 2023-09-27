@@ -20,6 +20,7 @@ import (
 const funcName = "user-update-handler"
 
 var repository database.UserUpdater = database.DynamoDB
+var mediaStore database.MediaStore = database.S3
 
 func fetchCurrentRating(rating *database.Rating, fetcher ratings.RatingFetchFunc) error {
 	rating.Username = strings.TrimSpace(rating.Username)
@@ -126,8 +127,14 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		username := strings.TrimSpace(*update.DiscordUsername)
 		update.DiscordUsername = &username
 		if *update.DiscordUsername != "" {
-			if err := discord.CheckDiscordUsername(*update.DiscordUsername); err != nil {
+			avatarUrl, err := discord.GetDiscordAvatarURL(*update.DiscordUsername)
+			if err != nil {
 				return api.Failure(funcName, err), nil
+			}
+			if !user.ProfilePictureSet && avatarUrl != "" {
+				if err := mediaStore.CopyImageFromURL(avatarUrl, fmt.Sprintf("/profile/%s", info.Username)); err != nil {
+					log.Errorf("Failed to copy Discord avatar URL: %v", err)
+				}
 			}
 		}
 	}
@@ -153,6 +160,18 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 			return api.Failure(funcName, err), nil
 		}
 		update.SubscriptionStatus = aws.String("SUBSCRIBED")
+	}
+
+	if update.ProfilePictureData != nil {
+		if *update.ProfilePictureData == "" {
+			err = mediaStore.DeleteImage(fmt.Sprintf("/profile/%s", info.Username))
+		} else {
+			err = mediaStore.UploadImage(fmt.Sprintf("/profile/%s", info.Username), *update.ProfilePictureData)
+		}
+		if err != nil {
+			return api.Failure(funcName, err), nil
+		}
+		update.ProfilePictureSet = aws.Bool(true)
 	}
 
 	update.SearchKey = aws.String(database.GetSearchKey(user, update))

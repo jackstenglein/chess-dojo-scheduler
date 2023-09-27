@@ -7,7 +7,6 @@ import { NotificationListItem } from './NotificationListItem';
 
 const NotificationButton = () => {
     const { notifications } = useNotifications();
-    console.log('Notifications: ', notifications);
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 

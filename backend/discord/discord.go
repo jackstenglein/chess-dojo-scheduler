@@ -39,12 +39,21 @@ func getDiscordIdByUser(discord *discordgo.Session, user *database.User) (string
 
 // getDiscordIdByDiscordUsername returns the discord ID of the user with the given discord username.
 func getDiscordIdByDiscordUsername(discord *discordgo.Session, fullDiscordUsername string) (string, error) {
+	user, err := getDiscordUser(discord, fullDiscordUsername)
+	if err != nil {
+		return "", err
+	}
+	return user.ID, nil
+}
+
+// getDiscordUser returns the discord user with the given discord username.
+func getDiscordUser(discord *discordgo.Session, fullDiscordUsername string) (*discordgo.User, error) {
 	discordUsername := fullDiscordUsername
 	var discordDiscriminator string
 
 	discordTokens := strings.Split(discordUsername, "#")
 	if len(discordTokens) > 2 {
-		return "", errors.New(400, fmt.Sprintf("Discord username `%s` is in unrecognized format", fullDiscordUsername), "")
+		return nil, errors.New(400, fmt.Sprintf("Discord username `%s` is in unrecognized format", fullDiscordUsername), "")
 	}
 	if len(discordTokens) == 2 {
 		discordUsername = discordTokens[0]
@@ -52,48 +61,50 @@ func getDiscordIdByDiscordUsername(discord *discordgo.Session, fullDiscordUserna
 	}
 
 	if discordUsername == "" {
-		return "", errors.New(400, fmt.Sprintf("Discord username `%s` cannot be empty", fullDiscordUsername), "")
+		return nil, errors.New(400, fmt.Sprintf("Discord username `%s` cannot be empty", fullDiscordUsername), "")
 	}
 
 	discordUsers, err := discord.GuildMembersSearch(privateGuildId, discordUsername, 1000)
 	if err != nil {
-		return "", errors.Wrap(500, "Temporary server error", "Failed to search for private guild members", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to search for private guild members", err)
 	}
 	if len(discordUsers) == 0 {
 		discordUsers, err = discord.GuildMembersSearch(publicGuildId, discordUsername, 1000)
 		if err != nil {
-			return "", errors.Wrap(500, "Temporary server error", "Failed to search for public guild members", err)
+			return nil, errors.Wrap(500, "Temporary server error", "Failed to search for public guild members", err)
 		}
 		if len(discordUsers) == 0 {
-			return "", errors.New(404, fmt.Sprintf("Discord username `%s` not found in the ChessDojo server or the ChessDojo Training Program server. Please join either server and try again.", discordUsername), "")
+			return nil, errors.New(404, fmt.Sprintf("Discord username `%s` not found in the ChessDojo server or the ChessDojo Training Program server. Please join either server and try again.", discordUsername), "")
 		}
 	}
 
 	if len(discordUsers) == 1 && discordDiscriminator == "" {
-		return discordUsers[0].User.ID, nil
+		return discordUsers[0].User, nil
 	}
 
 	if discordDiscriminator == "" {
-		return "", errors.New(400, fmt.Sprintf("Multiple users found for username `%s`. Add your #id and try again.", fullDiscordUsername), "")
+		return nil, errors.New(400, fmt.Sprintf("Multiple users found for username `%s`. Add your #id and try again.", fullDiscordUsername), "")
 	}
 
 	for _, u := range discordUsers {
 		if u.User.Discriminator == discordDiscriminator {
-			return u.User.ID, nil
+			return u.User, nil
 		}
 	}
-
-	return "", errors.New(404, fmt.Sprintf("Cannot find #id `%s` for discord username `%s`", discordDiscriminator, discordUsername), "")
+	return nil, errors.New(404, fmt.Sprintf("Cannot find #id `%s` for discord username `%s`", discordDiscriminator, discordUsername), "")
 }
 
-// CheckDiscordUsername verifies that the provided discord username can be found in the server.
+// GetDiscordAvatarURL returns the Discord avatar for the provided Discord username.
 // An error is returned if the username cannot be found.
-func CheckDiscordUsername(discordUsername string) error {
+func GetDiscordAvatarURL(discordUsername string) (string, error) {
 	discord, err := discordgo.New("Bot " + authToken)
 	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+		return "", errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
 	}
 
-	_, err = getDiscordIdByDiscordUsername(discord, discordUsername)
-	return err
+	user, err := getDiscordUser(discord, discordUsername)
+	if err != nil {
+		return "", err
+	}
+	return user.AvatarURL(""), nil
 }

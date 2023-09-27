@@ -229,6 +229,10 @@ type User struct {
 	// A map from a time period to the number of minutes the user has spent on tasks in that time period.
 	// Non-Dojo tasks are not included.
 	MinutesSpent map[string]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
+
+	// Indicates whether the user has manually set their profile picture. If true, the profile picture
+	// should not be changed when the user sets the Discord username
+	ProfilePictureSet bool `dynamodbav:"profilePictureSet" json:"-"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
@@ -377,6 +381,14 @@ type UserUpdate struct {
 	// A map from a time period to the number of minutes the user has spent on tasks in that time period.
 	// Non-Dojo tasks are not included.
 	MinutesSpent *map[string]int `dynamodbav:"minutesSpent,omitempty" json:"minutesSpent,omitempty"`
+
+	// The user's profile picture as a base64 encoded string. This data gets saved to S3, not Dynamo.
+	ProfilePictureData *string `dynamodbav:"-" json:"profilePictureData,omitempty"`
+
+	// Indicates whether the user has manually set their profile picture. If true, the profile picture
+	// should not be changed when the user sets the Discord username. This field cannot manually be
+	// set by the user.
+	ProfilePictureSet *bool `dynamodbav:"profilePictureSet,omitempty" json:"-"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
