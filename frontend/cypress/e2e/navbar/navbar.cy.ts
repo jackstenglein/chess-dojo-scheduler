@@ -13,9 +13,9 @@ const navbarStartItems = [
 const navbarEndItems = ['Help', 'Sign Out'];
 
 const viewPortWidths = [
-    { width: 1427, hidden: 0, endHidden: 0 },
-    { width: 1298, hidden: 2, endHidden: 0 },
-    { width: 1189, hidden: 3, endHidden: 0 },
+    { width: 1448, hidden: 0, endHidden: 0 },
+    { width: 1319, hidden: 2, endHidden: 0 },
+    { width: 1210, hidden: 3, endHidden: 0 },
     { width: 1064, hidden: 4, endHidden: 0 },
     { width: 937, hidden: 5, endHidden: 0 },
     { width: 836, hidden: 6, endHidden: 0 },

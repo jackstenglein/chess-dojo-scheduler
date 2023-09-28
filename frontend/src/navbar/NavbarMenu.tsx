@@ -198,7 +198,7 @@ function renderStartItem(item: NavbarItem, meetingText: string) {
         <Button
             key={item.name}
             onClick={item.onClick}
-            sx={{ color: 'white' }}
+            sx={{ color: 'white', whiteSpace: 'nowrap' }}
             startIcon={item.icon}
         >
             {item.name} {item.name === 'Meetings' && meetingText}
@@ -223,7 +223,11 @@ function renderMenuItem(
 
 function renderEndItem(item: NavbarItem) {
     return (
-        <Button key={item.name} onClick={item.onClick} sx={{ color: 'white' }}>
+        <Button
+            key={item.name}
+            onClick={item.onClick}
+            sx={{ color: 'white', whiteSpace: 'nowrap' }}
+        >
             {item.name}
         </Button>
     );
@@ -236,9 +240,9 @@ function useNavbarItems(
     const auth = useAuth();
     const navigate = useNavigate();
 
-    const showAll = useMediaQuery('(min-width:1427px)');
-    const hide2 = useMediaQuery('(min-width:1298px)');
-    const hide3 = useMediaQuery('(min-width:1189px)');
+    const showAll = useMediaQuery('(min-width:1448px)');
+    const hide2 = useMediaQuery('(min-width:1319px)');
+    const hide3 = useMediaQuery('(min-width:1210px)');
     const hide4 = useMediaQuery('(min-width:1064px)');
     const hide5 = useMediaQuery('(min-width:937px)');
     const hide6 = useMediaQuery('(min-width:836px)');

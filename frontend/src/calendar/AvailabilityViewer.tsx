@@ -5,6 +5,7 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import { Event, AvailabilityType, getDisplayString } from '../database/event';
+import Avatar from '../profile/Avatar';
 
 interface AvailabilityViewerProps {
     processedEvent: ProcessedEvent;
@@ -27,13 +28,18 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
                     <Typography variant='subtitle2' color='text.secondary'>
                         Owner
                     </Typography>
-                    <Stack direction='row' spacing={2} alignItems='center'>
+                    <Stack direction='row' spacing={1} alignItems='center'>
+                        <Avatar
+                            username={event.owner}
+                            displayName={event.ownerDisplayName}
+                            size={25}
+                        />
                         <Link component={RouterLink} to={`/profile/${event.owner}`}>
                             <Typography variant='body1'>
                                 {event.ownerDisplayName} ({event.ownerCohort})
                             </Typography>
                         </Link>
-                        <GraduationIcon cohort={event.ownerPreviousCohort} size={25} />
+                        <GraduationIcon cohort={event.ownerPreviousCohort} size={22} />
                     </Stack>
                 </Stack>
             )}

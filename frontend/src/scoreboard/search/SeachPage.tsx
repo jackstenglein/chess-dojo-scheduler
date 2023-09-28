@@ -10,19 +10,20 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { useState } from 'react';
-import { LoadingButton } from '@mui/lab';
-
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { RatingSystem, User, dojoCohorts } from '../../database/user';
 import {
     DataGrid,
     GridColDef,
     GridRenderCellParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
+import { LoadingButton } from '@mui/lab';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useState } from 'react';
+
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { RatingSystem, User, dojoCohorts } from '../../database/user';
+import Avatar from '../../profile/Avatar';
 
 const AllColumns: GridColDef[] = [
     {
@@ -37,11 +38,19 @@ const AllColumns: GridColDef[] = [
         valueGetter: (params: GridValueGetterParams<User, any>) => params.row.displayName,
         renderCell: (params: GridRenderCellParams<User, string>) => {
             return (
-                <Link component={RouterLink} to={`/profile/${params.row.username}`}>
-                    {params.value}
-                </Link>
+                <Stack direction='row' spacing={1} alignItems='center'>
+                    <Avatar
+                        username={params.row.username}
+                        displayName={params.value}
+                        size={32}
+                    />
+                    <Link component={RouterLink} to={`/profile/${params.row.username}`}>
+                        {params.value}
+                    </Link>
+                </Stack>
             );
         },
+        minWidth: 250,
         flex: 1,
     },
     {

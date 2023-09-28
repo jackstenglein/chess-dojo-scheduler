@@ -31,6 +31,7 @@ import { AvailabilityType, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import LoadingPage from '../loading/LoadingPage';
 import { EventType, trackEvent } from '../analytics/events';
+import Avatar from '../profile/Avatar';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -219,7 +220,12 @@ const AvailabilityBooker = () => {
                         <Typography variant='subtitle2' color='text.secondary'>
                             Owner
                         </Typography>
-                        <Stack direction='row' spacing={2} alignItems='center'>
+                        <Stack direction='row' spacing={1} alignItems='center'>
+                            <Avatar
+                                username={availability.owner}
+                                displayName={availability.ownerDisplayName}
+                                size={25}
+                            />
                             <Link
                                 component={RouterLink}
                                 to={`/profile/${availability.owner}`}
@@ -231,7 +237,7 @@ const AvailabilityBooker = () => {
                             </Link>
                             <GraduationIcon
                                 cohort={availability.ownerPreviousCohort}
-                                size={25}
+                                size={22}
                             />
                         </Stack>
                     </Stack>
@@ -304,9 +310,14 @@ const AvailabilityBooker = () => {
                                     <Stack
                                         key={p.username}
                                         direction='row'
-                                        spacing={2}
+                                        spacing={1}
                                         alignItems='center'
                                     >
+                                        <Avatar
+                                            username={p.username}
+                                            displayName={p.displayName}
+                                            size={25}
+                                        />
                                         <Link
                                             key={p.username}
                                             component={RouterLink}
@@ -318,7 +329,7 @@ const AvailabilityBooker = () => {
                                         </Link>
                                         <GraduationIcon
                                             cohort={p.previousCohort}
-                                            size={25}
+                                            size={22}
                                         />
                                     </Stack>
                                 ))}

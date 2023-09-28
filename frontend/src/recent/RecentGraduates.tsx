@@ -22,6 +22,7 @@ import {
     GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
+import Avatar from '../profile/Avatar';
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];
@@ -79,9 +80,16 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         minWidth: 200,
         renderCell: (params: GridRenderCellParams<Graduation, string>) => {
             return (
-                <Link component={RouterLink} to={`/profile/${params.row.username}`}>
-                    {params.value}
-                </Link>
+                <Stack direction='row' spacing={1} alignItems='center'>
+                    <Avatar
+                        username={params.row.username}
+                        displayName={params.value}
+                        size={32}
+                    />
+                    <Link component={RouterLink} to={`/profile/${params.row.username}`}>
+                        {params.value}
+                    </Link>
+                </Stack>
             );
         },
     },
@@ -108,12 +116,12 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
                 return (
                     <Stack direction='row'>
                         {graduationCohorts.map((c) => (
-                            <GraduationIcon key={c} cohort={c} size={35} />
+                            <GraduationIcon key={c} cohort={c} size={32} />
                         ))}
                     </Stack>
                 );
             }
-            return <GraduationIcon cohort={params.row.previousCohort} size={35} />;
+            return <GraduationIcon cohort={params.row.previousCohort} size={32} />;
         },
     },
     {

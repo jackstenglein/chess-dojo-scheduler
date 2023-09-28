@@ -47,6 +47,7 @@ import GraduationChips from './GraduationChips';
 import { ScoreboardDisplay, formatTime } from '../database/requirement';
 import ScoreboardTutorial from './ScoreboardTutorial';
 import UpsellAlert from '../upsell/UpsellAlert';
+import Avatar from '../profile/Avatar';
 
 interface ColumnGroupChild {
     field: string;
@@ -112,9 +113,16 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
         minWidth: 250,
         renderCell: (params: GridRenderCellParams<ScoreboardRow, string>) => {
             return (
-                <Link component={RouterLink} to={`/profile/${params.row.username}`}>
-                    {params.value}
-                </Link>
+                <Stack direction='row' spacing={1} alignItems='center'>
+                    <Avatar
+                        username={params.row.username}
+                        displayName={params.value}
+                        size={32}
+                    />
+                    <Link component={RouterLink} to={`/profile/${params.row.username}`}>
+                        {params.value}
+                    </Link>
+                </Stack>
             );
         },
     },
@@ -138,12 +146,12 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
                 return (
                     <Stack direction='row'>
                         {graduationCohorts.map((c) => (
-                            <GraduationIcon key={c} cohort={c} size={35} />
+                            <GraduationIcon key={c} cohort={c} size={32} />
                         ))}
                     </Stack>
                 );
             }
-            return <GraduationIcon cohort={params.row.previousCohort} size={35} />;
+            return <GraduationIcon cohort={params.row.previousCohort} size={32} />;
         },
         align: 'center',
     },

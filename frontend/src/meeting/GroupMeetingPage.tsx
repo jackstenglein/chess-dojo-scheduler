@@ -13,6 +13,7 @@ import { useCache } from '../api/cache/Cache';
 import { getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import LoadingPage from '../loading/LoadingPage';
+import Avatar from '../profile/Avatar';
 
 const GroupMeetingPage = () => {
     const { availabilityId } = useParams();
@@ -107,7 +108,12 @@ const GroupMeetingPage = () => {
                     <CardHeader title='Participants' />
                     <CardContent>
                         <Stack spacing={2}>
-                            <Stack direction='row' spacing={2} alignItems='center'>
+                            <Stack direction='row' spacing={1} alignItems='center'>
+                                <Avatar
+                                    username={availability.owner}
+                                    displayName={availability.ownerDisplayName}
+                                    size={25}
+                                />
                                 <Link
                                     component={RouterLink}
                                     to={`/profile/${availability.owner}`}
@@ -119,7 +125,7 @@ const GroupMeetingPage = () => {
                                 </Link>
                                 <GraduationIcon
                                     cohort={availability.ownerPreviousCohort}
-                                    size={25}
+                                    size={22}
                                 />
                             </Stack>
 
@@ -127,9 +133,14 @@ const GroupMeetingPage = () => {
                                 <Stack
                                     key={p.username}
                                     direction='row'
-                                    spacing={2}
+                                    spacing={1}
                                     alignItems='center'
                                 >
+                                    <Avatar
+                                        username={p.username}
+                                        displayName={p.displayName}
+                                        size={25}
+                                    />
                                     <Link
                                         component={RouterLink}
                                         to={`/profile/${p.username}`}
@@ -138,7 +149,7 @@ const GroupMeetingPage = () => {
                                             {p.displayName} ({p.cohort})
                                         </Typography>
                                     </Link>
-                                    <GraduationIcon cohort={p.previousCohort} size={25} />
+                                    <GraduationIcon cohort={p.previousCohort} size={22} />
                                 </Stack>
                             ))}
                         </Stack>

@@ -19,6 +19,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import { Game } from '../../database/game';
 import { useChess } from './PgnBoard';
+import Avatar from '../../profile/Avatar';
 
 export const TagTextFieldId = 'tagEditor';
 
@@ -152,9 +153,14 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
             <TableBody>
                 {game && game.ownerDisplayName !== '' && (
                     <TableRow>
-                        <TableCell>Uploaded By</TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>Uploaded By</TableCell>
                         <TableCell>
                             <Stack direction='row' spacing={1} alignItems='center'>
+                                <Avatar
+                                    username={game.owner}
+                                    displayName={game.ownerDisplayName}
+                                    size={28}
+                                />
                                 <Link
                                     component={RouterLink}
                                     to={`/profile/${game.owner}`}
@@ -168,6 +174,23 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                                     size={20}
                                 />
                             </Stack>
+                        </TableCell>
+                        {allowEdits && <TableCell></TableCell>}
+                    </TableRow>
+                )}
+
+                {game && game.cohort && (
+                    <TableRow>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>Cohort</TableCell>
+                        <TableCell>
+                            <Link
+                                component={RouterLink}
+                                to={`/games/?type=cohort&cohort=${encodeURIComponent(
+                                    game.cohort
+                                )}`}
+                            >
+                                {game.cohort}
+                            </Link>
                         </TableCell>
                         {allowEdits && <TableCell></TableCell>}
                     </TableRow>
