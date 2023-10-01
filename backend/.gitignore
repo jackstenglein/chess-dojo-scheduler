@@ -3,6 +3,7 @@ oauth.yml
 discord.yml
 wix.yml
 tournament.yml
+openClassicalServiceAccountKey.json
 
 # Serverless directories
 .serverless

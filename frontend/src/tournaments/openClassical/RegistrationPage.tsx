@@ -15,11 +15,13 @@ import { LoadingButton } from '@mui/lab';
 
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
-import { useRequest } from '../../api/Request';
+import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
+import { useApi } from '../../api/Api';
 
 const RegistrationPage = () => {
     const auth = useAuth();
     const user = auth.user;
+    const api = useApi();
 
     const [email, setEmail] = useState('');
     const [lichessUsername, setLichessUsername] = useState(
@@ -80,10 +82,43 @@ const RegistrationPage = () => {
         }
 
         request.onStart();
+        api.registerForOpenClassical({
+            email: email.trim(),
+            lichessUsername: lichessUsername.trim(),
+            discordUsername: discordUsername.trim(),
+            title,
+            byeRequests,
+        })
+            .then((resp) => {
+                console.log('registerForOpenClassical: ', resp);
+                request.onSuccess();
+            })
+            .catch((err) => {
+                console.error(err);
+                request.onFailure(err);
+            });
     };
+
+    if (request.status === RequestStatus.Success) {
+        return (
+            <Container maxWidth='md' sx={{ py: 5 }}>
+                <Stack spacing={4}>
+                    <Typography variant='h6' alignSelf='start'>
+                        Register for the Open Classical
+                    </Typography>
+
+                    <Typography>
+                        Your registration has been recorded. Thank you!
+                    </Typography>
+                </Stack>
+            </Container>
+        );
+    }
 
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>
+            <RequestSnackbar request={request} />
+
             <Stack spacing={4} alignItems='center'>
                 <Typography variant='h6' alignSelf='start'>
                     Register for the Open Classical

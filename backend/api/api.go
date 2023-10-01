@@ -17,24 +17,29 @@ type Response events.APIGatewayProxyResponse
 type UserInfo struct {
 	// The username of the user.
 	Username string `json:"-"`
+
+	// The email of the user
+	Email string `json:"-"`
 }
 
 // GetUserInfo extracts the user info from the id token claim of the given request.
 // Any fields that cannot be extracted are left blank.
 func GetUserInfo(event Request) *UserInfo {
 	var username string
+	var email string
 
 	if jwt, ok := event.RequestContext.Authorizer["jwt"]; ok {
 		if jwtMap, ok := jwt.(map[string]interface{}); ok {
 			if claims, ok := jwtMap["claims"]; ok {
 				if claimsMap, ok := claims.(map[string]interface{}); ok {
 					username, ok = claimsMap["cognito:username"].(string)
+					email, ok = claimsMap["email"].(string)
 				}
 			}
 		}
 	}
 
-	return &UserInfo{Username: username}
+	return &UserInfo{Username: username, Email: email}
 }
 
 // errorToResponse converts the given error into an AWS ApiGateway Response object.

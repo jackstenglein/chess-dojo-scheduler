@@ -936,6 +936,26 @@ functions:
     environment:
       mongoConnectionString: ${file(./tournament.yml):mongoConnectionString}
 
+  openClassicalRegister:
+    handler: tournament/openClassical/register/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/open-classical/register
+          method: post
+      - httpApi:
+          path: /tournaments/open-classical/register
+          method: post
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref SecretsBucket
+            - /openClassicalServiceAccountKey.json
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -1443,5 +1463,10 @@ resources:
                   - !Ref PicturesBucket
                   - /profile/*
               Principal: '*'
+
+    SecretsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: chess-dojo-${sls:stage}-secrets
 
     ############# End S3 Resources ##############

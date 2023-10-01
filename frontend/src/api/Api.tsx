@@ -64,6 +64,8 @@ import {
 import { getCourse, listCourses, OpeningApiContextType } from './openingApi';
 import {
     getLeaderboard,
+    OpenClassicalRegistrationRequest,
+    registerForOpenClassical,
     TimeControl,
     TimePeriod,
     TournamentApiContextType,
@@ -233,6 +235,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 timeControl: TimeControl,
                 date: string
             ) => getLeaderboard(timePeriod, tournamentType, timeControl, date),
+            registerForOpenClassical: (req: OpenClassicalRegistrationRequest) =>
+                registerForOpenClassical(idToken, req),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),

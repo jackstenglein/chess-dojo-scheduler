@@ -23,7 +23,25 @@ export type TournamentApiContextType = {
         timeControl: TimeControl,
         date: string
     ) => Promise<AxiosResponse<Leaderboard>>;
+
+    /**
+     * Submits a request to register for the Open Classical.
+     * @param req The Open Classical registration request.
+     * @returns An empty AxiosResponse.
+     */
+    registerForOpenClassical: (
+        req: OpenClassicalRegistrationRequest
+    ) => Promise<AxiosResponse<void, any>>;
 };
+
+/** A request to register for the Open Classical. */
+export interface OpenClassicalRegistrationRequest {
+    email: string;
+    lichessUsername: string;
+    discordUsername: string;
+    title: string;
+    byeRequests: boolean[];
+}
 
 /**
  * getLeaderboard returns the requested leaderboard.
@@ -47,4 +65,23 @@ export function getLeaderboard(
             date,
         },
     });
+}
+
+/**
+ * Submits a request to register for the Open Classical.
+ * @param idToken The id token of the signed-in user.
+ * @param req The Open Classical registration request.
+ * @returns An empty AxiosResponse.
+ */
+export function registerForOpenClassical(
+    idToken: string,
+    req: OpenClassicalRegistrationRequest
+) {
+    return axios.post<void>(
+        `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/register`,
+        req,
+        {
+            headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
+        }
+    );
 }
