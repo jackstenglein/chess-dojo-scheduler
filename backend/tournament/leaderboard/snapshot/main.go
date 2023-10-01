@@ -58,6 +58,11 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (events.CloudWat
 // snapshotLeaderboard saves a snapshot of the leaderboard with the provided parameters and then resets
 // the current leaderboard players.
 func snapshotLeaderboard(timeframe, startsAt string, name database.LeaderboardType, timeControl string) error {
+	snapshot, err := repository.GetLeaderboard(timeframe, string(name), timeControl, startsAt)
+	if err == nil {
+		return errors.New(500, "Leaderboard snapshot already exists, will not overwrite it", "")
+	}
+
 	leaderboard, err := repository.GetLeaderboard(timeframe, string(name), timeControl, database.CurrentLeaderboard)
 	if err != nil {
 		if lerr, ok := err.(*errors.Error); ok && lerr.Code == 404 {
@@ -67,13 +72,13 @@ func snapshotLeaderboard(timeframe, startsAt string, name database.LeaderboardTy
 		return err
 	}
 
-	snapshot := database.Leaderboard{
+	snapshot = &database.Leaderboard{
 		Type:        leaderboard.Type,
 		StartsAt:    startsAt,
 		TimeControl: leaderboard.TimeControl,
 		Players:     leaderboard.Players,
 	}
-	if err := repository.SetLeaderboard(snapshot); err != nil {
+	if err := repository.SetLeaderboard(*snapshot); err != nil {
 		return err
 	}
 
