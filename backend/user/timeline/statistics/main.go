@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -11,6 +12,10 @@ import (
 )
 
 type Event events.CloudWatchEvent
+
+type UpdateRequest struct {
+	Cohorts []database.DojoCohort `json:"cohorts"`
+}
 
 var repository = database.DynamoDB
 
@@ -27,10 +32,17 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 	log.SetRequestId(event.ID)
 	log.Debugf("Event: %#v", event)
 
-	var err error
+	var req UpdateRequest
+	err := json.Unmarshal(event.Detail, &req)
+	if err != nil {
+		log.Errorf("Failed to unmarshal request: %v", err)
+		return event, err
+	}
+	log.Debugf("Request: %+v", req)
+
 	var queuedUpdates []*database.User
 
-	for _, cohort := range database.Cohorts {
+	for _, cohort := range req.Cohorts {
 		log.Debugf("Processing cohort %s", cohort)
 
 		var users []*database.User

@@ -393,7 +393,64 @@ functions:
     handler: user/timeline/statistics/main.go
     events:
       - schedule:
-          rate: cron(30 0 * * ? *)
+          rate: cron(0 0 * * ? *)
+          input:
+            id: TimeSpentUpdate0-800
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
+                - 0-300
+                - 300-400
+                - 400-500
+                - 500-600
+                - 600-700
+                - 700-800
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: TimeSpentUpdate800-1300
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
+                - 800-900
+                - 900-1000
+                - 1000-1100
+                - 1100-1200
+                - 1200-1300
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: TimeSpentUpdate1300-1800
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
+                - 1300-1400
+                - 1400-1500
+                - 1500-1600
+                - 1600-1700
+                - 1700-1800
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: TimeSpentUpdate1800+
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
+                - 1800-1900
+                - 1900-2000
+                - 2000-2100
+                - 2100-2200
+                - 2200-2300
+                - 2300-2400
+                - 2400+
     timeout: 900
     iamRoleStatements:
       - Effect: Allow
@@ -1470,3 +1527,110 @@ resources:
         BucketName: chess-dojo-${sls:stage}-secrets
 
     ############# End S3 Resources ##############
+
+    ############# Alert Resources ###############
+
+    AlertNotificationsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: chess-dojo-${sls:stage}-alert-notifications
+        Subscription:
+          - Endpoint: jackstenglein@gmail.com
+            Protocol: EMAIL
+
+    UpdateRatingsTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateRatingsTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateRatings function'
+        AlarmActions:
+          - !Ref AlertNotificationsTopic
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-scheduler-${sls:stage}-updateRatings
+        Period: 60
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore
+
+    UpdateStatisticsTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateStatisticsTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateStatistics function'
+        AlarmActions:
+          - !Ref AlertNotificationsTopic
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-scheduler-${sls:stage}-updateStatistics
+        Period: 60
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore
+
+    UpdateTimeSpentTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateTimeSpentTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateTimeSpent function'
+        AlarmActions:
+          - !Ref AlertNotificationsTopic
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-scheduler-${sls:stage}-updateTimeSpent
+        Period: 60
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore
+
+    UpdateGameStatisticsTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateGameStatisticsTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateGameStatistics function'
+        AlarmActions:
+          - !Ref AlertNotificationsTopic
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-scheduler-${sls:stage}-updateGameStatistics
+        Period: 60
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore
+
+    SnapshotTournamentLeaderboardTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: SnapshotTournamentLeaderboardTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for snapshotTournamentLeaderboard function'
+        AlarmActions:
+          - !Ref AlertNotificationsTopic
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-scheduler-${sls:stage}-snapshotTournamentLeaderboard
+        Period: 60
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore
+
+    ########### End Alert Resources #############
