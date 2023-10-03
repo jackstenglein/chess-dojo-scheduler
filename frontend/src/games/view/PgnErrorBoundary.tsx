@@ -1,10 +1,21 @@
 // Based off of https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary
 
-import { Container, Stack, Typography } from '@mui/material';
-import { Component } from 'react';
+import { Button, Container, Stack, Typography } from '@mui/material';
+import React, { Component } from 'react';
+
+import { Game } from '../../database/game';
+import { useNavigate } from 'react-router-dom';
+import DeleteGameButton from './DeleteGameButton';
+import { useAuth } from '../../auth/Auth';
 
 interface PgnErrorBoundaryProps {
     pgn: string;
+    game?: Game;
+}
+
+interface PgnErrorBoundaryNavigatorProps extends PgnErrorBoundaryProps {
+    username: string;
+    navigate: (to: string) => void;
 }
 
 interface ErrorBoundaryState {
@@ -14,11 +25,11 @@ interface ErrorBoundaryState {
 }
 
 class PgnErrorBoundary extends Component<
-    React.PropsWithChildren<PgnErrorBoundaryProps>,
+    React.PropsWithChildren<PgnErrorBoundaryNavigatorProps>,
     ErrorBoundaryState,
     any
 > {
-    constructor(props: PgnErrorBoundaryProps) {
+    constructor(props: PgnErrorBoundaryNavigatorProps) {
         super(props);
         this.state = { hasError: false, error: null, info: null };
     }
@@ -39,26 +50,33 @@ class PgnErrorBoundary extends Component<
         }
 
         return (
-            <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
+            <Container maxWidth='md' sx={{ pt: 6, pb: 4, gridArea: 'pgn' }}>
                 <Stack spacing={4}>
                     <Typography variant='h5'>Invalid PGN</Typography>
                     <Typography variant='body1'>
-                        Unfortunately, this game's PGN cannot be displayed by the PGN
-                        viewer library (see the error message below). This can happen due
-                        to a variety of reasons, including:
+                        Unfortunately, this game's PGN cannot be displayed by our PGN
+                        viewer (see the error message below). This most likely happened
+                        due to a malformed PGN. If you manually produced your PGN, it is
+                        likely incorrect. If you believe your PGN is correct or are
+                        otherwise unable to correct it, please send a Discord DM to
+                        @JackStenglein with the link to this page.
                     </Typography>
 
-                    <ul>
-                        <li>Malformed PGN</li>
-                        <li>PGN uses the Lichess "force variation" feature</li>
-                        <li>Unrecognized Chess.com/Chessbase PGN annotations</li>
-                    </ul>
+                    {this.props.game && this.props.game.owner === this.props.username && (
+                        <Stack direction='row' spacing={2}>
+                            <Button
+                                variant='contained'
+                                onClick={() => this.props.navigate('./edit')}
+                            >
+                                Resubmit PGN
+                            </Button>
 
-                    <Typography variant='body1'>
-                        Eventually we plan to replace the PGN viewer with one that can
-                        support these PGNs, but for now please try updating your game's
-                        PGN to remove these features if you are using them.
-                    </Typography>
+                            <DeleteGameButton
+                                game={this.props.game}
+                                variant='contained'
+                            />
+                        </Stack>
+                    )}
 
                     <Typography variant='body1' color='error' whiteSpace='pre-line'>
                         {this.state.error === null ? 'null' : this.state.error.toString()}
@@ -78,4 +96,13 @@ class PgnErrorBoundary extends Component<
     }
 }
 
-export default PgnErrorBoundary;
+const PgnErrorBoundaryNavigator: React.FC<
+    React.PropsWithChildren<PgnErrorBoundaryProps>
+> = (props) => {
+    const navigate = useNavigate();
+    const username = useAuth().user?.username || '';
+
+    return <PgnErrorBoundary navigate={navigate} username={username} {...props} />;
+};
+
+export default PgnErrorBoundaryNavigator;

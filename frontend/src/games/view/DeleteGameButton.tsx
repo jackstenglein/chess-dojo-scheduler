@@ -19,9 +19,13 @@ import { EventType, trackEvent } from '../../analytics/events';
 
 interface DeleteGameButtonProps {
     game: Game;
+    variant?: 'icon' | 'contained';
 }
 
-const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({ game }) => {
+const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
+    game,
+    variant = 'icon',
+}) => {
     const api = useApi();
     const navigate = useNavigate();
     const request = useRequest();
@@ -50,11 +54,22 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({ game }) => {
 
     return (
         <>
-            <Tooltip title='Delete Game'>
-                <IconButton onClick={() => setShowDeleteModal(true)}>
-                    <DeleteIcon sx={{ color: 'text.secondary' }} />
-                </IconButton>
-            </Tooltip>
+            {variant === 'icon' ? (
+                <Tooltip title='Delete Game'>
+                    <IconButton onClick={() => setShowDeleteModal(true)}>
+                        <DeleteIcon sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Tooltip>
+            ) : (
+                <Button
+                    variant={variant}
+                    onClick={() => setShowDeleteModal(true)}
+                    color='error'
+                >
+                    Delete Game
+                </Button>
+            )}
+
             <Dialog
                 open={showDeleteModal}
                 onClose={request.isLoading() ? undefined : onClose}

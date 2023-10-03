@@ -167,7 +167,7 @@ const GamePage = () => {
                 <RequestSnackbar request={featureRequest} showSuccess />
 
                 {request.data?.pgn && (
-                    <PgnErrorBoundary pgn={request.data.pgn}>
+                    <PgnErrorBoundary pgn={request.data.pgn} game={request.data}>
                         <PgnBoard
                             game={request.data}
                             pgn={request.data.pgn}
@@ -176,58 +176,56 @@ const GamePage = () => {
                             showEditor
                             showAnnotationWarnings={request.data.owner === user.username}
                         />
-                    </PgnErrorBoundary>
-                )}
 
-                {request.data?.pgn && (
-                    <Stack gridArea='extras' spacing={2}>
-                        <Stack direction='row' my={2} spacing={2} flexWrap='wrap'>
-                            {user.isAdmin && (
-                                <Stack
-                                    direction='row'
-                                    alignSelf='start'
-                                    alignItems='center'
-                                    spacing={2}
-                                >
-                                    <Typography>Feature Game?</Typography>
-                                    <IconButton onClick={onFeature}>
-                                        {request.data.isFeatured === 'true' ? (
-                                            <CheckBoxIcon color='primary' />
-                                        ) : (
-                                            <CheckBoxOutlineBlankIcon />
-                                        )}
-                                    </IconButton>
-                                </Stack>
-                            )}
-
-                            {request.data.owner === user.username && (
-                                <Stack
-                                    direction='row'
-                                    alignSelf='start'
-                                    alignItems='center'
-                                    spacing={2}
-                                    sx={{ mb: 2 }}
-                                >
-                                    <Button
-                                        variant='contained'
-                                        onClick={() => navigate('edit')}
+                        <Stack gridArea='extras' spacing={2}>
+                            <Stack direction='row' my={2} spacing={2} flexWrap='wrap'>
+                                {user.isAdmin && (
+                                    <Stack
+                                        direction='row'
+                                        alignSelf='start'
+                                        alignItems='center'
+                                        spacing={2}
                                     >
-                                        Import PGN
-                                    </Button>
-                                </Stack>
-                            )}
-                        </Stack>
+                                        <Typography>Feature Game?</Typography>
+                                        <IconButton onClick={onFeature}>
+                                            {request.data.isFeatured === 'true' ? (
+                                                <CheckBoxIcon color='primary' />
+                                            ) : (
+                                                <CheckBoxOutlineBlankIcon />
+                                            )}
+                                        </IconButton>
+                                    </Stack>
+                                )}
 
-                        <Typography id='comments' variant='h6'>
-                            Comments
-                        </Typography>
-                        <CommentEditor
-                            cohort={cohort}
-                            id={id}
-                            onSuccess={request.onSuccess}
-                        />
-                        <CommentList comments={request.data.comments} />
-                    </Stack>
+                                {request.data.owner === user.username && (
+                                    <Stack
+                                        direction='row'
+                                        alignSelf='start'
+                                        alignItems='center'
+                                        spacing={2}
+                                        sx={{ mb: 2 }}
+                                    >
+                                        <Button
+                                            variant='contained'
+                                            onClick={() => navigate('edit')}
+                                        >
+                                            Import PGN
+                                        </Button>
+                                    </Stack>
+                                )}
+                            </Stack>
+
+                            <Typography id='comments' variant='h6'>
+                                Comments
+                            </Typography>
+                            <CommentEditor
+                                cohort={cohort}
+                                id={id}
+                                onSuccess={request.onSuccess}
+                            />
+                            <CommentList comments={request.data.comments} />
+                        </Stack>
+                    </PgnErrorBoundary>
                 )}
             </Box>
         </Container>
