@@ -1555,7 +1555,7 @@ resources:
         Dimensions:
           - Name: FunctionName
             Value: chess-dojo-scheduler-${sls:stage}-updateRatings
-        Period: 60
+        Period: 86400
         EvaluationPeriods: 1
         Threshold: 700000
         ComparisonOperator: GreaterThanThreshold
@@ -1574,7 +1574,7 @@ resources:
         Dimensions:
           - Name: FunctionName
             Value: chess-dojo-scheduler-${sls:stage}-updateStatistics
-        Period: 60
+        Period: 86400
         EvaluationPeriods: 1
         Threshold: 700000
         ComparisonOperator: GreaterThanThreshold
@@ -1593,7 +1593,7 @@ resources:
         Dimensions:
           - Name: FunctionName
             Value: chess-dojo-scheduler-${sls:stage}-updateTimeSpent
-        Period: 60
+        Period: 86400
         EvaluationPeriods: 1
         Threshold: 700000
         ComparisonOperator: GreaterThanThreshold
@@ -1612,7 +1612,7 @@ resources:
         Dimensions:
           - Name: FunctionName
             Value: chess-dojo-scheduler-${sls:stage}-updateGameStatistics
-        Period: 60
+        Period: 86400
         EvaluationPeriods: 1
         Threshold: 700000
         ComparisonOperator: GreaterThanThreshold
@@ -1631,7 +1631,7 @@ resources:
         Dimensions:
           - Name: FunctionName
             Value: chess-dojo-scheduler-${sls:stage}-snapshotTournamentLeaderboard
-        Period: 60
+        Period: 86400
         EvaluationPeriods: 1
         Threshold: 700000
         ComparisonOperator: GreaterThanThreshold
