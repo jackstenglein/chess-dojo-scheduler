@@ -21,6 +21,7 @@ var repository = database.DynamoDB
 
 var weekAgo = time.Now().Add(-time.Hour * 24 * 7).Format(time.RFC3339)
 var thirtyDaysAgo = time.Now().Add(-time.Hour * 24 * 30).Format(time.RFC3339)
+var sixtyDaysAgo = time.Now().Add(-time.Hour * 24 * 60).Format(time.RFC3339)
 var ninetyDaysAgo = time.Now().Add(-time.Hour * 24 * 90).Format(time.RFC3339)
 var yearAgo = time.Now().Add(-time.Hour * 24 * 365).Format(time.RFC3339)
 
@@ -88,6 +89,12 @@ func updateUser(user *database.User) bool {
 	var startKey = ""
 	var err error
 
+	if user.SubscriptionStatus == "FREE_TIER" || user.UpdatedAt < sixtyDaysAgo {
+		// User won't appear on the scoreboard, so skip updating their data
+		// to reduce runtime and DB pressure
+		return false
+	}
+
 	weekAgoTime := 0
 	thirtyDaysAgoTime := 0
 	ninetyDaysAgoTime := 0
@@ -105,6 +112,11 @@ func updateUser(user *database.User) bool {
 				continue
 			}
 
+			date := t.Id[0:10] + "T00:00:00Z"
+			if _, err := time.Parse(time.RFC3339, date); err != nil && date < yearAgo {
+				goto done
+			}
+
 			if t.CreatedAt >= weekAgo {
 				weekAgoTime += t.MinutesSpent
 			} else if t.CreatedAt >= thirtyDaysAgo {
@@ -113,8 +125,6 @@ func updateUser(user *database.User) bool {
 				ninetyDaysAgoTime += t.MinutesSpent
 			} else if t.CreatedAt >= yearAgo {
 				yearAgoTime += t.MinutesSpent
-			} else {
-				goto done
 			}
 		}
 	}

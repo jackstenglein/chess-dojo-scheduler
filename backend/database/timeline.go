@@ -139,7 +139,8 @@ func (repo *dynamoRepository) ListTimelineEntries(owner string, startKey string)
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":owner": {S: aws.String(owner)},
 		},
-		TableName: aws.String(timelineTable),
+		TableName:        aws.String(timelineTable),
+		ScanIndexForward: aws.Bool(false),
 	}
 
 	var entries []*TimelineEntry
