@@ -3,28 +3,53 @@ import {
     DataGrid,
     GridColDef,
     GridPaginationModel,
+    GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid';
 
 import { GameInfo } from '../../database/game';
 import { RenderPlayers, RenderResult } from './GameListItem';
 import { RequestSnackbar } from '../../api/Request';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
 import SearchFilters from './SearchFilters';
 
 import { usePagination } from './pagination';
 import ListGamesTutorial from './ListGamesTutorial';
 import { useFreeTier } from '../../auth/Auth';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import UpsellPage from '../../upsell/UpsellPage';
+import Avatar from '../../profile/Avatar';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
         width: 115,
+    },
+    {
+        field: 'owner',
+        headerName: 'Uploaded By',
+        minWidth: 150,
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
+            if (params.row.ownerDisplayName === '') {
+                return '';
+            }
+
+            return (
+                <Stack direction='row' spacing={1} alignItems='center'>
+                    <Avatar
+                        username={params.row.owner}
+                        displayName={params.row.ownerDisplayName}
+                        size={32}
+                    />
+                    <Link component={RouterLink} to={`/profile/${params.row.owner}`}>
+                        {params.row.ownerDisplayName}
+                    </Link>
+                </Stack>
+            );
+        },
     },
     {
         field: 'players',
@@ -69,7 +94,14 @@ const ListGamesPage = () => {
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [upsellAction, setUpsellAction] = useState('');
-    const location = useLocation();
+    const type = useSearchParams()[0].get('type') || '';
+
+    const columns = useMemo(() => {
+        if (type === 'owner') {
+            return gameTableColumns.filter((c) => c.field !== 'owner');
+        }
+        return gameTableColumns;
+    }, [type]);
 
     const { request, data, rowCount, page, pageSize, setPage, setPageSize, onSearch } =
         usePagination(null, 0, 10);
@@ -106,7 +138,7 @@ const ListGamesPage = () => {
         setUpsellDialogOpen(true);
     };
 
-    if (isFreeTier && location.search.includes('type=player')) {
+    if (isFreeTier && type === 'player') {
         return (
             <UpsellPage
                 redirectTo='/games'
@@ -140,7 +172,7 @@ const ListGamesPage = () => {
                 <Grid item xs={12} md={9} lg={8}>
                     <DataGrid
                         data-cy='games-table'
-                        columns={gameTableColumns}
+                        columns={columns}
                         rows={isFreeTier ? data.slice(0, 10) : data}
                         rowCount={isFreeTier ? Math.min(rowCount, 10) : rowCount}
                         pageSizeOptions={[5, 10, 25]}

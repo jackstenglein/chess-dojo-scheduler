@@ -757,11 +757,11 @@ functions:
           - Fn::Join:
               - ''
               - - !GetAtt GamesTable.Arn
-                - '/index/WhiteIndex'
+                - '/index/WhiteIdx'
           - Fn::Join:
               - ''
               - - !GetAtt GamesTable.Arn
-                - '/index/BlackIndex'
+                - '/index/BlackIdx'
 
   listGamesByOpening:
     handler: game/list/opening/main.go
@@ -1329,7 +1329,7 @@ resources:
               - ReadCapacityUnits: 2
                 WriteCapacityUnits: 2
               - !Ref AWS::NoValue
-          - IndexName: WhiteIndex
+          - IndexName: WhiteIdx
             KeySchema:
               - AttributeName: white
                 KeyType: HASH
@@ -1341,13 +1341,15 @@ resources:
                 - black
                 - date
                 - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
                 - headers
             ProvisionedThroughput: !If
               - IsProd
               - ReadCapacityUnits: 2
                 WriteCapacityUnits: 2
               - !Ref AWS::NoValue
-          - IndexName: BlackIndex
+          - IndexName: BlackIdx
             KeySchema:
               - AttributeName: black
                 KeyType: HASH
@@ -1359,6 +1361,8 @@ resources:
                 - white
                 - date
                 - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
                 - headers
             ProvisionedThroughput: !If
               - IsProd

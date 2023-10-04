@@ -392,13 +392,14 @@ func addDates(keyConditionExpression string, expressionAttributeNames map[string
 func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, startKey string) ([]*Game, string, error) {
 	keyConditionExpression := "#cohort = :cohort"
 	expressionAttributeNames := map[string]*string{
-		"#cohort":  aws.String("cohort"),
-		"#id":      aws.String("id"),
-		"#white":   aws.String("white"),
-		"#black":   aws.String("black"),
-		"#date":    aws.String("date"),
-		"#owner":   aws.String("owner"),
-		"#headers": aws.String("headers"),
+		"#cohort":           aws.String("cohort"),
+		"#id":               aws.String("id"),
+		"#white":            aws.String("white"),
+		"#black":            aws.String("black"),
+		"#date":             aws.String("date"),
+		"#owner":            aws.String("owner"),
+		"#ownerDisplayName": aws.String("ownerDisplayName"),
+		"#headers":          aws.String("headers"),
 	}
 	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
 		":cohort": {
@@ -412,7 +413,7 @@ func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, star
 		KeyConditionExpression:    aws.String(keyConditionExpression),
 		ExpressionAttributeNames:  expressionAttributeNames,
 		ExpressionAttributeValues: expressionAttributeValues,
-		ProjectionExpression:      aws.String("#cohort,#id,#white,#black,#date,#owner,#headers"),
+		ProjectionExpression:      aws.String("#cohort,#id,#white,#black,#date,#owner,#ownerDisplayName,#headers"),
 		ScanIndexForward:          aws.Bool(false),
 		TableName:                 aws.String(gameTable),
 	}
@@ -523,7 +524,7 @@ func (repo *dynamoRepository) listColorGames(player, color, startDate, endDate, 
 
 	keyConditionExpression = addDates(keyConditionExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
 
-	indexName := strings.Title(color) + "Index"
+	indexName := strings.Title(color) + "Idx"
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression:    aws.String(keyConditionExpression),
 		ExpressionAttributeNames:  expressionAttributeNames,

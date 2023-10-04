@@ -1,6 +1,6 @@
 import { Button, Stack } from '@mui/material';
 import { DataGrid, GridPaginationModel, GridRowParams } from '@mui/x-data-grid';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar } from '../api/Request';
@@ -23,6 +23,10 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const currentUser = useAuth().user!;
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
+    const columns = useMemo(
+        () => gameTableColumns.filter((c) => c.field !== 'owner'),
+        []
+    );
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user.username, startKey),
@@ -85,7 +89,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
 
             {(!isFreeTier || currentUser.username === user.username) && (
                 <DataGrid
-                    columns={gameTableColumns}
+                    columns={columns}
                     rows={data}
                     rowCount={rowCount}
                     pageSizeOptions={[5, 10, 25]}
