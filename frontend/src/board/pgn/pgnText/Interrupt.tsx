@@ -24,7 +24,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, onClickMove, handleScroll }
         <>
             {move.ply % 2 === 1 && <Ellipsis ply={move.ply} />}
             <Grid item xs={12}>
-                <Paper elevation={3} sx={{ boxShadow: 'none' }}>
+                <Paper elevation={3} sx={{ boxShadow: 'none', color: 'text.secondary' }}>
                     <Divider
                         sx={{
                             position: 'relative',

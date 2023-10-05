@@ -1,8 +1,8 @@
 import { CommentType, Move, EventType, Event } from '@jackstenglein/chess';
-import { Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 import { useChess } from '../PgnBoard';
+import Markdown from './Markdown';
 
 interface CommentProps {
     move: Move;
@@ -36,25 +36,7 @@ const Comment: React.FC<CommentProps> = ({ move, type, inline }) => {
         return null;
     }
 
-    if (inline) {
-        return (
-            <Typography
-                variant='caption'
-                color='text.secondary'
-                display='inline'
-                mx='4px'
-                whiteSpace='pre-line'
-            >
-                {text.trim()}
-            </Typography>
-        );
-    }
-
-    return (
-        <Typography variant='body2' color='text.secondary' p='4px' whiteSpace='pre-line'>
-            {text.trim()}
-        </Typography>
-    );
+    return <Markdown text={text} inline={inline} />;
 };
 
 export default Comment;

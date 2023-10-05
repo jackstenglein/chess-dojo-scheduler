@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { EventType, Event } from '@jackstenglein/chess';
-import { Divider, Paper, Stack, Typography } from '@mui/material';
+import { Divider, Paper, Stack } from '@mui/material';
 
 import { useChess } from '../PgnBoard';
+import Markdown from './Markdown';
 
 const GameComment = () => {
     const { chess } = useChess();
@@ -29,16 +30,9 @@ const GameComment = () => {
     }
 
     return (
-        <Paper elevation={3} sx={{ boxShadow: 'none' }}>
+        <Paper elevation={3} sx={{ boxShadow: 'none', color: 'text.secondary' }}>
             <Stack>
-                <Typography
-                    variant='body2'
-                    color='text.secondary'
-                    p='6px'
-                    whiteSpace='pre-line'
-                >
-                    {chess?.pgn.gameComment.trim()}
-                </Typography>
+                <Markdown text={chess?.pgn.gameComment.trim()} />
                 <Divider sx={{ width: 1 }} />
             </Stack>
         </Paper>
