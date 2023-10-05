@@ -28,6 +28,7 @@ import { useApi } from '../../api/Api';
 import { EventType, trackEvent } from '../../analytics/events';
 import { unstable_usePrompt } from 'react-router-dom';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
+import { useLightMode } from '../../ThemeProvider';
 
 interface BoardToolsProps {
     pgn: string;
@@ -65,6 +66,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
     const [underboard, setUnderboard] = useState(showTags ? 'tags' : '');
     const request = useRequest();
     const api = useApi();
+    const light = useLightMode();
 
     const [initialPgn, setInitialPgn] = useState(chess?.renderPgn() || '');
     const [editorPgn, setEditorPgn] = useState(initialPgn);
@@ -202,6 +204,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
 
             <Paper
                 elevation={3}
+                variant={light ? 'outlined' : 'elevation'}
                 sx={{ mt: 1, gridArea: 'boardButtons', boxShadow: 'none' }}
             >
                 <Stack direction='row' justifyContent='space-between' flexWrap='wrap'>
@@ -355,6 +358,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                         maxHeight: { xs: '22em', xl: 1 },
                         mt: { xs: 2, xl: 0 },
                     }}
+                    variant={light ? 'outlined' : 'elevation'}
                 >
                     {underboard === 'tags' && (
                         <Tags

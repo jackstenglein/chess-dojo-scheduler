@@ -29,6 +29,10 @@ function useLocalStorage(
     return [value, setValue];
 }
 
+export function useLightMode(): boolean {
+    return useAuth().user?.enableLightMode || false;
+}
+
 const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const user = useAuth().user;
     const [colorMode, setColorMode] = useLocalStorage(

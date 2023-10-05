@@ -3,6 +3,7 @@ import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 
 import { useChess } from './PgnBoard';
 import { useEffect, useState } from 'react';
+import { useLightMode } from '../../ThemeProvider';
 
 interface PlayerHeaderProps {
     type: 'header' | 'footer';
@@ -49,6 +50,7 @@ export const ClockTypeDescriptions: Record<string, string> = {
 const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
     const { chess, board } = useChess();
     const [, setForceRender] = useState(0);
+    const light = useLightMode();
 
     useEffect(() => {
         if (chess) {
@@ -116,6 +118,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
         <Paper
             data-cy={`player-header-${type}`}
             elevation={3}
+            variant={light ? 'outlined' : 'elevation'}
             sx={{
                 gridArea: `player${type}`,
                 boxShadow: 'none',

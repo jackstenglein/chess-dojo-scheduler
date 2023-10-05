@@ -5,12 +5,14 @@ import { Card } from '@mui/material';
 import Result from './Result';
 import Variation from './Variation';
 import GameComment from './GameComment';
+import { useLightMode } from '../../../ThemeProvider';
 
 interface PgnTextProps {
     onClickMove: (m: Move) => void;
 }
 
 const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
+    const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
 
     const handleScroll = (child: HTMLButtonElement | null) => {
@@ -28,7 +30,12 @@ const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
     };
 
     return (
-        <Card data-cy='pgn-text' ref={ref} sx={{ overflowY: 'scroll' }}>
+        <Card
+            data-cy='pgn-text'
+            ref={ref}
+            variant={light ? 'outlined' : 'elevation'}
+            sx={{ overflowY: 'scroll' }}
+        >
             <GameComment />
             <Variation handleScroll={handleScroll} onClickMove={onClickMove} />
             <Result />
