@@ -189,4 +189,24 @@ describe('Submit Results Page', () => {
         cy.contains('Did Not Play').click();
         cy.getBySel('report-opponent').should('not.exist');
     });
+
+    it('shows completion message on success', () => {
+        cy.interceptApi('POST', '/public/tournaments/open-classical/results', {
+            body: {},
+        });
+
+        cy.getBySel('email').type('test@example.com');
+        cy.getBySel('section').click();
+        cy.contains('Section A').click();
+        cy.getBySel('round').click();
+        cy.contains('1').click();
+        cy.getBySel('game-url').type('https://test.com');
+        cy.getBySel('white').type('cypress');
+        cy.getBySel('black').type('cypress');
+        cy.getBySel('result').click();
+        cy.contains('Black Wins (0-1)').click();
+        cy.getBySel('submit-button').click();
+
+        cy.contains('Your submission has been recorded. Thank you!');
+    });
 });

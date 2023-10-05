@@ -1013,6 +1013,26 @@ functions:
             - !Ref SecretsBucket
             - /openClassicalServiceAccountKey.json
 
+  openClassicalSubmitResults:
+    handler: tournament/openClassical/results/submit/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/open-classical/results
+          method: post
+      - httpApi:
+          path: /tournaments/open-classical/results
+          method: post
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref SecretsBucket
+            - /openClassicalServiceAccountKey.json
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

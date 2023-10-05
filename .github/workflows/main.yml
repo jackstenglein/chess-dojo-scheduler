@@ -24,7 +24,7 @@ jobs:
           if-no-files-found: error
 
   cypress-run:
-    timeout-minutes: 25
+    timeout-minutes: 30
     runs-on: ubuntu-22.04
     needs: install
     # strategy:

@@ -13,7 +13,8 @@ import { LoadingButton } from '@mui/lab';
 
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
-import { useRequest } from '../../api/Request';
+import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
+import { useApi } from '../../api/Api';
 
 function gamePlayed(result: string): boolean {
     return result !== '0-0' && result !== '1-0F' && result !== '0-1F';
@@ -22,6 +23,7 @@ function gamePlayed(result: string): boolean {
 const SubmitResultsPage = () => {
     const auth = useAuth();
     const user = auth.user;
+    const api = useApi();
 
     const [email, setEmail] = useState('');
     const [section, setSection] = useState('');
@@ -106,10 +108,45 @@ const SubmitResultsPage = () => {
         }
 
         request.onStart();
+        api.submitResultsForOpenClassical({
+            email: email.trim(),
+            section: section.trim(),
+            round: round.trim(),
+            gameUrl: gameUrl.trim(),
+            white: white.trim(),
+            black: black.trim(),
+            result: result.trim(),
+            reportOpponent,
+            notes: notes.trim(),
+        })
+            .then((resp) => {
+                console.log('submitResultsForOpenClassical: ', resp);
+                request.onSuccess();
+            })
+            .catch((err) => {
+                console.error(err);
+                request.onFailure(err);
+            });
     };
+
+    if (request.status === RequestStatus.Success) {
+        return (
+            <Container maxWidth='md' sx={{ py: 5 }}>
+                <Stack spacing={4}>
+                    <Typography data-cy='title' variant='h6'>
+                        Submit Results for the Open Classical
+                    </Typography>
+
+                    <Typography>Your submission has been recorded. Thank you!</Typography>
+                </Stack>
+            </Container>
+        );
+    }
 
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>
+            <RequestSnackbar request={request} />
+
             <Stack spacing={4}>
                 <Typography data-cy='title' variant='h6'>
                     Submit Results for the Open Classical

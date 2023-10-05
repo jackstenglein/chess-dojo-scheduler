@@ -32,6 +32,15 @@ export type TournamentApiContextType = {
     registerForOpenClassical: (
         req: OpenClassicalRegistrationRequest
     ) => Promise<AxiosResponse<void, any>>;
+
+    /**
+     * Submits a request to enter results for the Open Classical.
+     * @param req The Open Classical result submission request.
+     * @returns An empty AxiosResponse.
+     */
+    submitResultsForOpenClassical: (
+        req: OpenClassicalSubmitResultsRequest
+    ) => Promise<AxiosResponse<void, any>>;
 };
 
 /** A request to register for the Open Classical. */
@@ -41,6 +50,19 @@ export interface OpenClassicalRegistrationRequest {
     discordUsername: string;
     title: string;
     byeRequests: boolean[];
+}
+
+/** A request to submit results for the Open Classical. */
+export interface OpenClassicalSubmitResultsRequest {
+    email: string;
+    section: string;
+    round: string;
+    gameUrl: string;
+    white: string;
+    black: string;
+    result: string;
+    reportOpponent: boolean;
+    notes: string;
 }
 
 /**
@@ -79,6 +101,25 @@ export function registerForOpenClassical(
 ) {
     return axios.post<void>(
         `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/register`,
+        req,
+        {
+            headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
+        }
+    );
+}
+
+/**
+ * Submits a request to enter results for the Open Classical.
+ * @param idToken The id token of the signed-in user.
+ * @param req The Open Classical result submission request.
+ * @returns An empty AxiosResponse.
+ */
+export function submitResultsForOpenClassical(
+    idToken: string,
+    req: OpenClassicalSubmitResultsRequest
+) {
+    return axios.post<void>(
+        `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/results`,
         req,
         {
             headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,

@@ -22,6 +22,7 @@ import (
 const funcName = "open-classical-register-handler"
 
 var media = database.S3
+var stage = os.Getenv("stage")
 
 const (
 	maxByeLength = 7
@@ -130,7 +131,7 @@ func getSheetsClient(ctx context.Context) (*sheets.Service, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to create file for service account key", err)
 	}
 
-	if err = media.Download("chess-dojo-dev-secrets", "openClassicalServiceAccountKey.json", f); err != nil {
+	if err = media.Download(fmt.Sprintf("chess-dojo-%s-secrets", stage), "openClassicalServiceAccountKey.json", f); err != nil {
 		return nil, err
 	}
 	if err = f.Close(); err != nil {
