@@ -31,8 +31,13 @@ const GameComment = () => {
     return (
         <Paper elevation={3} sx={{ boxShadow: 'none' }}>
             <Stack>
-                <Typography variant='body2' color='text.secondary' p='6px'>
-                    {chess?.pgn.gameComment}
+                <Typography
+                    variant='body2'
+                    color='text.secondary'
+                    p='6px'
+                    whiteSpace='pre-line'
+                >
+                    {chess?.pgn.gameComment.trim()}
                 </Typography>
                 <Divider sx={{ width: 1 }} />
             </Stack>

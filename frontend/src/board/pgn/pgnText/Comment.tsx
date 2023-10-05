@@ -43,15 +43,16 @@ const Comment: React.FC<CommentProps> = ({ move, type, inline }) => {
                 color='text.secondary'
                 display='inline'
                 mx='4px'
+                whiteSpace='pre-line'
             >
-                {text}
+                {text.trim()}
             </Typography>
         );
     }
 
     return (
-        <Typography variant='body2' color='text.secondary' p='4px'>
-            {text}
+        <Typography variant='body2' color='text.secondary' p='4px' whiteSpace='pre-line'>
+            {text.trim()}
         </Typography>
     );
 };
