@@ -1,18 +1,100 @@
-import { Stack, Typography, Chip, Button, Box, Grid } from '@mui/material';
-import CheckIcon from '@mui/icons-material/Check';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAuth } from '../auth/Auth';
+import { Stack, Typography, Chip, Button, Box, Grid, Tooltip } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import ScoreboardIcon from '@mui/icons-material/Scoreboard';
+import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 
 import {
     CustomTask,
     Requirement,
     ScoreboardDisplay,
+    getTotalCount,
+    getUnitScore,
     isRequirement,
 } from '../database/requirement';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 import Position from './Position';
 import CustomTaskDisplay from './CustomTaskDisplay';
+
+function dojoPointDescription(requirement: Requirement, cohort: string) {
+    if (requirement.totalScore) {
+        return `This task awards ${requirement.totalScore} Dojo Point
+                ${requirement.totalScore !== 1 ? 's' : ''} upon completion.`;
+    }
+
+    const unitScore = Math.round(100 * getUnitScore(cohort, requirement)) / 100;
+
+    if (unitScore === 0) {
+        return 'This task awards no Dojo Points.';
+    }
+
+    if (getTotalCount(cohort, requirement) === 1) {
+        return `This task awards ${unitScore} Dojo Point${unitScore !== 1 ? 's' : ''} upon
+                completion.`;
+    }
+
+    let unit = 'unit';
+    if (requirement.progressBarSuffix === '%') {
+        unit = 'percentage';
+    } else if (requirement.progressBarSuffix) {
+        unit = requirement.progressBarSuffix.toLowerCase();
+        if (unit[unit.length - 1] === 's') {
+            unit = unit.substring(0, unit.length - 1);
+        }
+    }
+
+    return `This task awards ${unitScore} Dojo Point${
+        unitScore !== 1 ? 's' : ''
+    } per ${unit} completed.`;
+}
+
+const DojoPointChip: React.FC<{ requirement: Requirement; cohort: string }> = ({
+    requirement,
+    cohort,
+}) => {
+    const description = dojoPointDescription(requirement, cohort);
+    const score = requirement.totalScore
+        ? requirement.totalScore
+        : Math.round(100 * getUnitScore(cohort, requirement)) / 100;
+
+    return (
+        <Tooltip title={description}>
+            <Chip
+                color='secondary'
+                icon={<ScoreboardIcon />}
+                label={`${score} point${score !== 1 ? 's' : ''}`}
+            />
+        </Tooltip>
+    );
+};
+
+const ExpirationChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => {
+    const expirationYears = requirement.expirationDays / 365;
+    if (!expirationYears) {
+        return null;
+    }
+
+    const value =
+        expirationYears >= 1 ? expirationYears : Math.round(expirationYears * 12);
+
+    const title = `Progress on this task expires after ${value} ${
+        expirationYears >= 1 ? 'year' : 'month'
+    }${value !== 1 ? 's' : ''}.`;
+
+    return (
+        <Tooltip title={title}>
+            <Chip
+                color='secondary'
+                icon={<AccessAlarmIcon />}
+                label={`${value} ${expirationYears >= 1 ? 'year' : 'month'}${
+                    value !== 1 ? 's' : ''
+                }`}
+            />
+        </Tooltip>
+    );
+};
 
 interface RequirementDisplayProps {
     requirement: Requirement | CustomTask;
@@ -53,8 +135,6 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
         requirementName += ` (${totalCount})`;
     }
 
-    const expirationYears = requirement.expirationDays / 365;
-
     return (
         <>
             <Stack spacing={3}>
@@ -91,6 +171,11 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                     </Stack>
                 </Stack>
 
+                <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
+                    <DojoPointChip requirement={requirement} cohort={cohort} />
+                    <ExpirationChip requirement={requirement} />
+                </Stack>
+
                 <Typography
                     variant='body1'
                     sx={{ whiteSpace: 'pre-line', mt: 3 }}
@@ -120,16 +205,6 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                             />
                         </Box>
                     ))}
-
-                {expirationYears > 0 && (
-                    <Typography>
-                        Progress on this task expires after{' '}
-                        {expirationYears >= 1
-                            ? `${expirationYears} year`
-                            : `${Math.round(expirationYears * 12)} month`}
-                        {expirationYears !== 1 && 's'}.
-                    </Typography>
-                )}
             </Stack>
 
             <ProgressDialog

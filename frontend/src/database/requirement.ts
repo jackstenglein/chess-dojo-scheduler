@@ -201,13 +201,7 @@ export function getCurrentScore(
         return 0;
     }
 
-    let unitScore = requirement.unitScore;
-    if (
-        requirement.unitScoreOverride &&
-        requirement.unitScoreOverride[cohort] !== undefined
-    ) {
-        unitScore = requirement.unitScoreOverride[cohort];
-    }
+    const unitScore = getUnitScore(cohort, requirement);
     const currentCount = getCurrentCount(cohort, requirement, progress);
     return Math.max(currentCount - requirement.startCount, 0) * unitScore;
 }
@@ -283,12 +277,11 @@ export function getTotalCategoryScore(
 }
 
 export function getUnitScore(cohort: string, requirement: Requirement): number {
-    let unitScore = requirement.unitScore;
     if (
         requirement.unitScoreOverride &&
         requirement.unitScoreOverride[cohort] !== undefined
     ) {
-        unitScore = requirement.unitScoreOverride[cohort];
+        return requirement.unitScoreOverride[cohort];
     }
-    return unitScore;
+    return requirement.unitScore;
 }
