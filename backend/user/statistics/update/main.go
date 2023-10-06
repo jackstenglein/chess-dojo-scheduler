@@ -110,8 +110,13 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 		return
 	}
 
+	startRating, currentRating := user.GetRatings()
+	if startRating <= 0 || currentRating <= 0 {
+		return
+	}
+
 	isActive := user.UpdatedAt >= monthAgo
-	ratingChange := user.GetRatingChange()
+	ratingChange := currentRating - startRating
 	score := user.CalculateScore(requirements)
 
 	requirementsMap := make(map[string]bool, len(requirements))
