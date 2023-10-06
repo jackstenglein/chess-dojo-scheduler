@@ -318,7 +318,7 @@ functions:
       - schedule:
           rate: cron(0 0 * * ? *)
           input:
-            id: StatsUpdate1300-1800
+            id: StatsUpdate1300-1500
             detail-type: Scheduled Event
             source: Serverless
             region: ${aws:region}
@@ -326,6 +326,15 @@ functions:
               cohorts:
                 - 1300-1400
                 - 1400-1500
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate1500-1800
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1500-1600
                 - 1600-1700
                 - 1700-1800
@@ -410,7 +419,7 @@ functions:
       - schedule:
           rate: cron(0 0 * * ? *)
           input:
-            id: TimeSpentUpdate800-1300
+            id: TimeSpentUpdate800-1100
             detail-type: Scheduled Event
             source: Serverless
             region: ${aws:region}
@@ -419,12 +428,21 @@ functions:
                 - 800-900
                 - 900-1000
                 - 1000-1100
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: TimeSpentUpdate1100-1300
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1100-1200
                 - 1200-1300
       - schedule:
           rate: cron(0 0 * * ? *)
           input:
-            id: TimeSpentUpdate1300-1800
+            id: TimeSpentUpdate1300-1500
             detail-type: Scheduled Event
             source: Serverless
             region: ${aws:region}
@@ -432,6 +450,15 @@ functions:
               cohorts:
                 - 1300-1400
                 - 1400-1500
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: TimeSpentUpdate1500-1800
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1500-1600
                 - 1600-1700
                 - 1700-1800
