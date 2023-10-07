@@ -116,6 +116,9 @@ export interface User {
 
     tutorials?: Record<string, boolean>;
     minutesSpent?: Record<MinutesSpentKey, number>;
+
+    followerCount: number;
+    followingCount: number;
 }
 
 export type MinutesSpentKey =

@@ -34,6 +34,7 @@ var eventTable = stage + "-events"
 var openingTable = stage + "-openings"
 var tournamentTable = stage + "-tournaments"
 var notificationTable = stage + "-notifications"
+var followersTable = stage + "-followers"
 
 // getItem handles sending a DynamoDB GetItem request and unmarshals the result into the provided output
 // value, which must be a non-nil pointer. If the result of the GetItem request is nil, then

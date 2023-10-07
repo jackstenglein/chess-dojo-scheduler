@@ -25,6 +25,8 @@ import {
     getUserStatistics,
     checkUserAccess,
     listUserTimeline,
+    editFollower,
+    getFollower,
 } from './userApi';
 import {
     GameApiContextType,
@@ -162,6 +164,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 ),
             graduate: (comments: string) => graduate(idToken, comments, auth.updateUser),
             getUserStatistics: () => getUserStatistics(),
+            getFollower: (poster: string) => getFollower(idToken, poster),
+            editFollower: (poster: string, action: 'follow' | 'unfollow') =>
+                editFollower(idToken, poster, action),
 
             bookEvent: (id: string, startTime?: Date, type?: string) =>
                 bookEvent(idToken, id, startTime, type),

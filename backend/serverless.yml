@@ -553,6 +553,38 @@ functions:
           - dynamodb:DeleteItem
         Resource: !GetAtt NotificationsTable.Arn
 
+  getFollower:
+    handler: user/followers/get/main.go
+    events:
+      - httpApi:
+          path: /user/followers/{poster}
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt FollowersTable.Arn
+
+  editFollower:
+    handler: user/followers/edit/main.go
+    events:
+      - httpApi:
+          path: /user/followers
+          method: post
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+        Resource: !GetAtt FollowersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt UsersTable.Arn
+
   ############## Event Endpoints #################
 
   bookEvent:
@@ -1198,6 +1230,36 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+
+    FollowersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-followers
+        AttributeDefinitions:
+          - AttributeName: poster
+            AttributeType: S
+          - AttributeName: follower
+            AttributeType: S
+        KeySchema:
+          - AttributeName: poster
+            KeyType: HASH
+          - AttributeName: follower
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        GlobalSecondaryIndexes:
+          - IndexName: FollowingIndex
+            KeySchema:
+              - AttributeName: follower
+                KeyType: HASH
+              - AttributeName: poster
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
     EventsTable:
       Type: AWS::DynamoDB::Table

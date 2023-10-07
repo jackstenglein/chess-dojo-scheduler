@@ -5,6 +5,7 @@ import { getConfig } from '../config';
 import { Graduation } from '../database/graduation';
 import { TimelineEntry } from '../database/requirement';
 import { UserStatistics } from '../database/statistics';
+import { FollowerEntry } from '../database/follower';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -115,6 +116,24 @@ export type UserApiContextType = {
      * @returns An AxiosResponse containing the user statistics.
      */
     getUserStatistics: () => Promise<AxiosResponse<UserStatistics, any>>;
+
+    /**
+     * Fetches the FollowerEntry for the current signed-in user and the given poster, if it exists.
+     * @param poster The person being followed.
+     * @returns The FollowerEntry or null if it does not exist.
+     */
+    getFollower: (poster: string) => Promise<AxiosResponse<FollowerEntry | null, any>>;
+
+    /**
+     * Edits the follower state of the current signed-in user for the given poster.
+     * @param poster The username of the person to follow or unfollow.
+     * @param action Whether to follow or unfollow the user.
+     * @returns An empty AxiosResponse if successful.
+     */
+    editFollower: (
+        poster: string,
+        action: 'follow' | 'unfollow'
+    ) => Promise<AxiosResponse<FollowerEntry | null, any>>;
 };
 
 /**
@@ -380,4 +399,41 @@ export async function graduate(
  */
 export function getUserStatistics() {
     return axios.get<UserStatistics>(BASE_URL + '/public/user/statistics');
+}
+
+/**
+ * Fetches the FollowerEntry for the current signed-in user and the given poster, if it exists.
+ * @param idToken The id token of the current signed-in user.
+ * @param poster The person being followed.
+ * @returns The FollowerEntry or null if it does not exist.
+ */
+export function getFollower(idToken: string, poster: string) {
+    return axios.get<FollowerEntry | null>(`${BASE_URL}/user/followers/${poster}`, {
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+}
+
+/**
+ * Edits the follower state of the current signed-in user for the given poster.
+ * @param idToken The id token of the current signed-in user.
+ * @param poster The username of the person to follow or unfollow.
+ * @param action Whether to follow or unfollow the user.
+ * @returns An empty AxiosResponse if successful.
+ */
+export function editFollower(
+    idToken: string,
+    poster: string,
+    action: 'follow' | 'unfollow'
+) {
+    return axios.post<FollowerEntry | null>(
+        `${BASE_URL}/user/followers`,
+        { poster, action },
+        {
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        }
+    );
 }

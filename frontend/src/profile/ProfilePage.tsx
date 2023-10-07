@@ -10,11 +10,11 @@ import {
     Typography,
 } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
-import { TabContext, TabPanel } from '@mui/lab';
+import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
-import { useRequest } from '../api/Request';
+import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import { SubscriptionStatus, User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
@@ -33,6 +33,8 @@ import InactiveChip from './info/InactiveChip';
 import CreatedAtChip from './info/CreatedAtChip';
 import TimezoneChip from './info/TimezoneChip';
 import DiscordChip from './info/DiscordChip';
+import CountChip from './info/CountChip';
+import { FollowerEntry } from '../database/follower';
 
 type ProfilePageProps = {
     username: string;
@@ -45,6 +47,7 @@ const ProfilePage = () => {
     const currentUser = useAuth().user!;
     const request = useRequest<User>();
     const isFreeTier = useFreeTier();
+    const followRequest = useRequest<FollowerEntry>();
 
     const currentUserProfile = !username || username === currentUser.username;
 
@@ -69,6 +72,21 @@ const ProfilePage = () => {
         }
     }, [api, currentUserProfile, request, username]);
 
+    useEffect(() => {
+        if (!currentUserProfile && !followRequest.isSent()) {
+            followRequest.onStart();
+            api.getFollower(username)
+                .then((resp) => {
+                    console.log('getFollower: ', resp);
+                    followRequest.onSuccess(resp.data || undefined);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    followRequest.onFailure(err);
+                });
+        }
+    }, [api, currentUserProfile, followRequest, username]);
+
     const user = currentUserProfile ? currentUser : request.data;
 
     if (!user && request.isLoading()) {
@@ -85,8 +103,34 @@ const ProfilePage = () => {
         }
     };
 
+    const onFollow = () => {
+        if (currentUserProfile) {
+            return;
+        }
+
+        const action = followRequest.data ? 'unfollow' : 'follow';
+
+        followRequest.onStart();
+        api.editFollower(user.username, action)
+            .then((resp) => {
+                console.log('editFollower: ', resp);
+                const incrementalCount = action === 'follow' ? 1 : -1;
+                request.onSuccess({
+                    ...user,
+                    followerCount: user.followerCount + incrementalCount,
+                });
+                followRequest.onSuccess(resp.data || undefined);
+            })
+            .catch((err) => {
+                console.error(err);
+                followRequest.onFailure(err);
+            });
+    };
+
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
+            <RequestSnackbar request={followRequest} />
+
             <Stack>
                 <Stack
                     direction='row'
@@ -139,7 +183,7 @@ const ProfilePage = () => {
                         </Stack>
                     </Stack>
 
-                    {currentUserProfile && (
+                    {currentUserProfile ? (
                         <Stack direction='row' spacing={2}>
                             <Button
                                 id='graduate-button'
@@ -157,6 +201,15 @@ const ProfilePage = () => {
                                 Edit Profile
                             </Button>
                         </Stack>
+                    ) : (
+                        <LoadingButton
+                            data-cy='follow-button'
+                            variant='contained'
+                            onClick={onFollow}
+                            loading={followRequest.isLoading()}
+                        >
+                            {followRequest.data ? 'Unfollow' : 'Follow'}
+                        </LoadingButton>
                     )}
                 </Stack>
 
@@ -172,6 +225,12 @@ const ProfilePage = () => {
                     <CreatedAtChip createdAt={user.createdAt} />
                     <TimezoneChip timezone={user.timezoneOverride} />
                     <DiscordChip username={user.discordUsername} />
+                    <CountChip
+                        count={user.followerCount}
+                        label='Followers'
+                        singularLabel='Follower'
+                    />
+                    <CountChip count={user.followingCount} label='Following' />
                 </Stack>
 
                 <Bio bio={user.bio} />

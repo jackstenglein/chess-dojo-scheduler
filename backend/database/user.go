@@ -233,6 +233,12 @@ type User struct {
 	// Indicates whether the user has manually set their profile picture. If true, the profile picture
 	// should not be changed when the user sets the Discord username
 	ProfilePictureSet bool `dynamodbav:"profilePictureSet" json:"-"`
+
+	// The number of users following this user.
+	FollowerCount int `dynamodbav:"followerCount" json:"followerCount"`
+
+	// The number of users this user follows.
+	FollowingCount int `dynamodbav:"followingCount" json:"followingCount"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
