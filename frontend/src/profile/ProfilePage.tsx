@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import {
     Box,
     Button,
-    Chip,
     Container,
     Stack,
     Tab,
@@ -17,7 +16,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import { SubscriptionStatus, User, isActive } from '../database/user';
+import { SubscriptionStatus, User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import GamesTab from './GamesTab';
@@ -26,40 +25,14 @@ import ActivityTab from './activity/ActivityTab';
 import GraduationDialog from './GraduationDialog';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import StatsTab from './stats/StatsTab';
-import { DefaultTimezone } from '../calendar/filters/CalendarFilters';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import Avatar from './Avatar';
-
-const timezoneDisplayLabels: Record<string, string> = {
-    'Etc/GMT+12': 'UTC-12',
-    'Etc/GMT+11': 'UTC-11',
-    'Etc/GMT+10': 'UTC-10',
-    'Etc/GMT+9': 'UTC-9',
-    'Etc/GMT+8': 'UTC-8',
-    'Etc/GMT+7': 'UTC-7',
-    'Etc/GMT+6': 'UTC-6',
-    'Etc/GMT+5': 'UTC-5',
-    'Etc/GMT+4': 'UTC-4',
-    'Etc/GMT+3': 'UTC-3',
-    'Etc/GMT+2': 'UTC-2',
-    'Etc/GMT+1': 'UTC-1',
-    'Etc/GMT+0': 'UTC+0',
-    'Etc/GMT-1': 'UTC+1',
-    'Etc/GMT-2': 'UTC+2',
-    'Etc/GMT-3': 'UTC+3',
-    'Etc/GMT-4': 'UTC+4',
-    'Etc/GMT-5': 'UTC+5',
-    'Etc/GMT-6': 'UTC+6',
-    'Etc/GMT-7': 'UTC+7',
-    'Etc/GMT-8': 'UTC+8',
-    'Etc/GMT-9': 'UTC+9',
-    'Etc/GMT-10': 'UTC+10',
-    'Etc/GMT-11': 'UTC+11',
-    'Etc/GMT-12': 'UTC+12',
-    'Etc/GMT-13': 'UTC+13',
-    'Etc/GMT-14': 'UTC+14',
-};
+import Bio from './info/Bio';
+import InactiveChip from './info/InactiveChip';
+import CreatedAtChip from './info/CreatedAtChip';
+import TimezoneChip from './info/TimezoneChip';
+import DiscordChip from './info/DiscordChip';
 
 type ProfilePageProps = {
     username: string;
@@ -104,8 +77,6 @@ const ProfilePage = () => {
         return <NotFoundPage />;
     }
 
-    const isUserActive = isActive(user);
-
     const onGraduate = () => {
         if (isFreeTier) {
             setUpsellDialogOpen(true);
@@ -116,7 +87,7 @@ const ProfilePage = () => {
 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
-            <Stack spacing={5}>
+            <Stack>
                 <Stack
                     direction='row'
                     justifyContent='space-between'
@@ -124,89 +95,48 @@ const ProfilePage = () => {
                     flexWrap='wrap'
                     rowGap={2}
                 >
-                    <Stack alignItems='start'>
-                        <Stack direction='row' spacing={2} mb={2}>
-                            <Avatar user={user} />
+                    <Stack direction='row' spacing={2}>
+                        <Avatar user={user} />
 
-                            <Stack>
-                                <Stack
-                                    direction='row'
-                                    alignItems='center'
-                                    spacing={2}
-                                    flexWrap='wrap'
-                                    rowGap={1}
-                                >
-                                    <Typography variant='h4'>
-                                        {user.displayName}
-                                    </Typography>
-                                    {user.subscriptionStatus ===
-                                        SubscriptionStatus.FreeTier && (
-                                        <Tooltip title='This account is on the free tier and has limited access to the site'>
-                                            <WarningIcon color='warning' />
-                                        </Tooltip>
-                                    )}
-                                    {user.graduationCohorts &&
-                                    user.graduationCohorts.length > 0 ? (
-                                        <Stack
-                                            direction='row'
-                                            spacing={0.5}
-                                            flexWrap='wrap'
-                                            rowGap={1}
-                                        >
-                                            {user.graduationCohorts.map((c) => (
-                                                <GraduationIcon key={c} cohort={c} />
-                                            ))}
-                                        </Stack>
-                                    ) : (
-                                        user.previousCohort && (
-                                            <GraduationIcon
-                                                cohort={user.previousCohort}
-                                            />
-                                        )
-                                    )}
-                                </Stack>
-                                <Typography variant='h5' color='text.secondary'>
-                                    {user.dojoCohort}
-                                </Typography>
+                        <Stack>
+                            <Stack
+                                direction='row'
+                                alignItems='center'
+                                spacing={2}
+                                flexWrap='wrap'
+                                rowGap={1}
+                            >
+                                <Typography variant='h4'>{user.displayName}</Typography>
+
+                                {user.subscriptionStatus ===
+                                    SubscriptionStatus.FreeTier && (
+                                    <Tooltip title='This account is on the free tier and has limited access to the site'>
+                                        <WarningIcon color='warning' />
+                                    </Tooltip>
+                                )}
+
+                                {user.graduationCohorts &&
+                                user.graduationCohorts.length > 0 ? (
+                                    <Stack
+                                        direction='row'
+                                        spacing={0.5}
+                                        flexWrap='wrap'
+                                        rowGap={1}
+                                    >
+                                        {user.graduationCohorts.map((c) => (
+                                            <GraduationIcon key={c} cohort={c} />
+                                        ))}
+                                    </Stack>
+                                ) : (
+                                    user.previousCohort && (
+                                        <GraduationIcon cohort={user.previousCohort} />
+                                    )
+                                )}
                             </Stack>
-                        </Stack>
-
-                        {!isUserActive && (
-                            <Tooltip title='User has not updated progress in the past month'>
-                                <Chip
-                                    sx={{ my: 1 }}
-                                    label='Inactive'
-                                    color='error'
-                                    variant='outlined'
-                                />
-                            </Tooltip>
-                        )}
-
-                        {user.createdAt && (
-                            <Typography mt={1}>
-                                Dojo Member Since{' '}
-                                {new Date(user.createdAt).toLocaleDateString()}
+                            <Typography variant='h5' color='text.secondary'>
+                                {user.dojoCohort}
                             </Typography>
-                        )}
-
-                        {user.timezoneOverride &&
-                            user.timezoneOverride !== DefaultTimezone && (
-                                <Typography mt={1}>
-                                    {timezoneDisplayLabels[user.timezoneOverride]}
-                                </Typography>
-                            )}
-
-                        {user.discordUsername && (
-                            <Stack direction='row' spacing={1} alignItems='center' mt={1}>
-                                <img
-                                    alt=''
-                                    src='/discord-icon.svg'
-                                    width='24px'
-                                    height='24px'
-                                />
-                                <Typography>{user.discordUsername}</Typography>
-                            </Stack>
-                        )}
+                        </Stack>
                     </Stack>
 
                     {currentUserProfile && (
@@ -230,13 +160,23 @@ const ProfilePage = () => {
                     )}
                 </Stack>
 
-                {user.bio !== '' && (
-                    <Typography variant='body1' sx={{ whiteSpace: 'pre-line' }}>
-                        {user.bio}
-                    </Typography>
-                )}
+                <Stack
+                    mt={3}
+                    mb={4}
+                    direction='row'
+                    flexWrap='wrap'
+                    rowGap={1}
+                    columnGap={1.5}
+                >
+                    <InactiveChip user={user} />
+                    <CreatedAtChip createdAt={user.createdAt} />
+                    <TimezoneChip timezone={user.timezoneOverride} />
+                    <DiscordChip username={user.discordUsername} />
+                </Stack>
 
-                <Box sx={{ width: '100%', typography: 'body1' }}>
+                <Bio bio={user.bio} />
+
+                <Box sx={{ width: '100%', typography: 'body1', mt: 5 }}>
                     <TabContext value={searchParams.get('view') || 'stats'}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <Tabs
