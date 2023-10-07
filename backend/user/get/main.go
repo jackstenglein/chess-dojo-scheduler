@@ -41,7 +41,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 				rating.Username = ""
 			}
 		}
-		user.WixEmail = ""
 	}
 
 	return api.Success(funcName, user), err

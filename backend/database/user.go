@@ -135,7 +135,7 @@ type User struct {
 	Email string `dynamodbav:"email" json:"-"`
 
 	// The user's email address used to log into the wix site
-	WixEmail string `dynamodbav:"wixEmail" json:"wixEmail"`
+	WixEmail string `dynamodbav:"wixEmail" json:"-"`
 
 	// The user's subscription status
 	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
@@ -300,9 +300,6 @@ func (u *User) getRating(rs RatingSystem) (string, bool) {
 // Some fields from the User type are removed as they cannot be updated. Other fields
 // are ignored by the json encoder because they cannot be manually updated by the user.
 type UserUpdate struct {
-	// The user's email address used to log into the wix site
-	WixEmail *string `dynamodbav:"wixEmail,omitempty" json:"wixEmail,omitempty"`
-
 	// The user's subscription status. Cannot be passed by the user.
 	SubscriptionStatus *string `dynamodbav:"subscriptionStatus,omitempty" json:"-"`
 
@@ -494,9 +491,6 @@ type UserUpdater interface {
 
 	// UpdateUser applies the specified update to the user with the provided username.
 	UpdateUser(username string, update *UserUpdate) (*User, error)
-
-	// FindUsersByWixEmail returns a list of users with the given wixEmail.
-	FindUsersByWixEmail(wixEmail, startKey string) ([]*User, string, error)
 
 	// RecordSubscriptionCancelation adds 1 cancelation to the user statistics for
 	// the given cohort.
@@ -878,28 +872,6 @@ func (repo *dynamoRepository) DeleteUser(username string) error {
 	}
 	_, err := repo.svc.DeleteItem(input)
 	return errors.Wrap(500, "Temporary server error", "Failed DynamoDB DeleteItem", err)
-}
-
-// FindUsersByWixEmail returns a list of users with the given wixEmail.
-func (repo *dynamoRepository) FindUsersByWixEmail(wixEmail, startKey string) ([]*User, string, error) {
-	input := &dynamodb.QueryInput{
-		KeyConditionExpression: aws.String("#wixEmail = :wixEmail"),
-		ExpressionAttributeNames: map[string]*string{
-			"#wixEmail": aws.String("wixEmail"),
-		},
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":wixEmail": {S: aws.String(wixEmail)},
-		},
-		IndexName: aws.String("WixEmailIndex"),
-		TableName: aws.String(userTable),
-	}
-
-	var users []*User
-	lastKey, err := repo.query(input, startKey, &users)
-	if err != nil {
-		return nil, "", err
-	}
-	return users, lastKey, nil
 }
 
 // SearchUsers returns a list of users whose SearchKey field matches the provided query string and fields.

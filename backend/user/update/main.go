@@ -13,7 +13,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/user/access"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/user/ratings"
 )
 
@@ -141,25 +140,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if err := fetchRatings(user, update); err != nil {
 		return api.Failure(funcName, err), nil
-	}
-
-	if update.WixEmail != nil {
-		if *update.WixEmail == "" {
-			return api.Failure(funcName, errors.New(400, "Invalid request: wixEmail cannot be empty", "")), nil
-		}
-
-		users, _, err := repository.FindUsersByWixEmail(*update.WixEmail, "")
-		if err != nil {
-			return api.Failure(funcName, err), nil
-		}
-		if len(users) > 0 && users[0].Username != info.Username {
-			return api.Failure(funcName, errors.New(403, "Invalid request: this email is already associated with another account", "")), nil
-		}
-
-		if _, err = access.IsForbidden(*update.WixEmail); err != nil {
-			return api.Failure(funcName, err), nil
-		}
-		update.SubscriptionStatus = aws.String("SUBSCRIBED")
 	}
 
 	if update.ProfilePictureData != nil {

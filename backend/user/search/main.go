@@ -46,7 +46,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	for _, user := range users {
-		user.WixEmail = ""
 		for _, rating := range user.Ratings {
 			if rating.HideUsername {
 				rating.Username = ""

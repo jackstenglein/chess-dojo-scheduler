@@ -160,14 +160,6 @@ functions:
         Resource: !GetAtt UsersTable.Arn
       - Effect: Allow
         Action:
-          - dynamodb:Query
-        Resource:
-          - Fn::Join:
-              - ''
-              - - !GetAtt UsersTable.Arn
-                - '/index/WixEmailIndex'
-      - Effect: Allow
-        Action:
           - s3:PutObject
           - s3:DeleteObject
         Resource: !Join
@@ -1146,25 +1138,15 @@ resources:
             AttributeType: S
           - AttributeName: dojoCohort
             AttributeType: S
-          - AttributeName: wixEmail
-            AttributeType: S
         KeySchema:
           - AttributeName: username
             KeyType: HASH
-        BillingMode: !If
-          - IsProd
-          - PROVISIONED
-          - PAY_PER_REQUEST
+        BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: !If
             - IsProd
             - true
             - false
-        ProvisionedThroughput: !If
-          - IsProd
-          - ReadCapacityUnits: 3
-            WriteCapacityUnits: 3
-          - !Ref AWS::NoValue
         GlobalSecondaryIndexes:
           - IndexName: CohortIdx
             KeySchema:
@@ -1174,27 +1156,6 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 2
-                WriteCapacityUnits: 3
-              - !Ref AWS::NoValue
-          - IndexName: WixEmailIndex
-            KeySchema:
-              - AttributeName: wixEmail
-                KeyType: HASH
-              - AttributeName: username
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - name
-                - email
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
           - IndexName: SearchIdx
             KeySchema:
               - AttributeName: dojoCohort
@@ -1208,11 +1169,6 @@ resources:
                 - discordUsername
                 - searchKey
                 - ratings
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 2
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
 
     TimelineTable:
       Type: AWS::DynamoDB::Table

@@ -82,7 +82,6 @@ export interface User {
     dojoCohort: string;
     bio: string;
 
-    wixEmail: string;
     subscriptionStatus: string;
 
     ratingSystem: RatingSystem;
