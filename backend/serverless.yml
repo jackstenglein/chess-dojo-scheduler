@@ -1104,6 +1104,31 @@ functions:
             - !Ref SecretsBucket
             - /openClassicalServiceAccountKey.json
 
+  ######### Newsfeed Endpoints ###############
+
+  createNewsfeedEntry:
+    handler: newsfeed/create/main.go
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt TimelineTable.StreamArn
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [INSERT]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+        Resource: !GetAtt NewsfeedTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt FollowersTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -1250,6 +1275,8 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
 
     FollowersTable:
       Type: AWS::DynamoDB::Table
@@ -1559,6 +1586,22 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+
+    NewsfeedTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-newsfeed
+        AttributeDefinitions:
+          - AttributeName: newsfeedId
+            AttributeType: S
+          - AttributeName: sortKey
+            AttributeType: S
+        KeySchema:
+          - AttributeName: newsfeedId
+            KeyType: HASH
+          - AttributeName: sortKey
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
 
     ############# S3 Resources #################
 

@@ -35,6 +35,7 @@ var openingTable = stage + "-openings"
 var tournamentTable = stage + "-tournaments"
 var notificationTable = stage + "-notifications"
 var followersTable = stage + "-followers"
+var newsfeedTable = stage + "-newsfeed"
 
 // getItem handles sending a DynamoDB GetItem request and unmarshals the result into the provided output
 // value, which must be a non-nil pointer. If the result of the GetItem request is nil, then
@@ -119,6 +120,44 @@ func (repo *dynamoRepository) scan(input *dynamodb.ScanInput, startKey string, o
 		lastKey = string(b)
 	}
 	return lastKey, nil
+}
+
+// batchWriteObjects inserts the provided objects into the provided table. The number of successfully inserted
+// objects is returned.
+func batchWriteObjects[T any](repo *dynamoRepository, objects []T, tableName string) (int, error) {
+	var putRequests []*dynamodb.WriteRequest
+	updated := 0
+
+	for _, e := range objects {
+		item, err := dynamodbattribute.MarshalMap(e)
+		if err != nil {
+			return updated, errors.Wrap(500, "Temporary server error", "Unable to marshal timeline entry", err)
+		}
+
+		req := &dynamodb.WriteRequest{
+			PutRequest: &dynamodb.PutRequest{
+				Item: item,
+			},
+		}
+		putRequests = append(putRequests, req)
+
+		if len(putRequests) == 25 {
+			if err := repo.batchWrite(putRequests, tableName); err != nil {
+				return updated, err
+			}
+			updated += 25
+			putRequests = nil
+		}
+	}
+
+	if len(putRequests) > 0 {
+		if err := repo.batchWrite(putRequests, tableName); err != nil {
+			return updated, err
+		}
+		updated += len(putRequests)
+	}
+
+	return updated, nil
 }
 
 // batchWrite handles sending a DynamoDB BatchWriteItem request using the provided slice of WriteRequests.

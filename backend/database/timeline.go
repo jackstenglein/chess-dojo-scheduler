@@ -22,6 +22,9 @@ type TimelineEntryKey struct {
 type TimelineEntry struct {
 	TimelineEntryKey
 
+	// The display name of the user that created this timeline entry.
+	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
+
 	// The id of the requirement that the timeline entry applies to
 	RequirementId string `dynamodbav:"requirementId" json:"requirementId"`
 
@@ -93,39 +96,7 @@ func (repo *dynamoRepository) PutTimelineEntry(entry *TimelineEntry) error {
 // PutTimelineEntries inserts the provided TimelineEntries into the database. The number of
 // successfully inserted entries is returned.
 func (repo *dynamoRepository) PutTimelineEntries(entries []*TimelineEntry) (int, error) {
-	var putRequests []*dynamodb.WriteRequest
-	updated := 0
-
-	for _, e := range entries {
-		item, err := dynamodbattribute.MarshalMap(e)
-		if err != nil {
-			return updated, errors.Wrap(500, "Temporary server error", "Unable to marshal timeline entry", err)
-		}
-
-		req := &dynamodb.WriteRequest{
-			PutRequest: &dynamodb.PutRequest{
-				Item: item,
-			},
-		}
-		putRequests = append(putRequests, req)
-
-		if len(putRequests) == 25 {
-			if err := repo.batchWrite(putRequests, timelineTable); err != nil {
-				return updated, err
-			}
-			updated += 25
-			putRequests = nil
-		}
-	}
-
-	if len(putRequests) > 0 {
-		if err := repo.batchWrite(putRequests, timelineTable); err != nil {
-			return updated, err
-		}
-		updated += len(putRequests)
-	}
-
-	return updated, nil
+	return batchWriteObjects(repo, entries, timelineTable)
 }
 
 // ListTimelineEntries returns a list of TimelineEntries with the provided owner,

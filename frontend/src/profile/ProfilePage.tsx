@@ -106,7 +106,7 @@ const ProfilePage = () => {
                 console.log('editFollower: ', resp);
                 const incrementalCount = action === 'follow' ? 1 : -1;
                 auth.updateUser({
-                    followingCount: user.followingCount + incrementalCount,
+                    followingCount: currentUser.followingCount + incrementalCount,
                 });
                 request.onSuccess({
                     ...user,
