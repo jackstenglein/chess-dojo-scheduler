@@ -1129,6 +1129,33 @@ functions:
           - dynamodb:Query
         Resource: !GetAtt FollowersTable.Arn
 
+  deleteNewsfeedEntry:
+    handler: newsfeed/delete/main.go
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt TimelineTable.StreamArn
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [REMOVE]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+        Resource: !GetAtt NewsfeedTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt NewsfeedTable.Arn
+                - '/index/PosterIndex'
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -1591,17 +1618,30 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${sls:stage}-newsfeed
+        BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: newsfeedId
             AttributeType: S
           - AttributeName: sortKey
+            AttributeType: S
+          - AttributeName: poster
+            AttributeType: S
+          - AttributeName: timelineId
             AttributeType: S
         KeySchema:
           - AttributeName: newsfeedId
             KeyType: HASH
           - AttributeName: sortKey
             KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: PosterIndex
+            KeySchema:
+              - AttributeName: poster
+                KeyType: HASH
+              - AttributeName: timelineId
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
 
     ############# S3 Resources #################
 
