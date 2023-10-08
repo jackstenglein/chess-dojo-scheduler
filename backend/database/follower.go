@@ -54,10 +54,7 @@ type FollowerLister interface {
 	// ListFollowers returns a list of FollowerEntry objects where the given username is the Poster.
 	// The next start key is also returned.
 	ListFollowers(username, startKey string) ([]FollowerEntry, string, error)
-}
 
-// FollowingLister provides an interface for listing who a specific user is following.
-type FollowingLister interface {
 	// ListFollowing returns a list of FollowerEntry objects where the given username is the Follower.
 	// The next start key is also returned.
 	ListFollowing(username, startKey string) ([]FollowerEntry, string, error)

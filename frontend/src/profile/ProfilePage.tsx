@@ -1,33 +1,21 @@
 import { useEffect, useState } from 'react';
-import {
-    Box,
-    Button,
-    Container,
-    Stack,
-    Tab,
-    Tabs,
-    Tooltip,
-    Typography,
-} from '@mui/material';
-import WarningIcon from '@mui/icons-material/Warning';
+import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import { SubscriptionStatus, User } from '../database/user';
+import { User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import GamesTab from './GamesTab';
 import ProgressTab from './progress/ProgressTab';
 import ActivityTab from './activity/ActivityTab';
 import GraduationDialog from './GraduationDialog';
-import GraduationIcon from '../scoreboard/GraduationIcon';
 import StatsTab from './stats/StatsTab';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import Avatar from './Avatar';
 import Bio from './info/Bio';
 import InactiveChip from './info/InactiveChip';
 import CreatedAtChip from './info/CreatedAtChip';
@@ -35,8 +23,9 @@ import TimezoneChip from './info/TimezoneChip';
 import DiscordChip from './info/DiscordChip';
 import CountChip from './info/CountChip';
 import { FollowerEntry } from '../database/follower';
+import UserInfo from './info/UserInfo';
 
-type ProfilePageProps = {
+export type ProfilePageProps = {
     username: string;
 };
 
@@ -44,7 +33,8 @@ const ProfilePage = () => {
     const { username } = useParams<ProfilePageProps>();
     const navigate = useNavigate();
     const api = useApi();
-    const currentUser = useAuth().user!;
+    const auth = useAuth();
+    const currentUser = auth.user!;
     const request = useRequest<User>();
     const isFreeTier = useFreeTier();
     const followRequest = useRequest<FollowerEntry>();
@@ -115,6 +105,9 @@ const ProfilePage = () => {
             .then((resp) => {
                 console.log('editFollower: ', resp);
                 const incrementalCount = action === 'follow' ? 1 : -1;
+                auth.updateUser({
+                    followingCount: user.followingCount + incrementalCount,
+                });
                 request.onSuccess({
                     ...user,
                     followerCount: user.followerCount + incrementalCount,
@@ -139,49 +132,7 @@ const ProfilePage = () => {
                     flexWrap='wrap'
                     rowGap={2}
                 >
-                    <Stack direction='row' spacing={2}>
-                        <Avatar user={user} />
-
-                        <Stack>
-                            <Stack
-                                direction='row'
-                                alignItems='center'
-                                spacing={2}
-                                flexWrap='wrap'
-                                rowGap={1}
-                            >
-                                <Typography variant='h4'>{user.displayName}</Typography>
-
-                                {user.subscriptionStatus ===
-                                    SubscriptionStatus.FreeTier && (
-                                    <Tooltip title='This account is on the free tier and has limited access to the site'>
-                                        <WarningIcon color='warning' />
-                                    </Tooltip>
-                                )}
-
-                                {user.graduationCohorts &&
-                                user.graduationCohorts.length > 0 ? (
-                                    <Stack
-                                        direction='row'
-                                        spacing={0.5}
-                                        flexWrap='wrap'
-                                        rowGap={1}
-                                    >
-                                        {user.graduationCohorts.map((c) => (
-                                            <GraduationIcon key={c} cohort={c} />
-                                        ))}
-                                    </Stack>
-                                ) : (
-                                    user.previousCohort && (
-                                        <GraduationIcon cohort={user.previousCohort} />
-                                    )
-                                )}
-                            </Stack>
-                            <Typography variant='h5' color='text.secondary'>
-                                {user.dojoCohort}
-                            </Typography>
-                        </Stack>
-                    </Stack>
+                    <UserInfo user={user} />
 
                     {currentUserProfile ? (
                         <Stack direction='row' spacing={2}>
@@ -229,8 +180,13 @@ const ProfilePage = () => {
                         count={user.followerCount}
                         label='Followers'
                         singularLabel='Follower'
+                        link={`/profile/${user.username}/followers`}
                     />
-                    <CountChip count={user.followingCount} label='Following' />
+                    <CountChip
+                        count={user.followingCount}
+                        label='Following'
+                        link={`/profile/${user.username}/following`}
+                    />
                 </Stack>
 
                 <Bio bio={user.bio} />

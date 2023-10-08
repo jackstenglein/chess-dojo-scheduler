@@ -585,6 +585,26 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt UsersTable.Arn
 
+  listFollowers:
+    handler: user/followers/list/main.go
+    events:
+      - httpApi:
+          path: /public/user/{username}/followers
+          method: get
+      - httpApi:
+          path: /public/user/{username}/following
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - !GetAtt FollowersTable.Arn
+          - Fn::Join:
+              - ''
+              - - !GetAtt FollowersTable.Arn
+                - '/index/FollowingIndex'
+
   ############## Event Endpoints #################
 
   bookEvent:

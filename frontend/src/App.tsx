@@ -45,6 +45,7 @@ import { TutorialProvider } from './tutorial/TutorialContext';
 import SearchPage from './scoreboard/search/SeachPage';
 import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
 import NotificationPage from './notifications/NotificationPage';
+import FollowersPage from './profile/followers/FollowersPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -84,7 +85,11 @@ const router = createBrowserRouter(
                     <Route path='profile'>
                         <Route index element={<ProfilePage />} />
                         <Route path='edit' element={<ProfileEditorPage />} />
-                        <Route path=':username' element={<ProfilePage />} />
+                        <Route path=':username'>
+                            <Route index element={<ProfilePage />} />
+                            <Route path='followers' element={<FollowersPage />} />
+                            <Route path='following' element={<FollowersPage />} />
+                        </Route>
                     </Route>
                     <Route path='admin' element={<AdminPage />} />
 

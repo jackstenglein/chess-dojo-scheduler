@@ -2,7 +2,7 @@ import { Avatar as MuiAvatar } from '@mui/material';
 
 import { User } from '../database/user';
 import { getConfig } from '../config';
-import { avatarProps } from '../style/style';
+import { SxSize, avatarProps } from '../style/style';
 import { useCache } from '../api/cache/Cache';
 
 const picturesBucket = getConfig().media.picturesBucket;
@@ -24,7 +24,7 @@ interface AvatarProps {
      * The size in px of the image.
      * @default 74
      */
-    size?: number;
+    size?: number | SxSize;
 
     /**
      * If provided, this overrides user and username to display this image URL instead.

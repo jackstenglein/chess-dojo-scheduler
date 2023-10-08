@@ -27,6 +27,8 @@ import {
     listUserTimeline,
     editFollower,
     getFollower,
+    listFollowers,
+    listFollowing,
 } from './userApi';
 import {
     GameApiContextType,
@@ -167,6 +169,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getFollower: (poster: string) => getFollower(idToken, poster),
             editFollower: (poster: string, action: 'follow' | 'unfollow') =>
                 editFollower(idToken, poster, action),
+            listFollowers: (username: string, startKey?: string) =>
+                listFollowers(username, startKey),
+            listFollowing: (username: string, startKey?: string) =>
+                listFollowing(username, startKey),
 
             bookEvent: (id: string, startTime?: Date, type?: string) =>
                 bookEvent(idToken, id, startTime, type),

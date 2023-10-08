@@ -134,6 +134,28 @@ export type UserApiContextType = {
         poster: string,
         action: 'follow' | 'unfollow'
     ) => Promise<AxiosResponse<FollowerEntry | null, any>>;
+
+    /**
+     * Fetches a list of followers for the given user.
+     * @param username The username of the person to list followers for.
+     * @param startKey An optional start key for pagination.
+     * @returns The list of followers and the next start key.
+     */
+    listFollowers: (
+        username: string,
+        startKey?: string
+    ) => Promise<AxiosResponse<ListFollowersResponse, any>>;
+
+    /**
+     * Fetches the list of users the given user is following.
+     * @param username The username of the person to list who they are following.
+     * @param startKey An optional start key for pagination.
+     * @returns The list of who they are following and the next start key.
+     */
+    listFollowing: (
+        username: string,
+        startKey?: string
+    ) => Promise<AxiosResponse<ListFollowersResponse, any>>;
 };
 
 /**
@@ -435,5 +457,36 @@ export function editFollower(
                 Authorization: 'Bearer ' + idToken,
             },
         }
+    );
+}
+
+export interface ListFollowersResponse {
+    followers: FollowerEntry[];
+    lastEvaluatedKey: string;
+}
+
+/**
+ * Fetches the list of followers for the given user.
+ * @param username The username of the person to list followers for.
+ * @param startKey An optional start key for pagination.
+ * @returns The list of followers and the next start key.
+ */
+export function listFollowers(username: string, startKey?: string) {
+    return axios.get<ListFollowersResponse>(
+        `${BASE_URL}/public/user/${username}/followers`,
+        { params: { startKey } }
+    );
+}
+
+/**
+ * Fetches the list of users the given user is following.
+ * @param username The username of the person to list who they are following.
+ * @param startKey An optional start key for pagination.
+ * @returns The list of who they are following and the next start key.
+ */
+export function listFollowing(username: string, startKey?: string) {
+    return axios.get<ListFollowersResponse>(
+        `${BASE_URL}/public/user/${username}/following`,
+        { params: { startKey } }
     );
 }
