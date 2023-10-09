@@ -74,6 +74,7 @@ export interface RequirementProgress {
 
 export interface TimelineEntry {
     owner: string;
+    ownerDisplayName: string;
     id: string;
     requirementId: string;
     requirementName: string;

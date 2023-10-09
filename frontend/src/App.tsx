@@ -46,6 +46,7 @@ import SearchPage from './scoreboard/search/SeachPage';
 import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
 import NotificationPage from './notifications/NotificationPage';
 import FollowersPage from './profile/followers/FollowersPage';
+import NewsfeedPage from './newsfeed/NewsfeedPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -129,6 +130,8 @@ const router = createBrowserRouter(
                     <Route path='openings/:id' element={<OpeningPage />} />
 
                     <Route path='notifications' element={<NotificationPage />} />
+
+                    <Route path='newsfeed' element={<NewsfeedPage />} />
                 </Route>
             </Route>
             <Route path='*' element={<NotFoundPage />} />

@@ -1156,6 +1156,23 @@ functions:
               - - !GetAtt NewsfeedTable.Arn
                 - '/index/PosterIndex'
 
+  listNewsfeed:
+    handler: newsfeed/list/main.go
+    events:
+      - httpApi:
+          path: /newsfeed
+          method: get
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt NewsfeedTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: !GetAtt TimelineTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -1288,20 +1305,12 @@ resources:
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
-        BillingMode: !If
-          - IsProd
-          - PROVISIONED
-          - PAY_PER_REQUEST
+        BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: !If
             - IsProd
             - true
             - false
-        ProvisionedThroughput: !If
-          - IsProd
-          - ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
-          - !Ref AWS::NoValue
         StreamSpecification:
           StreamViewType: NEW_IMAGE
 

@@ -19,7 +19,7 @@ var repository database.FollowerLister = database.DynamoDB
 
 type ListFollowersResponse struct {
 	Followers []database.FollowerEntry `json:"followers"`
-	LastKey   string                   `json:"lastEvaluatedKey"`
+	LastKey   string                   `json:"lastEvaluatedKey,omitempty"`
 }
 
 func main() {

@@ -82,6 +82,7 @@ import {
     listNotifications,
     deleteNotification,
 } from './notificationApi';
+import { listNewsfeed, NewsfeedApiContextType } from './newsfeedApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -94,7 +95,8 @@ type ApiContextType = AdminApiContextType &
     GraduationApiContextType &
     OpeningApiContextType &
     TournamentApiContextType &
-    NotificationApiContextType;
+    NotificationApiContextType &
+    NewsfeedApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -256,6 +258,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),
             deleteNotification: (id: string) => deleteNotification(idToken, id),
+
+            listNewsfeed: (startKey?: string) => listNewsfeed(idToken, startKey),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

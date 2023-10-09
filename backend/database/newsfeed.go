@@ -35,6 +35,31 @@ func (repo *dynamoRepository) PutNewsfeedEntries(entries []NewsfeedEntry) (int, 
 	return batchWriteObjects(repo, entries, newsfeedTable)
 }
 
+// ListNewsfeedEntries returns a list of NewsfeedEntries for the provided news feed ID. Usually
+// the ID will be a user's username, but it could also be a cohort or the special value `ALL_USERS`.
+func (repo *dynamoRepository) ListNewsfeedEntries(newsfeedId, startKey string, limit int) ([]NewsfeedEntry, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#newsfeedId = :newsfeedId"),
+		ExpressionAttributeNames: map[string]*string{
+			"#newsfeedId": aws.String("newsfeedId"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":newsfeedId": {
+				S: &newsfeedId,
+			},
+		},
+		ScanIndexForward: aws.Bool(false),
+		TableName:        &newsfeedTable,
+	}
+
+	var entries []NewsfeedEntry
+	lastKey, err := repo.query(input, startKey, &entries)
+	if err != nil {
+		return nil, "", err
+	}
+	return entries, lastKey, nil
+}
+
 // DeleteNewsfeedEntries deletes the NewsfeedEntries with the provided poster and timelineId.
 // The number of successfully deleted entries is returned.
 func (repo *dynamoRepository) DeleteNewsfeedEntries(poster, timelineId string) (int, error) {

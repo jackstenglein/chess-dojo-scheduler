@@ -157,3 +157,41 @@ func (repo *dynamoRepository) DeleteTimelineEntries(entries []*TimelineEntry) (i
 
 	return deleted, nil
 }
+
+func (repo *dynamoRepository) BatchGetTimelineEntries(entries map[string]TimelineEntryKey) ([]TimelineEntry, error) {
+	if len(entries) == 0 {
+		return []TimelineEntry{}, nil
+	}
+	if len(entries) > 100 {
+		return nil, errors.New(500, "Temporary server error", "More than 100 items in BatchGetTimelineEntries request")
+	}
+
+	input := &dynamodb.BatchGetItemInput{
+		RequestItems: map[string]*dynamodb.KeysAndAttributes{
+			timelineTable: {
+				Keys: []map[string]*dynamodb.AttributeValue{},
+			},
+		},
+	}
+
+	for _, e := range entries {
+		key := map[string]*dynamodb.AttributeValue{
+			"owner": {S: aws.String(e.Owner)},
+			"id":    {S: aws.String(e.Id)},
+		}
+		input.RequestItems[timelineTable].Keys = append(input.RequestItems[timelineTable].Keys, key)
+	}
+
+	result, err := repo.svc.BatchGetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed call to BatchGetItem", err)
+	}
+	list := result.Responses[timelineTable]
+
+	var resultEntries []TimelineEntry
+	if err := dynamodbattribute.UnmarshalListOfMaps(list, &resultEntries); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal BatchGetItem result", err)
+	}
+
+	return resultEntries, nil
+}
