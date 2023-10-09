@@ -26,7 +26,7 @@ const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
     year: '2-digit',
 };
 
-function getTimeSpent(timelineItem: TimelineEntry): string {
+export function getTimeSpent(timelineItem: TimelineEntry): string {
     if (timelineItem.minutesSpent === 0) {
         return '';
     }

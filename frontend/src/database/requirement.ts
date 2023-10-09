@@ -1,3 +1,4 @@
+import { Comment } from './game';
 import { User } from './user';
 
 export enum RequirementStatus {
@@ -87,6 +88,7 @@ export interface TimelineEntry {
     scoreboardDisplay: ScoreboardDisplay;
     progressBarSuffix: string;
     createdAt: string;
+    comments: Comment[] | null;
 }
 
 export function isRequirement(obj: any): obj is Requirement {

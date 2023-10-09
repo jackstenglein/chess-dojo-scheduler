@@ -57,6 +57,30 @@ type TimelineEntry struct {
 
 	// The time the timeline entry was created
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+
+	// The comments left on the timeline entry
+	Comments []Comment `dynamodbav:"comments" json:"comments"`
+
+	// The reactions left on the timeline entry as a map from the
+	// username of the reactor
+	Reactions map[string]Reaction `dynamodbav:"reactions" json:"reactions"`
+}
+
+type Reaction struct {
+	// The username of the person reacting
+	Username string `dynamodbav:"username" json:"username"`
+
+	// The display name of the person reacting
+	DisplayName string `dynamodbav:"displayName" json:"displayName"`
+
+	// The cohort of the person reacting
+	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
+
+	// The time the reaction was last updated
+	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+
+	// The types of reaction the person left
+	Types []string `dynamodbav:"types" json:"types"`
 }
 
 type TimelineEditor interface {
@@ -76,6 +100,12 @@ type TimelineLister interface {
 	// ListTimelineEntries returns a list of TimelineEntries with the provided owner,
 	// up to 1MB of data. startKey can be passed to perform pagination.
 	ListTimelineEntries(owner string, startKey string) ([]*TimelineEntry, string, error)
+}
+
+type TimelineCommenter interface {
+	UserGetter
+
+	CreateTimelineComment(owner, id string, comment *Comment) (*TimelineEntry, error)
 }
 
 // PutTimelineEntry saves the provided TimelineEntry into the database.
@@ -194,4 +224,48 @@ func (repo *dynamoRepository) BatchGetTimelineEntries(entries map[string]Timelin
 	}
 
 	return resultEntries, nil
+}
+
+func (repo *dynamoRepository) CreateTimelineComment(owner, id string, comment *Comment) (*TimelineEntry, error) {
+	item, err := dynamodbattribute.MarshalMap(comment)
+	if err != nil {
+		return nil, errors.Wrap(400, "Invalid request: comment cannot be marshaled", "", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("attribute_exists(#owner)"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {S: aws.String(owner)},
+			"id":    {S: aws.String(id)},
+		},
+		UpdateExpression: aws.String("SET #c = list_append(if_not_exists(#c, :empty_list), :c)"),
+		ExpressionAttributeNames: map[string]*string{
+			"#c":     aws.String("comments"),
+			"#owner": aws.String("owner"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":c": {
+				L: []*dynamodb.AttributeValue{
+					{M: item},
+				},
+			},
+			":empty_list": {L: []*dynamodb.AttributeValue{}},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(timelineTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: game not found", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+
+	entry := TimelineEntry{}
+	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &entry); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal CreateTimelineComment result", err)
+	}
+	return &entry, nil
 }

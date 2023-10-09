@@ -1173,6 +1173,23 @@ functions:
           - dynamodb:BatchGetItem
         Resource: !GetAtt TimelineTable.Arn
 
+  createNewsfeedComment:
+    handler: newsfeed/comment/create/main.go
+    events:
+      - httpApi:
+          path: /newsfeed/{owner}/{id}/comments
+          method: post
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt TimelineTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

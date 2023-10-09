@@ -82,7 +82,11 @@ import {
     listNotifications,
     deleteNotification,
 } from './notificationApi';
-import { listNewsfeed, NewsfeedApiContextType } from './newsfeedApi';
+import {
+    createNewsfeedComment,
+    listNewsfeed,
+    NewsfeedApiContextType,
+} from './newsfeedApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -260,6 +264,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             deleteNotification: (id: string) => deleteNotification(idToken, id),
 
             listNewsfeed: (startKey?: string) => listNewsfeed(idToken, startKey),
+            createNewsfeedComment: (owner: string, id: string, content: string) =>
+                createNewsfeedComment(idToken, owner, id, content),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

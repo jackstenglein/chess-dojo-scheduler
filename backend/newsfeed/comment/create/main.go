@@ -1,0 +1,70 @@
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"strings"
+	"time"
+
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/google/uuid"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+)
+
+var repository database.TimelineCommenter = database.DynamoDB
+
+const funcName = "newsfeed-comment-create-handler"
+
+func Handler(ctx context.Context, event api.Request) (api.Response, error) {
+	log.SetRequestId(event.RequestContext.RequestID)
+	log.Debugf("Event: %#v", event)
+
+	owner := event.PathParameters["owner"]
+	if owner == "" {
+		err := errors.New(400, "Invalid request: owner is required", "")
+		return api.Failure(funcName, err), nil
+	}
+
+	id := event.PathParameters["id"]
+	if id == "" {
+		err := errors.New(400, "Invalid request: id is required", "")
+		return api.Failure(funcName, err), nil
+	}
+
+	comment := database.Comment{}
+	if err := json.Unmarshal([]byte(event.Body), &comment); err != nil {
+		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
+		return api.Failure(funcName, err), nil
+	}
+
+	if strings.TrimSpace(comment.Content) == "" {
+		err := errors.New(400, "Invalid request: content must not be empty", "")
+		return api.Failure(funcName, err), nil
+	}
+
+	commenter, err := repository.GetUser(api.GetUserInfo(event).Username)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
+	comment.Owner = commenter.Username
+	comment.OwnerDisplayName = commenter.DisplayName
+	comment.OwnerCohort = commenter.DojoCohort
+	comment.Id = uuid.NewString()
+	comment.CreatedAt = time.Now().Format(time.RFC3339)
+	comment.UpdatedAt = comment.CreatedAt
+
+	entry, err := repository.CreateTimelineComment(owner, id, &comment)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
+	return api.Success(funcName, entry), nil
+}
+
+func main() {
+	lambda.Start(Handler)
+}
