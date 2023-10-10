@@ -52,6 +52,12 @@ type Graduation struct {
 
 	// The time that the user graduated.
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+
+	// The amount of time spent in minutes on dojo tasks in the cohort
+	DojoMinutes int `dynamodbav:"dojoMinutes,omitempty" json:"dojoMinutes,omitempty"`
+
+	// The amount of time spent in minutes on non-dojo tasks in the cohort
+	NonDojoMinutes int `dynamodbav:"nonDojoMinutes,omitempty" json:"nonDojoMinutes,omitempty"`
 }
 
 type GraduationCreator interface {

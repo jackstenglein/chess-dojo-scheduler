@@ -73,12 +73,19 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	graduationCohorts := append(user.GraduationCohorts, user.DojoCohort)
 	var numberOfGraduations = user.NumberOfGraduations + 1
 
+	score := user.CalculateScore(requirements)
+	totalTime := user.TimeSpent()
+	dojoTime := user.TimeSpentOnReqs(requirements)
+	nonDojoTime := totalTime - dojoTime
+
+	log.Debugf("Total Time: %d, Dojo Time: %d, NonDojo Time: %d", totalTime, dojoTime, nonDojoTime)
+
 	graduation := database.Graduation{
 		Username:            info.Username,
 		DisplayName:         user.DisplayName,
 		PreviousCohort:      user.DojoCohort,
 		NewCohort:           nextCohort,
-		Score:               user.CalculateScore(requirements),
+		Score:               score,
 		RatingSystem:        user.RatingSystem,
 		StartRating:         startRating,
 		CurrentRating:       currentRating,
@@ -88,6 +95,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		CreatedAt:           createdAt,
 		NumberOfGraduations: numberOfGraduations,
 		GraduationCohorts:   graduationCohorts,
+		DojoMinutes:         dojoTime,
+		NonDojoMinutes:      nonDojoTime,
 	}
 	if err := repository.PutGraduation(&graduation); err != nil {
 		return api.Failure(funcName, err), nil
@@ -105,6 +114,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		ScoreboardDisplay:   database.Hidden,
 		Cohort:              user.DojoCohort,
 		CreatedAt:           createdAt,
+		GraduationComments:  request.Comments,
+		DojoScore:           score,
+		NewCohort:           nextCohort,
+		DojoMinutes:         dojoTime,
+		NonDojoMinutes:      nonDojoTime,
 	}
 	if err := repository.PutTimelineEntry(&timelineEntry); err != nil {
 		log.Debugf("Failed to create timeline entry: %v", err)

@@ -90,6 +90,13 @@ export interface TimelineEntry {
     createdAt: string;
     comments: Comment[] | null;
     reactions: Record<string, Reaction> | null;
+
+    // Fields included for graduations
+    graduationComments?: string;
+    dojoScore?: number;
+    newCohort?: string;
+    dojoMinutes?: number;
+    nonDojoMinutes?: number;
 }
 
 export interface Reaction {

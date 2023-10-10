@@ -77,16 +77,12 @@ const defaultColumnGroups: GridColumnGroupingModel = [
     },
     {
         groupId: 'Progress',
-        children: [
-            { field: 'cohortScore' },
-            { field: 'cohortTime' },
-            { field: 'percentComplete' },
-        ],
+        children: [{ field: 'cohortScore' }, { field: 'percentComplete' }],
     },
     {
         groupId: 'Time Spent',
         children: [
-            { field: 'cohortTime2' },
+            { field: 'cohortTime' },
             { field: 'last7DaysTime' },
             { field: 'last30DaysTime' },
             { field: 'last90DaysTime' },
@@ -262,7 +258,7 @@ const ScoreboardPage = () => {
     const timeColumns: GridColDef<ScoreboardRow>[] = useMemo(
         () => [
             {
-                field: 'cohortTime2',
+                field: 'cohortTime',
                 headerName: 'Cohort Tasks',
                 valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
                     getTotalTime(params, cohort, false, requirements),

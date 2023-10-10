@@ -58,6 +58,23 @@ type TimelineEntry struct {
 	// The time the timeline entry was created
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 
+	// The graduation comments, if this timeline entry is for a graduation
+	GraduationComments string `dynamodbav:"graduationComments,omitempty" json:"graduationComments,omitempty"`
+
+	// The dojo score at the time of graduation, if this timeline entry is for a graduation
+	DojoScore float32 `dynamodbav:"dojoScore,omitempty" json:"dojoScore,omitempty"`
+
+	// The user's new dojo cohort, if this timeline entry is for a graduation
+	NewCohort DojoCohort `dynamodbav:"newCohort,omitempty" json:"newCohort,omitempty"`
+
+	// The amount of time spent in minutes on dojo tasks in the cohort, if this
+	// timeline entry is for a graduation
+	DojoMinutes int `dynamodbav:"dojoMinutes,omitempty" json:"dojoMinutes,omitempty"`
+
+	// The amount of time spent in minutes on non-dojo tasks in the cohort, if this
+	// timeline entry is for a graduation
+	NonDojoMinutes int `dynamodbav:"nonDojoMinutes,omitempty" json:"nonDojoMinutes,omitempty"`
+
 	// The comments left on the timeline entry
 	Comments []Comment `dynamodbav:"comments" json:"comments"`
 

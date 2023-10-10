@@ -271,6 +271,32 @@ func (u *User) CalculateScore(requirements []*Requirement) float32 {
 	return score
 }
 
+func (u *User) TimeSpentOnReqs(requirements []*Requirement) int {
+	if u == nil {
+		return 0
+	}
+	var minutes int
+	for _, r := range requirements {
+		p, ok := u.Progress[r.Id]
+		if ok {
+			minutes += p.MinutesSpent[u.DojoCohort]
+		}
+	}
+	return minutes
+}
+
+func (u *User) TimeSpent() int {
+	if u == nil {
+		return 0
+	}
+	var minutes int
+	for _, progress := range u.Progress {
+		m := progress.MinutesSpent[u.DojoCohort]
+		minutes += m
+	}
+	return minutes
+}
+
 func (u *User) GetRatingChange() int {
 	start, current := u.GetRatings()
 	if start == 0 {
