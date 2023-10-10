@@ -29,6 +29,19 @@ export type NewsfeedApiContextType = {
         id: string,
         content: string
     ) => Promise<AxiosResponse<TimelineEntry, any>>;
+
+    /**
+     * Sets the provided reaction types on the given TimelineEntry.
+     * @param owner The owner of the TimelineEntry.
+     * @param id The id of the TimelineEntry.
+     * @param types The reaction types to set. An empty list deletes the reaction.
+     * @returns An AxiosResponse containing the updated TimelineEntry.
+     */
+    setNewsfeedReaction: (
+        owner: string,
+        id: string,
+        types: string[]
+    ) => Promise<AxiosResponse<TimelineEntry, any>>;
 };
 
 export interface ListNewsfeedResponse {
@@ -74,5 +87,26 @@ export function createNewsfeedComment(
                 Authorization: 'Bearer ' + idToken,
             },
         }
+    );
+}
+
+/**
+ * Sets the provided reaction types on the given TimelineEntry.
+ * @param idToken The id token of the current signed-in user.
+ * @param owner The owner of the TimelineEntry.
+ * @param id The id of the TimelineEntry.
+ * @param types The reaction types to set. An empty list deletes the reaction.
+ * @returns An AxiosResponse containing the updated TimelineEntry.
+ */
+export function setNewsfeedReaction(
+    idToken: string,
+    owner: string,
+    id: string,
+    types: string[]
+) {
+    return axios.put<TimelineEntry>(
+        `${BASE_URL}/newsfeed/${owner}/${id}/reactions`,
+        { types },
+        { headers: { Authorization: 'Bearer ' + idToken } }
     );
 }

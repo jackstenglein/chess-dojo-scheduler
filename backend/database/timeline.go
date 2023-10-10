@@ -80,7 +80,7 @@ type Reaction struct {
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
 
 	// The types of reaction the person left
-	Types []string `dynamodbav:"types" json:"types"`
+	Types []string `dynamodbav:"types,stringset" json:"types"`
 }
 
 type TimelineEditor interface {
@@ -108,11 +108,23 @@ type TimelineCommenter interface {
 	CreateTimelineComment(owner, id string, comment *Comment) (*TimelineEntry, error)
 }
 
+type TimelineReactor interface {
+	UserGetter
+
+	// SetTimelineReaction sets the given reaction on the provided TimelineEntry.
+	SetTimelineReaction(owner, id string, reaction *Reaction) (*TimelineEntry, error)
+}
+
 // PutTimelineEntry saves the provided TimelineEntry into the database.
 func (repo *dynamoRepository) PutTimelineEntry(entry *TimelineEntry) error {
 	item, err := dynamodbattribute.MarshalMap(entry)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Unable to marshal timeline entry", err)
+	}
+
+	// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
+	if len(entry.Reactions) == 0 {
+		item["reactions"] = &dynamodb.AttributeValue{M: map[string]*dynamodb.AttributeValue{}}
 	}
 
 	input := &dynamodb.PutItemInput{
@@ -126,7 +138,12 @@ func (repo *dynamoRepository) PutTimelineEntry(entry *TimelineEntry) error {
 // PutTimelineEntries inserts the provided TimelineEntries into the database. The number of
 // successfully inserted entries is returned.
 func (repo *dynamoRepository) PutTimelineEntries(entries []*TimelineEntry) (int, error) {
-	return batchWriteObjects(repo, entries, timelineTable)
+	return batchWriteObjects(repo, entries, timelineTable, func(entry *TimelineEntry, item map[string]*dynamodb.AttributeValue) {
+		// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
+		if len(entry.Reactions) == 0 {
+			item["reactions"] = &dynamodb.AttributeValue{M: map[string]*dynamodb.AttributeValue{}}
+		}
+	})
 }
 
 // ListTimelineEntries returns a list of TimelineEntries with the provided owner,
@@ -258,7 +275,7 @@ func (repo *dynamoRepository) CreateTimelineComment(owner, id string, comment *C
 	result, err := repo.svc.UpdateItem(input)
 	if err != nil {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return nil, errors.Wrap(400, "Invalid request: game not found", "DynamoDB conditional check failed", aerr)
+			return nil, errors.Wrap(400, "Invalid request: timeline entry not found", "DynamoDB conditional check failed", aerr)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 	}
@@ -266,6 +283,47 @@ func (repo *dynamoRepository) CreateTimelineComment(owner, id string, comment *C
 	entry := TimelineEntry{}
 	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &entry); err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal CreateTimelineComment result", err)
+	}
+	return &entry, nil
+}
+
+// SetTimelineReaction sets the given reaction on the provided TimelineEntry.
+func (repo *dynamoRepository) SetTimelineReaction(owner, id string, reaction *Reaction) (*TimelineEntry, error) {
+	item, err := dynamodbattribute.MarshalMap(reaction)
+	if err != nil {
+		return nil, errors.Wrap(400, "Invalid request: reaction cannot be marshaled", "", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("attribute_exists(#owner)"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {S: aws.String(owner)},
+			"id":    {S: aws.String(id)},
+		},
+		UpdateExpression: aws.String("SET #reactions.#username = :r"),
+		ExpressionAttributeNames: map[string]*string{
+			"#owner":     aws.String("owner"),
+			"#reactions": aws.String("reactions"),
+			"#username":  aws.String(reaction.Username),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":r": {M: item},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(timelineTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: timeline entry not found", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+
+	entry := TimelineEntry{}
+	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &entry); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal SetTimelineReaction result", err)
 	}
 	return &entry, nil
 }

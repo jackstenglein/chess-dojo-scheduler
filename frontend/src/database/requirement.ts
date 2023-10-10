@@ -89,6 +89,15 @@ export interface TimelineEntry {
     progressBarSuffix: string;
     createdAt: string;
     comments: Comment[] | null;
+    reactions: Record<string, Reaction> | null;
+}
+
+export interface Reaction {
+    username: string;
+    displayName: string;
+    cohort: string;
+    updatedAt: string;
+    types: string[];
 }
 
 export function isRequirement(obj: any): obj is Requirement {

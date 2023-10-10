@@ -14,7 +14,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments }) => {
     }
 
     return (
-        <Stack spacing={3} mb={3}>
+        <Stack spacing={3}>
             {comments.map((comment) => (
                 <CommentListItem key={comment.id} comment={comment} />
             ))}

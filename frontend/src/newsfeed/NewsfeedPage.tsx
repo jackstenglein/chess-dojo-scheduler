@@ -40,7 +40,7 @@ const NewsfeedPage = () => {
         return <LoadingPage />;
     }
 
-    const onComment = (i: number, entry: TimelineEntry) => {
+    const onEdit = (i: number, entry: TimelineEntry) => {
         const data = request.data?.entries || [];
         request.onSuccess({
             entries: [...data.slice(0, i), entry, ...data.slice(i + 1)],
@@ -57,7 +57,7 @@ const NewsfeedPage = () => {
                     <NewsfeedItem
                         key={entry.id}
                         entry={entry}
-                        onComment={(e) => onComment(i, e)}
+                        onEdit={(e) => onEdit(i, e)}
                     />
                 ))}
             </Stack>

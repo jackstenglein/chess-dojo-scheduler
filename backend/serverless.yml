@@ -1190,6 +1190,23 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt TimelineTable.Arn
 
+  setNewsfeedReaction:
+    handler: newsfeed/react/main.go
+    events:
+      - httpApi:
+          path: /newsfeed/{owner}/{id}/reactions
+          method: put
+          authorizer: serviceAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt TimelineTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

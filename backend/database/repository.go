@@ -124,7 +124,7 @@ func (repo *dynamoRepository) scan(input *dynamodb.ScanInput, startKey string, o
 
 // batchWriteObjects inserts the provided objects into the provided table. The number of successfully inserted
 // objects is returned.
-func batchWriteObjects[T any](repo *dynamoRepository, objects []T, tableName string) (int, error) {
+func batchWriteObjects[T any](repo *dynamoRepository, objects []T, tableName string, opts ...func(object T, item map[string]*dynamodb.AttributeValue)) (int, error) {
 	var putRequests []*dynamodb.WriteRequest
 	updated := 0
 
@@ -132,6 +132,10 @@ func batchWriteObjects[T any](repo *dynamoRepository, objects []T, tableName str
 		item, err := dynamodbattribute.MarshalMap(e)
 		if err != nil {
 			return updated, errors.Wrap(500, "Temporary server error", "Unable to marshal timeline entry", err)
+		}
+
+		for _, opt := range opts {
+			opt(e, item)
 		}
 
 		req := &dynamodb.WriteRequest{

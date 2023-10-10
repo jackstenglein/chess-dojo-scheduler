@@ -86,6 +86,7 @@ import {
     createNewsfeedComment,
     listNewsfeed,
     NewsfeedApiContextType,
+    setNewsfeedReaction,
 } from './newsfeedApi';
 
 /**
@@ -266,6 +267,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             listNewsfeed: (startKey?: string) => listNewsfeed(idToken, startKey),
             createNewsfeedComment: (owner: string, id: string, content: string) =>
                 createNewsfeedComment(idToken, owner, id, content),
+            setNewsfeedReaction: (owner: string, id: string, types: string[]) =>
+                setNewsfeedReaction(idToken, owner, id, types),
         };
     }, [idToken, auth.user, auth.updateUser]);
 
