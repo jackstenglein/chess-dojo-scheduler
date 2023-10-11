@@ -1124,6 +1124,16 @@ functions:
           functionResponseType: ReportBatchItemFailures
           filterPatterns:
             - eventName: [INSERT]
+      - stream:
+          type: dynamodb
+          arn: !GetAtt FollowersTable.StreamArn
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [INSERT]
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -1132,7 +1142,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: !GetAtt FollowersTable.Arn
+        Resource:
+          - !GetAtt FollowersTable.Arn
+          - !GetAtt TimelineTable.Arn
 
   deleteNewsfeedEntry:
     handler: newsfeed/delete/main.go

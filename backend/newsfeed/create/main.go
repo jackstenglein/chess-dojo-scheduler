@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -19,6 +20,8 @@ func main() {
 
 func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEventResponse, error) {
 	log.Debugf("Event: %#v", event)
+	var submitted int
+	var err error
 
 	failures := make([]events.DynamoDBBatchItemFailure, 0, len(event.Records))
 
@@ -26,9 +29,16 @@ func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEv
 		if record.EventName != "INSERT" {
 			continue
 		}
-
 		log.Debugf("Record: %#v", record)
-		submitted, err := processRecord(record)
+
+		if strings.Contains(record.EventSourceArn, "timeline") {
+			submitted, err = processTimelineRecord(record)
+		} else if strings.Contains(record.EventSourceArn, "followers") {
+			submitted, err = processFollowersRecord(record)
+		} else {
+			continue
+		}
+
 		if err != nil {
 			log.Errorf("Failed with %d submitted: %v", submitted, err)
 			failures = append(failures, events.DynamoDBBatchItemFailure{
@@ -44,7 +54,7 @@ func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEv
 	}, nil
 }
 
-func processRecord(record events.DynamoDBEventRecord) (int, error) {
+func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 	poster := record.Change.Keys["owner"].String()
 	id := record.Change.Keys["id"].String()
 	createdAt := time.Now().Format(time.RFC3339)
@@ -110,4 +120,10 @@ func submitIfNecessary(entries []database.NewsfeedEntry) ([]database.NewsfeedEnt
 		entries = entries[:0]
 	}
 	return entries, submitted, err
+}
+
+func processFollowersRecord(record events.DynamoDBEventRecord) (int, error) {
+	poster := record.Change.Keys["poster"].String()
+	follower := record.Change.Keys["follower"].String()
+	return repository.InsertPosterIntoNewsfeed(follower, poster)
 }

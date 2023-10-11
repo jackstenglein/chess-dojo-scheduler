@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
@@ -175,4 +177,25 @@ func (repo *dynamoRepository) listPosterInNewsfeed(newsfeedId, poster, startKey 
 		return nil, "", err
 	}
 	return entries, lastKey, nil
+}
+
+// InsertPosterIntoNewsfeed inserts up to the latest 25 timeline entries from the given poster into the given newsfeed.
+// The number of successfully inserted entries is returned.
+func (repo *dynamoRepository) InsertPosterIntoNewsfeed(newsfeedId, poster string) (int, error) {
+	timelineEntries, _, err := repo.listTimelineEntriesWithLimit(poster, "", 25)
+	if err != nil || len(timelineEntries) == 0 {
+		return 0, err
+	}
+
+	entries := make([]NewsfeedEntry, 0, len(timelineEntries))
+	for _, te := range timelineEntries {
+		entries = append(entries, NewsfeedEntry{
+			NewsfeedId: newsfeedId,
+			SortKey:    fmt.Sprintf("%s_%s", te.CreatedAt, te.Id),
+			CreatedAt:  te.CreatedAt,
+			Poster:     poster,
+			TimelineId: te.Id,
+		})
+	}
+	return repo.PutNewsfeedEntries(entries)
 }

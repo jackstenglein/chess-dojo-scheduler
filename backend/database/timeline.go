@@ -166,6 +166,13 @@ func (repo *dynamoRepository) PutTimelineEntries(entries []*TimelineEntry) (int,
 // ListTimelineEntries returns a list of TimelineEntries with the provided owner,
 // up to 1MB of data. startKey can be passed to perform pagination.
 func (repo *dynamoRepository) ListTimelineEntries(owner string, startKey string) ([]*TimelineEntry, string, error) {
+	return repo.listTimelineEntriesWithLimit(owner, startKey, -1)
+}
+
+// listTimelineEntriesWithLimit returns a list of TimelineEntries with the provided owner,
+// up to the number of items specified by limit. If limit is <= 0, then up to 1MB of data
+// is returned. startKey can be passed to perform pagination.
+func (repo *dynamoRepository) listTimelineEntriesWithLimit(owner, startKey string, limit int64) ([]*TimelineEntry, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#owner = :owner"),
 		ExpressionAttributeNames: map[string]*string{
@@ -176,6 +183,10 @@ func (repo *dynamoRepository) ListTimelineEntries(owner string, startKey string)
 		},
 		TableName:        aws.String(timelineTable),
 		ScanIndexForward: aws.Bool(false),
+	}
+
+	if limit > 0 {
+		input.SetLimit(limit)
 	}
 
 	var entries []*TimelineEntry
