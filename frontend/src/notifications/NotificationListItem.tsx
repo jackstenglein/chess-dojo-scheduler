@@ -64,6 +64,12 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
             case NotificationType.NewFollower:
                 navigate(`/profile/${notification.newFollowerMetadata?.username}`);
                 break;
+
+            case NotificationType.TimelineComment:
+                navigate(
+                    `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`
+                );
+                break;
         }
 
         if (onClick) {
@@ -136,7 +142,13 @@ const NotificationMenuItem: React.FC<
     return (
         <Stack>
             <MenuItem onClick={onClick}>
-                <Stack direction='row' alignItems='center' spacing={2}>
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    spacing={2}
+                    width={1}
+                >
                     <NotificationDescription notification={notification} menuItem />
 
                     {deleteRequest.isLoading() ? (

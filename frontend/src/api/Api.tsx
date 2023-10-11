@@ -84,6 +84,7 @@ import {
 } from './notificationApi';
 import {
     createNewsfeedComment,
+    getNewsfeedItem,
     listNewsfeed,
     NewsfeedApiContextType,
     setNewsfeedReaction,
@@ -264,6 +265,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listNotifications(idToken, startKey),
             deleteNotification: (id: string) => deleteNotification(idToken, id),
 
+            getNewsfeedItem: (owner: string, id: string) => getNewsfeedItem(owner, id),
             listNewsfeed: (startKey?: string) => listNewsfeed(idToken, startKey),
             createNewsfeedComment: (owner: string, id: string, content: string) =>
                 createNewsfeedComment(idToken, owner, id, content),

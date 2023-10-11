@@ -586,7 +586,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
+          - dynamodb:UpdateItem
         Resource: !GetAtt NotificationsTable.Arn
 
   listFollowers:
@@ -793,10 +793,6 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - !GetAtt GamesTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-        Resource:
           - !GetAtt NotificationsTable.Arn
 
   listGamesByCohort:
@@ -1185,6 +1181,18 @@ functions:
               - - !GetAtt NewsfeedTable.Arn
                 - '/index/PosterIndex'
 
+  getNewsfeedItem:
+    handler: newsfeed/get/main.go
+    events:
+      - httpApi:
+          path: /public/newsfeed/{owner}/{id}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt TimelineTable.Arn
+
   listNewsfeed:
     handler: newsfeed/list/main.go
     events:
@@ -1217,7 +1225,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: !GetAtt TimelineTable.Arn
+        Resource:
+          - !GetAtt TimelineTable.Arn
+          - !GetAtt NotificationsTable.Arn
 
   setNewsfeedReaction:
     handler: newsfeed/react/main.go

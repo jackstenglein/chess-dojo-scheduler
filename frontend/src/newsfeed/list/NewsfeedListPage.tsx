@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 import { Container, Stack } from '@mui/material';
 
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { ListNewsfeedResponse } from '../api/newsfeedApi';
-import { useAuth } from '../auth/Auth';
-import LoadingPage from '../loading/LoadingPage';
-import NewsfeedItem from './NewsfeedItem';
-import { TimelineEntry } from '../database/requirement';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { ListNewsfeedResponse } from '../../api/newsfeedApi';
+import { useAuth } from '../../auth/Auth';
+import LoadingPage from '../../loading/LoadingPage';
+import NewsfeedItem from '../NewsfeedItem';
+import { TimelineEntry } from '../../database/requirement';
 import CaughtUpMessage from './CaughtUpMessage';
 
-const NewsfeedPage = () => {
+const NewsfeedListPage = () => {
     const api = useApi();
     const user = useAuth().user!;
     const request = useRequest<ListNewsfeedResponse>();
@@ -68,4 +68,4 @@ const NewsfeedPage = () => {
     );
 };
 
-export default NewsfeedPage;
+export default NewsfeedListPage;

@@ -76,7 +76,7 @@ type TimelineEntry struct {
 	NonDojoMinutes int `dynamodbav:"nonDojoMinutes,omitempty" json:"nonDojoMinutes,omitempty"`
 
 	// The comments left on the timeline entry
-	Comments []Comment `dynamodbav:"comments" json:"comments"`
+	Comments []Comment `dynamodbav:"comments,omitempty" json:"comments"`
 
 	// The reactions left on the timeline entry as a map from the
 	// username of the reactor
@@ -113,6 +113,11 @@ type TimelineEditor interface {
 	DeleteTimelineEntries(entries []*TimelineEntry) (int, error)
 }
 
+type TimelineGetter interface {
+	// GetTimelineEntry returns the TimelineEntry with the provided owner and id.
+	GetTimelineEntry(owner, id string) (*TimelineEntry, error)
+}
+
 type TimelineLister interface {
 	// ListTimelineEntries returns a list of TimelineEntries with the provided owner,
 	// up to 1MB of data. startKey can be passed to perform pagination.
@@ -121,6 +126,7 @@ type TimelineLister interface {
 
 type TimelineCommenter interface {
 	UserGetter
+	NotificationPutter
 
 	CreateTimelineComment(owner, id string, comment *Comment) (*TimelineEntry, error)
 }
@@ -161,6 +167,23 @@ func (repo *dynamoRepository) PutTimelineEntries(entries []*TimelineEntry) (int,
 			item["reactions"] = &dynamodb.AttributeValue{M: map[string]*dynamodb.AttributeValue{}}
 		}
 	})
+}
+
+// GetTimelineEntry returns the TimelineEntry with the provided owner and id.
+func (repo *dynamoRepository) GetTimelineEntry(owner string, id string) (*TimelineEntry, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"owner": {S: &owner},
+			"id":    {S: &id},
+		},
+		TableName: &timelineTable,
+	}
+
+	entry := TimelineEntry{}
+	if err := repo.getItem(input, &entry); err != nil {
+		return nil, err
+	}
+	return &entry, nil
 }
 
 // ListTimelineEntries returns a list of TimelineEntries with the provided owner,

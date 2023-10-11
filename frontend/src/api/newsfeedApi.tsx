@@ -7,6 +7,17 @@ const BASE_URL = getConfig().api.baseUrl;
 
 export type NewsfeedApiContextType = {
     /**
+     * Fetches the timeline entry with the provided owner and id.
+     * @param owner The owner of the timeline entry.
+     * @param id The id of the timeline entry.
+     * @returns An AxiosResponse containing the timeline entry.
+     */
+    getNewsfeedItem: (
+        owner: string,
+        id: string
+    ) => Promise<AxiosResponse<TimelineEntry, any>>;
+
+    /**
      * Fetches a page of the current user's newsfeed.
      * @param cohort The optional cohort to use for the newsfeed.
      * @param startKey The optional startKey to use for pagination.
@@ -43,6 +54,16 @@ export type NewsfeedApiContextType = {
         types: string[]
     ) => Promise<AxiosResponse<TimelineEntry, any>>;
 };
+
+/**
+ * Fetches the timeline entry with the provided owner and id.
+ * @param owner The owner of the timeline entry.
+ * @param id The id of the timeline entry.
+ * @returns An AxiosResponse containing the timeline entry.
+ */
+export function getNewsfeedItem(owner: string, id: string) {
+    return axios.get<TimelineEntry>(`${BASE_URL}/public/newsfeed/${owner}/${id}`);
+}
 
 export interface ListNewsfeedResponse {
     entries: TimelineEntry[];
