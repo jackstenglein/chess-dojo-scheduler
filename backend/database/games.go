@@ -186,8 +186,7 @@ type GameCommenter interface {
 	// CreateComment appends the provided comment to the provided Game's comment list.
 	CreateComment(cohort, id string, comment *Comment) (*Game, error)
 
-	// PutNotification inserts the provided notification into the database.
-	PutNotification(n *Notification) error
+	NotificationPutter
 }
 
 // BatchPutGames inserts the provided list of games into the database. The number of successfully

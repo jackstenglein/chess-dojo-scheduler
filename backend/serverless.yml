@@ -584,6 +584,10 @@ functions:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
         Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt NotificationsTable.Arn
 
   listFollowers:
     handler: user/followers/list/main.go

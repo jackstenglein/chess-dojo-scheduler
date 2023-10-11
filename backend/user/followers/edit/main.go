@@ -75,6 +75,12 @@ func handleFollow(posterUsername, followerUsername string) api.Response {
 	if err != nil {
 		return api.Failure(funcName, err)
 	}
+
+	notification := database.NewFollowerNotification(entry, follower.DojoCohort)
+	if err := repository.PutNotification(notification); err != nil {
+		log.Error("Failed to create notification: ", err)
+	}
+
 	return api.Success(funcName, entry)
 }
 

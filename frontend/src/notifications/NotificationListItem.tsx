@@ -6,20 +6,15 @@ import {
     MenuItem,
     Stack,
     Tooltip,
-    Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import {
-    Notification,
-    NotificationType,
-    getDescription,
-    getTitle,
-} from '../database/notification';
+import { Notification, NotificationType } from '../database/notification';
 import { useNavigate } from 'react-router-dom';
 import { useCache } from '../api/cache/Cache';
 import { useApi } from '../api/Api';
 import { Request, RequestSnackbar, useRequest } from '../api/Request';
+import NotificationDescription from './NotificationDescription';
 
 interface NotificationListItemProps {
     notification: Notification;
@@ -59,14 +54,18 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
     };
 
     const onClickNotification = () => {
-        if (
-            notification.type === NotificationType.GameComment &&
-            notification.gameCommentMetadata
-        ) {
-            navigate(
-                `/games/${notification.gameCommentMetadata.cohort}/${notification.gameCommentMetadata.id}`
-            );
+        switch (notification.type) {
+            case NotificationType.GameComment:
+                navigate(
+                    `/games/${notification.gameCommentMetadata?.cohort}/${notification.gameCommentMetadata?.id}`
+                );
+                break;
+
+            case NotificationType.NewFollower:
+                navigate(`/profile/${notification.newFollowerMetadata?.username}`);
+                break;
         }
+
         if (onClick) {
             onClick();
         }
@@ -109,14 +108,7 @@ const NotificationItem: React.FC<NotificationListItemProps & DeletableNotificati
                 spacing={1}
                 width={1}
             >
-                <Stack>
-                    <Typography variant='subtitle1' fontWeight='bold'>
-                        {getTitle(notification)}
-                    </Typography>
-                    <Typography color='text.secondary'>
-                        {getDescription(notification)}
-                    </Typography>
-                </Stack>
+                <NotificationDescription notification={notification} menuItem />
 
                 <Stack direction='row' spacing={2}>
                     <Button onClick={onClick}>View</Button>
@@ -145,14 +137,7 @@ const NotificationMenuItem: React.FC<
         <Stack>
             <MenuItem onClick={onClick}>
                 <Stack direction='row' alignItems='center' spacing={2}>
-                    <Stack>
-                        <Typography variant='subtitle1' fontWeight='bold' noWrap>
-                            {getTitle(notification)}
-                        </Typography>
-                        <Typography color='text.secondary' noWrap>
-                            {getDescription(notification)}
-                        </Typography>
-                    </Stack>
+                    <NotificationDescription notification={notification} menuItem />
 
                     {deleteRequest.isLoading() ? (
                         <CircularProgress />
