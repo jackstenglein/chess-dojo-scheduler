@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -17,6 +18,8 @@ func main() {
 
 func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEventResponse, error) {
 	log.Debugf("Event: %#v", event)
+	var deleted int
+	var err error
 
 	failures := make([]events.DynamoDBBatchItemFailure, 0, len(event.Records))
 
@@ -24,9 +27,16 @@ func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEv
 		if record.EventName != "REMOVE" {
 			continue
 		}
-
 		log.Debugf("Record: %#v", record)
-		deleted, err := processRecord(record)
+
+		if strings.Contains(record.EventSourceArn, "timeline") {
+			deleted, err = processTimelineRecord(record)
+		} else if strings.Contains(record.EventSourceArn, "followers") {
+			deleted, err = processFollowersRecord(record)
+		} else {
+			continue
+		}
+
 		if err != nil {
 			log.Errorf("Failed with %d deleted: %v", deleted, err)
 			failures = append(failures, events.DynamoDBBatchItemFailure{
@@ -42,8 +52,14 @@ func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEv
 	}, nil
 }
 
-func processRecord(record events.DynamoDBEventRecord) (int, error) {
+func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 	poster := record.Change.Keys["owner"].String()
 	id := record.Change.Keys["id"].String()
 	return repository.DeleteNewsfeedEntries(poster, id)
+}
+
+func processFollowersRecord(record events.DynamoDBEventRecord) (int, error) {
+	poster := record.Change.Keys["poster"].String()
+	follower := record.Change.Keys["follower"].String()
+	return repository.RemovePosterFromNewsfeed(follower, poster)
 }

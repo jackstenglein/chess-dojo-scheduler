@@ -1108,6 +1108,7 @@ functions:
 
   createNewsfeedEntry:
     handler: newsfeed/create/main.go
+    timeout: 30
     events:
       - stream:
           type: dynamodb
@@ -1131,10 +1132,21 @@ functions:
 
   deleteNewsfeedEntry:
     handler: newsfeed/delete/main.go
+    timeout: 30
     events:
       - stream:
           type: dynamodb
           arn: !GetAtt TimelineTable.StreamArn
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [REMOVE]
+      - stream:
+          type: dynamodb
+          arn: !GetAtt FollowersTable.StreamArn
           batchWindow: 20
           batchSize: 10
           maximumRetryAttempts: 2
@@ -1151,6 +1163,7 @@ functions:
         Action:
           - dynamodb:Query
         Resource:
+          - !GetAtt NewsfeedTable.Arn
           - Fn::Join:
               - ''
               - - !GetAtt NewsfeedTable.Arn
@@ -1368,6 +1381,8 @@ resources:
             - IsProd
             - true
             - false
+        StreamSpecification:
+          StreamViewType: KEYS_ONLY
         GlobalSecondaryIndexes:
           - IndexName: FollowingIndex
             KeySchema:

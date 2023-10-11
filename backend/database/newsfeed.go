@@ -60,9 +60,18 @@ func (repo *dynamoRepository) ListNewsfeedEntries(newsfeedId, startKey string, l
 	return entries, lastKey, nil
 }
 
+type newsfeedQueryFunc func(startKey string) ([]NewsfeedEntry, string, error)
+
 // DeleteNewsfeedEntries deletes the NewsfeedEntries with the provided poster and timelineId.
 // The number of successfully deleted entries is returned.
 func (repo *dynamoRepository) DeleteNewsfeedEntries(poster, timelineId string) (int, error) {
+	return repo.deleteNewsfeedEntriesByQuery(func(startKey string) ([]NewsfeedEntry, string, error) {
+		return repo.listNewsfeedEntriesByTimelineId(poster, timelineId, startKey)
+	})
+}
+
+// deleteNewsfeedEntriesByQuery deletes all NewsfeedEntries returned by the given query function.
+func (repo *dynamoRepository) deleteNewsfeedEntriesByQuery(queryFunc newsfeedQueryFunc) (int, error) {
 	var deleteRequests []*dynamodb.WriteRequest
 	deleted := 0
 
@@ -71,7 +80,7 @@ func (repo *dynamoRepository) DeleteNewsfeedEntries(poster, timelineId string) (
 	var err error
 
 	for ok := true; ok; ok = startKey != "" {
-		entries, startKey, err = repo.listNewsfeedEntriesByPoster(poster, timelineId, startKey)
+		entries, startKey, err = queryFunc(startKey)
 		if err != nil {
 			return deleted, errors.Wrap(500, "Temporary server error", "Failed to list newsfeed entries", err)
 		}
@@ -107,7 +116,7 @@ func (repo *dynamoRepository) DeleteNewsfeedEntries(poster, timelineId string) (
 	return deleted, nil
 }
 
-func (repo *dynamoRepository) listNewsfeedEntriesByPoster(poster, timelineId, startKey string) ([]NewsfeedEntry, string, error) {
+func (repo *dynamoRepository) listNewsfeedEntriesByTimelineId(poster, timelineId, startKey string) ([]NewsfeedEntry, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#poster = :poster AND #timelineId = :timelineId"),
 		ExpressionAttributeNames: map[string]*string{
@@ -116,13 +125,47 @@ func (repo *dynamoRepository) listNewsfeedEntriesByPoster(poster, timelineId, st
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":poster": {
-				S: &poster,
+				S: aws.String(poster),
 			},
 			":timelineId": {
-				S: &timelineId,
+				S: aws.String(timelineId),
 			},
 		},
 		IndexName: aws.String("PosterIndex"),
+		TableName: &newsfeedTable,
+	}
+
+	var entries []NewsfeedEntry
+	lastKey, err := repo.query(input, startKey, &entries)
+	if err != nil {
+		return nil, "", err
+	}
+	return entries, lastKey, nil
+}
+
+// RemovePosterFromNewsfeed deletes any entries from the provided newsfeed that were posted by the given poster.
+func (repo *dynamoRepository) RemovePosterFromNewsfeed(newsfeedId, poster string) (int, error) {
+	return repo.deleteNewsfeedEntriesByQuery(func(startKey string) ([]NewsfeedEntry, string, error) {
+		return repo.listPosterInNewsfeed(newsfeedId, poster, startKey)
+	})
+}
+
+func (repo *dynamoRepository) listPosterInNewsfeed(newsfeedId, poster, startKey string) ([]NewsfeedEntry, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#newsfeedId = :newsfeedId"),
+		FilterExpression:       aws.String("#poster = :poster"),
+		ExpressionAttributeNames: map[string]*string{
+			"#newsfeedId": aws.String("newsfeedId"),
+			"#poster":     aws.String("poster"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":poster": {
+				S: aws.String(poster),
+			},
+			":newsfeedId": {
+				S: aws.String(newsfeedId),
+			},
+		},
 		TableName: &newsfeedTable,
 	}
 
