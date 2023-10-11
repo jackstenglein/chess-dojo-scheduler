@@ -8,6 +8,7 @@ import { useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
 import NewsfeedItem from './NewsfeedItem';
 import { TimelineEntry } from '../database/requirement';
+import CaughtUpMessage from './CaughtUpMessage';
 
 const NewsfeedPage = () => {
     const api = useApi();
@@ -60,6 +61,8 @@ const NewsfeedPage = () => {
                         onEdit={(e) => onEdit(i, e)}
                     />
                 ))}
+
+                <CaughtUpMessage since='2023-10-09' />
             </Stack>
         </Container>
     );
