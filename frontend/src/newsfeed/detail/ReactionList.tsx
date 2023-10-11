@@ -2,11 +2,11 @@ import { useMemo, useState } from 'react';
 import { Button, IconButton, Menu, Stack, Tooltip, Typography } from '@mui/material';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 
-import { Reaction, TimelineEntry } from '../database/requirement';
-import { useAuth } from '../auth/Auth';
-import { User } from '../database/user';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
+import { Reaction, TimelineEntry } from '../../database/requirement';
+import { useAuth } from '../../auth/Auth';
+import { User } from '../../database/user';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 
 const ReactionTypes = [
     '\u2764\uFE0F', // heart

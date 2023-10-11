@@ -1,9 +1,9 @@
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
-import Avatar from '../profile/Avatar';
-import { TimelineEntry } from '../database/requirement';
-import GraduationIcon from '../scoreboard/GraduationIcon';
+import Avatar from '../../profile/Avatar';
+import { TimelineEntry } from '../../database/requirement';
+import GraduationIcon from '../../scoreboard/GraduationIcon';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;

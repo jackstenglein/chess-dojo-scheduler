@@ -6,9 +6,11 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { ListNewsfeedResponse } from '../../api/newsfeedApi';
 import { useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
-import NewsfeedItem from '../NewsfeedItem';
+import NewsfeedItem from '../detail/NewsfeedItem';
 import { TimelineEntry } from '../../database/requirement';
 import CaughtUpMessage from './CaughtUpMessage';
+
+const MAX_COMMENTS = 3;
 
 const NewsfeedListPage = () => {
     const api = useApi();
@@ -59,6 +61,7 @@ const NewsfeedListPage = () => {
                         key={entry.id}
                         entry={entry}
                         onEdit={(e) => onEdit(i, e)}
+                        maxComments={MAX_COMMENTS}
                     />
                 ))}
 

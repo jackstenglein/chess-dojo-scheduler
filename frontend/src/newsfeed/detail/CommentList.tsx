@@ -1,21 +1,39 @@
 import { Link, Paper, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
-import { Comment } from '../database/game';
-import Avatar from '../profile/Avatar';
+import { Comment } from '../../database/game';
+import Avatar from '../../profile/Avatar';
 
 interface CommentListProps {
     comments: Comment[] | null;
+    maxComments?: number;
+    viewCommentsLink?: string;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ comments }) => {
+const CommentList: React.FC<CommentListProps> = ({
+    comments,
+    maxComments,
+    viewCommentsLink,
+}) => {
     if (!comments) {
         return null;
     }
 
+    const displayComments = maxComments
+        ? comments.slice(Math.max(0, comments.length - maxComments))
+        : comments;
+
+    const hiddenComments = comments.length - displayComments.length;
+
     return (
-        <Stack spacing={3}>
-            {comments.map((comment) => (
+        <Stack spacing={3} width={1} alignItems='start'>
+            {hiddenComments > 0 && viewCommentsLink && (
+                <Link component={RouterLink} to={viewCommentsLink} sx={{ pl: '52px' }}>
+                    View {hiddenComments} earlier comment{hiddenComments !== 1 ? 's' : ''}
+                </Link>
+            )}
+
+            {displayComments.map((comment) => (
                 <CommentListItem key={comment.id} comment={comment} />
             ))}
         </Stack>

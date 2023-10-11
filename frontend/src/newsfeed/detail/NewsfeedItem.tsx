@@ -1,9 +1,9 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 
-import { ScoreboardDisplay, TimelineEntry } from '../database/requirement';
-import { CategoryColors } from '../profile/activity/activity';
-import ScoreboardProgress from '../scoreboard/ScoreboardProgress';
+import { ScoreboardDisplay, TimelineEntry } from '../../database/requirement';
+import { CategoryColors } from '../../profile/activity/activity';
+import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import CommentEditor from './CommentEditor';
 import CommentList from './CommentList';
 import ReactionList from './ReactionList';
@@ -13,9 +13,10 @@ import GraduationNewsfeedItem from './GraduationNewsfeedItem';
 interface NewsfeedItemProps {
     entry: TimelineEntry;
     onEdit: (entry: TimelineEntry) => void;
+    maxComments?: number;
 }
 
-const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit }) => {
+const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments }) => {
     return (
         <Card variant='outlined'>
             <CardContent>
@@ -32,7 +33,11 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit }) => {
 
                     <Divider sx={{ width: 1 }} />
 
-                    <CommentList comments={entry.comments} />
+                    <CommentList
+                        comments={entry.comments}
+                        maxComments={maxComments}
+                        viewCommentsLink={`/newsfeed/${entry.owner}/${entry.id}`}
+                    />
                     <CommentEditor owner={entry.owner} id={entry.id} onSuccess={onEdit} />
                 </Stack>
             </CardContent>

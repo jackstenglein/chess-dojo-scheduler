@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
-import { useAuth } from '../auth/Auth';
-import Avatar from '../profile/Avatar';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { TimelineEntry } from '../database/requirement';
-import { useApi } from '../api/Api';
+import { useAuth } from '../../auth/Auth';
+import Avatar from '../../profile/Avatar';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { TimelineEntry } from '../../database/requirement';
+import { useApi } from '../../api/Api';
 
 interface CommentEditorProps {
     owner: string;
@@ -41,7 +41,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ owner, id, onSuccess }) =
     };
 
     return (
-        <Stack direction='row' spacing={1} alignItems='start'>
+        <Stack direction='row' spacing={1} alignItems='start' width={1}>
             <RequestSnackbar request={request} />
 
             <Avatar user={user} size={40} />
