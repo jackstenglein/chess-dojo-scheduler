@@ -13,6 +13,7 @@ export interface TimelineEntry {
     previousCount: number;
     newCount: number;
     minutesSpent: number;
+    totalMinutesSpent: number;
     scoreboardDisplay: ScoreboardDisplay;
     progressBarSuffix: string;
     createdAt: string;

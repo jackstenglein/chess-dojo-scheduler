@@ -51,6 +51,7 @@ func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task 
 		Cohort:              request.Cohort,
 		TotalCount:          1,
 		MinutesSpent:        request.IncrementalMinutesSpent,
+		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
 		CreatedAt:           time.Now().Format(time.RFC3339),
 	}
 	if err := repository.PutTimelineEntry(timelineEntry); err != nil {
@@ -113,6 +114,7 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		PreviousCount:       originalCount,
 		NewCount:            originalCount + request.IncrementalCount,
 		MinutesSpent:        request.IncrementalMinutesSpent,
+		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
 		CreatedAt:           updatedAt,
 	}
 

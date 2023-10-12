@@ -237,6 +237,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
 
     const updated: TimelineEntry[] = [];
     const deleted: TimelineEntry[] = [];
+    let totalMinutesSpent = 0;
 
     for (const item of items) {
         if (item.deleted) {
@@ -249,6 +250,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
         const newCount = previousCount + parseInt(item.count);
         const minutesSpent =
             60 * parseInt(item.hours || '0') + parseInt(item.minutes || '0');
+        totalMinutesSpent += minutesSpent;
 
         updated.push({
             ...item.entry,
@@ -256,6 +258,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
             previousCount,
             newCount,
             minutesSpent,
+            totalMinutesSpent,
         });
     }
 

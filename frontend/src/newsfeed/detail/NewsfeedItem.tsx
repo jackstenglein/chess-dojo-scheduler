@@ -1,7 +1,7 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 
-import { ScoreboardDisplay } from '../../database/requirement';
+import { ScoreboardDisplay, formatTime } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
 import { CategoryColors } from '../../profile/activity/activity';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
@@ -73,6 +73,26 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
                 {isComplete ? 'Completed' : 'Updated'}{' '}
                 <strong>{entry.requirementName}</strong>
             </Typography>
+
+            <Stack pt={1}>
+                {entry.minutesSpent > 0 && (
+                    <Typography>
+                        <Typography component='span' color='text.secondary'>
+                            New Time:
+                        </Typography>{' '}
+                        {formatTime(entry.minutesSpent)}
+                    </Typography>
+                )}
+
+                {entry.totalMinutesSpent > 0 && (
+                    <Typography>
+                        <Typography component='span' color='text.secondary'>
+                            Total Time:
+                        </Typography>{' '}
+                        {formatTime(entry.totalMinutesSpent)}
+                    </Typography>
+                )}
+            </Stack>
 
             {isSlider && (
                 <ScoreboardProgress
