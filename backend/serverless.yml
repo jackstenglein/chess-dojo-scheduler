@@ -1678,6 +1678,11 @@ resources:
           - IsProd
           - PROVISIONED
           - PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
         ProvisionedThroughput: !If
           - IsProd
           - ReadCapacityUnits: 1
@@ -1727,6 +1732,11 @@ resources:
             KeyType: HASH
           - AttributeName: sortKey
             KeyType: RANGE
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
         GlobalSecondaryIndexes:
           - IndexName: PosterIndex
             KeySchema:

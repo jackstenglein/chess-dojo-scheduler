@@ -13,6 +13,7 @@ const CreatedAtChip: React.FC<CreatedAtChipProps> = ({ createdAt }) => {
                     icon={<CalendarMonthIcon fontSize='small' />}
                     label='Dojo 1.0'
                     variant='outlined'
+                    color='secondary'
                 />
             </Tooltip>
         );

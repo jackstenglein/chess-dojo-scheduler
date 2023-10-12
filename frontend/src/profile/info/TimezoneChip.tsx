@@ -1,6 +1,8 @@
 import { Chip, Tooltip } from '@mui/material';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 
+import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
+
 const timezoneDisplayLabels: Record<string, string> = {
     'Etc/GMT+12': 'UTC-12',
     'Etc/GMT+11': 'UTC-11',
@@ -36,7 +38,7 @@ interface TimezoneChipProps {
 }
 
 const TimezoneChip: React.FC<TimezoneChipProps> = ({ timezone }) => {
-    if (!timezone) {
+    if (!timezone || timezone === DefaultTimezone) {
         return null;
     }
 
