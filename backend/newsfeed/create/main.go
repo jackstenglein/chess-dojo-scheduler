@@ -55,6 +55,14 @@ func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEv
 }
 
 func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
+	requirementId := record.Change.NewImage["requirementId"].String()
+	for _, id := range database.NewsfeedBlockedRequirements {
+		if requirementId == id {
+			log.Debugf("Skipping record due to blocked requirement id: %s", requirementId)
+			return 0, nil
+		}
+	}
+
 	poster := record.Change.Keys["owner"].String()
 	id := record.Change.Keys["id"].String()
 	createdAt := time.Now().Format(time.RFC3339)

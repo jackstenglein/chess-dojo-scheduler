@@ -8,6 +8,10 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
+var NewsfeedBlockedRequirements = []string{
+	"4d23d689-1284-46e6-b2a2-4b4bfdc37174", // Annotated Games (appears on the timeline when the game itself is created)
+}
+
 // NewsfeedEntry represents an entry in a user's news feed.
 type NewsfeedEntry struct {
 	// The id of the news feed this entry is part of. Usually this will be a user's username, but
@@ -196,6 +200,12 @@ func (repo *dynamoRepository) InsertPosterIntoNewsfeed(newsfeedId, poster string
 
 	entries := make([]NewsfeedEntry, 0, len(timelineEntries))
 	for _, te := range timelineEntries {
+		for _, id := range NewsfeedBlockedRequirements {
+			if id == te.RequirementId {
+				continue
+			}
+		}
+
 		entries = append(entries, NewsfeedEntry{
 			NewsfeedId: newsfeedId,
 			SortKey:    fmt.Sprintf("%s_%s", te.CreatedAt, te.Id),
