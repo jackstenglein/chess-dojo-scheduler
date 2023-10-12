@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Container, Stack } from '@mui/material';
 
 import { useApi } from '../../api/Api';
@@ -8,7 +8,7 @@ import { useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
 import NewsfeedItem from '../detail/NewsfeedItem';
 import { TimelineEntry } from '../../database/requirement';
-import CaughtUpMessage from './CaughtUpMessage';
+import LoadMoreButton from './LoadMoreButton';
 
 const MAX_COMMENTS = 3;
 
@@ -16,6 +16,23 @@ const NewsfeedListPage = () => {
     const api = useApi();
     const user = useAuth().user!;
     const request = useRequest<ListNewsfeedResponse>();
+    const [lastStartKey, setLastStartKey] = useState('');
+
+    const handleResponse = useCallback(
+        (resp: ListNewsfeedResponse) => {
+            setLastStartKey(request.data?.lastEvaluatedKey || '');
+            request.onSuccess({
+                entries: (request.data?.entries || []).concat(
+                    resp.entries.sort((lhs, rhs) =>
+                        rhs.createdAt.localeCompare(lhs.createdAt)
+                    )
+                ),
+                lastFetch: resp.lastFetch,
+                lastEvaluatedKey: resp.lastEvaluatedKey,
+            });
+        },
+        [setLastStartKey, request]
+    );
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -23,23 +40,16 @@ const NewsfeedListPage = () => {
             api.listNewsfeed(user.dojoCohort)
                 .then((resp) => {
                     console.log('listNewsfeed: ', resp);
-                    request.onSuccess({
-                        entries: (request.data?.entries || [])
-                            .concat(resp.data.entries)
-                            .sort((lhs, rhs) =>
-                                rhs.createdAt.localeCompare(lhs.createdAt)
-                            ),
-                        lastEvaluatedKey: resp.data.lastEvaluatedKey,
-                    });
+                    handleResponse(resp.data);
                 })
                 .catch((err) => {
                     console.error(err);
                     request.onFailure(err);
                 });
         }
-    }, [request, api, user.dojoCohort]);
+    }, [request, api, user.dojoCohort, handleResponse]);
 
-    if (!request.isSent() || request.isLoading()) {
+    if (!request.isSent() || (request.isLoading() && !request.data)) {
         return <LoadingPage />;
     }
 
@@ -47,8 +57,30 @@ const NewsfeedListPage = () => {
         const data = request.data?.entries || [];
         request.onSuccess({
             entries: [...data.slice(0, i), entry, ...data.slice(i + 1)],
+            lastFetch: request.data?.lastFetch || '',
             lastEvaluatedKey: request.data?.lastEvaluatedKey || '',
         });
+    };
+
+    let skipLastFetch = true;
+    let startKey = request.data?.lastEvaluatedKey || '';
+    if (request.data?.lastFetch && request.data.lastEvaluatedKey) {
+        skipLastFetch = false;
+    } else if (request.data?.lastFetch) {
+        startKey = lastStartKey;
+    }
+
+    const onLoadMore = () => {
+        request.onStart();
+        api.listNewsfeed(user.dojoCohort, skipLastFetch, startKey)
+            .then((resp) => {
+                console.log('listNewsfeed: ', resp);
+                handleResponse(resp.data);
+            })
+            .catch((err) => {
+                console.error(err);
+                request.onFailure(err);
+            });
     };
 
     return (
@@ -65,7 +97,12 @@ const NewsfeedListPage = () => {
                     />
                 ))}
 
-                <CaughtUpMessage since='2023-10-09' />
+                <LoadMoreButton
+                    request={request}
+                    since={request.data?.lastFetch}
+                    startKey={startKey}
+                    onLoadMore={onLoadMore}
+                />
             </Stack>
         </Container>
     );

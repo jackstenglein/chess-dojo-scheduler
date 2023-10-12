@@ -239,6 +239,9 @@ type User struct {
 
 	// The number of users this user follows.
 	FollowingCount int `dynamodbav:"followingCount" json:"followingCount"`
+
+	// The time the user last fetched their newsfeed in time.RFC3339 format.
+	LastFetchedNewsfeed string `dynamodbav:"lastFetchedNewsfeed" json:"lastFetchedNewsfeed"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
@@ -418,6 +421,10 @@ type UserUpdate struct {
 	// should not be changed when the user sets the Discord username. This field cannot manually be
 	// set by the user.
 	ProfilePictureSet *bool `dynamodbav:"profilePictureSet,omitempty" json:"-"`
+
+	// The time the user last fetched their newsfeed in time.RFC3339 format. This field cannot be
+	// manually set by the user.
+	LastFetchedNewsfeed *string `dynamodbav:"lastFetchedNewsfeed,omitempty" json:"-"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

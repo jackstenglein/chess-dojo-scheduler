@@ -1209,6 +1209,11 @@ functions:
         Action:
           - dynamodb:BatchGetItem
         Resource: !GetAtt TimelineTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt UsersTable.Arn
 
   createNewsfeedComment:
     handler: newsfeed/comment/create/main.go

@@ -20,11 +20,13 @@ export type NewsfeedApiContextType = {
     /**
      * Fetches a page of the current user's newsfeed.
      * @param cohort The optional cohort to use for the newsfeed.
+     * @param skipLastFetch Optionally skip the lastFetch value when listing the newsfeed.
      * @param startKey The optional startKey to use for pagination.
      * @returns An AxiosResponse containing the list of newsfeed items and the next start key.
      */
     listNewsfeed: (
         cohort?: string,
+        skipLastFetch?: boolean,
         startKey?: string
     ) => Promise<AxiosResponse<ListNewsfeedResponse, any>>;
 
@@ -65,8 +67,17 @@ export function getNewsfeedItem(owner: string, id: string) {
     return axios.get<TimelineEntry>(`${BASE_URL}/public/newsfeed/${owner}/${id}`);
 }
 
+/**
+ * The response from a list newsfeed request.
+ */
 export interface ListNewsfeedResponse {
+    /** The listed timeline entries. */
     entries: TimelineEntry[];
+
+    /** The date of the previous request to ListNewsfeed.  */
+    lastFetch: string;
+
+    /** The start key to pass in the next request. */
     lastEvaluatedKey: string;
 }
 
@@ -77,9 +88,14 @@ export interface ListNewsfeedResponse {
  * @param startKey The optional startKey to use for pagination.
  * @returns An AxiosResponse containing the list of newsfeed items and the next start key.
  */
-export function listNewsfeed(idToken: string, cohort?: string, startKey?: string) {
+export function listNewsfeed(
+    idToken: string,
+    cohort?: string,
+    skipLastFetch?: boolean,
+    startKey?: string
+) {
     return axios.get<ListNewsfeedResponse>(`${BASE_URL}/newsfeed`, {
-        params: { cohort, startKey },
+        params: { cohort, skipLastFetched: skipLastFetch ? 'true' : '', startKey },
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
