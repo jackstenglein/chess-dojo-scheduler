@@ -114,11 +114,13 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		ScoreboardDisplay:   database.Hidden,
 		Cohort:              user.DojoCohort,
 		CreatedAt:           createdAt,
-		GraduationComments:  request.Comments,
-		DojoScore:           score,
-		NewCohort:           nextCohort,
-		DojoMinutes:         dojoTime,
-		NonDojoMinutes:      nonDojoTime,
+		GraduationInfo: &database.TimelineGraduationInfo{
+			Comments:       request.Comments,
+			DojoScore:      score,
+			NewCohort:      nextCohort,
+			DojoMinutes:    dojoTime,
+			NonDojoMinutes: nonDojoTime,
+		},
 	}
 	if err := repository.PutTimelineEntry(&timelineEntry); err != nil {
 		log.Debugf("Failed to create timeline entry: %v", err)

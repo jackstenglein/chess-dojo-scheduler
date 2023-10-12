@@ -58,22 +58,11 @@ type TimelineEntry struct {
 	// The time the timeline entry was created
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 
-	// The graduation comments, if this timeline entry is for a graduation
-	GraduationComments string `dynamodbav:"graduationComments,omitempty" json:"graduationComments,omitempty"`
+	// The info on graduation, if this timeline entry is for a graduation
+	GraduationInfo *TimelineGraduationInfo `dynamodbav:"graduationInfo,omitempty" json:"graduationInfo,omitempty"`
 
-	// The dojo score at the time of graduation, if this timeline entry is for a graduation
-	DojoScore float32 `dynamodbav:"dojoScore,omitempty" json:"dojoScore,omitempty"`
-
-	// The user's new dojo cohort, if this timeline entry is for a graduation
-	NewCohort DojoCohort `dynamodbav:"newCohort,omitempty" json:"newCohort,omitempty"`
-
-	// The amount of time spent in minutes on dojo tasks in the cohort, if this
-	// timeline entry is for a graduation
-	DojoMinutes int `dynamodbav:"dojoMinutes,omitempty" json:"dojoMinutes,omitempty"`
-
-	// The amount of time spent in minutes on non-dojo tasks in the cohort, if this
-	// timeline entry is for a graduation
-	NonDojoMinutes int `dynamodbav:"nonDojoMinutes,omitempty" json:"nonDojoMinutes,omitempty"`
+	// The info on game submission, if this timeline entry is for a game submission
+	GameInfo *TimelineGameInfo `dynamodbav:"gameInfo,omitempty" json:"gameInfo,omitempty"`
 
 	// The comments left on the timeline entry
 	Comments []Comment `dynamodbav:"comments,omitempty" json:"comments"`
@@ -81,6 +70,33 @@ type TimelineEntry struct {
 	// The reactions left on the timeline entry as a map from the
 	// username of the reactor
 	Reactions map[string]Reaction `dynamodbav:"reactions" json:"reactions"`
+}
+
+// The info on graduation that is copied into the timeline entry
+type TimelineGraduationInfo struct {
+	// The comments the user left when graduating
+	Comments string `dynamodbav:"comments" json:"comments"`
+
+	// The dojo score at the time of graduation
+	DojoScore float32 `dynamodbav:"dojoScore" json:"dojoScore"`
+
+	// The user's new dojo cohort
+	NewCohort DojoCohort `dynamodbav:"newCohort" json:"newCohort"`
+
+	// The amount of time spent in minutes on dojo tasks in the cohort
+	DojoMinutes int `dynamodbav:"dojoMinutes" json:"dojoMinutes"`
+
+	// The amount of time spent in minutes on non-dojo tasks in the cohort
+	NonDojoMinutes int `dynamodbav:"nonDojoMinutes" json:"nonDojoMinutes"`
+}
+
+// The info on game submission that is copied into the timeline entry
+type TimelineGameInfo struct {
+	// The id of the game
+	Id string `dynamodbav:"id" json:"id"`
+
+	// The headers of the game
+	Headers map[string]string `dynamodbav:"headers" json:"headers"`
 }
 
 type Reaction struct {
@@ -100,9 +116,13 @@ type Reaction struct {
 	Types []string `dynamodbav:"types,stringset" json:"types"`
 }
 
-type TimelineEditor interface {
+type TimelinePutter interface {
 	// PutTimelineEntry saves the provided TimelineEntry into the database.
 	PutTimelineEntry(entry *TimelineEntry) error
+}
+
+type TimelineEditor interface {
+	TimelinePutter
 
 	// PutTimelineEntries inserts the provided TimelineEntries into the database. The number of
 	// successfully inserted entries is returned.

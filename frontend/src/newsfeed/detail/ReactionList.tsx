@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { Button, IconButton, Menu, Stack, Tooltip, Typography } from '@mui/material';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 
-import { Reaction, TimelineEntry } from '../../database/requirement';
+import { Reaction } from '../../database/timeline';
+import { TimelineEntry } from '../../database/timeline';
 import { useAuth } from '../../auth/Auth';
 import { User } from '../../database/user';
 import { useApi } from '../../api/Api';

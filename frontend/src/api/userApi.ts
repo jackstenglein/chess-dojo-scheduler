@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import { User } from '../database/user';
 import { getConfig } from '../config';
 import { Graduation } from '../database/graduation';
-import { TimelineEntry } from '../database/requirement';
+import { TimelineEntry } from '../database/timeline';
 import { UserStatistics } from '../database/statistics';
 import { FollowerEntry } from '../database/follower';
 

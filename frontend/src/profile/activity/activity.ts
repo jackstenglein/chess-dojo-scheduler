@@ -1,12 +1,12 @@
 import {
     CustomTask,
     Requirement,
-    TimelineEntry,
     getCurrentCount,
     getCurrentScore,
     getTotalCount,
     getUnitScore,
 } from '../../database/requirement';
+import { TimelineEntry } from '../../database/timeline';
 import { User } from '../../database/user';
 import { PieChartData } from './PieChart';
 

@@ -1,4 +1,3 @@
-import { Comment } from './game';
 import { User } from './user';
 
 export enum RequirementStatus {
@@ -71,40 +70,6 @@ export interface RequirementProgress {
         [cohort: string]: number;
     };
     updatedAt: string;
-}
-
-export interface TimelineEntry {
-    owner: string;
-    ownerDisplayName: string;
-    id: string;
-    requirementId: string;
-    requirementName: string;
-    requirementCategory: string;
-    cohort: string;
-    totalCount: number;
-    previousCount: number;
-    newCount: number;
-    minutesSpent: number;
-    scoreboardDisplay: ScoreboardDisplay;
-    progressBarSuffix: string;
-    createdAt: string;
-    comments: Comment[] | null;
-    reactions: Record<string, Reaction> | null;
-
-    // Fields included for graduations
-    graduationComments?: string;
-    dojoScore?: number;
-    newCohort?: string;
-    dojoMinutes?: number;
-    nonDojoMinutes?: number;
-}
-
-export interface Reaction {
-    username: string;
-    displayName: string;
-    cohort: string;
-    updatedAt: string;
-    types: string[];
 }
 
 export function isRequirement(obj: any): obj is Requirement {

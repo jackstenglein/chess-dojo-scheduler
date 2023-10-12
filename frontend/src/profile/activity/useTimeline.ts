@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../../api/Api';
-import { TimelineEntry } from '../../database/requirement';
+import { TimelineEntry } from '../../database/timeline';
 import { Request, useRequest } from '../../api/Request';
 
 export interface UseTimelineResponse {

@@ -1,7 +1,8 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 
-import { ScoreboardDisplay, TimelineEntry } from '../../database/requirement';
+import { ScoreboardDisplay } from '../../database/requirement';
+import { TimelineEntry } from '../../database/timeline';
 import { CategoryColors } from '../../profile/activity/activity';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import CommentEditor from './CommentEditor';
@@ -9,6 +10,7 @@ import CommentList from './CommentList';
 import ReactionList from './ReactionList';
 import NewsfeedItemHeader from './NewsfeedItemHeader';
 import GraduationNewsfeedItem from './GraduationNewsfeedItem';
+import GameNewsfeedItem from './GameNewsfeedItem';
 
 interface NewsfeedItemProps {
     entry: TimelineEntry;
@@ -48,6 +50,9 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments 
 const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }) => {
     if (entry.requirementId === 'Graduation') {
         return <GraduationNewsfeedItem entry={entry} />;
+    }
+    if (entry.requirementId === 'GameSubmission') {
+        return <GameNewsfeedItem entry={entry} />;
     }
 
     const isComplete = entry.newCount >= entry.totalCount;

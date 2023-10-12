@@ -19,9 +19,9 @@ import {
     CustomTask,
     Requirement,
     ScoreboardDisplay,
-    TimelineEntry,
     isRequirement,
 } from '../../database/requirement';
+import { TimelineEntry } from '../../database/timeline';
 import { useAuth } from '../../auth/Auth';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';

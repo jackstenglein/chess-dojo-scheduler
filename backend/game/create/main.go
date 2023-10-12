@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/google/uuid"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
@@ -30,7 +32,11 @@ var repository database.GamePutter = database.DynamoDB
 
 const funcName = "game-create-handler"
 
-func Handler(ctx context.Context, event api.Request) (api.Response, error) {
+func main() {
+	lambda.Start(handler)
+}
+
+func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
@@ -94,6 +100,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		log.Error("Failed RecordGameCreation: ", err)
 	}
 
+	if len(games) == 1 {
+		createTimelineEntry(games[0])
+	}
+
 	if req.Type == game.LichessChapter || req.Type == game.Manual {
 		return api.Success(funcName, games[0]), nil
 	}
@@ -135,6 +145,27 @@ func getGames(user *database.User, pgnTexts []string, reqHeaders []*game.HeaderD
 	return games, nil, nil
 }
 
-func main() {
-	lambda.Start(Handler)
+func createTimelineEntry(game *database.Game) {
+	now := time.Now()
+	entry := database.TimelineEntry{
+		TimelineEntryKey: database.TimelineEntryKey{
+			Owner: game.Owner,
+			Id:    fmt.Sprintf("%s_%s", now.Format(time.DateOnly), uuid.NewString()),
+		},
+		OwnerDisplayName:    game.OwnerDisplayName,
+		RequirementId:       "GameSubmission",
+		RequirementName:     "GameSubmission",
+		RequirementCategory: "Games + Analysis",
+		ScoreboardDisplay:   database.Hidden,
+		Cohort:              game.Cohort,
+		CreatedAt:           now.Format(time.RFC3339),
+		GameInfo: &database.TimelineGameInfo{
+			Id:      game.Id,
+			Headers: game.Headers,
+		},
+	}
+
+	if err := repository.PutTimelineEntry(&entry); err != nil {
+		log.Debugf("Failed to create timeline entry: %v", err)
+	}
 }

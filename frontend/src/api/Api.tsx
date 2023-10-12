@@ -4,7 +4,8 @@ import { useAuth } from '../auth/Auth';
 
 import { User } from '../database/user';
 import { Event } from '../database/event';
-import { Requirement, TimelineEntry } from '../database/requirement';
+import { Requirement } from '../database/requirement';
+import { TimelineEntry } from '../database/timeline';
 
 import {
     AdminApiContextType,

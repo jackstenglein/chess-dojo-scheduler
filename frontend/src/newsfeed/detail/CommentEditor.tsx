@@ -5,7 +5,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { useAuth } from '../../auth/Auth';
 import Avatar from '../../profile/Avatar';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { TimelineEntry } from '../../database/requirement';
+import { TimelineEntry } from '../../database/timeline';
 import { useApi } from '../../api/Api';
 
 interface CommentEditorProps {

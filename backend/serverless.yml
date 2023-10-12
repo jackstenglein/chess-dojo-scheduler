@@ -735,6 +735,11 @@ functions:
           - dynamodb:BatchWriteItem
         Resource:
           - !GetAtt GamesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt TimelineTable.Arn
 
   updateGame:
     handler: game/update/main.go

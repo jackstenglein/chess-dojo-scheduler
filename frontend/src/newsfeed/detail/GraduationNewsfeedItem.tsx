@@ -1,11 +1,25 @@
 import { Stack, Typography } from '@mui/material';
-import { TimelineEntry, formatTime } from '../../database/requirement';
+import { formatTime } from '../../database/requirement';
+import { TimelineEntry } from '../../database/timeline';
 
 interface GraduationNewsfeedItemProps {
     entry: TimelineEntry;
 }
 
 const GraduationNewsfeedItem: React.FC<GraduationNewsfeedItemProps> = ({ entry }) => {
+    if (!entry.graduationInfo) {
+        return (
+            <Stack mt={3}>
+                <Typography>
+                    <Typography component='span' color='text.secondary'>
+                        Graduated from
+                    </Typography>{' '}
+                    <strong>{entry.cohort}</strong>
+                </Typography>
+            </Stack>
+        );
+    }
+
     return (
         <Stack mt={3}>
             <Typography>
@@ -16,7 +30,7 @@ const GraduationNewsfeedItem: React.FC<GraduationNewsfeedItemProps> = ({ entry }
                 <Typography component='span' color='text.secondary'>
                     into
                 </Typography>{' '}
-                <strong>{entry.newCohort}</strong>
+                <strong>{entry.graduationInfo.newCohort}</strong>
             </Typography>
 
             <Stack mt={1} mb={2}>
@@ -24,25 +38,27 @@ const GraduationNewsfeedItem: React.FC<GraduationNewsfeedItemProps> = ({ entry }
                     <Typography component='span' color='text.secondary'>
                         Dojo Score:
                     </Typography>{' '}
-                    {Math.round(100 * (entry.dojoScore || 0)) / 100}
+                    {Math.round(100 * entry.graduationInfo.dojoScore) / 100}
                 </Typography>
 
                 <Typography>
                     <Typography component='span' color='text.secondary'>
                         Dojo Time:
                     </Typography>{' '}
-                    {formatTime(entry.dojoMinutes || 0)}
+                    {formatTime(entry.graduationInfo.dojoMinutes || 0)}
                 </Typography>
                 <Typography>
                     <Typography component='span' color='text.secondary'>
                         Non-Dojo Time:
                     </Typography>{' '}
-                    {formatTime(entry.nonDojoMinutes || 0)}
+                    {formatTime(entry.graduationInfo.nonDojoMinutes || 0)}
                 </Typography>
             </Stack>
 
-            {entry.graduationComments && (
-                <Typography whiteSpace='pre-line'>{entry.graduationComments}</Typography>
+            {entry.graduationInfo.comments && (
+                <Typography whiteSpace='pre-line'>
+                    {entry.graduationInfo.comments}
+                </Typography>
             )}
         </Stack>
     );

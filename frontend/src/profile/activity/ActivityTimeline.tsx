@@ -12,7 +12,8 @@ import {
 import { Stack, Typography } from '@mui/material';
 
 import { RequestSnackbar } from '../../api/Request';
-import { ScoreboardDisplay, TimelineEntry } from '../../database/requirement';
+import { ScoreboardDisplay } from '../../database/requirement';
+import { TimelineEntry } from '../../database/timeline';
 import { User } from '../../database/user';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';

@@ -3,7 +3,7 @@ import { useApi } from '../../api/Api';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { TimelineEntry } from '../../database/requirement';
+import { TimelineEntry } from '../../database/timeline';
 import NewsfeedItem from './NewsfeedItem';
 import LoadingPage from '../../loading/LoadingPage';
 import NotFoundPage from '../../NotFoundPage';

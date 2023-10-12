@@ -132,6 +132,7 @@ type GameUpdate struct {
 
 type GamePutter interface {
 	UserGetter
+	TimelinePutter
 
 	// BatchPutGames inserts the provided list of games into the database.
 	BatchPutGames(games []*Game) (int, error)
