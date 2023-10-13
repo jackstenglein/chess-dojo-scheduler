@@ -43,5 +43,5 @@ export interface Reaction {
     displayName: string;
     cohort: string;
     updatedAt: string;
-    types: string[];
+    types?: string[];
 }

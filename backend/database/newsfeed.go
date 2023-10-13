@@ -44,7 +44,7 @@ func (repo *dynamoRepository) PutNewsfeedEntries(entries []NewsfeedEntry) (int, 
 // ListNewsfeedEntries returns a list of NewsfeedEntries for the provided news feed ID. Usually
 // the ID will be a user's username, but it could also be a cohort or the special value `ALL_USERS`.
 // The optional parameter lastFetch can be used to limit how many results are returned.
-func (repo *dynamoRepository) ListNewsfeedEntries(newsfeedId, startKey, lastFetch string, limit int) ([]NewsfeedEntry, string, error) {
+func (repo *dynamoRepository) ListNewsfeedEntries(newsfeedId, startKey, lastFetch string, limit int64) ([]NewsfeedEntry, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#newsfeedId = :newsfeedId"),
 		ExpressionAttributeNames: map[string]*string{
@@ -55,6 +55,7 @@ func (repo *dynamoRepository) ListNewsfeedEntries(newsfeedId, startKey, lastFetc
 				S: &newsfeedId,
 			},
 		},
+		Limit:            aws.Int64(limit),
 		ScanIndexForward: aws.Bool(false),
 		TableName:        &newsfeedTable,
 	}

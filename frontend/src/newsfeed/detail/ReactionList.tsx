@@ -28,7 +28,7 @@ function isReactor(
     if (!reactions[user.username]) {
         return false;
     }
-    return reactions[user.username].types.includes(type);
+    return reactions[user.username].types?.includes(type) || false;
 }
 
 function getNewTypes(
@@ -43,8 +43,8 @@ function getNewTypes(
         return [type];
     }
 
-    const types = reactions[user.username].types.filter((t) => t !== type);
-    if (types.length === reactions[user.username].types.length) {
+    const types = reactions[user.username].types?.filter((t) => t !== type) || [];
+    if (types.length === (reactions[user.username].types?.length || 0)) {
         return types.concat(type);
     }
     return types;
@@ -65,7 +65,7 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
     const reactionMap = useMemo(() => {
         const reactionMap: Record<string, number> = {};
         for (const reaction of Object.values(reactions || {})) {
-            for (const type of reaction.types) {
+            for (const type of reaction.types || []) {
                 reactionMap[type] = (reactionMap[type] || 0) + 1;
             }
         }
