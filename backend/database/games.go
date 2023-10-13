@@ -67,7 +67,9 @@ type Game struct {
 	// The Dojo cohort for the game
 	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
 
-	// The sort key of the game, in the form of date_uuid
+	// The sort key of the game, in the form of date_uuid for newer games. Note that
+	// the date value is taken from the createdAt value, but has dashes replaced with periods
+	// to match the PGN specification.
 	Id string `dynamodbav:"id" json:"id"`
 
 	// The player with the white pieces
@@ -76,8 +78,12 @@ type Game struct {
 	// The player with the black pieces
 	Black string `dynamodbav:"black" json:"black"`
 
-	// The date that the game was played
+	// The date that the game was played, in the form 2023.01.02
+	// We use periods instead of dashes to match the PGN specification.
 	Date string `dynamodbav:"date" json:"date"`
+
+	// The date and time the game was created. This is in the time.RFC3339 format.
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 
 	// The username of the owner of this game
 	Owner string `dynamodbav:"owner" json:"owner"`

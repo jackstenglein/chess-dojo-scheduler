@@ -81,9 +81,19 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerAlign: 'center',
     },
     {
+        field: 'createdAt',
+        headerName: 'Upload Date',
+        valueGetter: (params) => {
+            return params.row.id.split('_')[0];
+        },
+        width: 100,
+        align: 'right',
+        headerAlign: 'right',
+    },
+    {
         field: 'date',
-        headerName: 'Date',
-        width: 115,
+        headerName: 'Date Played',
+        width: 100,
         align: 'right',
         headerAlign: 'right',
     },

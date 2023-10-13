@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
@@ -199,12 +200,16 @@ func GetGame(user *database.User, pgnText string, headerData *HeaderData, orient
 		}
 	}
 
+	createdAt := time.Now()
+	uploadDate := strings.ReplaceAll(createdAt.Format(time.DateOnly), "-", ".")
+
 	return &database.Game{
 			Cohort:              user.DojoCohort,
-			Id:                  date + "_" + uuid.New().String(),
+			Id:                  uploadDate + "_" + uuid.New().String(),
 			White:               strings.ToLower(white),
 			Black:               strings.ToLower(black),
 			Date:                date,
+			CreatedAt:           createdAt.Format(time.RFC3339),
 			Owner:               user.Username,
 			OwnerDisplayName:    user.DisplayName,
 			OwnerPreviousCohort: user.PreviousCohort,
