@@ -7,6 +7,7 @@ import { useAuth } from '../../auth/Auth';
 import PreferredRatingSystemForm from './PreferredRatingSystemForm';
 import ExtraRatingSystemsForm from './ExtraRatingSystemsForm';
 import DiscordForm from './DiscordForm';
+import ReferralSourceForm from './ReferralSourceForm';
 
 interface StepProps {
     label: string;
@@ -40,6 +41,11 @@ const steps: StepProps[] = [
         label: 'Discord',
         optional: true,
         form: DiscordForm,
+    },
+    {
+        label: 'Referral Source',
+        optional: false,
+        form: ReferralSourceForm,
     },
 ];
 

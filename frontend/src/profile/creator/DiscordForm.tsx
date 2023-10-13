@@ -14,11 +14,14 @@ import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 import { User } from '../../database/user';
-import { EventType, trackEvent } from '../../analytics/events';
 import { useFreeTier } from '../../auth/Auth';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 
-const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) => {
+const DiscordForm: React.FC<ProfileCreatorFormProps> = ({
+    user,
+    onNextStep,
+    onPrevStep,
+}) => {
     const api = useApi();
     const request = useRequest();
     const isFreeTier = useFreeTier();
@@ -33,7 +36,6 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) =>
 
     const onSave = () => {
         const update: Partial<User> = {
-            hasCreatedProfile: true,
             disableBookingNotifications,
             disableCancellationNotifications,
         };
@@ -43,9 +45,7 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) =>
 
         request.onStart();
         api.updateUser(update)
-            .then(() => {
-                trackEvent(EventType.CreateProfile);
-            })
+            .then(onNextStep)
             .catch((err) => {
                 console.error(err);
                 request.onFailure(err);

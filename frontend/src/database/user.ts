@@ -119,6 +119,8 @@ export interface User {
 
     followerCount: number;
     followingCount: number;
+
+    referralSource: string;
 }
 
 export type MinutesSpentKey =

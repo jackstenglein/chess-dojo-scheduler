@@ -242,6 +242,9 @@ type User struct {
 
 	// The time the user last fetched their newsfeed in time.RFC3339 format.
 	LastFetchedNewsfeed string `dynamodbav:"lastFetchedNewsfeed" json:"lastFetchedNewsfeed"`
+
+	// How the user was referred to the program
+	ReferralSource string `dynamodbav:"referralSource" json:"referralSource"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
@@ -425,6 +428,9 @@ type UserUpdate struct {
 	// The time the user last fetched their newsfeed in time.RFC3339 format. This field cannot be
 	// manually set by the user.
 	LastFetchedNewsfeed *string `dynamodbav:"lastFetchedNewsfeed,omitempty" json:"-"`
+
+	// How the user was referred to the program
+	ReferralSource *string `dynamodbav:"referralSource,omitempty" json:"referralSource,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

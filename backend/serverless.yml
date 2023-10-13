@@ -167,6 +167,14 @@ functions:
           - - 'arn:aws:s3:::'
             - !Ref PicturesBucket
             - /profile/*
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref SecretsBucket
+            - /openClassicalServiceAccountKey.json
 
   updateUserProgress:
     handler: user/progress/update/main.go
