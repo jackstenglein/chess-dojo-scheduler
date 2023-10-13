@@ -4,8 +4,9 @@ import {
     createRoutesFromElements,
     RouterProvider,
     Outlet,
+    useNavigate,
 } from 'react-router-dom';
-import { Amplify } from 'aws-amplify';
+import { Amplify, Hub } from 'aws-amplify';
 
 import { getConfig } from './config';
 import { AuthProvider, RequireAuth } from './auth/Auth';
@@ -48,6 +49,7 @@ import NotificationPage from './notifications/NotificationPage';
 import FollowersPage from './profile/followers/FollowersPage';
 import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
 import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
+import { useEffect } from 'react';
 
 const config = getConfig();
 Amplify.configure({
@@ -154,6 +156,19 @@ function App() {
 }
 
 function Root() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        Hub.listen('auth', (data: any) => {
+            switch (data?.payload?.event) {
+                case 'customOAuthState':
+                    if (data.payload.data) {
+                        navigate(data.payload.data);
+                    }
+            }
+        });
+    }, [navigate]);
+
     return (
         <ApiProvider>
             <CacheProvider>

@@ -6,7 +6,7 @@ import {
     useCallback,
     ReactNode,
 } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { Auth as AmplifyAuth } from 'aws-amplify';
 import { v4 as uuidv4 } from 'uuid';
@@ -39,7 +39,7 @@ interface AuthContextType {
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
 
-    socialSignin: (provider: string) => void;
+    socialSignin: (provider: string, redirectUri: string) => void;
     signin: (email: string, password: string) => Promise<void>;
 
     signup: (name: string, email: string, password: string) => Promise<any>;
@@ -57,10 +57,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>(null!);
 
-function socialSignin(provider: string) {
+function socialSignin(provider: string, redirectUri: string) {
     trackEvent(EventType.Login, { method: 'Google' });
     AmplifyAuth.federatedSignIn({
         provider: provider as CognitoHostedUIIdentityProvider,
+        customState: redirectUri,
     })
         .then((value) => {
             console.log('Federated sign in value: ', value);
@@ -221,6 +222,7 @@ export function RequireAuth() {
     const user = auth.user;
     const api = useApi();
     const request = useRequest();
+    const location = useLocation();
 
     useEffect(() => {
         if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
@@ -250,7 +252,13 @@ export function RequireAuth() {
     }
 
     if (auth.status === AuthStatus.Unauthenticated || !user) {
-        return <Navigate to='/' replace />;
+        return (
+            <Navigate
+                to='/'
+                replace
+                state={{ redirectUri: `${location.pathname}${location.search}` }}
+            />
+        );
     }
 
     if (!hasCreatedProfile(user)) {

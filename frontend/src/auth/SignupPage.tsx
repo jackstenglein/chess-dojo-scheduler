@@ -8,7 +8,7 @@ import {
     Divider,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import GoogleButton from 'react-google-button';
 
 import { AuthStatus, useAuth } from './Auth';
@@ -18,6 +18,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 const SignupPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
+    const redirectUri = useLocation().state?.redirectUri || '';
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -73,7 +74,7 @@ const SignupPage = () => {
     };
 
     const onGoogleSignIn = () => {
-        auth.socialSignin('Google');
+        auth.socialSignin('Google', redirectUri);
     };
 
     return (

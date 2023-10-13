@@ -1,5 +1,5 @@
 import { Button, Container, Grid, Stack, Typography } from '@mui/material';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthStatus, useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
@@ -7,6 +7,7 @@ import LoadingPage from '../loading/LoadingPage';
 const LandingPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
+    const locationState = useLocation().state;
 
     if (auth.status === AuthStatus.Loading) {
         return <LoadingPage />;
@@ -51,7 +52,9 @@ const LandingPage = () => {
                         <Stack direction='row' spacing={3}>
                             <Button
                                 variant='contained'
-                                onClick={() => navigate('/signup')}
+                                onClick={() =>
+                                    navigate('/signup', { state: locationState })
+                                }
                                 sx={{
                                     fontSize: '1rem',
                                     textTransform: 'none',
@@ -64,7 +67,9 @@ const LandingPage = () => {
                             </Button>
                             <Button
                                 variant='outlined'
-                                onClick={() => navigate('/signin')}
+                                onClick={() =>
+                                    navigate('/signin', { state: locationState })
+                                }
                                 sx={{
                                     fontSize: '1rem',
                                     textTransform: 'none',

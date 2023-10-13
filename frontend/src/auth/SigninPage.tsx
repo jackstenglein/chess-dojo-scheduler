@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import {
     Alert,
     Button,
@@ -19,6 +19,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 const SigninPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
+    const redirectUri = useLocation().state?.redirectUri || '';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -34,6 +35,9 @@ const SigninPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
+        if (redirectUri) {
+            return <Navigate to={redirectUri} />;
+        }
         return <Navigate to='/' />;
     }
 
@@ -67,7 +71,7 @@ const SigninPage = () => {
     };
 
     const onGoogleSignIn = () => {
-        auth.socialSignin('Google');
+        auth.socialSignin('Google', redirectUri);
     };
 
     return (
