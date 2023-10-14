@@ -45,7 +45,10 @@ const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevSte
         if (referralSource.trim() === '') {
             newErrors.referralSource = 'This field is required';
         }
-        if (otherSource.trim() === '') {
+        if (
+            !defaultSources.includes(referralSource.trim()) &&
+            otherSource.trim() === ''
+        ) {
             newErrors.otherSource = 'This field is required';
         }
         setErrors(newErrors);
