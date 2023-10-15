@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react';
 import { Button, IconButton, Menu, Stack, Tooltip, Typography } from '@mui/material';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 
-import { Reaction } from '../../database/timeline';
-import { TimelineEntry } from '../../database/timeline';
+import { TimelineEntry, Reaction } from '../../database/timeline';
 import { useAuth } from '../../auth/Auth';
 import { User } from '../../database/user';
 import { useApi } from '../../api/Api';
@@ -63,10 +62,14 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
     const request = useRequest();
 
     const reactionMap = useMemo(() => {
-        const reactionMap: Record<string, number> = {};
+        const reactionMap: Record<string, string[]> = {};
         for (const reaction of Object.values(reactions || {})) {
             for (const type of reaction.types || []) {
-                reactionMap[type] = (reactionMap[type] || 0) + 1;
+                if (reactionMap[type]) {
+                    reactionMap[type].push(reaction.displayName);
+                } else {
+                    reactionMap[type] = [reaction.displayName];
+                }
             }
         }
         return reactionMap;
@@ -103,18 +106,22 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
         <Stack direction='row' spacing={1}>
             <RequestSnackbar request={request} />
 
-            {Object.entries(reactionMap).map(([type, count]) => (
-                <Button
-                    key={type}
-                    variant={isReactor(user, reactions, type) ? 'contained' : 'outlined'}
-                    onClick={() => onReact(type)}
-                >
-                    <Typography fontSize='1.25rem'>{type}</Typography>
+            {Object.entries(reactionMap).map(([type, reactors]) => (
+                <Tooltip title={`Reacted by ${reactors.join(', ')}`}>
+                    <Button
+                        key={type}
+                        variant={
+                            isReactor(user, reactions, type) ? 'contained' : 'outlined'
+                        }
+                        onClick={() => onReact(type)}
+                    >
+                        <Typography fontSize='1.25rem'>{type}</Typography>
 
-                    <Typography ml='0.375rem' fontWeight='600'>
-                        {count}
-                    </Typography>
-                </Button>
+                        <Typography ml='0.375rem' fontWeight='600'>
+                            {reactors.length}
+                        </Typography>
+                    </Button>
+                </Tooltip>
             ))}
 
             <Tooltip title='Add Reaction'>
