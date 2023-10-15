@@ -16,6 +16,7 @@ export interface TimelineEntry {
     totalMinutesSpent: number;
     scoreboardDisplay: ScoreboardDisplay;
     progressBarSuffix: string;
+    date?: string;
     createdAt: string;
 
     graduationInfo?: TimelineGraduationInfo;

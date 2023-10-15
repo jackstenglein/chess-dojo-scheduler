@@ -40,7 +40,7 @@ export function getTimeSpent(timelineItem: TimelineEntry): string {
 }
 
 function getProgressItem(entry: TimelineEntry, showConnector: boolean) {
-    const date = new Date(entry.createdAt);
+    const date = new Date(entry.date || entry.createdAt);
     const isCheckbox =
         entry.scoreboardDisplay === ScoreboardDisplay.Checkbox ||
         entry.scoreboardDisplay === ScoreboardDisplay.Hidden;

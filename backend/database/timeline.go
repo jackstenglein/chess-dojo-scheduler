@@ -58,7 +58,10 @@ type TimelineEntry struct {
 	// The total number of minutes spent on the task
 	TotalMinutesSpent int `dynamodbav:"totalMinutesSpent" json:"totalMinutesSpent"`
 
-	// The time the timeline entry was created
+	// The date of the timeline entry
+	Date string `dynamodbav:"date" json:"date"`
+
+	// The time the timeline entry was created in the database
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 
 	// The info on graduation, if this timeline entry is for a graduation

@@ -26,7 +26,12 @@ export function useTimeline(owner: string): UseTimelineResponse {
                     setEntries(
                         entries
                             .concat(res.entries)
-                            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+                            .filter((e) => e.requirementId !== 'GameSubmission')
+                            .sort((a, b) =>
+                                (b.date || b.createdAt).localeCompare(
+                                    a.date || a.createdAt
+                                )
+                            )
                     );
                     setStartKey(res.lastEvaluatedKey);
                 })

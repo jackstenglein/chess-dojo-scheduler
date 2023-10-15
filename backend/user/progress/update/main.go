@@ -23,6 +23,7 @@ type ProgressUpdateRequest struct {
 	Cohort                  database.DojoCohort `json:"cohort"`
 	IncrementalCount        int                 `json:"incrementalCount"`
 	IncrementalMinutesSpent int                 `json:"incrementalMinutesSpent"`
+	Date                    string              `json:"date"`
 }
 
 func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task *database.CustomTask) (api.Response, error) {
@@ -38,10 +39,20 @@ func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task 
 	now := time.Now()
 	progress.UpdatedAt = now.Format(time.RFC3339)
 
+	date := now
+	if request.Date != "" {
+		d, err := time.Parse(time.RFC3339, request.Date)
+		if err != nil {
+			log.Errorf("Failed to parse request.Date: %v", err)
+		} else {
+			date = d
+		}
+	}
+
 	timelineEntry := &database.TimelineEntry{
 		TimelineEntryKey: database.TimelineEntryKey{
 			Owner: user.Username,
-			Id:    fmt.Sprintf("%s_%s", now.Format(time.DateOnly), uuid.NewString()),
+			Id:    fmt.Sprintf("%s_%s", date.Format(time.DateOnly), uuid.NewString()),
 		},
 		OwnerDisplayName:    user.DisplayName,
 		RequirementId:       request.RequirementId,
@@ -52,7 +63,8 @@ func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task 
 		TotalCount:          1,
 		MinutesSpent:        request.IncrementalMinutesSpent,
 		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
-		CreatedAt:           time.Now().Format(time.RFC3339),
+		Date:                date.Format(time.RFC3339),
+		CreatedAt:           now.Format(time.RFC3339),
 	}
 	if err := repository.PutTimelineEntry(timelineEntry); err != nil {
 		return api.Failure(funcName, err), nil
@@ -98,10 +110,20 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 	updatedAt := now.Format(time.RFC3339)
 	progress.UpdatedAt = updatedAt
 
+	date := now
+	if request.Date != "" {
+		d, err := time.Parse(time.RFC3339, request.Date)
+		if err != nil {
+			log.Errorf("Failed to parse request.Date: %v", err)
+		} else {
+			date = d
+		}
+	}
+
 	timelineEntry := &database.TimelineEntry{
 		TimelineEntryKey: database.TimelineEntryKey{
 			Owner: user.Username,
-			Id:    fmt.Sprintf("%s_%s", now.Format(time.DateOnly), uuid.NewString()),
+			Id:    fmt.Sprintf("%s_%s", date.Format(time.DateOnly), uuid.NewString()),
 		},
 		OwnerDisplayName:    user.DisplayName,
 		RequirementId:       request.RequirementId,
@@ -115,6 +137,7 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		NewCount:            originalCount + request.IncrementalCount,
 		MinutesSpent:        request.IncrementalMinutesSpent,
 		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
+		Date:                date.Format(time.RFC3339),
 		CreatedAt:           updatedAt,
 	}
 

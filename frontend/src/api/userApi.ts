@@ -77,13 +77,15 @@ export type UserApiContextType = {
      * @param requirementId The id of the requirement to update.
      * @param incrementalCount The amount by which the user is increasing their count.
      * @param incrementalMinutesSpent The amount by which the user is increasing their time spent.
+     * @param date The optional date for which the update should apply.
      * @returns An AxiosResponse containing the updated user in the data field.
      */
     updateUserProgress: (
         cohort: string,
         requirementId: string,
         incrementalCount: number,
-        incrementalMinutesSpent: number
+        incrementalMinutesSpent: number,
+        date: Date | null
     ) => Promise<AxiosResponse<User, any>>;
 
     /**
@@ -314,6 +316,7 @@ export async function updateUser(
  * @param requirementId The id of the requirement to update.
  * @param incrementalCount The amount by which the user is increasing their count.
  * @param incrementalMinutesSpent The amount by which the user is increasing their time spent.
+ * @param date The optional date for which the update should apply.
  * @param callback A callback function to invoke with the update after it has succeeded on the backend.
  * @returns An AxiosResponse containing the updated user in the data field.
  */
@@ -323,6 +326,7 @@ export async function updateUserProgress(
     requirementId: string,
     incrementalCount: number,
     incrementalMinutesSpent: number,
+    date: Date | null,
     callback: (update: Partial<User>) => void
 ) {
     const result = await axios.post<User>(
@@ -332,6 +336,7 @@ export async function updateUserProgress(
             requirementId,
             incrementalCount,
             incrementalMinutesSpent,
+            date: date?.toISOString(),
         },
         {
             headers: {

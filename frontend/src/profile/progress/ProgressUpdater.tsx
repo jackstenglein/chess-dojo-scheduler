@@ -24,6 +24,8 @@ import InputSlider from './InputSlider';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { EventType, trackEvent } from '../../analytics/events';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -88,6 +90,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
 
     const [value, setValue] = useState<number>(currentCount);
     const [markComplete, setMarkComplete] = useState(true);
+    const [date, setDate] = useState<Date | null>(new Date());
     const [hours, setHours] = useState('');
     const [minutes, setMinutes] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -142,7 +145,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             cohort,
             requirement.id,
             incrementalCount,
-            hoursInt * 60 + minutesInt
+            hoursInt * 60 + minutesInt,
+            date
         )
             .then((response) => {
                 console.log('updateUserProgress: ', response);
@@ -197,6 +201,17 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
 
                     <Grid container width={1}>
                         <Grid item xs={12} sm>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <DatePicker
+                                    label='Date'
+                                    disableFuture
+                                    value={date}
+                                    onChange={setDate}
+                                    slotProps={{ textField: { fullWidth: true } }}
+                                />
+                            </LocalizationProvider>
+                        </Grid>
+                        <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
                             <TextField
                                 label='Hours'
                                 value={hours}

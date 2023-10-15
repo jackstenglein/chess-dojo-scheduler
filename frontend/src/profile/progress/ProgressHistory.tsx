@@ -254,7 +254,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
 
         updated.push({
             ...item.entry,
-            createdAt: item.date?.toISOString() || item.entry.createdAt,
+            date: item.date?.toISOString() || item.entry.createdAt,
             previousCount,
             newCount,
             minutesSpent,
@@ -293,9 +293,9 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     const initialItems: HistoryItem[] = useMemo(() => {
         return entries
             .filter((t) => t.requirementId === requirement.id && t.cohort === cohort)
-            .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+            .sort((a, b) => (a.date || a.createdAt).localeCompare(b.date || b.createdAt))
             .map((t, idx) => ({
-                date: new Date(t.createdAt),
+                date: new Date(t.date || t.createdAt),
                 count: `${t.newCount - t.previousCount}`,
                 hours: `${Math.floor(t.minutesSpent / 60)}`,
                 minutes: `${t.minutesSpent % 60}`,
