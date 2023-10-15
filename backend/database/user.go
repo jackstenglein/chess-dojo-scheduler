@@ -245,6 +245,53 @@ type User struct {
 
 	// How the user was referred to the program
 	ReferralSource string `dynamodbav:"referralSource" json:"referralSource"`
+
+	// The user's notification settings
+	NotificationSettings UserNotificationSettings `dynamodbav:"notificationSettings" json:"notificationSettings"`
+}
+
+type UserNotificationSettings struct {
+	// The user's settings for Discord notifications
+	DiscordNotificationSettings *DiscordNotificationSettings `dynamodbav:"discordNotificationSettings,omitempty" json:"discordNotificationSettings,omitempty"`
+
+	// The user's settings for email notifications
+	EmailNotificationSettings *EmailNotificationSettings `dynamodbav:"emailNotificationSettings,omitempty" json:"emailNotificationSettings,omitempty"`
+
+	// The user's settings for in-site notifications
+	SiteNotificationSettings *SiteNotificationSettings `dynamodbav:"siteNotificationSettings,omitempty" json:"siteNotificationSettings,omitempty"`
+}
+
+// The user's settings for Discord notifications.
+type DiscordNotificationSettings struct {
+	// Whether to disable notifications when a user's meeting is booked
+	DisableMeetingBooking bool `dynamodbav:"disableMeetingBooking" json:"disableMeetingBooking"`
+
+	// Whether to disable notifications when a user's meeting is cancelled
+	DisableMeetingCancellation bool `dynamodbav:"disableMeetingCancellation" json:"disableMeetingCancellation"`
+}
+
+// The user's settings for email notifications.
+type EmailNotificationSettings struct {
+	// Whether to disable the Dojo Digest newsletter
+	DisableNewsletter bool `dynamodbav:"disableNewsletter" json:"disableNewsletter"`
+
+	// Whether to disable inactivity warnings
+	DisableInactiveWarning bool `dynamodbav:"disableInactiveWarning" json:"disableInactiveWarning"`
+}
+
+// The user's settings for in-site notifications.
+type SiteNotificationSettings struct {
+	// Whether to disable notifications on game comments
+	DisableGameComment bool `dynamodbav:"disableGameComment" json:"disableGameComment"`
+
+	// Whether to disable notifications on new followers
+	DisableNewFollower bool `dynamodbav:"disableNewFollower" json:"disableNewFollower"`
+
+	// Whether to disable notifications on newsfeed comments
+	DisableNewsfeedComment bool `dynamodbav:"disableNewsfeedComment" json:"disableNewsfeedComment"`
+
+	// Whether to disable notifications on newsfeed reactions
+	DisableNewsfeedReaction bool `dynamodbav:"disableNewsfeedReaction" json:"disableNewsfeedReaction"`
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
@@ -431,6 +478,9 @@ type UserUpdate struct {
 
 	// How the user was referred to the program
 	ReferralSource *string `dynamodbav:"referralSource,omitempty" json:"referralSource,omitempty"`
+
+	// The user's notification settings
+	NotificationSettings *UserNotificationSettings `dynamodbav:"notificationSettings,omitempty" json:"notificationSettings,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

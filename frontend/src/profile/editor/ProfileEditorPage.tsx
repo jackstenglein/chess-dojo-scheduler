@@ -18,20 +18,21 @@ import { LoadingButton } from '@mui/lab';
 import UploadIcon from '@mui/icons-material/Upload';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { useAuth } from '../auth/Auth';
+import { useAuth } from '../../auth/Auth';
 import {
     dojoCohorts,
     formatRatingSystem,
     Rating,
     RatingSystem,
     User,
-} from '../database/user';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { DefaultTimezone } from '../calendar/filters/CalendarFilters';
-import { EventType, setUserCohort, trackEvent } from '../analytics/events';
-import Avatar from './Avatar';
-import { useCache } from '../api/cache/Cache';
+} from '../../database/user';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
+import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
+import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
+import Avatar from '../Avatar';
+import { useCache } from '../../api/cache/Cache';
+import NotificationSettingsEditor from './NotificationSettingsEditor';
 
 const MAX_PROFILE_PICTURE_SIZE_MB = 9;
 
@@ -250,11 +251,9 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
         });
     };
 
-    const [disableBookingNotifications, setDisableBookingNotifications] = useState(
-        user.disableBookingNotifications
+    const [notificationSettings, setNotificationSettings] = useState(
+        user.notificationSettings
     );
-    const [disableCancellationNotifications, setDisableCancellationNotifications] =
-        useState(user.disableCancellationNotifications);
 
     const [enableLightMode, setEnableLightMode] = useState(user.enableLightMode);
 
@@ -300,8 +299,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
             ratingSystem,
             ratings: getRatingsFromEditors(ratingEditors),
 
-            disableBookingNotifications,
-            disableCancellationNotifications,
+            notificationSettings,
 
             enableLightMode,
         },
@@ -450,7 +448,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
 
                 <Stack spacing={4}>
                     <Stack>
-                        <Typography variant='h6'>Personal</Typography>
+                        <Typography variant='h5'>Personal</Typography>
                         <Divider />
                     </Stack>
 
@@ -529,7 +527,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
 
                 <Stack spacing={4}>
                     <Stack>
-                        <Typography variant='h6'>Ratings</Typography>
+                        <Typography variant='h5'>Ratings</Typography>
                         <Divider />
                     </Stack>
 
@@ -661,47 +659,14 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                     </Grid>
                 </Stack>
 
-                <Stack spacing={2}>
-                    <Stack>
-                        <Typography variant='h6'>Notifications</Typography>
-                        <Divider />
-                    </Stack>
-
-                    <Stack>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={!disableBookingNotifications}
-                                    onChange={(event) =>
-                                        setDisableBookingNotifications(
-                                            !event.target.checked
-                                        )
-                                    }
-                                />
-                            }
-                            label='Notify me via a Discord DM when my availability is booked'
-                            sx={{ mb: 1.5 }}
-                        />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={!disableCancellationNotifications}
-                                    onChange={(event) =>
-                                        setDisableCancellationNotifications(
-                                            !event.target.checked
-                                        )
-                                    }
-                                />
-                            }
-                            label='Notify me via a Discord DM when my meeting is cancelled'
-                        />
-                    </Stack>
-                </Stack>
+                <NotificationSettingsEditor
+                    notificationSettings={notificationSettings}
+                    setNotificationSettings={setNotificationSettings}
+                />
 
                 <Stack spacing={2}>
                     <Stack>
-                        <Typography variant='h6'>UI</Typography>
+                        <Typography variant='h5'>UI</Typography>
                         <Divider />
                     </Stack>
 

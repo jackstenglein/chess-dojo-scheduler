@@ -121,6 +121,31 @@ export interface User {
     followingCount: number;
 
     referralSource: string;
+
+    notificationSettings: UserNotificationSettings;
+}
+
+export interface UserNotificationSettings {
+    discordNotificationSettings?: DiscordNotificationSettings;
+    emailNotificationSettings?: EmailNotificationSettings;
+    siteNotificationSettings?: SiteNotificationSettings;
+}
+
+export interface DiscordNotificationSettings {
+    disableMeetingBooking: boolean;
+    disableMeetingCancellation: boolean;
+}
+
+export interface EmailNotificationSettings {
+    disableNewsletter: boolean;
+    disableInactiveWarning: boolean;
+}
+
+export interface SiteNotificationSettings {
+    disableGameComment: boolean;
+    disableNewFollower: boolean;
+    disableNewsfeedComment: boolean;
+    disableNewsfeedReaction: boolean;
 }
 
 export type MinutesSpentKey =

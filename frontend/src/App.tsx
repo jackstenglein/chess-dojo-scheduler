@@ -12,7 +12,7 @@ import { getConfig } from './config';
 import { AuthProvider, RequireAuth } from './auth/Auth';
 import LandingPage from './landing/LandingPage';
 import ProfilePage from './profile/ProfilePage';
-import ProfileEditorPage from './profile/ProfileEditorPage';
+import ProfileEditorPage from './profile/editor/ProfileEditorPage';
 import { ApiProvider } from './api/Api';
 import CalendarPage from './calendar/CalendarPage';
 import MeetingPage from './meeting/MeetingPage';
