@@ -172,12 +172,6 @@ type User struct {
 	// Maps requirement ids to RequirementProgress objects
 	Progress map[string]*RequirementProgress `dynamodbav:"progress" json:"progress"`
 
-	// Whether to disable notifications when a user's meeting is booked
-	DisableBookingNotifications bool `dynamodbav:"disableBookingNotifications" json:"disableBookingNotifications"`
-
-	// Whether to disable notifications when a user's meeting is cancelled
-	DisableCancellationNotifications bool `dynamodbav:"disableCancellationNotifications" json:"disableCancellationNotifications"`
-
 	// The number of games the user has created
 	GamesCreated map[DojoCohort]int `dynamodbav:"gamesCreated" json:"gamesCreated"`
 
@@ -270,6 +264,20 @@ type DiscordNotificationSettings struct {
 	DisableMeetingCancellation bool `dynamodbav:"disableMeetingCancellation" json:"disableMeetingCancellation"`
 }
 
+func (dns *DiscordNotificationSettings) GetDisableMeetingBooking() bool {
+	if dns == nil {
+		return false
+	}
+	return dns.DisableMeetingBooking
+}
+
+func (dns *DiscordNotificationSettings) GetDisableMeetingCancellation() bool {
+	if dns == nil {
+		return false
+	}
+	return dns.DisableMeetingCancellation
+}
+
 // The user's settings for email notifications.
 type EmailNotificationSettings struct {
 	// Whether to disable the Dojo Digest newsletter
@@ -292,6 +300,34 @@ type SiteNotificationSettings struct {
 
 	// Whether to disable notifications on newsfeed reactions
 	DisableNewsfeedReaction bool `dynamodbav:"disableNewsfeedReaction" json:"disableNewsfeedReaction"`
+}
+
+func (sns *SiteNotificationSettings) GetDisableGameComment() bool {
+	if sns == nil {
+		return false
+	}
+	return sns.DisableGameComment
+}
+
+func (sns *SiteNotificationSettings) GetDisableNewFollower() bool {
+	if sns == nil {
+		return false
+	}
+	return sns.DisableNewFollower
+}
+
+func (sns *SiteNotificationSettings) GetDisableNewsfeedComment() bool {
+	if sns == nil {
+		return false
+	}
+	return sns.DisableNewsfeedComment
+}
+
+func (sns *SiteNotificationSettings) GetDisableNewsfeedReaction() bool {
+	if sns == nil {
+		return false
+	}
+	return sns.DisableNewsfeedReaction
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
@@ -411,12 +447,6 @@ type UserUpdate struct {
 
 	// The user's Dojo cohort
 	DojoCohort *DojoCohort `dynamodbav:"dojoCohort,omitempty" json:"dojoCohort,omitempty"`
-
-	// Whether to disable notifications when a user's meeting is booked
-	DisableBookingNotifications *bool `dynamodbav:"disableBookingNotifications,omitempty" json:"disableBookingNotifications,omitempty"`
-
-	// Whether to disable notifications when a user's meeting is cancelled
-	DisableCancellationNotifications *bool `dynamodbav:"disableCancellationNotifications,omitempty" json:"disableCancellationNotifications,omitempty"`
 
 	// The number of times the user has graduated.
 	// Cannot be manually passed by the user. The user should instead call the user/graduate function

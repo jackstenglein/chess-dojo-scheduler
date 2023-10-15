@@ -19,7 +19,7 @@ func SendBookingNotification(username string, meetingId string) error {
 		return err
 	}
 
-	if user.DisableBookingNotifications {
+	if user.NotificationSettings.DiscordNotificationSettings.GetDisableMeetingBooking() {
 		return nil
 	}
 
@@ -35,7 +35,7 @@ func SendGroupJoinNotification(username string, availabilityId string) error {
 		return err
 	}
 
-	if user.DisableBookingNotifications {
+	if user.NotificationSettings.DiscordNotificationSettings.GetDisableMeetingBooking() {
 		return nil
 	}
 
@@ -51,7 +51,7 @@ func SendCancellationNotification(username string, meetingId string) error {
 		return err
 	}
 
-	if user.DisableCancellationNotifications {
+	if user.NotificationSettings.DiscordNotificationSettings.GetDisableMeetingCancellation() {
 		return nil
 	}
 

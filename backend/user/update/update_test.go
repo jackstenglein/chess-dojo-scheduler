@@ -83,9 +83,7 @@ func TestUpdateUser(t *testing.T) {
 				// StartLichessRating:               aws.Int(2),
 				// StartFideRating:                  aws.Int(3),
 				// StartUscfRating:                  aws.Int(4),
-				DojoCohort:                       (*database.DojoCohort)(aws.String("2400+")),
-				DisableBookingNotifications:      aws.Bool(true),
-				DisableCancellationNotifications: aws.Bool(true),
+				DojoCohort: (*database.DojoCohort)(aws.String("2400+")),
 			},
 			wantCode: 200,
 			wantUser: &database.User{
@@ -103,9 +101,7 @@ func TestUpdateUser(t *testing.T) {
 				// StartLichessRating:               2,
 				// StartFideRating:                  3,
 				// StartUscfRating:                  4,
-				DojoCohort:                       "2400+",
-				DisableBookingNotifications:      true,
-				DisableCancellationNotifications: true,
+				DojoCohort: "2400+",
 			},
 		},
 	}

@@ -807,6 +807,11 @@ functions:
         Resource:
           - !GetAtt GamesTable.Arn
           - !GetAtt NotificationsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt UsersTable.Arn
 
   listGamesByCohort:
     handler: game/list/cohort/main.go
@@ -1262,7 +1267,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: !GetAtt TimelineTable.Arn
+        Resource:
+          - !GetAtt TimelineTable.Arn
+          - !GetAtt NotificationsTable.Arn
 
 resources:
   Conditions:

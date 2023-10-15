@@ -66,6 +66,7 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
                 break;
 
             case NotificationType.TimelineComment:
+            case NotificationType.TimelineReaction:
                 navigate(
                     `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`
                 );
