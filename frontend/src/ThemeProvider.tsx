@@ -16,7 +16,7 @@ declare module '@mui/material/styles' {
 
 const defaultTheme = createTheme({});
 
-function useLocalStorage(
+export function useLocalStorage(
     storageKey: string,
     fallbackState: string
 ): [string, (v: string) => void] {

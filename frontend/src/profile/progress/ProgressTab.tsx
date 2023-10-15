@@ -19,6 +19,17 @@ import { useRequirements } from '../../api/cache/requirements';
 import CustomTaskEditor from './CustomTaskEditor';
 import DojoScoreCard from '../stats/DojoScoreCard';
 import ProgressCategory from './ProgressCategory';
+import { useLocalStorage } from '../../ThemeProvider';
+
+function useHideCompleted(isCurrentUser: boolean) {
+    const myProfile = useLocalStorage('hideCompletedTasks', 'false');
+    const otherProfile = useState('false');
+
+    if (isCurrentUser) {
+        return myProfile;
+    }
+    return otherProfile;
+}
 
 interface Category {
     name: string;
@@ -36,7 +47,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     const graduationsRequest = useRequest<Graduation[]>();
     const [cohort, setCohort] = useState(user.dojoCohort);
     const { requirements, request: requirementRequest } = useRequirements(cohort, false);
-    const [hideCompleted, setHideCompleted] = useState(false);
+    const [hideCompleted, setHideCompleted] = useHideCompleted(isCurrentUser);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({
         'Welcome to the Dojo': false,
         'Games + Analysis': false,
@@ -69,7 +80,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         requirements?.forEach((r) => {
             const c = categories.find((c) => c.name === r.category);
             const complete = isComplete(cohort, r, user.progress[r.id]);
-            if (complete && hideCompleted) {
+            if (complete && hideCompleted === 'true') {
                 return;
             }
 
@@ -177,8 +188,8 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                         control={
                             <Checkbox
                                 size='small'
-                                checked={hideCompleted}
-                                onChange={(e) => setHideCompleted(e.target.checked)}
+                                checked={hideCompleted === 'true'}
+                                onChange={(e) => setHideCompleted(`${e.target.checked}`)}
                             />
                         }
                         label='Hide Completed Tasks'
