@@ -27,6 +27,8 @@ export interface CohortStatistics {
 
     numGraduations: number;
     graduationMinutes: number;
+
+    avgRatingChangePerDojoPoint: number;
 }
 
 export interface UserStatistics {

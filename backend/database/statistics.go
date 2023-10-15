@@ -88,6 +88,9 @@ type CohortStatistics struct {
 
 	// The sum of minutes taken to graduate from the cohort
 	GraduationMinutes int `dynamodbav:"graduationMinutes" json:"graduationMinutes"`
+
+	// The average rating change per dojo point in the cohort
+	AvgRatingChangePerDojoPoint float32 `dynamodbav:"avgRatingChangePerDojoPoint" json:"avgRatingChangePerDojoPoint"`
 }
 
 type UserStatistics struct {

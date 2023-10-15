@@ -57,6 +57,10 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 				updateStats(stats, u, requirements)
 			}
 		}
+
+		if stats.Cohorts[cohort].ActiveParticipants > 0 || stats.Cohorts[cohort].InactiveParticipants > 0 {
+			stats.Cohorts[cohort].AvgRatingChangePerDojoPoint /= (float32(stats.Cohorts[cohort].ActiveParticipants) + float32(stats.Cohorts[cohort].InactiveParticipants))
+		}
 	}
 
 	log.Debugf("Processing graduations")
@@ -151,6 +155,10 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 		if minutes > 0 {
 			cohortStats.InactiveRatingChangePerHour += 60 * (float32(ratingChange) / float32(minutes))
 		}
+	}
+
+	if score > 0 {
+		cohortStats.AvgRatingChangePerDojoPoint += float32(ratingChange) / score
 	}
 }
 

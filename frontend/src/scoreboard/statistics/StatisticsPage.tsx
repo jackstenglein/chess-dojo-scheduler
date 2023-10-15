@@ -224,6 +224,14 @@ const StatisticsPage = () => {
         );
     }, [request.data]);
 
+    const avgRatingChangePerDojoScoreData: Series[] = useMemo(() => {
+        return getSeries(
+            'Avg Rating Change / Dojo Point',
+            request.data,
+            (d, c) => d.cohorts[c].avgRatingChangePerDojoPoint
+        );
+    }, [request.data]);
+
     const participantsData: Series[] = useMemo(() => {
         return user.isAdmin
             ? getAdminParticipantsSeries(request.data)
@@ -291,6 +299,15 @@ const StatisticsPage = () => {
     const onChangeCohort = (cohort: string) => {
         navigate(`../${cohort}`);
     };
+
+    const totalRatingChange = totalRatingChangeData[0]?.data.reduce(
+        (sum, d) => sum + d.value,
+        0
+    );
+    const totalDojoPoints = totalDojoScoreData[0]?.data.reduce(
+        (sum, d) => sum + d.value,
+        0
+    );
 
     return (
         <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
@@ -380,6 +397,16 @@ const StatisticsPage = () => {
                     primaryAxis={primaryAxis}
                     secondaryAxes={decimalSecondaryAxes}
                     hideSums
+                />
+
+                <Chart
+                    title='Average Rating Change Per Dojo Point'
+                    series={avgRatingChangePerDojoScoreData}
+                    primaryAxis={primaryAxis}
+                    secondaryAxes={decimalSecondaryAxes}
+                    sumFormatter={() =>
+                        `${Math.round((100 * totalRatingChange) / totalDojoPoints) / 100}`
+                    }
                 />
 
                 <Chart
