@@ -1,0 +1,30 @@
+service: chess-dojo-admin
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 30
+  environment:
+    stage: ${sls:stage}
+    frontendHost: ${file(./config-${sls:stage}.yml):frontendHost}
+    discordAuth: ${file(./discord.yml):discordAuth}
+    discordFindGameChannelId: ${file(./config-${sls:stage}.yml):discordFindGameChannelId}
+    discordPrivateGuildId: ${file(./config-${sls:stage}.yml):discordPrivateGuildId}
+    discordPublicGuildId: ${file(./config-${sls:stage}.yml):discordPublicGuildId}
+    userPoolId: { Ref: CognitoUserPool }
+    wixApiKey: ${file(./wix.yml):wixApiKey}
+  httpApi:
+    cors: true
+    authorizers:
+      serviceAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl: !GetAtt CognitoUserPool.ProviderURL
+        audience:
+          - Ref: UserClient

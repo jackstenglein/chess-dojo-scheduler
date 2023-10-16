@@ -1281,8 +1281,10 @@ resources:
 
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
+      DeletionPolicy: Retain
       Properties:
         UserPoolName: ${sls:stage}-chess-dojo-scheduler-auth-pool
+        DeletionProtection: ACTIVE
         UsernameConfiguration:
           CaseSensitive: false
         AliasAttributes:
@@ -1299,6 +1301,7 @@ resources:
 
     UserClient:
       Type: AWS::Cognito::UserPoolClient
+      DeletionPolicy: Retain
       Properties:
         ClientName: ${sls:stage}-chess-dojo-scheduler-auth-client
         GenerateSecret: false
@@ -1325,12 +1328,14 @@ resources:
 
     UserPoolDomain:
       Type: AWS::Cognito::UserPoolDomain
+      DeletionPolicy: Retain
       Properties:
         UserPoolId: { Ref: CognitoUserPool }
         Domain: user-pool-domain-${sls:stage}-chess-dojo-scheduler
 
     UserPoolIdentityProvider:
       Type: AWS::Cognito::UserPoolIdentityProvider
+      DeletionPolicy: Retain
       Properties:
         UserPoolId: { Ref: CognitoUserPool }
         ProviderName: 'Google'
@@ -1351,6 +1356,7 @@ resources:
 
     UsersTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-users
         AttributeDefinitions:
@@ -1392,6 +1398,7 @@ resources:
 
     TimelineTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-timeline
         AttributeDefinitions:
@@ -1415,6 +1422,7 @@ resources:
 
     FollowersTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-followers
         AttributeDefinitions:
@@ -1447,6 +1455,7 @@ resources:
 
     EventsTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-events
         AttributeDefinitions:
@@ -1470,6 +1479,7 @@ resources:
 
     RequirementsTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-requirements
         AttributeDefinitions:
@@ -1494,6 +1504,7 @@ resources:
 
     GraduationsTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-graduations
         AttributeDefinitions:
@@ -1523,6 +1534,7 @@ resources:
 
     GamesTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-games
         AttributeDefinitions:
@@ -1642,6 +1654,7 @@ resources:
 
     OpeningTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-openings
         AttributeDefinitions:
@@ -1678,6 +1691,7 @@ resources:
 
     TournamentsTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-tournaments
         AttributeDefinitions:
@@ -1707,6 +1721,7 @@ resources:
 
     NotificationsTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-notifications
         AttributeDefinitions:
@@ -1731,6 +1746,7 @@ resources:
 
     NewsfeedTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-newsfeed
         BillingMode: PAY_PER_REQUEST
@@ -1767,6 +1783,7 @@ resources:
 
     GameDatabaseBucket:
       Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
       Properties:
         BucketName: chess-dojo-${sls:stage}-game-database
         PublicAccessBlockConfiguration:
@@ -1774,6 +1791,7 @@ resources:
 
     GameDatabaseBucketPolicy:
       Type: AWS::S3::BucketPolicy
+      DeletionPolicy: Retain
       Properties:
         Bucket: !Ref GameDatabaseBucket
         PolicyDocument:
@@ -1791,6 +1809,7 @@ resources:
 
     PicturesBucket:
       Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
       Properties:
         BucketName: chess-dojo-${sls:stage}-pictures
         PublicAccessBlockConfiguration:
@@ -1798,6 +1817,7 @@ resources:
 
     PicturesBucketPolicy:
       Type: AWS::S3::BucketPolicy
+      DeletionPolicy: Retain
       Properties:
         Bucket: !Ref PicturesBucket
         PolicyDocument:
@@ -1815,6 +1835,7 @@ resources:
 
     SecretsBucket:
       Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
       Properties:
         BucketName: chess-dojo-${sls:stage}-secrets
 
