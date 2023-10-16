@@ -94,6 +94,9 @@ type Requirement struct {
 	// The description of the requirement
 	Description string `dynamodbav:"description" json:"description"`
 
+	// The description of the requirement on the free tier
+	FreeDescription string `dynamodbav:"freeDescription" json:"freeDescription"`
+
 	// The total number of units in the requirement, by cohort
 	// ALL_COHORTS is *not* a valid value.
 	Counts map[DojoCohort]int `dynamodbav:"counts" json:"counts"`

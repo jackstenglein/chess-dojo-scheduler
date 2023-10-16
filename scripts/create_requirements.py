@@ -138,6 +138,7 @@ def main():
                 'category': row['Category'],
                 'name': row['Requirement Name'],
                 'description': row['Description'] if row['Description'] else '',
+                'freeDescription': row['Free Description'] if row['Free Description'] else '',
                 'counts': counts,
                 'startCount': startCount,
                 'numberOfCohorts': int(row['# of Cohorts']) if row['# of Cohorts'] else 1,

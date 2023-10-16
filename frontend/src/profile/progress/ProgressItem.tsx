@@ -26,6 +26,7 @@ import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import ProgressDialog from './ProgressDialog';
 import RequirementModal from '../../requirements/RequirementModal';
 import CustomTaskProgressItem from './CustomTaskProgressItem';
+import { useFreeTier } from '../../auth/Auth';
 
 interface ProgressItemProps {
     progress?: RequirementProgress;
@@ -42,6 +43,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
+    const isFreeTier = useFreeTier();
 
     if (!isRequirement(requirement)) {
         return (
@@ -157,7 +159,9 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     <Typography
                         color='text.secondary'
                         dangerouslySetInnerHTML={{
-                            __html: requirement.description,
+                            __html: isFreeTier
+                                ? requirement.freeDescription || requirement.description
+                                : requirement.description,
                         }}
                         sx={{
                             WebkitLineClamp: 3,

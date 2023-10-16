@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useAuth } from '../auth/Auth';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import { Stack, Typography, Chip, Button, Box, Grid, Tooltip } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
@@ -107,6 +107,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
 }) => {
     const user = useAuth().user!;
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+    const isFreeTier = useFreeTier();
 
     const cohort = useMemo(() => {
         if (!requirement) {
@@ -179,7 +180,11 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                 <Typography
                     variant='body1'
                     sx={{ whiteSpace: 'pre-line', mt: 3 }}
-                    dangerouslySetInnerHTML={{ __html: requirement.description }}
+                    dangerouslySetInnerHTML={{
+                        __html: isFreeTier
+                            ? requirement.freeDescription || requirement.description
+                            : requirement.description,
+                    }}
                 />
 
                 {requirement.positions && (

@@ -41,6 +41,7 @@ export interface Requirement {
     category: string;
     name: string;
     description: string;
+    freeDescription: string;
     counts: {
         [cohort: string]: number;
     };
