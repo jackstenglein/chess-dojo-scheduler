@@ -29,6 +29,7 @@ provider:
   runtime: provided.al2
   architecture: arm64
   region: us-east-1
+  logRetentionInDays: 30
   environment:
     stage: ${sls:stage}
     frontendHost: ${file(./config-${sls:stage}.yml):frontendHost}
