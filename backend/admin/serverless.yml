@@ -13,18 +13,63 @@ provider:
   logRetentionInDays: 30
   environment:
     stage: ${sls:stage}
-    frontendHost: ${file(./config-${sls:stage}.yml):frontendHost}
-    discordAuth: ${file(./discord.yml):discordAuth}
-    discordFindGameChannelId: ${file(./config-${sls:stage}.yml):discordFindGameChannelId}
-    discordPrivateGuildId: ${file(./config-${sls:stage}.yml):discordPrivateGuildId}
-    discordPublicGuildId: ${file(./config-${sls:stage}.yml):discordPublicGuildId}
-    userPoolId: { Ref: CognitoUserPool }
-    wixApiKey: ${file(./wix.yml):wixApiKey}
   httpApi:
-    cors: true
-    authorizers:
-      serviceAuthorizer:
-        identitySource: $request.header.Authorization
-        issuerUrl: !GetAtt CognitoUserPool.ProviderURL
-        audience:
-          - Ref: UserClient
+    id: ${param:httpApiId}
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  adminListUsers:
+    handler: user/list/main.go
+    events:
+      - httpApi:
+          path: /admin/user
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Scan
+        Resource: ${param:UsersTableArn}
+
+  adminGetStatistics:
+    handler: statistics/get/main.go
+    events:
+      - httpApi:
+          path: /admin/statistics
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+
+  adminListRequirements:
+    handler: requirement/list/main.go
+    events:
+      - httpApi:
+          path: /admin/requirement
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: ${param:RequirementsTableArn}

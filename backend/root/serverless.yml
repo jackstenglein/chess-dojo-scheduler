@@ -32,13 +32,13 @@ provider:
   logRetentionInDays: 30
   environment:
     stage: ${sls:stage}
-    frontendHost: ${file(./config-${sls:stage}.yml):frontendHost}
-    discordAuth: ${file(./discord.yml):discordAuth}
-    discordFindGameChannelId: ${file(./config-${sls:stage}.yml):discordFindGameChannelId}
-    discordPrivateGuildId: ${file(./config-${sls:stage}.yml):discordPrivateGuildId}
-    discordPublicGuildId: ${file(./config-${sls:stage}.yml):discordPublicGuildId}
+    frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+    discordAuth: ${file(../discord.yml):discordAuth}
+    discordFindGameChannelId: ${file(../config-${sls:stage}.yml):discordFindGameChannelId}
+    discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+    discordPublicGuildId: ${file(../config-${sls:stage}.yml):discordPublicGuildId}
     userPoolId: { Ref: CognitoUserPool }
-    wixApiKey: ${file(./wix.yml):wixApiKey}
+    wixApiKey: ${file(../wix.yml):wixApiKey}
   httpApi:
     cors: true
     authorizers:
@@ -56,57 +56,10 @@ custom:
     buildProvidedRuntimeAsBootstrap: true
 
 functions:
-  ######### Admin Endpoints ##############
-
-  adminListUsers:
-    handler: admin/user/list/main.go
-    events:
-      - httpApi:
-          path: /admin/user
-          method: get
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:Scan
-        Resource: !GetAtt UsersTable.Arn
-
-  adminGetStatistics:
-    handler: admin/statistics/get/main.go
-    events:
-      - httpApi:
-          path: /admin/statistics
-          method: get
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource:
-          - !GetAtt UsersTable.Arn
-
-  adminListRequirements:
-    handler: admin/requirement/list/main.go
-    events:
-      - httpApi:
-          path: /admin/requirement
-          method: get
-          authorizer: serviceAuthorizer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: !GetAtt UsersTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:Scan
-        Resource: !GetAtt RequirementsTable.Arn
-
   ######### User Endpoints ###############
 
   linkProvider:
-    handler: user/provider/link/main.go
+    handler: ../user/provider/link/main.go
     events:
       - cognitoUserPool:
           pool: ${sls:stage}-chess-dojo-scheduler-auth-pool
@@ -120,7 +73,7 @@ functions:
         Resource: !GetAtt CognitoUserPool.Arn
 
   createUser:
-    handler: user/create/main.go
+    handler: ../user/create/main.go
     events:
       - cognitoUserPool:
           pool: ${sls:stage}-chess-dojo-scheduler-auth-pool
@@ -133,7 +86,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   checkAccess:
-    handler: user/access/check/main.go
+    handler: ../user/access/check/main.go
     events:
       - httpApi:
           path: /user/access
@@ -147,7 +100,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   updateUser:
-    handler: user/update/main.go
+    handler: ../user/update/main.go
     events:
       - httpApi:
           path: /user
@@ -178,7 +131,7 @@ functions:
             - /openClassicalServiceAccountKey.json
 
   updateUserProgress:
-    handler: user/progress/update/main.go
+    handler: ../user/progress/update/main.go
     events:
       - httpApi:
           path: /user/progress
@@ -200,7 +153,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   updateUserTimeline:
-    handler: user/progress/timeline/main.go
+    handler: ../user/progress/timeline/main.go
     events:
       - httpApi:
           path: /user/progress/timeline
@@ -222,7 +175,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   getUser:
-    handler: user/get/main.go
+    handler: ../user/get/main.go
     events:
       - httpApi:
           path: /user
@@ -238,7 +191,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   listUserTimeline:
-    handler: user/timeline/list/main.go
+    handler: ../user/timeline/list/main.go
     events:
       - httpApi:
           path: /user/{owner}/timeline
@@ -251,7 +204,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   listUsers:
-    handler: user/list/main.go
+    handler: ../user/list/main.go
     events:
       - httpApi:
           path: /user/{cohort}
@@ -268,7 +221,7 @@ functions:
                 - '/index/CohortIdx'
 
   searchUsers:
-    handler: user/search/main.go
+    handler: ../user/search/main.go
     events:
       - httpApi:
           path: /public/user/search
@@ -285,7 +238,7 @@ functions:
                 - '/index/SearchIdx'
 
   updateRatings:
-    handler: user/ratings/update/main.go
+    handler: ../user/ratings/update/main.go
     events:
       - schedule:
           rate: cron(0 0 * * ? *)
@@ -371,7 +324,7 @@ functions:
                 - '/index/CohortIdx'
 
   updateStatistics:
-    handler: user/statistics/update/main.go
+    handler: ../user/statistics/update/main.go
     events:
       - schedule:
           rate: cron(20 0 * * ? *)
@@ -400,7 +353,7 @@ functions:
         Resource: !GetAtt GraduationsTable.Arn
 
   updateTimeSpent:
-    handler: user/timeline/statistics/main.go
+    handler: ../user/timeline/statistics/main.go
     events:
       - schedule:
           rate: cron(0 0 * * ? *)
@@ -499,7 +452,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   graduate:
-    handler: user/graduate/main.go
+    handler: ../user/graduate/main.go
     events:
       - httpApi:
           path: /user/graduate
@@ -525,7 +478,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   getUserStatistics:
-    handler: user/statistics/get/main.go
+    handler: ../user/statistics/get/main.go
     events:
       - httpApi:
           path: /public/user/statistics
@@ -537,7 +490,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   listNotifications:
-    handler: user/notifications/list/main.go
+    handler: ../user/notifications/list/main.go
     events:
       - httpApi:
           path: /user/notifications
@@ -550,7 +503,7 @@ functions:
         Resource: !GetAtt NotificationsTable.Arn
 
   deleteNotification:
-    handler: user/notifications/delete/main.go
+    handler: ../user/notifications/delete/main.go
     events:
       - httpApi:
           path: /user/notifications/{id}
@@ -563,7 +516,7 @@ functions:
         Resource: !GetAtt NotificationsTable.Arn
 
   getFollower:
-    handler: user/followers/get/main.go
+    handler: ../user/followers/get/main.go
     events:
       - httpApi:
           path: /user/followers/{poster}
@@ -576,7 +529,7 @@ functions:
         Resource: !GetAtt FollowersTable.Arn
 
   editFollower:
-    handler: user/followers/edit/main.go
+    handler: ../user/followers/edit/main.go
     events:
       - httpApi:
           path: /user/followers
@@ -599,7 +552,7 @@ functions:
         Resource: !GetAtt NotificationsTable.Arn
 
   listFollowers:
-    handler: user/followers/list/main.go
+    handler: ../user/followers/list/main.go
     events:
       - httpApi:
           path: /public/user/{username}/followers
@@ -621,7 +574,7 @@ functions:
   ############## Event Endpoints #################
 
   bookEvent:
-    handler: event/book/main.go
+    handler: ../event/book/main.go
     events:
       - httpApi:
           path: /event/{id}/book
@@ -639,7 +592,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   cancelEvent:
-    handler: event/cancel/main.go
+    handler: ../event/cancel/main.go
     events:
       - httpApi:
           path: /event/{id}/cancel
@@ -655,7 +608,7 @@ functions:
           - !GetAtt EventsTable.Arn
 
   deleteEvent:
-    handler: event/delete/main.go
+    handler: ../event/delete/main.go
     events:
       - httpApi:
           path: /event/{id}
@@ -674,7 +627,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   getEvent:
-    handler: event/get/main.go
+    handler: ../event/get/main.go
     events:
       - httpApi:
           path: /event/{id}
@@ -688,7 +641,7 @@ functions:
           - !GetAtt EventsTable.Arn
 
   listEvents:
-    handler: event/list/main.go
+    handler: ../event/list/main.go
     events:
       - httpApi:
           path: /event
@@ -704,7 +657,7 @@ functions:
         Resource: !GetAtt EventsTable.Arn
 
   setEvent:
-    handler: event/set/main.go
+    handler: ../event/set/main.go
     events:
       - httpApi:
           path: /event
@@ -725,7 +678,7 @@ functions:
 
   createGame:
     timeout: 28
-    handler: game/create/main.go
+    handler: ../game/create/main.go
     events:
       - httpApi:
           path: /game
@@ -751,7 +704,7 @@ functions:
           - !GetAtt TimelineTable.Arn
 
   updateGame:
-    handler: game/update/main.go
+    handler: ../game/update/main.go
     events:
       - httpApi:
           path: /game/{cohort}/{id+}
@@ -768,7 +721,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   deleteGame:
-    handler: game/delete/main.go
+    handler: ../game/delete/main.go
     events:
       - httpApi:
           path: /game/{cohort}/{id+}
@@ -781,7 +734,7 @@ functions:
         Resource: !GetAtt GamesTable.Arn
 
   getGame:
-    handler: game/get/main.go
+    handler: ../game/get/main.go
     events:
       - httpApi:
           path: /game/{cohort}/{id+}
@@ -795,7 +748,7 @@ functions:
           - !GetAtt GamesTable.Arn
 
   createGameComment:
-    handler: game/comment/create/main.go
+    handler: ../game/comment/create/main.go
     events:
       - httpApi:
           path: /game/{cohort}/{id+}
@@ -815,7 +768,7 @@ functions:
           - !GetAtt UsersTable.Arn
 
   listGamesByCohort:
-    handler: game/list/cohort/main.go
+    handler: ../game/list/cohort/main.go
     events:
       - httpApi:
           path: /game/{cohort}
@@ -829,7 +782,7 @@ functions:
           - !GetAtt GamesTable.Arn
 
   listGamesByOwner:
-    handler: game/list/owner/main.go
+    handler: ../game/list/owner/main.go
     events:
       - httpApi:
           path: /game
@@ -854,7 +807,7 @@ functions:
                 - '/index/BlackIdx'
 
   listGamesByOpening:
-    handler: game/list/opening/main.go
+    handler: ../game/list/opening/main.go
     events:
       - httpApi:
           path: /game/opening
@@ -872,7 +825,7 @@ functions:
                 - '/index/OwnerIndex'
 
   listFeaturedGames:
-    handler: game/list/featured/main.go
+    handler: ../game/list/featured/main.go
     events:
       - httpApi:
           path: /game/featured
@@ -889,7 +842,7 @@ functions:
                 - '/index/FeaturedIdx'
 
   updateGameStatistics:
-    handler: game/statistics/update/main.go
+    handler: ../game/statistics/update/main.go
     events:
       - schedule:
           rate: cron(20 0 * * ? *)
@@ -911,7 +864,7 @@ functions:
   ########## Requirement Endpoints ##############
 
   getRequirement:
-    handler: requirement/get/main.go
+    handler: ../requirement/get/main.go
     events:
       - httpApi:
           path: /requirement/{id}
@@ -925,7 +878,7 @@ functions:
           - !GetAtt RequirementsTable.Arn
 
   listRequirements:
-    handler: requirement/list/main.go
+    handler: ../requirement/list/main.go
     events:
       - httpApi:
           path: /requirements/{cohort}
@@ -940,7 +893,7 @@ functions:
           - !GetAtt RequirementsTable.Arn
 
   setRequirement:
-    handler: requirement/set/main.go
+    handler: ../requirement/set/main.go
     events:
       - httpApi:
           path: /requirement
@@ -959,7 +912,7 @@ functions:
   ########## Graduation Endpoints ##############
 
   listGraduationsByCohort:
-    handler: graduation/list/main.go
+    handler: ../graduation/list/main.go
     events:
       - httpApi:
           path: /graduations/{cohort}
@@ -972,7 +925,7 @@ functions:
         Resource: !GetAtt GraduationsTable.Arn
 
   listGraduationsByOwner:
-    handler: graduation/list/main.go
+    handler: ../graduation/list/main.go
     events:
       - httpApi:
           path: /graduations/owner/{username}
@@ -985,7 +938,7 @@ functions:
         Resource: !GetAtt GraduationsTable.Arn
 
   listGraduationsByDate:
-    handler: graduation/list/main.go
+    handler: ../graduation/list/main.go
     events:
       - httpApi:
           path: /graduations
@@ -1000,7 +953,7 @@ functions:
   ########## Opening Endpoints ##############
 
   getOpening:
-    handler: opening/get/main.go
+    handler: ../opening/get/main.go
     events:
       - httpApi:
           path: /openings/{id}
@@ -1013,7 +966,7 @@ functions:
         Resource: !GetAtt OpeningTable.Arn
 
   listOpenings:
-    handler: opening/list/main.go
+    handler: ../opening/list/main.go
     events:
       - httpApi:
           path: /openings
@@ -1028,7 +981,7 @@ functions:
   ########## Tournament Endpoints ##############
 
   createTournament:
-    handler: tournament/create/main.go
+    handler: ../tournament/create/main.go
     events:
       - httpApi:
           path: /tournaments
@@ -1039,10 +992,10 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt EventsTable.Arn
     environment:
-      botAccessToken: ${file(./tournament.yml):botAccessToken}
+      botAccessToken: ${file(../tournament.yml):botAccessToken}
 
   updateTournamentLeaderboard:
-    handler: tournament/leaderboard/update/main.go
+    handler: ../tournament/leaderboard/update/main.go
     events:
       - httpApi:
           path: /tournaments/leaderboard
@@ -1054,10 +1007,10 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt TournamentsTable.Arn
     environment:
-      botAccessToken: ${file(./tournament.yml):botAccessToken}
+      botAccessToken: ${file(../tournament.yml):botAccessToken}
 
   getTournamentLeaderboard:
-    handler: tournament/leaderboard/get/main.go
+    handler: ../tournament/leaderboard/get/main.go
     events:
       - httpApi:
           path: /public/tournaments/leaderboard
@@ -1069,7 +1022,7 @@ functions:
         Resource: !GetAtt TournamentsTable.Arn
 
   snapshotTournamentLeaderboard:
-    handler: tournament/leaderboard/snapshot/main.go
+    handler: ../tournament/leaderboard/snapshot/main.go
     events:
       - schedule:
           rate: cron(0 0 1 * ? *)
@@ -1081,10 +1034,10 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt TournamentsTable.Arn
     environment:
-      mongoConnectionString: ${file(./tournament.yml):mongoConnectionString}
+      mongoConnectionString: ${file(../tournament.yml):mongoConnectionString}
 
   openClassicalRegister:
-    handler: tournament/openClassical/register/main.go
+    handler: ../tournament/openClassical/register/main.go
     events:
       - httpApi:
           path: /public/tournaments/open-classical/register
@@ -1104,7 +1057,7 @@ functions:
             - /openClassicalServiceAccountKey.json
 
   openClassicalSubmitResults:
-    handler: tournament/openClassical/results/submit/main.go
+    handler: ../tournament/openClassical/results/submit/main.go
     events:
       - httpApi:
           path: /public/tournaments/open-classical/results
@@ -1126,7 +1079,7 @@ functions:
   ######### Newsfeed Endpoints ###############
 
   createNewsfeedEntry:
-    handler: newsfeed/create/main.go
+    handler: ../newsfeed/create/main.go
     timeout: 30
     events:
       - stream:
@@ -1162,7 +1115,7 @@ functions:
           - !GetAtt TimelineTable.Arn
 
   deleteNewsfeedEntry:
-    handler: newsfeed/delete/main.go
+    handler: ../newsfeed/delete/main.go
     timeout: 30
     events:
       - stream:
@@ -1201,7 +1154,7 @@ functions:
                 - '/index/PosterIndex'
 
   getNewsfeedItem:
-    handler: newsfeed/get/main.go
+    handler: ../newsfeed/get/main.go
     events:
       - httpApi:
           path: /public/newsfeed/{owner}/{id}
@@ -1213,7 +1166,7 @@ functions:
         Resource: !GetAtt TimelineTable.Arn
 
   listNewsfeed:
-    handler: newsfeed/list/main.go
+    handler: ../newsfeed/list/main.go
     events:
       - httpApi:
           path: /newsfeed
@@ -1235,7 +1188,7 @@ functions:
         Resource: !GetAtt UsersTable.Arn
 
   createNewsfeedComment:
-    handler: newsfeed/comment/create/main.go
+    handler: ../newsfeed/comment/create/main.go
     events:
       - httpApi:
           path: /newsfeed/{owner}/{id}/comments
@@ -1254,7 +1207,7 @@ functions:
           - !GetAtt NotificationsTable.Arn
 
   setNewsfeedReaction:
-    handler: newsfeed/react/main.go
+    handler: ../newsfeed/react/main.go
     events:
       - httpApi:
           path: /newsfeed/{owner}/{id}/reactions
@@ -1317,9 +1270,9 @@ resources:
           - email
           - profile
         CallbackURLs:
-          - ${file(./config-${sls:stage}.yml):frontendHost}
+          - ${file(../config-${sls:stage}.yml):frontendHost}
         LogoutURLs:
-          - ${file(./config-${sls:stage}.yml):frontendHost}
+          - ${file(../config-${sls:stage}.yml):frontendHost}
         SupportedIdentityProviders:
           - COGNITO
           - Google
@@ -1340,8 +1293,8 @@ resources:
         UserPoolId: { Ref: CognitoUserPool }
         ProviderName: 'Google'
         ProviderDetails:
-          client_id: ${file(./oauth.yml):client_id}
-          client_secret: ${file(./oauth.yml):client_secret}
+          client_id: ${file(../oauth.yml):client_id}
+          client_secret: ${file(../oauth.yml):client_secret}
           authorize_scopes: 'profile email openid'
         ProviderType: 'Google'
         AttributeMapping:
@@ -1947,3 +1900,15 @@ resources:
         TreatMissingData: ignore
 
     ########### End Alert Resources #############
+
+  Outputs:
+    userPoolClient:
+      Value: !Ref UserClient
+    userPoolProviderUrl:
+      Value: !GetAtt CognitoUserPool.ProviderURL
+    serviceAuthorizer:
+      Value: !Ref HttpApiAuthorizerServiceAuthorizer
+    UsersTableArn:
+      Value: !GetAtt UsersTable.Arn
+    RequirementsTableArn:
+      Value: !GetAtt RequirementsTable.Arn

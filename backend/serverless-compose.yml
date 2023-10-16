@@ -1,0 +1,11 @@
+services:
+  chess-dojo-scheduler:
+    path: root
+
+  admin:
+    path: admin
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      RequirementsTableArn: ${chess-dojo-scheduler.RequirementsTableArn}
