@@ -81,7 +81,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	if err := saveReferralSource(ctx, info, update); err != nil {
+	if err := saveReferralSource(ctx, user, update); err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
@@ -180,7 +180,7 @@ func handleAutopickCohort(user *database.User, update *database.UserUpdate) api.
 	return api.Success(funcName, user)
 }
 
-func saveReferralSource(ctx context.Context, info *api.UserInfo, update *database.UserUpdate) error {
+func saveReferralSource(ctx context.Context, user *database.User, update *database.UserUpdate) error {
 	if update.ReferralSource == nil {
 		return nil
 	}
@@ -206,9 +206,10 @@ func saveReferralSource(ctx context.Context, info *api.UserInfo, update *databas
 		Values: [][]interface{}{
 			{
 				time.Now().Format(time.RFC3339),
-				info.Username,
-				info.Email,
+				user.Username,
+				user.Email,
 				*update.ReferralSource,
+				user.SubscriptionStatus,
 			},
 		},
 	}
