@@ -1,6 +1,6 @@
-# Deploys the functions for the admin portal.
+# Deploys the requirements service.
 
-service: chess-dojo-admin
+service: chess-dojo-requirements
 frameworkVersion: '3'
 
 plugins:
@@ -26,11 +26,11 @@ custom:
     buildProvidedRuntimeAsBootstrap: true
 
 functions:
-  listUsers:
-    handler: user/list/main.go
+  get:
+    handler: get/main.go
     events:
       - httpApi:
-          path: /admin/user
+          path: /requirement/{id}
           method: get
           authorizer:
             type: jwt
@@ -39,14 +39,13 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-          - dynamodb:Scan
-        Resource: ${param:UsersTableArn}
+        Resource: ${param:RequirementsTableArn}
 
-  getStatistics:
-    handler: statistics/get/main.go
+  list:
+    handler: list/main.go
     events:
       - httpApi:
-          path: /admin/statistics
+          path: /requirements/{cohort}
           method: get
           authorizer:
             type: jwt
@@ -54,24 +53,25 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
-
-  listRequirements:
-    handler: requirement/list/main.go
-    events:
-      - httpApi:
-          path: /admin/requirement
-          method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
-      - Effect: Allow
-        Action:
+          - dynamodb:Query
           - dynamodb:Scan
+        Resource: ${param:RequirementsTableArn}
+
+  set:
+    handler: set/main.go
+    events:
+      - httpApi:
+          path: /requirement
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
         Resource: ${param:RequirementsTableArn}

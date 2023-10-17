@@ -1,0 +1,230 @@
+# Deploys the games service.
+
+service: chess-dojo-games
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 30
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  create:
+    timeout: 28
+    handler: create/main.go
+    events:
+      - httpApi:
+          path: /game
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource:
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:BatchWriteItem
+        Resource:
+          - ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - ${param:TimelineTableArn}
+
+  update:
+    handler: update/main.go
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id+}
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+
+  delete:
+    handler: delete/main.go
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id+}
+          method: delete
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: ${param:GamesTableArn}
+
+  get:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id+}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:GamesTableArn}
+
+  createComment:
+    handler: comment/create/main.go
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id+}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:GamesTableArn}
+          - ${param:NotificationsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+
+  listByCohort:
+    handler: list/cohort/main.go
+    events:
+      - httpApi:
+          path: /game/{cohort}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - ${param:GamesTableArn}
+
+  listByOwner:
+    handler: list/owner/main.go
+    events:
+      - httpApi:
+          path: /game
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/OwnerIndex'
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/WhiteIdx'
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/BlackIdx'
+
+  listByOpening:
+    handler: list/opening/main.go
+    events:
+      - httpApi:
+          path: /game/opening
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - ${param:GamesTableArn}
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/OwnerIndex'
+
+  listByFeatured:
+    handler: list/featured/main.go
+    events:
+      - httpApi:
+          path: /game/featured
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/FeaturedIdx'
+
+  updateStatistics:
+    handler: statistics/update/main.go
+    events:
+      - schedule:
+          rate: cron(20 0 * * ? *)
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:GameDatabaseBucket}
+            - /dojo_database.zip

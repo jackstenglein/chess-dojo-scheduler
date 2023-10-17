@@ -1,6 +1,6 @@
-# Deploys the functions for the admin portal.
+# Deploys the openings service.
 
-service: chess-dojo-admin
+service: chess-dojo-openings
 frameworkVersion: '3'
 
 plugins:
@@ -26,11 +26,11 @@ custom:
     buildProvidedRuntimeAsBootstrap: true
 
 functions:
-  listUsers:
-    handler: user/list/main.go
+  get:
+    handler: get/main.go
     events:
       - httpApi:
-          path: /admin/user
+          path: /openings/{id}
           method: get
           authorizer:
             type: jwt
@@ -39,39 +39,19 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-          - dynamodb:Scan
-        Resource: ${param:UsersTableArn}
+        Resource: ${param:OpeningsTableArn}
 
-  getStatistics:
-    handler: statistics/get/main.go
+  list:
+    handler: list/main.go
     events:
       - httpApi:
-          path: /admin/statistics
+          path: /openings
           method: get
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
     iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
-
-  listRequirements:
-    handler: requirement/list/main.go
-    events:
-      - httpApi:
-          path: /admin/requirement
-          method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
       - Effect: Allow
         Action:
           - dynamodb:Scan
-        Resource: ${param:RequirementsTableArn}
+        Resource: ${param:OpeningsTableArn}

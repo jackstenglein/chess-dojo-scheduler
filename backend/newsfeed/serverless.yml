@@ -1,0 +1,180 @@
+# Deploys the newsfeed service.
+
+service: chess-dojo-newsfeed
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 30
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  createEntry:
+    handler: create/main.go
+    timeout: 30
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${param:TimelineTableStreamArn}
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [INSERT]
+      - stream:
+          type: dynamodb
+          arn: ${param:FollowersTableStreamArn}
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [INSERT]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+        Resource: ${param:NewsfeedTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - ${param:FollowersTableArn}
+          - ${param:TimelineTableArn}
+
+  deleteEntry:
+    handler: delete/main.go
+    timeout: 30
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${param:TimelineTableStreamArn}
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [REMOVE]
+      - stream:
+          type: dynamodb
+          arn: ${param:FollowersTableStreamArn}
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [REMOVE]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+        Resource: ${param:NewsfeedTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - ${param:NewsfeedTableArn}
+          - Fn::Join:
+              - ''
+              - - ${param:NewsfeedTableArn}
+                - '/index/PosterIndex'
+
+  getItem:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /public/newsfeed/{owner}/{id}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:TimelineTableArn}
+
+  list:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /newsfeed
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: ${param:NewsfeedTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: ${param:TimelineTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:UsersTableArn}
+
+  createComment:
+    handler: comment/create/main.go
+    events:
+      - httpApi:
+          path: /newsfeed/{owner}/{id}/comments
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TimelineTableArn}
+          - ${param:NotificationsTableArn}
+
+  setReaction:
+    handler: react/main.go
+    events:
+      - httpApi:
+          path: /newsfeed/{owner}/{id}/reactions
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TimelineTableArn}
+          - ${param:NotificationsTableArn}

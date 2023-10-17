@@ -1,0 +1,145 @@
+# Deploys the events service.
+
+service: chess-dojo-events
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 30
+  environment:
+    stage: ${sls:stage}
+    frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+    discordAuth: ${file(../discord.yml):discordAuth}
+    discordFindGameChannelId: ${file(../config-${sls:stage}.yml):discordFindGameChannelId}
+    discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+    discordPublicGuildId: ${file(../config-${sls:stage}.yml):discordPublicGuildId}
+  httpApi:
+    id: ${param:httpApiId}
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  book:
+    handler: book/main.go
+    events:
+      - httpApi:
+          path: /event/{id}/book
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:EventsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+
+  cancel:
+    handler: cancel/main.go
+    events:
+      - httpApi:
+          path: /event/{id}/cancel
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:EventsTableArn}
+
+  delete:
+    handler: delete/main.go
+    events:
+      - httpApi:
+          path: /event/{id}
+          method: delete
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource: ${param:EventsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+
+  get:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /event/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:EventsTableArn}
+
+  list:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /event
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/event
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: ${param:EventsTableArn}
+
+  set:
+    handler: set/main.go
+    events:
+      - httpApi:
+          path: /event
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: ${param:EventsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}

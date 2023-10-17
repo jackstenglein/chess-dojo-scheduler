@@ -9,3 +9,82 @@ services:
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       RequirementsTableArn: ${chess-dojo-scheduler.RequirementsTableArn}
+
+  users:
+    path: user
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UserPoolArn: ${chess-dojo-scheduler.UserPoolArn}
+      UserPoolId: ${chess-dojo-scheduler.UserPoolId}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      RequirementsTableArn: ${chess-dojo-scheduler.RequirementsTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      GraduationsTableArn: ${chess-dojo-scheduler.GraduationsTableArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      FollowersTableArn: ${chess-dojo-scheduler.FollowersTableArn}
+      PicturesBucket: ${chess-dojo-scheduler.PicturesBucket}
+      SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+
+  requirements:
+    path: requirement
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      RequirementsTableArn: ${chess-dojo-scheduler.RequirementsTableArn}
+
+  graduations:
+    path: graduation
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      GraduationsTableArn: ${chess-dojo-scheduler.GraduationsTableArn}
+
+  openings:
+    path: opening
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      OpeningsTableArn: ${chess-dojo-scheduler.OpeningsTableArn}
+
+  newsfeed:
+    path: newsfeed
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      TimelineTableStreamArn: ${chess-dojo-scheduler.TimelineTableStreamArn}
+      FollowersTableStreamArn: ${chess-dojo-scheduler.FollowersTableStreamArn}
+      NewsfeedTableArn: ${chess-dojo-scheduler.NewsfeedTableArn}
+      FollowersTableArn: ${chess-dojo-scheduler.FollowersTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+
+  tournaments:
+    path: tournament
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+      SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+
+  events:
+    path: event
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+
+  games:
+    path: game
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      GameDatabaseBucket: ${chess-dojo-scheduler.GameDatabaseBucket}

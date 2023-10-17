@@ -1,0 +1,127 @@
+# Deploys the tournament service.
+
+service: chess-dojo-tournaments
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 30
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  create:
+    handler: create/main.go
+    events:
+      - httpApi:
+          path: /tournaments
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: ${param:EventsTableArn}
+    environment:
+      botAccessToken: ${file(../tournament.yml):botAccessToken}
+
+  updateLeaderboard:
+    handler: leaderboard/update/main.go
+    events:
+      - httpApi:
+          path: /tournaments/leaderboard
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+        Resource: ${param:TournamentsTableArn}
+    environment:
+      botAccessToken: ${file(../tournament.yml):botAccessToken}
+
+  getLeaderboard:
+    handler: leaderboard/get/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/leaderboard
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:TournamentsTableArn}
+
+  snapshotLeaderboard:
+    handler: leaderboard/snapshot/main.go
+    events:
+      - schedule:
+          rate: cron(0 0 1 * ? *)
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource: ${param:TournamentsTableArn}
+    environment:
+      mongoConnectionString: ${file(../tournament.yml):mongoConnectionString}
+
+  openClassicalRegister:
+    handler: openClassical/register/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/open-classical/register
+          method: post
+      - httpApi:
+          path: /tournaments/open-classical/register
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:SecretsBucket}
+            - /openClassicalServiceAccountKey.json
+
+  openClassicalSubmitResults:
+    handler: openClassical/results/submit/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/open-classical/results
+          method: post
+      - httpApi:
+          path: /tournaments/open-classical/results
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:SecretsBucket}
+            - /openClassicalServiceAccountKey.json

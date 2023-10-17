@@ -1,6 +1,6 @@
-# Deploys the functions for the admin portal.
+# Deploys the graduations service.
 
-service: chess-dojo-admin
+service: chess-dojo-graduations
 frameworkVersion: '3'
 
 plugins:
@@ -26,52 +26,47 @@ custom:
     buildProvidedRuntimeAsBootstrap: true
 
 functions:
-  listUsers:
-    handler: user/list/main.go
+  listByCohort:
+    handler: list/main.go
     events:
       - httpApi:
-          path: /admin/user
+          path: /graduations/{cohort}
           method: get
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
     iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:Scan
-        Resource: ${param:UsersTableArn}
-
-  getStatistics:
-    handler: statistics/get/main.go
-    events:
-      - httpApi:
-          path: /admin/statistics
-          method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
-
-  listRequirements:
-    handler: requirement/list/main.go
-    events:
-      - httpApi:
-          path: /admin/requirement
-          method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
       - Effect: Allow
         Action:
           - dynamodb:Scan
-        Resource: ${param:RequirementsTableArn}
+        Resource: ${param:GraduationsTableArn}
+
+  listByOwner:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /graduations/owner/{username}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: ${param:GraduationsTableArn}
+
+  listByDate:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /graduations
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: ${param:GraduationsTableArn}
