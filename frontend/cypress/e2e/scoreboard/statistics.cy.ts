@@ -26,6 +26,7 @@ describe('Statistics Page', () => {
             'Average Time to Graduate',
             'Total Dojo Score',
             'Average Dojo Score',
+            'Average Rating Change Per Dojo Point',
             'Participants',
             'Rating Systems',
         ];
