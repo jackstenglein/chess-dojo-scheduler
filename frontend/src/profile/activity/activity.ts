@@ -193,7 +193,7 @@ function getTimeframeScoreChartData(
         if (!requirement) {
             continue;
         }
-        if (entry.createdAt < timeCutoff) {
+        if ((entry.date || entry.createdAt) < timeCutoff) {
             break;
         }
 
@@ -264,7 +264,7 @@ function getCategoryScoreChartData(
         if (!requirement) {
             continue;
         }
-        if (entry.createdAt < timeCutoff) {
+        if ((entry.date || entry.createdAt) < timeCutoff) {
             break;
         }
 
@@ -421,7 +421,7 @@ function getTimeframeTimeChartData(
         if (entry.cohort !== cohort || entry.minutesSpent === 0) {
             continue;
         }
-        if (entry.createdAt < timeCutoff) {
+        if ((entry.date || entry.createdAt) < timeCutoff) {
             break;
         }
 
@@ -521,7 +521,7 @@ function getCategoryTimeChartData(
             continue;
         }
 
-        if (entry.createdAt < timeCutoff) {
+        if ((entry.date || entry.createdAt) < timeCutoff) {
             break;
         }
 

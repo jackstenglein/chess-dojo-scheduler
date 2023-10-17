@@ -114,16 +114,25 @@ func updateUser(user *database.User) bool {
 
 			date := t.Id[0:10] + "T00:00:00Z"
 			if _, err := time.Parse(time.RFC3339, date); err != nil && date < yearAgo {
+				// The date as recorded in the id is immutable and is >= t.Date and t.CreatedAt,
+				// since it is invalid to create a timeline entry in the future. And since timeline
+				// entries are sorted by id, all remaining entries are older than this one. Thus,
+				// we have finished all entries within the past year and can return. QED.
 				goto done
 			}
 
-			if t.CreatedAt >= weekAgo {
+			date = t.Date
+			if date == "" {
+				date = t.CreatedAt
+			}
+
+			if date >= weekAgo {
 				weekAgoTime += t.MinutesSpent
-			} else if t.CreatedAt >= thirtyDaysAgo {
+			} else if date >= thirtyDaysAgo {
 				thirtyDaysAgoTime += t.MinutesSpent
-			} else if t.CreatedAt >= ninetyDaysAgo {
+			} else if date >= ninetyDaysAgo {
 				ninetyDaysAgoTime += t.MinutesSpent
-			} else if t.CreatedAt >= yearAgo {
+			} else if date >= yearAgo {
 				yearAgoTime += t.MinutesSpent
 			}
 		}
