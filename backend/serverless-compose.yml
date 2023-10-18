@@ -68,6 +68,7 @@ services:
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
       TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
 
   events:

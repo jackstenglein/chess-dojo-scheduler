@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
     Route,
     createBrowserRouter,
@@ -49,7 +50,7 @@ import NotificationPage from './notifications/NotificationPage';
 import FollowersPage from './profile/followers/FollowersPage';
 import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
 import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
-import { useEffect } from 'react';
+import DetailsPage from './tournaments/openClassical/DetailsPage';
 
 const config = getConfig();
 Amplify.configure({
@@ -79,6 +80,7 @@ const router = createBrowserRouter(
             <Route path='tournaments'>
                 <Route index element={<TournamentsPage />} />
                 <Route path='open-classical'>
+                    <Route index element={<DetailsPage />} />
                     <Route path='register' element={<RegistrationPage />} />
                     <Route path='submit-results' element={<SubmitResultsPage />} />
                 </Route>

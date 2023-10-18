@@ -93,6 +93,7 @@ export interface User {
     disableCancellationNotifications: boolean;
     isAdmin: boolean;
     isCalendarAdmin: boolean;
+    isTournamentAdmin: boolean;
     isBetaTester: boolean;
     createdAt: string;
     updatedAt: string;

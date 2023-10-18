@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { Leaderboard, TournamentType } from '../database/tournament';
+import { Leaderboard, OpenClassical, TournamentType } from '../database/tournament';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -25,6 +25,14 @@ export type TournamentApiContextType = {
     ) => Promise<AxiosResponse<Leaderboard>>;
 
     /**
+     * Fetches the requested Open Classical.
+     * @param startsAt The time period the open classical starts at. If not provided, the
+     * current tournament will be returned.
+     * @returns An AxiosResponse containing the requested OpenClassical.
+     */
+    getOpenClassical: (startsAt?: string) => Promise<AxiosResponse<OpenClassical, any>>;
+
+    /**
      * Submits a request to register for the Open Classical.
      * @param req The Open Classical registration request.
      * @returns An empty AxiosResponse.
@@ -41,6 +49,18 @@ export type TournamentApiContextType = {
     submitResultsForOpenClassical: (
         req: OpenClassicalSubmitResultsRequest
     ) => Promise<AxiosResponse<void, any>>;
+
+    /**
+     * Sets the pairings for the given round using the given PGN data. Only admins and tournament
+     * admins can call this function.
+     * @param round The round to set.
+     * @param pgnData The PGN data containing the pairings.
+     * @returns An AxiosResponse containing the updated open classical.
+     */
+    putOpenClassicalPairings: (
+        round: number,
+        pgnData: string
+    ) => Promise<AxiosResponse<OpenClassical, any>>;
 };
 
 /** A request to register for the Open Classical. */
@@ -90,6 +110,18 @@ export function getLeaderboard(
 }
 
 /**
+ * Fetches the requested Open Classical.
+ * @param startsAt The time period the open classical starts at. If not provided, the
+ * current tournament will be returned.
+ * @returns An AxiosResponse containing the requested OpenClassical.
+ */
+export function getOpenClassical(startsAt?: string) {
+    return axios.get<OpenClassical>(`${BASE_URL}/public/tournaments/open-classical`, {
+        params: { startsAt },
+    });
+}
+
+/**
  * Submits a request to register for the Open Classical.
  * @param idToken The id token of the signed-in user.
  * @param req The Open Classical registration request.
@@ -124,5 +156,25 @@ export function submitResultsForOpenClassical(
         {
             headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
         }
+    );
+}
+
+/**
+ * Sets the pairings for the given round using the given PGN data. Only admins and tournament
+ * admins can call this function.
+ * @param idToken The id
+ * @param round The round to set.
+ * @param pgnData The PGN data containing the pairings.
+ * @returns An AxiosResponse containing the updated open classical.
+ */
+export function putOpenClassicalPairings(
+    idToken: string,
+    round: number,
+    pgnData: string
+) {
+    return axios.put<OpenClassical>(
+        `${BASE_URL}/tournaments/open-classical/pairings`,
+        { round, pgnData },
+        { headers: { Authorization: 'Bearer ' + idToken } }
     );
 }

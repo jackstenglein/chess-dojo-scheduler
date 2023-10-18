@@ -19,6 +19,10 @@ const (
 
 type LeaderboardType string
 
+const (
+	LeaderboardType_OpenClassical LeaderboardType = "OPEN_CLASSICAL"
+)
+
 const CurrentLeaderboard = "CURRENT"
 
 var LeaderboardNames = []LeaderboardType{
@@ -104,4 +108,86 @@ func (repo *dynamoRepository) GetLeaderboard(timePeriod, tournamentType, timeCon
 	}
 	err := repo.getItem(input, &leaderboard)
 	return &leaderboard, err
+}
+
+// OpenClassicalPlayer represents a player in the Open Classical tournaments, which
+// are separate from the regular tournaments.
+type OpenClassicalPlayer struct {
+	// The Lichess username of the player
+	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
+
+	// The Discord username of the player
+	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
+
+	// The player's title, if they have one
+	Title string `dynamodbav:"title" json:"title"`
+
+	// The player's Lichess rating at the start of the Open Classical
+	Rating int `dynamodbav:"rating" json:"rating"`
+}
+
+// OpenClassicalPairing represents a single pairing in the Open Classical tournaments,
+// which are separate from the regular leaderboards.
+type OpenClassicalPairing struct {
+	// The player with the white pieces
+	White OpenClassicalPlayer `dynamodbav:"white" json:"white"`
+
+	// The player with the black pieces
+	Black OpenClassicalPlayer `dynamodbav:"black" json:"black"`
+}
+
+// OpenClassicalRound represents a single round in the Open Classical tournaments.
+type OpenClassicalRound struct {
+	// The list of pairings for the round
+	Pairings []OpenClassicalPairing `dynamodbav:"pairings" json:"pairings"`
+}
+
+// OpenClassical represents an Open Classical tournament.
+type OpenClassical struct {
+	// The hash key of the tournaments table. Regular tournaments have a complicated
+	// structure, but for Open Classicals, this is just the value OPEN_CLASSICAL
+	Type LeaderboardType `dynamodbav:"type" json:"type"`
+
+	// The start of the period the tournament applies to and the range key of the table.
+	// For the current Open Classical, this is set to the value of CurrentLeaderboard.
+	StartsAt string `dynamodbav:"startsAt" json:"startsAt"`
+
+	// The rounds in the tournament
+	Rounds []OpenClassicalRound `dynamodbav:"rounds" json:"rounds"`
+}
+
+// SetOpenClassical inserts the provided OpenClassical into the database.
+func (repo *dynamoRepository) SetOpenClassical(openClassical *OpenClassical) error {
+	openClassical.Type = LeaderboardType_OpenClassical
+
+	item, err := dynamodbattribute.MarshalMap(openClassical)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Unable to marshall open classical", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(tournamentTable),
+	}
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed DynamoDB PutItem request", err)
+}
+
+// GetOpenClassical returns the open classical for the provided startsAt period.
+func (repo *dynamoRepository) GetOpenClassical(startsAt string) (*OpenClassical, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type": {
+				S: aws.String(string(LeaderboardType_OpenClassical)),
+			},
+			"startsAt": {
+				S: aws.String(startsAt),
+			},
+		},
+		TableName: aws.String(tournamentTable),
+	}
+
+	openClassical := OpenClassical{}
+	err := repo.getItem(input, &openClassical)
+	return &openClassical, err
 }

@@ -69,8 +69,10 @@ import {
 import { getCourse, listCourses, OpeningApiContextType } from './openingApi';
 import {
     getLeaderboard,
+    getOpenClassical,
     OpenClassicalRegistrationRequest,
     OpenClassicalSubmitResultsRequest,
+    putOpenClassicalPairings,
     registerForOpenClassical,
     submitResultsForOpenClassical,
     TimeControl,
@@ -259,10 +261,14 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 timeControl: TimeControl,
                 date: string
             ) => getLeaderboard(timePeriod, tournamentType, timeControl, date),
+
+            getOpenClassical: (startsAt?: string) => getOpenClassical(startsAt),
             registerForOpenClassical: (req: OpenClassicalRegistrationRequest) =>
                 registerForOpenClassical(idToken, req),
             submitResultsForOpenClassical: (req: OpenClassicalSubmitResultsRequest) =>
                 submitResultsForOpenClassical(idToken, req),
+            putOpenClassicalPairings: (round: number, pgnData: string) =>
+                putOpenClassicalPairings(idToken, round, pgnData),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),
