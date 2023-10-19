@@ -23,7 +23,6 @@ import SigninPage from './auth/SigninPage';
 import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
-import AdminPage from './admin/AdminPage';
 import { CacheProvider } from './api/cache/Cache';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import GamePage from './games/view/GamePage';
@@ -97,7 +96,6 @@ const router = createBrowserRouter(
                             <Route path='following' element={<FollowersPage />} />
                         </Route>
                     </Route>
-                    <Route path='admin' element={<AdminPage />} />
 
                     <Route path='recent' element={<RecentPage />} />
                     <Route path='calendar' element={<CalendarPage />}>

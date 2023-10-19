@@ -8,12 +8,6 @@ import { Requirement } from '../database/requirement';
 import { TimelineEntry } from '../database/timeline';
 
 import {
-    AdminApiContextType,
-    adminListUsers,
-    adminGetStatistics,
-    adminListRequirements,
-} from './adminApi';
-import {
     UserApiContextType,
     getUser,
     getUserPublic,
@@ -96,8 +90,7 @@ import {
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
  */
-type ApiContextType = AdminApiContextType &
-    UserApiContextType &
+type ApiContextType = UserApiContextType &
     EventApiContextType &
     GameApiContextType &
     RequirementApiContextType &
@@ -128,11 +121,6 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
     const value = useMemo(() => {
         return {
-            adminListUsers: (startKey?: string) => adminListUsers(idToken, startKey),
-            adminGetStatistics: () => adminGetStatistics(idToken),
-            adminListRequirements: (startKey?: string) =>
-                adminListRequirements(idToken, startKey),
-
             checkUserAccess: () => checkUserAccess(idToken),
             getUser: () => getUser(idToken),
             getUserPublic: (username: string) => getUserPublic(username),

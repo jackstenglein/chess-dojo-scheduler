@@ -161,14 +161,6 @@ function signoutItem(signout: () => void): NavbarItem {
     };
 }
 
-function adminPortalItem(navigate: NavigateFunction): NavbarItem {
-    return {
-        name: 'Admin Portal',
-        icon: null,
-        onClick: () => navigate('/admin'),
-    };
-}
-
 function NotificationsMenuItem({
     handleClick,
 }: {
@@ -297,14 +289,6 @@ function useNavbarItems(
         endItems.push(renderEndItem(signoutItem(auth.signout)));
     } else {
         menuItems.push(renderMenuItem(signoutItem(auth.signout), handleClick));
-    }
-
-    if (auth.user?.isAdmin) {
-        if (showAll) {
-            endItems.push(renderEndItem(adminPortalItem(navigate)));
-        } else {
-            menuItems.push(renderMenuItem(adminPortalItem(navigate), handleClick));
-        }
     }
 
     return {
@@ -470,7 +454,6 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { notifications } = useNotifications();
-    const isAdmin = auth.user?.isAdmin;
 
     const startItems = allStartItems(navigate);
 
@@ -558,12 +541,6 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                     </ListItemIcon>
                     <Typography textAlign='center'>Help</Typography>
                 </MenuItem>
-
-                {isAdmin && (
-                    <MenuItem onClick={handleClick(() => navigate('/admin'))}>
-                        <Typography textAlign='center'>Admin Portal</Typography>
-                    </MenuItem>
-                )}
 
                 <MenuItem onClick={handleClick(auth.signout)}>
                     <ListItemIcon>
