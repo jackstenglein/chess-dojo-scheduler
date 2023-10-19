@@ -157,7 +157,7 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 		}
 	}
 
-	if score > 0 {
+	if score > 0 && float32(ratingChange)/score < 50 {
 		cohortStats.AvgRatingChangePerDojoPoint += float32(ratingChange) / score
 	}
 }
