@@ -5,12 +5,10 @@ import { useAuth } from '../auth/Auth';
 import { Event, AvailabilityStatus } from '../database/event';
 import NavbarMenu from './NavbarMenu';
 
-const ONE_HOUR = 3600000;
-
 const Navbar = () => {
     const auth = useAuth();
 
-    const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
+    const filterTime = new Date(new Date().getTime()).toISOString();
     const { events } = useEvents();
 
     const meetingCount = events.filter((e: Event) => {

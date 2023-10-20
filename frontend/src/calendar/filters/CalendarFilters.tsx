@@ -32,8 +32,6 @@ import { useAuth } from '../../auth/Auth';
 import TimezoneFilter from './TimezoneFilter';
 import { useEvents } from '../../api/cache/Cache';
 
-const ONE_HOUR = 3600000;
-
 export const DefaultTimezone = 'DEFAULT';
 
 export const Accordion = styled((props: AccordionProps) => (
@@ -233,7 +231,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
     const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
 
     const { events } = useEvents();
-    const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
+    const filterTime = new Date(new Date().getTime()).toISOString();
     const meetingCount = events.filter((e: Event) => {
         if (!e.participants || e.participants.length === 0) {
             return false;
