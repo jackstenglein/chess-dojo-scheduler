@@ -1,27 +1,27 @@
 const navbarStartItems = [
-    'Profile',
+    'Newsfeed',
+    'Training Plan',
     'Scoreboard',
     'Tournaments',
     'Games',
     'Calendar',
-    'Meetings',
-    'Recent',
     'Material',
     'Merch',
 ];
 
-const navbarEndItems = ['Help', 'Sign Out'];
+const navbarEndItems = ['Help', 'Notifications', 'navbar-profile-button'];
 
 const viewPortWidths = [
-    { width: 1448, hidden: 0, endHidden: 0 },
-    { width: 1319, hidden: 2, endHidden: 0 },
-    { width: 1210, hidden: 3, endHidden: 0 },
-    { width: 1064, hidden: 4, endHidden: 0 },
-    { width: 937, hidden: 5, endHidden: 0 },
-    { width: 836, hidden: 6, endHidden: 0 },
-    { width: 675, hidden: 7, endHidden: 1 },
-    { width: 611, hidden: 7, endHidden: 2 },
-    { width: 449, hidden: 9, endHidden: 2 },
+    { width: 1340, hidden: 0, endHidden: 0 },
+    { width: 1339, hidden: 2, endHidden: 0 },
+    { width: 1176, hidden: 3, endHidden: 0 },
+    { width: 1048, hidden: 4, endHidden: 0 },
+    { width: 948, hidden: 5, endHidden: 0 },
+    { width: 782, hidden: 6, endHidden: 0 },
+    { width: 623, hidden: 6, endHidden: 1 },
+    { width: 566, hidden: 6, endHidden: 2 },
+    { width: 541, hidden: 6, endHidden: 3 },
+    { width: 449, hidden: 8, endHidden: 3 },
 ];
 
 describe('Navbar', () => {
@@ -60,9 +60,7 @@ describe('Navbar', () => {
                     cy.getBySel('navbar').contains(item);
                 });
 
-            navbarEndItems
-                .slice(endHidden)
-                .forEach((item) => cy.getBySel('navbar').contains(item));
+            navbarEndItems.slice(endHidden).forEach((item) => cy.getBySel(item));
 
             if (hidden > 0) {
                 cy.getBySel('navbar-more-button').click();
@@ -73,7 +71,11 @@ describe('Navbar', () => {
 
                 navbarEndItems
                     .slice(0, endHidden)
-                    .forEach((item) => cy.get('#menu-appbar').contains(item));
+                    .forEach(
+                        (item) =>
+                            item !== 'navbar-profile-button' &&
+                            cy.get('#menu-appbar').contains(item)
+                    );
             }
         });
     });

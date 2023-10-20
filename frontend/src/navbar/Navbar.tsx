@@ -13,7 +13,7 @@ const Navbar = () => {
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
     const { events } = useEvents();
 
-    const count = events.filter((e: Event) => {
+    const meetingCount = events.filter((e: Event) => {
         if (!e.participants || e.participants.length === 0) {
             return false;
         }
@@ -26,13 +26,11 @@ const Navbar = () => {
         return e.status !== AvailabilityStatus.Canceled && e.endTime >= filterTime;
     }).length;
 
-    const meetingText = count > 0 ? `(${count})` : ``;
-
     return (
         <AppBar data-cy='navbar' position='sticky' sx={{ zIndex: 1300, height: '80px' }}>
             <Container maxWidth='xl' sx={{ height: 1 }}>
                 <Toolbar disableGutters sx={{ height: 1 }}>
-                    <NavbarMenu meetingText={meetingText} />
+                    <NavbarMenu meetingCount={meetingCount} />
                 </Toolbar>
             </Container>
         </AppBar>

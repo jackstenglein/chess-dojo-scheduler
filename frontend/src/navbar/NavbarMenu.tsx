@@ -10,26 +10,27 @@ import {
     Typography,
     useMediaQuery,
     Badge,
+    Tooltip,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Person2Icon from '@mui/icons-material/Person2';
+import FeedIcon from '@mui/icons-material/Feed';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import GroupsIcon from '@mui/icons-material/Groups';
-import ScheduleIcon from '@mui/icons-material/Schedule';
 import HelpIcon from '@mui/icons-material/Help';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MerchIcon from '@mui/icons-material/Sell';
 import TournamentsIcon from '@mui/icons-material/EmojiEvents';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import ChecklistIcon from '@mui/icons-material/Checklist';
 
 import { AuthStatus, useAuth } from '../auth/Auth';
 import PawnIcon from './PawnIcon';
 import { hasCreatedProfile } from '../database/user';
 import NotificationButton from '../notifications/NotificationButton';
 import { useNotifications } from '../api/cache/Cache';
+import ProfileButton from './ProfileButton';
 
 const Logo = () => {
     const navigate = useNavigate();
@@ -50,7 +51,7 @@ const Logo = () => {
 };
 
 interface MenuProps {
-    meetingText: string;
+    meetingCount: number;
 }
 
 const LargeMenuUnauthenticated = () => {
@@ -98,9 +99,14 @@ interface NavbarItem {
 function allStartItems(navigate: NavigateFunction): NavbarItem[] {
     return [
         {
-            name: 'Profile',
-            icon: <Person2Icon />,
-            onClick: () => navigate('/profile'),
+            name: 'Newsfeed',
+            icon: <FeedIcon />,
+            onClick: () => navigate('/newsfeed'),
+        },
+        {
+            name: 'Training Plan',
+            icon: <ChecklistIcon />,
+            onClick: () => navigate('/profile?view=progress'),
         },
         {
             name: 'Scoreboard',
@@ -123,16 +129,6 @@ function allStartItems(navigate: NavigateFunction): NavbarItem[] {
             onClick: () => navigate('/calendar'),
         },
         {
-            name: 'Meetings',
-            icon: <GroupsIcon />,
-            onClick: () => navigate('/meeting'),
-        },
-        {
-            name: 'Recent',
-            icon: <ScheduleIcon />,
-            onClick: () => navigate('/recent'),
-        },
-        {
             name: 'Material',
             icon: <MenuBookIcon />,
             onClick: () => navigate('/material'),
@@ -150,14 +146,6 @@ function helpItem(navigate: NavigateFunction): NavbarItem {
         name: 'Help',
         icon: <HelpIcon />,
         onClick: () => navigate('/help'),
-    };
-}
-
-function signoutItem(signout: () => void): NavbarItem {
-    return {
-        name: 'Sign Out',
-        icon: <LogoutIcon color='error' />,
-        onClick: signout,
     };
 }
 
@@ -185,7 +173,22 @@ function NotificationsMenuItem({
     );
 }
 
-function renderStartItem(item: NavbarItem, meetingText: string) {
+function renderStartItem(item: NavbarItem, meetingCount: number) {
+    if (item.name === 'Calendar') {
+        return (
+            <Badge badgeContent={meetingCount} color='secondary'>
+                <Button
+                    key={item.name}
+                    onClick={item.onClick}
+                    sx={{ color: 'white', whiteSpace: 'nowrap' }}
+                    startIcon={item.icon}
+                >
+                    {item.name}
+                </Button>
+            </Badge>
+        );
+    }
+
     return (
         <Button
             key={item.name}
@@ -193,7 +196,7 @@ function renderStartItem(item: NavbarItem, meetingText: string) {
             sx={{ color: 'white', whiteSpace: 'nowrap' }}
             startIcon={item.icon}
         >
-            {item.name} {item.name === 'Meetings' && meetingText}
+            {item.name}
         </Button>
     );
 }
@@ -201,46 +204,49 @@ function renderStartItem(item: NavbarItem, meetingText: string) {
 function renderMenuItem(
     item: NavbarItem,
     handleClick: (func: () => void) => () => void,
-    meetingText?: string
+    meetingCount?: number
 ) {
     return (
         <MenuItem key={item.name} onClick={handleClick(item.onClick)}>
             <ListItemIcon>{item.icon}</ListItemIcon>
             <Typography textAlign='center'>
-                {item.name} {item.name === 'Meetings' && meetingText}
+                {item.name}
+                {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
             </Typography>
         </MenuItem>
     );
 }
 
-function renderEndItem(item: NavbarItem) {
+function HelpButton(navigate: NavigateFunction) {
     return (
-        <Button
-            key={item.name}
-            onClick={item.onClick}
-            sx={{ color: 'white', whiteSpace: 'nowrap' }}
-        >
-            {item.name}
-        </Button>
+        <Tooltip key='help' title='Help'>
+            <IconButton
+                data-cy='Help'
+                key='help'
+                sx={{ color: 'white' }}
+                onClick={() => navigate('/help')}
+            >
+                <HelpIcon />
+            </IconButton>
+        </Tooltip>
     );
 }
 
 function useNavbarItems(
-    meetingText: string,
+    meetingCount: number,
     handleClick: (func: () => void) => () => void
 ) {
-    const auth = useAuth();
     const navigate = useNavigate();
 
-    const showAll = useMediaQuery('(min-width:1448px)');
-    const hide2 = useMediaQuery('(min-width:1319px)');
-    const hide3 = useMediaQuery('(min-width:1210px)');
-    const hide4 = useMediaQuery('(min-width:1064px)');
-    const hide5 = useMediaQuery('(min-width:937px)');
-    const hide6 = useMediaQuery('(min-width:836px)');
-    const showHelp = useMediaQuery('(min-width:676px)');
-    const showSignout = useMediaQuery('(min-width:612px)');
-    const showNotifications = useMediaQuery('(min-width:502px)');
+    const showAll = useMediaQuery('(min-width:1340px)');
+    const hide2 = useMediaQuery('(min-width:1177px)');
+    const hide3 = useMediaQuery('(min-width:1049px)');
+    const hide4 = useMediaQuery('(min-width:949px)');
+    const hide5 = useMediaQuery('(min-width:783px)');
+
+    const showHelp = useMediaQuery('(min-width:624px)');
+    const showNotifications = useMediaQuery('(min-width:567px)');
+    const showProfileDropdown = useMediaQuery('(min-width:542px)');
 
     const startItems = allStartItems(navigate);
 
@@ -255,19 +261,17 @@ function useNavbarItems(
         startItemCount = startItems.length - 4;
     } else if (hide5) {
         startItemCount = startItems.length - 5;
-    } else if (hide6) {
-        startItemCount = startItems.length - 6;
     } else {
-        startItemCount = startItems.length - 7;
+        startItemCount = startItems.length - 6;
     }
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => renderStartItem(item, meetingText));
+        .map((item) => renderStartItem(item, meetingCount));
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
-        .map((item) => renderMenuItem(item, handleClick, meetingText));
+        .map((item) => renderMenuItem(item, handleClick, meetingCount));
 
     const endItems: JSX.Element[] = [];
 
@@ -280,15 +284,13 @@ function useNavbarItems(
     }
 
     if (showHelp) {
-        endItems.push(renderEndItem(helpItem(navigate)));
+        endItems.push(HelpButton(navigate));
     } else {
         menuItems.push(renderMenuItem(helpItem(navigate), handleClick));
     }
 
-    if (showSignout) {
-        endItems.push(renderEndItem(signoutItem(auth.signout)));
-    } else {
-        menuItems.push(renderMenuItem(signoutItem(auth.signout), handleClick));
+    if (showProfileDropdown) {
+        endItems.push(<ProfileButton key='profileDropdown' />);
     }
 
     return {
@@ -298,7 +300,7 @@ function useNavbarItems(
     };
 }
 
-const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
+const LargeMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     const auth = useAuth();
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -318,7 +320,7 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
         };
     };
 
-    const { startItems, menuItems, endItems } = useNavbarItems(meetingText, handleClick);
+    const { startItems, menuItems, endItems } = useNavbarItems(meetingCount, handleClick);
 
     if (auth.status === AuthStatus.Unauthenticated) {
         return <LargeMenuUnauthenticated />;
@@ -359,14 +361,15 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingText }) => {
 
                 {menuItems.length > 0 && (
                     <>
-                        <Button
-                            data-cy='navbar-more-button'
-                            onClick={handleOpen}
-                            sx={{ color: 'white' }}
-                            endIcon={<ExpandMoreIcon />}
-                        >
-                            More
-                        </Button>
+                        <Tooltip title='More'>
+                            <IconButton
+                                data-cy='navbar-more-button'
+                                onClick={handleOpen}
+                                sx={{ color: 'white' }}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                        </Tooltip>
                         <Menu
                             id='menu-appbar'
                             anchorEl={anchorEl}
@@ -449,7 +452,7 @@ const ExtraSmallMenuUnauthenticated = () => {
     );
 };
 
-const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
+const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     const auth = useAuth();
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -480,11 +483,12 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
 
     let startItemsJsx: JSX.Element[] = [];
     if (profileCreated) {
-        startItemsJsx = startItems.slice(1).map((item) => (
+        startItemsJsx = startItems.map((item) => (
             <MenuItem key={item.name} onClick={handleClick(item.onClick)}>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <Typography textAlign='center'>
-                    {item.name} {item.name === 'Meetings' && meetingText}
+                    {item.name}
+                    {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
                 </Typography>
             </MenuItem>
         ));
@@ -515,10 +519,14 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem onClick={handleClick(startItems[0].onClick)}>
-                    <ListItemIcon>{startItems[0].icon}</ListItemIcon>
-                    <Typography textAlign='center'>{startItems[0].name}</Typography>
-                </MenuItem>
+                {!profileCreated && (
+                    <MenuItem onClick={handleClick(() => navigate('/profile'))}>
+                        <ListItemIcon>
+                            <Person2Icon />
+                        </ListItemIcon>
+                        <Typography textAlign='center'>Profile</Typography>
+                    </MenuItem>
+                )}
 
                 {startItemsJsx}
 
@@ -555,7 +563,7 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingText }) => {
     );
 };
 
-const NavbarMenu: React.FC<MenuProps> = ({ meetingText }) => {
+const NavbarMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     const auth = useAuth();
     const largeMenu = useMediaQuery('(min-width:450px)');
 
@@ -564,10 +572,10 @@ const NavbarMenu: React.FC<MenuProps> = ({ meetingText }) => {
     }
 
     if (largeMenu) {
-        return <LargeMenu meetingText={meetingText} />;
+        return <LargeMenu meetingCount={meetingCount} />;
     }
 
-    return <ExtraSmallMenu meetingText={meetingText} />;
+    return <ExtraSmallMenu meetingCount={meetingCount} />;
 };
 
 export default NavbarMenu;

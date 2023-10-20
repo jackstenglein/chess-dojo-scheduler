@@ -1,4 +1,4 @@
-import { Badge, IconButton, Menu, MenuItem, MenuList } from '@mui/material';
+import { Badge, IconButton, Menu, MenuItem, MenuList, Tooltip } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useState } from 'react';
 
@@ -20,19 +20,21 @@ const NotificationButton = () => {
 
     return (
         <>
-            <IconButton
-                data-cy='notifications'
-                onClick={handleOpen}
-                sx={{ color: 'white' }}
-            >
-                <Badge
-                    badgeContent={notifications.length}
-                    color='secondary'
-                    overlap='circular'
+            <Tooltip title='Notifications'>
+                <IconButton
+                    data-cy='Notifications'
+                    onClick={handleOpen}
+                    sx={{ color: 'white' }}
                 >
-                    <NotificationsIcon />
-                </Badge>
-            </IconButton>
+                    <Badge
+                        badgeContent={notifications.length}
+                        color='secondary'
+                        overlap='circular'
+                    >
+                        <NotificationsIcon />
+                    </Badge>
+                </IconButton>
+            </Tooltip>
             <Menu
                 id='notifications-menu'
                 anchorEl={anchorEl}
