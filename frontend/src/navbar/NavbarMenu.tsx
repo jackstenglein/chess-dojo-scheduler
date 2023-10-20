@@ -176,16 +176,22 @@ function NotificationsMenuItem({
 function renderStartItem(item: NavbarItem, meetingCount: number) {
     if (item.name === 'Calendar') {
         return (
-            <Badge badgeContent={meetingCount} color='secondary'>
-                <Button
-                    key={item.name}
-                    onClick={item.onClick}
-                    sx={{ color: 'white', whiteSpace: 'nowrap' }}
-                    startIcon={item.icon}
-                >
-                    {item.name}
-                </Button>
-            </Badge>
+            <Button
+                key={item.name}
+                onClick={item.onClick}
+                sx={{ color: 'white', whiteSpace: 'nowrap' }}
+                startIcon={
+                    <Badge
+                        badgeContent={meetingCount}
+                        color='secondary'
+                        overlap='circular'
+                    >
+                        {item.icon}
+                    </Badge>
+                }
+            >
+                {item.name}
+            </Button>
         );
     }
 

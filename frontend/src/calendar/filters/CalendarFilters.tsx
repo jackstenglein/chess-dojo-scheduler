@@ -1,3 +1,5 @@
+import React, { useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
     Stack,
     Typography,
@@ -5,18 +7,8 @@ import {
     Checkbox,
     useMediaQuery,
     Tooltip,
+    Link,
 } from '@mui/material';
-import React, { useMemo, useState } from 'react';
-import {
-    AvailabilityType,
-    PositionType,
-    TimeControlType,
-    TournamentType,
-    displayTimeControlType,
-    getDisplayString,
-} from '../../database/event';
-import { dojoCohorts } from '../../database/user';
-
 import { styled } from '@mui/material/styles';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
@@ -24,8 +16,23 @@ import MuiAccordionSummary, {
     AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
+
+import {
+    AvailabilityType,
+    PositionType,
+    TimeControlType,
+    TournamentType,
+    displayTimeControlType,
+    getDisplayString,
+    Event,
+    AvailabilityStatus,
+} from '../../database/event';
+import { dojoCohorts } from '../../database/user';
 import { useAuth } from '../../auth/Auth';
 import TimezoneFilter from './TimezoneFilter';
+import { useEvents } from '../../api/cache/Cache';
+
+const ONE_HOUR = 3600000;
 
 export const DefaultTimezone = 'DEFAULT';
 
@@ -221,8 +228,24 @@ interface CalendarFiltersProps {
 }
 
 export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => {
+    const auth = useAuth();
     const [expanded, setExpanded] = useState<string | boolean>(false);
     const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+
+    const { events } = useEvents();
+    const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
+    const meetingCount = events.filter((e: Event) => {
+        if (!e.participants || e.participants.length === 0) {
+            return false;
+        }
+        if (
+            e.owner !== auth.user?.username &&
+            e.participants.every((p) => p.username !== auth.user?.username)
+        ) {
+            return false;
+        }
+        return e.status !== AvailabilityStatus.Canceled && e.endTime >= filterTime;
+    }).length;
 
     const handleChange =
         (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -262,6 +285,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                 timezone={filters.timezone}
                 setTimezone={filters.setTimezone}
             />
+
+            {meetingCount > 0 && (
+                <Link component={RouterLink} to='/meeting'>
+                    View {meetingCount} upcoming meeting{meetingCount !== 1 ? 's' : ''}
+                </Link>
+            )}
 
             <Accordion
                 expanded={forceExpansion || expanded === 'myCalendar'}
