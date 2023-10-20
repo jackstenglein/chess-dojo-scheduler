@@ -9,7 +9,7 @@ interface GraduationNewsfeedItemProps {
 const GraduationNewsfeedItem: React.FC<GraduationNewsfeedItemProps> = ({ entry }) => {
     if (!entry.graduationInfo) {
         return (
-            <Stack mt={3}>
+            <Stack>
                 <Typography>
                     <Typography component='span' color='text.secondary'>
                         Graduated from
@@ -21,7 +21,7 @@ const GraduationNewsfeedItem: React.FC<GraduationNewsfeedItemProps> = ({ entry }
     }
 
     return (
-        <Stack mt={3}>
+        <Stack>
             <Typography>
                 <Typography component='span' color='text.secondary'>
                     Graduated from

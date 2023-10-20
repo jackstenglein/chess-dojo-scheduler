@@ -1,9 +1,10 @@
-import { Box, Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+import { Box, Link, Stack, Typography } from '@mui/material';
 
 import Avatar from '../../profile/Avatar';
 import { TimelineEntry } from '../../database/timeline';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
+import { CategoryColors } from '../../profile/activity/activity';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;
@@ -21,7 +22,14 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
     });
 
     return (
-        <Stack direction='row' justifyContent='space-between' alignItems='center'>
+        <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'
+            mb={2}
+            flexWrap='wrap'
+            rowGap={1}
+        >
             <Stack direction='row' spacing={2} alignItems='center'>
                 <Avatar
                     username={entry.owner}
@@ -42,10 +50,23 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
                 </Stack>
             </Stack>
 
-            {entry.requirementId === 'Graduation' && (
+            {entry.requirementId === 'Graduation' ? (
                 <Box sx={{ display: { xs: 'none', sm: 'initial' } }}>
                     <GraduationIcon cohort={entry.cohort} size={50} />
                 </Box>
+            ) : (
+                <Stack direction='row' spacing={1} alignItems='center'>
+                    <Stack alignItems={{ xs: 'start', sm: 'end' }}>
+                        <Typography
+                            sx={{ color: CategoryColors[entry.requirementCategory] }}
+                        >
+                            {entry.requirementCategory}
+                        </Typography>
+                        <Typography variant='body2' color='text.secondary'>
+                            {entry.cohort}
+                        </Typography>
+                    </Stack>
+                </Stack>
             )}
         </Stack>
     );

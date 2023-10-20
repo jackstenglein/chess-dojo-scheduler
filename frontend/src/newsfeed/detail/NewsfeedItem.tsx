@@ -1,9 +1,8 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import CircleIcon from '@mui/icons-material/Circle';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
 import { ScoreboardDisplay, formatTime } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
-import { CategoryColors } from '../../profile/activity/activity';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import CommentEditor from './CommentEditor';
 import CommentList from './CommentList';
@@ -22,7 +21,7 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments 
     return (
         <Card variant='outlined'>
             <CardContent>
-                <Stack spacing={3}>
+                <Stack>
                     <NewsfeedItemHeader entry={entry} />
                     <NewsfeedItemBody entry={entry} />
 
@@ -33,7 +32,7 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments 
                         onEdit={onEdit}
                     />
 
-                    <Divider sx={{ width: 1 }} />
+                    <Divider sx={{ width: 1, mt: 1, mb: 2 }} />
 
                     <CommentList
                         comments={entry.comments}
@@ -61,38 +60,24 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
         entry.scoreboardDisplay === ScoreboardDisplay.Unspecified;
 
     return (
-        <Stack mt={3} spacing={1}>
-            <Stack direction='row' spacing={1}>
-                <CircleIcon htmlColor={CategoryColors[entry.requirementCategory]} />
-                <Typography>
-                    {entry.requirementCategory} - {entry.cohort}
-                </Typography>
-            </Stack>
-
+        <Stack spacing={0.5}>
             <Typography>
                 {isComplete ? 'Completed' : 'Updated'}{' '}
                 <strong>{entry.requirementName}</strong>
             </Typography>
 
-            <Stack pt={1}>
-                {entry.minutesSpent > 0 && (
-                    <Typography>
-                        <Typography component='span' color='text.secondary'>
-                            New Time:
-                        </Typography>{' '}
-                        {formatTime(entry.minutesSpent)}
+            {entry.totalMinutesSpent > 0 && entry.minutesSpent > 0 && (
+                <Stack direction='row' spacing={1}>
+                    <Typography component='span' color='text.secondary'>
+                        Total Time:
                     </Typography>
-                )}
-
-                {entry.totalMinutesSpent > 0 && (
                     <Typography>
-                        <Typography component='span' color='text.secondary'>
-                            Total Time:
-                        </Typography>{' '}
-                        {formatTime(entry.totalMinutesSpent)}
+                        {formatTime(entry.totalMinutesSpent - entry.minutesSpent)}
                     </Typography>
-                )}
-            </Stack>
+                    <ArrowRightAltIcon sx={{ color: 'text.secondary' }} />
+                    <Typography>{formatTime(entry.totalMinutesSpent)}</Typography>
+                </Stack>
+            )}
 
             {isSlider && (
                 <ScoreboardProgress

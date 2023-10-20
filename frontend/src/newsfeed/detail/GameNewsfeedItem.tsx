@@ -14,27 +14,26 @@ const GameNewsfeedItem: React.FC<GameNewsfeedItemProps> = ({ entry }) => {
     const headers = gameInfo?.headers;
 
     return (
-        <Stack mt={3}>
-            <Stack direction='row' spacing={1}>
-                <CircleIcon htmlColor={CategoryColors[entry.requirementCategory]} />
-                <Typography>
-                    {entry.requirementCategory} - {entry.cohort}
-                </Typography>
-            </Stack>
+        <Stack>
+            <Typography mt={1}>
+                Submitted a{' '}
+                <Link
+                    component={RouterLink}
+                    to={`/games/${entry.cohort.replaceAll(
+                        '+',
+                        '%2B'
+                    )}/${gameInfo?.id.replaceAll('?', '%3F')}`}
+                >
+                    new game analysis
+                </Link>
+            </Typography>
 
-            <Typography mt={1}>Submitted a new game analysis</Typography>
-
-            <Stack mt={2.5} mb={2}>
+            <Stack mt={2.5}>
                 <Typography>
                     <Typography component='span' color='text.secondary'>
-                        White:
+                        Players:
                     </Typography>{' '}
-                    {headers?.White} {headers?.WhiteElo ? `(${headers.WhiteElo})` : ''}
-                </Typography>
-                <Typography>
-                    <Typography component='span' color='text.secondary'>
-                        Black:
-                    </Typography>{' '}
+                    {headers?.White} {headers?.WhiteElo ? `(${headers.WhiteElo})` : ''} -{' '}
                     {headers?.Black} {headers?.BlackElo ? `(${headers.BlackElo})` : ''}
                 </Typography>
                 {headers?.Date && (
@@ -60,16 +59,6 @@ const GameNewsfeedItem: React.FC<GameNewsfeedItemProps> = ({ entry }) => {
                     </Typography>
                 )}
             </Stack>
-
-            <Link
-                component={RouterLink}
-                to={`/games/${entry.cohort.replaceAll(
-                    '+',
-                    '%2B'
-                )}/${gameInfo?.id.replaceAll('?', '%3F')}`}
-            >
-                View Game
-            </Link>
         </Stack>
     );
 };

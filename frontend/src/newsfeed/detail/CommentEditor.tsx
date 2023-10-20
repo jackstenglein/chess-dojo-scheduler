@@ -49,7 +49,6 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ owner, id, onSuccess }) =
                 label='Add a comment...'
                 fullWidth
                 multiline
-                minRows={2}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
             />
