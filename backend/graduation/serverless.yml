@@ -68,5 +68,9 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:Scan
-        Resource: ${param:GraduationsTableArn}
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GraduationsTableArn}
+                - '/index/DateIndex'

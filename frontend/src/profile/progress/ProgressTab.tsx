@@ -9,12 +9,10 @@ import {
     Checkbox,
 } from '@mui/material';
 
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { RequestSnackbar } from '../../api/Request';
 import { CustomTask, isComplete, Requirement } from '../../database/requirement';
 import { dojoCohorts, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import { Graduation } from '../../database/graduation';
 import { useRequirements } from '../../api/cache/requirements';
 import CustomTaskEditor from './CustomTaskEditor';
 import DojoScoreCard from '../stats/DojoScoreCard';
@@ -43,8 +41,6 @@ interface ProgressTabProps {
 }
 
 const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
-    const api = useApi();
-    const graduationsRequest = useRequest<Graduation[]>();
     const [cohort, setCohort] = useState(user.dojoCohort);
     const { requirements, request: requirementRequest } = useRequirements(cohort, false);
     const [hideCompleted, setHideCompleted] = useHideCompleted(isCurrentUser);
@@ -62,18 +58,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     useEffect(() => {
         setCohort(user.dojoCohort);
     }, [user.dojoCohort]);
-
-    useEffect(() => {
-        if (!graduationsRequest.isSent()) {
-            graduationsRequest.onStart();
-            api.listGraduationsByOwner(user.username)
-                .then((graduations) => graduationsRequest.onSuccess(graduations))
-                .catch((err) => {
-                    console.error('listGraduationsByOwner: ', err);
-                    graduationsRequest.onFailure(err);
-                });
-        }
-    }, [api, cohort, graduationsRequest, user.username]);
 
     const categories = useMemo(() => {
         const categories: Category[] = [];

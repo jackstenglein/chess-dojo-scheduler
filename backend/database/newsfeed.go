@@ -10,13 +10,17 @@ import (
 
 var NewsfeedBlockedRequirements = []string{
 	"4d23d689-1284-46e6-b2a2-4b4bfdc37174", // Annotated Games (appears on the timeline when the game itself is created)
+	"Graduation",                           // Graduations are pulled from the GRADUATIONS newsfeed so all users can see them
 }
+
+const NewsfeedIdAllUsers = "ALL_USERS"
+const NewsfeedIdGraduations = "GRADUATIONS"
 
 // NewsfeedEntry represents an entry in a user's news feed.
 type NewsfeedEntry struct {
 	// The id of the news feed this entry is part of. Usually this will be a user's username, but
-	// it could also be a cohort or the special value `ALL_USERS`. This is the partition key
-	// of the table.
+	// it could also be a cohort or a special value such as `ALL_USERS` or `GRADUATIONS`. This is
+	// the partition key of the table.
 	NewsfeedId string `dynamodbav:"newsfeedId" json:"newsfeedId"`
 
 	// The sort key of the table, formatted as datetime_id, where datetime is the value of the

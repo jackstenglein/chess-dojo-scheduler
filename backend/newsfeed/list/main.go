@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -15,19 +16,14 @@ import (
 )
 
 const funcName = "newsfeed-list-handler"
+const limit = 25
 
 var repository = database.DynamoDB
 
-type listNewsfeedStartKey struct {
-	UserKey     string `json:"userKey"`
-	CohortKey   string `json:"cohortKey"`
-	AllUsersKey string `json:"allUsersKey"`
-}
-
 type ListNewsfeedResponse struct {
-	Entries          []database.TimelineEntry `json:"entries"`
-	LastFetch        string                   `json:"lastFetch"`
-	LastEvaluatedKey string                   `json:"lastEvaluatedKey,omitempty"`
+	Entries   []database.TimelineEntry `json:"entries"`
+	LastFetch string                   `json:"lastFetch"`
+	LastKeys  map[string]string        `json:"lastKeys"`
 }
 
 func main() {
@@ -39,55 +35,55 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.Debugf("Event: %#v", event)
 
 	info := api.GetUserInfo(event)
-	if info.Username == "" {
-		err := errors.New(400, "Invalid request: username is required", "")
-		return api.Failure(funcName, err), nil
-	}
 	lastFetch := getLastFetched(info.Username, event)
 
-	timelineEntries := make(map[string]database.TimelineEntryKey)
+	newsfeedIdsStr := event.QueryStringParameters["newsfeedIds"]
+	if newsfeedIdsStr == "" {
+		err := errors.New(400, "Invalid request: newsfeedIds is required", "")
+		return api.Failure(funcName, err), nil
+	}
 
-	cohort := event.QueryStringParameters["cohort"]
+	newsfeedIds := strings.Split(newsfeedIdsStr, ",")
+	for i, newsfeedId := range newsfeedIds {
+		if newsfeedId == "following" {
+			if info.Username == "" {
+				err := errors.New(400, "Invalid request: username is required to list following newsfeed", "")
+				return api.Failure(funcName, err), nil
+			}
+			newsfeedIds[i] = info.Username
+		}
+	}
+
 	startKey := event.QueryStringParameters["startKey"]
-	startKeys := listNewsfeedStartKey{}
+	startKeys := make(map[string]string)
 	if startKey != "" {
 		if err := json.Unmarshal([]byte(startKey), &startKeys); err != nil {
 			err = errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled", err)
 			return api.Failure(funcName, err), nil
 		}
 	}
-	lastKeys := listNewsfeedStartKey{}
 
-	if startKey == "" || startKeys.UserKey != "" {
-		if err := fetchEntries(info.Username, startKeys.UserKey, lastFetch, timelineEntries, &lastKeys.UserKey); err != nil {
-			return api.Failure(funcName, err), nil
+	timelineEntries := make(map[string]database.TimelineEntryKey)
+	lastKeys := make(map[string]string)
+
+	for _, newsfeedId := range newsfeedIds {
+		if len(timelineEntries) >= limit {
+			lastKeys[newsfeedId] = startKeys[newsfeedId]
+			continue
 		}
-	}
 
-	if (cohort != "") && (startKey == "" || startKeys.CohortKey != "") {
-		if err := fetchEntries(cohort, startKeys.CohortKey, lastFetch, timelineEntries, &lastKeys.CohortKey); err != nil {
+		if err := fetchEntries(newsfeedId, startKeys[newsfeedId], lastFetch, timelineEntries, lastKeys); err != nil {
 			return api.Failure(funcName, err), nil
 		}
 	}
 
 	log.Debugf("Fetching timeline entries: %#v", timelineEntries)
-
 	resultEntries, err := repository.BatchGetTimelineEntries(timelineEntries)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	var lastKey string
-	if lastKeys.UserKey != "" || lastKeys.CohortKey != "" {
-		b, err := json.Marshal(&lastKeys)
-		if err != nil {
-			err = errors.Wrap(500, "Temporary server error", "Failed to marshal last key", err)
-			return api.Failure(funcName, err), nil
-		}
-		lastKey = string(b)
-	}
-
-	if lastKey == "" && event.QueryStringParameters["skipLastFetched"] == "" {
+	if len(lastKeys) == 0 && info.Username != "" && event.QueryStringParameters["skipLastFetched"] == "" {
 		update := &database.UserUpdate{
 			LastFetchedNewsfeed: aws.String(time.Now().Format(time.RFC3339)),
 		}
@@ -98,9 +94,9 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	return api.Success(funcName, &ListNewsfeedResponse{
-		Entries:          resultEntries,
-		LastFetch:        lastFetch,
-		LastEvaluatedKey: lastKey,
+		Entries:   resultEntries,
+		LastFetch: lastFetch,
+		LastKeys:  lastKeys,
 	}), nil
 }
 
@@ -109,7 +105,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 // a time 1 week ago is returned. If the event contains the skipLastFetched query parameter,
 // then an empty string is returned.
 func getLastFetched(username string, event api.Request) string {
-	if event.QueryStringParameters["skipLastFetched"] != "" {
+	if username == "" || event.QueryStringParameters["skipLastFetched"] != "" {
 		return ""
 	}
 
@@ -128,7 +124,7 @@ func getLastFetched(username string, event api.Request) string {
 	t, err := time.Parse(time.RFC3339, user.LastFetchedNewsfeed)
 	if err != nil {
 		log.Error("Failed to parse user's lastFetched time: ", err)
-		return ""
+		return weekAgo.Format(time.RFC3339)
 	}
 	t = t.Add(-24 * time.Hour)
 
@@ -139,14 +135,17 @@ func getLastFetched(username string, event api.Request) string {
 	return t.Format(time.RFC3339)
 }
 
-func fetchEntries(newsfeedId, startKey, lastFetch string, entryMap map[string]database.TimelineEntryKey, lastKey *string) error {
-	newsfeedEntries, last, err := repository.ListNewsfeedEntries(newsfeedId, startKey, lastFetch, 50)
+func fetchEntries(newsfeedId, startKey, lastFetch string, entryMap map[string]database.TimelineEntryKey, lastKeys map[string]string) error {
+	newsfeedEntries, last, err := repository.ListNewsfeedEntries(newsfeedId, startKey, lastFetch, limit)
 	if err != nil {
 		return err
 	}
 	log.Debugf("Got %d entries for id %q: %v", len(newsfeedEntries), newsfeedId, newsfeedEntries)
 
-	*lastKey = last
+	if last != "" {
+		lastKeys[newsfeedId] = last
+	}
+
 	for _, entry := range newsfeedEntries {
 		entryMap[fmt.Sprintf("%s#%s", entry.Poster, entry.TimelineId)] = database.TimelineEntryKey{
 			Owner: entry.Poster,

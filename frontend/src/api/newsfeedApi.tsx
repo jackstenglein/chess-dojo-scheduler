@@ -18,14 +18,14 @@ export type NewsfeedApiContextType = {
     ) => Promise<AxiosResponse<TimelineEntry, any>>;
 
     /**
-     * Fetches a page of the current user's newsfeed.
-     * @param cohort The optional cohort to use for the newsfeed.
+     * Fetches a page of the provided newsfeed.
+     * @param newsfeedIds The list of newsfeed ids to fetch, in order of priority.
      * @param skipLastFetch Optionally skip the lastFetch value when listing the newsfeed.
      * @param startKey The optional startKey to use for pagination.
      * @returns An AxiosResponse containing the list of newsfeed items and the next start key.
      */
     listNewsfeed: (
-        cohort?: string,
+        newsfeedIds: string[],
         skipLastFetch?: boolean,
         startKey?: string
     ) => Promise<AxiosResponse<ListNewsfeedResponse, any>>;
@@ -77,25 +77,29 @@ export interface ListNewsfeedResponse {
     /** The date of the previous request to ListNewsfeed.  */
     lastFetch: string;
 
-    /** The start key to pass in the next request. */
-    lastEvaluatedKey: string;
+    /** The start keys to pass in the next request. */
+    lastKeys: Record<string, string>;
 }
 
 /**
- * Fetches a page of the current user's newsfeed.
+ * Fetches a page of the provided newsfeed.
  * @param idToken The id token of the current signed-in user.
- * @param cohort The optional cohort to use for the newsfeed.
+ * @param newsfeedIds The list of newsfeed ids to fetch, in order of priority.
  * @param startKey The optional startKey to use for pagination.
  * @returns An AxiosResponse containing the list of newsfeed items and the next start key.
  */
 export function listNewsfeed(
     idToken: string,
-    cohort?: string,
+    newsfeedIds: string[],
     skipLastFetch?: boolean,
     startKey?: string
 ) {
     return axios.get<ListNewsfeedResponse>(`${BASE_URL}/newsfeed`, {
-        params: { cohort, skipLastFetched: skipLastFetch ? 'true' : '', startKey },
+        params: {
+            newsfeedIds: newsfeedIds.join(','),
+            skipLastFetched: skipLastFetch ? 'true' : '',
+            startKey,
+        },
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

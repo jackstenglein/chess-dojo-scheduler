@@ -42,9 +42,11 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, linkUsername }) => {
 
                     {user.graduationCohorts && user.graduationCohorts.length > 0 ? (
                         <Stack direction='row' spacing={0.5} flexWrap='wrap' rowGap={1}>
-                            {user.graduationCohorts.map((c) => (
-                                <GraduationIcon key={c} cohort={c} />
-                            ))}
+                            {user.graduationCohorts
+                                .filter((c, i) => user.graduationCohorts.indexOf(c) === i)
+                                .map((c) => (
+                                    <GraduationIcon key={c} cohort={c} />
+                                ))}
                         </Stack>
                     ) : (
                         user.previousCohort && (

@@ -141,9 +141,11 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
                 }
                 return (
                     <Stack direction='row'>
-                        {graduationCohorts.map((c) => (
-                            <GraduationIcon key={c} cohort={c} size={32} />
-                        ))}
+                        {graduationCohorts
+                            .filter((c, i) => graduationCohorts.indexOf(c) === i)
+                            .map((c) => (
+                                <GraduationIcon key={c} cohort={c} size={32} />
+                            ))}
                     </Stack>
                 );
             }

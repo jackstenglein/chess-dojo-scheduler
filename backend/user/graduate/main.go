@@ -81,6 +81,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.Debugf("Total Time: %d, Dojo Time: %d, NonDojo Time: %d", totalTime, dojoTime, nonDojoTime)
 
 	graduation := database.Graduation{
+		Type:                "GRADUATION",
 		Username:            info.Username,
 		DisplayName:         user.DisplayName,
 		PreviousCohort:      user.DojoCohort,

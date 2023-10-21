@@ -56,6 +56,10 @@ func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEv
 
 func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 	requirementId := record.Change.NewImage["requirementId"].String()
+	if requirementId == "Graduation" {
+		return processGraduationRecord(record)
+	}
+
 	for _, id := range database.NewsfeedBlockedRequirements {
 		if requirementId == id {
 			log.Debugf("Skipping record due to blocked requirement id: %s", requirementId)
@@ -118,6 +122,24 @@ func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 		return success, fmt.Errorf("Success (%d) < Attempted (%d) for Record: %#v", success, attempted, record)
 	}
 	return success, nil
+}
+
+func processGraduationRecord(record events.DynamoDBEventRecord) (int, error) {
+	poster := record.Change.Keys["owner"].String()
+	id := record.Change.Keys["id"].String()
+	createdAt := time.Now().Format(time.RFC3339)
+	sortKey := fmt.Sprintf("%s_%s", createdAt, id)
+
+	entry := database.NewsfeedEntry{
+		NewsfeedId: database.NewsfeedIdGraduations,
+		SortKey:    sortKey,
+		CreatedAt:  createdAt,
+		Poster:     poster,
+		TimelineId: id,
+	}
+
+	submitted, err := repository.PutNewsfeedEntries([]database.NewsfeedEntry{entry})
+	return submitted, err
 }
 
 func submitIfNecessary(entries []database.NewsfeedEntry) ([]database.NewsfeedEntry, int, error) {

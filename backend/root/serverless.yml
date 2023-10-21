@@ -307,6 +307,10 @@ resources:
             AttributeType: S
           - AttributeName: previousCohort
             AttributeType: S
+          - AttributeName: type
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
         KeySchema:
           - AttributeName: username
             KeyType: HASH
@@ -323,9 +327,23 @@ resources:
             - false
         ProvisionedThroughput: !If
           - IsProd
-          - ReadCapacityUnits: 5
+          - ReadCapacityUnits: 3
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+        GlobalSecondaryIndexes:
+          - IndexName: DateIndex
+            KeySchema:
+              - AttributeName: type
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput: !If
+              - IsProd
+              - ReadCapacityUnits: 3
+                WriteCapacityUnits: 1
+              - !Ref AWS::NoValue
 
     GamesTable:
       Type: AWS::DynamoDB::Table

@@ -7,7 +7,7 @@ import { Request } from '../../api/Request';
 interface LoadMoreButtonProps {
     request: Request;
     since?: string;
-    startKey?: string;
+    startKey?: Record<string, string>;
     onLoadMore: () => void;
 }
 
@@ -17,7 +17,7 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
     startKey,
     onLoadMore,
 }) => {
-    if (startKey) {
+    if (Object.values(startKey || {}).length > 0) {
         return (
             <Stack alignItems='center' spacing={1}>
                 <LoadingButton
@@ -38,8 +38,10 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
                 <CheckCircleOutlineIcon color='success' fontSize='large' />
 
                 <Stack alignItems='center'>
-                    <Typography fontWeight='bold'>You're all caught up</Typography>
-                    <Typography color='text.secondary'>
+                    <Typography fontWeight='bold' textAlign='center'>
+                        You're all caught up
+                    </Typography>
+                    <Typography color='text.secondary' textAlign='center'>
                         You've seen all new posts since {date.toLocaleDateString()}
                     </Typography>
 
@@ -56,8 +58,10 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
             <CheckCircleOutlineIcon color='success' fontSize='large' />
 
             <Stack alignItems='center'>
-                <Typography fontWeight='bold'>No More Posts</Typography>
-                <Typography color='text.secondary'>
+                <Typography fontWeight='bold' textAlign='center'>
+                    No More Posts
+                </Typography>
+                <Typography color='text.secondary' textAlign='center'>
                     You've seen all posts in your newsfeed
                 </Typography>
             </Stack>

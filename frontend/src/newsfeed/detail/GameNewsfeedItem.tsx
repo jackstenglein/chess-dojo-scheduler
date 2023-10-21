@@ -1,9 +1,7 @@
 import { Link, Stack, Typography } from '@mui/material';
-import CircleIcon from '@mui/icons-material/Circle';
 import { Link as RouterLink } from 'react-router-dom';
 
 import { TimelineEntry } from '../../database/timeline';
-import { CategoryColors } from '../../profile/activity/activity';
 
 interface GameNewsfeedItemProps {
     entry: TimelineEntry;

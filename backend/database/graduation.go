@@ -16,6 +16,9 @@ type Graduation struct {
 	// The display name of the graduating user.
 	DisplayName string `dynamodbav:"displayName" json:"displayName"`
 
+	// Set to the hardcoded value `GRADUATION`. Used as the primary key on an index for querying by date.
+	Type string `dynamodbav:"type" json:"type"`
+
 	// The cohort the user is graduating from.
 	// The range key of the table.
 	PreviousCohort DojoCohort `dynamodbav:"previousCohort" json:"previousCohort"`
@@ -145,19 +148,22 @@ func (repo *dynamoRepository) ListGraduationsByOwner(username, startKey string) 
 
 // ListGraduationsByDate returns a list of graduations more recent than the provided date.
 func (repo *dynamoRepository) ListGraduationsByDate(date, startKey string) ([]*Graduation, string, error) {
-	input := &dynamodb.ScanInput{
-		FilterExpression: aws.String("#date >= :date"),
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#type = :type AND #date >= :date"),
 		ExpressionAttributeNames: map[string]*string{
+			"#type": aws.String("type"),
 			"#date": aws.String("createdAt"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":type": {S: aws.String("GRADUATION")},
 			":date": {S: aws.String(date)},
 		},
+		IndexName: aws.String("DateIndex"),
 		TableName: aws.String(graduationTable),
 	}
 
 	var graduations []*Graduation
-	lastKey, err := repo.scan(input, startKey, &graduations)
+	lastKey, err := repo.query(input, startKey, &graduations)
 	if err != nil {
 		return nil, "", err
 	}

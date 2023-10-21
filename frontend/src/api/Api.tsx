@@ -263,8 +263,11 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             deleteNotification: (id: string) => deleteNotification(idToken, id),
 
             getNewsfeedItem: (owner: string, id: string) => getNewsfeedItem(owner, id),
-            listNewsfeed: (cohort?: string, skipLastFetch?: boolean, startKey?: string) =>
-                listNewsfeed(idToken, cohort, skipLastFetch, startKey),
+            listNewsfeed: (
+                newsfeedIds: string[],
+                skipLastFetch?: boolean,
+                startKey?: string
+            ) => listNewsfeed(idToken, newsfeedIds, skipLastFetch, startKey),
             createNewsfeedComment: (owner: string, id: string, content: string) =>
                 createNewsfeedComment(idToken, owner, id, content),
             setNewsfeedReaction: (owner: string, id: string, types: string[]) =>
