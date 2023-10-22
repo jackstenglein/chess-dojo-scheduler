@@ -105,6 +105,8 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
     const reset = request.reset;
     useEffect(() => {
         reset();
+        setData(undefined);
+        setLastStartKey({});
     }, [newsfeedIds, reset]);
 
     if ((newsfeedIds.length > 0 && !request.isSent()) || (request.isLoading() && !data)) {
