@@ -107,6 +107,11 @@ const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) 
 
     const canPromote = chess.canPromoteVariation(move);
 
+    const onClickDelete = () => {
+        onDelete();
+        onClose();
+    };
+
     const onMakeMainline = () => {
         chess.promoteVariation(move, true);
         onClose();
@@ -134,7 +139,7 @@ const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) 
                     <ListItemText>Move variation up</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={onDelete}>
+                <MenuItem onClick={onClickDelete}>
                     <ListItemIcon>
                         <DeleteIcon />
                     </ListItemIcon>
