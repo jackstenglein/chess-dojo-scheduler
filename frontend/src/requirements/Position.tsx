@@ -16,7 +16,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import copy from 'copy-to-clipboard';
 
 import { Position as PositionModel } from '../database/requirement';
-import { useRequest } from '../api/Request';
+import { RequestSnackbar, useRequest } from '../api/Request';
 import { EventType, trackEvent } from '../analytics/events';
 import Board from '../board/Board';
 
@@ -60,7 +60,6 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 'clock.increment': position.incrementSeconds,
                 fen: position.fen.trim(),
                 name: `${position.title}`,
-                rules: 'noAbort',
             })
             .then((resp) => {
                 console.log('Generate Lichess URL: ', resp);
@@ -84,6 +83,8 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
 
     return (
         <Card variant='outlined' sx={{ px: 0 }}>
+            <RequestSnackbar request={lichessRequest} />
+
             <CardHeader
                 sx={{ px: 1 }}
                 subheader={
