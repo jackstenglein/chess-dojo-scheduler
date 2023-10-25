@@ -96,6 +96,8 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		}
 	}
 
+	originalScore := requirement.CalculateScore(request.Cohort, progress)
+
 	var originalCount int
 	if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
 		originalCount = progress.Counts[database.AllCohorts]
@@ -120,6 +122,8 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		}
 	}
 
+	newScore := requirement.CalculateScore(request.Cohort, progress)
+
 	timelineEntry := &database.TimelineEntry{
 		TimelineEntryKey: database.TimelineEntryKey{
 			Owner: user.Username,
@@ -135,6 +139,8 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		TotalCount:          totalCount,
 		PreviousCount:       originalCount,
 		NewCount:            originalCount + request.IncrementalCount,
+		DojoPoints:          newScore - originalScore,
+		TotalDojoPoints:     newScore,
 		MinutesSpent:        request.IncrementalMinutesSpent,
 		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
 		Date:                date.Format(time.RFC3339),

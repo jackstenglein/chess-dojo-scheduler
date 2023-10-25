@@ -26,7 +26,7 @@ const CommentList: React.FC<CommentListProps> = ({
     const hiddenComments = comments.length - displayComments.length;
 
     return (
-        <Stack spacing={3} width={1} alignItems='start'>
+        <Stack spacing={2} width={1} alignItems='start' mb={2}>
             {hiddenComments > 0 && viewCommentsLink && (
                 <Link component={RouterLink} to={viewCommentsLink} sx={{ pl: '52px' }}>
                     View {hiddenComments} earlier comment{hiddenComments !== 1 ? 's' : ''}

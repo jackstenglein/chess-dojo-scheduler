@@ -163,6 +163,7 @@ func createTimelineEntry(game *database.Game) {
 			Id:      game.Id,
 			Headers: game.Headers,
 		},
+		DojoPoints: 1,
 	}
 
 	if err := repository.PutTimelineEntry(&entry); err != nil {

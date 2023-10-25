@@ -12,6 +12,8 @@ export interface TimelineEntry {
     totalCount: number;
     previousCount: number;
     newCount: number;
+    dojoPoints: number;
+    totalDojoPoints: number;
     minutesSpent: number;
     totalMinutesSpent: number;
     scoreboardDisplay: ScoreboardDisplay;

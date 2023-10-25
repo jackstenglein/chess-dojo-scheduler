@@ -52,6 +52,12 @@ type TimelineEntry struct {
 	// The value of the user's progress after the timeline entry
 	NewCount int `dynamodbav:"newCount" json:"newCount"`
 
+	// The dojo points gained by this timeline entry.
+	DojoPoints float32 `dynamodbav:"dojoPoints" json:"dojoPoints"`
+
+	// The total dojo points earned on the task by the user.
+	TotalDojoPoints float32 `dynamodbav:"totalDojoPoints" json:"totalDojoPoints"`
+
 	// The number of minutes spent on the timeline entry
 	MinutesSpent int `dynamodbav:"minutesSpent" json:"minutesSpent"`
 
