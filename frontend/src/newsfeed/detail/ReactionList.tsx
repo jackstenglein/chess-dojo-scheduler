@@ -9,12 +9,53 @@ import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 
 const ReactionTypes = [
+    ':WhiteLogoText:',
+    ':DojoHeart:',
+    ':JessePOG1:',
+    ':YodaKraai:',
+    ':LevelUp:',
+    ':LetsGo:',
+    ':SlowDown:',
+    ':Exclam:',
+    ':DoubleExclam:',
+    ':Mate:',
+    '♟️', // Pawn
+    '🦖',
+    '📈',
+    '🥥',
+    '💪',
+    '🦀',
+    '⚔️', // crossed swords
+    '🛠️',
     '\u2764\uFE0F', // heart
     '😃',
     '👍',
     '🤯',
     '🎉',
 ];
+
+const ReactionTypesToImage = {
+    ':LetsGo:':
+        'https://cdn.discordapp.com/emojis/1024465432763191447.webp?size=96&quality=lossless',
+    ':JessePOG1:':
+        'https://cdn.discordapp.com/emojis/998387680826097735.webp?size=96&quality=lossless',
+    ':DojoHeart:':
+        'https://cdn.discordapp.com/emojis/998387887966007326.webp?size=96&quality=lossless',
+    ':WhiteLogoText:':
+        'https://cdn.discordapp.com/emojis/1113470918006689863.webp?size=64&quality=lossless',
+    ':DoubleExclam:':
+        'https://cdn.discordapp.com/emojis/1010005248540168243.webp?size=240&quality=lossless',
+    ':Exclam:':
+        'https://cdn.discordapp.com/emojis/1010005249450328065.webp?size=240&quality=lossless',
+    ':SlowDown:':
+        'https://cdn.discordapp.com/emojis/998387885667524689.webp?size=240&quality=lossless',
+    ':LevelUp:':
+        'https://cdn.discordapp.com/emojis/986602661535170610.webp?size=240&quality=lossless',
+    ':YodaKraai:':
+        'https://cdn.discordapp.com/emojis/1105292629329055845.webp?size=96&quality=lossless',
+    ':Mate:':
+        'https://cdn.discordapp.com/emojis/1014865134054809651.webp?size=96&quality=lossless',
+};
 
 function isReactor(
     user: User,
@@ -48,6 +89,34 @@ function getNewTypes(
     }
     return types;
 }
+
+const ReactionEmoji: React.FC<{ type: string; icon?: boolean }> = ({ type, icon }) => {
+    switch (type) {
+        case ':LetsGo:':
+        case ':JessePOG1:':
+        case ':DojoHeart:':
+        case ':WhiteLogoText:':
+        case ':DoubleExclam:':
+        case ':Exclam:':
+        case ':SlowDown:':
+        case ':LevelUp:':
+        case ':YodaKraai:':
+        case ':Mate:':
+            return (
+                <img
+                    alt={type}
+                    width={icon ? '100%' : '20.1833px'}
+                    height={icon ? '100%' : '30px'}
+                    style={{ objectFit: 'contain' }}
+                    src={ReactionTypesToImage[type]}
+                />
+            );
+    }
+
+    if (icon) return <>{type}</>;
+
+    return <Typography fontSize='1.25rem'>{type}</Typography>;
+};
 
 interface ReactionListProps {
     owner: string;
@@ -115,7 +184,7 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                         }
                         onClick={() => onReact(type)}
                     >
-                        <Typography fontSize='1.25rem'>{type}</Typography>
+                        <ReactionEmoji type={type} />
 
                         <Typography ml='0.375rem' fontWeight='600'>
                             {reactors.length}
@@ -144,7 +213,7 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                             sx={{ width: '2.96875rem' }}
                             onClick={() => onReact(type)}
                         >
-                            {type}
+                            <ReactionEmoji type={type} icon />
                         </IconButton>
                     ))}
                 </Stack>
