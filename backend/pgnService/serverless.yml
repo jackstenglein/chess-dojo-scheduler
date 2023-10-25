@@ -1,0 +1,42 @@
+# Deploys functions where PGN parsing is performed.
+# These functions are separated as they require a typescript library.
+
+service: chess-dojo-pgn
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  logRetentionInDays: 30
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+
+functions:
+  putOpenClassicalPairings:
+    handler: putPairings.handler
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/pairings
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource: ${param:TournamentsTableArn}

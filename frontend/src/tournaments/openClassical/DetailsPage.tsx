@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+    Button,
+    Container,
+    Link,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -7,7 +17,6 @@ import { OpenClassical, OpenClassicalPairing } from '../../database/tournament';
 import LoadingPage from '../../loading/LoadingPage';
 import { useAuth } from '../../auth/Auth';
 import Editor from './Editor';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 const DetailsPage = () => {
     const api = useApi();
@@ -103,6 +112,16 @@ const Details: React.FC<DetailsProps> = ({
 
     return (
         <Stack mt={4} spacing={3}>
+            <Typography>
+                Results for each round will be posted after the full round is complete.{' '}
+                <Link
+                    component={RouterLink}
+                    to='/tournaments/open-classical/submit-results'
+                >
+                    Submit Results
+                </Link>
+            </Typography>
+
             <TextField
                 label='Round'
                 select
@@ -160,6 +179,13 @@ const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         headerName: 'Black (Discord)',
         valueGetter: (params) => params.row.black.discordUsername,
         flex: 1,
+    },
+    {
+        field: 'result',
+        headerName: 'Result',
+        flex: 0.5,
+        align: 'center',
+        headerAlign: 'center',
     },
 ];
 

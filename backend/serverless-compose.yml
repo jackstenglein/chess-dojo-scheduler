@@ -81,3 +81,11 @@ services:
       TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
       GameDatabaseBucket: ${chess-dojo-scheduler.GameDatabaseBucket}
+
+  pgnService:
+    path: pgnService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}

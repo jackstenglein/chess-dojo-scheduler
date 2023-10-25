@@ -82,26 +82,6 @@ functions:
     environment:
       mongoConnectionString: ${file(../tournament.yml):mongoConnectionString}
 
-  openClassicalPutPairings:
-    handler: openClassical/pairings/main.go
-    events:
-      - httpApi:
-          path: /tournaments/open-classical/pairings
-          method: put
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:PutItem
-        Resource: ${param:TournamentsTableArn}
-
   openClassicalRegister:
     handler: openClassical/register/main.go
     events:

@@ -134,6 +134,9 @@ type OpenClassicalPairing struct {
 
 	// The player with the black pieces
 	Black OpenClassicalPlayer `dynamodbav:"black" json:"black"`
+
+	// The result of the game
+	Result string `dynamodbav:"result" json:"result"`
 }
 
 // OpenClassicalRound represents a single round in the Open Classical tournaments.

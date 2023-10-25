@@ -65,7 +65,7 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
                 onSuccess(resp.data);
                 handleClose();
             })
-            .then((err) => {
+            .catch((err) => {
                 console.error(err);
                 request.onFailure(err);
             });
