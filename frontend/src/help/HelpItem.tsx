@@ -7,7 +7,13 @@ interface HelpItemProps {
 
 const HelpItem: React.FC<PropsWithChildren<HelpItemProps>> = ({ title, children }) => {
     return (
-        <Stack spacing={0.5} id={title}>
+        <Stack
+            spacing={0.5}
+            id={title}
+            sx={{
+                scrollMarginTop: '88px',
+            }}
+        >
             <Typography variant='h6'>{title}</Typography>
             <Typography variant='body1'>{children}</Typography>
         </Stack>

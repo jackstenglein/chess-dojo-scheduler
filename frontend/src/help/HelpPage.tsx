@@ -173,6 +173,18 @@ const helpSections = [
                     </>
                 ),
             },
+            {
+                title: 'How do I find my DWZ ID?',
+                content: (
+                    <>
+                        The DWZ ID is not the same as your ZPS-Nr. The DWZ ID can be found
+                        by going to your player page and copying the ID from the URL. For
+                        example, Vincent Keymer's page is located at
+                        https://www.schachbund.de/spieler/10283283.html, so his DWZ ID is
+                        10283283.
+                    </>
+                ),
+            },
         ],
     },
     {
@@ -345,11 +357,6 @@ const HelpPage = () => {
         const element = document.getElementById(id);
         if (element) {
             element.scrollIntoView();
-
-            const parent = document.getElementsByTagName('html')[0];
-            if (parent) {
-                parent.scrollTop -= 85;
-            }
         }
     };
 
@@ -492,7 +499,11 @@ const HelpPage = () => {
                         </Stack>
 
                         {helpSections.map((section) => (
-                            <Stack key={section.title} id={section.title}>
+                            <Stack
+                                key={section.title}
+                                id={section.title}
+                                sx={{ scrollMarginTop: '88px' }}
+                            >
                                 <Typography variant='h5'>{section.title}</Typography>
                                 <Divider />
 

@@ -6,6 +6,7 @@ import {
     RouterProvider,
     Outlet,
     useNavigate,
+    ScrollRestoration,
 } from 'react-router-dom';
 import { Amplify, Hub } from 'aws-amplify';
 
@@ -171,6 +172,7 @@ function Root() {
 
     return (
         <ApiProvider>
+            <ScrollRestoration />
             <CacheProvider>
                 <TutorialProvider>
                     <Navbar />

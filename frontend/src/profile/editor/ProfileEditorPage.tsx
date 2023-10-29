@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
     Alert,
     Button,
@@ -9,6 +9,7 @@ import {
     FormControlLabel,
     FormLabel,
     Grid,
+    Link,
     MenuItem,
     Stack,
     TextField,
@@ -577,8 +578,19 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                                     }
                                     error={!!rs.usernameError}
                                     helperText={
-                                        rs.usernameError ||
-                                        "Leave blank if you don't have an account"
+                                        rs.usernameError || rs.label === 'DWZ ID' ? (
+                                            <>
+                                                Learn how to find your DWZ ID{' '}
+                                                <Link
+                                                    component={RouterLink}
+                                                    to='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
+                                                >
+                                                    here
+                                                </Link>
+                                            </>
+                                        ) : (
+                                            "Leave blank if you don't have an account"
+                                        )
                                     }
                                     sx={{ width: 1 }}
                                 />

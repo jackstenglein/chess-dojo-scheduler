@@ -1,13 +1,16 @@
 import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
     Button,
     Checkbox,
     FormControlLabel,
+    Link,
     MenuItem,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 import {
@@ -17,7 +20,6 @@ import {
     getRatingUsername,
     hideRatingUsername,
 } from '../../database/user';
-import { LoadingButton } from '@mui/lab';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 
@@ -42,16 +44,28 @@ export function getUsernameLabel(rs: RatingSystem): string {
     }
 }
 
-export function getHelperText(rs: RatingSystem): string | undefined {
+export function getHelperText(rs: RatingSystem): React.ReactNode | undefined {
     switch (rs) {
         case RatingSystem.Chesscom:
         case RatingSystem.Lichess:
         case RatingSystem.Fide:
         case RatingSystem.Uscf:
         case RatingSystem.Cfc:
-        case RatingSystem.Dwz:
         case RatingSystem.Custom:
             return undefined;
+
+        case RatingSystem.Dwz:
+            return (
+                <>
+                    Learn how to find your DWZ ID{' '}
+                    <Link
+                        component={RouterLink}
+                        to='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
+                    >
+                        here
+                    </Link>
+                </>
+            );
 
         case RatingSystem.Ecf:
             return 'Enter your ECF rating code, not your membership number';
