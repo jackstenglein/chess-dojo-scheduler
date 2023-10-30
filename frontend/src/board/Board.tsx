@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, ButtonBase, Dialog, DialogContent, Stack } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, Stack } from '@mui/material';
 
 import { Chessground } from 'chessground';
 import { Api as BoardApi } from 'chessground/api';
@@ -129,7 +129,7 @@ export function defaultOnDrawableChange(chess: Chess) {
     };
 }
 
-function checkPromotion(
+export function checkPromotion(
     board: BoardApi,
     chess: Chess,
     orig: Key,
@@ -261,6 +261,26 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         onStartPromotion,
     ]);
 
+    useEffect(() => {
+        if (chess && board) {
+            board.set({
+                movable: {
+                    events: {
+                        after: (orig, dest) =>
+                            checkPromotion(
+                                board,
+                                chess,
+                                orig,
+                                dest,
+                                onStartPromotion,
+                                onMove ? onMove : defaultOnMove
+                            ),
+                    },
+                },
+            });
+        }
+    }, [chess, board, onMove, onStartPromotion]);
+
     return (
         <Box width={1} height={1}>
             <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
@@ -269,20 +289,20 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 <DialogContent>
                     <Stack direction='row'>
                         {promotionPieces.map((piece) => (
-                            <ButtonBase
-                                key={piece}
-                                onClick={() => onFinishPromotion(piece)}
-                            >
+                            <Button key={piece} onClick={() => onFinishPromotion(piece)}>
                                 <Box
-                                    className={`${promotion?.color} ${piece}`}
                                     sx={{
                                         width: '75px',
                                         aspectRatio: 1,
                                         backgroundSize: 'cover',
-                                        backgroundImage: `url('https://www.chess.com/chess-themes/pieces/bases/150/${promotion?.color[0]}${piece}.png')`,
+                                        backgroundImage: `url(${
+                                            promotion
+                                                ? `https://www.chess.com/chess-themes/pieces/bases/150/${promotion?.color[0]}${piece}.png`
+                                                : ''
+                                        })`,
                                     }}
                                 />
-                            </ButtonBase>
+                            </Button>
                         ))}
                     </Stack>
                 </DialogContent>

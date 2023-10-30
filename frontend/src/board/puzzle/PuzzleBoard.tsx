@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Box, Stack, SxProps, Theme, Typography } from '@mui/material';
 import { Chess, Move } from '@jackstenglein/chess';
 
 import HintSection from './HintSection';
-import Board, { BoardApi, reconcile, toColor, toDests, toShapes } from '../Board';
+import Board, {
+    BoardApi,
+    PrimitiveMove,
+    reconcile,
+    toColor,
+    toDests,
+    toShapes,
+} from '../Board';
 import { ChessContext } from '../pgn/PgnBoard';
-import { Key } from 'chessground/types';
 
 export enum Status {
     WaitingForMove,
@@ -50,9 +56,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             movable: {
                 color: toColor(chess),
                 dests: toDests(chess),
-                events: {
-                    after: onMove(board, chess),
-                },
                 free: false,
             },
             premovable: {
@@ -69,9 +72,41 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
         setLastCorrectMove(null);
     };
 
-    const onMove = (board: BoardApi, chess: Chess) => {
-        return (from: string, to: string) => {
-            const isCorrect = chess.isMainline({ from, to });
+    const onComplete = useCallback(
+        (board: BoardApi, chess: Chess) => {
+            board.set({
+                fen: chess.fen(),
+                movable: {
+                    color: toColor(chess),
+                    dests: toDests(chess),
+                },
+                drawable: {
+                    shapes: toShapes(chess),
+                },
+            });
+            setStatus(Status.Complete);
+            setMove(chess.currentMove());
+            onCompletePuzzle();
+        },
+        [onCompletePuzzle, setStatus, setMove]
+    );
+
+    const onMove = useCallback(
+        (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
+            const move = {
+                from: primMove.orig,
+                to: primMove.dest,
+                promotion: primMove.promotion,
+            };
+
+            if (status === Status.Complete) {
+                chess.move(move);
+                reconcile(chess, board);
+                setMove(chess.currentMove());
+                return;
+            }
+
+            const isCorrect = chess.isMainline(move);
             if (isCorrect) {
                 chess.seek(chess.nextMove());
                 if (
@@ -81,10 +116,9 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     return onComplete(board, chess);
                 }
                 setStatus(Status.CorrectMove);
-                console.log('Setting last correct move: ', chess.currentMove());
                 setLastCorrectMove(chess.currentMove());
             } else {
-                chess.move({ from, to });
+                chess.move(move);
                 setStatus(Status.IncorrectMove);
             }
 
@@ -101,8 +135,9 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             });
 
             setMove(chess.currentMove());
-        };
-    };
+        },
+        [onComplete, playBothSides, status, setStatus, setMove, setLastCorrectMove]
+    );
 
     const onNext = (board: BoardApi, chess: Chess) => {
         const nextMove = chess.nextMove();
@@ -148,29 +183,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
         });
         setStatus(Status.WaitingForMove);
         setMove(lastCorrectMove);
-    };
-
-    const onComplete = (board: BoardApi, chess: Chess) => {
-        board.set({
-            fen: chess.fen(),
-            movable: {
-                color: toColor(chess),
-                dests: toDests(chess),
-                events: {
-                    after: (from: Key, to: Key) => {
-                        chess.move({ from, to });
-                        reconcile(chess, board);
-                        setMove(chess.currentMove());
-                    },
-                },
-            },
-            drawable: {
-                shapes: toShapes(chess),
-            },
-        });
-        setStatus(Status.Complete);
-        setMove(chess.currentMove());
-        onCompletePuzzle();
     };
 
     return (

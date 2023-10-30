@@ -4,7 +4,7 @@ import { ModuleProps } from './Module';
 import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
 import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
 import { Coach, OpeningModule, coachUrls } from '../../database/opening';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import PgnSelector from './PgnSelector';
 import { useAuth } from '../../auth/Auth';
 import { User } from '../../database/user';
@@ -36,11 +36,7 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
     const request = useRequest();
     const api = useApi();
 
-    if (!module.pgns || module.pgns.length < 1) {
-        return null;
-    }
-
-    const onComplete = () => {
+    const onComplete = useCallback(() => {
         const newCompleted = [
             ...completed.slice(0, selectedIndex),
             true,
@@ -67,7 +63,11 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                     request.onFailure(err);
                 });
         }
-    };
+    }, [api, completed, module.id, request, selectedIndex, user.openingProgress]);
+
+    if (!module.pgns || module.pgns.length < 1) {
+        return null;
+    }
 
     const onNextPuzzle = () => {
         onComplete();
