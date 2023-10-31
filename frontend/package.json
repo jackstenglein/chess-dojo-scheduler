@@ -30,6 +30,7 @@
         "chessground": "^9.0.2",
         "copy-to-clipboard": "^3.3.3",
         "date-fns": "^2.30.0",
+        "luxon": "^3.4.3",
         "react": "^18.2.0",
         "react-charts": "^3.0.0-beta.55",
         "react-copy-to-clipboard": "^5.1.0",
@@ -75,6 +76,7 @@
         ]
     },
     "devDependencies": {
+        "@types/luxon": "^3.3.3",
         "@types/react-copy-to-clipboard": "^5.0.4",
         "@types/react-resizable": "^3.0.4",
         "@types/uuid": "^9.0.3",

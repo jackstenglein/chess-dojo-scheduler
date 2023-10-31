@@ -19,9 +19,10 @@ import {
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { TransitionProps } from '@mui/material/transitions';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers';
+import { DateTime, Settings } from 'luxon';
 import { useEffect, useState } from 'react';
 
 import { useApi } from '../api/Api';
@@ -45,6 +46,22 @@ function isValidDate(d: any) {
     return d instanceof Date && !isNaN(d.getTime());
 }
 
+function getTimezone(timezoneOverride: string): string | undefined {
+    if (!timezoneOverride) {
+        return undefined;
+    }
+
+    const value = timezoneOverride.replace('Etc/GMT', '').replace('+', '');
+    const intValue = parseInt(value);
+
+    if (isNaN(intValue)) {
+        return undefined;
+    }
+
+    console.log('Int value: ', intValue);
+    return intValue <= 0 ? `UTC+${Math.abs(intValue)}` : `UTC-${intValue}`;
+}
+
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
         children: React.ReactElement;
@@ -60,11 +77,16 @@ interface AvailabilityEditorProps {
 
 const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) => {
     const originalEvent = scheduler.edited;
-    const defaultStart = scheduler.state.start.value as Date;
-    const defaultEnd = scheduler.state.end.value as Date;
+    const defaultStart = DateTime.fromJSDate(scheduler.state.start.value as Date);
+    const defaultEnd = DateTime.fromJSDate(scheduler.state.end.value as Date);
+
+    console.log('scheduler.state.start.value: ', scheduler.state.start.value);
+    console.log('defaultStart: ', defaultStart);
 
     const api = useApi();
     const user = useAuth().user!;
+
+    console.log('Timezone override: ', user.timezoneOverride);
 
     const cache = useCache();
     const request = useRequest();
@@ -75,8 +97,8 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
 
     const [title, setTitle] = useState<string>(originalEvent?.event?.title || '');
 
-    const [start, setStart] = useState<Date | null>(defaultStart || null);
-    const [end, setEnd] = useState<Date | null>(defaultEnd || null);
+    const [start, setStart] = useState<DateTime | null>(defaultStart || null);
+    const [end, setEnd] = useState<DateTime | null>(defaultEnd || null);
 
     const [location, setLocation] = useState(originalEvent?.event?.location ?? '');
     const [description, setDescription] = useState(
@@ -197,7 +219,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
     let minEnd: Date | null = null;
     if (start !== null) {
         minEnd = new Date();
-        minEnd.setTime(start.getTime() + ONE_HOUR);
+        minEnd.setTime(start.toJSDate().getTime() + ONE_HOUR);
     }
 
     const isAvailability = type === EventType.Availability;
@@ -219,7 +241,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             errors.end = 'This field is required';
         } else if (!isValidDate(end)) {
             errors.end = 'End time must be a valid time';
-        } else if (minEnd !== null && end < minEnd) {
+        } else if (minEnd !== null && end.toJSDate() < minEnd) {
             errors.end = 'End time must be at least one hour after start time';
         }
 
@@ -253,8 +275,11 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
         }
 
         request.onStart();
-        const startIso = start!.toISOString();
-        const endIso = end!.toISOString();
+        const startIso = start!.toISO();
+        const endIso = end!.toISO();
+
+        console.log('Start ISO: ', startIso);
+        console.log('End ISO: ', endIso);
 
         try {
             scheduler.loading(true);
@@ -337,7 +362,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
             </AppBar>
 
             <DialogTitle data-cy='availability-editor-date'>
-                {defaultStart.toLocaleDateString('en-US', {
+                {defaultStart.toJSDate().toLocaleDateString('en-US', {
                     weekday: 'long',
                     month: 'short',
                     day: 'numeric',
@@ -407,7 +432,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                 Availabilities must be at least one hour long
                             </Typography>
                         )}
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <LocalizationProvider dateAdapter={AdapterLuxon}>
                             <DateTimePicker
                                 label='Start Time'
                                 value={start}
@@ -424,6 +449,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                         sx: { mt: 2, mb: 3 },
                                     },
                                 }}
+                                timezone={getTimezone(user.timezoneOverride)}
                             />
 
                             <DateTimePicker
@@ -438,7 +464,10 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ scheduler }) =>
                                         helperText: errors.end,
                                     },
                                 }}
-                                minDateTime={minEnd}
+                                minDateTime={
+                                    minEnd ? DateTime.fromJSDate(minEnd) : undefined
+                                }
+                                timezone={getTimezone(user.timezoneOverride)}
                             />
                         </LocalizationProvider>
                     </Stack>
