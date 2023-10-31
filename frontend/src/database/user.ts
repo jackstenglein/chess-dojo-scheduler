@@ -508,6 +508,9 @@ export function normalizeToFide(rating: number, ratingSystem: RatingSystem): num
     if (ratingSystem === RatingSystem.Fide) {
         return rating;
     }
+    if (ratingSystem === RatingSystem.Custom) {
+        return -1;
+    }
 
     for (const cohort of dojoCohorts) {
         const x2 = getRatingBoundary(cohort, ratingSystem);

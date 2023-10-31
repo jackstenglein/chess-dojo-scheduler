@@ -185,6 +185,14 @@ const userInfoColumns: GridColDef<ScoreboardRow>[] = [
         headerName: 'Normalized FIDE Rating',
         minWidth: 200,
         valueGetter: getNormalizedRating,
+        renderCell: (params) =>
+            params.value >= 0 ? (
+                params.value
+            ) : (
+                <Tooltip title='Custom ratings cannot be converted to FIDE'>
+                    <HelpIcon sx={{ ml: 1, color: 'text.secondary' }} />
+                </Tooltip>
+            ),
         align: 'center',
     },
 ];
