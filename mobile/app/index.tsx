@@ -5,7 +5,7 @@ import { Link } from 'expo-router';
 export default function App() {
     return (
         <View style={styles.container}>
-            <Link href='/'>Home</Link>
+            <Link href='/settings/'>Settings</Link>
             <StatusBar style='auto' />
         </View>
     );
