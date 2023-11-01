@@ -115,7 +115,15 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
 
             {sections.map((s) => (
                 <Stack key={s.label} spacing={0.5}>
-                    <Typography variant='h6'>{s.label}</Typography>
+                    <Typography
+                        id={`notifications-${s.label.toLowerCase()}`}
+                        variant='h6'
+                        sx={{
+                            scrollMarginTop: '88px',
+                        }}
+                    >
+                        {s.label}
+                    </Typography>
 
                     {s.settings.map((setting) => (
                         <FormControlLabel

@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -39,6 +39,8 @@ func main() {
 	}
 	content := string(b)
 
+	unsubcribers := getUnsubscribers()
+
 	data, err := os.Open("subscribers.csv")
 	if err != nil {
 		log.Fatal(err)
@@ -46,12 +48,14 @@ func main() {
 	defer data.Close()
 	csvReader := csv.NewReader(data)
 
+	total := 0
 	success := 0
 	failed := 0
+	skipped := 0
 
 	for {
-		if (success+failed)%100 == 0 {
-			fmt.Printf("Success: %d, Failed: %d\n", success, failed)
+		if total%100 == 0 {
+			log.Printf("Success: %d, Failed: %d, Skipped: %d\n", success, failed, skipped)
 		}
 
 		rec, err := csvReader.Read()
@@ -61,11 +65,18 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		total++
+
+		email := strings.TrimSpace(rec[4])
+		if unsubcribers[email] {
+			skipped++
+			continue
+		}
 
 		input := &ses.SendEmailInput{
 			Destination: &ses.Destination{
 				ToAddresses: []*string{
-					aws.String(rec[4]),
+					aws.String(email),
 				},
 			},
 			Message: &ses.Message{
@@ -77,7 +88,7 @@ func main() {
 				},
 				Subject: &ses.Content{
 					Charset: aws.String("UTF-8"),
-					Data:    aws.String("Training Program News - Dojo Digest Vol. 1"),
+					Data:    aws.String("Training Program News - Dojo Digest Vol. 2"),
 				},
 			},
 			Source: aws.String("chessdojotwitch@gmail.com"),
@@ -92,5 +103,31 @@ func main() {
 		}
 	}
 
-	log.Printf("Finished. Success: %d, failed: %d", success, failed)
+	log.Printf("Finished. Success: %d, Failed: %d, Skipped: %d\n", success, failed, skipped)
+}
+
+func getUnsubscribers() map[string]bool {
+	unsubscribers, err := os.Open("unsubscribers.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer unsubscribers.Close()
+
+	csvReader := csv.NewReader(unsubscribers)
+	result := make(map[string]bool)
+
+	for {
+		rec, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		email := strings.TrimSpace(rec[1])
+		result[email] = true
+	}
+
+	return result
 }

@@ -51,6 +51,7 @@ import FollowersPage from './profile/followers/FollowersPage';
 import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
 import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
+import UnsubscribePage from './dojoDigest/UnsubscribePage';
 
 const config = getConfig();
 Amplify.configure({
@@ -85,6 +86,7 @@ const router = createBrowserRouter(
                     <Route path='submit-results' element={<SubmitResultsPage />} />
                 </Route>
             </Route>
+            <Route path='dojodigest/unsubscribe' element={<UnsubscribePage />} />
 
             <Route element={<RequireAuth />}>
                 <Route element={<GraduationPrompt />}>

@@ -5,6 +5,9 @@ wix.yml
 tournament.yml
 openClassicalServiceAccountKey.json
 
+# Data files
+subscribers.csv
+
 # Serverless directories
 .serverless
 
