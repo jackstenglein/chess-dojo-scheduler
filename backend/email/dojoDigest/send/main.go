@@ -67,7 +67,7 @@ func main() {
 		}
 		total++
 
-		email := strings.TrimSpace(rec[4])
+		email := strings.TrimSpace(rec[2])
 		if unsubcribers[email] {
 			skipped++
 			continue
@@ -96,7 +96,7 @@ func main() {
 
 		_, err = svc.SendEmail(input)
 		if err != nil {
-			log.Println("Failed to send email", err)
+			log.Printf("Failed to send to %q: %v\n", email, err)
 			failed++
 		} else {
 			success++
