@@ -1,10 +1,4 @@
-import {
-    ViewStyle,
-    RegisteredStyle,
-    RecursiveArray,
-    Falsy,
-    Animated,
-} from 'react-native';
+import { ViewStyle, RegisteredStyle, RecursiveArray, Falsy } from 'react-native';
 import { Surface } from 'react-native-paper';
 
 interface StackProps {
