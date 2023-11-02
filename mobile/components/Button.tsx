@@ -1,4 +1,5 @@
 import { Button as PaperButton, useTheme } from 'react-native-paper';
+import { alpha } from '../util/colorManipulator';
 
 type PaperButtonProps = React.ComponentProps<typeof PaperButton>;
 
@@ -28,7 +29,7 @@ const Button: React.FC<React.PropsWithChildren<ButtonProps>> = (props: ButtonPro
     if (mode === 'outlined') {
         style = {
             textColor: (theme.colors as any)[color] || theme.colors.primary,
-            borderColor: (theme.colors as any)[color] || theme.colors.outline,
+            borderColor: alpha((theme.colors as any)[color] || theme.colors.outline, 0.5),
         };
     }
 

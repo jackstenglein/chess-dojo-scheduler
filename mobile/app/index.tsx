@@ -9,22 +9,41 @@ import { View } from 'react-native';
 const theme = {
     ...MD3DarkTheme,
     colors: {
-        primary: 'rgb(143, 205, 255)',
-        onPrimary: 'rgb(0, 52, 79)',
+        primary: 'rgb(144,202,249)',
+        onPrimary: 'rgba(0, 0, 0, 0.87)',
         primaryContainer: 'rgb(0, 75, 113)',
         onPrimaryContainer: 'rgb(203, 230, 255)',
-        secondary: 'rgb(243, 174, 255)',
-        onSecondary: 'rgb(79, 21, 94)',
+
+        secondary: 'rgb(206,147,216)',
+        onSecondary: 'rgba(0, 0, 0, 0.87)',
         secondaryContainer: 'rgb(104, 46, 118)',
         onSecondaryContainer: 'rgb(253, 214, 255)',
+
         tertiary: 'rgb(208, 192, 232)',
         onTertiary: 'rgb(54, 43, 74)',
         tertiaryContainer: 'rgb(77, 65, 98)',
         onTertiaryContainer: 'rgb(235, 220, 255)',
-        error: 'rgb(255, 180, 169)',
-        onError: 'rgb(105, 0, 2)',
+
+        error: 'rgb(244,67,54)',
+        onError: 'rgb(255, 255, 255)',
         errorContainer: 'rgb(147, 0, 5)',
         onErrorContainer: 'rgb(255, 218, 213)',
+
+        warning: 'rgb(255,167,38)',
+        onWarning: 'rgba(0, 0, 0, 0.87)',
+        warningContainer: 'rgb(102, 62, 0)',
+        onWarningContainer: 'rgb(255, 221, 185)',
+
+        info: 'rgb(41,182,246)',
+        onInfo: 'rgba(0, 0, 0, 0.87)',
+        infoContainer: 'rgb(0, 76, 107)',
+        onInfoContainer: 'rgb(198, 231, 255)',
+
+        success: 'rgb(102,187,106)',
+        onSuccess: 'rgba(0, 0, 0, 0.87)',
+        successContainer: 'rgb(0, 83, 24)',
+        onSuccessContainer: 'rgb(159, 247, 159)',
+
         background: 'rgb(26, 28, 30)',
         onBackground: 'rgb(226, 226, 229)',
         surface: 'rgb(26, 28, 30)',
@@ -49,18 +68,6 @@ const theme = {
         surfaceDisabled: 'rgba(226, 226, 229, 0.12)',
         onSurfaceDisabled: 'rgba(226, 226, 229, 0.38)',
         backdrop: 'rgba(43, 49, 55, 0.4)',
-        warning: 'rgb(255, 185, 97)',
-        onWarning: 'rgb(71, 42, 0)',
-        warningContainer: 'rgb(102, 62, 0)',
-        onWarningContainer: 'rgb(255, 221, 185)',
-        info: 'rgb(129, 207, 255)',
-        onInfo: 'rgb(0, 52, 75)',
-        infoContainer: 'rgb(0, 76, 107)',
-        onInfoContainer: 'rgb(198, 231, 255)',
-        success: 'rgb(131, 218, 133)',
-        onSuccess: 'rgb(0, 57, 14)',
-        successContainer: 'rgb(0, 83, 24)',
-        onSuccessContainer: 'rgb(159, 247, 159)',
     },
 };
 
@@ -105,6 +112,7 @@ export default function App() {
                             mode='contained'
                             labelStyle={{ fontWeight: 'bold' }}
                             onPress={onSignUp}
+                            color='success'
                         >
                             Sign Up for Free
                         </Button>
@@ -113,6 +121,7 @@ export default function App() {
                             mode='outlined'
                             labelStyle={{ fontWeight: 'bold' }}
                             onPress={onSignIn}
+                            color='success'
                         >
                             Sign In
                         </Button>
