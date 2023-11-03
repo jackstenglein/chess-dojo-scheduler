@@ -1,5 +1,6 @@
 stage: dev
 frontendHost: 'http://localhost:3000'
+mobileHost: 'exp://127.0.0.1:8081/--/'
 discordFindGameChannelId: '1078714829709262858'
 discordPrivateGuildId: '691123894001598536'
 discordPublicGuildId: '1154831716100341810'

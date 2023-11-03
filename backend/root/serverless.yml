@@ -113,8 +113,10 @@ resources:
           - profile
         CallbackURLs:
           - ${file(../config-${sls:stage}.yml):frontendHost}
+          - ${file(../config-${sls:stage}.yml):mobileHost}
         LogoutURLs:
           - ${file(../config-${sls:stage}.yml):frontendHost}
+          - ${file(../config-${sls:stage}.yml):mobileHost}
         SupportedIdentityProviders:
           - COGNITO
           - Google
