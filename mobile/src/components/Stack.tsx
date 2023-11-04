@@ -24,6 +24,7 @@ const Stack: React.FC<React.PropsWithChildren<StackProps>> = ({
             elevation={0}
             style={[
                 {
+                    backgroundColor: 'transparent',
                     display: 'flex',
                     flexDirection: direction,
                     columnGap: direction === 'row' ? spacingPx : 0,

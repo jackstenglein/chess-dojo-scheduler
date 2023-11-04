@@ -1,12 +1,17 @@
 import { View } from 'react-native';
 
-import { useAuth } from '@/auth/Auth';
+import { AuthStatus, useAuth } from '@/auth/Auth';
 import Stack from '@/components/Stack';
 import Button from '@/components/Button';
 import GoogleLogo from '@/components/GoogleLogo';
+import { Redirect } from 'expo-router';
 
 export default function SigninPage() {
     const auth = useAuth();
+
+    if (auth.status === AuthStatus.Authenticated) {
+        return <Redirect href='/profile/' />;
+    }
 
     const onGoogleSignIn = () => {
         auth.socialSignin('Google', '');

@@ -2,8 +2,13 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { Slot } from 'expo-router';
 import { Amplify, Hub } from 'aws-amplify';
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper';
+import { PaperProvider, MD3DarkTheme, adaptNavigationTheme } from 'react-native-paper';
 import { Platform, View } from 'react-native';
+import {
+    ThemeProvider,
+    DarkTheme as NavigationDarkTheme,
+    DefaultTheme as NavigationDefaultTheme,
+} from '@react-navigation/native';
 
 import { getConfig } from '@/config';
 import { AuthProvider } from 'src/auth/Auth';
@@ -36,7 +41,12 @@ Amplify.configure({
     },
 });
 
-const theme = {
+const { DarkTheme: darkTheme } = adaptNavigationTheme({
+    reactNavigationLight: NavigationDefaultTheme,
+    reactNavigationDark: NavigationDarkTheme,
+});
+
+const paperTheme = {
     ...MD3DarkTheme,
     colors: {
         primary: 'rgb(144,202,249)',
@@ -101,6 +111,15 @@ const theme = {
     },
 };
 
+const theme = {
+    ...paperTheme,
+    ...darkTheme,
+    colors: {
+        ...paperTheme.colors,
+        ...darkTheme.colors,
+    },
+};
+
 export default function Root() {
     useEffect(() => {
         const unsubscribe = Hub.listen('auth', ({ payload: { event, data } }) => {
@@ -112,12 +131,19 @@ export default function Root() {
     }, []);
 
     return (
-        <PaperProvider theme={theme}>
-            <AuthProvider>
-                <View style={{ backgroundColor: theme.colors.background }}>
-                    <Slot />
-                </View>
-            </AuthProvider>
-        </PaperProvider>
+        <AuthProvider>
+            <PaperProvider theme={theme}>
+                <ThemeProvider value={theme}>
+                    <View
+                        style={{
+                            backgroundColor: theme.colors.background,
+                            height: '100%',
+                        }}
+                    >
+                        <Slot />
+                    </View>
+                </ThemeProvider>
+            </PaperProvider>
+        </AuthProvider>
     );
 }
