@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Container, MenuItem, Stack, TextField } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Container, Stack } from '@mui/material';
 import { AxisOptions } from 'react-charts';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -10,6 +9,7 @@ import { UserStatistics } from '../../database/statistics';
 import LoadingPage from '../../loading/LoadingPage';
 import Chart, { Datum, Series } from './Chart';
 import { useAuth } from '../../auth/Auth';
+import ScoreboardViewSelector from '../ScoreboardViewSelector';
 
 const primaryAxis: AxisOptions<Datum> = {
     getValue: (datum) => datum.cohort,
@@ -123,7 +123,6 @@ function getAdminParticipantsSeries(data: UserStatistics | undefined): Series[] 
 
 const StatisticsPage = () => {
     const api = useApi();
-    const navigate = useNavigate();
     const request = useRequest<UserStatistics>();
     const user = useAuth().user!;
 
@@ -296,10 +295,6 @@ const StatisticsPage = () => {
         return <Container></Container>;
     }
 
-    const onChangeCohort = (cohort: string) => {
-        navigate(`../${cohort}`);
-    };
-
     const totalRatingChange = totalRatingChangeData[0]?.data.reduce(
         (sum, d) => sum + d.value,
         0
@@ -313,23 +308,7 @@ const StatisticsPage = () => {
         <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={request} />
 
-            <TextField
-                data-cy='scoreboard-view-selector'
-                select
-                label='View'
-                value='stats'
-                onChange={(event) => onChangeCohort(event.target.value)}
-                sx={{ mb: 3 }}
-                fullWidth
-            >
-                <MenuItem value='search'>User Search</MenuItem>
-                <MenuItem value='stats'>Statistics</MenuItem>
-                {dojoCohorts.map((option) => (
-                    <MenuItem key={option} value={option}>
-                        {option}
-                    </MenuItem>
-                ))}
-            </TextField>
+            <ScoreboardViewSelector value='stats' />
 
             <Stack spacing={3}>
                 <Chart

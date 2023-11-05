@@ -109,7 +109,7 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 	if !user.DojoCohort.IsValid() || user.RatingSystem == "" {
 		return
 	}
-	if user.SubscriptionStatus == "FREE_TIER" {
+	if user.SubscriptionStatus == database.SubscriptionStatus_FreeTier {
 		stats.Cohorts[user.DojoCohort].FreeParticipants += 1
 		return
 	}

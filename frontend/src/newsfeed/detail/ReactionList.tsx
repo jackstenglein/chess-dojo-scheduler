@@ -176,9 +176,8 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
             <RequestSnackbar request={request} />
 
             {Object.entries(reactionMap).map(([type, reactors]) => (
-                <Tooltip title={`Reacted by ${reactors.join(', ')}`}>
+                <Tooltip key={type} title={`Reacted by ${reactors.join(', ')}`}>
                     <Button
-                        key={type}
                         variant={
                             isReactor(user, reactions, type) ? 'contained' : 'outlined'
                         }

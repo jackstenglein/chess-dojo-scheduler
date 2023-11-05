@@ -5,7 +5,6 @@ import {
     FormControlLabel,
     FormHelperText,
     Link,
-    MenuItem,
     Stack,
     TextField,
     Typography,
@@ -17,13 +16,14 @@ import {
     GridValueGetterParams,
 } from '@mui/x-data-grid';
 import { LoadingButton } from '@mui/lab';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useState } from 'react';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { RatingSystem, User, dojoCohorts } from '../../database/user';
+import { RatingSystem, User } from '../../database/user';
 import Avatar from '../../profile/Avatar';
+import ScoreboardViewSelector from '../ScoreboardViewSelector';
 
 const AllColumns: GridColDef[] = [
     {
@@ -139,7 +139,6 @@ function getDisplayString(field: string): string {
 }
 
 const SearchPage = () => {
-    const navigate = useNavigate();
     const api = useApi();
     const request = useRequest<User[]>();
 
@@ -159,10 +158,6 @@ const SearchPage = () => {
             ...fields,
             [field]: value,
         });
-    };
-
-    const onChangeView = (view: string) => {
-        navigate(`../${view}`);
     };
 
     const onSearch = () => {
@@ -206,23 +201,7 @@ const SearchPage = () => {
             <RequestSnackbar request={request} />
 
             <Stack spacing={4}>
-                <TextField
-                    data-cy='scoreboard-view-selector'
-                    select
-                    label='View'
-                    value='search'
-                    onChange={(event) => onChangeView(event.target.value)}
-                    sx={{ mb: 3 }}
-                    fullWidth
-                >
-                    <MenuItem value='search'>User Search</MenuItem>
-                    <MenuItem value='stats'>Statistics</MenuItem>
-                    {dojoCohorts.map((option) => (
-                        <MenuItem key={option} value={option}>
-                            {option}
-                        </MenuItem>
-                    ))}
-                </TextField>
+                <ScoreboardViewSelector value='search' />
 
                 <Stack spacing={1} alignItems='start'>
                     <TextField

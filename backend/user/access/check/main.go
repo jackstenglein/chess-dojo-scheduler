@@ -26,9 +26,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	isForbidden, err := access.IsForbidden(user.WixEmail)
-	subscriptionStatus := "SUBSCRIBED"
+	subscriptionStatus := database.SubscriptionStatus_Subscribed
 	if isForbidden {
-		subscriptionStatus = "FREE_TIER"
+		subscriptionStatus = database.SubscriptionStatus_FreeTier
 	}
 
 	if subscriptionStatus != user.SubscriptionStatus {
@@ -41,9 +41,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 			log.Error("Failed UpdateUser: ", err)
 		}
 
-		if user.SubscriptionStatus == "SUBSCRIBED" {
+		if user.SubscriptionStatus == database.SubscriptionStatus_Subscribed {
 			err = repository.RecordSubscriptionCancelation(user.DojoCohort)
-		} else if user.SubscriptionStatus == "FREE_TIER" {
+		} else if user.SubscriptionStatus == database.SubscriptionStatus_FreeTier {
 			err = repository.RecordFreeTierConversion(user.DojoCohort)
 		}
 		if err != nil {

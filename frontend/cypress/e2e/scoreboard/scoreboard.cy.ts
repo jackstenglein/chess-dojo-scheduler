@@ -48,7 +48,8 @@ describe('Scoreboard Page', () => {
 
         const columnGroups = [
             'User Info',
-            'Progress',
+            'Ratings',
+            'Training Plan',
             'Time Spent',
             'Games + Analysis',
             'Tactics',

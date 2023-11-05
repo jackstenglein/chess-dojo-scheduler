@@ -8,7 +8,7 @@ import {
 import { useApi } from '../Api';
 import { Request, useRequest } from '../Request';
 import { useCache } from './Cache';
-import { ALL_COHORTS } from '../../database/user';
+import { ALL_COHORTS, dojoCohorts } from '../../database/user';
 
 interface UseRequirementsResponse {
     requirements: Requirement[];
@@ -43,7 +43,7 @@ export function useRequirements(
 
     useEffect(() => {
         if (
-            cohort !== '' &&
+            (cohort === ALL_COHORTS || dojoCohorts.includes(cohort)) &&
             !cache.requirements.isFetched(ALL_COHORTS) &&
             !cache.requirements.isFetched(cohort) &&
             !request.isSent()

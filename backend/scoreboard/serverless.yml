@@ -1,0 +1,58 @@
+# Deploys the scoreboard service.
+
+service: chess-dojo-scoreboard
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 30
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  get:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /scoreboard/{type}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:UsersTableArn}
+                - '/index/CohortIdx'
+          - Fn::Join:
+              - ''
+              - - ${param:UsersTableArn}
+                - '/index/ScoreboardSummaryIdx'
+          - Fn::Join:
+              - ''
+              - - ${param:FollowersTableArn}
+                - '/index/FollowingIndex'

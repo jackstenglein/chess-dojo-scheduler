@@ -24,8 +24,9 @@ import {
 } from '../database/user';
 import { Graduation, isGraduation } from '../database/graduation';
 import RequirementModal from '../requirements/RequirementModal';
+import { isScoreboardSummary, ScoreboardSummary } from '../database/scoreboard';
 
-export type ScoreboardRow = User | Graduation;
+export type ScoreboardRow = User | Graduation | ScoreboardSummary;
 
 interface HeaderProps {
     requirement: Requirement;
@@ -53,6 +54,19 @@ const Header: React.FC<HeaderProps> = ({ requirement, cohort }) => {
     );
 };
 
+/**
+ * Returns the progress object for the given ScoreboardRow or an empty
+ * object if the row is a ScoreboardSummary.
+ * @param row The ScoreboardRow to get the progress for.
+ * @returns The progress for the row.
+ */
+function getProgress(row: ScoreboardRow) {
+    if (isScoreboardSummary(row)) {
+        return {};
+    }
+    return row.progress;
+}
+
 export function getColumnDefinition(
     requirement: Requirement,
     cohort: string
@@ -60,14 +74,18 @@ export function getColumnDefinition(
     const totalCount = requirement.counts[cohort] || 0;
 
     const valueGetter = (params: GridValueGetterParams<ScoreboardRow>) => {
-        return getCurrentCount(cohort, requirement, params.row.progress[requirement.id]);
+        return getCurrentCount(
+            cohort,
+            requirement,
+            getProgress(params.row)[requirement.id]
+        );
     };
 
     const renderCell = (params: GridRenderCellParams<ScoreboardRow>) => {
         const score = getCurrentCount(
             cohort,
             requirement,
-            params.row.progress[requirement.id]
+            getProgress(params.row)[requirement.id]
         );
         switch (requirement.scoreboardDisplay) {
             case ScoreboardDisplay.Checkbox:
@@ -124,10 +142,10 @@ export function getCohortScore(
         return 0;
     }
 
-    const user = params.row;
+    const progress = getProgress(params.row);
     let score = 0;
     for (const requirement of requirements) {
-        score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+        score += getCurrentScore(cohort, requirement, progress[requirement.id]);
     }
     return Math.round(score * 100) / 100;
 }
@@ -149,7 +167,7 @@ export function getTotalTime(
     );
 
     let result = 0;
-    for (const progress of Object.values(params.row.progress)) {
+    for (const progress of Object.values(getProgress(params.row))) {
         if (
             progress.minutesSpent &&
             progress.minutesSpent[cohort] &&
@@ -171,11 +189,11 @@ export function getCategoryScore(
         return 0;
     }
 
-    const user = params.row;
+    const progress = getProgress(params.row);
     let score = 0;
     for (const requirement of requirements) {
         if (requirement.category === category) {
-            score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+            score += getCurrentScore(cohort, requirement, progress[requirement.id]);
         }
     }
     return Math.round(score * 100) / 100;

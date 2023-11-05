@@ -18,6 +18,14 @@ services:
       PicturesBucket: ${chess-dojo-scheduler.PicturesBucket}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
 
+  scoreboard:
+    path: scoreboard
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      FollowersTableArn: ${chess-dojo-scheduler.FollowersTableArn}
+
   requirements:
     path: requirement
     params:

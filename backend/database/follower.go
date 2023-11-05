@@ -57,8 +57,13 @@ type FollowerLister interface {
 	ListFollowers(username, startKey string) ([]FollowerEntry, string, error)
 
 	// ListFollowing returns a list of FollowerEntry objects where the given username is the Follower.
-	// The next start key is also returned.
+	// The next start key is also returned. This is equivalent to ListFollowingLimit(username, startKey, -1).
 	ListFollowing(username, startKey string) ([]FollowerEntry, string, error)
+
+	// ListFollowingLimit returns a list of FollowerEntry objects where the given username is the Follower.
+	// The next start key is also returned. If limit is positive, it is used as the upper bound on the
+	// number of results returned. If non-positive, it is ignored.
+	ListFollowingLimit(username, startKey string, limit int) ([]FollowerEntry, string, error)
 }
 
 // CreateFollower adds a FollowerEntry for the given poster and follower. The poster's and follower's
@@ -203,8 +208,15 @@ func (repo *dynamoRepository) ListFollowers(username, startKey string) ([]Follow
 }
 
 // ListFollowing returns a list of FollowerEntry objects where the given username is the Follower.
-// The next start key is also returned.
+// The next start key is also returned. This is equivalent to ListFollowingLimit(username, startKey, -1).
 func (repo *dynamoRepository) ListFollowing(username, startKey string) ([]FollowerEntry, string, error) {
+	return repo.ListFollowingLimit(username, startKey, -1)
+}
+
+// ListFollowingLimit returns a list of FollowerEntry objects where the given username is the Follower.
+// The next start key is also returned. If limit is positive, it is used as the upper bound on the
+// number of results returned. If non-positive, it is ignored.
+func (repo *dynamoRepository) ListFollowingLimit(username, startKey string, limit int) ([]FollowerEntry, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#follower = :follower"),
 		ExpressionAttributeNames: map[string]*string{
@@ -215,6 +227,10 @@ func (repo *dynamoRepository) ListFollowing(username, startKey string) ([]Follow
 		},
 		IndexName: aws.String("FollowingIndex"),
 		TableName: aws.String(followersTable),
+	}
+
+	if limit > 0 {
+		input.SetLimit(int64(limit))
 	}
 
 	var following []FollowerEntry

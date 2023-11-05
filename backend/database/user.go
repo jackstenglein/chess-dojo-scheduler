@@ -13,6 +13,12 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
+const (
+	SubscriptionStatus_Subscribed = "SUBSCRIBED"
+	SubscriptionStatus_FreeTier   = "FREE_TIER"
+	SubscriptionStatus_Unknown    = "UNKNOWN"
+)
+
 type DojoCohort string
 
 var Cohorts = []DojoCohort{
@@ -224,7 +230,6 @@ type User struct {
 	Tutorials map[string]bool `dynamodbav:"tutorials" json:"tutorials"`
 
 	// A map from a time period to the number of minutes the user has spent on tasks in that time period.
-	// Non-Dojo tasks are not included.
 	MinutesSpent map[string]int `dynamodbav:"minutesSpent" json:"minutesSpent"`
 
 	// Indicates whether the user has manually set their profile picture. If true, the profile picture
@@ -245,6 +250,9 @@ type User struct {
 
 	// The user's notification settings
 	NotificationSettings UserNotificationSettings `dynamodbav:"notificationSettings" json:"notificationSettings"`
+
+	// The user's total dojo score, across all cohorts
+	TotalDojoScore float32 `dynamodbav:"totalDojoScore" json:"totalDojoScore"`
 }
 
 type UserNotificationSettings struct {
@@ -650,12 +658,13 @@ type AdminUserLister interface {
 // CreateUser creates a new User object with the provided information.
 func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, error) {
 	user := &User{
-		Username:   username,
-		Email:      email,
-		WixEmail:   email,
-		Name:       name,
-		CreatedAt:  time.Now().Format(time.RFC3339),
-		DojoCohort: NoCohort,
+		Username:           username,
+		Email:              email,
+		WixEmail:           email,
+		Name:               name,
+		CreatedAt:          time.Now().Format(time.RFC3339),
+		DojoCohort:         NoCohort,
+		SubscriptionStatus: SubscriptionStatus_Unknown,
 	}
 
 	err := repo.SetUserConditional(user, aws.String("attribute_not_exists(username)"))
@@ -932,10 +941,22 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 }
 
 const (
+	AllCohortsPrefix = "ALL_COHORTS_"
+
+	// Time spent in the user's current cohort
+	AllTime     = "ALL_TIME"
 	Last7Days   = "LAST_7_DAYS"
 	Last30Days  = "LAST_30_DAYS"
 	Last90Days  = "LAST_90_DAYS"
 	Last365Days = "LAST_365_DAYS"
+
+	// Time spent in any cohort
+	AllCohortsAllTime     = "ALL_COHORTS_ALL_TIME"
+	AllCohortsLast7Days   = "ALL_COHORTS_LAST_7_DAYS"
+	AllCohortsLast30Days  = "ALL_COHORTS_LAST_30_DAYS"
+	AllCohortsLast90Days  = "ALL_COHORTS_LAST_90_DAYS"
+	AllCohortsLast365Days = "ALL_COHORTS_LAST_365_DAYS"
+	AllCohortsNonDojo     = "ALL_COHORTS_NON_DOJO"
 )
 
 // UpdateUserTimes uses DynamoDB PartiQL to update the minutesSpent field on the provided users
@@ -947,17 +968,18 @@ func (repo *dynamoRepository) UpdateUserTimes(users []*User) error {
 	var sb strings.Builder
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
+		params, err := dynamodbattribute.MarshalList([]interface{}{user.TotalDojoScore, user.MinutesSpent})
+		if err != nil {
+			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.MinutesSpent", err)
+		}
+
 		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
-		sb.WriteString(fmt.Sprintf(" SET minutesSpent={'%s': %d, '%s': %d, '%s': %d, '%s': %d}",
-			Last7Days, user.MinutesSpent[Last7Days],
-			Last30Days, user.MinutesSpent[Last30Days],
-			Last90Days, user.MinutesSpent[Last90Days],
-			Last365Days, user.MinutesSpent[Last365Days],
-		))
+		sb.WriteString(" SET totalDojoScore=? SET minutesSpent=?")
 		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 
 		statement := &dynamodb.BatchStatementRequest{
-			Statement: aws.String(sb.String()),
+			Statement:  aws.String(sb.String()),
+			Parameters: params,
 		}
 		statements = append(statements, statement)
 

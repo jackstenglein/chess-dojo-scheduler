@@ -161,6 +161,8 @@ resources:
             AttributeType: S
           - AttributeName: dojoCohort
             AttributeType: S
+          - AttributeName: subscriptionStatus
+            AttributeType: S
         KeySchema:
           - AttributeName: username
             KeyType: HASH
@@ -192,6 +194,24 @@ resources:
                 - discordUsername
                 - searchKey
                 - ratings
+          - IndexName: ScoreboardSummaryIdx
+            KeySchema:
+              - AttributeName: subscriptionStatus
+                KeyType: HASH
+              - AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - displayName
+                - graduationCohorts
+                - previousCohort
+                - ratings
+                - ratingSystem
+                - totalDojoScore
+                - dojoCohort
+                - updatedAt
+                - minutesSpent
 
     TimelineTable:
       Type: AWS::DynamoDB::Table

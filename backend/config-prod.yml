@@ -1,5 +1,6 @@
 stage: prod
 frontendHost: 'https://www.dojoscoreboard.com'
+mobileHost: 'exp://127.0.0.1:8081/--/'
 discordFindGameChannelId: '972163822850814022'
 discordPrivateGuildId: '951958534113886238'
 discordPublicGuildId: '419042970558398469'

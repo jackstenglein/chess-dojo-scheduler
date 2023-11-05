@@ -1,4 +1,5 @@
 import { CustomTask, RequirementProgress } from './requirement';
+import { ScoreboardSummary } from './scoreboard';
 
 interface CognitoSession {
     idToken: {
@@ -124,6 +125,8 @@ export interface User {
     referralSource: string;
 
     notificationSettings: UserNotificationSettings;
+
+    totalDojoScore: number;
 }
 
 export interface UserNotificationSettings {
@@ -150,10 +153,18 @@ export interface SiteNotificationSettings {
 }
 
 export type MinutesSpentKey =
+    | 'ALL_TIME'
     | 'LAST_7_DAYS'
     | 'LAST_30_DAYS'
     | 'LAST_90_DAYS'
-    | 'LAST_365_DAYS';
+    | 'LAST_365_DAYS'
+    | 'NON_DOJO'
+    | 'ALL_COHORTS_ALL_TIME'
+    | 'ALL_COHORTS_LAST_7_DAYS'
+    | 'ALL_COHORTS_LAST_30_DAYS'
+    | 'ALL_COHORTS_LAST_90_DAYS'
+    | 'ALL_COHORTS_LAST_365_DAYS'
+    | 'ALL_COHORTS_NON_DOJO';
 
 export function parseUser(apiResponse: any, cognitoUser?: CognitoUser): User {
     return {
@@ -162,7 +173,7 @@ export function parseUser(apiResponse: any, cognitoUser?: CognitoUser): User {
     };
 }
 
-export function getStartRating(user?: User): number {
+export function getStartRating(user?: User | ScoreboardSummary): number {
     if (!user) {
         return 0;
     }
@@ -170,7 +181,7 @@ export function getStartRating(user?: User): number {
 }
 
 export function getSystemStartRating(
-    user: User | undefined,
+    user: User | ScoreboardSummary | undefined,
     ratingSystem: RatingSystem
 ): number {
     if (!user) {
@@ -180,7 +191,7 @@ export function getSystemStartRating(
     return rating?.startRating || 0;
 }
 
-export function getCurrentRating(user?: User): number {
+export function getCurrentRating(user?: User | ScoreboardSummary): number {
     if (!user) {
         return 0;
     }
@@ -188,7 +199,7 @@ export function getCurrentRating(user?: User): number {
 }
 
 export function getSystemCurrentRating(
-    user: User | undefined,
+    user: User | ScoreboardSummary | undefined,
     ratingSystem: RatingSystem
 ): number {
     if (!user) {

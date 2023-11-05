@@ -86,6 +86,7 @@ import {
     NewsfeedApiContextType,
     setNewsfeedReaction,
 } from './newsfeedApi';
+import { getScoreboard, ScoreboardApiContextType } from './scoreboardApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -98,7 +99,8 @@ type ApiContextType = UserApiContextType &
     OpeningApiContextType &
     TournamentApiContextType &
     NotificationApiContextType &
-    NewsfeedApiContextType;
+    NewsfeedApiContextType &
+    ScoreboardApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -272,6 +274,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 createNewsfeedComment(idToken, owner, id, content),
             setNewsfeedReaction: (owner: string, id: string, types: string[]) =>
                 setNewsfeedReaction(idToken, owner, id, types),
+
+            getScoreboard: (type: string) => getScoreboard(idToken, type),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

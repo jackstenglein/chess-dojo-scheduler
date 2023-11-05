@@ -120,9 +120,9 @@ const router = createBrowserRouter(
 
                     <Route path='scoreboard'>
                         <Route index element={<ScoreboardPage />} />
-                        <Route path=':cohort' element={<ScoreboardPage />} />
                         <Route path='stats' element={<StatisticsPage />} />
                         <Route path='search' element={<SearchPage />} />
+                        <Route path=':type' element={<ScoreboardPage />} />
                     </Route>
 
                     <Route path='requirements'>

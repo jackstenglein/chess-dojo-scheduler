@@ -1,230 +1,59 @@
-import { useEffect, useMemo } from 'react';
-import {
-    Container,
-    MenuItem,
-    Stack,
-    TextField,
-    Tooltip,
-    Typography,
-    Link,
-} from '@mui/material';
-import { useParams, Navigate, Link as RouterLink, useNavigate } from 'react-router-dom';
-import {
-    DataGrid,
-    GridColDef,
-    GridRenderCellParams,
-    GridRowModel,
-    GridValueFormatterParams,
-    GridValueGetterParams,
-    GridColumnGroupingModel,
-} from '@mui/x-data-grid';
-import HelpIcon from '@mui/icons-material/Help';
+import { useEffect } from 'react';
+import { Container, Stack, Typography } from '@mui/material';
+import { useParams, Navigate, useNavigate } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
-import {
-    formatPercentComplete,
-    getRatingSystem,
-    getCohortScore,
-    getColumnDefinition,
-    getCurrentRating,
-    getPercentComplete,
-    getRatingChange,
-    getStartRating,
-    getTotalTime,
-    ScoreboardRow,
-    getNormalizedRating,
-    getMinutesSpent,
-} from './scoreboardData';
-import { dojoCohorts, SubscriptionStatus, User } from '../database/user';
+import { ScoreboardRow } from './scoreboardData';
+import { dojoCohorts, SubscriptionStatus } from '../database/user';
 import { Graduation } from '../database/graduation';
-import GraduationIcon from './GraduationIcon';
 import { useRequirements } from '../api/cache/requirements';
-import ScoreboardProgress from './ScoreboardProgress';
 import GraduationChips from './GraduationChips';
-import { ScoreboardDisplay, formatTime } from '../database/requirement';
 import ScoreboardTutorial from './ScoreboardTutorial';
 import UpsellAlert from '../upsell/UpsellAlert';
-import Avatar from '../profile/Avatar';
-
-interface ColumnGroupChild {
-    field: string;
-}
-
-interface ColumnGroup {
-    groupId: string;
-    children: ColumnGroupChild[];
-}
+import Scoreboard from './Scoreboard';
+import ScoreboardViewSelector from './ScoreboardViewSelector';
 
 type ScoreboardPageParams = {
-    cohort: string;
+    type: string;
 };
-
-const defaultColumnGroups: GridColumnGroupingModel = [
-    {
-        groupId: 'User Info',
-        children: [
-            { field: 'displayName' },
-            { field: 'previousCohort' },
-            { field: 'ratingSystem' },
-            { field: 'startRating' },
-            { field: 'currentRating' },
-            { field: 'ratingChange' },
-            { field: 'normalizedRating' },
-        ],
-    },
-    {
-        groupId: 'Progress',
-        children: [{ field: 'cohortScore' }, { field: 'percentComplete' }],
-    },
-    {
-        groupId: 'Time Spent',
-        children: [
-            { field: 'cohortTime' },
-            { field: 'last7DaysTime' },
-            { field: 'last30DaysTime' },
-            { field: 'last90DaysTime' },
-            { field: 'last365DaysTime' },
-            { field: 'nonDojoTime' },
-        ],
-        renderHeaderGroup: (params) => {
-            return (
-                <Stack direction='row' alignItems='center'>
-                    {params.groupId}
-                    <Tooltip title='Data for time spent in last X days is updated every 24 hours and does not include non-dojo activities'>
-                        <HelpIcon sx={{ ml: 1, color: 'text.secondary' }} />
-                    </Tooltip>
-                </Stack>
-            );
-        },
-    },
-];
-
-const userInfoColumns: GridColDef<ScoreboardRow>[] = [
-    {
-        field: 'displayName',
-        headerName: 'Name',
-        minWidth: 250,
-        renderCell: (params: GridRenderCellParams<ScoreboardRow, string>) => {
-            return (
-                <Stack direction='row' spacing={1} alignItems='center'>
-                    <Avatar
-                        username={params.row.username}
-                        displayName={params.value}
-                        size={32}
-                    />
-                    <Link component={RouterLink} to={`/profile/${params.row.username}`}>
-                        {params.value}
-                    </Link>
-                </Stack>
-            );
-        },
-    },
-    {
-        field: 'previousCohort',
-        headerName: 'Graduated',
-        valueGetter: (params: GridValueGetterParams<ScoreboardRow>) => {
-            if (params.row.graduationCohorts && params.row.graduationCohorts.length > 0) {
-                return params.row.graduationCohorts;
-            }
-            return params.row.previousCohort;
-        },
-        renderCell: (params: GridRenderCellParams<ScoreboardRow>) => {
-            let graduationCohorts = params.row.graduationCohorts;
-            if (graduationCohorts && graduationCohorts.length > 0) {
-                if (graduationCohorts.length > 3) {
-                    graduationCohorts = graduationCohorts.slice(
-                        graduationCohorts.length - 3
-                    );
-                }
-                return (
-                    <Stack direction='row'>
-                        {graduationCohorts
-                            .filter((c, i) => graduationCohorts.indexOf(c) === i)
-                            .map((c) => (
-                                <GraduationIcon key={c} cohort={c} size={32} />
-                            ))}
-                    </Stack>
-                );
-            }
-            return <GraduationIcon cohort={params.row.previousCohort} size={32} />;
-        },
-        align: 'center',
-    },
-    {
-        field: 'ratingSystem',
-        headerName: 'Rating System',
-        minWidth: 175,
-        valueGetter: getRatingSystem,
-    },
-    {
-        field: 'startRating',
-        headerName: 'Start Rating',
-        minWidth: 150,
-        valueGetter: getStartRating,
-        align: 'center',
-    },
-    {
-        field: 'currentRating',
-        headerName: 'Current Rating',
-        minWidth: 150,
-        valueGetter: getCurrentRating,
-        align: 'center',
-    },
-    {
-        field: 'ratingChange',
-        headerName: 'Rating Change',
-        minWidth: 150,
-        valueGetter: getRatingChange,
-        align: 'center',
-    },
-    {
-        field: 'normalizedRating',
-        headerName: 'Normalized FIDE Rating',
-        minWidth: 200,
-        valueGetter: getNormalizedRating,
-        renderCell: (params) =>
-            params.value >= 0 ? (
-                params.value
-            ) : (
-                <Tooltip title='Custom ratings cannot be converted to FIDE'>
-                    <HelpIcon sx={{ ml: 1, color: 'text.secondary' }} />
-                </Tooltip>
-            ),
-        align: 'center',
-    },
-];
 
 const ScoreboardPage = () => {
     const user = useAuth().user!;
     const isFreeTier = user.subscriptionStatus === SubscriptionStatus.FreeTier;
-    const { cohort } = useParams<ScoreboardPageParams>();
-    const usersRequest = useRequest<User[]>();
+    const { type } = useParams<ScoreboardPageParams>();
+
+    const dataRequest = useRequest<ScoreboardRow[]>();
     const graduationsRequest = useRequest<Graduation[]>();
     const api = useApi();
     const navigate = useNavigate();
+
     const { requirements, request: requirementRequest } = useRequirements(
-        cohort || '',
+        type || '',
         false
     );
 
     useEffect(() => {
-        if (cohort && cohort !== '' && !usersRequest.isSent()) {
-            usersRequest.onStart();
-            api.listUsersByCohort(cohort)
-                .then((users) => {
-                    usersRequest.onSuccess(users);
+        if (type && !dataRequest.isSent()) {
+            dataRequest.onStart();
+            api.getScoreboard(type)
+                .then((data) => {
+                    console.log('getScoreboard: ', data);
+                    dataRequest.onSuccess(data);
                 })
                 .catch((err) => {
-                    console.error('listUsersByCohort: ', err);
-                    usersRequest.onFailure(err);
+                    console.error('getScoreboard: ', err);
+                    dataRequest.onFailure(err);
                 });
         }
-        if (cohort && cohort !== '' && !graduationsRequest.isSent()) {
+    }, [type, dataRequest, api]);
+
+    useEffect(() => {
+        if (type && dojoCohorts.includes(type) && !graduationsRequest.isSent()) {
             graduationsRequest.onStart();
-            api.listGraduationsByCohort(cohort)
+            api.listGraduationsByCohort(type)
                 .then((graduations) => {
                     graduationsRequest.onSuccess(graduations);
                 })
@@ -233,160 +62,15 @@ const ScoreboardPage = () => {
                     graduationsRequest.onFailure(err);
                 });
         }
-    }, [cohort, usersRequest, graduationsRequest, api]);
+    });
 
-    const cohortScoreColumns: GridColDef<ScoreboardRow>[] = useMemo(
-        () => [
-            {
-                field: 'cohortScore',
-                headerName: 'Dojo Score',
-                minWidth: 125,
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getCohortScore(params, cohort, requirements),
-                align: 'center',
-            },
-            {
-                field: 'percentComplete',
-                headerName: 'Percent Complete',
-                minWidth: 175,
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getPercentComplete(params, cohort, requirements),
-                renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) => (
-                    <ScoreboardProgress
-                        value={params.value ?? 0}
-                        max={100}
-                        min={0}
-                        label={formatPercentComplete(params.value ?? 0)}
-                    />
-                ),
-                align: 'center',
-            },
-        ],
-        [requirements, cohort]
-    );
-
-    const timeColumns: GridColDef<ScoreboardRow>[] = useMemo(
-        () => [
-            {
-                field: 'cohortTime',
-                headerName: 'Cohort Tasks',
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getTotalTime(params, cohort, false, requirements),
-                valueFormatter: (params: GridValueFormatterParams<number>) =>
-                    formatTime(params.value),
-                align: 'center',
-                minWidth: 125,
-                headerAlign: 'center',
-            },
-            {
-                field: 'last7DaysTime',
-                headerName: 'Last 7 Days',
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getMinutesSpent(params, 'LAST_7_DAYS'),
-                valueFormatter: (params: GridValueFormatterParams<number>) =>
-                    formatTime(params.value),
-                align: 'center',
-                minWidth: 125,
-                headerAlign: 'center',
-            },
-            {
-                field: 'last30DaysTime',
-                headerName: 'Last 30 Days',
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getMinutesSpent(params, 'LAST_30_DAYS'),
-                valueFormatter: (params: GridValueFormatterParams<number>) =>
-                    formatTime(params.value),
-                align: 'center',
-                minWidth: 125,
-                headerAlign: 'center',
-            },
-            {
-                field: 'last90DaysTime',
-                headerName: 'Last 90 Days',
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getMinutesSpent(params, 'LAST_90_DAYS'),
-                valueFormatter: (params: GridValueFormatterParams<number>) =>
-                    formatTime(params.value),
-                align: 'center',
-                minWidth: 125,
-                headerAlign: 'center',
-            },
-            {
-                field: 'last365DaysTime',
-                headerName: 'Last 365 Days',
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getMinutesSpent(params, 'LAST_365_DAYS'),
-                valueFormatter: (params: GridValueFormatterParams<number>) =>
-                    formatTime(params.value),
-                align: 'center',
-                minWidth: 125,
-                headerAlign: 'center',
-            },
-            {
-                field: 'nonDojoTime',
-                headerName: 'Non-Dojo',
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getTotalTime(params, cohort, true, requirements),
-                valueFormatter: (params: GridValueFormatterParams<number>) =>
-                    formatTime(params.value),
-                align: 'center',
-                minWidth: 125,
-                headerAlign: 'center',
-            },
-        ],
-        [requirements, cohort]
-    );
-
-    const requirementColumns: GridColDef<ScoreboardRow>[] = useMemo(() => {
-        return (
-            requirements
-                ?.filter(
-                    (r) =>
-                        r.category !== 'Welcome to the Dojo' &&
-                        r.category !== 'Non-Dojo' &&
-                        r.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
-                        (!isFreeTier || r.isFree)
-                )
-                .map((r) => getColumnDefinition(r, cohort!)) ?? []
-        );
-    }, [requirements, cohort, isFreeTier]);
-
-    const columnGroups = useMemo(() => {
-        const categories: Record<string, ColumnGroup> = {};
-        requirements?.forEach((r) => {
-            if (categories[r.category] !== undefined) {
-                categories[r.category].children.push({ field: r.id });
-            } else {
-                categories[r.category] = {
-                    groupId: r.category,
-                    children: [{ field: r.id }],
-                };
-            }
-        });
-        return Object.values(categories);
-    }, [requirements]);
-
-    const usersList = useMemo(() => {
-        const paidUsers =
-            usersRequest.data?.filter(
-                (u) =>
-                    u.subscriptionStatus !== SubscriptionStatus.FreeTier &&
-                    u.username !== user.username
-            ) ?? [];
-
-        if (cohort === user.dojoCohort && !isFreeTier) {
-            return [user].concat(paidUsers);
-        }
-        return paidUsers;
-    }, [user, isFreeTier, usersRequest.data, cohort]);
-
-    const onChangeCohort = (cohort: string) => {
-        navigate(`../${cohort}`);
-        usersRequest.reset();
+    const onChangeViewType = (type: string) => {
+        navigate(`../${type}`);
+        dataRequest.reset();
         graduationsRequest.reset();
     };
 
-    if (cohort === undefined || cohort === '') {
+    if (!type) {
         return <Navigate to={`./${user.dojoCohort}`} replace />;
     }
 
@@ -400,7 +84,7 @@ const ScoreboardPage = () => {
     return (
         <Container maxWidth={false} sx={{ pt: 4, pb: 4 }}>
             <RequestSnackbar request={requirementRequest} />
-            <RequestSnackbar request={usersRequest} />
+            <RequestSnackbar request={dataRequest} />
 
             {isFreeTier && (
                 <Stack alignItems='center' mb={3}>
@@ -411,71 +95,36 @@ const ScoreboardPage = () => {
                 </Stack>
             )}
 
-            <TextField
-                data-cy='scoreboard-view-selector'
-                id='scoreboard-cohort-select'
-                select
-                label='View'
-                value={cohort}
-                onChange={(event) => onChangeCohort(event.target.value)}
-                sx={{ mb: 3 }}
-                fullWidth
-            >
-                <MenuItem value='search'>User Search</MenuItem>
-                <MenuItem value='stats'>Statistics</MenuItem>
-                {dojoCohorts.map((option) => (
-                    <MenuItem key={option} value={option}>
-                        {option}
-                    </MenuItem>
-                ))}
-            </TextField>
+            <ScoreboardViewSelector value={type} onChange={onChangeViewType} />
 
-            <GraduationChips cohort={cohort} />
+            <GraduationChips cohort={type} />
 
-            <Typography variant='h6'>Current Members</Typography>
-            <DataGrid
-                data-cy='current-members-scoreboard'
-                sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
-                experimentalFeatures={{ columnGrouping: true }}
-                columns={userInfoColumns.concat(
-                    cohortScoreColumns,
-                    timeColumns,
-                    requirementColumns
-                )}
-                columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
-                rows={usersList}
-                loading={usersRequest.isLoading()}
-                getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
-                initialState={{
-                    sorting: {
-                        sortModel: [{ field: 'cohortScore', sort: 'desc' }],
-                    },
-                }}
+            {dojoCohorts.includes(type) && (
+                <Typography variant='h6'>Current Members</Typography>
+            )}
+            <Scoreboard
+                cypressId='current-members-scoreboard'
+                user={user}
+                cohort={dojoCohorts.includes(type) ? type : undefined}
+                requirements={requirements}
+                rows={dataRequest.data ?? []}
+                loading={dataRequest.isLoading()}
             />
 
-            <Typography variant='h6'>Graduations</Typography>
-            <div id='graduation-scoreboard'>
-                <DataGrid
-                    data-cy='graduates-scoreboard'
-                    sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
-                    experimentalFeatures={{ columnGrouping: true }}
-                    columns={userInfoColumns.concat(
-                        cohortScoreColumns,
-                        timeColumns.slice(0, 1),
-                        timeColumns.slice(-1),
-                        requirementColumns
-                    )}
-                    columnGroupingModel={defaultColumnGroups.concat(columnGroups)}
-                    rows={graduationsRequest.data ?? []}
-                    loading={graduationsRequest.isLoading()}
-                    getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
-                    initialState={{
-                        sorting: {
-                            sortModel: [{ field: 'cohortScore', sort: 'desc' }],
-                        },
-                    }}
-                />
-            </div>
+            {dojoCohorts.includes(type) && (
+                <>
+                    <Typography variant='h6'>Graduations</Typography>
+                    <div id='graduation-scoreboard'>
+                        <Scoreboard
+                            cypressId='graduates-scoreboard'
+                            cohort={dojoCohorts.includes(type) ? type : undefined}
+                            requirements={requirements}
+                            rows={graduationsRequest.data ?? []}
+                            loading={graduationsRequest.isLoading()}
+                        />
+                    </div>
+                </>
+            )}
 
             <ScoreboardTutorial />
         </Container>
