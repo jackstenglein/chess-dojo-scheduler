@@ -142,7 +142,7 @@ func (repo *dynamoRepository) GetCohort(cohort, startKey string) ([]User, string
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":cohort":     {S: aws.String(string(cohort))},
 			":u":          {S: aws.String(monthAgo)},
-			":subscribed": {S: aws.String("subscribed")},
+			":subscribed": {S: aws.String(SubscriptionStatus_Subscribed)},
 		},
 		IndexName: aws.String("CohortIdx"),
 		TableName: aws.String(userTable),
