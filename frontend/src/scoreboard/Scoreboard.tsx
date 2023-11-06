@@ -44,10 +44,23 @@ interface ColumnGroup {
 const userInfoColumnGroup = {
     groupId: 'User Info',
     children: [
+        { field: 'rank' },
         { field: 'displayName' },
         { field: 'dojoCohort' },
         { field: 'previousCohort' },
     ],
+};
+
+const rankColumn: GridColDef<ScoreboardRow> = {
+    field: 'rank',
+    headerName: 'Rank',
+    renderHeader: () => '',
+    valueGetter: (params) => params.api.getSortedRowIds().indexOf(params.id) + 1,
+    sortable: false,
+    filterable: false,
+    align: 'center',
+    headerAlign: 'center',
+    width: 50,
 };
 
 const displayNameColumn: GridColDef<ScoreboardRow> = {
@@ -107,8 +120,13 @@ const graduatedColumn: GridColDef<ScoreboardRow> = {
     align: 'center',
 };
 
-const summaryUserInfoColumns = [displayNameColumn, cohortColumn, graduatedColumn];
-const defaultUserInfoColumns = [displayNameColumn, graduatedColumn];
+const summaryUserInfoColumns = [
+    rankColumn,
+    displayNameColumn,
+    cohortColumn,
+    graduatedColumn,
+];
+const defaultUserInfoColumns = [rankColumn, displayNameColumn, graduatedColumn];
 
 const ratingsColumnGroup = {
     groupId: 'Ratings',
