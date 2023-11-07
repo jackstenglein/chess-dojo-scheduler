@@ -109,6 +109,7 @@ const ScoreboardPage = () => {
                 requirements={requirements}
                 rows={dataRequest.data ?? []}
                 loading={dataRequest.isLoading()}
+                addUser={type === 'following'}
             />
 
             {dojoCohorts.includes(type) && (

@@ -1,15 +1,19 @@
 import {
-    DataGrid,
+    DataGridPro,
+    GridActionsCellItem,
     GridColDef,
     GridColumnGroupingModel,
     GridRenderCellParams,
+    GridRowId,
     GridRowModel,
     GridValueFormatterParams,
     GridValueGetterParams,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid-pro';
+import { LicenseInfo } from '@mui/x-license-pro';
 import { Link, Stack, Tooltip } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import { Link as RouterLink } from 'react-router-dom';
+import PushPinIcon from '@mui/icons-material/PushPin';
 
 import {
     ScoreboardRow,
@@ -28,9 +32,13 @@ import Avatar from '../profile/Avatar';
 import GraduationIcon from './GraduationIcon';
 import ScoreboardProgress from './ScoreboardProgress';
 import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFreeTier } from '../auth/Auth';
 import { User } from '../database/user';
+
+LicenseInfo.setLicenseKey(
+    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
+);
 
 interface ColumnGroupChild {
     field: string;
@@ -44,6 +52,7 @@ interface ColumnGroup {
 const userInfoColumnGroup = {
     groupId: 'User Info',
     children: [
+        { field: 'actions' },
         { field: 'rank' },
         { field: 'displayName' },
         { field: 'dojoCohort' },
@@ -55,7 +64,10 @@ const rankColumn: GridColDef<ScoreboardRow> = {
     field: 'rank',
     headerName: 'Rank',
     renderHeader: () => '',
-    valueGetter: (params) => params.api.getSortedRowIds().indexOf(params.id) + 1,
+    valueGetter: (params) =>
+        params.api
+            .getSortedRowIds()
+            .indexOf((params.id as string).replace('#pinned', '')) + 1,
     sortable: false,
     filterable: false,
     align: 'center',
@@ -255,6 +267,60 @@ const summaryColumnGroups: GridColumnGroupingModel = [
 ];
 
 /**
+ * Returns the actions column for the scoreboard.
+ * @param pinnedRowIds The ids of the currently-pinned rows.
+ * @param setPinnedRowIds A function to set the new pinned row ids.
+ * @returns The actions column for the scoreboard.
+ */
+function getActionColumns(
+    pinnedRowIds: GridRowId[],
+    setPinnedRowIds: React.Dispatch<React.SetStateAction<GridRowId[]>>
+): GridColDef<ScoreboardRow> {
+    return {
+        field: 'actions',
+        type: 'actions',
+        width: 50,
+        getActions: (params) => {
+            const isPinned = pinnedRowIds.includes(params.id);
+            if (isPinned) {
+                return [
+                    <GridActionsCellItem
+                        label='Unpin Row'
+                        icon={
+                            <Tooltip title='Unpin Row'>
+                                <PushPinIcon sx={{ color: 'text.secondary' }} />
+                            </Tooltip>
+                        }
+                        onClick={() =>
+                            setPinnedRowIds((prevPinnedRowIds) => {
+                                const id = (params.id as string).replace('#pinned', '');
+                                return prevPinnedRowIds.filter((rowId) => rowId !== id);
+                            })
+                        }
+                    />,
+                ];
+            }
+            return [
+                <GridActionsCellItem
+                    icon={
+                        <Tooltip title='Pin Row'>
+                            <PushPinIcon sx={{ color: 'text.secondary' }} />
+                        </Tooltip>
+                    }
+                    label='Pin Row'
+                    onClick={() =>
+                        setPinnedRowIds((prevPinnedRowIds) => [
+                            ...prevPinnedRowIds,
+                            params.id,
+                        ])
+                    }
+                />,
+            ];
+        },
+    };
+}
+
+/**
  * Returns the columns for the Training Plan column group.
  * @param cohort The cohort being displayed in the scoreboard, if applicable.
  * @param requirements The requirements being used to calculate the dojo score, if applicable.
@@ -399,6 +465,7 @@ interface ScoreboardProps {
     cypressId?: string;
     rows: ScoreboardRow[];
     loading: boolean;
+    addUser?: boolean;
 }
 
 const Scoreboard: React.FC<ScoreboardProps> = ({
@@ -406,11 +473,21 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
     cohort,
     requirements,
     cypressId,
-    rows,
+    rows: initialRows,
     loading,
+    addUser,
 }) => {
     const isSummary = cohort === undefined;
     const isFreeTier = useFreeTier();
+
+    const [pinnedRowIds, setPinnedRowIds] = useState<GridRowId[]>(
+        user ? [user.username] : []
+    );
+
+    const actionColumn = useMemo(
+        () => getActionColumns(pinnedRowIds, setPinnedRowIds),
+        [pinnedRowIds, setPinnedRowIds]
+    );
 
     const trainingPlanColumns = useMemo(
         () => getTrainingPlanColumns(cohort, requirements),
@@ -450,13 +527,20 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
 
     const columns = useMemo(
         () =>
-            (isSummary ? summaryUserInfoColumns : defaultUserInfoColumns).concat(
+            [actionColumn].concat(
+                isSummary ? summaryUserInfoColumns : defaultUserInfoColumns,
                 ratingsColumns,
                 trainingPlanColumns,
                 timeSpentColumns,
                 requirementColumns
             ),
-        [isSummary, trainingPlanColumns, timeSpentColumns, requirementColumns]
+        [
+            actionColumn,
+            isSummary,
+            trainingPlanColumns,
+            timeSpentColumns,
+            requirementColumns,
+        ]
     );
 
     const columnGroups = useMemo(
@@ -467,30 +551,31 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
         [isSummary, requirementColumnGroups]
     );
 
-    const rowsList = useMemo(() => {
-        if (!user) {
-            return rows;
+    const [rows, pinnedRows] = useMemo(() => {
+        const pinnedRows: ScoreboardRow[] = [];
+
+        const rows =
+            addUser && user && !isFreeTier ? initialRows.concat(user) : initialRows;
+        for (const row of rows) {
+            if (pinnedRowIds.includes(row.username)) {
+                pinnedRows.push(
+                    Object.assign({}, row, { username: `${row.username}#pinned` })
+                );
+            }
         }
 
-        const filtered = rows.filter((u) => u.username !== user.username) ?? [];
-
-        if (isSummary && !isFreeTier) {
-            return [user as ScoreboardRow].concat(filtered);
-        }
-        if (cohort === user.dojoCohort && !isFreeTier) {
-            return [user as ScoreboardRow].concat(filtered);
-        }
-        return filtered;
-    }, [user, rows, isSummary, isFreeTier, cohort]);
+        return [rows, { bottom: pinnedRows }];
+    }, [user, initialRows, pinnedRowIds, isFreeTier, addUser]);
 
     return (
-        <DataGrid
+        <DataGridPro
             data-cy={cypressId}
             sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
             experimentalFeatures={{ columnGrouping: true }}
             columns={columns}
             columnGroupingModel={columnGroups}
-            rows={rowsList}
+            rows={rows}
+            pinnedRows={pinnedRows}
             loading={loading}
             getRowId={(row: GridRowModel<ScoreboardRow>) => row.username}
             initialState={{
@@ -503,6 +588,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                     ],
                 },
             }}
+            pagination
         />
     );
 };
