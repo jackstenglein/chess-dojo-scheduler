@@ -281,19 +281,19 @@ function getActionColumns(
         type: 'actions',
         width: 50,
         getActions: (params) => {
-            const isPinned = pinnedRowIds.includes(params.id);
+            const id = (params.id as string).replace('#pinned', '');
+            const isPinned = pinnedRowIds.includes(id);
             if (isPinned) {
                 return [
                     <GridActionsCellItem
                         label='Unpin Row'
                         icon={
                             <Tooltip title='Unpin Row'>
-                                <PushPinIcon sx={{ color: 'text.secondary' }} />
+                                <PushPinIcon color='info' />
                             </Tooltip>
                         }
                         onClick={() =>
                             setPinnedRowIds((prevPinnedRowIds) => {
-                                const id = (params.id as string).replace('#pinned', '');
                                 return prevPinnedRowIds.filter((rowId) => rowId !== id);
                             })
                         }
@@ -309,10 +309,7 @@ function getActionColumns(
                     }
                     label='Pin Row'
                     onClick={() =>
-                        setPinnedRowIds((prevPinnedRowIds) => [
-                            ...prevPinnedRowIds,
-                            params.id,
-                        ])
+                        setPinnedRowIds((prevPinnedRowIds) => [...prevPinnedRowIds, id])
                     }
                 />,
             ];
@@ -564,7 +561,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             }
         }
 
-        return [rows, { bottom: pinnedRows }];
+        return [rows, { top: pinnedRows }];
     }, [user, initialRows, pinnedRowIds, isFreeTier, addUser]);
 
     return (
