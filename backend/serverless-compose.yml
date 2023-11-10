@@ -17,6 +17,7 @@ services:
       FollowersTableArn: ${chess-dojo-scheduler.FollowersTableArn}
       PicturesBucket: ${chess-dojo-scheduler.PicturesBucket}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+      AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
 
   scoreboard:
     path: scoreboard
@@ -70,6 +71,7 @@ services:
       TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+      AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
 
   events:
     path: event
@@ -89,6 +91,7 @@ services:
       TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
       GameDatabaseBucket: ${chess-dojo-scheduler.GameDatabaseBucket}
+      AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
 
   pgnService:
     path: pgnService

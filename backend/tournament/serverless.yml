@@ -137,3 +137,24 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: ${param:TournamentsTableArn}
+
+resources:
+  Resources:
+    SnapshotTournamentLeaderboardTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: SnapshotLeaderboardTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for snapshotLeaderboard function'
+        AlarmActions:
+          - ${param:AlertNotificationsTopic}
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-tournaments-${sls:stage}-snapshotLeaderboard
+        Period: 86400
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore

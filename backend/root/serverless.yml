@@ -686,101 +686,6 @@ resources:
           - Endpoint: jackstenglein@gmail.com
             Protocol: EMAIL
 
-    UpdateRatingsTimeoutAlarm:
-      Type: AWS::CloudWatch::Alarm
-      Properties:
-        AlarmName: UpdateRatingsTimeout-${sls:stage}
-        AlarmDescription: 'Notifications about Lambda timeouts for updateRatings function'
-        AlarmActions:
-          - !Ref AlertNotificationsTopic
-        Namespace: AWS/Lambda
-        MetricName: Duration
-        Statistic: Maximum
-        Dimensions:
-          - Name: FunctionName
-            Value: chess-dojo-scheduler-${sls:stage}-updateRatings
-        Period: 86400
-        EvaluationPeriods: 1
-        Threshold: 700000
-        ComparisonOperator: GreaterThanThreshold
-        TreatMissingData: ignore
-
-    UpdateStatisticsTimeoutAlarm:
-      Type: AWS::CloudWatch::Alarm
-      Properties:
-        AlarmName: UpdateStatisticsTimeout-${sls:stage}
-        AlarmDescription: 'Notifications about Lambda timeouts for updateStatistics function'
-        AlarmActions:
-          - !Ref AlertNotificationsTopic
-        Namespace: AWS/Lambda
-        MetricName: Duration
-        Statistic: Maximum
-        Dimensions:
-          - Name: FunctionName
-            Value: chess-dojo-scheduler-${sls:stage}-updateStatistics
-        Period: 86400
-        EvaluationPeriods: 1
-        Threshold: 700000
-        ComparisonOperator: GreaterThanThreshold
-        TreatMissingData: ignore
-
-    UpdateTimeSpentTimeoutAlarm:
-      Type: AWS::CloudWatch::Alarm
-      Properties:
-        AlarmName: UpdateTimeSpentTimeout-${sls:stage}
-        AlarmDescription: 'Notifications about Lambda timeouts for updateTimeSpent function'
-        AlarmActions:
-          - !Ref AlertNotificationsTopic
-        Namespace: AWS/Lambda
-        MetricName: Duration
-        Statistic: Maximum
-        Dimensions:
-          - Name: FunctionName
-            Value: chess-dojo-scheduler-${sls:stage}-updateTimeSpent
-        Period: 86400
-        EvaluationPeriods: 1
-        Threshold: 700000
-        ComparisonOperator: GreaterThanThreshold
-        TreatMissingData: ignore
-
-    UpdateGameStatisticsTimeoutAlarm:
-      Type: AWS::CloudWatch::Alarm
-      Properties:
-        AlarmName: UpdateGameStatisticsTimeout-${sls:stage}
-        AlarmDescription: 'Notifications about Lambda timeouts for updateGameStatistics function'
-        AlarmActions:
-          - !Ref AlertNotificationsTopic
-        Namespace: AWS/Lambda
-        MetricName: Duration
-        Statistic: Maximum
-        Dimensions:
-          - Name: FunctionName
-            Value: chess-dojo-scheduler-${sls:stage}-updateGameStatistics
-        Period: 86400
-        EvaluationPeriods: 1
-        Threshold: 700000
-        ComparisonOperator: GreaterThanThreshold
-        TreatMissingData: ignore
-
-    SnapshotTournamentLeaderboardTimeoutAlarm:
-      Type: AWS::CloudWatch::Alarm
-      Properties:
-        AlarmName: SnapshotTournamentLeaderboardTimeout-${sls:stage}
-        AlarmDescription: 'Notifications about Lambda timeouts for snapshotTournamentLeaderboard function'
-        AlarmActions:
-          - !Ref AlertNotificationsTopic
-        Namespace: AWS/Lambda
-        MetricName: Duration
-        Statistic: Maximum
-        Dimensions:
-          - Name: FunctionName
-            Value: chess-dojo-scheduler-${sls:stage}-snapshotTournamentLeaderboard
-        Period: 86400
-        EvaluationPeriods: 1
-        Threshold: 700000
-        ComparisonOperator: GreaterThanThreshold
-        TreatMissingData: ignore
-
     ########### End Alert Resources #############
 
   Outputs:
@@ -828,3 +733,5 @@ resources:
       Value: !Ref GameDatabaseBucket
     SecretsBucket:
       Value: !Ref SecretsBucket
+    AlertNotificationsTopic:
+      Value: !Ref AlertNotificationsTopic

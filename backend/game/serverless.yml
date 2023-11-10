@@ -228,3 +228,24 @@ functions:
           - - 'arn:aws:s3:::'
             - ${param:GameDatabaseBucket}
             - /dojo_database.zip
+
+resources:
+  Resources:
+    UpdateGameStatisticsTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateGameStatisticsTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateGameStatistics function'
+        AlarmActions:
+          - ${param:AlertNotificationsTopic}
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-games-${sls:stage}-updateStatistics
+        Period: 86400
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore

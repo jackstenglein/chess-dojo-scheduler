@@ -575,3 +575,62 @@ functions:
               - ''
               - - ${param:FollowersTableArn}
                 - '/index/FollowingIndex'
+
+resources:
+  Resources:
+    UpdateRatingsTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateRatingsTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateRatings function'
+        AlarmActions:
+          - ${param:AlertNotificationsTopic}
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-users-${sls:stage}-updateRatings
+        Period: 86400
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore
+
+    UpdateStatisticsTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateStatisticsTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateStatistics function'
+        AlarmActions:
+          - ${param:AlertNotificationsTopic}
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-users-${sls:stage}-updateStatistics
+        Period: 86400
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore
+
+    UpdateTimeSpentTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateTimeSpentTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateTimeSpent function'
+        AlarmActions:
+          - ${param:AlertNotificationsTopic}
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-users-${sls:stage}-updateTimeSpent
+        Period: 86400
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore
