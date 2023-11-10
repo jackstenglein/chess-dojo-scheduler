@@ -84,10 +84,26 @@ export function compareRequirements(a: Requirement, b: Requirement) {
     return a.sortPriority.localeCompare(b.sortPriority);
 }
 
+function clampCount(
+    cohort: string,
+    requirement: Requirement,
+    count: number,
+    clamp?: boolean
+): number {
+    if (clamp) {
+        return Math.max(
+            Math.min(count, requirement.counts[cohort] || 0),
+            requirement.startCount || 0
+        );
+    }
+    return count;
+}
+
 export function getCurrentCount(
     cohort: string,
     requirement: Requirement | CustomTask,
-    progress?: RequirementProgress
+    progress?: RequirementProgress,
+    clamp?: boolean
 ): number {
     if (!progress) {
         return 0;
@@ -104,20 +120,25 @@ export function getCurrentCount(
     }
 
     if (requirement.numberOfCohorts === 1 || requirement.numberOfCohorts === 0) {
-        return progress.counts.ALL_COHORTS || 0;
+        return clampCount(cohort, requirement, progress.counts.ALL_COHORTS || 0, clamp);
     }
 
     if (
         requirement.numberOfCohorts > 1 &&
         Object.keys(progress.counts).length >= requirement.numberOfCohorts
     ) {
-        return Math.max(...Object.values(progress.counts));
+        return clampCount(
+            cohort,
+            requirement,
+            Math.max(...Object.values(progress.counts)),
+            clamp
+        );
     }
 
     if (!requirement.counts[cohort]) {
         cohort = Object.keys(requirement.counts)[0];
     }
-    return progress.counts[cohort] || 0;
+    return clampCount(cohort, requirement, progress.counts[cohort] || 0, clamp);
 }
 
 export function getTotalCount(cohort: string, requirement: Requirement): number {
@@ -187,7 +208,7 @@ export function getCurrentScore(
     }
 
     const unitScore = getUnitScore(cohort, requirement);
-    const currentCount = getCurrentCount(cohort, requirement, progress);
+    const currentCount = getCurrentCount(cohort, requirement, progress, true);
     return Math.max(currentCount - requirement.startCount, 0) * unitScore;
 }
 

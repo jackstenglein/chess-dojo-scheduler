@@ -30,8 +30,6 @@ const InputSlider: React.FC<InputSliderProps> = ({
     const handleBlur = () => {
         if (value < min) {
             setValue(min);
-        } else if (value > max) {
-            setValue(max);
         }
     };
 

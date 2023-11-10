@@ -144,6 +144,10 @@ type Requirement struct {
 	IsFree bool `dynamodbav:"isFree" json:"isFree"`
 }
 
+func (r *Requirement) clampCount(cohort DojoCohort, count int) int {
+	return (int)(math.Max(math.Min(float64(count), float64(r.Counts[cohort])), float64(r.StartCount)))
+}
+
 // CalculateScore returns the score for the given requirement based on the provided
 // cohort and progress.
 func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32 {
@@ -192,6 +196,7 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 		unitScore = unitScoreOverride
 	}
 
+	count = r.clampCount(cohort, count)
 	return float32(math.Max(float64(count-r.StartCount), 0)) * unitScore
 }
 
