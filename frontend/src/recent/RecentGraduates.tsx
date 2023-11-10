@@ -267,12 +267,12 @@ const RecentGraduates = () => {
                             py: '22px',
                         },
                     }}
-                    pageSizeOptions={[5, 10, 25]}
+                    pageSizeOptions={[10, 25, 100]}
                     initialState={{
                         pagination: {
                             paginationModel: {
                                 page: 0,
-                                pageSize: 10,
+                                pageSize: 100,
                             },
                         },
                         sorting: {
