@@ -15,9 +15,8 @@ import {
     GridRenderCellParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid';
-import { LoadingButton } from '@mui/lab';
 import { Link as RouterLink } from 'react-router-dom';
-import { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -138,6 +137,19 @@ function getDisplayString(field: string): string {
     return '';
 }
 
+function useDebounce(
+    effect: () => void,
+    dependencies: React.DependencyList,
+    delay: number
+) {
+    const callback = useCallback(effect, [effect, ...dependencies]);
+
+    useEffect(() => {
+        const timeout = setTimeout(callback, delay);
+        return () => clearTimeout(timeout);
+    }, [callback, delay]);
+}
+
 const SearchPage = () => {
     const api = useApi();
     const request = useRequest<User[]>();
@@ -160,11 +172,12 @@ const SearchPage = () => {
         });
     };
 
-    const onSearch = () => {
+    const searchUsers = api.searchUsers;
+    const onStart = request.onStart;
+    const onSuccess = request.onSuccess;
+    const onFailure = request.onFailure;
+    const handleSearch = useCallback(() => {
         const newErrors: Record<string, string> = {};
-        if (query.trim() === '') {
-            newErrors.query = 'This field is required';
-        }
         const selectedFields = allFields
             ? ['all']
             : Object.keys(fields).filter((f) => fields[f]);
@@ -177,7 +190,12 @@ const SearchPage = () => {
             return;
         }
 
-        request.onStart();
+        if (query.trim() === '') {
+            onSuccess();
+            return;
+        }
+
+        onStart();
 
         if (allFields) {
             setColumns(AllColumns);
@@ -185,16 +203,18 @@ const SearchPage = () => {
             setColumns(AllColumns.filter((c, i) => i <= 1 || fields[c.field]));
         }
 
-        api.searchUsers(query.trim(), selectedFields)
+        searchUsers(query.trim(), selectedFields)
             .then((resp) => {
                 console.log('searchUsers: ', resp);
-                request.onSuccess(resp);
+                onSuccess(resp);
             })
             .catch((err) => {
                 console.error(err);
-                request.onFailure(err);
+                onFailure(err);
             });
-    };
+    }, [allFields, fields, query, searchUsers, onStart, onSuccess, onFailure]);
+
+    useDebounce(handleSearch, [], 300);
 
     return (
         <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>
@@ -263,15 +283,6 @@ const SearchPage = () => {
                             <FormHelperText>{errors.fields}</FormHelperText>
                         </FormControl>
                     </Stack>
-
-                    <LoadingButton
-                        data-cy='search-button'
-                        variant='contained'
-                        onClick={onSearch}
-                        loading={request.isLoading()}
-                    >
-                        Search
-                    </LoadingButton>
                 </Stack>
 
                 {request.data && (
