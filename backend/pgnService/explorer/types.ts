@@ -29,6 +29,9 @@ export interface ExplorerPosition {
         name: string;
     };
 
+    /** A map from cohort to ExplorerResult. */
+    results: Record<string, ExplorerResult>;
+
     /**
      * The moves that continued from this position. A map from the SAN of the move to the
      * ExplorerMove object. Each game that reaches this position is only counted once for
@@ -49,7 +52,7 @@ export interface ExplorerPositionUpdate {
     normalizedFen: string;
 
     /** The result of the game from this position. */
-    result: '1-0' | '0-1' | '1/2-1/2' | 'ANALYSIS';
+    result: keyof ExplorerResult;
 
     /** The moves that continued from this position in the game. */
     moves: Record<string, ExplorerMoveUpdate>;
@@ -60,12 +63,12 @@ export interface ExplorerMove {
     /** The SAN of the move. */
     san: string;
 
-    /** A map from cohort to ExplorerMoveResult object. */
-    results: Record<string, ExplorerMoveResult>;
+    /** A map from cohort to ExplorerResult. */
+    results: Record<string, ExplorerResult>;
 }
 
-/** A set of results for an ExplorerMove. */
-export interface ExplorerMoveResult {
+/** A set of results for an ExplorerMove or ExplorerPosition. */
+export interface ExplorerResult {
     /** The number of games in which white won. */
     white?: number;
 
@@ -80,12 +83,6 @@ export interface ExplorerMoveResult {
      * and therefore didn't have a traditional result associated.
      */
     analysis?: number;
-
-    /**
-     * The number of games in which the move appeared, but the result could
-     * not be determined.
-     */
-    unknown?: number;
 }
 
 /** An update to an ExplorerMove. */
@@ -94,7 +91,7 @@ export interface ExplorerMoveUpdate {
     san: string;
 
     /** The result of the move. */
-    result: keyof ExplorerMoveResult;
+    result: keyof ExplorerResult;
 }
 
 /**
@@ -128,13 +125,13 @@ export interface ExplorerGame {
 
     /**
      * The result of the game, as related to the associated FEN. IE: if the FEN does not appear in
-     * the mainline of the game and instead appears only in analysis, then this is `ANALYSIS`. Otherwise,
+     * the mainline of the game and instead appears only in analysis, then this is `analysis`. Otherwise,
      * it is the result of the game.
      */
-    result: '1-0' | '0-1' | '1/2-1/2' | 'ANALYSIS';
+    result: keyof ExplorerResult;
 
-    /** The headers of the game. */
-    headers: PgnHeaders;
+    /** The game that generated this ExplorerGame. */
+    game: Game;
 }
 
 /**

@@ -1,3 +1,5 @@
+'use strict';
+
 import { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
 import {
     AttributeValue,
@@ -12,7 +14,7 @@ import { Chess } from '@jackstenglein/chess';
 import {
     ExplorerGame,
     ExplorerMove,
-    ExplorerMoveResult,
+    ExplorerResult,
     ExplorerPosition,
     ExplorerPositionUpdate,
     Game,
@@ -113,8 +115,9 @@ function extractPositionRecursive(
     const normalizedFen = normalizeFen(chess.fen());
     const isMainline = chess.isInMainline();
 
-    const explorerPosition = explorerPositions[normalizedFen] || {
+    const explorerPosition: ExplorerPositionUpdate = explorerPositions[normalizedFen] || {
         normalizedFen,
+        result: isMainline ? getExplorerMoveResult(chess.header().Result) : 'analysis',
         moves: {},
     };
     explorerPositions[normalizedFen] = explorerPosition;
@@ -153,7 +156,7 @@ function extractPositionRecursive(
  * @param result The PGN result to convert.
  * @returns The ExplorerMoveResult matching the PGN result.
  */
-function getExplorerMoveResult(result: string): keyof ExplorerMoveResult {
+function getExplorerMoveResult(result: string): keyof ExplorerResult {
     switch (result) {
         case GameResult.White:
             return 'white';
@@ -162,7 +165,7 @@ function getExplorerMoveResult(result: string): keyof ExplorerMoveResult {
         case GameResult.Draw:
             return 'draws';
     }
-    return 'unknown';
+    return 'analysis';
 }
 
 /**
@@ -252,7 +255,7 @@ function getInitialExplorerPosition(
             results: dojoCohorts.reduce((map, c) => {
                 map[c] = {};
                 return map;
-            }, {} as Record<string, ExplorerMoveResult>),
+            }, {} as Record<string, ExplorerResult>),
         };
         return map;
     }, {} as Record<string, ExplorerMove>);
@@ -260,9 +263,14 @@ function getInitialExplorerPosition(
     const explorerPosition = {
         normalizedFen: update.normalizedFen,
         id: 'POSITION',
+        results: dojoCohorts.reduce((map, c) => {
+            map[c] = {};
+            return map;
+        }, {} as Record<string, ExplorerResult>),
         moves: explorerMoves,
     };
 
+    explorerPosition.results[cohort][update.result] = 1;
     for (const move of Object.values(update.moves)) {
         explorerPosition.moves[move.san].results[cohort][move.result] = 1;
     }
@@ -280,35 +288,49 @@ async function updateExplorerPosition(
     cohort: string,
     update: ExplorerPositionUpdate
 ): Promise<boolean> {
-    let updateExpression = 'ADD ';
-    for (const move of Object.values(update.moves)) {
-        updateExpression += `${move.san}.${cohort}.results.${move.result} 1, `;
-    }
+    let updateExpression = `ADD results.#cohort.${update.result} :v, `;
+    const expressionAttrNames: Record<string, string> = {
+        '#cohort': cohort,
+    };
+    Object.values(update.moves).forEach((move, index) => {
+        updateExpression += `moves.#san${index}.results.#cohort.${move.result} :v, `;
+        expressionAttrNames[`#san${index}`] = move.san;
+    });
+
     updateExpression = updateExpression.substring(
         0,
         updateExpression.length - ', '.length
     );
 
+    const input = new UpdateItemCommand({
+        Key: {
+            normalizedFen: {
+                S: update.normalizedFen,
+            },
+            id: {
+                S: 'POSITION',
+            },
+        },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: expressionAttrNames,
+        ExpressionAttributeValues: {
+            ':v': { N: '1' },
+        },
+        TableName: explorerTable,
+        ReturnValues: 'NONE',
+    });
+
     try {
-        await dynamo.send(
-            new UpdateItemCommand({
-                Key: {
-                    normalizedFen: {
-                        S: update.normalizedFen,
-                    },
-                    id: {
-                        S: 'POSITION',
-                    },
-                },
-                UpdateExpression: updateExpression,
-                TableName: explorerTable,
-                ReturnValues: 'NONE',
-            })
-        );
+        await dynamo.send(input);
         console.log('Successfully updated existing explorer position: %j', update);
         return true;
     } catch (err) {
-        console.error('Failed to update explorer position: %j: ', update, err);
+        console.error(
+            'Failed to update explorer position %j with input %j: ',
+            update,
+            input,
+            err
+        );
         return false;
     }
 }
@@ -327,7 +349,7 @@ async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
         owner: game.owner,
         ownerDisplayName: game.ownerDisplayName,
         result: update.result,
-        headers: game.headers,
+        game,
     };
 
     try {
