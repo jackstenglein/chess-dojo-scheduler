@@ -157,6 +157,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         headerName: 'Rating System',
         minWidth: 175,
         valueGetter: getRatingSystem,
+        align: 'center',
     },
     {
         field: 'startRating',

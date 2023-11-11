@@ -40,6 +40,8 @@ function getMemberLink(ratingSystem: RatingSystem, username: string): string {
             return `https://www.chess.ca/en/ratings/p/?id=${username}`;
         case RatingSystem.Dwz:
             return `https://www.schachbund.de/spieler/${username}.html`;
+        case RatingSystem.Acf:
+            return `https://sachess.org.au/ratings/player?id=${username}`;
         case RatingSystem.Custom:
             return '';
     }
@@ -308,7 +310,9 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {normalizeToFide(currentRating, system)}
+                                        {Math.round(
+                                            normalizeToFide(currentRating, system)
+                                        )}
                                     </Typography>
                                 </Stack>
                                 <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>

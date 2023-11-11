@@ -18,6 +18,7 @@ import (
 
 var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
 var uscfRegexp, _ = regexp.Compile("<input type=text name=rating1 size=20 readonly maxlength=20 tabindex=120 value='(\\d+)")
+var acfRegexp, _ = regexp.Compile(`Current Rating:\s+</div>\s+<div id="stats-box-data-col">\s+\d+\s+</div>\s+<div id="stats-box-data-col">\s+(\d+)`)
 
 type ChesscomResponse struct {
 	Rapid struct {
@@ -58,6 +59,7 @@ var RatingFetchFuncs map[database.RatingSystem]RatingFetchFunc = map[database.Ra
 	database.Ecf:      FetchEcfRating,
 	database.Cfc:      FetchCfcRating,
 	database.Dwz:      FetchDwzRating,
+	database.Acf:      FetchAcfRating,
 }
 
 func FetchChesscomRating(chesscomUsername string) (int, error) {
@@ -133,7 +135,7 @@ func FetchBulkLichessRatings(lichessUsernames []string) (map[string]int, error) 
 func findRating(body []byte, regex *regexp.Regexp) (int, error) {
 	groups := regex.FindSubmatch(body)
 	if len(groups) < 2 {
-		err := errors.New(400, "Unable to find rating on website ", "")
+		err := errors.New(400, "Unable to find rating on website", "")
 		return 0, err
 	}
 
@@ -271,6 +273,33 @@ func FetchDwzRating(dwzId string) (int, error) {
 	rating, err := strconv.Atoi(tokens[ratingIndex])
 	if err != nil {
 		return 0, errors.Wrap(400, fmt.Sprintf("Invalid request: DWZ API returned rating `%s` which cannot be converted to integer", tokens[14]), "", err)
+	}
+	return rating, nil
+}
+
+func FetchAcfRating(acfId string) (int, error) {
+	resp, err := http.Get(fmt.Sprintf("https://sachess.org.au/ratings/player?id=%s", acfId))
+	if err != nil {
+		return 0, errors.Wrap(500, "Temporary server error", "Failed to fetch ACF site", err)
+	}
+
+	if resp.StatusCode != 200 {
+		err = errors.New(400, fmt.Sprintf("Invalid request: ACF site returned status `%d`", resp.StatusCode), "")
+		return 0, err
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to read ACF response", err)
+		return 0, err
+	}
+
+	log.Debugf("Got ACF body: %s", string(b))
+
+	rating, err := findRating(b, acfRegexp)
+	if err != nil {
+		return 0, errors.Wrap(400, fmt.Sprintf("Invalid ACF id `%s`: no rating found on ACF website", acfId), "", err)
 	}
 	return rating, nil
 }

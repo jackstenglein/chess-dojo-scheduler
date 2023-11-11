@@ -39,6 +39,8 @@ export function getUsernameLabel(rs: RatingSystem): string {
             return 'CFC ID';
         case RatingSystem.Dwz:
             return 'DWZ ID';
+        case RatingSystem.Acf:
+            return 'ACF ID';
         case RatingSystem.Custom:
             return '';
     }
@@ -51,6 +53,7 @@ export function getHelperText(rs: RatingSystem): React.ReactNode | undefined {
         case RatingSystem.Fide:
         case RatingSystem.Uscf:
         case RatingSystem.Cfc:
+        case RatingSystem.Acf:
         case RatingSystem.Custom:
             return undefined;
 
@@ -82,6 +85,7 @@ export function getUsernameType(rs: RatingSystem): string {
         case RatingSystem.Uscf:
         case RatingSystem.Cfc:
         case RatingSystem.Dwz:
+        case RatingSystem.Acf:
             return 'ID';
 
         case RatingSystem.Ecf:

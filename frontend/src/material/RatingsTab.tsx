@@ -39,14 +39,23 @@ const RatingsTab = () => {
                     {dojoCohorts.slice(0, dojoCohorts.length - 1).map((c, i) => (
                         <TableRow key={c}>
                             <TableCell key='Fide'>{c}</TableCell>
-                            {ratingSystems.map((rs) => (
-                                <TableCell key={rs}>
-                                    {i === 0
+                            {ratingSystems.map((rs) => {
+                                const minRating =
+                                    i === 0
                                         ? '0'
-                                        : getRatingBoundary(dojoCohorts[i - 1], rs)}
-                                    -{getRatingBoundary(c, rs)}
-                                </TableCell>
-                            ))}
+                                        : getRatingBoundary(dojoCohorts[i - 1], rs) || 0;
+                                const maxRating = getRatingBoundary(c, rs) || 0;
+
+                                if (!maxRating) {
+                                    return <TableCell key={rs}>-</TableCell>;
+                                }
+
+                                return (
+                                    <TableCell key={rs}>
+                                        {`${minRating}-${maxRating}`}
+                                    </TableCell>
+                                );
+                            })}
                         </TableRow>
                     ))}
                     <TableRow>

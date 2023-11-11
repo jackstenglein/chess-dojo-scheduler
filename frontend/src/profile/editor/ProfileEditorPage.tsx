@@ -75,6 +75,11 @@ const ratingSystemForms = [
         label: 'DWZ ID',
         hideLabel: 'Hide ID',
     },
+    {
+        system: RatingSystem.Acf,
+        label: 'ACF ID',
+        hideLabel: 'Hide ID',
+    },
 ];
 
 interface RatingEditor {

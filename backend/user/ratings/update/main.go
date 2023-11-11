@@ -69,6 +69,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lich
 		database.Ecf:      ratings.FetchEcfRating,
 		database.Cfc:      ratings.FetchCfcRating,
 		database.Dwz:      ratings.FetchDwzRating,
+		database.Acf:      ratings.FetchAcfRating,
 	}
 
 	shouldUpdate := false

@@ -256,6 +256,52 @@ func getCohort(ratingSystem RatingSystem, currentRating int) DojoCohort {
 		default:
 			return "2400+"
 		}
+
+	case Acf:
+		switch {
+		case currentRating < 105:
+			return "400-500"
+		case currentRating < 240:
+			return "500-600"
+		case currentRating < 370:
+			return "600-700"
+		case currentRating < 500:
+			return "700-800"
+		case currentRating < 630:
+			return "800-900"
+		case currentRating < 760:
+			return "900-1000"
+		case currentRating < 890:
+			return "1000-1100"
+		case currentRating < 1015:
+			return "1100-1200"
+		case currentRating < 1145:
+			return "1200-1300"
+		case currentRating < 1270:
+			return "1300-1400"
+		case currentRating < 1400:
+			return "1400-1500"
+		case currentRating < 1525:
+			return "1500-1600"
+		case currentRating < 1650:
+			return "1600-1700"
+		case currentRating < 1775:
+			return "1700-1800"
+		case currentRating < 1900:
+			return "1800-1900"
+		case currentRating < 2020:
+			return "1900-2000"
+		case currentRating < 2145:
+			return "2000-2100"
+		case currentRating < 2265:
+			return "2100-2200"
+		case currentRating < 2390:
+			return "2200-2300"
+		case currentRating < 2510:
+			return "2300-2400"
+		default:
+			return "2400+"
+		}
 	}
 
 	return NoCohort
