@@ -406,6 +406,8 @@ resources:
           - ReadCapacityUnits: 4
             WriteCapacityUnits: 2
           - !Ref AWS::NoValue
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
         GlobalSecondaryIndexes:
           - IndexName: OwnerIndex
             KeySchema:
@@ -727,6 +729,8 @@ resources:
       Value: !GetAtt TournamentsTable.Arn
     GamesTableArn:
       Value: !GetAtt GamesTable.Arn
+    GamesTableStreamArn:
+      Value: !GetAtt GamesTable.StreamArn
     PicturesBucket:
       Value: !Ref PicturesBucket
     GameDatabaseBucket:

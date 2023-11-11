@@ -40,3 +40,43 @@ functions:
           - dynamodb:GetItem
           - dynamodb:PutItem
         Resource: ${param:TournamentsTableArn}
+
+  processGame:
+    handler: explorer/processGame.handler
+    timeout: 30
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${param:GamesTableStreamArn}
+          batchWindow: 20
+          batchSize: 2
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
+          filterPatterns:
+            - eventName: [INSERT]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt ExplorerTable.Arn
+
+resources:
+  Resources:
+    ExplorerTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-explorer
+        AttributeDefinitions:
+          - AttributeName: normalizedFen
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: normalizedFen
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST

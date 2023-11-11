@@ -100,6 +100,7 @@ services:
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+      GamesTableStreamArn: ${chess-dojo-scheduler.GamesTableStreamArn}
 
   emailService:
     path: email
