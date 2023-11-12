@@ -4,10 +4,12 @@
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.436.0",
         "@aws-sdk/util-dynamodb": "^3.436.0",
-        "@jackstenglein/chess": "^1.0.53"
+        "@jackstenglein/chess": "^1.0.53",
+        "deep-equal": "^2.2.3"
     },
     "devDependencies": {
         "@types/aws-lambda": "^8.10.125",
+        "@types/deep-equal": "^1.0.4",
         "@types/node": "^18.18.7",
         "esbuild": "^0.19.5",
         "serverless": "^3.22.0",

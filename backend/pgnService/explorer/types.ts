@@ -1,6 +1,6 @@
 'use strict';
 
-/** A single position in the games explorer. */
+/** A single position in the games explorer, aggregating results across all games. */
 export interface ExplorerPosition {
     /**
      * The normalized FEN of the position. FENs are normalized in the following way:
@@ -44,21 +44,7 @@ export interface ExplorerPosition {
     moves: Record<string, ExplorerMove>;
 }
 
-/**
- * An update to an ExplorerPosition for a specific game.
- */
-export interface ExplorerPositionUpdate {
-    /** The normalized FEN of the position. */
-    normalizedFen: string;
-
-    /** The result of the game from this position. */
-    result: keyof ExplorerResult;
-
-    /** The moves that continued from this position in the game. */
-    moves: Record<string, ExplorerMoveUpdate>;
-}
-
-/** A single move option in the games explorer. */
+/** A single move option in the games explorer, aggregating results across all games. */
 export interface ExplorerMove {
     /** The SAN of the move. */
     san: string;
@@ -83,15 +69,6 @@ export interface ExplorerResult {
      * and therefore didn't have a traditional result associated.
      */
     analysis?: number;
-}
-
-/** An update to an ExplorerMove. */
-export interface ExplorerMoveUpdate {
-    /** The SAN of the move. */
-    san: string;
-
-    /** The result of the move. */
-    result: keyof ExplorerResult;
 }
 
 /**
@@ -130,7 +107,7 @@ export interface ExplorerGame {
      */
     result: keyof ExplorerResult;
 
-    /** The game that generated this ExplorerGame. */
+    /** The game that generated this ExplorerGame. The PGN is not included. */
     game: Game;
 }
 

@@ -6,20 +6,68 @@ import {
     DynamoDBClient,
     UpdateItemCommand,
     PutItemCommand,
+    DeleteItemCommand,
     ConditionalCheckFailedException,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import deepEqual from 'deep-equal';
 
 import {
     ExplorerGame,
     ExplorerMove,
     ExplorerResult,
     ExplorerPosition,
-    ExplorerPositionUpdate,
     Game,
     GameResult,
 } from './types';
+
+/** An ExplorerPosition extracted from a specific game. */
+interface ExplorerPositionExtraction {
+    /** The normalized FEN of the position. */
+    normalizedFen: string;
+
+    /** The result of the game from this position. */
+    result: keyof ExplorerResult;
+
+    /** The moves that continued from this position in the game. */
+    moves: Record<string, ExplorerMoveExtraction>;
+}
+
+/** An ExplorerMove extracted from a specific game. */
+interface ExplorerMoveExtraction {
+    /** The SAN of the move. */
+    san: string;
+
+    /** The result of the move. */
+    result: keyof ExplorerResult;
+}
+
+/** An update to an ExplorerPosition. */
+interface ExplorerPositionUpdate {
+    /** The normalized FEN of the position. */
+    normalizedFen: string;
+
+    /** The old result of the game from this position. */
+    oldResult?: keyof ExplorerResult;
+
+    /** The new result of the game from this position. */
+    newResult?: keyof ExplorerResult;
+
+    /** The moves to update on the FEN. */
+    moves: ExplorerMoveUpdate[];
+}
+
+/** An update to an ExplorerMove. */
+interface ExplorerMoveUpdate {
+    san: string;
+
+    /** The old result of the move. */
+    oldResult?: keyof ExplorerResult;
+
+    /** The new result of the move. */
+    newResult?: keyof ExplorerResult;
+}
 
 const dojoCohorts: string[] = [
     '0-300',
@@ -52,7 +100,7 @@ const dojoCohorts: string[] = [
  * @param event The DynamoDB stream event that triggered this Lambda. It contains the Game table objects.
  */
 export const handler: DynamoDBStreamHandler = async (event) => {
-    console.log('Event: ', event);
+    console.log('Event: %j', event);
 
     for (const record of event.Records) {
         await processRecord(record);
@@ -60,46 +108,68 @@ export const handler: DynamoDBStreamHandler = async (event) => {
 };
 
 /**
- * Extracts the positions from a single Game and saves them to the explorer table.
+ * Extracts the positions from a single Game and saves or removes them as necessary.
  * @param record A single DynamoDB stream record to extract positions from.
  */
 async function processRecord(record: DynamoDBRecord) {
-    console.log('record: ', record);
-    console.log('record.dynamodb: ', record.dynamodb);
+    console.log('record: %j', record);
+    console.log('record.dynamodb: %j', record.dynamodb);
 
-    if (!record.dynamodb?.NewImage) {
-        console.log('Record has no image, skipping');
+    const oldGame = record.dynamodb?.OldImage
+        ? (unmarshall(record.dynamodb.OldImage as Record<string, AttributeValue>) as Game)
+        : undefined;
+    const newGame = record.dynamodb?.NewImage
+        ? (unmarshall(record.dynamodb.NewImage as Record<string, AttributeValue>) as Game)
+        : undefined;
+
+    const game = newGame || oldGame;
+    if (!game) {
+        console.log('Neither new game nor old game are present, skipping');
         return;
     }
 
-    const game = unmarshall(
-        record.dynamodb.NewImage as Record<string, AttributeValue>
-    ) as Game;
-    if (!game.pgn) {
-        console.log('Record has empty PGN, skipping');
+    if (oldGame?.pgn === newGame?.pgn) {
+        console.log('PGN was not updated, skipping');
         return;
     }
 
-    const explorerPositions: Record<string, ExplorerPositionUpdate> = {};
+    const oldExplorerPositions = extractPositions(oldGame?.pgn);
+    const newExplorerPositions = extractPositions(newGame?.pgn);
+    const updates = getUpdates(oldExplorerPositions, newExplorerPositions);
 
-    const chess = new Chess({ pgn: game.pgn });
+    console.log('Old positions: ', oldExplorerPositions);
+    console.log('New positions: ', newExplorerPositions);
+    console.log('Final updates: %j', updates);
+    console.log('Length of updates: ', updates.length);
+
+    const chess = new Chess();
+    const promises: Promise<boolean>[] = [];
+    for (const update of Object.values(updates)) {
+        promises.push(writeExplorerPosition(game, chess, update));
+    }
+    const results = await Promise.allSettled(promises);
+    console.log('Finished with results: ', results);
+}
+
+/**
+ * Extracts all ExplorerPositionUpdates from the given PGN.
+ * @param pgn The PGN to extract ExplorerPositionUpdates from.
+ * @returns A map from normalized FEN to ExplorerPositionUpdate.
+ */
+function extractPositions(pgn?: string): Record<string, ExplorerPositionExtraction> {
+    if (!pgn) {
+        return {};
+    }
+
+    const chess = new Chess({ pgn });
+    if (chess.history().length === 0) {
+        return {};
+    }
     chess.seek(null);
 
-    if (chess.history().length === 0) {
-        console.log('PGN has no moves, skipping');
-        return;
-    }
-
+    const explorerPositions: Record<string, ExplorerPositionExtraction> = {};
     extractPositionRecursive(chess, explorerPositions);
-
-    console.log('Final explorerPositions: %j', explorerPositions);
-    console.log('Length of explorerPositions: ', Object.values(explorerPositions).length);
-
-    const promises: Promise<void>[] = [];
-    for (const explorerPosition of Object.values(explorerPositions)) {
-        promises.push(setOrUpdateExplorerPosition(game, chess, explorerPosition));
-    }
-    await Promise.allSettled(promises);
+    return explorerPositions;
 }
 
 /**
@@ -110,12 +180,14 @@ async function processRecord(record: DynamoDBRecord) {
  */
 function extractPositionRecursive(
     chess: Chess,
-    explorerPositions: Record<string, ExplorerPositionUpdate>
+    explorerPositions: Record<string, ExplorerPositionExtraction>
 ) {
     const normalizedFen = normalizeFen(chess.fen());
     const isMainline = chess.isInMainline();
 
-    const explorerPosition: ExplorerPositionUpdate = explorerPositions[normalizedFen] || {
+    const explorerPosition: ExplorerPositionExtraction = explorerPositions[
+        normalizedFen
+    ] || {
         normalizedFen,
         result: isMainline ? getExplorerMoveResult(chess.header().Result) : 'analysis',
         moves: {},
@@ -149,6 +221,81 @@ function extractPositionRecursive(
             }
         }
     }
+}
+
+/**
+ * Returns a list of ExplorerPositionUpdates necessary to get from the old
+ * ExplorerPositionExtractions to the new ExplorerPositionExtractions.
+ * @param oldPositions The ExplorerPositionExtractions before the update.
+ * @param newPositions The ExplorerPositionExtractions after the update.
+ * @returns A list of ExplorerPositionUpdates.
+ */
+function getUpdates(
+    oldPositions: Record<string, ExplorerPositionExtraction>,
+    newPositions: Record<string, ExplorerPositionExtraction>
+): ExplorerPositionUpdate[] {
+    const updates: ExplorerPositionUpdate[] = [];
+
+    // Handles updates and deletes of positions
+    for (const [fen, oldPosition] of Object.entries(oldPositions)) {
+        const newPosition = newPositions[fen];
+        if (deepEqual(oldPosition, newPosition)) {
+            continue;
+        }
+
+        const moves: ExplorerMoveUpdate[] = [];
+
+        // Handles updates and deletes of moves
+        for (const [san, oldMove] of Object.entries(oldPosition.moves)) {
+            const newMove = newPosition?.moves[san];
+            if (deepEqual(oldMove, newMove)) {
+                continue;
+            }
+
+            moves.push({
+                san,
+                oldResult: oldMove.result,
+                newResult: newMove?.result,
+            });
+        }
+
+        // Handles new moves
+        for (const [san, newMove] of Object.entries(newPosition?.moves || {})) {
+            if (oldPosition.moves[san]) {
+                continue;
+            }
+
+            moves.push({
+                san,
+                newResult: newMove.result,
+            });
+        }
+
+        updates.push({
+            normalizedFen: fen,
+            oldResult: oldPosition.result,
+            newResult: newPosition?.result,
+            moves,
+        });
+    }
+
+    // Handles new positions
+    for (const [fen, newPosition] of Object.entries(newPositions)) {
+        if (oldPositions[fen]) {
+            continue;
+        }
+
+        updates.push({
+            normalizedFen: fen,
+            newResult: newPosition.result,
+            moves: Object.values(newPosition.moves).map((m) => ({
+                san: m.san,
+                newResult: m.result,
+            })),
+        });
+    }
+
+    return updates;
 }
 
 /**
@@ -199,19 +346,56 @@ const explorerTable = process.env.stage + '-explorer';
  * @param chess The Chess.ts instance to use when generating initial ExplorerPosition moves.
  * @param update The update to apply to the ExplorerPosition.
  */
+async function writeExplorerPosition(
+    game: Game,
+    chess: Chess,
+    update: ExplorerPositionUpdate
+): Promise<boolean> {
+    if (!update.newResult && !update.oldResult) {
+        console.error('update does not contain newResult nor oldResult');
+        return false;
+    }
+
+    let success = false;
+    if (update.oldResult) {
+        success = await updateExplorerPosition(game.cohort, update);
+    } else {
+        success = await setOrUpdateExplorerPosition(game, chess, update);
+    }
+
+    if (success) {
+        updateExplorerGame(game, update);
+    }
+    return success;
+}
+
+/**
+ * Creates a blank ExplorerPosition with the provided update applied and conditionally saves it.
+ * If the ExplorerPosition already exists, it falls back to updating the ExplorerPosition.
+ * @param game The game that generated the ExplorerPosition.
+ * @param chess The Chess.ts instance to use when generating initial ExplorerPosition moves.
+ * @param update The update to apply to the ExplorerPosition.
+ * @returns True if the ExplorerPosition was successfully saved.
+ */
 async function setOrUpdateExplorerPosition(
     game: Game,
     chess: Chess,
     update: ExplorerPositionUpdate
-) {
-    const initialExplorerPosition = getInitialExplorerPosition(
-        chess,
-        update,
-        game.cohort
-    );
+): Promise<boolean> {
+    if (!update.newResult) {
+        console.error(
+            'setExplorerPosition called with update where newResult is undefined'
+        );
+        return false;
+    }
 
-    let success = false;
     try {
+        const initialExplorerPosition = getInitialExplorerPosition(
+            chess,
+            update,
+            game.cohort
+        );
+
         await dynamo.send(
             new PutItemCommand({
                 Item: marshall(initialExplorerPosition),
@@ -219,18 +403,13 @@ async function setOrUpdateExplorerPosition(
                 TableName: explorerTable,
             })
         );
-        console.log('Successfully set initial explorer position: %j', update);
-        success = true;
+        return true;
     } catch (err) {
         if (err instanceof ConditionalCheckFailedException) {
-            success = await updateExplorerPosition(game.cohort, update);
-        } else {
-            console.error('Failed to update explorer position %j: ', update, err);
+            return await updateExplorerPosition(game.cohort, update);
         }
-    }
-
-    if (success) {
-        putExplorerGame(game, update);
+        console.error('Failed to set explorer position %j: ', update, err);
+        return false;
     }
 }
 
@@ -270,9 +449,9 @@ function getInitialExplorerPosition(
         moves: explorerMoves,
     };
 
-    explorerPosition.results[cohort][update.result] = 1;
+    explorerPosition.results[cohort][update.newResult!] = 1;
     for (const move of Object.values(update.moves)) {
-        explorerPosition.moves[move.san].results[cohort][move.result] = 1;
+        explorerPosition.moves[move.san].results[cohort][move.newResult!] = 1;
     }
 
     return explorerPosition;
@@ -288,12 +467,36 @@ async function updateExplorerPosition(
     cohort: string,
     update: ExplorerPositionUpdate
 ): Promise<boolean> {
-    let updateExpression = `ADD results.#cohort.${update.result} :v, `;
+    let updateExpression: string;
+    const expressionAttrValues: Record<string, AttributeValue> = {};
     const expressionAttrNames: Record<string, string> = {
         '#cohort': cohort,
     };
+
+    if (update.oldResult && !update.newResult) {
+        // The position was removed or the game as a whole was deleted
+        updateExpression = `ADD results.#cohort.${update.oldResult} :dec, `;
+        expressionAttrValues[':dec'] = { N: '-1' };
+    } else if (update.oldResult !== update.newResult) {
+        // The game's entire result was modified
+        updateExpression = `ADD results.#cohort.${update.newResult} :inc, `;
+        expressionAttrValues[':inc'] = { N: '1' };
+    } else {
+        // There was no change to the game's result, but there are changes to the moves
+        updateExpression = `ADD `;
+    }
+
     Object.values(update.moves).forEach((move, index) => {
-        updateExpression += `moves.#san${index}.results.#cohort.${move.result} :v, `;
+        if (move.oldResult && move.oldResult !== move.newResult) {
+            // The move was removed or the result was changed
+            updateExpression += `moves.#san${index}.results.#cohort.${move.oldResult} :dec, `;
+            expressionAttrValues[':dec'] = { N: '-1' };
+        }
+        if (move.newResult) {
+            // The move was added or its result changed
+            updateExpression += `moves.#san${index}.results.#cohort.${move.newResult} :inc, `;
+            expressionAttrValues[':inc'] = { N: '1' };
+        }
         expressionAttrNames[`#san${index}`] = move.san;
     });
 
@@ -313,16 +516,13 @@ async function updateExplorerPosition(
         },
         UpdateExpression: updateExpression,
         ExpressionAttributeNames: expressionAttrNames,
-        ExpressionAttributeValues: {
-            ':v': { N: '1' },
-        },
+        ExpressionAttributeValues: expressionAttrValues,
         TableName: explorerTable,
         ReturnValues: 'NONE',
     });
 
     try {
         await dynamo.send(input);
-        console.log('Successfully updated existing explorer position: %j', update);
         return true;
     } catch (err) {
         console.error(
@@ -336,23 +536,42 @@ async function updateExplorerPosition(
 }
 
 /**
+ * Sets or removes the ExplorerGame associated with this game and update as necessary.
+ * @param game The game associated with the ExplorerPosition.
+ * @param update The update applied to the ExplorerPosition.
+ * @returns
+ */
+async function updateExplorerGame(game: Game, update: ExplorerPositionUpdate) {
+    if (update.oldResult && !update.newResult) {
+        // The position or game was deleted
+        return removeExplorerGame(game, update);
+    } else {
+        // The position or game is new or modified
+        return putExplorerGame(game, update);
+    }
+}
+
+/**
  * Sets the ExplorerGame in the database associated with this game and update.
  * @param game The game associated with the ExplorerPosition.
  * @param update The update applied to the ExplorerPosition.
  */
 async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
-    const id = `GAME#${game.cohort}#${game.id}`;
-    const explorerGame: ExplorerGame = {
-        normalizedFen: update.normalizedFen,
-        id,
-        cohort: game.cohort,
-        owner: game.owner,
-        ownerDisplayName: game.ownerDisplayName,
-        result: update.result,
-        game,
-    };
-
     try {
+        const id = `GAME#${game.cohort}#${game.id}`;
+        const explorerGame: ExplorerGame = {
+            normalizedFen: update.normalizedFen,
+            id,
+            cohort: game.cohort,
+            owner: game.owner,
+            ownerDisplayName: game.ownerDisplayName,
+            result: update.newResult!,
+            game: {
+                ...game,
+                pgn: '',
+            },
+        };
+
         await dynamo.send(
             new PutItemCommand({
                 Item: marshall(explorerGame),
@@ -360,6 +579,28 @@ async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
             })
         );
     } catch (err) {
-        console.error('Failed to set explorer game %j: ', explorerGame, err);
+        console.error('Failed to set explorer game: ', err);
+    }
+}
+
+/**
+ * Removes the ExplorerGame in the database associated with this game and update.
+ * @param game The game associated with the ExplorerPosition.
+ * @param update The update applied to the ExplorerPosition.
+ */
+async function removeExplorerGame(game: Game, update: ExplorerPositionUpdate) {
+    try {
+        const id = `GAME#${game.cohort}#${game.id}`;
+        await dynamo.send(
+            new DeleteItemCommand({
+                Key: {
+                    normalizedFen: { S: update.normalizedFen },
+                    id: { S: id },
+                },
+                TableName: explorerTable,
+            })
+        );
+    } catch (err) {
+        console.error('Failed to delete explorer game: ', err);
     }
 }
