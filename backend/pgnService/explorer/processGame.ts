@@ -20,7 +20,11 @@ import {
     ExplorerPosition,
     Game,
     GameResult,
+    normalizeFen,
 } from './types';
+
+const dynamo = new DynamoDBClient({ region: 'us-east-1' });
+const explorerTable = process.env.stage + '-explorer';
 
 /** An ExplorerPosition extracted from a specific game. */
 interface ExplorerPositionExtraction {
@@ -314,29 +318,6 @@ function getExplorerMoveResult(result: string): keyof ExplorerResult {
     }
     return 'analysis';
 }
-
-/**
- * Returns the normalized version of the provided FEN. See the comment on ExplorerPosition for a
- * description of how FENs are normalized.
- * @param fen The FEN to normalize.
- * @returns The normalized FEN.
- */
-function normalizeFen(fen: string): string {
-    const tokens = fen.split(' ');
-    if (tokens.length < 4) {
-        throw new Error(`Invalid FEN: '${fen}'. FEN does not have at least 4 tokens.`);
-    }
-
-    const pieces = tokens[0];
-    const color = tokens[1];
-    const castling = tokens[2];
-    const enPassant = tokens[3];
-
-    return `${pieces} ${color} ${castling} ${enPassant} 0 1`;
-}
-
-const dynamo = new DynamoDBClient({ region: 'us-east-1' });
-const explorerTable = process.env.stage + '-explorer';
 
 /**
  * Writes the provided ExplorerPositionUpdate to DynamoDB, ensuring that an existing ExplorerPosition

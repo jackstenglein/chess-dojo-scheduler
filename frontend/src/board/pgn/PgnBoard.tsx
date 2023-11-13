@@ -42,6 +42,7 @@ interface PgnBoardProps {
     showPlayerHeaders?: boolean;
     showTags?: boolean;
     showEditor?: boolean;
+    showExplorer?: boolean;
     showAnnotationWarnings?: boolean;
     game?: Game;
     startOrientation?: Color;
@@ -52,6 +53,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     pgn,
     showTags,
     showEditor,
+    showExplorer,
     showAnnotationWarnings,
     game,
     showPlayerHeaders = true,
@@ -155,7 +157,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         [chess, board]
     );
 
-    const showUnderboard = showTags || showEditor;
+    const showUnderboard = showTags || showEditor || showExplorer;
 
     return (
         <Box
@@ -165,15 +167,19 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     display: 'grid',
                     width: 1,
                     gridTemplateRows: {
-                        xs: `${
-                            showAnnotationWarnings ? 'auto' : ''
-                        } auto auto auto auto auto minmax(auto, 400px)`,
-                        md: `${
-                            showAnnotationWarnings ? 'auto' : ''
-                        } var(--player-header-height) var(--board-size) var(--player-header-height) auto auto`,
-                        xl: `${
-                            showAnnotationWarnings ? 'auto' : ''
-                        } var(--player-header-height) var(--board-size) var(--player-header-height) auto`,
+                        xs: `${showAnnotationWarnings ? 'auto' : ''} ${
+                            showPlayerHeaders ? 'auto auto' : ''
+                        } auto auto auto minmax(auto, 400px)`,
+                        md: `${showAnnotationWarnings ? 'auto' : ''} ${
+                            showPlayerHeaders ? 'var(--player-header-height)' : ''
+                        } var(--board-size) ${
+                            showPlayerHeaders ? 'var(--player-header-height)' : ''
+                        } auto auto`,
+                        xl: `${showAnnotationWarnings ? 'auto' : ''} ${
+                            showPlayerHeaders ? 'var(--player-header-height)' : ''
+                        } var(--board-size) ${
+                            showPlayerHeaders ? 'var(--player-header-height)' : ''
+                        } auto`,
                     },
                     gridTemplateColumns: {
                         xs: '1fr',
@@ -183,29 +189,37 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         }  var(--board-size) var(--gap) var(--coach-width) auto`,
                     },
                     gridTemplateAreas: {
-                        xs: `${showAnnotationWarnings ? '"warnings"' : ''} "playerheader"
+                        xs: `${showAnnotationWarnings ? '"warnings"' : ''}
+                             ${showPlayerHeaders ? '"playerheader"' : ''}
                              "board"
-                             "playerfooter"
+                             ${showPlayerHeaders ? '"playerfooter"' : ''}
                              "boardButtons"
                              "underboard" 
                              "coach"`,
 
-                        md: `${
-                            showAnnotationWarnings ? '". warnings . . ."' : ''
-                        } ". playerheader . coach ." 
+                        md: `${showAnnotationWarnings ? '". warnings . . ."' : ''} 
+                             ${showPlayerHeaders ? '". playerheader . coach ."' : ''}
                              ". board . coach ." 
-                             ". playerfooter . coach ."
+                             ${showPlayerHeaders ? '". playerfooter . coach ."' : ''}
                              ". boardButtons . . ." 
                              ". underboard . . ."`,
 
                         xl: `${showAnnotationWarnings ? '". . . warnings . . ."' : ''} 
-                        ". ${
-                            showUnderboard ? 'underboard .' : ''
-                        } playerheader . coach ." 
+                        ${
+                            showPlayerHeaders
+                                ? `". ${
+                                      showUnderboard ? 'underboard .' : ''
+                                  } playerheader . coach ."`
+                                : ''
+                        }
                              ". ${showUnderboard ? 'underboard .' : ''} board . coach ." 
-                             ". ${
-                                 showUnderboard ? 'underboard .' : ''
-                             } playerfooter . coach ."
+                             ${
+                                 showPlayerHeaders
+                                     ? `". ${
+                                           showUnderboard ? 'underboard .' : ''
+                                       } playerfooter . coach ."`
+                                     : ''
+                             }
                              ". ${showUnderboard ? '. .' : ''} boardButtons . . ."`,
                     },
                 }
@@ -238,6 +252,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         onClickMove={onClickMove}
                         showTags={showTags}
                         showEditor={showEditor && game?.owner === user.username}
+                        showExplorer={showExplorer}
                         showSave={game?.owner === user.username}
                         showDelete={game?.owner === user.username}
                         game={game}

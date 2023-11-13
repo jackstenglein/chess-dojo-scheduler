@@ -1,4 +1,4 @@
-'use strict';
+import { Game } from './game';
 
 /** A single position in the games explorer, aggregating results across all games. */
 export interface ExplorerPosition {
@@ -29,7 +29,7 @@ export interface ExplorerPosition {
         name: string;
     };
 
-    /** A map from cohort to ExplorerResult. */
+    /** A map from cohort to ExplorerResult. Each game is included in this map only once. */
     results: Record<string, ExplorerResult>;
 
     /**
@@ -147,64 +147,6 @@ export interface ExplorerPositionFollower {
     disableVariations?: boolean;
 }
 
-/** A game submitted to the Dojo database. */
-export interface Game {
-    /** The cohort the game belongs to. */
-    cohort: string;
-
-    /** The id of the game, in the form date#uuid. */
-    id: string;
-
-    /** The date the game was played. */
-    date: string;
-
-    /** The username of the submitter of the game. */
-    owner: string;
-
-    /** The display name of the submitter of the game. */
-    ownerDisplayName: string;
-
-    /** The headers of the PGN. */
-    headers: PgnHeaders;
-
-    /** The PGN of the game. */
-    pgn: string;
-}
-
-/** The header data of a PGN. */
-export interface PgnHeaders {
-    /** The player with the white pieces. */
-    White: string;
-
-    /** The ELO of the player with the white pieces. */
-    WhiteElo?: string;
-
-    /** The player with the black pieces. */
-    Black: string;
-
-    /** The ELO of the player with the black pieces. */
-    BlackElo?: string;
-
-    /** The date the game was played. */
-    Date: string;
-
-    /** The site the game was played on. */
-    Site: string;
-
-    /** The result of the game. */
-    Result: GameResult;
-
-    /** Arbitrary key-value pairs stored in the PGN. */
-    [key: string]: string | undefined;
-}
-
-/** The result of the game. */
-export enum GameResult {
-    White = '1-0',
-    Black = '0-1',
-    Draw = '1/2-1/2',
-}
-
 /**
  * Returns the normalized version of the provided FEN. See the comment on ExplorerPosition for a
  * description of how FENs are normalized.
@@ -223,4 +165,30 @@ export function normalizeFen(fen: string): string {
     const enPassant = tokens[3];
 
     return `${pieces} ${color} ${castling} ${enPassant} 0 1`;
+}
+
+/**
+ * Returns the total number of games for the given ExplorerResult map.
+ * @param results The ExplorerResults to get the total number of games for.
+ */
+export function getGameCount(results: Record<string, ExplorerResult>): number {
+    return Object.values(results).reduce(
+        (sum, result) =>
+            sum +
+            (result.white || 0) +
+            (result.draws || 0) +
+            (result.black || 0) +
+            (result.analysis || 0),
+        0
+    );
+}
+
+/**
+ * Returns the total number of games where the provided move had the provided result.
+ * @param move The ExplorerMove to get the result count for.
+ * @param result The result to count.
+ * @returns The total number of games where the provided move had the provided result.
+ */
+export function getResultCount(move: ExplorerMove, result: keyof ExplorerResult): number {
+    return Object.values(move.results).reduce((sum, r) => sum + (r[result] || 0), 0);
 }

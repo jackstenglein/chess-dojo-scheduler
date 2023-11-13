@@ -15,6 +15,7 @@ import SellIcon from '@mui/icons-material/Sell';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ExplorerIcon from '@mui/icons-material/Storage';
 
 import DeleteGameButton from '../../games/view/DeleteGameButton';
 import { Game } from '../../database/game';
@@ -29,6 +30,7 @@ import { EventType, trackEvent } from '../../analytics/events';
 import { unstable_usePrompt } from 'react-router-dom';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { useLightMode } from '../../ThemeProvider';
+import Explorer from './Explorer';
 
 interface BoardToolsProps {
     pgn: string;
@@ -44,6 +46,7 @@ interface BoardToolsProps {
 
     showTags?: boolean;
     showEditor?: boolean;
+    showExplorer?: boolean;
 }
 
 const BoardTools: React.FC<BoardToolsProps> = ({
@@ -59,6 +62,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
 
     showTags,
     showEditor,
+    showExplorer,
 }) => {
     const { chess, board } = useChess();
     const [copied, setCopied] = useState('');
@@ -344,6 +348,26 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                                 </IconButton>
                             </Tooltip>
                         )}
+
+                        {showExplorer && setUnderboard && (
+                            <Tooltip title='Position Database'>
+                                <IconButton
+                                    sx={{
+                                        color:
+                                            underboard === 'explorer'
+                                                ? 'info.main'
+                                                : 'text.secondary',
+                                    }}
+                                    onClick={() =>
+                                        setUnderboard(
+                                            underboard === 'explorer' ? '' : 'explorer'
+                                        )
+                                    }
+                                >
+                                    <ExplorerIcon />
+                                </IconButton>
+                            </Tooltip>
+                        )}
                     </Stack>
                 </Stack>
             </Paper>
@@ -368,6 +392,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                         />
                     )}
                     {underboard === 'editor' && <Editor />}
+                    {underboard === 'explorer' && <Explorer />}
                 </Card>
             )}
 

@@ -14,10 +14,7 @@ import { AuthStatus, useAuth } from '../../auth/Auth';
 import { Requirement } from '../../database/requirement';
 import { Event } from '../../database/event';
 import { Notification } from '../../database/notification';
-
-interface Identifiable {
-    id: string;
-}
+import { ExplorerPosition } from '../../database/explorer';
 
 interface IdentifiableCache<T> {
     get: (id: string) => T | undefined;
@@ -26,10 +23,13 @@ interface IdentifiableCache<T> {
     put: (obj: T) => void;
     putMany: (objs: T[]) => void;
     remove: (id: string) => void;
+    isFetched: (id: string) => boolean;
+    markFetched: (id: string) => void;
 }
 
-function useIdentifiableCache<T extends Identifiable>(): IdentifiableCache<T> {
+function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
     const [objects, setObjects] = useState<Record<string, T>>({});
+    const [fetchedIds, setFetchedIds] = useState<Record<string, boolean>>({});
 
     const get = useCallback(
         (id: string) => {
@@ -49,18 +49,20 @@ function useIdentifiableCache<T extends Identifiable>(): IdentifiableCache<T> {
 
     const put = useCallback(
         (obj: T) => {
+            const id = key ? (obj as any)[key] : (obj as any).id;
             setObjects((objects) => ({
                 ...objects,
-                [obj.id]: obj,
+                [id]: obj,
             }));
         },
-        [setObjects]
+        [setObjects, key]
     );
 
     const putMany = useCallback(
         (objs: T[]) => {
             const newMap = objs.reduce((map: Record<string, T>, obj: T) => {
-                map[obj.id] = obj;
+                const id = key ? (obj as any)[key] : (obj as any).id;
+                map[id] = obj;
                 return map;
             }, {});
             setObjects((objects) => ({
@@ -68,7 +70,7 @@ function useIdentifiableCache<T extends Identifiable>(): IdentifiableCache<T> {
                 ...newMap,
             }));
         },
-        [setObjects]
+        [setObjects, key]
     );
 
     const remove = useCallback(
@@ -81,6 +83,23 @@ function useIdentifiableCache<T extends Identifiable>(): IdentifiableCache<T> {
         [setObjects]
     );
 
+    const isFetched = useCallback(
+        (id: string) => {
+            return fetchedIds[id] || false;
+        },
+        [fetchedIds]
+    );
+
+    const markFetched = useCallback(
+        (id: string) => {
+            setFetchedIds((ids) => ({
+                ...ids,
+                [id]: true,
+            }));
+        },
+        [setFetchedIds]
+    );
+
     return {
         get,
         list,
@@ -88,12 +107,9 @@ function useIdentifiableCache<T extends Identifiable>(): IdentifiableCache<T> {
         put,
         putMany,
         remove,
+        isFetched,
+        markFetched,
     };
-}
-
-interface CohortCache {
-    isFetched: (cohort: string) => boolean;
-    markFetched: (cohort: string) => void;
 }
 
 /**
@@ -104,8 +120,9 @@ type CacheContextType = {
     setIsLoading: (arg: boolean) => void;
 
     events: IdentifiableCache<Event>;
-    requirements: IdentifiableCache<Requirement> & CohortCache;
+    requirements: IdentifiableCache<Requirement>;
     notifications: IdentifiableCache<Notification>;
+    positions: IdentifiableCache<ExplorerPosition>;
 
     imageBypass: number;
     setImageBypass: (v: number) => void;
@@ -130,33 +147,16 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const events = useIdentifiableCache<Event>();
     const requirements = useIdentifiableCache<Requirement>();
     const notifications = useIdentifiableCache<Notification>();
+    const positions = useIdentifiableCache<ExplorerPosition>('normalizedFen');
     const [imageBypass, setImageBypass] = useState(Date.now());
-
-    const [fetchedCohorts, setFetchedCohorts] = useState<Record<string, boolean>>({});
-
-    const isFetched = useCallback(
-        (cohort: string) => {
-            return fetchedCohorts[cohort] || false;
-        },
-        [fetchedCohorts]
-    );
-
-    const markFetched = useCallback(
-        (cohort: string) => {
-            setFetchedCohorts((cohorts) => ({
-                ...cohorts,
-                [cohort]: true,
-            }));
-        },
-        [setFetchedCohorts]
-    );
 
     const value = {
         isLoading,
         setIsLoading,
         events,
-        requirements: { ...requirements, isFetched, markFetched },
+        requirements,
         notifications,
+        positions,
         imageBypass,
         setImageBypass,
     };

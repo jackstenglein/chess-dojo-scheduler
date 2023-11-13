@@ -9,6 +9,7 @@ import {
     ScrollRestoration,
 } from 'react-router-dom';
 import { Amplify, Hub } from 'aws-amplify';
+import { LicenseInfo } from '@mui/x-data-grid-pro';
 
 import { getConfig } from './config';
 import { AuthProvider, RequireAuth } from './auth/Auth';
@@ -52,6 +53,11 @@ import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
 import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import UnsubscribePage from './dojoDigest/UnsubscribePage';
+import ExplorerPage from './games/explorer/ExplorerPage';
+
+LicenseInfo.setLicenseKey(
+    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
+);
 
 const config = getConfig();
 Amplify.configure({
@@ -112,6 +118,7 @@ const router = createBrowserRouter(
                     <Route path='games'>
                         <Route index element={<ListGamesPage />} />
                         <Route path='submit' element={<EditGamePage />} />
+                        <Route path='explorer' element={<ExplorerPage />} />
                         <Route path=':cohort/:id'>
                             <Route index element={<GamePage />} />
                             <Route path='edit' element={<EditGamePage />} />

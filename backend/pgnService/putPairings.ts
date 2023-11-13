@@ -126,7 +126,7 @@ function getPairings(request: PutPairingsRequest): OpenClassicalPairing[] {
 }
 
 export const handler: APIGatewayProxyHandler = async (event, _) => {
-    console.log('Event: ', event);
+    console.log('Event: %j', event);
 
     const request: PutPairingsRequest = JSON.parse(event.body || '');
     if (request.round < MIN_ROUND || request.round > MAX_ROUND) {

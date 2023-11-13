@@ -1,5 +1,6 @@
-# Deploys functions where PGN parsing is performed.
-# These functions are separated as they require a typescript library.
+# Deploys functions where PGN or FEN parsing is performed.
+# These functions are separated as they require the @jackstenglein/chess
+# typescript library.
 
 service: chess-dojo-pgn
 
@@ -59,6 +60,21 @@ functions:
           - dynamodb:PutItem
           - dynamodb:UpdateItem
           - dynamodb:DeleteItem
+        Resource: !GetAtt ExplorerTable.Arn
+
+  getPosition:
+    handler: explorer/getPosition.handler
+    events:
+      - httpApi:
+          path: /explorer/position
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
         Resource: !GetAtt ExplorerTable.Arn
 
 resources:
