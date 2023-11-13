@@ -1,4 +1,15 @@
-import { Box, CardContent, Stack, Tab, Tooltip, Typography } from '@mui/material';
+import {
+    Box,
+    CardContent,
+    Link,
+    MenuItem,
+    Stack,
+    Tab,
+    TextField,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2/Grid2';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import {
@@ -12,6 +23,7 @@ import {
 import { darken, lighten, styled } from '@mui/material/styles';
 import { useEffect, useMemo, useState } from 'react';
 import { Event, EventType } from '@jackstenglein/chess';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { useChess } from './PgnBoard';
 import { usePosition } from '../../api/cache/positions';
@@ -23,6 +35,7 @@ import {
     getResultCount,
 } from '../../database/explorer';
 import { reconcile } from '../Board';
+import { dojoCohorts, getCohortRange } from '../../database/user';
 
 const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -63,6 +76,13 @@ const DojoDatabase = () => {
     const { chess, board } = useChess();
     const [fen, setFen] = useState(chess?.fen() || '');
     const { position, request } = usePosition(fen);
+    const [minCohort, setMinCohort] = useState('');
+    const [maxCohort, setMaxCohort] = useState('');
+
+    const cohortRange = useMemo(
+        () => getCohortRange(minCohort, maxCohort),
+        [minCohort, maxCohort]
+    );
 
     useEffect(() => {
         if (chess) {
@@ -86,23 +106,25 @@ const DojoDatabase = () => {
         () =>
             Object.values(position?.moves || [])
                 .filter((move) => {
-                    return Object.values(move.results).some(
-                        (result) =>
+                    return cohortRange.some((cohort) => {
+                        const result = move.results[cohort] || {};
+                        return (
                             result.white ||
                             result.black ||
                             result.draws ||
                             result.analysis
-                    );
+                        );
+                    });
                 })
                 .sort((lhs, rhs) => {
-                    const lhsCount = getGameCount(lhs.results);
-                    const rhsCount = getGameCount(rhs.results);
+                    const lhsCount = getGameCount(lhs.results, cohortRange);
+                    const rhsCount = getGameCount(rhs.results, cohortRange);
                     if (lhsCount < rhsCount) {
                         return -1;
                     }
                     return 1;
                 }),
-        [position]
+        [position, cohortRange]
     );
 
     const pinnedRows = useMemo(() => {
@@ -116,7 +138,7 @@ const DojoDatabase = () => {
         };
     }, [position]);
 
-    const totalGames = getGameCount(position?.results || {});
+    const totalGames = getGameCount(position?.results || {}, cohortRange);
 
     const columns: GridColDef<ExplorerMove>[] = useMemo(() => {
         return [
@@ -140,12 +162,17 @@ const DojoDatabase = () => {
                 align: 'left',
                 headerAlign: 'left',
                 valueGetter: (params: GridValueGetterParams<ExplorerMove>) =>
-                    getGameCount(params.row.results),
+                    getGameCount(params.row.results, cohortRange),
                 renderCell: (params: GridRenderCellParams<ExplorerMove, number>) => {
                     const gameCount = params.value || 0;
                     return (
                         <Stack direction='row' spacing={2}>
-                            <div>{Math.round(100 * (gameCount / totalGames))}%</div>
+                            <div>
+                                {totalGames === 0
+                                    ? 0
+                                    : Math.round(100 * (gameCount / totalGames))}
+                                %
+                            </div>
                             <div>{gameCount}</div>
                         </Stack>
                     );
@@ -158,21 +185,25 @@ const DojoDatabase = () => {
                 align: 'right',
                 headerAlign: 'left',
                 valueGetter: (params: GridValueGetterParams<ExplorerMove>) =>
-                    getResultCount(params.row, 'white'),
+                    getResultCount(params.row, 'white', cohortRange),
                 renderCell: (params: GridRenderCellParams<ExplorerMove>) => (
-                    <ResultGraph move={params.row} />
+                    <ResultGraph move={params.row} cohortRange={cohortRange} />
                 ),
                 flex: 1,
             },
         ];
-    }, [totalGames]);
+    }, [totalGames, cohortRange]);
 
     if (!position && (!request.isSent() || request.isLoading())) {
         return <LoadingPage />;
     }
 
     if (!position) {
-        return <Typography>No games found</Typography>;
+        return (
+            <Stack width={1} alignItems='center'>
+                <Typography>No games found in this position</Typography>
+            </Stack>
+        );
     }
 
     const onClickMove = (params: GridRowParams<ExplorerMove>) => {
@@ -184,33 +215,81 @@ const DojoDatabase = () => {
     };
 
     return (
-        <StyledDataGrid
-            autoHeight
-            disableColumnMenu
-            disableColumnReorder
-            hideFooter
-            columns={columns}
-            rows={sortedMoves}
-            pinnedRows={pinnedRows}
-            getRowId={(row: GridRowModel<ExplorerMove>) => row.san}
-            isRowSelectable={(params) => params.id !== 'Total'}
-            getRowClassName={(params) =>
-                params.id === 'Total' ? 'chess-dojo-explorer--total' : ''
-            }
-            slots={{
-                noRowsOverlay: () => (
-                    <Stack
-                        height={1}
-                        width={1}
-                        alignItems='center'
-                        justifyContent='center'
-                    >
-                        No moves played from this position
-                    </Stack>
-                ),
-            }}
-            onRowClick={onClickMove}
-        />
+        <Grid container columnSpacing={1} rowSpacing={2}>
+            <Grid xs={6} sm={6}>
+                <TextField
+                    select
+                    fullWidth
+                    label='Min Cohort'
+                    value={minCohort}
+                    onChange={(e) => setMinCohort(e.target.value)}
+                >
+                    {dojoCohorts.map((cohort) => (
+                        <MenuItem key={cohort} value={cohort}>
+                            {cohort}
+                        </MenuItem>
+                    ))}
+                </TextField>
+            </Grid>
+            <Grid xs={6} sm={6}>
+                <TextField
+                    select
+                    fullWidth
+                    label='Max Cohort'
+                    value={maxCohort}
+                    onChange={(e) => setMaxCohort(e.target.value)}
+                >
+                    {dojoCohorts.map((cohort) => (
+                        <MenuItem key={cohort} value={cohort}>
+                            {cohort}
+                        </MenuItem>
+                    ))}
+                </TextField>
+            </Grid>
+
+            <Grid xs={12}>
+                <StyledDataGrid
+                    autoHeight
+                    disableColumnMenu
+                    disableColumnReorder
+                    hideFooter
+                    columns={columns}
+                    rows={sortedMoves}
+                    pinnedRows={pinnedRows}
+                    getRowId={(row: GridRowModel<ExplorerMove>) => row.san}
+                    isRowSelectable={(params) => params.id !== 'Total'}
+                    getRowClassName={(params) =>
+                        params.id === 'Total' ? 'chess-dojo-explorer--total' : ''
+                    }
+                    slots={{
+                        noRowsOverlay: () => (
+                            <Stack
+                                height={1}
+                                width={1}
+                                alignItems='center'
+                                justifyContent='center'
+                            >
+                                <Typography>
+                                    No moves played from this position.
+                                </Typography>
+                                {cohortRange.length < dojoCohorts.length && (
+                                    <Typography>
+                                        Try expanding your cohort range.
+                                    </Typography>
+                                )}
+                            </Stack>
+                        ),
+                    }}
+                    onRowClick={onClickMove}
+                />
+            </Grid>
+
+            <Grid xs={12} display='flex' justifyContent='center'>
+                <Link component={RouterLink} to='/games' target='_blank' rel='noopener'>
+                    View all games containing this position
+                </Link>
+            </Grid>
+        </Grid>
     );
 };
 
@@ -232,10 +311,14 @@ const resultGraphTextColors = {
 
 interface ResultGraphProps {
     move: ExplorerMove;
+    cohortRange: string[];
 }
 
-const ResultGraph: React.FC<ResultGraphProps> = ({ move }) => {
-    const totalGames = getGameCount(move.results);
+const ResultGraph: React.FC<ResultGraphProps> = ({ move, cohortRange }) => {
+    const totalGames = getGameCount(move.results, cohortRange);
+    if (totalGames === 0) {
+        return null;
+    }
 
     return (
         <Stack
@@ -249,7 +332,7 @@ const ResultGraph: React.FC<ResultGraphProps> = ({ move }) => {
             }}
         >
             {results.map((k) => {
-                const count = getResultCount(move, k);
+                const count = getResultCount(move, k, cohortRange);
                 const percentage = (100 * count) / totalGames;
                 if (count === 0) {
                     return null;

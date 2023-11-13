@@ -271,6 +271,24 @@ export function compareCohorts(a: string, b: string): number {
     return 1;
 }
 
+/**
+ * Returns a list of cohorts within the given cohort range (inclusive).
+ * @param minCohort The minimum cohort to include. If not provided, start at 0-300.
+ * @param maxCohort The maximum cohort to include. If not provided, end at 2400+.
+ * @returns A list of cohorts between minCohort and maxCohort.
+ */
+export function getCohortRange(
+    minCohort: string | undefined,
+    maxCohort: string | undefined
+): string[] {
+    const min = Math.max(minCohort ? dojoCohorts.indexOf(minCohort) : 0, 0);
+    const max = Math.min(
+        maxCohort ? dojoCohorts.indexOf(maxCohort) + 1 : dojoCohorts.length,
+        dojoCohorts.length
+    );
+    return dojoCohorts.slice(min, max);
+}
+
 const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
     '0-300': {
         [RatingSystem.Chesscom]: 550,

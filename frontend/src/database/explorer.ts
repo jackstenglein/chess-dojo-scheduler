@@ -171,16 +171,20 @@ export function normalizeFen(fen: string): string {
  * Returns the total number of games for the given ExplorerResult map.
  * @param results The ExplorerResults to get the total number of games for.
  */
-export function getGameCount(results: Record<string, ExplorerResult>): number {
-    return Object.values(results).reduce(
-        (sum, result) =>
+export function getGameCount(
+    results: Record<string, ExplorerResult>,
+    cohortRange: string[]
+): number {
+    return cohortRange.reduce((sum, cohort) => {
+        const result = results[cohort] || {};
+        return (
             sum +
             (result.white || 0) +
             (result.draws || 0) +
             (result.black || 0) +
-            (result.analysis || 0),
-        0
-    );
+            (result.analysis || 0)
+        );
+    }, 0);
 }
 
 /**
@@ -189,6 +193,13 @@ export function getGameCount(results: Record<string, ExplorerResult>): number {
  * @param result The result to count.
  * @returns The total number of games where the provided move had the provided result.
  */
-export function getResultCount(move: ExplorerMove, result: keyof ExplorerResult): number {
-    return Object.values(move.results).reduce((sum, r) => sum + (r[result] || 0), 0);
+export function getResultCount(
+    move: ExplorerMove,
+    result: keyof ExplorerResult,
+    cohortRange: string[]
+): number {
+    return cohortRange.reduce((sum, cohort) => {
+        const r = move.results[cohort] || {};
+        return sum + (r[result] || 0);
+    }, 0);
 }

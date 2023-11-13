@@ -67,7 +67,9 @@ const BoardTools: React.FC<BoardToolsProps> = ({
     const { chess, board } = useChess();
     const [copied, setCopied] = useState('');
     const [, setOrientation] = useState<Color>(startOrientation || 'white');
-    const [underboard, setUnderboard] = useState(showTags ? 'tags' : '');
+    const [underboard, setUnderboard] = useState(
+        showEditor ? 'editor' : showTags ? 'tags' : showExplorer ? 'explorer' : ''
+    );
     const request = useRequest();
     const api = useApi();
     const light = useLightMode();
