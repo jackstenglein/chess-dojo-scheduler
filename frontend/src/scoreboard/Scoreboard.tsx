@@ -9,7 +9,6 @@ import {
     GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
-import { LicenseInfo } from '@mui/x-license-pro';
 import { Link, Stack, Tooltip } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import { Link as RouterLink } from 'react-router-dom';
@@ -35,10 +34,6 @@ import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirem
 import { useMemo, useState } from 'react';
 import { useFreeTier } from '../auth/Auth';
 import { User } from '../database/user';
-
-LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
-);
 
 interface ColumnGroupChild {
     field: string;
@@ -83,11 +78,14 @@ const displayNameColumn: GridColDef<ScoreboardRow> = {
         return (
             <Stack direction='row' spacing={1} alignItems='center'>
                 <Avatar
-                    username={params.row.username}
+                    username={params.row.username.replace('#pinned', '')}
                     displayName={params.value}
                     size={32}
                 />
-                <Link component={RouterLink} to={`/profile/${params.row.username}`}>
+                <Link
+                    component={RouterLink}
+                    to={`/profile/${params.row.username.replace('#pinned', '')}`}
+                >
                     {params.value}
                 </Link>
             </Stack>

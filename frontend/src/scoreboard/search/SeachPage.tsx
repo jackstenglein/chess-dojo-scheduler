@@ -109,6 +109,13 @@ const AllColumns: GridColDef[] = [
             params.row.ratings[RatingSystem.Dwz]?.username,
         flex: 1,
     },
+    {
+        field: RatingSystem.Acf,
+        headerName: 'ACF ID',
+        valueGetter: (params: GridValueGetterParams<User, any>) =>
+            params.row.ratings[RatingSystem.Acf]?.username,
+        flex: 1,
+    },
 ];
 
 const SearchFields = ['display', 'discord', ...Object.values(RatingSystem)];
@@ -133,6 +140,8 @@ function getDisplayString(field: string): string {
             return 'ECF ID';
         case RatingSystem.Dwz:
             return 'DWZ ID';
+        case RatingSystem.Acf:
+            return 'ACF ID';
     }
     return '';
 }

@@ -9,6 +9,7 @@ const checkboxes = [
     'ECF ID',
     'CFC ID',
     'DWZ ID',
+    'ACF ID',
 ];
 
 describe('Search Page', () => {
@@ -29,27 +30,19 @@ describe('Search Page', () => {
     });
 
     it('has checkboxes for field searching', () => {
-        cy.getBySel('search-field').should('have.length', 10);
+        cy.getBySel('search-field').should('have.length', checkboxes.length);
         checkboxes.forEach((label) => cy.contains(label));
-    });
-
-    it('requires search query', () => {
-        cy.getBySel('search-button').click();
-
-        cy.contains('This field is required');
     });
 
     it('requires at least one field', () => {
         cy.getBySel('search-query').type('Test Account');
         cy.contains('All Fields').click();
-        cy.getBySel('search-button').click();
 
         cy.contains('At least one search field is required');
     });
 
     it('shows correct table columns on search', () => {
         cy.getBySel('search-query').type('Test Account');
-        cy.getBySel('search-button').click();
 
         cy.getBySel('search-results').contains('Test Account');
         ['Cohort', ...checkboxes.slice(1)].forEach((label) =>
@@ -59,7 +52,6 @@ describe('Search Page', () => {
         cy.contains('All Fields').click();
         cy.contains('FIDE ID').click();
         cy.contains('ECF ID').click();
-        cy.getBySel('search-button').click();
 
         cy.getBySel('search-results')
             .find('.MuiDataGrid-columnHeader')
@@ -72,7 +64,6 @@ describe('Search Page', () => {
 
     it('shows correct message when no results', () => {
         cy.getBySel('search-query').type('DOES_NOT_EXIST');
-        cy.getBySel('search-button').click();
 
         cy.getBySel('search-results').contains('No rows');
     });
