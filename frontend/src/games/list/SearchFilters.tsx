@@ -15,17 +15,22 @@ import {
     AccordionSummary as MuiAccordionSummary,
     AccordionSummaryProps,
     AccordionDetails as MuiAccordionDetails,
+    Link,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import {
+    URLSearchParamsInit,
+    useSearchParams,
+    Link as RouterLink,
+} from 'react-router-dom';
 
 import { dojoCohorts } from '../../database/user';
 import { useAuth, useFreeTier } from '../../auth/Auth';
 import { useApi } from '../../api/Api';
 import { SearchFunc } from './pagination';
-import { URLSearchParamsInit, useSearchParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 
 const Accordion = styled((props: AccordionProps) => (
@@ -332,6 +337,22 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
     setEndDate,
     onSearch,
 }) => {
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const handleSearch = () => {
+        const errors: Record<string, string> = {};
+        if (eco === '') {
+            errors.eco = 'This field is required';
+        }
+        setErrors(errors);
+
+        if (Object.entries(errors).length > 0) {
+            return;
+        }
+
+        onSearch();
+    };
+
     return (
         <Stack data-cy='search-by-opening' spacing={2}>
             <FormControl>
@@ -340,6 +361,8 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                     value={eco}
                     label='Opening ECO'
                     onChange={(e) => setEco(e.target.value)}
+                    error={!!errors.eco}
+                    helperText={errors.eco}
                 />
             </FormControl>
 
@@ -377,10 +400,82 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                 data-cy='opening-search-button'
                 variant='outlined'
                 loading={isLoading}
-                onClick={onSearch}
+                onClick={handleSearch}
             >
                 Search
             </LoadingButton>
+        </Stack>
+    );
+};
+
+type SearchByPositionProps = BaseFilterProps & {
+    fen: string;
+    setFen: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const SearchByPosition: React.FC<SearchByPositionProps> = ({
+    fen,
+    isLoading,
+    setFen,
+    onSearch,
+}) => {
+    const isFreeTier = useFreeTier();
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const handleSearch = () => {
+        const errors: Record<string, string> = {};
+        if (fen === '') {
+            errors.fen = 'This field is required';
+        }
+        setErrors(errors);
+
+        if (Object.entries(errors).length > 0) {
+            return;
+        }
+
+        onSearch();
+    };
+
+    return (
+        <Stack data-cy='search-by-position' spacing={2}>
+            <FormControl>
+                <TextField
+                    data-cy='fen'
+                    value={fen}
+                    label='FEN'
+                    onChange={(e) => setFen(e.target.value)}
+                    error={!!errors.fen}
+                    helperText={errors.fen}
+                />
+            </FormControl>
+
+            <LoadingButton
+                data-cy='fen-search-button'
+                variant='outlined'
+                loading={isLoading}
+                onClick={handleSearch}
+                disabled={isFreeTier}
+            >
+                Search
+            </LoadingButton>
+
+            {isFreeTier ? (
+                <Typography
+                    variant='caption'
+                    color='text.secondary'
+                    sx={{ mt: '0 !important', alignSelf: 'center' }}
+                >
+                    Free-tier users are not able to search by position
+                </Typography>
+            ) : (
+                <Link
+                    component={RouterLink}
+                    to={`/games/explorer?fen=${fen}`}
+                    sx={{ alignSelf: 'center' }}
+                >
+                    View in Explorer
+                </Link>
+            )}
         </Stack>
     );
 };
@@ -390,6 +485,7 @@ enum SearchType {
     Player = 'player',
     Owner = 'owner',
     Opening = 'opening',
+    Position = 'position',
 }
 
 function isValid(d: Date | null): boolean {
@@ -410,6 +506,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         player: '',
         color: 'either',
         eco: '',
+        fen: '',
         type: SearchType.Cohort,
     });
 
@@ -426,6 +523,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const [editPlayer, setPlayer] = useState(searchParams.get('player') || '');
     const [editColor, setColor] = useState(searchParams.get('color') || '');
     const [editEco, setEditEco] = useState(searchParams.get('eco') || '');
+    const [editFen, setEditFen] = useState(searchParams.get('fen') || '');
 
     const paramsStartDate = searchParams.get('startDate');
     const paramsEndDate = searchParams.get('endDate');
@@ -443,6 +541,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const player = searchParams.get('player') || '';
     const color = searchParams.get('color') || 'either';
     const eco = searchParams.get('eco') || '';
+    const fen = searchParams.get('fen') || '';
     let startDateStr: string | undefined = undefined;
     let endDateStr: string | undefined = undefined;
     if (isValid(new Date(paramsStartDate || ''))) {
@@ -490,6 +589,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         [api, eco, startDateStr, endDateStr]
     );
 
+    const searchByPosition = useCallback(
+        (startKey: string) => api.listGamesByPosition(fen, startKey),
+        [api, fen]
+    );
+
     // Search is called every time the above functions change, which should
     // happen only when the searchParams change
     useEffect(() => {
@@ -508,8 +612,21 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
 
             case SearchType.Opening:
                 onSearch(searchByOpening);
+                break;
+
+            case SearchType.Position:
+                onSearch(searchByPosition);
+                break;
         }
-    }, [type, onSearch, searchByOwner, searchByPlayer, searchByCohort, searchByOpening]);
+    }, [
+        type,
+        onSearch,
+        searchByOwner,
+        searchByPlayer,
+        searchByCohort,
+        searchByOpening,
+        searchByPosition,
+    ]);
 
     // Functions that change the search params
     const onSetSearchParams = (params: URLSearchParamsInit) => {
@@ -550,6 +667,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
             type: SearchType.Owner,
             startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
             endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+        });
+    };
+
+    const onSearchByPosition = () => {
+        onSetSearchParams({
+            type: SearchType.Position,
+            fen: editFen,
         });
     };
 
@@ -605,7 +729,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 onChange={onChangePanel(SearchType.Opening)}
             >
                 <AccordionSummary>
-                    <Typography>Search By Opening</Typography>
+                    <Typography>Search By ECO</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <SearchByOpening
@@ -617,6 +741,27 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                         setEndDate={setEndDate}
                         isLoading={isLoading}
                         onSearch={onSearchByOpening}
+                    />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion
+                id='search-by-position'
+                expanded={expanded === SearchType.Position}
+                onChange={onChangePanel(SearchType.Position)}
+            >
+                <AccordionSummary>
+                    <Typography>Search By Position</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <SearchByPosition
+                        fen={editFen}
+                        setFen={setEditFen}
+                        startDate={editStartDate}
+                        setStartDate={setStartDate}
+                        endDate={editEndDate}
+                        setEndDate={setEndDate}
+                        isLoading={isLoading}
+                        onSearch={onSearchByPosition}
                     />
                 </AccordionDetails>
             </Accordion>

@@ -114,6 +114,18 @@ export type GameApiContextType = {
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 
     /**
+     * listGamesByPosition returns a list of GameInfo objects matching the provided FEN,
+     * as well as the next start key for pagination.
+     * @param fen The FEN to search for.
+     * @param startKey The optional start key to use for pagination.
+     * @returns A list of games matching the provided FEN.
+     */
+    listGamesByPosition: (
+        fen: string,
+        startKey?: string
+    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+
+    /**
      * listFeaturedGames returns a list of games featured in the past month.
      * @param startKey The optional startKey to use when searching.
      * @returns A list of featured games.
@@ -320,6 +332,7 @@ export function listGamesByOwner(
 /**
  * listGamesByOpening returns a list of GameInfo objects with the provided ECO code,
  * as well as the next start key for pagination.
+ * @param idToken The id token of the current signed-in user.
  * @param eco The ECO to search for.
  * @param startKey The optional startKey to use when searching.
  * @param startDate The optional start date to limit the search to.
@@ -335,6 +348,24 @@ export function listGamesByOpening(
 ) {
     let params = { eco, startKey, startDate, endDate };
     return axios.get<ListGamesResponse>(BASE_URL + '/game/opening', {
+        params,
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+}
+
+/**
+ * listGamesByPosition returns a list of GameInfo objects matching the provided FEN,
+ * as well as the next start key for pagination.
+ * @param idToken The id token of the current signed-in user.
+ * @param fen The FEN to search for.
+ * @param startKey The optional start key to use for pagination.
+ * @returns A list of games matching the provided FEN.
+ */
+export function listGamesByPosition(idToken: string, fen: string, startKey?: string) {
+    let params = { fen, startKey };
+    return axios.get<ListGamesResponse>(BASE_URL + '/game/position', {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,

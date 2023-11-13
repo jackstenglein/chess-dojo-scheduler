@@ -77,6 +77,21 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt ExplorerTable.Arn
 
+  listGamesByPosition:
+    handler: explorer/listGames.handler
+    events:
+      - httpApi:
+          path: /game/position
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt ExplorerTable.Arn
+
 resources:
   Resources:
     ExplorerTable:

@@ -1,7 +1,12 @@
 import { Box, Container } from '@mui/material';
 import PgnBoard from '../../board/pgn/PgnBoard';
+import { useSearchParams } from 'react-router-dom';
 
 const ExplorerPage = () => {
+    const [searchParams] = useSearchParams({
+        fen: '',
+    });
+
     return (
         <Container
             maxWidth={false}
@@ -39,7 +44,12 @@ const ExplorerPage = () => {
                     },
                 }}
             >
-                <PgnBoard pgn={''} showExplorer showPlayerHeaders={false} />
+                <PgnBoard
+                    pgn={''}
+                    fen={searchParams.get('fen') || ''}
+                    showExplorer
+                    showPlayerHeaders={false}
+                />
             </Box>
         </Container>
     );

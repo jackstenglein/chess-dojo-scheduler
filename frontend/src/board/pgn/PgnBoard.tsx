@@ -38,7 +38,8 @@ export function useChess() {
 }
 
 interface PgnBoardProps {
-    pgn: string;
+    pgn?: string;
+    fen?: string;
     showPlayerHeaders?: boolean;
     showTags?: boolean;
     showEditor?: boolean;
@@ -51,6 +52,7 @@ interface PgnBoardProps {
 
 const PgnBoard: React.FC<PgnBoardProps> = ({
     pgn,
+    fen,
     showTags,
     showEditor,
     showExplorer,
@@ -236,6 +238,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     <Board
                         config={{
                             pgn,
+                            fen,
                             orientation: startOrientation,
                         }}
                         onInitialize={onInitialize}
@@ -247,7 +250,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
                 {board && chess && (
                     <BoardTools
-                        pgn={pgn}
                         showPlayerHeaders={showPlayerHeaders}
                         onClickMove={onClickMove}
                         showTags={showTags}

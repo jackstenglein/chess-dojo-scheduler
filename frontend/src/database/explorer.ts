@@ -147,6 +147,54 @@ export interface ExplorerPositionFollower {
     disableVariations?: boolean;
 }
 
+/** A single position in the games explorer, as returned from the Lichess API. */
+export interface LichessExplorerPosition {
+    /** The number of games white has won from this position. */
+    white: number;
+
+    /** The number of games black has won from this position. */
+    black: number;
+
+    /** The number of games drawn from this position. */
+    draws: number;
+
+    /** The list of Lichess explorer moves continuing from this position. */
+    moves: LichessExplorerMove[];
+}
+
+/** A single move option in the games explorer, as returned from the Lichess API. */
+export interface LichessExplorerMove {
+    /** The SAN of the move. */
+    san: string;
+
+    /** The number of games in which white won. */
+    white: number;
+
+    /** The number of games in which black won. */
+    black: number;
+
+    /** The number of games in which the move drew. */
+    draws: number;
+}
+
+/**
+ * Returns true if the given object is an ExplorerPosition.
+ * @param obj The object to check.
+ * @returns True if the object is an ExplorerPosition.
+ */
+export function isExplorerPosition(obj: any): obj is ExplorerPosition {
+    return obj && obj.results !== undefined && obj.moves !== undefined;
+}
+
+/**
+ * Returns true if the given object is an ExplorerMove.
+ * @param obj The object to check.
+ * @returns True if the object is an ExplorerMove.
+ */
+export function isExplorerMove(obj: any): obj is ExplorerMove {
+    return obj && obj.results !== undefined;
+}
+
 /**
  * Returns the normalized version of the provided FEN. See the comment on ExplorerPosition for a
  * description of how FENs are normalized.

@@ -205,6 +205,39 @@ export enum GameResult {
     Draw = '1/2-1/2',
 }
 
+/** A single position in the games explorer, as returned from the Lichess API. */
+export interface LichessExplorerPosition {
+    /** The number of games white has won from this position. */
+    white: number;
+
+    /** The number of games black has won from this position. */
+    black: number;
+
+    /** The number of games drawn from this position. */
+    draws: number;
+
+    /** The list of Lichess explorer moves continuing from this position. */
+    moves: LichessExplorerMove[];
+}
+
+/** A single move option in the games explorer, as returned from the Lichess API. */
+export interface LichessExplorerMove {
+    /** The SAN of the move. */
+    san: string;
+
+    /** The number of games in which white won. */
+    white: number;
+
+    /** The number of games in which black won. */
+    black: number;
+
+    /** The number of games in which the move drew. */
+    draws: number;
+
+    /** The average rating across all the games. */
+    averageRating: number;
+}
+
 /**
  * Returns the normalized version of the provided FEN. See the comment on ExplorerPosition for a
  * description of how FENs are normalized.

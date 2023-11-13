@@ -14,7 +14,7 @@ import { AuthStatus, useAuth } from '../../auth/Auth';
 import { Requirement } from '../../database/requirement';
 import { Event } from '../../database/event';
 import { Notification } from '../../database/notification';
-import { ExplorerPosition } from '../../database/explorer';
+import { GetExplorerPositionResult } from '../explorerApi';
 
 interface IdentifiableCache<T> {
     get: (id: string) => T | undefined;
@@ -122,7 +122,7 @@ type CacheContextType = {
     events: IdentifiableCache<Event>;
     requirements: IdentifiableCache<Requirement>;
     notifications: IdentifiableCache<Notification>;
-    positions: IdentifiableCache<ExplorerPosition>;
+    positions: IdentifiableCache<GetExplorerPositionResult>;
 
     imageBypass: number;
     setImageBypass: (v: number) => void;
@@ -147,7 +147,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const events = useIdentifiableCache<Event>();
     const requirements = useIdentifiableCache<Requirement>();
     const notifications = useIdentifiableCache<Notification>();
-    const positions = useIdentifiableCache<ExplorerPosition>('normalizedFen');
+    const positions = useIdentifiableCache<GetExplorerPositionResult>('normalizedFen');
     const [imageBypass, setImageBypass] = useState(Date.now());
 
     const value = {

@@ -38,6 +38,7 @@ import {
     updateGame,
     deleteGame,
     listGamesByOpening,
+    listGamesByPosition,
 } from './gameApi';
 import {
     RequirementApiContextType,
@@ -223,6 +224,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 startDate?: string,
                 endDate?: string
             ) => listGamesByOpening(idToken, eco, startKey, startDate, endDate),
+            listGamesByPosition: (fen: string, startKey?: string) =>
+                listGamesByPosition(idToken, fen, startKey),
             listFeaturedGames: (startKey?: string) =>
                 listFeaturedGames(idToken, startKey),
             createComment: (cohort: string, id: string, content: string) =>

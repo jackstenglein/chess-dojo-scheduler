@@ -1,12 +1,13 @@
 import { useEffect, useMemo } from 'react';
 
-import { ExplorerPosition, normalizeFen } from '../../database/explorer';
+import { normalizeFen } from '../../database/explorer';
 import { useApi } from '../Api';
 import { Request, useRequest } from '../Request';
 import { useCache } from './Cache';
+import { GetExplorerPositionResult } from '../explorerApi';
 
 interface UsePositionResponse {
-    position: ExplorerPosition | undefined;
+    position: GetExplorerPositionResult | undefined;
     request: Request;
 }
 

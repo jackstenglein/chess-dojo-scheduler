@@ -33,7 +33,6 @@ import { useLightMode } from '../../ThemeProvider';
 import Explorer from './Explorer';
 
 interface BoardToolsProps {
-    pgn: string;
     showPlayerHeaders: boolean;
 
     startOrientation?: Color;
@@ -50,7 +49,6 @@ interface BoardToolsProps {
 }
 
 const BoardTools: React.FC<BoardToolsProps> = ({
-    pgn,
     showPlayerHeaders,
 
     startOrientation,
@@ -240,7 +238,7 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                             </IconButton>
                         </Tooltip>
 
-                        <CopyToClipboard text={pgn} onCopy={() => onCopy('pgn')}>
+                        <CopyToClipboard text={editorPgn} onCopy={() => onCopy('pgn')}>
                             <Tooltip title='Copy PGN'>
                                 <IconButton aria-label='copy-pgn'>
                                     {copied === 'pgn' ? (

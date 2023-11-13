@@ -233,11 +233,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
         <>
             <Stack flexGrow={1} spacing={1} sx={{ overflowY: 'hidden' }}>
                 <PgnText onClickMove={onMove} />
-                <BoardTools
-                    showPlayerHeaders={false}
-                    pgn={chess.pgn.render()}
-                    onClickMove={onMove}
-                />
+                <BoardTools showPlayerHeaders={false} onClickMove={onMove} />
             </Stack>
             <Stack>
                 <ChatBubble>{chatText}</ChatBubble>
