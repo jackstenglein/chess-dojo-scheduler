@@ -86,6 +86,7 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                 '--site-header-margin': '150px',
                 '--player-header-height': '0px',
                 '--toc-width': '21vw',
+                '--underboard-width': '400px',
                 '--coach-width': '400px',
                 '--tools-height': '0px',
                 '--board-width':

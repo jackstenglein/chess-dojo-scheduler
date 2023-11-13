@@ -136,6 +136,7 @@ const GamePage = () => {
                 '--site-header-height': '80px',
                 '--site-header-margin': '60px',
                 '--player-header-height': '28px',
+                '--underboard-width': '400px',
                 '--coach-width': '400px',
                 '--tools-height': '40px',
                 '--board-width': 'calc(100vw - var(--coach-width) - 60px)',
@@ -154,7 +155,7 @@ const GamePage = () => {
                     gridTemplateColumns: {
                         xs: '1fr',
                         md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
-                        xl: 'auto var(--coach-width) var(--gap) var(--board-size) var(--gap) var(--coach-width) auto',
+                        xl: 'auto var(--underboard-width) var(--gap) var(--board-size) var(--gap) var(--coach-width) auto',
                     },
                     gridTemplateAreas: {
                         xs: '"pgn" "extras"',

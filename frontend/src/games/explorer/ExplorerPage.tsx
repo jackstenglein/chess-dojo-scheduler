@@ -17,7 +17,8 @@ const ExplorerPage = () => {
                 '--site-header-height': '80px',
                 '--site-header-margin': '60px',
                 '--player-header-height': '28px',
-                '--coach-width': '400px',
+                '--underboard-width': '500px',
+                '--coach-width': '300px',
                 '--tools-height': '40px',
                 '--board-width': 'calc(100vw - var(--coach-width) - 60px)',
                 '--board-height':
@@ -35,7 +36,7 @@ const ExplorerPage = () => {
                     gridTemplateColumns: {
                         xs: '1fr',
                         md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
-                        xl: 'auto var(--coach-width) var(--gap) var(--board-size) var(--gap) var(--coach-width) auto',
+                        xl: 'auto var(--underboard-width) var(--gap) var(--board-size) var(--gap) var(--coach-width) auto',
                     },
                     gridTemplateAreas: {
                         xs: '"pgn" "extras"',

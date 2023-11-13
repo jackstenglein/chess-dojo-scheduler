@@ -185,9 +185,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     },
                     gridTemplateColumns: {
                         xs: '1fr',
-                        md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
+                        md: 'auto var(--board-size) var(--gap) max(var(--coach-width), var(--underboard-width)) auto',
                         xl: `auto ${
-                            showUnderboard ? 'var(--coach-width) var(--gap)' : ''
+                            showUnderboard ? 'var(--underboard-width) var(--gap)' : ''
                         }  var(--board-size) var(--gap) var(--coach-width) auto`,
                     },
                     gridTemplateAreas: {

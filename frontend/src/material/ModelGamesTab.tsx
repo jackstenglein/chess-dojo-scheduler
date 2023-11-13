@@ -90,6 +90,7 @@ const ModelGamesTab = () => {
                     '--site-header-margin': '150px',
                     '--player-header-height': '28px',
                     '--toc-width': '21vw',
+                    '--underboard-width': '400px',
                     '--coach-width': '400px',
                     '--tools-height': '40px',
                     '--board-width':

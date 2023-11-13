@@ -123,6 +123,7 @@ const GamesToMemorizeTab = () => {
                     '--site-header-height': '80px',
                     '--site-header-margin': '150px',
                     '--player-header-height': '28px',
+                    '--underboard-width': '400px',
                     '--coach-width': '400px',
                     '--tools-height': '40px',
                     '--board-width':
