@@ -61,7 +61,7 @@ import {
     listEvents,
     setEvent,
 } from './eventApi';
-import { getCourse, listCourses, OpeningApiContextType } from './openingApi';
+import { getCourse, listCourses, CourseApiContextType } from './courseApi';
 import {
     getLeaderboard,
     getOpenClassical,
@@ -98,7 +98,7 @@ type ApiContextType = UserApiContextType &
     GameApiContextType &
     RequirementApiContextType &
     GraduationApiContextType &
-    OpeningApiContextType &
+    CourseApiContextType &
     TournamentApiContextType &
     NotificationApiContextType &
     NewsfeedApiContextType &
@@ -247,8 +247,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             listGraduationsByDate: (startKey?: string) =>
                 listGraduationsByDate(idToken, startKey),
 
-            getCourse: (id: string) => getCourse(idToken, id),
-            listCourses: (startKey?: string) => listCourses(idToken, startKey),
+            getCourse: (type: string, id: string) => getCourse(idToken, type, id),
+            listCourses: (type: string, startKey?: string) =>
+                listCourses(idToken, type, startKey),
 
             getLeaderboard: (
                 timePeriod: TimePeriod,

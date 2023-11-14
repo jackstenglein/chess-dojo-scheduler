@@ -1,7 +1,7 @@
 import { Card, CardContent, Link } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
-import { Chapter, Course } from '../../database/opening';
+import { Chapter, Course } from '../../database/course';
 
 interface ChapterContentsProps {
     chapter: Chapter;

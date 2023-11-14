@@ -4,7 +4,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Course } from '../../database/opening';
+import { Course, CourseType } from '../../database/course';
 import LoadingPage from '../../loading/LoadingPage';
 import Module from './Module';
 import NotFoundPage from '../../NotFoundPage';
@@ -30,7 +30,7 @@ const OpeningPage = () => {
     useEffect(() => {
         if (!request.isSent() && params.id) {
             request.onStart();
-            api.getCourse(params.id)
+            api.getCourse(CourseType.Opening, params.id)
                 .then((resp) => {
                     request.onSuccess(resp.data);
                     console.log('getOpening: ', resp);

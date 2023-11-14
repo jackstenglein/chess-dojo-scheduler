@@ -1,12 +1,20 @@
 import { Position } from './requirement';
 
+export enum CourseType {
+    Opening = 'OPENING',
+    Other = 'OTHER',
+}
+
 /**
- * Course contains the full information for an opening course. An opening course is
+ * Course contains the full information for a course. A course is
  * defined as a series of related chapters designed for a specific cohort range.
  */
 export interface Course {
+    /** The type of the course. */
+    type: CourseType;
+
     /**
-     * The primary key of the course.
+     * The id of the course.
      */
     id: string;
 
@@ -15,13 +23,16 @@ export interface Course {
      */
     name: string;
 
+    /** The description of the course. */
+    description: string;
+
     /**
-     * The color the opening course is designed for.
+     * The color the course is designed for.
      */
     color: string;
 
     /**
-     * The cohorts the opening course is designed for.
+     * The cohorts the course is designed for.
      */
     cohorts: string[];
 
@@ -31,13 +42,24 @@ export interface Course {
     cohortRange: string;
 
     /**
-     * The list of chapters included in the opening course.
+     * The list of chapters included in the course.
      */
     chapters: Chapter[];
+
+    /**
+     * The price of the course in cents. A non-positive number indicates that the course is
+     * not for sale separately from the training plan.
+     */
+    price: number;
+
+    /**
+     * Whether the course is included with a training-plan subscription.
+     */
+    includedWithSubscription: boolean;
 }
 
 /**
- * Chapter contains the information for a single opening chapter.
+ * Chapter contains the information for a single course chapter.
  */
 export interface Chapter {
     /**
@@ -58,13 +80,13 @@ export interface Chapter {
     /**
      * The list of modules within the chapter.
      */
-    modules: OpeningModule[];
+    modules: CourseModule[];
 }
 
 /**
- * The possible types of an OpeningModule.
+ * The possible types of an CourseModule.
  */
-export enum OpeningModuleType {
+export enum CourseModuleType {
     Video = 'VIDEO',
     PgnViewer = 'PGN_VIEWER',
     SparringPositions = 'SPARRING_POSITIONS',
@@ -88,27 +110,27 @@ export const coachUrls = {
 export const coaches = [Coach.Jesse, Coach.Kostya, Coach.David];
 
 /**
- * OpeningModule is a single section within an opening.
+ * A single section within a course.
  */
-export interface OpeningModule {
+export interface CourseModule {
     /**
-     * The optional id of the opening module. Used mainly for exercises to persist progress
+     * The optional id of the module. Used mainly for exercises to persist progress
      * on the exercises.
      */
     id: string;
 
     /**
-     * The name of the opening module.
+     * The name of the module.
      */
     name: string;
 
     /**
-     * The type of the opening module.
+     * The type of the module.
      */
-    type: OpeningModuleType;
+    type: CourseModuleType;
 
     /**
-     * The description of the opening module.
+     * The description of the module.
      */
     description: string;
 

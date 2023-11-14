@@ -1,6 +1,6 @@
 import { Stack, Typography } from '@mui/material';
 
-import { OpeningModule, OpeningModuleType } from '../../database/opening';
+import { CourseModule, CourseModuleType } from '../../database/course';
 import ExercisesModule from './ExercisesModule';
 import ModelGamesModule from './ModelGamesModule';
 import PgnViewerModule from './PgnViewerModule';
@@ -8,28 +8,28 @@ import SparringPositionsModule from './SparringPositionsModule';
 import VideoModule from './VideoModule';
 
 export interface ModuleProps {
-    module: OpeningModule;
+    module: CourseModule;
 }
 
 const Module: React.FC<ModuleProps> = ({ module }) => {
     let M = null;
     switch (module.type) {
-        case OpeningModuleType.Video:
+        case CourseModuleType.Video:
             M = <VideoModule module={module} />;
             break;
-        case OpeningModuleType.PgnViewer:
+        case CourseModuleType.PgnViewer:
             M = <PgnViewerModule module={module} />;
             break;
-        case OpeningModuleType.SparringPositions:
+        case CourseModuleType.SparringPositions:
             M = <SparringPositionsModule module={module} />;
             break;
-        case OpeningModuleType.ModelGames:
+        case CourseModuleType.ModelGames:
             M = <ModelGamesModule module={module} />;
             break;
-        case OpeningModuleType.Themes:
+        case CourseModuleType.Themes:
             M = null;
             break;
-        case OpeningModuleType.Exercises:
+        case CourseModuleType.Exercises:
             M = <ExercisesModule module={module} />;
             break;
         default:

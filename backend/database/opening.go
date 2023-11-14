@@ -5,29 +5,49 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-// Course contains the full information for an opening course. An opening course is
+type CourseType string
+
+const (
+	Opening CourseType = "OPENING"
+	Other   CourseType = "OTHER"
+)
+
+// Course contains the full information for a course. A course is
 // defined as a series of related chapters designed for a specific cohort range.
 type Course struct {
-	// The primary key of the course.
+	// The type of the course and the hash key of the table.
+	Type CourseType `dynamodbav:"type" json:"type"`
+
+	// The id of the course and the range key of the table.
 	Id string `dynamodbav:"id" json:"id"`
 
 	// The name of the course.
 	Name string `dynamodbav:"name" json:"name"`
 
-	// The color the opening course is designed for.
+	// The description of the course.
+	Description string `dynamodbav:"description" json:"description"`
+
+	// The color the course is designed for.
 	Color string `dynamodbav:"color" json:"color"`
 
-	// The cohorts the opening course is designed for.
+	// The cohorts the course is designed for.
 	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohort"`
 
-	// The human-readable range of the cohorts the opening course is designed for.
+	// The human-readable range of the cohorts the course is designed for.
 	CohortRange string `dynamodbav:"cohortRange" json:"cohortRange"`
 
-	// The list of chapters included in the opening course.
+	// The list of chapters included in the course.
 	Chapters []*Chapter `dynamodbav:"chapters" json:"chapters"`
+
+	// The price of the course in cents (e.g. 700 is actually $7). A non-positive number indicates that
+	// the course is not separately for sale.
+	Price int `dynamodbav:"price" json:"price"`
+
+	// Whether the course is included with a training-plan subscription.
+	IncludedWithSubscription bool `dynamodbav:"includedWithSubscription" json:"includedWithSubscription"`
 }
 
-// Chapter contains the information for a single opening chapter.
+// Chapter contains the information for a single course chapter.
 type Chapter struct {
 	// The name of the chapter.
 	Name string `dynamodbav:"name" json:"name"`
@@ -39,17 +59,17 @@ type Chapter struct {
 	ThumbnailOrientation string `dynamodbav:"thumbnailOrientation" json:"thumbnailOrientation"`
 
 	// The list of modules within the chapter.
-	Modules []*OpeningModule `dynamodbav:"modules" json:"modules"`
+	Modules []*CourseModule `dynamodbav:"modules" json:"modules"`
 }
 
-type OpeningModuleType string
+type CourseModuleType string
 
 const (
-	Video             OpeningModuleType = "VIDEO"
-	PgnViewer         OpeningModuleType = "PGN_VIEWER"
-	SparringPositions OpeningModuleType = "SPARRING_POSITIONS"
-	ModelGames        OpeningModuleType = "MODEL_GAMES"
-	Exercises         OpeningModuleType = "EXERCISES"
+	Video             CourseModuleType = "VIDEO"
+	PgnViewer         CourseModuleType = "PGN_VIEWER"
+	SparringPositions CourseModuleType = "SPARRING_POSITIONS"
+	ModelGames        CourseModuleType = "MODEL_GAMES"
+	Exercises         CourseModuleType = "EXERCISES"
 )
 
 type Coach string
@@ -60,19 +80,19 @@ const (
 	David  Coach = "DAVID"
 )
 
-// OpeningModule is a single activity within an opening chapter.
-type OpeningModule struct {
-	// The optional id of the opening module. Used mainly for exercises to
+// CourseModule is a single activity within a course chapter.
+type CourseModule struct {
+	// The optional id of the module. Used mainly for exercises to
 	// persist progress on the exercises
 	Id string `dynamodbav:"id" json:"id"`
 
-	// The name of the opening module.
+	// The name of the module.
 	Name string `dynamodbav:"name" json:"name"`
 
-	// The type of the opening module.
-	Type OpeningModuleType `dynamodbav:"type" json:"type"`
+	// The type of the module.
+	Type CourseModuleType `dynamodbav:"type" json:"type"`
 
-	// The description of the opening module.
+	// The description of the module.
 	Description string `dynamodbav:"description" json:"description"`
 
 	// A body of text that appears after the main content of the module.
@@ -97,13 +117,38 @@ type OpeningModule struct {
 	BoardOrientation string `dynamodbav:"boardOrientation" json:"boardOrientation"`
 }
 
-type OpeningGetter interface {
-	// GetCourse returns the opening course with the provided id.
-	GetCourse(id string) (*Course, error)
+// CourseGetter provides an interface for fetching Courses.
+type CourseGetter interface {
+	// GetCourse returns the course with the provided type and id.
+	GetCourse(courseType, id string) (*Course, error)
 }
 
-// GetCourse returns the opening course with the provided id.
-func (repo *dynamoRepository) GetCourse(id string) (*Course, error) {
+// GetCourse returns the course with the provided type and id.
+func (repo *dynamoRepository) GetCourse(courseType, id string) (*Course, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type": {S: aws.String(courseType)},
+			"id":   {S: aws.String(id)},
+		},
+		TableName: aws.String(courseTable),
+	}
+
+	course := Course{}
+	if err := repo.getItem(input, &course); err != nil {
+		return nil, err
+	}
+	return &course, nil
+}
+
+// TODO: delete after completing opening -> course migration
+type OpeningGetter interface {
+	// GetOpening returns the course with the provided id.
+	GetOpening(id string) (*Course, error)
+}
+
+// TODO: delete after completing opening -> course migration
+// GetOpening returns the course with the provided id.
+func (repo *dynamoRepository) GetOpening(id string) (*Course, error) {
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {S: aws.String(id)},
@@ -118,13 +163,42 @@ func (repo *dynamoRepository) GetCourse(id string) (*Course, error) {
 	return &course, nil
 }
 
-type OpeningLister interface {
-	// ListCourses returns a list of opening courses in the database.
-	ListCourses(startKey string) ([]*Course, string, error)
+// CourseLister provides an interface for listing courses.
+type CourseLister interface {
+	// ListCourses returns a list of courses with the provided type.
+	ListCourses(courseType, startKey string) ([]*Course, string, error)
 }
 
-// ListCourses returns a list of opening courses in the database.
-func (repo *dynamoRepository) ListCourses(startKey string) ([]*Course, string, error) {
+// ListCourses returns a list of courses with the provided type.
+func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]*Course, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#type = :type"),
+		ExpressionAttributeNames: map[string]*string{
+			"#type": aws.String("type"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":type": {S: aws.String(courseType)},
+		},
+		IndexName: aws.String("SummaryIndex"),
+		TableName: aws.String(courseTable),
+	}
+	var courses []*Course
+	lastKey, err := repo.query(input, startKey, &courses)
+	if err != nil {
+		return nil, "", err
+	}
+	return courses, lastKey, nil
+}
+
+// TODO: delete after completing opening -> course migration
+type OpeningLister interface {
+	// ListOpenings returns a list of opening courses in the database.
+	ListOpenings(startKey string) ([]*Course, string, error)
+}
+
+// TODO: delete after completing opening -> course migration
+// ListOpenings returns a list of opening courses in the database.
+func (repo *dynamoRepository) ListOpenings(startKey string) ([]*Course, string, error) {
 	input := &dynamodb.ScanInput{
 		IndexName: aws.String("CourseIndex"),
 		TableName: aws.String(openingTable),

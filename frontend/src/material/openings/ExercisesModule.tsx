@@ -3,7 +3,7 @@ import { Box, Container, Stack, Typography } from '@mui/material';
 import { ModuleProps } from './Module';
 import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
 import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
-import { Coach, OpeningModule, coachUrls } from '../../database/opening';
+import { Coach, CourseModule, coachUrls } from '../../database/course';
 import { useCallback, useState } from 'react';
 import PgnSelector from './PgnSelector';
 import { useAuth } from '../../auth/Auth';
@@ -11,7 +11,7 @@ import { User } from '../../database/user';
 import { useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 
-function getCompleted(user: User, module: OpeningModule): boolean[] {
+function getCompleted(user: User, module: CourseModule): boolean[] {
     let exercises: boolean[] = [];
     if (
         user.openingProgress &&

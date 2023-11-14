@@ -4,7 +4,7 @@ import { Stack, Typography, Link } from '@mui/material';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
-import { Course } from '../../database/opening';
+import { Course, CourseType } from '../../database/course';
 import LoadingPage from '../../loading/LoadingPage';
 import { useFreeTier } from '../../auth/Auth';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
@@ -29,7 +29,7 @@ const OpeningsTab = () => {
 
     useEffect(() => {
         if (!request.isSent()) {
-            api.listCourses()
+            api.listCourses(CourseType.Opening)
                 .then((courses) => {
                     request.onSuccess(courses);
                     console.log('listCourses: ', courses);

@@ -5,25 +5,35 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-var repository database.OpeningLister = database.DynamoDB
+var repository database.CourseLister = database.DynamoDB
 
-const funcName = "opening-list-handler"
+const funcName = "course-list-handler"
 
 type ListCoursesResponse struct {
 	Courses          []*database.Course `json:"courses"`
 	LastEvaluatedKey string             `json:"lastEvaluatedKey,omitempty"`
 }
 
-func Handler(ctx context.Context, event api.Request) (api.Response, error) {
+func main() {
+	lambda.Start(handler)
+}
+
+func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	startKey, _ := event.QueryStringParameters["startKey"]
-	courses, lastKey, err := repository.ListOpenings(startKey)
+	courseType := event.PathParameters["type"]
+	if courseType == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: type is required", "")), nil
+	}
+
+	startKey := event.QueryStringParameters["startKey"]
+	courses, lastKey, err := repository.ListCourses(courseType, startKey)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
@@ -32,8 +42,4 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		Courses:          courses,
 		LastEvaluatedKey: lastKey,
 	}), nil
-}
-
-func main() {
-	lambda.Start(Handler)
 }

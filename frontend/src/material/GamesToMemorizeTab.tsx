@@ -21,7 +21,7 @@ import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
 import PgnBoard from '../board/pgn/PgnBoard';
 import PgnSelector from './openings/PgnSelector';
 import PuzzleBoard from '../board/puzzle/PuzzleBoard';
-import { coachUrls, coaches } from '../database/opening';
+import { coachUrls, coaches } from '../database/course';
 
 const GamesToMemorizeTab = () => {
     const user = useAuth().user!;

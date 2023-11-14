@@ -10,27 +10,28 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-var repository database.OpeningGetter = database.DynamoDB
+var repository database.CourseGetter = database.DynamoDB
 
-const funcName = "opening-get-handler"
+const funcName = "course-get-handler"
 
-func Handler(ctx context.Context, event api.Request) (api.Response, error) {
+func main() {
+	lambda.Start(handler)
+}
+
+func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	id, _ := event.PathParameters["id"]
-	if id == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: id is required", "")), nil
+	courseType := event.PathParameters["type"]
+	id := event.PathParameters["id"]
+	if courseType == "" || id == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: type and id are required", "")), nil
 	}
 
-	course, err := repository.GetOpening(id)
+	course, err := repository.GetCourse(courseType, id)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
 	return api.Success(funcName, course), nil
-}
-
-func main() {
-	lambda.Start(Handler)
 }
