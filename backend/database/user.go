@@ -255,6 +255,9 @@ type User struct {
 
 	// The user's total dojo score, across all cohorts
 	TotalDojoScore float32 `dynamodbav:"totalDojoScore" json:"totalDojoScore"`
+
+	// The ids of the user's purchased courses
+	PurchasedCourses map[string]bool `dynamodbav:"purchasedCourses" json:"purchasedCourses"`
 }
 
 type UserNotificationSettings struct {
@@ -524,6 +527,9 @@ type UserUpdate struct {
 
 	// The user's notification settings
 	NotificationSettings *UserNotificationSettings `dynamodbav:"notificationSettings,omitempty" json:"notificationSettings,omitempty"`
+
+	// The ids of the user's purchased courses. This field cannot be manually set by the user.
+	PurchasedCourses *map[string]bool `dynamodbav:"purchasedCourses,omitempty" json:"-"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

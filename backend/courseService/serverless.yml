@@ -39,7 +39,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: !GetAtt CoursesTable.Arn
+        Resource:
+          - !GetAtt CoursesTable.Arn
+          - ${param:UsersTableArn}
 
   list:
     handler: list/main.go

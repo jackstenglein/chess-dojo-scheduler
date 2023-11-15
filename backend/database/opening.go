@@ -43,6 +43,12 @@ type Course struct {
 	// Whether the course is included with a training-plan subscription.
 	IncludedWithSubscription bool `dynamodbav:"includedWithSubscription" json:"includedWithSubscription"`
 
+	// Whether the course can be purchased by free-tier users.
+	AvailableForFreeUsers bool `dynamodbav:"availableForFreeUsers" json:"availableForFreeUsers"`
+
+	// The buy button id on Stripe
+	StripeBuyButtonId string `dynamodbav:"stripeBuyButtonId" json:"stripeBuyButtonId"`
+
 	// The list of chapters included in the course.
 	Chapters []*Chapter `dynamodbav:"chapters" json:"chapters"`
 }
@@ -119,6 +125,9 @@ type CourseModule struct {
 
 // CourseGetter provides an interface for fetching Courses.
 type CourseGetter interface {
+	// Required to fetch the user's course permissions.
+	UserGetter
+
 	// GetCourse returns the course with the provided type and id.
 	GetCourse(courseType, id string) (*Course, error)
 }

@@ -14,6 +14,15 @@ var repository database.CourseGetter = database.DynamoDB
 
 const funcName = "course-get-handler"
 
+type GetCourseResponse struct {
+	// The requested course.
+	Course *database.Course `json:"course"`
+
+	// Whether the user is blocked from viewing this course (due to missing purchases).
+	// If true, the course's chapters attribute will be nil.
+	IsBlocked bool `json:"isBlocked"`
+}
+
 func main() {
 	lambda.Start(handler)
 }
@@ -21,6 +30,11 @@ func main() {
 func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
+
+	info := api.GetUserInfo(event)
+	if info.Username == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+	}
 
 	courseType := event.PathParameters["type"]
 	id := event.PathParameters["id"]
@@ -33,5 +47,38 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	return api.Success(funcName, course), nil
+	caller, err := repository.GetUser(info.Username)
+	if err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
+	// The caller must subscribe to access the course
+	if !course.AvailableForFreeUsers && caller.SubscriptionStatus != database.SubscriptionStatus_Subscribed {
+		return accessDenied(course)
+	}
+
+	if caller.SubscriptionStatus == database.SubscriptionStatus_Subscribed && course.IncludedWithSubscription {
+		return accessGranted(course)
+	}
+
+	if caller.PurchasedCourses[course.Id] {
+		return accessGranted(course)
+	}
+
+	return accessDenied(course)
+}
+
+func accessGranted(course *database.Course) (api.Response, error) {
+	return api.Success(funcName, GetCourseResponse{
+		Course:    course,
+		IsBlocked: false,
+	}), nil
+}
+
+func accessDenied(course *database.Course) (api.Response, error) {
+	course.Chapters = nil
+	return api.Success(funcName, GetCourseResponse{
+		Course:    course,
+		IsBlocked: true,
+	}), nil
 }

@@ -54,6 +54,7 @@ services:
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
 
   newsfeed:
     path: newsfeed
@@ -98,6 +99,12 @@ services:
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
       GameDatabaseBucket: ${chess-dojo-scheduler.GameDatabaseBucket}
       AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
+
+  paymentService:
+    path: paymentService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
 
   pgnService:
     path: pgnService

@@ -17,6 +17,9 @@ export interface Config {
     media: {
         picturesBucket: string;
     };
+    stripe: {
+        publishableKey: string;
+    };
 }
 
 const config: Record<string, Config> = {
@@ -39,6 +42,10 @@ const config: Record<string, Config> = {
         media: {
             picturesBucket: 'https://chess-dojo-dev-pictures.s3.amazonaws.com',
         },
+        stripe: {
+            publishableKey:
+                'pk_test_51OB6imGilmvijaecMJqdvLJdu89BcghnjU7eOIoCwlBl8DeV6i2XojJOaZ36lamZMuVjO7aorXtl90OcdtAstFfF0022uf0sdp',
+        },
     },
 
     development: {
@@ -60,6 +67,10 @@ const config: Record<string, Config> = {
         media: {
             picturesBucket: 'https://chess-dojo-dev-pictures.s3.amazonaws.com',
         },
+        stripe: {
+            publishableKey:
+                'pk_test_51OB6imGilmvijaecMJqdvLJdu89BcghnjU7eOIoCwlBl8DeV6i2XojJOaZ36lamZMuVjO7aorXtl90OcdtAstFfF0022uf0sdp',
+        },
     },
 
     production: {
@@ -80,6 +91,10 @@ const config: Record<string, Config> = {
         },
         media: {
             picturesBucket: 'https://chess-dojo-prod-pictures.s3.amazonaws.com',
+        },
+        stripe: {
+            publishableKey:
+                'pk_live_51OB6imGilmvijaecicnOhS1rqgX6VofcmTgi4n3TdhYoPgutx4W8HnUch6iQE7GL62fngez6mL471YWiZSrUhbJI007MlHx5CM',
         },
     },
 };

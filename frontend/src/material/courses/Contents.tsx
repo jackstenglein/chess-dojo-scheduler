@@ -29,6 +29,10 @@ interface ContentsProps {
 }
 
 const Contents: React.FC<ContentsProps> = ({ course }) => {
+    if (!course.chapters) {
+        return null;
+    }
+
     return (
         <Card variant='outlined'>
             <CardContent>

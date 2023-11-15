@@ -4,14 +4,13 @@ import { useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Course, CourseType } from '../../database/course';
+import { CourseType } from '../../database/course';
 import LoadingPage from '../../loading/LoadingPage';
 import Module from './Module';
 import NotFoundPage from '../../NotFoundPage';
 import Contents from './Contents';
-import { useFreeTier } from '../../auth/Auth';
-import UpsellPage from '../../upsell/UpsellPage';
-import { RestrictedAction } from '../../upsell/UpsellDialog';
+import { GetCourseResponse } from '../../api/courseApi';
+import PurchaseCoursePage from './PurchaseCoursePage';
 
 type CoursePageParams = {
     type: CourseType;
@@ -21,12 +20,11 @@ type CoursePageParams = {
 const CoursePage = () => {
     const api = useApi();
     const params = useParams<CoursePageParams>();
-    const request = useRequest<Course>();
+    const request = useRequest<GetCourseResponse>();
     const [searchParams, setSearchParams] = useSearchParams({
         chapter: '0',
         module: '0',
     });
-    const isFreeTier = useFreeTier();
 
     useEffect(() => {
         if (!request.isSent() && params.type && params.id) {
@@ -34,18 +32,20 @@ const CoursePage = () => {
             api.getCourse(params.type, params.id)
                 .then((resp) => {
                     request.onSuccess(resp.data);
-                    console.log('getOpening: ', resp);
+                    console.log('getCourse: ', resp);
                 })
                 .catch((err) => {
                     request.onFailure(err);
-                    console.error('getOpening: ', err);
+                    console.error('getCourse: ', err);
                 });
         }
     }, [request, api, params]);
 
-    const course = request.data;
+    const { course, isBlocked } = request.data || {};
     const chapter = useMemo(() => {
-        return course?.chapters[parseInt(searchParams.get('chapter') || '0')];
+        return course?.chapters
+            ? course.chapters[parseInt(searchParams.get('chapter') || '0')]
+            : undefined;
     }, [course, searchParams]);
 
     const moduleIndex = parseInt(searchParams.get('module') || '0');
@@ -55,13 +55,8 @@ const CoursePage = () => {
         }
     }, [chapter, moduleIndex]);
 
-    if (isFreeTier) {
-        return (
-            <UpsellPage
-                redirectTo='/material'
-                currentAction={RestrictedAction.AccessOpenings}
-            />
-        );
+    if (isBlocked) {
+        return <PurchaseCoursePage course={course} />;
     }
 
     if (!request.isSent() || request.isLoading()) {

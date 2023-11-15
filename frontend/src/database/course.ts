@@ -42,11 +42,6 @@ export interface Course {
     cohortRange: string;
 
     /**
-     * The list of chapters included in the course.
-     */
-    chapters: Chapter[];
-
-    /**
      * The price of the course in cents. A non-positive number indicates that the course is
      * not for sale separately from the training plan.
      */
@@ -56,6 +51,17 @@ export interface Course {
      * Whether the course is included with a training-plan subscription.
      */
     includedWithSubscription: boolean;
+
+    /** Whether the course is available for free-tier users. */
+    availableForFreeUsers: boolean;
+
+    /** The buy button id on Stripe. */
+    stripeBuyButtonId: string;
+
+    /**
+     * The list of chapters included in the course.
+     */
+    chapters?: Chapter[];
 }
 
 /**

@@ -15,7 +15,7 @@ export type CourseApiContextType = {
      * @param id The id of the course.
      * @returns An AxiosResponse containing the requested course.
      */
-    getCourse: (type: string, id: string) => Promise<AxiosResponse<Course>>;
+    getCourse: (type: string, id: string) => Promise<AxiosResponse<GetCourseResponse>>;
 
     /**
      * listCourses returns a list of all courses with the provided type.
@@ -26,6 +26,18 @@ export type CourseApiContextType = {
     listCourses: (type: string, startKey?: string) => Promise<Course[]>;
 };
 
+/** A response to a getCourse request. */
+export interface GetCourseResponse {
+    /** The requested Course. */
+    course: Course;
+
+    /**
+     * Whether the user is blocked from viewing this course due to missing purchases.
+     * If true, the course's chapters attribute will be null.
+     */
+    isBlocked: boolean;
+}
+
 /**
  * getCourse returns the course with the provided type and id.
  * @param idToken The id token of the current signed-in user.
@@ -34,7 +46,7 @@ export type CourseApiContextType = {
  * @returns An AxiosResponse containing the requested course.
  */
 export function getCourse(idToken: string, type: string, id: string) {
-    return axios.get<Course>(`${BASE_URL}/courses/${type}/${id}`, {
+    return axios.get<GetCourseResponse>(`${BASE_URL}/courses/${type}/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

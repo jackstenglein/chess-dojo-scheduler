@@ -39,6 +39,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/malbrecht/chess v0.0.0-20190911134141-3465f589170a
+	github.com/stripe/stripe-go v70.15.0+incompatible
 	go.mongodb.org/mongo-driver v1.12.1
 	golang.org/x/crypto v0.13.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect

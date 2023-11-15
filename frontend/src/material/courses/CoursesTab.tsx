@@ -6,7 +6,6 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 import { Course, CourseType } from '../../database/course';
 import LoadingPage from '../../loading/LoadingPage';
-import { useFreeTier } from '../../auth/Auth';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 
 const LEVELS = ['Any Rating', 'Starter (1200-1800)', 'Expert (1800+)'];
@@ -30,7 +29,6 @@ interface CoursesTabProps {
 const CoursesTab: React.FC<CoursesTabProps> = ({ type, groupByColor }) => {
     const request = useRequest<Course[]>();
     const api = useApi();
-    const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
 
     useEffect(() => {
@@ -79,13 +77,6 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ type, groupByColor }) => {
         return <LoadingPage />;
     }
 
-    const onClickLink = (event: React.MouseEvent<HTMLAnchorElement>) => {
-        if (isFreeTier) {
-            event.preventDefault();
-            setUpsellDialogOpen(true);
-        }
-    };
-
     console.log('levels: ', levels);
 
     return (
@@ -133,7 +124,6 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ type, groupByColor }) => {
                                                             style={{
                                                                 textDecoration: 'none',
                                                             }}
-                                                            onClick={onClickLink}
                                                         >
                                                             <li key={course.id}>
                                                                 {course.name}
@@ -155,7 +145,6 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ type, groupByColor }) => {
                                                 style={{
                                                     textDecoration: 'none',
                                                 }}
-                                                onClick={onClickLink}
                                             >
                                                 <li key={course.id}>{course.name}</li>
                                             </Link>
