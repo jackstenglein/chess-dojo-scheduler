@@ -6,8 +6,9 @@ import BooksTab from './BooksTab';
 import RatingsTab from './RatingsTab';
 import SparringTab from './SparringTab';
 import ModelGamesTab from './ModelGamesTab';
-import OpeningsTab from './openings/OpeningsTab';
 import GamesToMemorizeTab from './GamesToMemorizeTab';
+import CoursesTab from './courses/CoursesTab';
+import { CourseType } from '../database/course';
 
 const MaterialPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'openings' });
@@ -21,6 +22,7 @@ const MaterialPage = () => {
                         variant='scrollable'
                     >
                         <Tab label='Openings' value='openings' />
+                        <Tab label='Courses' value='courses' />
                         <Tab label='Books' value='books' />
                         <Tab label='Sparring Positions' value='sparring' />
                         <Tab label='Model Games' value='modelGames' />
@@ -34,7 +36,11 @@ const MaterialPage = () => {
                 </TabPanel>
 
                 <TabPanel value='openings' sx={{ px: { xs: 0, sm: 3 } }}>
-                    <OpeningsTab />
+                    <CoursesTab type={CourseType.Opening} groupByColor />
+                </TabPanel>
+
+                <TabPanel value='courses' sx={{ px: { xs: 0, sm: 3 } }}>
+                    <CoursesTab type={CourseType.Other} />
                 </TabPanel>
 
                 <TabPanel value='sparring' sx={{ px: { xs: 0, sm: 3 } }}>

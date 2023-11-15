@@ -41,7 +41,6 @@ import ThemeProvider from './ThemeProvider';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import MaterialPage from './material/MaterialPage';
 import ErrorBoundary from './ErrorBoundary';
-import OpeningPage from './material/openings/OpeningPage';
 import TournamentsPage from './tournaments/TournamentsPage';
 import RegistrationPage from './tournaments/openClassical/RegistrationPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
@@ -54,6 +53,7 @@ import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import UnsubscribePage from './dojoDigest/UnsubscribePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
+import CoursePage from './material/courses/CoursePage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -140,7 +140,7 @@ const router = createBrowserRouter(
                         <Route index element={<MaterialPage />} />
                     </Route>
 
-                    <Route path='openings/:id' element={<OpeningPage />} />
+                    <Route path='courses/:type/:id' element={<CoursePage />} />
 
                     <Route path='notifications' element={<NotificationPage />} />
 

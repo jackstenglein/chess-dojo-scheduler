@@ -36,15 +36,15 @@ type Course struct {
 	// The human-readable range of the cohorts the course is designed for.
 	CohortRange string `dynamodbav:"cohortRange" json:"cohortRange"`
 
-	// The list of chapters included in the course.
-	Chapters []*Chapter `dynamodbav:"chapters" json:"chapters"`
-
 	// The price of the course in cents (e.g. 700 is actually $7). A non-positive number indicates that
 	// the course is not separately for sale.
 	Price int `dynamodbav:"price" json:"price"`
 
 	// Whether the course is included with a training-plan subscription.
 	IncludedWithSubscription bool `dynamodbav:"includedWithSubscription" json:"includedWithSubscription"`
+
+	// The list of chapters included in the course.
+	Chapters []*Chapter `dynamodbav:"chapters" json:"chapters"`
 }
 
 // Chapter contains the information for a single course chapter.

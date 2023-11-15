@@ -13,13 +13,14 @@ import { useFreeTier } from '../../auth/Auth';
 import UpsellPage from '../../upsell/UpsellPage';
 import { RestrictedAction } from '../../upsell/UpsellDialog';
 
-type OpeningPageParams = {
+type CoursePageParams = {
+    type: CourseType;
     id: string;
 };
 
-const OpeningPage = () => {
+const CoursePage = () => {
     const api = useApi();
-    const params = useParams<OpeningPageParams>();
+    const params = useParams<CoursePageParams>();
     const request = useRequest<Course>();
     const [searchParams, setSearchParams] = useSearchParams({
         chapter: '0',
@@ -28,9 +29,9 @@ const OpeningPage = () => {
     const isFreeTier = useFreeTier();
 
     useEffect(() => {
-        if (!request.isSent() && params.id) {
+        if (!request.isSent() && params.type && params.id) {
             request.onStart();
-            api.getCourse(CourseType.Opening, params.id)
+            api.getCourse(params.type, params.id)
                 .then((resp) => {
                     request.onSuccess(resp.data);
                     console.log('getOpening: ', resp);
@@ -127,4 +128,4 @@ const OpeningPage = () => {
     );
 };
 
-export default OpeningPage;
+export default CoursePage;

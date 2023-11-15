@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
 import PgnBoard from '../board/pgn/PgnBoard';
-import PgnSelector from './openings/PgnSelector';
+import PgnSelector from './courses/PgnSelector';
 import PuzzleBoard from '../board/puzzle/PuzzleBoard';
 import { coachUrls, coaches } from '../database/course';
 

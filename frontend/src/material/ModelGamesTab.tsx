@@ -3,7 +3,7 @@ import { Box, Container, MenuItem, Stack, TextField, Typography } from '@mui/mat
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import PgnSelector from './openings/PgnSelector';
+import PgnSelector from './courses/PgnSelector';
 import { Game, GameInfo } from '../database/game';
 import LoadingPage from '../loading/LoadingPage';
 import { compareCohorts, dojoCohorts } from '../database/user';
