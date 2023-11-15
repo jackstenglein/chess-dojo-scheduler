@@ -744,7 +744,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                     />
                 </AccordionDetails>
             </Accordion>
-            <Accordion
+            {/* <Accordion
                 id='search-by-position'
                 expanded={expanded === SearchType.Position}
                 onChange={onChangePanel(SearchType.Position)}
@@ -764,7 +764,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                         onSearch={onSearchByPosition}
                     />
                 </AccordionDetails>
-            </Accordion>
+            </Accordion> */}
             <Accordion
                 expanded={expanded === SearchType.Owner}
                 onChange={onChangePanel(SearchType.Owner)}

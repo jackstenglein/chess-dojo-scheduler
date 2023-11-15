@@ -119,8 +119,8 @@ describe('List Games Page', () => {
         cy.getBySel('upsell-dialog').should('be.visible');
     });
 
-    it('allows searching by opening', () => {
-        cy.contains('Search By Opening').click();
+    it('allows searching by eco', () => {
+        cy.contains('Search By ECO').click();
         cy.getBySel('cohort-select').should('not.be.visible');
         cy.getBySel('search-by-opening').within(() => {
             cy.getBySel('opening-eco').should('be.visible');
