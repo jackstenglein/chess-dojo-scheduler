@@ -26,6 +26,9 @@ export interface Course {
     /** The description of the course. */
     description: string;
 
+    /** Bullet points describing what's included in the course. */
+    whatsIncluded?: string[];
+
     /**
      * The color the course is designed for.
      */

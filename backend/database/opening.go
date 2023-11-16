@@ -27,6 +27,9 @@ type Course struct {
 	// The description of the course.
 	Description string `dynamodbav:"description" json:"description"`
 
+	// Bullet points describing what's included in the course.
+	WhatsIncluded []string `dynamodbav:"whatsIncluded" json:"whatsIncluded"`
+
 	// The color the course is designed for.
 	Color string `dynamodbav:"color" json:"color"`
 
