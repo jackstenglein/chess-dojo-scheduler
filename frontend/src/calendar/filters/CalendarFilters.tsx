@@ -353,6 +353,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 onChange={(event) =>
                                     filters.setDojoEvents(event.target.checked)
                                 }
+                                color='success'
                             />
                         }
                         label='Dojo Events'
@@ -368,7 +369,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     >
                         <Stack pt={2}>
                             <Typography variant='subtitle2' color='text.secondary'>
-                                Tournament Types
+                                Tournaments
                             </Typography>
 
                             {Object.values(TimeControlType).map((type) => (
@@ -387,6 +388,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                                 )
                                             }
                                             disabled={!filters.dojoEvents}
+                                            sx={{
+                                                color: 'secondary.dark',
+                                                '&.Mui-checked': {
+                                                    color: 'secondary.dark',
+                                                },
+                                            }}
                                         />
                                     }
                                     label={displayTimeControlType(type)}
@@ -396,8 +403,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     </Tooltip>
 
                     <Stack pt={2}>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                            Meeting Types
+                        <Typography variant='h6' color='text.secondary'>
+                            Meetings
                         </Typography>
                         <FormControlLabel
                             control={
@@ -406,6 +413,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     onChange={(event) =>
                                         filters.setAllTypes(event.target.checked)
                                     }
+                                    sx={{
+                                        color: 'error.dark',
+                                        '&.Mui-checked': {
+                                            color: 'error.dark',
+                                        },
+                                    }}
                                 />
                             }
                             label='All Types'
@@ -419,6 +432,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                         onChange={(event) =>
                                             onChangeType(type, event.target.checked)
                                         }
+                                        sx={{
+                                            color: 'error.dark',
+                                            '&.Mui-checked:not(.Mui-disabled)': {
+                                                color: 'error.dark',
+                                            },
+                                        }}
                                     />
                                 }
                                 disabled={filters.allTypes}
@@ -437,6 +456,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     onChange={(event) =>
                                         filters.setAllCohorts(event.target.checked)
                                     }
+                                    sx={{
+                                        color: 'error.dark',
+                                        '&.Mui-checked:not(.Mui-disabled)': {
+                                            color: 'error.dark',
+                                        },
+                                    }}
                                 />
                             }
                             label='All Cohorts'
@@ -452,6 +477,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                         onChange={(event) =>
                                             onChangeCohort(cohort, event.target.checked)
                                         }
+                                        sx={{
+                                            color: 'error.dark',
+                                            '&.Mui-checked:not(.Mui-disabled)': {
+                                                color: 'error.dark',
+                                            },
+                                        }}
                                     />
                                 }
                                 disabled={filters.allCohorts}
