@@ -71,6 +71,12 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
                     `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`
                 );
                 break;
+
+            case NotificationType.ExplorerGame:
+                navigate(
+                    `/games/${notification.explorerGameMetadata?.cohort}/${notification.explorerGameMetadata?.id}`
+                );
+                break;
         }
 
         if (onClick) {

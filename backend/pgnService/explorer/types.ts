@@ -238,6 +238,32 @@ export interface LichessExplorerMove {
     averageRating: number;
 }
 
+export const dojoCohorts: string[] = [
+    '0-300',
+    '300-400',
+    '400-500',
+    '500-600',
+    '600-700',
+    '700-800',
+    '800-900',
+    '900-1000',
+    '1000-1100',
+    '1100-1200',
+    '1200-1300',
+    '1300-1400',
+    '1400-1500',
+    '1500-1600',
+    '1600-1700',
+    '1700-1800',
+    '1800-1900',
+    '1900-2000',
+    '2000-2100',
+    '2100-2200',
+    '2200-2300',
+    '2300-2400',
+    '2400+',
+];
+
 /**
  * Returns the normalized version of the provided FEN. See the comment on ExplorerPosition for a
  * description of how FENs are normalized.

@@ -21,6 +21,7 @@ import {
     Game,
     GameResult,
     normalizeFen,
+    dojoCohorts,
 } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
@@ -72,32 +73,6 @@ interface ExplorerMoveUpdate {
     /** The new result of the move. */
     newResult?: keyof ExplorerResult;
 }
-
-const dojoCohorts: string[] = [
-    '0-300',
-    '300-400',
-    '400-500',
-    '500-600',
-    '600-700',
-    '700-800',
-    '800-900',
-    '900-1000',
-    '1000-1100',
-    '1100-1200',
-    '1200-1300',
-    '1300-1400',
-    '1400-1500',
-    '1500-1600',
-    '1600-1700',
-    '1700-1800',
-    '1800-1900',
-    '1900-2000',
-    '2000-2100',
-    '2100-2200',
-    '2200-2300',
-    '2300-2400',
-    '2400+',
-];
 
 /**
  * Extracts the positions from a list of Games and saves them to the explorer table.

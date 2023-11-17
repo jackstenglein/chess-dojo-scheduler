@@ -62,6 +62,29 @@ functions:
           - dynamodb:DeleteItem
         Resource: !GetAtt ExplorerTable.Arn
 
+  notifyFollowers:
+    handler: explorer/notifyFollowers.handler
+    timeout: 30
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt ExplorerTable.StreamArn
+          batchWindow: 20
+          batchSize: 5
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          filterPatterns:
+            - eventName: [INSERT]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt ExplorerTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+        Resource: ${param:NotificationsTableArn}
+
   getPosition:
     handler: explorer/getPosition.handler
     events:
@@ -124,6 +147,8 @@ resources:
             - IsProd
             - true
             - false
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
         AttributeDefinitions:
           - AttributeName: normalizedFen
             AttributeType: S
