@@ -9,6 +9,7 @@ import { GetExplorerPositionResult } from '../explorerApi';
 interface UsePositionResponse {
     position: GetExplorerPositionResult | undefined;
     request: Request;
+    putPosition: (p: GetExplorerPositionResult) => void;
 }
 
 export function usePosition(fen: string): UsePositionResponse {
@@ -51,5 +52,5 @@ export function usePosition(fen: string): UsePositionResponse {
         }
     }, [normalizedFen, cache.positions, reset]);
 
-    return { position, request };
+    return { position, request, putPosition: cache.positions.put };
 }

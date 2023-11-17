@@ -1,33 +1,28 @@
 import {
-    Box,
-    CardContent,
-    Link,
-    MenuItem,
     Stack,
-    Tab,
+    Typography,
     TextField,
     Tooltip,
-    Typography,
+    Box,
+    MenuItem,
+    darken,
+    lighten,
+    styled,
+    Link,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2/Grid2';
-import FunctionsIcon from '@mui/icons-material/Functions';
-import { TabContext, TabList } from '@mui/lab';
 import {
-    DataGridPro,
     GridColDef,
     GridRenderCellParams,
-    GridRowModel,
-    GridRowParams,
     GridValueGetterParams,
+    GridRowParams,
+    GridRowModel,
+    DataGridPro,
 } from '@mui/x-data-grid-pro';
-import { darken, lighten, styled } from '@mui/material/styles';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Event, EventType } from '@jackstenglein/chess';
+import FunctionsIcon from '@mui/icons-material/Functions';
+import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
-import { useChess } from './PgnBoard';
-import { usePosition } from '../../api/cache/positions';
-import LoadingPage from '../../loading/LoadingPage';
 import {
     ExplorerMove,
     ExplorerPosition,
@@ -38,10 +33,12 @@ import {
     getResultCount,
     isExplorerMove,
     isExplorerPosition,
-} from '../../database/explorer';
-import { reconcile } from '../Board';
-import { dojoCohorts, getCohortRange } from '../../database/user';
-import { Request } from '../../api/Request';
+} from '../../../database/explorer';
+import { getCohortRange, dojoCohorts } from '../../../database/user';
+import LoadingPage from '../../../loading/LoadingPage';
+import { reconcile } from '../../Board';
+import { useChess } from '../PgnBoard';
+import { Request } from '../../../api/Request';
 
 const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -57,65 +54,28 @@ const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
     })
 );
 
-const Explorer = () => {
-    const [tab, setTab] = useState<'dojo' | 'lichess'>('dojo');
-    const { chess } = useChess();
-    const [fen, setFen] = useState(chess?.fen() || '');
-    const { position, request } = usePosition(fen);
-
-    useEffect(() => {
-        if (chess) {
-            const observer = {
-                types: [EventType.Initialized, EventType.LegalMove],
-                handler: (event: Event) => {
-                    if (event.type === EventType.Initialized) {
-                        setFen(chess.fen());
-                    } else {
-                        setFen(event.move?.after || chess.setUpFen());
-                    }
-                },
-            };
-
-            chess.addObserver(observer);
-            return () => chess.removeObserver(observer);
-        }
-    }, [chess, setFen]);
-
-    return (
-        <CardContent>
-            <TabContext value={tab}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <TabList
-                        onChange={(_, val) => setTab(val)}
-                        aria-label='Position database type'
-                    >
-                        <Tab label='Dojo Database' value='dojo' />
-                        <Tab label='Lichess Database' value='lichess' />
-                    </TabList>
-                </Box>
-
-                <Database
-                    type={tab}
-                    fen={fen}
-                    position={tab === 'dojo' ? position?.dojo : position?.lichess}
-                    request={request}
-                />
-            </TabContext>
-        </CardContent>
-    );
-};
-
 interface DatabaseProps {
     type: 'dojo' | 'lichess';
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
     request: Request;
+    minCohort: string;
+    maxCohort: string;
+    setMinCohort: (v: string) => void;
+    setMaxCohort: (v: string) => void;
 }
 
-const Database: React.FC<DatabaseProps> = ({ type, fen, position, request }) => {
+const Database: React.FC<DatabaseProps> = ({
+    type,
+    fen,
+    position,
+    request,
+    minCohort,
+    maxCohort,
+    setMinCohort,
+    setMaxCohort,
+}) => {
     const { chess, board } = useChess();
-    const [minCohort, setMinCohort] = useState('');
-    const [maxCohort, setMaxCohort] = useState('');
 
     const cohortRange = useMemo(
         () => getCohortRange(minCohort, maxCohort),
@@ -333,8 +293,15 @@ const Database: React.FC<DatabaseProps> = ({ type, fen, position, request }) => 
                             value={maxCohort}
                             onChange={(e) => setMaxCohort(e.target.value)}
                         >
-                            {dojoCohorts.map((cohort) => (
-                                <MenuItem key={cohort} value={cohort}>
+                            {dojoCohorts.map((cohort, i) => (
+                                <MenuItem
+                                    key={cohort}
+                                    value={cohort}
+                                    disabled={
+                                        Boolean(minCohort) &&
+                                        dojoCohorts.indexOf(minCohort) > i
+                                    }
+                                >
                                     {cohort}
                                 </MenuItem>
                             ))}
@@ -401,6 +368,8 @@ const Database: React.FC<DatabaseProps> = ({ type, fen, position, request }) => 
         </Grid>
     );
 };
+
+export default Database;
 
 const resultKeys: (keyof ExplorerResult)[] = ['white', 'draws', 'black', 'analysis'];
 
@@ -488,5 +457,3 @@ const ResultGraph: React.FC<ResultGraphProps> = ({ totalGames, resultCount }) =>
         </Stack>
     );
 };
-
-export default Explorer;

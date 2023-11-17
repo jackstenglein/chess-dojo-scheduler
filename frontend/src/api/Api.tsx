@@ -88,7 +88,12 @@ import {
     setNewsfeedReaction,
 } from './newsfeedApi';
 import { getScoreboard, ScoreboardApiContextType } from './scoreboardApi';
-import { ExplorerApiContextType, getPosition } from './explorerApi';
+import {
+    ExplorerApiContextType,
+    followPosition,
+    FollowPositionRequest,
+    getPosition,
+} from './explorerApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -284,6 +289,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getScoreboard: (type: string) => getScoreboard(idToken, type),
 
             getPosition: (fen: string) => getPosition(idToken, fen),
+            followPosition: (request: FollowPositionRequest) =>
+                followPosition(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

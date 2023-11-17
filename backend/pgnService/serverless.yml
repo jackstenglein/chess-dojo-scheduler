@@ -92,13 +92,38 @@ functions:
           - dynamodb:Query
         Resource: !GetAtt ExplorerTable.Arn
 
+  followPosition:
+    handler: explorer/followPosition.handler
+    events:
+      - httpApi:
+          path: /explorer/position/follower
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+        Resource: !GetAtt ExplorerTable.Arn
+
 resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
   Resources:
     ExplorerTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Retain
       Properties:
         TableName: ${sls:stage}-explorer
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
         AttributeDefinitions:
           - AttributeName: normalizedFen
             AttributeType: S
@@ -109,4 +134,16 @@ resources:
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: FollowerIndex
+            KeySchema:
+              - AttributeName: id
+                KeyType: HASH
+              - AttributeName: normalizedFen
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - minCohort
+                - maxCohort
+                - disableVariations

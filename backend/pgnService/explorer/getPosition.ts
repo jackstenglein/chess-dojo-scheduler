@@ -6,7 +6,12 @@ import { Chess } from '@jackstenglein/chess';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 
-import { ExplorerPosition, LichessExplorerPosition, normalizeFen } from './types';
+import {
+    ExplorerPosition,
+    ExplorerPositionFollower,
+    LichessExplorerPosition,
+    normalizeFen,
+} from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
@@ -31,6 +36,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const results = await Promise.all([
             fetchFromDojo(normalizedFen),
             fetchFromLichess(normalizedFen),
+            fetchFollower(normalizedFen, event),
         ]);
 
         return {
@@ -39,6 +45,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 normalizedFen,
                 dojo: results[0],
                 lichess: results[1],
+                follower: results[2],
             }),
         };
     } catch (err) {
@@ -53,13 +60,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
  * @returns An ExplorerPosition for the provided FEN.
  */
 async function fetchFromDojo(fen: string): Promise<ExplorerPosition | null> {
-    const chess = new Chess({ fen });
-    const normalizedFen = normalizeFen(chess.fen());
-
     const getItemOutput = await dynamo.send(
         new GetItemCommand({
             Key: {
-                normalizedFen: { S: normalizedFen },
+                normalizedFen: { S: fen },
                 id: { S: 'POSITION' },
             },
             TableName: explorerTable,
@@ -89,6 +93,43 @@ async function fetchFromLichess(fen: string): Promise<LichessExplorerPosition | 
         return response.data;
     } catch (err) {
         console.error('Failed to get explorer position from Lichess: ', err);
+        return null;
+    }
+}
+
+/**
+ * Fetches the ExplorerPositionFollower for the provided FEN and caller.
+ * @param fen The FEN of the position to fetch.
+ * @param event The Lambda HTTP event containing the caller's username.
+ */
+async function fetchFollower(
+    fen: string,
+    event: any
+): Promise<ExplorerPositionFollower | null> {
+    const claims = event.requestContext?.authorizer?.jwt?.claims;
+    if (!claims || !claims['cognito:username']) {
+        return null;
+    }
+    const username = claims['cognito:username'];
+
+    try {
+        const getItemOutput = await dynamo.send(
+            new GetItemCommand({
+                Key: {
+                    normalizedFen: { S: fen },
+                    id: { S: `FOLLOWER#${username}` },
+                },
+                TableName: explorerTable,
+            })
+        );
+        if (!getItemOutput.Item) {
+            return null;
+        }
+
+        const follower = unmarshall(getItemOutput.Item);
+        return follower as ExplorerPositionFollower;
+    } catch (err) {
+        console.error(`Failed to fetch follower: `, err);
         return null;
     }
 }

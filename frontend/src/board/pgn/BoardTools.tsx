@@ -30,7 +30,7 @@ import { EventType, trackEvent } from '../../analytics/events';
 import { unstable_usePrompt } from 'react-router-dom';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { useLightMode } from '../../ThemeProvider';
-import Explorer from './Explorer';
+import Explorer from './explorer/Explorer';
 
 interface BoardToolsProps {
     showPlayerHeaders: boolean;
