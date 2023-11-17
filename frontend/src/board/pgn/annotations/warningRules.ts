@@ -83,6 +83,8 @@ export function getWarnings(chess: Chess | undefined): Record<string, Warning> {
 }
 
 function getWarningsRecursive(chess: Chess, move: Move | null): Record<string, Warning> {
+    console.log('getWarningsRecursive: ', move);
+
     const result: Record<string, Warning> = {};
 
     for (const rule of rules) {
@@ -100,12 +102,14 @@ function getWarningsRecursive(chess: Chess, move: Move | null): Record<string, W
     }
 
     for (const variation of move?.variations || []) {
-        const recursiveResults = getWarningsRecursive(chess, variation[0]);
-        for (const [displayName, warning] of Object.entries(recursiveResults)) {
-            if (result[displayName]) {
-                result[displayName].moves.push(...warning.moves);
-            } else {
-                result[displayName] = warning;
+        if (variation.length > 0) {
+            const recursiveResults = getWarningsRecursive(chess, variation[0]);
+            for (const [displayName, warning] of Object.entries(recursiveResults)) {
+                if (result[displayName]) {
+                    result[displayName].moves.push(...warning.moves);
+                } else {
+                    result[displayName] = warning;
+                }
             }
         }
     }

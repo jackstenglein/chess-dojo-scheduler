@@ -6,7 +6,9 @@ import Ellipsis from './Ellipsis';
 import Lines from './Lines';
 
 export function hasInterrupt(move: Move): boolean {
-    return (move.commentAfter?.length ?? 0) > 0 || move.variations.length > 0;
+    return (
+        (move.commentAfter?.length ?? 0) > 0 || move.variations?.some((v) => v.length > 0)
+    );
 }
 
 interface InterruptProps {

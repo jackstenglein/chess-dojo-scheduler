@@ -31,10 +31,6 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll, onClickMove }) =
                     EventType.PromoteVariation,
                 ],
                 handler: (event: Event) => {
-                    if (event.type === EventType.PromoteVariation) {
-                        console.log('Promote event: ', event);
-                    }
-
                     if (
                         event.type === EventType.NewVariation &&
                         move === chess.getVariantParent(event.move)
