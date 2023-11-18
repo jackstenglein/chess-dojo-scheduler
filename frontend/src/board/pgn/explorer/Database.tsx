@@ -99,9 +99,9 @@ const Database: React.FC<DatabaseProps> = ({
                 const lhsCount = getGameCount(lhs.results, cohortRange);
                 const rhsCount = getGameCount(rhs.results, cohortRange);
                 if (lhsCount < rhsCount) {
-                    return -1;
+                    return 1;
                 }
-                return 1;
+                return -1;
             });
     }, [position, cohortRange]);
 
