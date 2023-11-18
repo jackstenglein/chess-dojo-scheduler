@@ -91,43 +91,50 @@ export const handler: DynamoDBStreamHandler = async (event) => {
  * @param record A single DynamoDB stream record to extract positions from.
  */
 async function processRecord(record: DynamoDBRecord) {
-    console.log('record: %j', record);
-    console.log('record.dynamodb: %j', record.dynamodb);
+    try {
+        console.log('record: %j', record);
 
-    const oldGame = record.dynamodb?.OldImage
-        ? (unmarshall(record.dynamodb.OldImage as Record<string, AttributeValue>) as Game)
-        : undefined;
-    const newGame = record.dynamodb?.NewImage
-        ? (unmarshall(record.dynamodb.NewImage as Record<string, AttributeValue>) as Game)
-        : undefined;
+        const oldGame = record.dynamodb?.OldImage
+            ? (unmarshall(
+                  record.dynamodb.OldImage as Record<string, AttributeValue>
+              ) as Game)
+            : undefined;
+        const newGame = record.dynamodb?.NewImage
+            ? (unmarshall(
+                  record.dynamodb.NewImage as Record<string, AttributeValue>
+              ) as Game)
+            : undefined;
 
-    const game = newGame || oldGame;
-    if (!game) {
-        console.log('Neither new game nor old game are present, skipping');
-        return;
+        const game = newGame || oldGame;
+        if (!game) {
+            console.log('Neither new game nor old game are present, skipping');
+            return;
+        }
+
+        if (oldGame?.pgn === newGame?.pgn) {
+            console.log('PGN was not updated, skipping');
+            return;
+        }
+
+        const oldExplorerPositions = extractPositions(oldGame?.pgn);
+        const newExplorerPositions = extractPositions(newGame?.pgn);
+        const updates = getUpdates(oldExplorerPositions, newExplorerPositions);
+
+        console.log('Old positions: ', oldExplorerPositions);
+        console.log('New positions: ', newExplorerPositions);
+        console.log('Final updates: %j', updates);
+        console.log('Length of updates: ', updates.length);
+
+        const chess = new Chess();
+        const promises: Promise<boolean>[] = [];
+        for (const update of Object.values(updates)) {
+            promises.push(writeExplorerPosition(game, chess, update));
+        }
+        const results = await Promise.allSettled(promises);
+        console.log('Finished with results: ', results);
+    } catch (err) {
+        console.error('ERROR: Failed to process record %j: ', record, err);
     }
-
-    if (oldGame?.pgn === newGame?.pgn) {
-        console.log('PGN was not updated, skipping');
-        return;
-    }
-
-    const oldExplorerPositions = extractPositions(oldGame?.pgn);
-    const newExplorerPositions = extractPositions(newGame?.pgn);
-    const updates = getUpdates(oldExplorerPositions, newExplorerPositions);
-
-    console.log('Old positions: ', oldExplorerPositions);
-    console.log('New positions: ', newExplorerPositions);
-    console.log('Final updates: %j', updates);
-    console.log('Length of updates: ', updates.length);
-
-    const chess = new Chess();
-    const promises: Promise<boolean>[] = [];
-    for (const update of Object.values(updates)) {
-        promises.push(writeExplorerPosition(game, chess, update));
-    }
-    const results = await Promise.allSettled(promises);
-    console.log('Finished with results: ', results);
 }
 
 /**
@@ -308,7 +315,7 @@ async function writeExplorerPosition(
     update: ExplorerPositionUpdate
 ): Promise<boolean> {
     if (!update.newResult && !update.oldResult) {
-        console.error('update does not contain newResult nor oldResult');
+        console.error('ERROR: update does not contain newResult nor oldResult');
         return false;
     }
 
@@ -340,7 +347,7 @@ async function setOrUpdateExplorerPosition(
 ): Promise<boolean> {
     if (!update.newResult) {
         console.error(
-            'setExplorerPosition called with update where newResult is undefined'
+            'ERROR: setExplorerPosition called with update where newResult is undefined'
         );
         return false;
     }
@@ -482,7 +489,7 @@ async function updateExplorerPosition(
         return true;
     } catch (err) {
         console.error(
-            'Failed to update explorer position %j with input %j: ',
+            'ERROR: Failed to update explorer position %j with input %j: ',
             update,
             input,
             err
@@ -513,29 +520,29 @@ async function updateExplorerGame(game: Game, update: ExplorerPositionUpdate) {
  * @param update The update applied to the ExplorerPosition.
  */
 async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
-    try {
-        const id = `GAME#${game.cohort}#${game.id}`;
-        const explorerGame: ExplorerGame = {
-            normalizedFen: update.normalizedFen,
-            id,
-            cohort: game.cohort,
-            owner: game.owner,
-            ownerDisplayName: game.ownerDisplayName,
-            result: update.newResult!,
-            game: {
-                ...game,
-                pgn: '',
-            },
-        };
+    const id = `GAME#${game.cohort}#${game.id}`;
+    const explorerGame: ExplorerGame = {
+        normalizedFen: update.normalizedFen,
+        id,
+        cohort: game.cohort,
+        owner: game.owner,
+        ownerDisplayName: game.ownerDisplayName,
+        result: update.newResult!,
+        game: {
+            ...game,
+            pgn: '',
+        },
+    };
 
+    try {
         await dynamo.send(
             new PutItemCommand({
-                Item: marshall(explorerGame),
+                Item: marshall(explorerGame, { removeUndefinedValues: true }),
                 TableName: explorerTable,
             })
         );
     } catch (err) {
-        console.error('Failed to set explorer game: ', err);
+        console.error('ERROR: Failed to set explorer game %j: ', explorerGame, err);
     }
 }
 
@@ -557,6 +564,6 @@ async function removeExplorerGame(game: Game, update: ExplorerPositionUpdate) {
             })
         );
     } catch (err) {
-        console.error('Failed to delete explorer game: ', err);
+        console.error('ERROR: Failed to delete explorer game: ', err);
     }
 }

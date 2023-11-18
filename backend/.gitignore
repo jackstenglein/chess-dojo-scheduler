@@ -8,6 +8,7 @@ openClassicalServiceAccountKey.json
 # Data files
 subscribers.csv
 unsubscribers.csv
+backfillGamesOutput.txt
 
 # Serverless directories
 .serverless

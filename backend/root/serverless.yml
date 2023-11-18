@@ -392,20 +392,12 @@ resources:
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
-        BillingMode: !If
-          - IsProd
-          - PROVISIONED
-          - PAY_PER_REQUEST
+        BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: !If
             - IsProd
             - true
             - false
-        ProvisionedThroughput: !If
-          - IsProd
-          - ReadCapacityUnits: 4
-            WriteCapacityUnits: 2
-          - !Ref AWS::NoValue
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         GlobalSecondaryIndexes:
@@ -422,11 +414,6 @@ resources:
                 - black
                 - date
                 - headers
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 2
-                WriteCapacityUnits: 2
-              - !Ref AWS::NoValue
           - IndexName: WhiteIdx
             KeySchema:
               - AttributeName: white
@@ -442,11 +429,6 @@ resources:
                 - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 2
-                WriteCapacityUnits: 2
-              - !Ref AWS::NoValue
           - IndexName: BlackIdx
             KeySchema:
               - AttributeName: black
@@ -462,11 +444,6 @@ resources:
                 - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 2
-                WriteCapacityUnits: 2
-              - !Ref AWS::NoValue
           - IndexName: FeaturedIdx
             KeySchema:
               - AttributeName: isFeatured
@@ -483,11 +460,6 @@ resources:
                 - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
 
     OpeningTable:
       Type: AWS::DynamoDB::Table

@@ -98,7 +98,7 @@ export interface ExplorerGame {
     owner: string;
 
     /** The display name of the owner of the game. */
-    ownerDisplayName: string;
+    ownerDisplayName?: string;
 
     /**
      * The result of the game, as related to the associated FEN. IE: if the FEN does not appear in
@@ -162,7 +162,7 @@ export interface Game {
     owner: string;
 
     /** The display name of the submitter of the game. */
-    ownerDisplayName: string;
+    ownerDisplayName?: string;
 
     /** The headers of the PGN. */
     headers: PgnHeaders;
