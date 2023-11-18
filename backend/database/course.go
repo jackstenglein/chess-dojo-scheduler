@@ -152,29 +152,6 @@ func (repo *dynamoRepository) GetCourse(courseType, id string) (*Course, error) 
 	return &course, nil
 }
 
-// TODO: delete after completing opening -> course migration
-type OpeningGetter interface {
-	// GetOpening returns the course with the provided id.
-	GetOpening(id string) (*Course, error)
-}
-
-// TODO: delete after completing opening -> course migration
-// GetOpening returns the course with the provided id.
-func (repo *dynamoRepository) GetOpening(id string) (*Course, error) {
-	input := &dynamodb.GetItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"id": {S: aws.String(id)},
-		},
-		TableName: aws.String(openingTable),
-	}
-
-	course := Course{}
-	if err := repo.getItem(input, &course); err != nil {
-		return nil, err
-	}
-	return &course, nil
-}
-
 // CourseLister provides an interface for listing courses.
 type CourseLister interface {
 	// ListCourses returns a list of courses with the provided type.
@@ -196,27 +173,6 @@ func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]*Cours
 	}
 	var courses []*Course
 	lastKey, err := repo.query(input, startKey, &courses)
-	if err != nil {
-		return nil, "", err
-	}
-	return courses, lastKey, nil
-}
-
-// TODO: delete after completing opening -> course migration
-type OpeningLister interface {
-	// ListOpenings returns a list of opening courses in the database.
-	ListOpenings(startKey string) ([]*Course, string, error)
-}
-
-// TODO: delete after completing opening -> course migration
-// ListOpenings returns a list of opening courses in the database.
-func (repo *dynamoRepository) ListOpenings(startKey string) ([]*Course, string, error) {
-	input := &dynamodb.ScanInput{
-		IndexName: aws.String("CourseIndex"),
-		TableName: aws.String(openingTable),
-	}
-	var courses []*Course
-	lastKey, err := repo.scan(input, startKey, &courses)
 	if err != nil {
 		return nil, "", err
 	}

@@ -461,43 +461,6 @@ resources:
                 - ownerPreviousCohort
                 - headers
 
-    OpeningTable:
-      Type: AWS::DynamoDB::Table
-      DeletionPolicy: Retain
-      Properties:
-        TableName: ${sls:stage}-openings
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        BillingMode: !If
-          - IsProd
-          - PROVISIONED
-          - PAY_PER_REQUEST
-        ProvisionedThroughput: !If
-          - IsProd
-          - ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
-          - !Ref AWS::NoValue
-        GlobalSecondaryIndexes:
-          - IndexName: CourseIndex
-            KeySchema:
-              - AttributeName: id
-                KeyType: HASH
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - name
-                - cohortRange
-                - color
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
-
     TournamentsTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Retain
@@ -681,8 +644,6 @@ resources:
       Value: !GetAtt RequirementsTable.Arn
     GraduationsTableArn:
       Value: !GetAtt GraduationsTable.Arn
-    OpeningsTableArn:
-      Value: !GetAtt OpeningTable.Arn
     NewsfeedTableArn:
       Value: !GetAtt NewsfeedTable.Arn
     TimelineTableArn:

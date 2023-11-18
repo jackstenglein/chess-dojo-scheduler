@@ -42,13 +42,6 @@ services:
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       GraduationsTableArn: ${chess-dojo-scheduler.GraduationsTableArn}
 
-  openings:
-    path: opening
-    params:
-      httpApiId: ${chess-dojo-scheduler.HttpApiId}
-      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
-      OpeningsTableArn: ${chess-dojo-scheduler.OpeningsTableArn}
-
   courseService:
     path: courseService
     params:
