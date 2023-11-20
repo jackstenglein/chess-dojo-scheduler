@@ -175,9 +175,13 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 	if r.NumberOfCohorts == 1 || r.NumberOfCohorts == 0 {
 		count, _ = progress.Counts[AllCohorts]
 	} else if r.NumberOfCohorts > 1 && len(progress.Counts) >= r.NumberOfCohorts {
-		for _, c := range progress.Counts {
-			if c > count {
-				count = c
+		if c, ok := progress.Counts[cohort]; ok {
+			count = c
+		} else {
+			for _, c := range progress.Counts {
+				if c > count {
+					count = c
+				}
 			}
 		}
 	} else {

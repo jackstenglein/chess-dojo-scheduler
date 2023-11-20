@@ -127,6 +127,10 @@ export function getCurrentCount(
         requirement.numberOfCohorts > 1 &&
         Object.keys(progress.counts).length >= requirement.numberOfCohorts
     ) {
+        if (progress.counts[cohort] !== undefined) {
+            return clampCount(cohort, requirement, progress.counts[cohort], clamp);
+        }
+
         return clampCount(
             cohort,
             requirement,
