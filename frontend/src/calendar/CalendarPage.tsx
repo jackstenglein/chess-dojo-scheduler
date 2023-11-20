@@ -175,7 +175,7 @@ function processLigaTournament(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'secondary.dark',
+        color: 'warning.main',
         editable: user.isAdmin || user.isCalendarAdmin,
         deletable: user.isAdmin || user.isCalendarAdmin,
         draggable: user.isAdmin || user.isCalendarAdmin,

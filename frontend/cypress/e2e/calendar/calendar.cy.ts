@@ -22,11 +22,10 @@ describe('Calendar Page', () => {
         cy.getBySel('calendar-filters').contains('Meetings');
 
         cy.getBySel('calendar-filters').contains('Dojo Events');
-        cy.getBySel('calendar-filters').contains('Tournament Types');
         cy.getBySel('calendar-filters').contains('Blitz');
         cy.getBySel('calendar-filters').contains('Rapid');
         cy.getBySel('calendar-filters').contains('Classical');
-        cy.getBySel('calendar-filters').contains('Meeting Types');
+        cy.getBySel('calendar-filters').contains('Meetings');
         cy.getBySel('calendar-filters').contains('My Calendar');
         cy.getBySel('calendar-filters').contains('Cohorts');
     });

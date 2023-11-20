@@ -38,7 +38,12 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
             }
 
             return (
-                <Stack direction='row' spacing={1} alignItems='center'>
+                <Stack
+                    direction='row'
+                    spacing={1}
+                    alignItems='center'
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <Avatar
                         username={params.row.owner}
                         displayName={params.row.ownerDisplayName}

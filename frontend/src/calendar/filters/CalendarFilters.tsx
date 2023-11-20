@@ -388,12 +388,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                                 )
                                             }
                                             disabled={!filters.dojoEvents}
-                                            sx={{
-                                                color: 'secondary.dark',
-                                                '&.Mui-checked': {
-                                                    color: 'secondary.dark',
-                                                },
-                                            }}
+                                            color='warning'
                                         />
                                     }
                                     label={displayTimeControlType(type)}
