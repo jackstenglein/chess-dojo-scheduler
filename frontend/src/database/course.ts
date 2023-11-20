@@ -62,9 +62,47 @@ export interface Course {
     stripeBuyButtonId: string;
 
     /**
+     * The options to purchase the course.
+     */
+    purchaseOptions?: CoursePurchaseOption[];
+
+    /**
      * The list of chapters included in the course.
      */
     chapters?: Chapter[];
+}
+
+/** A way to purchase a course. */
+export interface CoursePurchaseOption {
+    /** The name of the purchase option. */
+    name: string;
+
+    /** The normal, full-price of the purchase option in cents. */
+    fullPrice: number;
+
+    /**
+     * The current price of the purchase option in cents. If non-positive,
+     * then fullPrice is used instead.
+     */
+    currentPrice: number;
+
+    /** The buy button id on Stripe. */
+    buyButtonId: string;
+
+    /** A short description of the purchase option. */
+    description: string;
+
+    /** A list of selling points for the purchase option. */
+    sellingPoints?: CourseSellingPoint[];
+}
+
+/** A specific selling point for a course. */
+export interface CourseSellingPoint {
+    /** A short description of the selling point. */
+    description: string;
+
+    /** Whether the selling point is included or not. */
+    included: boolean;
 }
 
 /**

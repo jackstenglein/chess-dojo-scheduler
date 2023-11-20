@@ -1,17 +1,16 @@
 import { Container, Stack, Typography, Divider, Alert, Button } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import { Course } from '../../database/course';
-import { useAuth, useFreeTier } from '../../auth/Auth';
-import BuyButton from './BuyButton';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { useFreeTier } from '../../auth/Auth';
 import UpsellAlert from '../../upsell/UpsellAlert';
+import PurchaseOption from './PurchaseOption';
 
 interface PurchaseCoursePageProps {
     course?: Course;
 }
 
 const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course }) => {
-    const user = useAuth().user!;
     const isFreeTier = useFreeTier();
 
     if (!course) {
@@ -28,7 +27,7 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course }) => {
                 <Divider />
 
                 <Stack spacing={2} mt={2}>
-                    <Grid2 container rowSpacing={2} columnSpacing={4}>
+                    <Grid2 container rowSpacing={2} columnSpacing={4} alignItems='center'>
                         <PurchaseMessage course={course} />
 
                         <Grid2 xs={12} sm={12} md={6} lg={6} xl={4}>
@@ -52,24 +51,12 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course }) => {
                             </Stack>
                         </Grid2>
 
-                        <Grid2
-                            xs={12}
-                            sm={12}
-                            md={6}
-                            lg={4}
-                            xl={3}
-                            display='flex'
-                            flexDirection='column'
-                            alignItems='center'
-                            justifyContent='center'
-                        >
-                            {(!isFreeTier || course.availableForFreeUsers) && (
-                                <BuyButton
-                                    id={course.stripeBuyButtonId}
-                                    referenceId={user.username}
-                                />
-                            )}
-                        </Grid2>
+                        {(!isFreeTier || course.availableForFreeUsers) &&
+                            course.purchaseOptions?.map((option) => (
+                                <Grid2 key={option.name} xs={12} md={6} lg={4} xl={3}>
+                                    <PurchaseOption purchaseOption={option} />
+                                </Grid2>
+                            ))}
                     </Grid2>
                 </Stack>
             </Stack>
@@ -107,8 +94,8 @@ const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course }) => {
                         </Button>
                     }
                 >
-                    You can unlock this and other courses by subscribing to the Training
-                    Program
+                    You can also unlock this and all other opening courses by subscribing
+                    to the Training Program
                 </Alert>
             );
         }

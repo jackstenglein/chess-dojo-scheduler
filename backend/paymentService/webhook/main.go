@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -76,15 +77,15 @@ func handleCheckoutSessionCompleted(event *stripe.Event) api.Response {
 	checkoutType := checkoutSession.Metadata["type"]
 	switch checkoutType {
 	case "COURSE":
-		return handleCoursePurchase(checkoutSession.ClientReferenceID, checkoutSession.Metadata["courseId"])
+		return handleCoursePurchase(checkoutSession.ClientReferenceID, strings.Split(checkoutSession.Metadata["courseIds"], ","))
 	}
 
 	log.Debugf("Got checkout session: %#v", checkoutSession)
 	return api.Success(funcName, nil)
 }
 
-// Saves the given courseId in the provided user's PurchasedCourses map.
-func handleCoursePurchase(username, courseId string) api.Response {
+// Saves the given courseIds in the provided user's PurchasedCourses map.
+func handleCoursePurchase(username string, courseIds []string) api.Response {
 	user, err := repository.GetUser(username)
 	if err != nil {
 		return api.Failure(funcName, err)
@@ -93,7 +94,10 @@ func handleCoursePurchase(username, courseId string) api.Response {
 	if user.PurchasedCourses == nil {
 		user.PurchasedCourses = make(map[string]bool)
 	}
-	user.PurchasedCourses[courseId] = true
+
+	for _, id := range courseIds {
+		user.PurchasedCourses[id] = true
+	}
 
 	_, err = repository.UpdateUser(username, &database.UserUpdate{
 		PurchasedCourses: &user.PurchasedCourses,

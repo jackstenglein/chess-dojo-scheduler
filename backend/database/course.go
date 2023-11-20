@@ -49,11 +49,44 @@ type Course struct {
 	// Whether the course can be purchased by free-tier users.
 	AvailableForFreeUsers bool `dynamodbav:"availableForFreeUsers" json:"availableForFreeUsers"`
 
-	// The buy button id on Stripe
+	// The buy button id on Stripe.
 	StripeBuyButtonId string `dynamodbav:"stripeBuyButtonId" json:"stripeBuyButtonId"`
+
+	// The options to purchase the course.
+	PurchaseOptions []CoursePurchaseOption `dynamodbav:"purchaseOptions" json:"purchaseOptions"`
 
 	// The list of chapters included in the course.
 	Chapters []*Chapter `dynamodbav:"chapters" json:"chapters"`
+}
+
+// Represents a way to purchase a course.
+type CoursePurchaseOption struct {
+	// The name of the purchase option.
+	Name string `dynamodbav:"name" json:"name"`
+
+	// The normal, full-price of the purchase option in cents.
+	FullPrice int `dynamodbav:"fullPrice" json:"fullPrice"`
+
+	// The current price of the purchase option in cents. If non-positive, then FullPrice is used instead.
+	CurrentPrice int `dynamodbav:"currentPrice" json:"currentPrice"`
+
+	// The buy button id on Stripe.
+	BuyButtonId string `dynamodbav:"buyButtonId" json:"buyButtonId"`
+
+	// A short description of the purchase option.
+	Description string `dynamodbav:"description,omitempty" json:"description,omitempty"`
+
+	// A list of selling points for the purchase option.
+	SellingPoints []CourseSellingPoint `dynamodbav:"sellingPoints,omitempty" json:"sellingPoints,omitempty"`
+}
+
+// A specific selling point for a course.
+type CourseSellingPoint struct {
+	// A short description of the selling point.
+	Description string `dynamodbav:"description" json:"description"`
+
+	// Whether the selling point is included or not.
+	Included bool `dynamodbav:"included" json:"included"`
 }
 
 // Chapter contains the information for a single course chapter.
