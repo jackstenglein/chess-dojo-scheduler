@@ -9,6 +9,7 @@ import {
     Button,
     FormControlLabel,
     Checkbox,
+    Alert,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
@@ -28,6 +29,8 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const NUMBER_REGEX = /^[0-9]*$/;
+
+const TIME_WARNING_THRESHOLD_MINS = 60 * 5; // 5 hours
 
 function getContentText(isNonDojo: boolean): string {
     if (isNonDojo) {
@@ -243,6 +246,12 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     <DialogContentText>
                         Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
                     </DialogContentText>
+                    {totalTime > TIME_WARNING_THRESHOLD_MINS && (
+                        <Alert severity='warning' variant='filled'>
+                            You're adding a lot of time! Please double-check your input
+                            before saving.
+                        </Alert>
+                    )}
                 </Stack>
             </DialogContent>
             <DialogActions>
