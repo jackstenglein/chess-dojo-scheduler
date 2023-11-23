@@ -411,12 +411,19 @@ func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, star
 		":cohort": {
 			S: aws.String(string(cohort)),
 		},
+		":modelGames": {
+			S: aws.String("model_games"),
+		},
+		":memorizeGames": {
+			S: aws.String("games_to_memorize"),
+		},
 	}
 
 	keyConditionExpression = addDates(keyConditionExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
 
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression:    aws.String(keyConditionExpression),
+		FilterExpression:          aws.String("#owner <> :modelGames AND #owner <> :memorizeGames"),
 		ExpressionAttributeNames:  expressionAttributeNames,
 		ExpressionAttributeValues: expressionAttributeValues,
 		ProjectionExpression:      aws.String("#cohort,#id,#white,#black,#date,#owner,#ownerDisplayName,#headers"),
