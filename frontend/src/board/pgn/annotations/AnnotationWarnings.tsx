@@ -80,7 +80,7 @@ const AnnotationWarnings = () => {
     };
 
     return (
-        <Stack sx={{ gridArea: 'warnings', mb: 1 }}>
+        <Stack sx={{ mb: 1 }}>
             <Alert
                 variant='filled'
                 severity='warning'
@@ -90,9 +90,10 @@ const AnnotationWarnings = () => {
                         color='inherit'
                         onClick={() => setShowDetails(true)}
                     >
-                        View Details
+                        Details
                     </Button>
                 }
+                sx={{ alignItems: 'center' }}
             >
                 {`Your annotations have ${Object.keys(warnings).length} warning${
                     Object.keys(warnings).length > 1 ? 's' : ''

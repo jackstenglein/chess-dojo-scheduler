@@ -169,15 +169,15 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     display: 'grid',
                     width: 1,
                     gridTemplateRows: {
-                        xs: `${showAnnotationWarnings ? 'auto' : ''} ${
+                        xs: `${
                             showPlayerHeaders ? 'auto auto' : ''
                         } auto auto auto minmax(auto, 400px)`,
-                        md: `${showAnnotationWarnings ? 'auto' : ''} ${
+                        md: `${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
                         } var(--board-size) ${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
                         } auto auto`,
-                        xl: `${showAnnotationWarnings ? 'auto' : ''} ${
+                        xl: `${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
                         } var(--board-size) ${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
@@ -191,23 +191,20 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         }  var(--board-size) var(--gap) var(--coach-width) auto`,
                     },
                     gridTemplateAreas: {
-                        xs: `${showAnnotationWarnings ? '"warnings"' : ''}
-                             ${showPlayerHeaders ? '"playerheader"' : ''}
+                        xs: `${showPlayerHeaders ? '"playerheader"' : ''}
                              "board"
                              ${showPlayerHeaders ? '"playerfooter"' : ''}
                              "boardButtons"
                              "underboard" 
                              "coach"`,
 
-                        md: `${showAnnotationWarnings ? '". warnings . . ."' : ''} 
-                             ${showPlayerHeaders ? '". playerheader . coach ."' : ''}
+                        md: `${showPlayerHeaders ? '". playerheader . coach ."' : ''}
                              ". board . coach ." 
                              ${showPlayerHeaders ? '". playerfooter . coach ."' : ''}
                              ". boardButtons . . ." 
                              ". underboard . . ."`,
 
-                        xl: `${showAnnotationWarnings ? '". . . warnings . . ."' : ''} 
-                        ${
+                        xl: `${
                             showPlayerHeaders
                                 ? `". ${
                                       showUnderboard ? 'underboard .' : ''
@@ -246,8 +243,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     />
                 </Box>
 
-                {showAnnotationWarnings && <AnnotationWarnings />}
-
                 {board && chess && (
                     <BoardTools
                         showPlayerHeaders={showPlayerHeaders}
@@ -267,6 +262,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         height={1}
                         sx={{ overflowY: 'auto', mt: { xs: 2, md: 0 } }}
                     >
+                        {showAnnotationWarnings && <AnnotationWarnings />}
                         <PgnText onClickMove={onClickMove} />
                     </Stack>
                 )}
