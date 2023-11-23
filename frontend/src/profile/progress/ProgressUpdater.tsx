@@ -114,6 +114,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     let hoursInt = parseInt(hours) || 0;
     let minutesInt = parseInt(minutes) || 0;
     const totalTime = 60 * hoursInt + minutesInt + (progress?.minutesSpent[cohort] ?? 0);
+    const addedTime = 60 * hoursInt + minutesInt;
 
     const onSubmit = () => {
         const errors: Record<string, string> = {};
@@ -246,7 +247,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     <DialogContentText>
                         Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
                     </DialogContentText>
-                    {totalTime > TIME_WARNING_THRESHOLD_MINS && (
+                    {addedTime > TIME_WARNING_THRESHOLD_MINS && (
                         <Alert severity='warning' variant='filled'>
                             You're adding a lot of time! Please double-check your input
                             before saving.
