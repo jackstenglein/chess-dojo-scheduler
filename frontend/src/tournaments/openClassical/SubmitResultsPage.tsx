@@ -27,6 +27,7 @@ const SubmitResultsPage = () => {
 
     const [email, setEmail] = useState('');
     const [section, setSection] = useState('');
+    const [region, setRegion] = useState('');
     const [round, setRound] = useState('');
     const [gameUrl, setGameUrl] = useState('');
     const [white, setWhite] = useState('');
@@ -83,7 +84,10 @@ const SubmitResultsPage = () => {
         if (!user && email.trim() === '') {
             newErrors.email = 'This field is required';
         }
-        if (section.trim() === '') {
+        if (region === '') {
+            newErrors.region = 'This field is required';
+        }
+        if (section === '') {
             newErrors.section = 'This field is required';
         }
         if (round.trim() === '') {
@@ -110,7 +114,8 @@ const SubmitResultsPage = () => {
         request.onStart();
         api.submitResultsForOpenClassical({
             email: email.trim(),
-            section: section.trim(),
+            region,
+            section,
             round: round.trim(),
             gameUrl: gameUrl.trim(),
             white: white.trim(),
@@ -168,6 +173,20 @@ const SubmitResultsPage = () => {
                 )}
 
                 <TextField
+                    data-cy='region'
+                    label='Region'
+                    select
+                    required
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                    error={Boolean(errors.region)}
+                    helperText={errors.region}
+                >
+                    <MenuItem value='A'>Region A (Americas)</MenuItem>
+                    <MenuItem value='B'>Region B (Eurasia/Africa/Oceania)</MenuItem>
+                </TextField>
+
+                <TextField
                     data-cy='section'
                     label='Section'
                     select
@@ -177,8 +196,8 @@ const SubmitResultsPage = () => {
                     error={Boolean(errors.section)}
                     helperText={errors.section}
                 >
-                    <MenuItem value='A'>Section A (Americas)</MenuItem>
-                    <MenuItem value='B'>Section B (Eurasia/Africa/Oceania)</MenuItem>
+                    <MenuItem value='Open'>Open</MenuItem>
+                    <MenuItem value='U1800'>U1800</MenuItem>
                 </TextField>
 
                 <TextField

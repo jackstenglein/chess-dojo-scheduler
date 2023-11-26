@@ -53,6 +53,17 @@ export interface OpenClassical {
      */
     startsAt: string;
 
-    /** The rounds in the tournament. */
+    /** Whether the tournament is accepting registrations or not. */
+    acceptingRegistrations: boolean;
+
+    /** The sections in the tournament. */
+    sections: Record<string, OpenClassicalSection>;
+}
+
+export interface OpenClassicalSection {
+    /** The name of the section. */
+    name: string;
+
+    /** The rounds in the tournament for this section. */
     rounds: OpenClassicalRound[];
 }

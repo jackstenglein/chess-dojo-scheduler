@@ -1,7 +1,4 @@
 import { useState } from 'react';
-
-import { OpenClassical } from '../../database/tournament';
-import { useAuth } from '../../auth/Auth';
 import {
     Button,
     Dialog,
@@ -11,10 +8,15 @@ import {
     TextField,
     MenuItem,
     Stack,
+    DialogContentText,
 } from '@mui/material';
-import { RequestSnackbar, useRequest } from '../../api/Request';
 import { LoadingButton } from '@mui/lab';
+
+import { OpenClassical } from '../../database/tournament';
+import { useAuth } from '../../auth/Auth';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
+import { OpenClassicalPutPairingsRequest } from '../../api/tournamentApi';
 
 interface EditorProps {
     openClassical?: OpenClassical;
@@ -25,7 +27,11 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
     const user = useAuth().user;
     const [open, setOpen] = useState(false);
 
-    const maxRound = (openClassical?.rounds?.length || 0) + 1;
+    const maxRound =
+        (Object.values(openClassical?.sections || {})[0]?.rounds?.length || 0) + 1;
+
+    const [region, setRegion] = useState('');
+    const [section, setSection] = useState('');
     const [round, setRound] = useState(maxRound);
     const [pgnData, setPgnData] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -44,12 +50,28 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
 
     const onSave = () => {
         const newErrors: Record<string, string> = {};
+        const req: OpenClassicalPutPairingsRequest = {};
 
-        if (!round) {
-            newErrors.round = 'This field is required';
-        }
-        if (!pgnData.trim()) {
-            newErrors.pgnData = 'This field is required';
+        if (openClassical.acceptingRegistrations) {
+            req.closeRegistrations = true;
+        } else {
+            req.region = region;
+            req.section = section;
+            req.round = round;
+            req.pgnData = pgnData;
+
+            if (!region) {
+                newErrors.region = 'This field is required';
+            }
+            if (!section) {
+                newErrors.section = 'This field is required';
+            }
+            if (!round) {
+                newErrors.round = 'This field is required';
+            }
+            if (!pgnData.trim()) {
+                newErrors.pgnData = 'This field is required';
+            }
         }
 
         setErrors(newErrors);
@@ -58,7 +80,7 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
         }
 
         request.onStart();
-        api.putOpenClassicalPairings(round, pgnData)
+        api.putOpenClassicalPairings(req)
             .then((resp) => {
                 console.log('putOpenClassicalPairings: ', resp);
                 request.onSuccess(resp.data);
@@ -70,6 +92,38 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
                 request.onFailure(err);
             });
     };
+
+    if (openClassical.acceptingRegistrations) {
+        return (
+            <>
+                <Button
+                    variant='contained'
+                    sx={{ mt: 1, mb: 3 }}
+                    onClick={() => setOpen(true)}
+                >
+                    Edit Tournament
+                </Button>
+                <Dialog open={open} onClose={handleClose} maxWidth='sm' fullWidth>
+                    <DialogTitle>Edit Tournament</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Close registrations for the tournament? Pairings will be
+                            available to upload after registrations are closed. Note: this
+                            cannot be undone.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>Cancel</Button>
+                        <LoadingButton loading={request.isLoading()} onClick={onSave}>
+                            Close Registrations
+                        </LoadingButton>
+                    </DialogActions>
+
+                    <RequestSnackbar request={request} />
+                </Dialog>
+            </>
+        );
+    }
 
     return (
         <>
@@ -84,6 +138,36 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
                 <DialogTitle>Edit Tournament</DialogTitle>
                 <DialogContent>
                     <Stack pt={1} spacing={3}>
+                        <TextField
+                            data-cy='region'
+                            label='Region'
+                            select
+                            required
+                            value={region}
+                            onChange={(e) => setRegion(e.target.value)}
+                            error={Boolean(errors.region)}
+                            helperText={errors.region}
+                        >
+                            <MenuItem value='A'>Region A (Americas)</MenuItem>
+                            <MenuItem value='B'>
+                                Region B (Eurasia/Africa/Oceania)
+                            </MenuItem>
+                        </TextField>
+
+                        <TextField
+                            data-cy='section'
+                            label='Section'
+                            select
+                            required
+                            value={section}
+                            onChange={(e) => setSection(e.target.value)}
+                            error={Boolean(errors.section)}
+                            helperText={errors.section}
+                        >
+                            <MenuItem value='Open'>Open</MenuItem>
+                            <MenuItem value='U1800'>U1800</MenuItem>
+                        </TextField>
+
                         <TextField
                             select
                             label='Round'

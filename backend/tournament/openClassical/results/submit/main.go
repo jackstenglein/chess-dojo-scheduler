@@ -29,6 +29,7 @@ const (
 
 type SubmitResultsRequest struct {
 	Email           string `json:"email"`
+	Region          string `json:"region"`
 	Section         string `json:"section"`
 	Round           string `json:"round"`
 	GameUrl         string `json:"gameUrl"`
@@ -85,6 +86,9 @@ func checkRequest(request *SubmitResultsRequest) error {
 	if strings.TrimSpace(request.Email) == "" {
 		return errors.New(400, "Invalid request: email is required", "")
 	}
+	if strings.TrimSpace(request.Region) == "" {
+		return errors.New(400, "Invalid request: region is required", "")
+	}
 	if strings.TrimSpace(request.Section) == "" {
 		return errors.New(400, "Invalid request: section is required", "")
 	}
@@ -133,6 +137,7 @@ func getAppendCall(ctx context.Context, client *sheets.Service, req *SubmitResul
 			{
 				time.Now().Format(time.RFC3339),
 				req.Email,
+				req.Region,
 				req.Section,
 				req.Round,
 				req.GameUrl,

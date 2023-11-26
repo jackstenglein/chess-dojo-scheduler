@@ -110,20 +110,36 @@ func (repo *dynamoRepository) GetLeaderboard(timePeriod, tournamentType, timeCon
 	return &leaderboard, err
 }
 
-// OpenClassicalPlayer represents a player in the Open Classical tournaments, which
-// are separate from the regular tournaments.
-type OpenClassicalPlayer struct {
-	// The Lichess username of the player
-	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
+// OpenClassical represents an Open Classical tournament.
+type OpenClassical struct {
+	// The hash key of the tournaments table. Regular tournaments have a complicated
+	// structure, but for Open Classicals, this is just the value OPEN_CLASSICAL
+	Type LeaderboardType `dynamodbav:"type" json:"type"`
 
-	// The Discord username of the player
-	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
+	// The start of the period the tournament applies to and the range key of the table.
+	// For the current Open Classical, this is set to the value of CurrentLeaderboard.
+	StartsAt string `dynamodbav:"startsAt" json:"startsAt"`
 
-	// The player's title, if they have one
-	Title string `dynamodbav:"title" json:"title"`
+	// Whether the open classical is accepting registrations or not.
+	AcceptingRegistrations bool `dynamodbav:"acceptingRegistrations" json:"acceptingRegistrations"`
 
-	// The player's Lichess rating at the start of the Open Classical
-	Rating int `dynamodbav:"rating" json:"rating"`
+	// The sections in the tournament
+	Sections map[string]OpenClassicalSection `dynamodbav:"sections" json:"sections"`
+}
+
+// A section in the Open Classical tournament. Generally consists of both a region and a rating range.
+type OpenClassicalSection struct {
+	// The name of the section.
+	Name string `dynamodbav:"name" json:"name"`
+
+	// The rounds in the tournament for this section.
+	Rounds []OpenClassicalRound `dynamodbav:"rounds" json:"rounds"`
+}
+
+// OpenClassicalRound represents a single round in the Open Classical tournaments.
+type OpenClassicalRound struct {
+	// The list of pairings for the round
+	Pairings []OpenClassicalPairing `dynamodbav:"pairings" json:"pairings"`
 }
 
 // OpenClassicalPairing represents a single pairing in the Open Classical tournaments,
@@ -139,24 +155,20 @@ type OpenClassicalPairing struct {
 	Result string `dynamodbav:"result" json:"result"`
 }
 
-// OpenClassicalRound represents a single round in the Open Classical tournaments.
-type OpenClassicalRound struct {
-	// The list of pairings for the round
-	Pairings []OpenClassicalPairing `dynamodbav:"pairings" json:"pairings"`
-}
+// OpenClassicalPlayer represents a player in the Open Classical tournaments, which
+// are separate from the regular tournaments.
+type OpenClassicalPlayer struct {
+	// The Lichess username of the player
+	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
 
-// OpenClassical represents an Open Classical tournament.
-type OpenClassical struct {
-	// The hash key of the tournaments table. Regular tournaments have a complicated
-	// structure, but for Open Classicals, this is just the value OPEN_CLASSICAL
-	Type LeaderboardType `dynamodbav:"type" json:"type"`
+	// The Discord username of the player
+	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
-	// The start of the period the tournament applies to and the range key of the table.
-	// For the current Open Classical, this is set to the value of CurrentLeaderboard.
-	StartsAt string `dynamodbav:"startsAt" json:"startsAt"`
+	// The player's title, if they have one
+	Title string `dynamodbav:"title" json:"title"`
 
-	// The rounds in the tournament
-	Rounds []OpenClassicalRound `dynamodbav:"rounds" json:"rounds"`
+	// The player's Lichess rating at the start of the Open Classical
+	Rating int `dynamodbav:"rating" json:"rating"`
 }
 
 // SetOpenClassical inserts the provided OpenClassical into the database.

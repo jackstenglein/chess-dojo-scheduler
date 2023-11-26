@@ -65,6 +65,7 @@ import { getCourse, listCourses, CourseApiContextType } from './courseApi';
 import {
     getLeaderboard,
     getOpenClassical,
+    OpenClassicalPutPairingsRequest,
     OpenClassicalRegistrationRequest,
     OpenClassicalSubmitResultsRequest,
     putOpenClassicalPairings,
@@ -268,8 +269,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 registerForOpenClassical(idToken, req),
             submitResultsForOpenClassical: (req: OpenClassicalSubmitResultsRequest) =>
                 submitResultsForOpenClassical(idToken, req),
-            putOpenClassicalPairings: (round: number, pgnData: string) =>
-                putOpenClassicalPairings(idToken, round, pgnData),
+            putOpenClassicalPairings: (req: OpenClassicalPutPairingsRequest) =>
+                putOpenClassicalPairings(idToken, req),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),

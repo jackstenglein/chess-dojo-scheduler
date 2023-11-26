@@ -48,6 +48,8 @@ type RegisterRequest struct {
 	LichessRating   int    `json:"-"`
 	DiscordUsername string `json:"discordUsername"`
 	Title           string `json:"title"`
+	Region          string `json:"region"`
+	Section         string `json:"section"`
 	ByeRequests     []bool `json:"byeRequests"`
 }
 
@@ -103,6 +105,12 @@ func checkRequest(req *RegisterRequest) error {
 	}
 	if strings.TrimSpace(req.DiscordUsername) == "" {
 		return errors.New(400, "Invalid request: discordUsername is required", "")
+	}
+	if req.Region != "A" && req.Region != "B" {
+		return errors.New(400, fmt.Sprintf("Invalid request: region `%s` is not supported", req.Region), "")
+	}
+	if req.Section != "Open" && req.Section != "U1800" {
+		return errors.New(400, fmt.Sprintf("Invalid request: section `%s` is not supported", req.Section), "")
 	}
 	if len(req.ByeRequests) > maxByeLength {
 		return errors.New(400, "Invalid request: byeRequests has too many items", "")
@@ -166,6 +174,8 @@ func getAppendCall(ctx context.Context, client *sheets.Service, req *RegisterReq
 			{
 				time.Now().Format(time.RFC3339), // submission_date
 				"=ROW()-1",                      // number
+				req.Region,                      // region
+				req.Section,                     // section
 				req.Title,                       // title
 				fmt.Sprintf("lichess:%s,discord:%s", req.LichessUsername, req.DiscordUsername), // name
 				req.LichessRating, // rating

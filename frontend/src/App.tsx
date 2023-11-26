@@ -54,6 +54,7 @@ import DetailsPage from './tournaments/openClassical/DetailsPage';
 import UnsubscribePage from './dojoDigest/UnsubscribePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
 import CoursePage from './material/courses/CoursePage';
+import InfoPage from './tournaments/openClassical/InfoPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -88,6 +89,7 @@ const router = createBrowserRouter(
                 <Route index element={<TournamentsPage />} />
                 <Route path='open-classical'>
                     <Route index element={<DetailsPage />} />
+                    <Route path='info' element={<InfoPage />} />
                     <Route path='register' element={<RegistrationPage />} />
                     <Route path='submit-results' element={<SubmitResultsPage />} />
                 </Route>

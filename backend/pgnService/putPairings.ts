@@ -23,6 +23,9 @@ interface UserInfo {
 }
 
 interface PutPairingsRequest {
+    closeRegistrations: boolean;
+    region: string;
+    section: string;
     round: number;
     pgnData: string;
 }
@@ -45,6 +48,11 @@ interface OpenClassicalRound {
 }
 
 interface OpenClassical {
+    acceptingRegistrations: boolean;
+    sections: Record<string, OpenClassicalSection>;
+}
+
+interface OpenClassicalSection {
     rounds: OpenClassicalRound[];
 }
 
@@ -128,18 +136,6 @@ function getPairings(request: PutPairingsRequest): OpenClassicalPairing[] {
 export const handler: APIGatewayProxyHandler = async (event, _) => {
     console.log('Event: %j', event);
 
-    const request: PutPairingsRequest = JSON.parse(event.body || '');
-    if (request.round < MIN_ROUND || request.round > MAX_ROUND) {
-        return handleError(400, {
-            publicMessage: `Invalid request: round must be between ${MIN_ROUND} and ${MAX_ROUND}`,
-        });
-    }
-    if (!request.pgnData) {
-        return handleError(400, {
-            publicMessage: 'Invalid request: pgnData cannot be empty',
-        });
-    }
-
     const userInfo = getUserInfo(event);
     if (!userInfo.username) {
         return handleError(400, {
@@ -166,13 +162,6 @@ export const handler: APIGatewayProxyHandler = async (event, _) => {
         });
     }
 
-    const pairings = getPairings(request);
-    if (pairings.length === 0) {
-        return handleError(400, {
-            publicMessage: 'Invalid request: no pairings could be parsed from PGN',
-        });
-    }
-
     getItemOutput = await dynamoDB.send(
         new GetItemCommand({
             Key: { type: { S: 'OPEN_CLASSICAL' }, startsAt: { S: 'CURRENT' } },
@@ -187,10 +176,63 @@ export const handler: APIGatewayProxyHandler = async (event, _) => {
 
     const openClassical = unmarshall(getItemOutput.Item) as OpenClassical;
 
-    if (!openClassical.rounds) {
-        openClassical.rounds = [];
+    const request: PutPairingsRequest = JSON.parse(event.body || '');
+    if (request.closeRegistrations) {
+        openClassical.acceptingRegistrations = false;
+
+        await dynamoDB.send(
+            new PutItemCommand({
+                Item: marshall(openClassical),
+                TableName: tournamentsTable,
+            })
+        );
+
+        const result: APIGatewayProxyResult = {
+            statusCode: 200,
+            body: JSON.stringify(openClassical),
+        };
+        return result;
     }
-    const length = openClassical.rounds.length;
+
+    if (!request.region) {
+        return handleError(400, {
+            publicMessage: `Invalid request: region is required`,
+        });
+    }
+    if (!request.section) {
+        return handleError(400, {
+            publicMessage: `Invalid request: section is required`,
+        });
+    }
+    if (request.round < MIN_ROUND || request.round > MAX_ROUND) {
+        return handleError(400, {
+            publicMessage: `Invalid request: round must be between ${MIN_ROUND} and ${MAX_ROUND}`,
+        });
+    }
+    if (!request.pgnData) {
+        return handleError(400, {
+            publicMessage: 'Invalid request: pgnData cannot be empty',
+        });
+    }
+
+    const section = openClassical.sections[`${request.region}_${request.section}`];
+    if (!section) {
+        return handleError(400, {
+            publicMessage: `Invalid request: region ${request.region} and section ${request.section} not found`,
+        });
+    }
+
+    const pairings = getPairings(request);
+    if (pairings.length === 0) {
+        return handleError(400, {
+            publicMessage: 'Invalid request: no pairings could be parsed from PGN',
+        });
+    }
+
+    if (!section.rounds) {
+        section.rounds = [];
+    }
+    const length = section.rounds.length;
     if (length < request.round - 1) {
         return handleError(400, {
             publicMessage: `Invalid request: request is for round ${
@@ -200,9 +242,9 @@ export const handler: APIGatewayProxyHandler = async (event, _) => {
     }
 
     if (length < request.round) {
-        openClassical.rounds.push({ pairings });
+        section.rounds.push({ pairings });
     } else {
-        openClassical.rounds[request.round - 1] = { pairings };
+        section.rounds[request.round - 1] = { pairings };
     }
 
     console.log('Setting openClassical: ', openClassical);

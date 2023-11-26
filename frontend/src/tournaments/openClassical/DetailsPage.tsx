@@ -27,7 +27,7 @@ const DetailsPage = () => {
     const onSuccess = request.onSuccess;
     const handleData = useCallback(
         (openClassical: OpenClassical) => {
-            setRound(openClassical.rounds?.length || 1);
+            setRound(Object.values(openClassical.sections)[0]?.rounds?.length || 1);
             onSuccess(openClassical);
         },
         [setRound, onSuccess]
@@ -57,8 +57,12 @@ const DetailsPage = () => {
             <RequestSnackbar request={request} />
 
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                <Typography variant='h4'>Open Classical</Typography>
-
+                <Stack>
+                    <Typography variant='h4'>Open Classical</Typography>
+                    <Link component={RouterLink} to='/tournaments/open-classical/info'>
+                        Rules and Info
+                    </Link>
+                </Stack>
                 {(user?.isAdmin || user?.isTournamentAdmin) && (
                     <Editor openClassical={request.data} onSuccess={handleData} />
                 )}
@@ -68,7 +72,9 @@ const DetailsPage = () => {
                 openClassical={request.data}
                 round={round}
                 setRound={setRound}
-                maxRound={request.data?.rounds.length || 0}
+                maxRound={
+                    Object.values(request.data?.sections || {})[0]?.rounds?.length || 0
+                }
             />
         </Container>
     );
@@ -87,18 +93,17 @@ const Details: React.FC<DetailsProps> = ({
     setRound,
     maxRound,
 }) => {
+    const [region, setRegion] = useState('A');
+    const [section, setSection] = useState('Open');
+
     if (!openClassical) {
         return null;
     }
 
-    if (
-        !openClassical.rounds ||
-        openClassical.rounds.length === 0 ||
-        openClassical.rounds.length < round
-    ) {
+    if (openClassical.acceptingRegistrations) {
         return (
-            <Stack mt={2} spacing={1} alignItems='start'>
-                <Typography>The tournament has not started yet</Typography>
+            <Stack mt={3} spacing={2} alignItems='start'>
+                <Typography>The tournament has not started yet.</Typography>
 
                 <Button variant='contained' href='/tournaments/open-classical/register'>
                     Register
@@ -107,8 +112,8 @@ const Details: React.FC<DetailsProps> = ({
         );
     }
 
-    console.log('Round: ', round);
-    console.log('Max round: ', maxRound);
+    const pairings =
+        openClassical.sections[`${region}_${section}`]?.rounds[round - 1]?.pairings ?? [];
 
     return (
         <Stack mt={4} spacing={3}>
@@ -122,24 +127,56 @@ const Details: React.FC<DetailsProps> = ({
                 </Link>
             </Typography>
 
-            <TextField
-                label='Round'
-                select
-                value={round}
-                onChange={(e) => setRound(parseInt(e.target.value))}
-            >
-                {Array(maxRound)
-                    .fill(0)
-                    .map((_, i) => (
-                        <MenuItem key={i + 1} value={`${i + 1}`}>
-                            {i + 1}
-                        </MenuItem>
-                    ))}
-            </TextField>
+            <Stack direction='row' width={1} spacing={2}>
+                <TextField
+                    label='Region'
+                    select
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                    sx={{
+                        flexGrow: 1,
+                    }}
+                >
+                    <MenuItem value='A'>Region A (Americas)</MenuItem>
+                    <MenuItem value='B'>Region B (Eurasia/Africa/Oceania)</MenuItem>
+                </TextField>
+
+                <TextField
+                    data-cy='section'
+                    label='Section'
+                    select
+                    value={section}
+                    onChange={(e) => setSection(e.target.value)}
+                    sx={{
+                        flexGrow: 1,
+                    }}
+                >
+                    <MenuItem value='Open'>Open</MenuItem>
+                    <MenuItem value='U1800'>U1800</MenuItem>
+                </TextField>
+
+                <TextField
+                    label='Round'
+                    select
+                    value={round}
+                    onChange={(e) => setRound(parseInt(e.target.value))}
+                    sx={{
+                        flexGrow: 1,
+                    }}
+                >
+                    {Array(maxRound)
+                        .fill(0)
+                        .map((_, i) => (
+                            <MenuItem key={i + 1} value={`${i + 1}`}>
+                                {i + 1}
+                            </MenuItem>
+                        ))}
+                </TextField>
+            </Stack>
 
             <DataGrid
                 columns={pairingTableColumns}
-                rows={openClassical.rounds[round - 1].pairings}
+                rows={pairings}
                 getRowId={(pairing) =>
                     `${pairing.white.lichessUsername}-${pairing.black.lichessUsername}`
                 }

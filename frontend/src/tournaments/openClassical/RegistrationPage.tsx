@@ -29,6 +29,8 @@ const RegistrationPage = () => {
     );
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [title, setTitle] = useState('');
+    const [region, setRegion] = useState('');
+    const [section, setSection] = useState('');
     const [byeRequests, setByeRequests] = useState([
         false,
         false,
@@ -71,6 +73,12 @@ const RegistrationPage = () => {
         if (discordUsername.trim() === '') {
             newErrors.discordUsername = 'This field is required';
         }
+        if (region === '') {
+            newErrors.region = 'This field is required';
+        }
+        if (section === '') {
+            newErrors.section = 'This field is required';
+        }
         if (byeRequests.every((v) => v)) {
             newErrors.byeRequests = 'You cannot request a bye for every round';
         }
@@ -87,6 +95,8 @@ const RegistrationPage = () => {
             lichessUsername: lichessUsername.trim(),
             discordUsername: discordUsername.trim(),
             title,
+            region,
+            section,
             byeRequests,
         })
             .then((resp) => {
@@ -174,6 +184,36 @@ const RegistrationPage = () => {
                     <MenuItem value='WFM'>WFM</MenuItem>
                     <MenuItem value='CM'>CM</MenuItem>
                     <MenuItem value='WCM'>WCM</MenuItem>
+                </TextField>
+
+                <TextField
+                    data-cy='region'
+                    label='Region'
+                    select
+                    required
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                    error={Boolean(errors.region)}
+                    helperText={errors.region}
+                    fullWidth
+                >
+                    <MenuItem value='A'>Region A (Americas)</MenuItem>
+                    <MenuItem value='B'>Region B (Eurasia/Africa/Oceania)</MenuItem>
+                </TextField>
+
+                <TextField
+                    data-cy='section'
+                    label='Section'
+                    select
+                    required
+                    value={section}
+                    onChange={(e) => setSection(e.target.value)}
+                    error={Boolean(errors.section)}
+                    helperText={errors.section}
+                    fullWidth
+                >
+                    <MenuItem value='Open'>Open</MenuItem>
+                    <MenuItem value='U1800'>U1800 (Lichess)</MenuItem>
                 </TextField>
 
                 <FormControl error={Boolean(errors.byeRequests)}>

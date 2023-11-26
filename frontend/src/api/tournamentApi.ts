@@ -53,13 +53,11 @@ export type TournamentApiContextType = {
     /**
      * Sets the pairings for the given round using the given PGN data. Only admins and tournament
      * admins can call this function.
-     * @param round The round to set.
-     * @param pgnData The PGN data containing the pairings.
+     * @param req The Open Classical put pairings request.
      * @returns An AxiosResponse containing the updated open classical.
      */
     putOpenClassicalPairings: (
-        round: number,
-        pgnData: string
+        req: OpenClassicalPutPairingsRequest
     ) => Promise<AxiosResponse<OpenClassical, any>>;
 };
 
@@ -69,12 +67,15 @@ export interface OpenClassicalRegistrationRequest {
     lichessUsername: string;
     discordUsername: string;
     title: string;
+    region: string;
+    section: string;
     byeRequests: boolean[];
 }
 
 /** A request to submit results for the Open Classical. */
 export interface OpenClassicalSubmitResultsRequest {
     email: string;
+    region: string;
     section: string;
     round: string;
     gameUrl: string;
@@ -83,6 +84,23 @@ export interface OpenClassicalSubmitResultsRequest {
     result: string;
     reportOpponent: boolean;
     notes: string;
+}
+
+export interface OpenClassicalPutPairingsRequest {
+    /** Updates whether the tournament is accepting registrations. */
+    closeRegistrations?: boolean;
+
+    /** The region to update pairings for. */
+    region?: string;
+
+    /** The section to update pairings for. */
+    section?: string;
+
+    /** The round to update pairings for. */
+    round?: number;
+
+    /** The PGN to use when updating the pairings. */
+    pgnData?: string;
 }
 
 /**
@@ -169,12 +187,11 @@ export function submitResultsForOpenClassical(
  */
 export function putOpenClassicalPairings(
     idToken: string,
-    round: number,
-    pgnData: string
+    req: OpenClassicalPutPairingsRequest
 ) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/pairings`,
-        { round, pgnData },
+        req,
         { headers: { Authorization: 'Bearer ' + idToken } }
     );
 }
