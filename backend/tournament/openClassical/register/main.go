@@ -27,7 +27,6 @@ var stage = os.Getenv("stage")
 const (
 	maxByeLength = 7
 	sheetId      = "1P04-l4B0LeasPzCOgnVT_3NRbClEIwCwPmVyPz-OtWo"
-	sheetRange   = "Registrations"
 )
 
 var validTitles = []string{
@@ -174,8 +173,6 @@ func getAppendCall(ctx context.Context, client *sheets.Service, req *RegisterReq
 			{
 				time.Now().Format(time.RFC3339), // submission_date
 				"=ROW()-1",                      // number
-				req.Region,                      // region
-				req.Section,                     // section
 				req.Title,                       // title
 				fmt.Sprintf("lichess:%s,discord:%s", req.LichessUsername, req.DiscordUsername), // name
 				req.LichessRating, // rating
@@ -200,5 +197,6 @@ func getAppendCall(ctx context.Context, client *sheets.Service, req *RegisterReq
 			},
 		},
 	}
+	sheetRange := fmt.Sprintf("%s_%s_Registrations", req.Region, req.Section)
 	return client.Spreadsheets.Values.Append(sheetId, sheetRange, valueRange).ValueInputOption("USER_ENTERED").Context(ctx)
 }

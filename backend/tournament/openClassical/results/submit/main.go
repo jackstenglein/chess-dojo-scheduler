@@ -23,8 +23,7 @@ var media = database.S3
 var stage = os.Getenv("stage")
 
 const (
-	sheetId    = "1P04-l4B0LeasPzCOgnVT_3NRbClEIwCwPmVyPz-OtWo"
-	sheetRange = "Results"
+	sheetId = "1P04-l4B0LeasPzCOgnVT_3NRbClEIwCwPmVyPz-OtWo"
 )
 
 type SubmitResultsRequest struct {
@@ -137,8 +136,6 @@ func getAppendCall(ctx context.Context, client *sheets.Service, req *SubmitResul
 			{
 				time.Now().Format(time.RFC3339),
 				req.Email,
-				req.Region,
-				req.Section,
 				req.Round,
 				req.GameUrl,
 				req.White,
@@ -149,5 +146,7 @@ func getAppendCall(ctx context.Context, client *sheets.Service, req *SubmitResul
 			},
 		},
 	}
+
+	sheetRange := fmt.Sprintf("%s_%s_Results", req.Region, req.Section)
 	return client.Spreadsheets.Values.Append(sheetId, sheetRange, valueRange).ValueInputOption("USER_ENTERED").Context(ctx)
 }
