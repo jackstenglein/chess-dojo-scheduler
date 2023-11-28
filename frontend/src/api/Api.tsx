@@ -264,8 +264,12 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             listCourses: (type: string, startKey?: string) =>
                 listCourses(idToken, type, startKey),
             listAllCourses: (startKey?: string) => listAllCourses(startKey),
-            purchaseCourse: (type: string, id: string, purchaseOption?: string) =>
-                purchaseCourse(idToken, type, id, purchaseOption),
+            purchaseCourse: (
+                type: string,
+                id: string,
+                purchaseOption?: string,
+                cancelUrl?: string
+            ) => purchaseCourse(idToken, type, id, purchaseOption, cancelUrl),
 
             getLeaderboard: (
                 timePeriod: TimePeriod,

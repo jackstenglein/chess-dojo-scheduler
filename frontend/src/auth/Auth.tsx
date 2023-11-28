@@ -13,7 +13,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { AxiosResponse } from 'axios';
 
 import {
-    CognitoUser,
     hasCreatedProfile,
     parseCognitoResponse,
     parseUser,

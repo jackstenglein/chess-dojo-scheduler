@@ -24,7 +24,7 @@ func init() {
 	stripe.Key = key
 }
 
-func PurchaseCourseUrl(purchaser string, course *database.Course, purchaseOption database.CoursePurchaseOption) (string, error) {
+func PurchaseCourseUrl(purchaser string, course *database.Course, purchaseOption database.CoursePurchaseOption, cancelUrl string) (string, error) {
 	price := purchaseOption.FullPrice
 	if purchaseOption.CurrentPrice > 0 {
 		price = purchaseOption.CurrentPrice
@@ -36,6 +36,10 @@ func PurchaseCourseUrl(purchaser string, course *database.Course, purchaseOption
 	}
 
 	courseUrl := fmt.Sprintf("%s/courses/%s/%s", frontendHost, course.Type, course.Id)
+
+	if cancelUrl == "" {
+		cancelUrl = courseUrl
+	}
 
 	params := &stripe.CheckoutSessionParams{
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
@@ -53,7 +57,7 @@ func PurchaseCourseUrl(purchaser string, course *database.Course, purchaseOption
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
 		SuccessURL: stripe.String(fmt.Sprintf("%s?checkout={CHECKOUT_SESSION_ID}", courseUrl)),
-		CancelURL:  stripe.String(courseUrl),
+		CancelURL:  stripe.String(cancelUrl),
 		Params: stripe.Params{
 			Metadata: map[string]string{
 				"type":      "COURSE",

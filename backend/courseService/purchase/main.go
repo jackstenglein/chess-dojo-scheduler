@@ -51,7 +51,9 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	url, err := payment.PurchaseCourseUrl(info.Username, course, purchaseOption)
+	cancelUrl := event.QueryStringParameters["cancelUrl"]
+
+	url, err := payment.PurchaseCourseUrl(info.Username, course, purchaseOption, cancelUrl)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}

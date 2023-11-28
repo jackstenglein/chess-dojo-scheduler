@@ -77,7 +77,12 @@ const CourseListItem: React.FC<CourseListItemProps> = ({ course, filters }) => {
 
     const onBuy = () => {
         request.onStart();
-        api.purchaseCourse(course.type, course.id, purchaseOption?.name)
+        api.purchaseCourse(
+            course.type,
+            course.id,
+            purchaseOption?.name,
+            window.location.href
+        )
             .then((resp) => {
                 console.log('purchaseCourse: ', resp);
                 window.location.href = resp.data.url;

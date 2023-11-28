@@ -42,12 +42,14 @@ export type CourseApiContextType = {
      * @param type The type of the course.
      * @param id The id of the course.
      * @param purchaseOption The name of the purchase option to use.
+     * @param cancelUrl The URL to return to when cancelling the checkout.
      * @returns An AxiosResponse containing the Checkout URL.
      */
     purchaseCourse: (
         type: string,
         id: string,
-        purchaseOption?: string
+        purchaseOption?: string,
+        cancelUrl?: string
     ) => Promise<AxiosResponse<PurchaseCourseResponse>>;
 };
 
@@ -153,21 +155,19 @@ export interface PurchaseCourseResponse {
  * @param type The type of the course to purchase.
  * @param id The id of the course to purchase.
  * @param purchaseOption The name of the purchase option to use.
+ * @param cancelUrl The URL to return to when cancelling the checkout.
  * @returns An AxiosResponse containing the Checkout URL.
  */
 export function purchaseCourse(
     idToken: string,
     type: string,
     id: string,
-    purchaseOption?: string
+    purchaseOption?: string,
+    cancelUrl?: string
 ) {
     let url = idToken
         ? `${BASE_URL}/courses/${type}/${id}/purchase`
         : `${BASE_URL}/public/courses/${type}/${id}/purchase`;
-
-    if (purchaseOption) {
-        url += `?purchaseOption=${purchaseOption}`;
-    }
 
     let headers = idToken
         ? {
@@ -176,6 +176,7 @@ export function purchaseCourse(
         : undefined;
 
     return axios.get<PurchaseCourseResponse>(url, {
+        params: { purchaseOption, cancelUrl },
         headers,
     });
 }
