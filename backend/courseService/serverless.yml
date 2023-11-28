@@ -35,6 +35,9 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/courses/{type}/{id}
+          method: get
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -42,6 +45,11 @@ functions:
         Resource:
           - !GetAtt CoursesTable.Arn
           - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
 
   list:
     handler: list/main.go
@@ -52,15 +60,54 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/courses
+          method: get
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
+          - dynamodb:Scan
         Resource:
           - Fn::Join:
               - ''
               - - !GetAtt CoursesTable.Arn
                 - '/index/SummaryIndex'
+          - Fn::Join:
+              - ''
+              - - !GetAtt CoursesTable.Arn
+                - '/index/SummaryIdx'
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt CoursesTable.Arn
+
+  purchase:
+    handler: purchase/main.go
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+    events:
+      - httpApi:
+          path: /courses/{type}/{id}/purchase
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/courses/{type}/{id}/purchase
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt CoursesTable.Arn
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
 
 resources:
   Conditions:
@@ -105,3 +152,21 @@ resources:
                 - cohortRange
                 - price
                 - includedWithSubscription
+          - IndexName: SummaryIdx
+            KeySchema:
+              - AttributeName: type
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - name
+                - description
+                - whatsIncluded
+                - color
+                - cohorts
+                - cohortRange
+                - includedWithSubscription
+                - availableForFreeUsers
+                - purchaseOptions

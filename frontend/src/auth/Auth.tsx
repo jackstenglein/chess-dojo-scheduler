@@ -10,6 +10,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { Auth as AmplifyAuth } from 'aws-amplify';
 import { v4 as uuidv4 } from 'uuid';
+import { AxiosResponse } from 'axios';
 
 import {
     CognitoUser,
@@ -25,6 +26,11 @@ import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
 import { EventType, trackEvent, setUser as setAnalyticsUser } from '../analytics/events';
+import {
+    clearCheckoutSessionIds,
+    getAllCheckoutSessionIds,
+} from '../courses/localStorage';
+import { syncPurchases } from '../api/paymentApi';
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -116,12 +122,7 @@ export function useAuth() {
 }
 
 export function useFreeTier() {
-    return useAuth().user?.subscriptionStatus === SubscriptionStatus.FreeTier;
-}
-
-async function fetchUser(cognitoUser: CognitoUser) {
-    const apiResponse = await getUser(cognitoUser.session.idToken.jwtToken);
-    return apiResponse;
+    return useAuth().user?.subscriptionStatus !== SubscriptionStatus.Subscribed;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -130,7 +131,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const handleCognitoResponse = useCallback(async (cognitoResponse: any) => {
         const cognitoUser = parseCognitoResponse(cognitoResponse);
-        const apiResponse = await fetchUser(cognitoUser);
+        const checkoutSessionIds = getAllCheckoutSessionIds();
+        let apiResponse: AxiosResponse<User>;
+
+        if (Object.values(checkoutSessionIds).length > 0) {
+            apiResponse = await syncPurchases(
+                cognitoUser.session.idToken.jwtToken,
+                checkoutSessionIds
+            );
+            clearCheckoutSessionIds();
+        } else {
+            apiResponse = await getUser(cognitoUser.session.idToken.jwtToken);
+        }
+
         const user = parseUser(apiResponse.data, cognitoUser);
         console.log('Got user: ', user);
         setUser(user);

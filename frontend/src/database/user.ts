@@ -130,6 +130,8 @@ export interface User {
     notificationSettings: UserNotificationSettings;
 
     totalDojoScore: number;
+
+    purchasedCourses?: Record<string, boolean>;
 }
 
 export interface UserNotificationSettings {

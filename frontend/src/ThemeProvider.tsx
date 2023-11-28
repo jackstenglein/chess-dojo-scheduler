@@ -7,10 +7,26 @@ import { useAuth } from './auth/Auth';
 
 declare module '@mui/material/styles' {
     interface Palette {
+        opening: Palette['primary'];
+        endgame: Palette['primary'];
         dojoOrange: Palette['primary'];
     }
     interface PaletteOptions {
+        opening?: PaletteOptions['primary'];
+        endgame?: Palette['primary'];
         dojoOrange?: PaletteOptions['primary'];
+    }
+}
+
+declare module '@mui/material' {
+    interface ChipPropsColorOverrides {
+        opening: true;
+        endgame: true;
+    }
+
+    interface CheckboxPropsColorOverrides {
+        opening: true;
+        endgame: true;
     }
 }
 
@@ -56,6 +72,18 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
                             main: '#F7941F',
                         },
                         name: 'dojoOrange',
+                    }),
+                    opening: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#cc0000',
+                        },
+                        name: 'opening',
+                    }),
+                    endgame: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#674ea7',
+                        },
+                        name: 'endgame',
                     }),
                 },
             }),

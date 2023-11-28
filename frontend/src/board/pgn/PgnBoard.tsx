@@ -64,7 +64,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 }) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
-    const user = useAuth().user!;
+    const user = useAuth().user;
 
     const keydownMap = useRef({ shift: false });
 
@@ -73,7 +73,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             chess,
             board,
             config: {
-                allowMoveDeletion: game?.owner === user.username,
+                allowMoveDeletion: user && game?.owner === user.username,
             },
         }),
         [chess, board, game, user]
@@ -248,10 +248,10 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         showPlayerHeaders={showPlayerHeaders}
                         onClickMove={onClickMove}
                         showTags={showTags}
-                        showEditor={showEditor && game?.owner === user.username}
+                        showEditor={showEditor && user && game?.owner === user.username}
                         showExplorer={showExplorer}
-                        showSave={game?.owner === user.username}
-                        showDelete={game?.owner === user.username}
+                        showSave={user && game?.owner === user.username}
+                        showDelete={user && game?.owner === user.username}
                         game={game}
                     />
                 )}

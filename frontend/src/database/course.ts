@@ -2,7 +2,7 @@ import { Position } from './requirement';
 
 export enum CourseType {
     Opening = 'OPENING',
-    Other = 'OTHER',
+    Endgame = 'ENDGAME',
 }
 
 /**
@@ -212,4 +212,13 @@ export interface CourseModule {
      * The default board orientation for the module.
      */
     boardOrientation: 'white' | 'black';
+}
+
+/**
+ * Returns a display string for a CourseType.
+ * @param type The CourseType to display.
+ * @returns A display string version of the CourseType.
+ */
+export function displayCourseType(type: CourseType): string {
+    return type[0] + type.substring(1).toLowerCase();
 }

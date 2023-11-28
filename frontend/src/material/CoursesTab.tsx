@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Stack, Typography, Link } from '@mui/material';
 
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useApi } from '../../api/Api';
-import { Course, CourseType } from '../../database/course';
-import LoadingPage from '../../loading/LoadingPage';
-import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { useApi } from '../api/Api';
+import { Course, CourseType } from '../database/course';
+import LoadingPage from '../loading/LoadingPage';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 
 const LEVELS = ['Any Rating', 'Starter (1200-1800)', 'Expert (1800+)'];
 

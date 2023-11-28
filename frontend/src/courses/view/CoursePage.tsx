@@ -1,6 +1,15 @@
 import { useEffect, useMemo } from 'react';
-import { Box, Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
-import { useParams, useSearchParams } from 'react-router-dom';
+import {
+    Alert,
+    Box,
+    Button,
+    Container,
+    Divider,
+    Grid,
+    Stack,
+    Typography,
+} from '@mui/material';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -11,6 +20,8 @@ import NotFoundPage from '../../NotFoundPage';
 import Contents from './Contents';
 import { GetCourseResponse } from '../../api/courseApi';
 import PurchaseCoursePage from './PurchaseCoursePage';
+import { useAuth } from '../../auth/Auth';
+import { getCheckoutSessionId, setCheckoutSessionId } from '../localStorage';
 
 type CoursePageParams = {
     type: CourseType;
@@ -18,6 +29,8 @@ type CoursePageParams = {
 };
 
 const CoursePage = () => {
+    const navigate = useNavigate();
+    const anonymousUser = useAuth().user === undefined;
     const api = useApi();
     const params = useParams<CoursePageParams>();
     const request = useRequest<GetCourseResponse>();
@@ -25,11 +38,13 @@ const CoursePage = () => {
         chapter: '0',
         module: '0',
     });
+    const checkoutSessionId =
+        searchParams.get('checkout') || getCheckoutSessionId(params.id);
 
     useEffect(() => {
         if (!request.isSent() && params.type && params.id) {
             request.onStart();
-            api.getCourse(params.type, params.id)
+            api.getCourse(params.type, params.id, checkoutSessionId)
                 .then((resp) => {
                     request.onSuccess(resp.data);
                     console.log('getCourse: ', resp);
@@ -39,7 +54,14 @@ const CoursePage = () => {
                     console.error('getCourse: ', err);
                 });
         }
-    }, [request, api, params]);
+    }, [request, api, params, checkoutSessionId]);
+
+    useEffect(() => {
+        if (anonymousUser) {
+            console.log('Set checkout session id');
+            setCheckoutSessionId(params.id, checkoutSessionId);
+        }
+    }, [anonymousUser, params.id, checkoutSessionId]);
 
     const chapterIndex = parseInt(searchParams.get('chapter') || '0');
     const { course, isBlocked } = request.data || {};
@@ -71,6 +93,26 @@ const CoursePage = () => {
 
     return (
         <Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
+            {anonymousUser && (
+                <Alert
+                    severity='warning'
+                    variant='filled'
+                    sx={{ mb: 4 }}
+                    action={
+                        <Button
+                            onClick={() => navigate('/signup')}
+                            size='small'
+                            color='inherit'
+                        >
+                            Create Account
+                        </Button>
+                    }
+                >
+                    You are not signed into an account, so this course is available only
+                    on this device and browser. Create an account to access this course
+                    anywhere.
+                </Alert>
+            )}
             <Grid container rowGap={2}>
                 <Grid item xs={12} sm={12} md={9.5}>
                     <Stack>

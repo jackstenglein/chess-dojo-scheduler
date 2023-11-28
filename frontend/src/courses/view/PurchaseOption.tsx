@@ -1,21 +1,37 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-import { CoursePurchaseOption } from '../../database/course';
-import BuyButton from './BuyButton';
-import { useAuth } from '../../auth/Auth';
+import { Course, CoursePurchaseOption } from '../../database/course';
+import { useApi } from '../../api/Api';
+import { useRequest } from '../../api/Request';
 
 interface PurchaseOptionProps {
+    course: Course;
     purchaseOption: CoursePurchaseOption;
 }
 
-const PurchaseOption: React.FC<PurchaseOptionProps> = ({ purchaseOption }) => {
-    const user = useAuth().user!;
+const PurchaseOption: React.FC<PurchaseOptionProps> = ({ course, purchaseOption }) => {
+    const api = useApi();
+    const request = useRequest();
 
-    const { name, fullPrice, currentPrice, buyButtonId, description, sellingPoints } =
-        purchaseOption;
+    const { name, fullPrice, currentPrice, description, sellingPoints } = purchaseOption;
     const percentOff = Math.round(((fullPrice - currentPrice) / fullPrice) * 100);
+
+    const onBuy = () => {
+        request.onStart();
+        api.purchaseCourse(course.type, course.id, purchaseOption.name)
+            .then((resp) => {
+                console.log('purchaseCourse: ', resp);
+                window.location.href = resp.data.url;
+                request.onSuccess();
+            })
+            .catch((err) => {
+                console.error('purchaseCourse: ', err);
+                request.onFailure(err);
+            });
+    };
 
     return (
         <Card variant='outlined'>
@@ -73,7 +89,14 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({ purchaseOption }) => {
                         </Stack>
                     )}
 
-                    <BuyButton id={buyButtonId} referenceId={user.username} />
+                    <LoadingButton
+                        variant='contained'
+                        onClick={onBuy}
+                        loading={request.isLoading()}
+                        fullWidth
+                    >
+                        Buy
+                    </LoadingButton>
                 </Stack>
             </CardContent>
         </Card>

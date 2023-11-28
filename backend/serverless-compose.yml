@@ -97,6 +97,7 @@ services:
     path: paymentService
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
 
   pgnService:

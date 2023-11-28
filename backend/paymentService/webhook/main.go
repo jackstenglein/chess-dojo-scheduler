@@ -86,6 +86,11 @@ func handleCheckoutSessionCompleted(event *stripe.Event) api.Response {
 
 // Saves the given courseIds in the provided user's PurchasedCourses map.
 func handleCoursePurchase(username string, courseIds []string) api.Response {
+	if username == "" {
+		// Course purchased by anonymous user
+		return api.Success(funcName, nil)
+	}
+
 	user, err := repository.GetUser(username)
 	if err != nil {
 		return api.Failure(funcName, err)

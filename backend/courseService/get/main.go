@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
+	"github.com/stripe/stripe-go/v72"
 )
 
 var repository database.CourseGetter = database.DynamoDB
@@ -31,11 +34,6 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	info := api.GetUserInfo(event)
-	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
-	}
-
 	courseType := event.PathParameters["type"]
 	id := event.PathParameters["id"]
 	if courseType == "" || id == "" {
@@ -45,6 +43,11 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	course, err := repository.GetCourse(courseType, id)
 	if err != nil {
 		return api.Failure(funcName, err), nil
+	}
+
+	info := api.GetUserInfo(event)
+	if info.Username == "" {
+		return checkAnonymousAccess(event, course)
 	}
 
 	caller, err := repository.GetUser(info.Username)
@@ -65,6 +68,31 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return accessGranted(course)
 	}
 
+	return accessDenied(course)
+}
+
+func checkAnonymousAccess(event api.Request, course *database.Course) (api.Response, error) {
+	checkoutId := event.QueryStringParameters["checkoutId"]
+	if checkoutId == "" {
+		return accessDenied(course)
+	}
+
+	checkoutSession, err := payment.GetCheckoutSession(checkoutId)
+	if err != nil {
+		log.Debug("GetCheckoutSession err: ", err)
+		return accessDenied(course)
+	}
+
+	if checkoutSession.PaymentStatus != stripe.CheckoutSessionPaymentStatusPaid {
+		return accessDenied(course)
+	}
+
+	courseIds := strings.Split(checkoutSession.Metadata["courseIds"], ",")
+	for _, id := range courseIds {
+		if id == course.Id {
+			return accessGranted(course)
+		}
+	}
 	return accessDenied(course)
 }
 

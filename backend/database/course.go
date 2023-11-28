@@ -34,23 +34,16 @@ type Course struct {
 	Color string `dynamodbav:"color" json:"color"`
 
 	// The cohorts the course is designed for.
-	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohort"`
+	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
 
 	// The human-readable range of the cohorts the course is designed for.
 	CohortRange string `dynamodbav:"cohortRange" json:"cohortRange"`
-
-	// The price of the course in cents (e.g. 700 is actually $7). A non-positive number indicates that
-	// the course is not separately for sale.
-	Price int `dynamodbav:"price" json:"price"`
 
 	// Whether the course is included with a training-plan subscription.
 	IncludedWithSubscription bool `dynamodbav:"includedWithSubscription" json:"includedWithSubscription"`
 
 	// Whether the course can be purchased by free-tier users.
 	AvailableForFreeUsers bool `dynamodbav:"availableForFreeUsers" json:"availableForFreeUsers"`
-
-	// The buy button id on Stripe.
-	StripeBuyButtonId string `dynamodbav:"stripeBuyButtonId" json:"stripeBuyButtonId"`
 
 	// The options to purchase the course.
 	PurchaseOptions []CoursePurchaseOption `dynamodbav:"purchaseOptions" json:"purchaseOptions"`
@@ -78,6 +71,9 @@ type CoursePurchaseOption struct {
 
 	// A list of selling points for the purchase option.
 	SellingPoints []CourseSellingPoint `dynamodbav:"sellingPoints,omitempty" json:"sellingPoints,omitempty"`
+
+	// A list of course ids this purchase option gives access to. If not present, the containing course ID is used.
+	CourseIds []string `dynamodbav:"courseIds,omitempty" json:"courseIds,omitempty"`
 }
 
 // A specific selling point for a course.
@@ -188,11 +184,14 @@ func (repo *dynamoRepository) GetCourse(courseType, id string) (*Course, error) 
 // CourseLister provides an interface for listing courses.
 type CourseLister interface {
 	// ListCourses returns a list of courses with the provided type.
-	ListCourses(courseType, startKey string) ([]*Course, string, error)
+	ListCourses(courseType, startKey string) ([]Course, string, error)
+
+	// ScanCourses returns a list of all courses.
+	ScanCourses(startKey string) ([]Course, string, error)
 }
 
 // ListCourses returns a list of courses with the provided type.
-func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]*Course, string, error) {
+func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]Course, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#type = :type"),
 		ExpressionAttributeNames: map[string]*string{
@@ -201,11 +200,25 @@ func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]*Cours
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":type": {S: aws.String(courseType)},
 		},
-		IndexName: aws.String("SummaryIndex"),
+		IndexName: aws.String("SummaryIdx"),
 		TableName: aws.String(courseTable),
 	}
-	var courses []*Course
+	var courses []Course
 	lastKey, err := repo.query(input, startKey, &courses)
+	if err != nil {
+		return nil, "", err
+	}
+	return courses, lastKey, nil
+}
+
+// ScanCourses returns a list of all courses.
+func (repo *dynamoRepository) ScanCourses(startKey string) ([]Course, string, error) {
+	input := &dynamodb.ScanInput{
+		IndexName: aws.String("SummaryIdx"),
+		TableName: aws.String(courseTable),
+	}
+	var courses []Course
+	lastKey, err := repo.scan(input, startKey, &courses)
 	if err != nil {
 		return nil, "", err
 	}

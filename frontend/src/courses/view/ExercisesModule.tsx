@@ -11,9 +11,10 @@ import { User } from '../../database/user';
 import { useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 
-function getCompleted(user: User, module: CourseModule): boolean[] {
+function getCompleted(user: User | undefined, module: CourseModule): boolean[] {
     let exercises: boolean[] = [];
     if (
+        user &&
         user.openingProgress &&
         user.openingProgress[module.id] &&
         user.openingProgress[module.id].exercises
@@ -30,7 +31,7 @@ function getCompleted(user: User, module: CourseModule): boolean[] {
 }
 
 const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
-    const user = useAuth().user!;
+    const user = useAuth().user;
     const [completed, setCompleted] = useState(getCompleted(user, module));
     const [selectedIndex, setSelectedIndex] = useState(0);
     const request = useRequest();
@@ -44,7 +45,7 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
         ];
         setCompleted(newCompleted);
 
-        if (module.id) {
+        if (module.id && user) {
             request.onStart();
             api.updateUser({
                 openingProgress: {
@@ -63,7 +64,7 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                     request.onFailure(err);
                 });
         }
-    }, [api, completed, module.id, request, selectedIndex, user.openingProgress]);
+    }, [api, completed, module.id, request, selectedIndex, user]);
 
     if (!module.pgns || module.pgns.length < 1) {
         return null;

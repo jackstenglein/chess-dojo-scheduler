@@ -53,8 +53,9 @@ import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import UnsubscribePage from './dojoDigest/UnsubscribePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
-import CoursePage from './material/courses/CoursePage';
+import CoursePage from './courses/view/CoursePage';
 import InfoPage from './tournaments/openClassical/InfoPage';
+import ListCoursesPage from './courses/list/ListCoursesPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -95,6 +96,11 @@ const router = createBrowserRouter(
                 </Route>
             </Route>
             <Route path='dojodigest/unsubscribe' element={<UnsubscribePage />} />
+
+            <Route path='courses'>
+                <Route index element={<ListCoursesPage />} />
+                <Route path=':type/:id' element={<CoursePage />} />
+            </Route>
 
             <Route element={<RequireAuth />}>
                 <Route element={<GraduationPrompt />}>
@@ -141,8 +147,6 @@ const router = createBrowserRouter(
                     <Route path='material'>
                         <Route index element={<MaterialPage />} />
                     </Route>
-
-                    <Route path='courses/:type/:id' element={<CoursePage />} />
 
                     <Route path='notifications' element={<NotificationPage />} />
 

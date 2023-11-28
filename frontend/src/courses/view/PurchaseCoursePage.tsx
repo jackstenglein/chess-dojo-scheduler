@@ -54,7 +54,10 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course }) => {
                         {(!isFreeTier || course.availableForFreeUsers) &&
                             course.purchaseOptions?.map((option) => (
                                 <Grid2 key={option.name} xs={12} md={6} lg={4} xl={3}>
-                                    <PurchaseOption purchaseOption={option} />
+                                    <PurchaseOption
+                                        course={course}
+                                        purchaseOption={option}
+                                    />
                                 </Grid2>
                             ))}
                     </Grid2>
