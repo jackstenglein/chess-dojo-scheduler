@@ -7,6 +7,7 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { Course } from '../../database/course';
 import { useApi } from '../../api/Api';
 import CourseListItem from './CourseListItem';
+import LoadingPage from '../../loading/LoadingPage';
 
 const ListCoursesPage = () => {
     const courseFilters = useCourseFilters();
@@ -27,6 +28,8 @@ const ListCoursesPage = () => {
         }
     });
 
+    const noItems = !request.data?.length;
+
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
@@ -44,6 +47,8 @@ const ListCoursesPage = () => {
                             filters={courseFilters}
                         />
                     ))}
+
+                    {noItems && request.isLoading() && <LoadingPage />}
                 </Grid2>
             </Grid2>
         </Container>

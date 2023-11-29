@@ -11,6 +11,8 @@ import {
     useMediaQuery,
     Badge,
     Tooltip,
+    Collapse,
+    List,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Person2Icon from '@mui/icons-material/Person2';
@@ -31,6 +33,7 @@ import { hasCreatedProfile } from '../database/user';
 import NotificationButton from '../notifications/NotificationButton';
 import { useNotifications } from '../api/cache/Cache';
 import ProfileButton from './ProfileButton';
+import { ChevronRight, ExpandLess, ExpandMore } from '@mui/icons-material';
 
 const Logo = () => {
     const navigate = useNavigate();
@@ -56,27 +59,15 @@ interface MenuProps {
 
 const LargeMenuUnauthenticated = () => {
     const navigate = useNavigate();
+    const startItems = unauthenticatedStartItems(navigate, () => null);
 
     return (
         <>
             <Logo />
             <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
-                <Button
-                    onClick={() => navigate('/tournaments')}
-                    sx={{ color: 'white' }}
-                    startIcon={<TournamentsIcon />}
-                >
-                    Tournaments
-                </Button>
-                <Button
-                    href='https://www.chessdojo.club/shop'
-                    target='_blank'
-                    rel='noopener'
-                    sx={{ color: 'white' }}
-                    startIcon={<MerchIcon />}
-                >
-                    Merch
-                </Button>
+                {startItems.map((item) => (
+                    <StartItem key={item.name} item={item} meetingCount={0} />
+                ))}
             </Stack>
             <Stack spacing={1} direction='row'>
                 <Button onClick={() => navigate('/signin')} sx={{ color: 'white' }}>
@@ -94,9 +85,13 @@ interface NavbarItem {
     name: string;
     icon: JSX.Element | null;
     onClick: () => void;
+    children?: NavbarItem[];
 }
 
-function allStartItems(navigate: NavigateFunction): NavbarItem[] {
+function allStartItems(
+    navigate: NavigateFunction,
+    toggleExpansion: (item: string) => void
+): NavbarItem[] {
     return [
         {
             name: 'Newsfeed',
@@ -134,9 +129,53 @@ function allStartItems(navigate: NavigateFunction): NavbarItem[] {
             onClick: () => navigate('/material'),
         },
         {
-            name: 'Merch',
+            name: 'Shop',
             icon: <MerchIcon />,
-            onClick: () => window.open('https://www.chessdojo.club/shop', '_blank'),
+            onClick: () => toggleExpansion('Shop'),
+            children: [
+                {
+                    name: 'Courses',
+                    icon: null,
+                    onClick: () => navigate('/courses'),
+                },
+                {
+                    name: 'Merch',
+                    icon: null,
+                    onClick: () =>
+                        window.open('https://www.chessdojo.club/shop', '_blank'),
+                },
+            ],
+        },
+    ];
+}
+
+function unauthenticatedStartItems(
+    navigate: NavigateFunction,
+    toggleExpansion: (item: string) => void
+): NavbarItem[] {
+    return [
+        {
+            name: 'Tournaments',
+            icon: <TournamentsIcon />,
+            onClick: () => navigate('/tournaments'),
+        },
+        {
+            name: 'Shop',
+            icon: <MerchIcon />,
+            onClick: () => toggleExpansion('Shop'),
+            children: [
+                {
+                    name: 'Courses',
+                    icon: null,
+                    onClick: () => navigate('/courses'),
+                },
+                {
+                    name: 'Merch',
+                    icon: null,
+                    onClick: () =>
+                        window.open('https://www.chessdojo.club/shop', '_blank'),
+                },
+            ],
         },
     ];
 }
@@ -173,7 +212,27 @@ function NotificationsMenuItem({
     );
 }
 
-function renderStartItem(item: NavbarItem, meetingCount: number) {
+const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = ({
+    item,
+    meetingCount,
+}) => {
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleClick = (func: () => void) => {
+        return () => {
+            func();
+            handleClose();
+        };
+    };
+
     if (item.name === 'Calendar') {
         return (
             <Button
@@ -196,30 +255,86 @@ function renderStartItem(item: NavbarItem, meetingCount: number) {
     }
 
     return (
-        <Button
-            key={item.name}
-            onClick={item.onClick}
-            sx={{ color: 'white', whiteSpace: 'nowrap' }}
-            startIcon={item.icon}
-        >
-            {item.name}
-        </Button>
+        <>
+            <Button
+                key={item.name}
+                onClick={item.children ? handleOpen : item.onClick}
+                sx={{ color: 'white', whiteSpace: 'nowrap' }}
+                startIcon={item.icon}
+                endIcon={item.children ? <ExpandMore /> : undefined}
+            >
+                {item.name}
+            </Button>
+            {item.children && (
+                <Menu
+                    id='submenu-appbar'
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                >
+                    {item.children.map((child) => (
+                        <MenuItem key={child.name} onClick={handleClick(child.onClick)}>
+                            {child.icon && <ListItemIcon>{child.icon}</ListItemIcon>}
+                            <Typography textAlign='center'>{child.name}</Typography>
+                        </MenuItem>
+                    ))}
+                </Menu>
+            )}
+        </>
     );
-}
+};
 
 function renderMenuItem(
     item: NavbarItem,
+    openItems: Record<string, boolean>,
     handleClick: (func: () => void) => () => void,
     meetingCount?: number
 ) {
     return (
-        <MenuItem key={item.name} onClick={handleClick(item.onClick)}>
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <Typography textAlign='center'>
-                {item.name}
-                {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
-            </Typography>
-        </MenuItem>
+        <>
+            <MenuItem
+                key={item.name}
+                onClick={item.children ? item.onClick : handleClick(item.onClick)}
+            >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <Typography textAlign='center'>
+                    {item.name}
+                    {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
+                </Typography>
+                {item.children &&
+                    (openItems[item.name] ? (
+                        <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
+                            <ExpandLess />
+                        </ListItemIcon>
+                    ) : (
+                        <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
+                            <ExpandMore />
+                        </ListItemIcon>
+                    ))}
+            </MenuItem>
+            {item.children && (
+                <Collapse in={openItems[item.name]}>
+                    <List component='div' disablePadding>
+                        {item.children.map((child) => (
+                            <MenuItem
+                                key={child.name}
+                                onClick={handleClick(child.onClick)}
+                                sx={{ pl: 3 }}
+                            >
+                                {child.icon ? (
+                                    <ListItemIcon>{child.icon}</ListItemIcon>
+                                ) : (
+                                    <ListItemIcon>
+                                        <ChevronRight />
+                                    </ListItemIcon>
+                                )}
+                                <Typography textAlign='center'>{child.name}</Typography>
+                            </MenuItem>
+                        ))}
+                    </List>
+                </Collapse>
+            )}
+        </>
     );
 }
 
@@ -243,6 +358,7 @@ function useNavbarItems(
     handleClick: (func: () => void) => () => void
 ) {
     const navigate = useNavigate();
+    const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
     const showAll = useMediaQuery('(min-width:1340px)');
     const hide2 = useMediaQuery('(min-width:1177px)');
@@ -254,7 +370,9 @@ function useNavbarItems(
     const showNotifications = useMediaQuery('(min-width:567px)');
     const showProfileDropdown = useMediaQuery('(min-width:542px)');
 
-    const startItems = allStartItems(navigate);
+    const startItems = allStartItems(navigate, (item: string) =>
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) }))
+    );
 
     let startItemCount = 0;
     if (showAll) {
@@ -273,11 +391,13 @@ function useNavbarItems(
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => renderStartItem(item, meetingCount));
+        .map((item) => (
+            <StartItem key={item.name} item={item} meetingCount={meetingCount} />
+        ));
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
-        .map((item) => renderMenuItem(item, handleClick, meetingCount));
+        .map((item) => renderMenuItem(item, openItems, handleClick, meetingCount));
 
     const endItems: JSX.Element[] = [];
 
@@ -292,7 +412,7 @@ function useNavbarItems(
     if (showHelp) {
         endItems.push(HelpButton(navigate));
     } else {
-        menuItems.push(renderMenuItem(helpItem(navigate), handleClick));
+        menuItems.push(renderMenuItem(helpItem(navigate), openItems, handleClick));
     }
 
     if (showProfileDropdown) {
@@ -396,6 +516,11 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingCount }) => {
 const ExtraSmallMenuUnauthenticated = () => {
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+
+    const startItems = unauthenticatedStartItems(navigate, (item: string) =>
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) }))
+    );
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -409,6 +534,7 @@ const ExtraSmallMenuUnauthenticated = () => {
         return () => {
             func();
             handleClose();
+            setOpenItems({});
         };
     };
 
@@ -443,16 +569,54 @@ const ExtraSmallMenuUnauthenticated = () => {
                 <MenuItem onClick={handleClick(() => navigate('/signup'))}>
                     <Typography textAlign='center'>Sign Up</Typography>
                 </MenuItem>
-                <MenuItem onClick={handleClick(() => navigate('/tournaments'))}>
-                    <Typography textAlign='center'>Tournaments</Typography>
-                </MenuItem>
-                <MenuItem
-                    onClick={() =>
-                        window.open('https://www.chessdojo.club/shop', '_blank')
-                    }
-                >
-                    <Typography textAlign='center'>Merch</Typography>
-                </MenuItem>
+
+                {startItems.map((item) => (
+                    <React.Fragment key={item.name}>
+                        <MenuItem
+                            key={item.name}
+                            onClick={
+                                item.children ? item.onClick : handleClick(item.onClick)
+                            }
+                        >
+                            <ListItemIcon>{item.icon}</ListItemIcon>
+                            <Typography textAlign='center'>{item.name}</Typography>
+                            {item.children &&
+                                (openItems[item.name] ? (
+                                    <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
+                                        <ExpandLess />
+                                    </ListItemIcon>
+                                ) : (
+                                    <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
+                                        <ExpandMore />
+                                    </ListItemIcon>
+                                ))}
+                        </MenuItem>
+                        {item.children && (
+                            <Collapse in={openItems[item.name]}>
+                                <List component='div' disablePadding>
+                                    {item.children.map((child) => (
+                                        <MenuItem
+                                            key={child.name}
+                                            onClick={handleClick(child.onClick)}
+                                            sx={{ pl: 3 }}
+                                        >
+                                            {child.icon ? (
+                                                <ListItemIcon>{child.icon}</ListItemIcon>
+                                            ) : (
+                                                <ListItemIcon>
+                                                    <ChevronRight />
+                                                </ListItemIcon>
+                                            )}
+                                            <Typography textAlign='center'>
+                                                {child.name}
+                                            </Typography>
+                                        </MenuItem>
+                                    ))}
+                                </List>
+                            </Collapse>
+                        )}
+                    </React.Fragment>
+                ))}
             </Menu>
         </Stack>
     );
@@ -463,8 +627,11 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { notifications } = useNotifications();
+    const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
-    const startItems = allStartItems(navigate);
+    const startItems = allStartItems(navigate, (item: string) =>
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) }))
+    );
 
     if (auth.status === AuthStatus.Unauthenticated) {
         return <ExtraSmallMenuUnauthenticated />;
@@ -482,6 +649,7 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
         return () => {
             func();
             handleClose();
+            setOpenItems({});
         };
     };
 
@@ -490,13 +658,54 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     let startItemsJsx: JSX.Element[] = [];
     if (profileCreated) {
         startItemsJsx = startItems.map((item) => (
-            <MenuItem key={item.name} onClick={handleClick(item.onClick)}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <Typography textAlign='center'>
-                    {item.name}
-                    {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
-                </Typography>
-            </MenuItem>
+            <React.Fragment key={item.name}>
+                <MenuItem
+                    key={item.name}
+                    onClick={item.children ? item.onClick : handleClick(item.onClick)}
+                >
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <Typography textAlign='center'>
+                        {item.name}
+                        {item.name === 'Calendar' && meetingCount
+                            ? ` (${meetingCount})`
+                            : ''}
+                    </Typography>
+                    {item.children &&
+                        (openItems[item.name] ? (
+                            <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
+                                <ExpandLess />
+                            </ListItemIcon>
+                        ) : (
+                            <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
+                                <ExpandMore />
+                            </ListItemIcon>
+                        ))}
+                </MenuItem>
+                {item.children && (
+                    <Collapse in={openItems[item.name]}>
+                        <List component='div' disablePadding>
+                            {item.children.map((child) => (
+                                <MenuItem
+                                    key={child.name}
+                                    onClick={handleClick(child.onClick)}
+                                    sx={{ pl: 3 }}
+                                >
+                                    {child.icon ? (
+                                        <ListItemIcon>{child.icon}</ListItemIcon>
+                                    ) : (
+                                        <ListItemIcon>
+                                            <ChevronRight />
+                                        </ListItemIcon>
+                                    )}
+                                    <Typography textAlign='center'>
+                                        {child.name}
+                                    </Typography>
+                                </MenuItem>
+                            ))}
+                        </List>
+                    </Collapse>
+                )}
+            </React.Fragment>
         ));
     }
 
