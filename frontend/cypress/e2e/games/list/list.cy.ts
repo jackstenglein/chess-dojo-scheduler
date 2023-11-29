@@ -73,7 +73,7 @@ describe('List Games Page', () => {
         cy.getBySel('cohort-search-button').click();
 
         cy.getBySel('games-table').contains('1600-1700');
-        cy.getBySel('games-table').contains('HumanStragedy');
+        cy.getBySel('games-table').contains('JackStenglein');
         cy.location('search').should(
             'equal',
             '?type=cohort&cohort=1600-1700&startDate=&endDate='
