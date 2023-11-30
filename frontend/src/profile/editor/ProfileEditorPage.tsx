@@ -34,6 +34,7 @@ import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
 import Avatar from '../Avatar';
 import { useCache } from '../../api/cache/Cache';
 import NotificationSettingsEditor from './NotificationSettingsEditor';
+import SubscriptionManager from './SubscriptionManager';
 
 const MAX_PROFILE_PICTURE_SIZE_MB = 9;
 
@@ -702,6 +703,8 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                         />
                     </Stack>
                 </Stack>
+
+                <SubscriptionManager paymentInfo={user.paymentInfo} />
             </Stack>
         </Container>
     );

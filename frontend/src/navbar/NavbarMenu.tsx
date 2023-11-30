@@ -284,12 +284,12 @@ const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = ({
     );
 };
 
-function renderMenuItem(
-    item: NavbarItem,
-    openItems: Record<string, boolean>,
-    handleClick: (func: () => void) => () => void,
-    meetingCount?: number
-) {
+const NavMenuItem: React.FC<{
+    item: NavbarItem;
+    openItems: Record<string, boolean>;
+    handleClick: (func: () => void) => () => void;
+    meetingCount?: number;
+}> = ({ item, openItems, handleClick, meetingCount }) => {
     return (
         <>
             <MenuItem
@@ -313,7 +313,7 @@ function renderMenuItem(
                     ))}
             </MenuItem>
             {item.children && (
-                <Collapse in={openItems[item.name]}>
+                <Collapse key={item.name + '-collapse'} in={openItems[item.name]}>
                     <List component='div' disablePadding>
                         {item.children.map((child) => (
                             <MenuItem
@@ -336,7 +336,7 @@ function renderMenuItem(
             )}
         </>
     );
-}
+};
 
 function HelpButton(navigate: NavigateFunction) {
     return (
@@ -397,7 +397,15 @@ function useNavbarItems(
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
-        .map((item) => renderMenuItem(item, openItems, handleClick, meetingCount));
+        .map((item) => (
+            <NavMenuItem
+                key={item.name}
+                item={item}
+                openItems={openItems}
+                handleClick={handleClick}
+                meetingCount={meetingCount}
+            />
+        ));
 
     const endItems: JSX.Element[] = [];
 
@@ -412,7 +420,14 @@ function useNavbarItems(
     if (showHelp) {
         endItems.push(HelpButton(navigate));
     } else {
-        menuItems.push(renderMenuItem(helpItem(navigate), openItems, handleClick));
+        menuItems.push(
+            <NavMenuItem
+                key='help'
+                item={helpItem(navigate)}
+                openItems={openItems}
+                handleClick={handleClick}
+            />
+        );
     }
 
     if (showProfileDropdown) {

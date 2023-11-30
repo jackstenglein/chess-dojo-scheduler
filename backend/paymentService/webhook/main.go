@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
@@ -55,6 +56,9 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	str := spew.Sdump(stripeEvent)
+	log.Debugf("Stripe Event: %s", str)
+
 	switch stripeEvent.Type {
 	case "checkout.session.completed":
 		return handleCheckoutSessionCompleted(&stripeEvent), nil
@@ -74,13 +78,17 @@ func handleCheckoutSessionCompleted(event *stripe.Event) api.Response {
 		return api.Failure(funcName, err)
 	}
 
+	str := spew.Sdump(checkoutSession)
+	log.Debugf("Got checkout session: %s", str)
+
 	checkoutType := checkoutSession.Metadata["type"]
 	switch checkoutType {
 	case "COURSE":
 		return handleCoursePurchase(checkoutSession.ClientReferenceID, strings.Split(checkoutSession.Metadata["courseIds"], ","))
+	case "SUBSCRIPTION":
+		return handleSubscriptionPurchase(&checkoutSession)
 	}
 
-	log.Debugf("Got checkout session: %#v", checkoutSession)
 	return api.Success(funcName, nil)
 }
 
@@ -107,6 +115,29 @@ func handleCoursePurchase(username string, courseIds []string) api.Response {
 	_, err = repository.UpdateUser(username, &database.UserUpdate{
 		PurchasedCourses: &user.PurchasedCourses,
 	})
+	if err != nil {
+		return api.Failure(funcName, err)
+	}
+	return api.Success(funcName, nil)
+}
+
+// Handles saving a subscription purchase on the user in the checkout session.
+func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Response {
+	if checkoutSession.ClientReferenceID == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: no clientReferenceId included", ""))
+	}
+
+	paymentInfo := database.PaymentInfo{
+		CustomerId:         checkoutSession.Customer.ID,
+		SubscriptionId:     checkoutSession.Subscription.ID,
+		SubscriptionStatus: database.SubscriptionStatus_Subscribed,
+	}
+	update := database.UserUpdate{
+		PaymentInfo:        &paymentInfo,
+		SubscriptionStatus: stripe.String(database.SubscriptionStatus_Subscribed),
+	}
+
+	_, err := repository.UpdateUser(checkoutSession.ClientReferenceID, &update)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}

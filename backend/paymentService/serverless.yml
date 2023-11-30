@@ -45,6 +45,48 @@ functions:
           - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
           - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeEndpoint-*
 
+  subscriptionCheckout:
+    handler: subscription/checkout/main.go
+    events:
+      - httpApi:
+          path: /subscription/checkout
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      monthlyPriceId: ${file(../config-${sls:stage}.yml):monthlySubscriptionPriceId}
+      yearlyPriceId: ${file(../config-${sls:stage}.yml):yearlySubscriptionPriceId}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
+  subscriptionManage:
+    handler: subscription/manage/main.go
+    events:
+      - httpApi:
+          path: /subscription/manage
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
   syncPurchases:
     handler: purchases/sync/main.go
     events:

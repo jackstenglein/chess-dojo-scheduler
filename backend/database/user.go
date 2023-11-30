@@ -258,6 +258,28 @@ type User struct {
 
 	// The ids of the user's purchased courses
 	PurchasedCourses map[string]bool `dynamodbav:"purchasedCourses" json:"purchasedCourses"`
+
+	// The user's payment info
+	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo" json:"paymentInfo"`
+}
+
+type PaymentInfo struct {
+	// The Stripe customer id
+	CustomerId string `dynamodbav:"customerId" json:"customerId"`
+
+	// The Stripe subscription id for the training program
+	SubscriptionId string `dynamodbav:"subscriptionId" json:"-"`
+
+	// The status of the subscription
+	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"-"`
+}
+
+// Returns true if the given PaymentInfo indicates an active subscription.
+func (pi *PaymentInfo) IsSubscribed() bool {
+	if pi == nil {
+		return false
+	}
+	return pi.SubscriptionId != "" && pi.SubscriptionStatus == SubscriptionStatus_Subscribed
 }
 
 type UserNotificationSettings struct {
@@ -530,6 +552,9 @@ type UserUpdate struct {
 
 	// The ids of the user's purchased courses. This field cannot be manually set by the user.
 	PurchasedCourses *map[string]bool `dynamodbav:"purchasedCourses,omitempty" json:"-"`
+
+	// The user's payment info. This field cannot be manually set by the user.
+	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo,omitempty" json:"-"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

@@ -10,7 +10,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
-	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v76"
 )
 
 var repository database.CourseGetter = database.DynamoDB

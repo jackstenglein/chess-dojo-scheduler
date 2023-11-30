@@ -101,6 +101,12 @@ import {
     FollowPositionRequest,
     getPosition,
 } from './explorerApi';
+import {
+    PaymentApiContextType,
+    subscriptionCheckout,
+    SubscriptionCheckoutRequest,
+    subscriptionManage,
+} from './paymentApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -115,7 +121,8 @@ type ApiContextType = UserApiContextType &
     NotificationApiContextType &
     NewsfeedApiContextType &
     ScoreboardApiContextType &
-    ExplorerApiContextType;
+    ExplorerApiContextType &
+    PaymentApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -306,6 +313,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getPosition: (fen: string) => getPosition(idToken, fen),
             followPosition: (request: FollowPositionRequest) =>
                 followPosition(idToken, request),
+
+            subscriptionCheckout: (request: SubscriptionCheckoutRequest) =>
+                subscriptionCheckout(idToken, request),
+            subscriptionManage: () => subscriptionManage(idToken),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

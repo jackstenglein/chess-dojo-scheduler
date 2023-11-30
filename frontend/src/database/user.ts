@@ -132,6 +132,12 @@ export interface User {
     totalDojoScore: number;
 
     purchasedCourses?: Record<string, boolean>;
+
+    paymentInfo?: PaymentInfo;
+}
+
+export interface PaymentInfo {
+    customerId: string;
 }
 
 export interface UserNotificationSettings {

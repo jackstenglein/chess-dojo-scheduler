@@ -28,6 +28,10 @@ declare module '@mui/material' {
         opening: true;
         endgame: true;
     }
+
+    interface ButtonPropsColorOverrides {
+        dojoOrange: true;
+    }
 }
 
 const defaultTheme = createTheme({});

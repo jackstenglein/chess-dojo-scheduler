@@ -1,10 +1,19 @@
 import { Alert, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface UpsellAlertProps {
     children: string;
 }
 
 const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
+    const navigate = useNavigate();
+
+    const onViewPrices = (event: React.MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        navigate('/prices');
+    };
+
     return (
         <Alert
             data-cy='upsell-alert'
@@ -13,10 +22,9 @@ const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
             action={
                 <Button
                     color='inherit'
-                    href='https://www.chessdojo.club/plans-pricing'
-                    target='_blank'
-                    rel='noopener'
+                    href='/prices'
                     size='small'
+                    onClick={onViewPrices}
                 >
                     View Prices
                 </Button>

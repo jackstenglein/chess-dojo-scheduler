@@ -56,6 +56,7 @@ import ExplorerPage from './games/explorer/ExplorerPage';
 import CoursePage from './courses/view/CoursePage';
 import InfoPage from './tournaments/openClassical/InfoPage';
 import ListCoursesPage from './courses/list/ListCoursesPage';
+import PricingPage from './upsell/PricingPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -104,6 +105,8 @@ const router = createBrowserRouter(
 
             <Route element={<RequireAuth />}>
                 <Route element={<GraduationPrompt />}>
+                    <Route path='prices' element={<PricingPage />} />
+
                     <Route path='profile'>
                         <Route index element={<ProfilePage />} />
                         <Route path='edit' element={<ProfileEditorPage />} />

@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { useEffect } from 'react';
 import { EventType, trackEvent } from '../analytics/events';
+import { useNavigate } from 'react-router-dom';
 
 export enum RestrictedAction {
     AccessAllTasks = 'Access all training plan tasks for all cohorts (0-2500)',
@@ -44,6 +45,14 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
     bulletPoints = defaultBulletPoints,
     currentAction,
 }) => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (open) {
+            trackEvent(EventType.ViewUpsellDialog, { current_action: currentAction });
+        }
+    }, [open, currentAction]);
+
     if (currentAction) {
         bulletPoints = [
             currentAction,
@@ -51,11 +60,11 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
         ];
     }
 
-    useEffect(() => {
-        if (open) {
-            trackEvent(EventType.ViewUpsellDialog, { current_action: currentAction });
-        }
-    }, [open, currentAction]);
+    const onViewPrices = (event: React.MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        navigate('/prices');
+    };
 
     return (
         <Dialog
@@ -86,11 +95,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => onClose(false)}>Cancel</Button>
-                <Button
-                    href='https://www.chessdojo.club/plans-pricing'
-                    target='_blank'
-                    rel='noopener'
-                >
+                <Button onClick={onViewPrices} href='/prices'>
                     View Prices
                 </Button>
             </DialogActions>
