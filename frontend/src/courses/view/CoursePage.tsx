@@ -20,7 +20,7 @@ import NotFoundPage from '../../NotFoundPage';
 import Contents from './Contents';
 import { GetCourseResponse } from '../../api/courseApi';
 import PurchaseCoursePage from './PurchaseCoursePage';
-import { useAuth } from '../../auth/Auth';
+import { AuthStatus, useAuth } from '../../auth/Auth';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../localStorage';
 
 type CoursePageParams = {
@@ -30,7 +30,8 @@ type CoursePageParams = {
 
 const CoursePage = () => {
     const navigate = useNavigate();
-    const anonymousUser = useAuth().user === undefined;
+    const auth = useAuth();
+    const anonymousUser = auth.user === undefined;
     const api = useApi();
     const params = useParams<CoursePageParams>();
     const request = useRequest<GetCourseResponse>();
@@ -42,7 +43,12 @@ const CoursePage = () => {
         searchParams.get('checkout') || getCheckoutSessionId(params.id);
 
     useEffect(() => {
-        if (!request.isSent() && params.type && params.id) {
+        if (
+            !request.isSent() &&
+            auth.status !== AuthStatus.Loading &&
+            params.type &&
+            params.id
+        ) {
             request.onStart();
             api.getCourse(params.type, params.id, checkoutSessionId)
                 .then((resp) => {
@@ -54,7 +60,7 @@ const CoursePage = () => {
                     console.error('getCourse: ', err);
                 });
         }
-    }, [request, api, params, checkoutSessionId]);
+    }, [request, api, params, checkoutSessionId, auth.status]);
 
     useEffect(() => {
         if (anonymousUser) {
