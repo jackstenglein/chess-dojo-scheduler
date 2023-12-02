@@ -16,6 +16,7 @@ import (
 const (
 	SubscriptionStatus_Subscribed = "SUBSCRIBED"
 	SubscriptionStatus_FreeTier   = "FREE_TIER"
+	SubscriptionStatus_Canceled   = "CANCELED"
 	SubscriptionStatus_Unknown    = "UNKNOWN"
 )
 
@@ -271,7 +272,7 @@ type PaymentInfo struct {
 	SubscriptionId string `dynamodbav:"subscriptionId" json:"-"`
 
 	// The status of the subscription
-	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"-"`
+	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
 }
 
 // Returns true if the given PaymentInfo indicates an active subscription.
@@ -280,6 +281,13 @@ func (pi *PaymentInfo) IsSubscribed() bool {
 		return false
 	}
 	return pi.SubscriptionId != "" && pi.SubscriptionStatus == SubscriptionStatus_Subscribed
+}
+
+func (pi *PaymentInfo) GetCustomerId() string {
+	if pi == nil {
+		return ""
+	}
+	return pi.CustomerId
 }
 
 type UserNotificationSettings struct {

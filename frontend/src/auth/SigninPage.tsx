@@ -74,6 +74,12 @@ const SigninPage = () => {
         auth.socialSignin('Google', redirectUri);
     };
 
+    const onKeyDown = (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            onSignin();
+        }
+    };
+
     return (
         <Container maxWidth='md' sx={{ pt: 10, pb: 4 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
@@ -112,6 +118,7 @@ const SigninPage = () => {
                         variant='outlined'
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
+                        onKeyDown={onKeyDown}
                         error={!!errors.password}
                         helperText={errors.password}
                     />

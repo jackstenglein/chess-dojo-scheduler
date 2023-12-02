@@ -63,6 +63,9 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	case "checkout.session.completed":
 		return handleCheckoutSessionCompleted(&stripeEvent), nil
 
+	case "customer.subscription.deleted":
+		return handleSubscriptionDeletion(&stripeEvent), nil
+
 	default:
 		log.Debugf("Unhandled event type: %s", stripeEvent.Type)
 	}
@@ -138,6 +141,39 @@ func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Res
 	}
 
 	_, err := repository.UpdateUser(checkoutSession.ClientReferenceID, &update)
+	if err != nil {
+		return api.Failure(funcName, err)
+	}
+	return api.Success(funcName, nil)
+}
+
+// Handles deleting a subscription on the user in the subscription metadata.
+func handleSubscriptionDeletion(event *stripe.Event) api.Response {
+	var subscription stripe.Subscription
+	if err := json.Unmarshal(event.Data.Raw, &subscription); err != nil {
+		err := errors.Wrap(400, "Invalid request: unable to unmarshal event data", "", err)
+		return api.Failure(funcName, err)
+	}
+
+	str := spew.Sdump(subscription)
+	log.Debugf("Got subscription: %s", str)
+
+	username := subscription.Metadata["username"]
+	if username == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: no username in subscription metadata", ""))
+	}
+
+	paymentInfo := database.PaymentInfo{
+		CustomerId:         subscription.Customer.ID,
+		SubscriptionId:     subscription.ID,
+		SubscriptionStatus: database.SubscriptionStatus_Canceled,
+	}
+	update := database.UserUpdate{
+		PaymentInfo:        &paymentInfo,
+		SubscriptionStatus: stripe.String(database.SubscriptionStatus_FreeTier),
+	}
+
+	_, err := repository.UpdateUser(username, &update)
 	if err != nil {
 		return api.Failure(funcName, err)
 	}

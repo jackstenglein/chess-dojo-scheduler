@@ -61,6 +61,10 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
           - secretsmanager:GetSecretValue
         Resource:
           - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*

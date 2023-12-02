@@ -27,7 +27,7 @@ func init() {
 	stripe.Key = key
 }
 
-func PurchaseCourseUrl(purchaser string, course *database.Course, purchaseOption database.CoursePurchaseOption, cancelUrl string) (string, error) {
+func PurchaseCourseUrl(user *database.User, course *database.Course, purchaseOption database.CoursePurchaseOption, cancelUrl string) (string, error) {
 	price := purchaseOption.FullPrice
 	if purchaseOption.CurrentPrice > 0 {
 		price = purchaseOption.CurrentPrice
@@ -58,16 +58,21 @@ func PurchaseCourseUrl(purchaser string, course *database.Course, purchaseOption
 				Quantity: stripe.Int64(1),
 			},
 		},
-		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL: stripe.String(fmt.Sprintf("%s?checkout={CHECKOUT_SESSION_ID}", courseUrl)),
-		CancelURL:  stripe.String(cancelUrl),
+		Mode:                stripe.String(string(stripe.CheckoutSessionModePayment)),
+		SuccessURL:          stripe.String(fmt.Sprintf("%s?checkout={CHECKOUT_SESSION_ID}", courseUrl)),
+		CancelURL:           stripe.String(cancelUrl),
+		AllowPromotionCodes: stripe.Bool(true),
 		Metadata: map[string]string{
 			"type":      "COURSE",
 			"courseIds": courseIds,
 		},
 	}
-	if purchaser != "" {
-		params.ClientReferenceID = stripe.String(purchaser)
+
+	if user != nil {
+		params.ClientReferenceID = stripe.String(user.Username)
+		if user.PaymentInfo.GetCustomerId() != "" {
+			params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
+		}
 	}
 
 	checkoutSession, err := session.New(params)
@@ -84,10 +89,10 @@ type PurchaseSubscriptionRequest struct {
 	CancelUrl  string `json:"cancelUrl"`
 }
 
-func PurchaseSubscriptionUrl(purchaser string, request *PurchaseSubscriptionRequest) (string, error) {
+func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionRequest) (string, error) {
 	var priceId string
 
-	if purchaser == "" {
+	if user == nil {
 		return "", errors.New(400, "Invalid request: user is not authenticated", "")
 	}
 
@@ -116,13 +121,28 @@ func PurchaseSubscriptionUrl(purchaser string, request *PurchaseSubscriptionRequ
 				Quantity: stripe.Int64(1),
 			},
 		},
-		Mode:              stripe.String(string(stripe.CheckoutSessionModeSubscription)),
-		SuccessURL:        stripe.String(successUrl),
-		CancelURL:         stripe.String(cancelUrl),
-		ClientReferenceID: stripe.String(purchaser),
+		Mode:                stripe.String(string(stripe.CheckoutSessionModeSubscription)),
+		SuccessURL:          stripe.String(successUrl),
+		CancelURL:           stripe.String(cancelUrl),
+		ClientReferenceID:   stripe.String(user.Username),
+		AllowPromotionCodes: stripe.Bool(true),
 		Metadata: map[string]string{
 			"type": "SUBSCRIPTION",
 		},
+		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
+			TrialSettings: &stripe.CheckoutSessionSubscriptionDataTrialSettingsParams{
+				EndBehavior: &stripe.CheckoutSessionSubscriptionDataTrialSettingsEndBehaviorParams{
+					MissingPaymentMethod: stripe.String(string(stripe.SubscriptionTrialSettingsEndBehaviorMissingPaymentMethodCancel)),
+				},
+			},
+			Metadata: map[string]string{
+				"username": user.Username,
+			},
+		},
+	}
+
+	if user.PaymentInfo.GetCustomerId() != "" {
+		params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
 	}
 
 	checkoutSession, err := session.New(params)

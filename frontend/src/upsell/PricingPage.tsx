@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card, CardContent, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { LoadingButton } from '@mui/lab';
-import { blue } from '@mui/material/colors';
 
 import SellingPoint from './SellingPoint';
 import { useApi } from '../api/Api';
@@ -81,7 +80,7 @@ const PricingPage = () => {
                                     loading={request.isLoading() && interval === 'month'}
                                     disabled={request.isLoading() && interval !== 'month'}
                                     onClick={() => onSubscribe('month')}
-                                    sx={{ backgroundColor: blue[800], color: 'white' }}
+                                    color='subscribe'
                                 >
                                     Subscribe
                                 </LoadingButton>
@@ -124,7 +123,7 @@ const PricingPage = () => {
                                     loading={request.isLoading() && interval === 'year'}
                                     disabled={request.isLoading() && interval !== 'year'}
                                     onClick={() => onSubscribe('year')}
-                                    sx={{ backgroundColor: blue[800], color: 'white' }}
+                                    color='subscribe'
                                 >
                                     Subscribe
                                 </LoadingButton>

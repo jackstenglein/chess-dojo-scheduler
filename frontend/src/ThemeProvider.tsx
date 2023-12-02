@@ -10,11 +10,13 @@ declare module '@mui/material/styles' {
         opening: Palette['primary'];
         endgame: Palette['primary'];
         dojoOrange: Palette['primary'];
+        subscribe: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
         endgame?: Palette['primary'];
         dojoOrange?: PaletteOptions['primary'];
+        subscribe?: PaletteOptions['primary'];
     }
 }
 
@@ -31,6 +33,7 @@ declare module '@mui/material' {
 
     interface ButtonPropsColorOverrides {
         dojoOrange: true;
+        subscribe: true;
     }
 }
 
@@ -88,6 +91,12 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
                             main: '#674ea7',
                         },
                         name: 'endgame',
+                    }),
+                    subscribe: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#1565c0',
+                        },
+                        name: 'subscribe',
                     }),
                 },
             }),

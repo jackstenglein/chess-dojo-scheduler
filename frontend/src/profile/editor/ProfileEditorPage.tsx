@@ -195,11 +195,7 @@ function encodeFileToBase64(file: File): Promise<string> {
     });
 }
 
-interface ProfileEditorPageProps {
-    isCreating?: boolean;
-}
-
-const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => {
+const ProfileEditorPage = () => {
     const user = useAuth().user!;
     const api = useApi();
     const navigate = useNavigate();
@@ -421,7 +417,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                     rowGap={2}
                 >
                     <Typography variant='h4' mr={2}>
-                        {isCreating ? 'Create' : 'Edit'} Profile
+                        Edit Settings
                     </Typography>
 
                     <Stack direction='row' spacing={2}>
@@ -434,16 +430,14 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                             Save
                         </LoadingButton>
 
-                        {!isCreating && (
-                            <Button
-                                variant='contained'
-                                color='error'
-                                disableElevation
-                                onClick={() => navigate('..')}
-                            >
-                                Cancel
-                            </Button>
-                        )}
+                        <Button
+                            variant='contained'
+                            color='error'
+                            disableElevation
+                            onClick={() => navigate('..')}
+                        >
+                            Cancel
+                        </Button>
                     </Stack>
                 </Stack>
 
@@ -704,7 +698,7 @@ const ProfileEditorPage: React.FC<ProfileEditorPageProps> = ({ isCreating }) => 
                     </Stack>
                 </Stack>
 
-                <SubscriptionManager paymentInfo={user.paymentInfo} />
+                <SubscriptionManager user={user} />
             </Stack>
         </Container>
     );

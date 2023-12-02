@@ -53,7 +53,15 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	cancelUrl := event.QueryStringParameters["cancelUrl"]
 
-	url, err := payment.PurchaseCourseUrl(info.Username, course, purchaseOption, cancelUrl)
+	var user *database.User = nil
+	if info.Username != "" {
+		user, err = repository.GetUser(info.Username)
+		if err != nil {
+			log.Error("Failed to get user: ", err)
+		}
+	}
+
+	url, err := payment.PurchaseCourseUrl(user, course, purchaseOption, cancelUrl)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
