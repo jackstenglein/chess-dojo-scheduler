@@ -108,7 +108,12 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
 }) => {
     return (
         <Stack spacing={2}>
-            <Stack>
+            <Stack
+                id='notifications'
+                sx={{
+                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
+                }}
+            >
                 <Typography variant='h5'>Notifications</Typography>
                 <Divider />
             </Stack>

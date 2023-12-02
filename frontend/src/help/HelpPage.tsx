@@ -502,7 +502,9 @@ const HelpPage = () => {
                             <Stack
                                 key={section.title}
                                 id={section.title}
-                                sx={{ scrollMarginTop: '88px' }}
+                                sx={{
+                                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
+                                }}
                             >
                                 <Typography variant='h5'>{section.title}</Typography>
                                 <Divider />

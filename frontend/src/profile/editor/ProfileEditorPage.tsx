@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
     Alert,
     Button,
+    Card,
+    CardContent,
     Checkbox,
     Container,
     Divider,
@@ -18,6 +20,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import UploadIcon from '@mui/icons-material/Upload';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import { useAuth } from '../../auth/Auth';
 import {
@@ -394,312 +397,406 @@ const ProfileEditorPage = () => {
         startRatingError: errors[`${rsf.system}StartRating`],
     }));
 
+    const scrollToId = (id: string) => (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView();
+        }
+    };
+
     return (
-        <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
+        <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
             <RequestSnackbar request={request} showSuccess />
 
-            {user.dojoCohort !== 'NO_COHORT' &&
-                user.dojoCohort !== '' &&
-                !dojoCohorts.includes(user.dojoCohort) && (
-                    <Alert severity='error' sx={{ mb: 3 }}>
-                        Invalid cohort: The dojo is phasing out the 0-400 and 400-600
-                        cohorts in favor of more specific cohorts. Please choose a new
-                        cohort below.
-                    </Alert>
-                )}
-
-            <Stack spacing={5}>
-                <Stack
-                    direction='row'
-                    alignItems='center'
-                    justifyContent='space-between'
-                    flexWrap='wrap'
-                    rowGap={2}
+            <Grid2 container columnSpacing={8}>
+                <Grid2
+                    xs={0}
+                    sm='auto'
+                    sx={{
+                        display: { xs: 'none', sm: 'initial' },
+                        borderRightWidth: 1,
+                        borderColor: 'divider',
+                    }}
                 >
-                    <Typography variant='h4' mr={2}>
-                        Edit Settings
-                    </Typography>
-
-                    <Stack direction='row' spacing={2}>
-                        <LoadingButton
-                            variant='contained'
-                            onClick={onSave}
-                            loading={request.status === RequestStatus.Loading}
-                            disabled={!changesMade}
-                        >
-                            Save
-                        </LoadingButton>
-
-                        <Button
-                            variant='contained'
-                            color='error'
-                            disableElevation
-                            onClick={() => navigate('..')}
-                        >
-                            Cancel
-                        </Button>
-                    </Stack>
-                </Stack>
-
-                {Object.values(errors).length > 0 && (
-                    <Alert severity='error' sx={{ mb: 3 }}>
-                        Unable to save profile. Fix the errors below and retry.
-                    </Alert>
-                )}
-
-                <Stack spacing={4}>
-                    <Stack>
-                        <Typography variant='h5'>Personal</Typography>
-                        <Divider />
-                    </Stack>
-
-                    <Stack>
-                        <FormLabel sx={{ mb: 1 }}>Profile Picture</FormLabel>
-                        <Stack direction='row' alignItems='center' spacing={3}>
-                            <Avatar user={user} size={150} url={profilePictureUrl} />
-                            <Stack spacing={2} alignItems='start'>
-                                <Button
-                                    component='label'
-                                    variant='outlined'
-                                    startIcon={<UploadIcon />}
+                    <Card
+                        variant='outlined'
+                        sx={{
+                            position: 'sticky',
+                            top: 'calc(var(--navbar-height) + 8px)',
+                        }}
+                    >
+                        <CardContent>
+                            <Stack>
+                                <Link href='#personal' onClick={scrollToId('personal')}>
+                                    Personal Info
+                                </Link>
+                                <Link href='#ratings' onClick={scrollToId('ratings')}>
+                                    Ratings
+                                </Link>
+                                <Link
+                                    href='#notifications'
+                                    onClick={scrollToId('notifications')}
                                 >
-                                    Upload Photo
-                                    <input
-                                        type='file'
-                                        accept='image/*'
-                                        hidden
-                                        onChange={onChangeProfilePicture}
-                                    />
-                                </Button>
-                                <Button
-                                    variant='outlined'
-                                    startIcon={<DeleteIcon />}
-                                    onClick={onDeleteProfilePicture}
+                                    Notifications
+                                </Link>
+                                <Link
+                                    href='#user-interface'
+                                    onClick={scrollToId('user-interface')}
                                 >
-                                    Delete Photo
+                                    UI
+                                </Link>
+                                <Link
+                                    href='#subscription'
+                                    onClick={scrollToId('subscription')}
+                                >
+                                    Subscription/Billing
+                                </Link>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Grid2>
+
+                <Grid2 xs={12} sm={true} md={true} lg='auto'>
+                    {user.dojoCohort !== 'NO_COHORT' &&
+                        user.dojoCohort !== '' &&
+                        !dojoCohorts.includes(user.dojoCohort) && (
+                            <Alert severity='error' sx={{ mb: 3 }}>
+                                Invalid cohort: The dojo is phasing out the 0-400 and
+                                400-600 cohorts in favor of more specific cohorts. Please
+                                choose a new cohort below.
+                            </Alert>
+                        )}
+
+                    <Stack spacing={5}>
+                        <Stack
+                            direction='row'
+                            alignItems='center'
+                            justifyContent='space-between'
+                            flexWrap='wrap'
+                            rowGap={2}
+                        >
+                            <Typography variant='h4' mr={2}>
+                                Edit Settings
+                            </Typography>
+
+                            <Stack direction='row' spacing={2}>
+                                <LoadingButton
+                                    variant='contained'
+                                    onClick={onSave}
+                                    loading={request.status === RequestStatus.Loading}
+                                    disabled={!changesMade}
+                                >
+                                    Save
+                                </LoadingButton>
+
+                                <Button
+                                    variant='contained'
+                                    color='error'
+                                    disableElevation
+                                    onClick={() => navigate('..')}
+                                >
+                                    Cancel
                                 </Button>
                             </Stack>
                         </Stack>
-                    </Stack>
 
-                    <TextField
-                        required
-                        label='Display Name'
-                        value={displayName}
-                        onChange={(event) => setDisplayName(event.target.value)}
-                        error={!!errors.displayName}
-                        helperText={
-                            errors.displayName ||
-                            'This is how other users will identify you'
-                        }
-                    />
+                        {Object.values(errors).length > 0 && (
+                            <Alert severity='error' sx={{ mb: 3 }}>
+                                Unable to save profile. Fix the errors below and retry.
+                            </Alert>
+                        )}
 
-                    <TextField
-                        label='Discord Username'
-                        value={discordUsername}
-                        onChange={(event) => setDiscordUsername(event.target.value)}
-                        error={!!errors.discordUsername}
-                        helperText={
-                            errors.discordUsername ||
-                            'Format as username#id for older-style Discord usernames'
-                        }
-                    />
+                        <Stack spacing={4}>
+                            <Stack
+                                id='personal'
+                                sx={{
+                                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
+                                }}
+                            >
+                                <Typography variant='h5'>Personal</Typography>
+                                <Divider />
+                            </Stack>
 
-                    <TextField
-                        label='Bio'
-                        multiline
-                        minRows={3}
-                        maxRows={6}
-                        value={bio}
-                        onChange={(event) => setBio(event.target.value)}
-                        error={!!errors.bio}
-                        helperText={errors.bio}
-                    />
+                            <Stack>
+                                <FormLabel sx={{ mb: 1 }}>Profile Picture</FormLabel>
+                                <Stack direction='row' alignItems='center' spacing={3}>
+                                    <Avatar
+                                        user={user}
+                                        size={150}
+                                        url={profilePictureUrl}
+                                    />
+                                    <Stack spacing={2} alignItems='start'>
+                                        <Button
+                                            component='label'
+                                            variant='outlined'
+                                            startIcon={<UploadIcon />}
+                                        >
+                                            Upload Photo
+                                            <input
+                                                type='file'
+                                                accept='image/*'
+                                                hidden
+                                                onChange={onChangeProfilePicture}
+                                            />
+                                        </Button>
+                                        <Button
+                                            variant='outlined'
+                                            startIcon={<DeleteIcon />}
+                                            onClick={onDeleteProfilePicture}
+                                        >
+                                            Delete Photo
+                                        </Button>
+                                    </Stack>
+                                </Stack>
+                            </Stack>
 
-                    <TextField
-                        select
-                        label='Timezone'
-                        value={timezone}
-                        onChange={(e) => setTimezone(e.target.value)}
-                    >
-                        {getTimezoneOptions()}
-                    </TextField>
-                </Stack>
+                            <TextField
+                                required
+                                label='Display Name'
+                                value={displayName}
+                                onChange={(event) => setDisplayName(event.target.value)}
+                                error={!!errors.displayName}
+                                helperText={
+                                    errors.displayName ||
+                                    'This is how other users will identify you'
+                                }
+                            />
 
-                <Stack spacing={4}>
-                    <Stack>
-                        <Typography variant='h5'>Ratings</Typography>
-                        <Divider />
-                    </Stack>
+                            <TextField
+                                label='Discord Username'
+                                value={discordUsername}
+                                onChange={(event) =>
+                                    setDiscordUsername(event.target.value)
+                                }
+                                error={!!errors.discordUsername}
+                                helperText={
+                                    errors.discordUsername ||
+                                    'Format as username#id for older-style Discord usernames'
+                                }
+                            />
 
-                    <TextField
-                        required
-                        select
-                        label='ChessDojo Cohort'
-                        value={dojoCohort}
-                        onChange={(event) => setDojoCohort(event.target.value)}
-                        error={!!errors.dojoCohort}
-                        helperText={errors.dojoCohort}
-                    >
-                        {dojoCohorts.map((option) => (
-                            <MenuItem key={option} value={option}>
-                                {option}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                            <TextField
+                                label='Bio'
+                                multiline
+                                minRows={3}
+                                maxRows={6}
+                                value={bio}
+                                onChange={(event) => setBio(event.target.value)}
+                                error={!!errors.bio}
+                                helperText={errors.bio}
+                            />
 
-                    <TextField
-                        required
-                        select
-                        label='Preferred Rating System'
-                        value={ratingSystem}
-                        onChange={(event) =>
-                            setRatingSystem(event.target.value as RatingSystem)
-                        }
-                        error={!!errors.ratingSystem}
-                        helperText={errors.ratingSystem}
-                    >
-                        {Object.values(RatingSystem).map((option) => (
-                            <MenuItem key={option} value={option}>
-                                {formatRatingSystem(option)}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                            <TextField
+                                select
+                                label='Timezone'
+                                value={timezone}
+                                onChange={(e) => setTimezone(e.target.value)}
+                            >
+                                {getTimezoneOptions()}
+                            </TextField>
+                        </Stack>
 
-                    {ratingSystems.map((rs) => (
-                        <Grid key={rs.label} container columnGap={2} alignItems='center'>
-                            <Grid item xs>
-                                <TextField
-                                    required={rs.required}
-                                    label={rs.label}
-                                    value={rs.username}
-                                    onChange={(event) =>
-                                        rs.setUsername(event.target.value)
-                                    }
-                                    error={!!rs.usernameError}
-                                    helperText={
-                                        rs.usernameError || rs.label === 'DWZ ID' ? (
-                                            <>
-                                                Learn how to find your DWZ ID{' '}
-                                                <Link
-                                                    component={RouterLink}
-                                                    to='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
-                                                >
-                                                    here
-                                                </Link>
-                                            </>
-                                        ) : (
-                                            "Leave blank if you don't have an account"
-                                        )
-                                    }
-                                    sx={{ width: 1 }}
-                                />
+                        <Stack spacing={4}>
+                            <Stack
+                                id='ratings'
+                                sx={{
+                                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
+                                }}
+                            >
+                                <Typography variant='h5'>Ratings</Typography>
+                                <Divider />
+                            </Stack>
+
+                            <TextField
+                                required
+                                select
+                                label='ChessDojo Cohort'
+                                value={dojoCohort}
+                                onChange={(event) => setDojoCohort(event.target.value)}
+                                error={!!errors.dojoCohort}
+                                helperText={errors.dojoCohort}
+                            >
+                                {dojoCohorts.map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+
+                            <TextField
+                                required
+                                select
+                                label='Preferred Rating System'
+                                value={ratingSystem}
+                                onChange={(event) =>
+                                    setRatingSystem(event.target.value as RatingSystem)
+                                }
+                                error={!!errors.ratingSystem}
+                                helperText={errors.ratingSystem}
+                            >
+                                {Object.values(RatingSystem).map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                        {formatRatingSystem(option)}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+
+                            {ratingSystems.map((rs) => (
+                                <Grid
+                                    key={rs.label}
+                                    container
+                                    columnGap={2}
+                                    alignItems='center'
+                                >
+                                    <Grid item xs>
+                                        <TextField
+                                            required={rs.required}
+                                            label={rs.label}
+                                            value={rs.username}
+                                            onChange={(event) =>
+                                                rs.setUsername(event.target.value)
+                                            }
+                                            error={!!rs.usernameError}
+                                            helperText={
+                                                rs.usernameError ||
+                                                rs.label === 'DWZ ID' ? (
+                                                    <>
+                                                        Learn how to find your DWZ ID{' '}
+                                                        <Link
+                                                            component={RouterLink}
+                                                            to='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
+                                                        >
+                                                            here
+                                                        </Link>
+                                                    </>
+                                                ) : (
+                                                    "Leave blank if you don't have an account"
+                                                )
+                                            }
+                                            sx={{ width: 1 }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs>
+                                        <TextField
+                                            label='Start Rating'
+                                            value={rs.startRating}
+                                            onChange={(event) =>
+                                                rs.setStartRating(event.target.value)
+                                            }
+                                            error={!!rs.startRatingError}
+                                            helperText={
+                                                rs.startRatingError ||
+                                                'Your rating when you first joined the Dojo'
+                                            }
+                                            sx={{ width: 1 }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={rs.hidden}
+                                                    onChange={(event) =>
+                                                        rs.setHidden(event.target.checked)
+                                                    }
+                                                />
+                                            }
+                                            label={rs.hideLabel}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            ))}
+
+                            <Grid container columnGap={2} alignItems='center'>
+                                <Grid item xs>
+                                    <TextField
+                                        required={ratingSystem === RatingSystem.Custom}
+                                        label='Current Rating (Custom)'
+                                        value={
+                                            ratingEditors[RatingSystem.Custom]
+                                                ?.currentRating
+                                        }
+                                        onChange={(event) =>
+                                            setCurrentRating(
+                                                RatingSystem.Custom,
+                                                event.target.value
+                                            )
+                                        }
+                                        error={!!errors.currentCustomRating}
+                                        helperText={
+                                            errors.currentCustomRating ||
+                                            'Fill in if you want to manually track your rating'
+                                        }
+                                        sx={{ width: 1 }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs>
+                                    <TextField
+                                        required={ratingSystem === RatingSystem.Custom}
+                                        label='Start Rating (Custom)'
+                                        value={
+                                            ratingEditors[RatingSystem.Custom]
+                                                ?.startRating
+                                        }
+                                        onChange={(event) =>
+                                            setStartRating(
+                                                RatingSystem.Custom,
+                                                event.target.value
+                                            )
+                                        }
+                                        error={!!errors.startCustomRating}
+                                        helperText={
+                                            errors.startCustomRating ||
+                                            'Your rating when you first joined the Dojo'
+                                        }
+                                        sx={{ width: 1 }}
+                                    />
+                                </Grid>
                             </Grid>
+                        </Stack>
 
-                            <Grid item xs>
-                                <TextField
-                                    label='Start Rating'
-                                    value={rs.startRating}
-                                    onChange={(event) =>
-                                        rs.setStartRating(event.target.value)
-                                    }
-                                    error={!!rs.startRatingError}
-                                    helperText={
-                                        rs.startRatingError ||
-                                        'Your rating when you first joined the Dojo'
-                                    }
-                                    sx={{ width: 1 }}
-                                />
-                            </Grid>
+                        <NotificationSettingsEditor
+                            notificationSettings={notificationSettings}
+                            setNotificationSettings={setNotificationSettings}
+                        />
 
-                            <Grid item xs>
+                        <Stack spacing={2}>
+                            <Stack
+                                id='user-interface'
+                                sx={{
+                                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
+                                }}
+                            >
+                                <Typography variant='h5'>UI</Typography>
+                                <Divider />
+                            </Stack>
+
+                            <Stack>
                                 <FormControlLabel
                                     control={
                                         <Checkbox
-                                            checked={rs.hidden}
+                                            checked={enableLightMode}
                                             onChange={(event) =>
-                                                rs.setHidden(event.target.checked)
+                                                setEnableLightMode(event.target.checked)
                                             }
                                         />
                                     }
-                                    label={rs.hideLabel}
+                                    label='Enable Light Mode (Warning: experimental, some UI elements may be hard to view)'
+                                    sx={{ mb: 1.5 }}
                                 />
-                            </Grid>
-                        </Grid>
-                    ))}
+                            </Stack>
+                        </Stack>
 
-                    <Grid container columnGap={2} alignItems='center'>
-                        <Grid item xs>
-                            <TextField
-                                required={ratingSystem === RatingSystem.Custom}
-                                label='Current Rating (Custom)'
-                                value={ratingEditors[RatingSystem.Custom]?.currentRating}
-                                onChange={(event) =>
-                                    setCurrentRating(
-                                        RatingSystem.Custom,
-                                        event.target.value
-                                    )
-                                }
-                                error={!!errors.currentCustomRating}
-                                helperText={
-                                    errors.currentCustomRating ||
-                                    'Fill in if you want to manually track your rating'
-                                }
-                                sx={{ width: 1 }}
-                            />
-                        </Grid>
-
-                        <Grid item xs>
-                            <TextField
-                                required={ratingSystem === RatingSystem.Custom}
-                                label='Start Rating (Custom)'
-                                value={ratingEditors[RatingSystem.Custom]?.startRating}
-                                onChange={(event) =>
-                                    setStartRating(
-                                        RatingSystem.Custom,
-                                        event.target.value
-                                    )
-                                }
-                                error={!!errors.startCustomRating}
-                                helperText={
-                                    errors.startCustomRating ||
-                                    'Your rating when you first joined the Dojo'
-                                }
-                                sx={{ width: 1 }}
-                            />
-                        </Grid>
-                    </Grid>
-                </Stack>
-
-                <NotificationSettingsEditor
-                    notificationSettings={notificationSettings}
-                    setNotificationSettings={setNotificationSettings}
-                />
-
-                <Stack spacing={2}>
-                    <Stack>
-                        <Typography variant='h5'>UI</Typography>
-                        <Divider />
+                        <SubscriptionManager user={user} />
                     </Stack>
-
-                    <Stack>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={enableLightMode}
-                                    onChange={(event) =>
-                                        setEnableLightMode(event.target.checked)
-                                    }
-                                />
-                            }
-                            label='Enable Light Mode (Warning: experimental, some UI elements may be hard to view)'
-                            sx={{ mb: 1.5 }}
-                        />
-                    </Stack>
-                </Stack>
-
-                <SubscriptionManager user={user} />
-            </Stack>
+                </Grid2>
+            </Grid2>
         </Container>
     );
 };

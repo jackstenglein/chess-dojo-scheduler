@@ -25,7 +25,11 @@ const Navbar = () => {
     }).length;
 
     return (
-        <AppBar data-cy='navbar' position='sticky' sx={{ zIndex: 1300, height: '80px' }}>
+        <AppBar
+            data-cy='navbar'
+            position='sticky'
+            sx={{ zIndex: 1300, height: 'var(--navbar-height)' }}
+        >
             <Container maxWidth='xl' sx={{ height: 1 }}>
                 <Toolbar disableGutters sx={{ height: 1 }}>
                     <NavbarMenu meetingCount={meetingCount} />

@@ -35,7 +35,13 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
 
-            <Stack width={1}>
+            <Stack
+                id='subscription'
+                width={1}
+                sx={{
+                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
+                }}
+            >
                 <Typography variant='h5'>Subscription/Billing</Typography>
                 <Divider />
             </Stack>
