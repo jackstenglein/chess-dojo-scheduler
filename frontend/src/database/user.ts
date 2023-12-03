@@ -99,6 +99,7 @@ export interface User {
     isCalendarAdmin: boolean;
     isTournamentAdmin: boolean;
     isBetaTester: boolean;
+    isCoach: boolean;
     createdAt: string;
     updatedAt: string;
     numberOfGraduations: number;
@@ -134,10 +135,17 @@ export interface User {
     purchasedCourses?: Record<string, boolean>;
 
     paymentInfo?: PaymentInfo;
+
+    coachInfo?: CoachInfo;
 }
 
 export interface PaymentInfo {
     customerId: string;
+}
+
+export interface CoachInfo {
+    stripeId: string;
+    onboardingComplete: boolean;
 }
 
 export interface UserNotificationSettings {

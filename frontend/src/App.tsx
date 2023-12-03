@@ -57,6 +57,7 @@ import CoursePage from './courses/view/CoursePage';
 import InfoPage from './tournaments/openClassical/InfoPage';
 import ListCoursesPage from './courses/list/ListCoursesPage';
 import PricingPage from './upsell/PricingPage';
+import CoachPortalPage from './coach/CoachPortalPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -157,6 +158,8 @@ const router = createBrowserRouter(
                         <Route index element={<NewsfeedListPage />} />
                         <Route path=':owner/:id' element={<NewsfeedDetailPage />} />
                     </Route>
+
+                    <Route path='coach' element={<CoachPortalPage />} />
                 </Route>
             </Route>
             <Route path='*' element={<NotFoundPage />} />

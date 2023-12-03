@@ -10,8 +10,11 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService/secrets"
 	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/account"
+	"github.com/stripe/stripe-go/v76/accountlink"
 	bpsession "github.com/stripe/stripe-go/v76/billingportal/session"
 	"github.com/stripe/stripe-go/v76/checkout/session"
+	"github.com/stripe/stripe-go/v76/loginlink"
 )
 
 var frontendHost = os.Getenv("frontendHost")
@@ -170,4 +173,64 @@ func GetBillingPortalSession(customerId string) (*stripe.BillingPortalSession, e
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe Billing Portal session", err)
 	}
 	return session, nil
+}
+
+func CreateConnectedAccount(username, email string) (*stripe.Account, error) {
+	params := &stripe.AccountParams{
+		Type:         stripe.String(string(stripe.AccountTypeExpress)),
+		BusinessType: stripe.String(string(stripe.AccountBusinessTypeIndividual)),
+		BusinessProfile: &stripe.AccountBusinessProfileParams{
+			ProductDescription: stripe.String("Chess courses and coaching"),
+		},
+		Capabilities: &stripe.AccountCapabilitiesParams{
+			Transfers: &stripe.AccountCapabilitiesTransfersParams{
+				Requested: stripe.Bool(true),
+			},
+			TaxReportingUS1099K: &stripe.AccountCapabilitiesTaxReportingUS1099KParams{
+				Requested: stripe.Bool(true),
+			},
+		},
+		Email: stripe.String(email),
+		Metadata: map[string]string{
+			"username": username,
+		},
+	}
+	account, err := account.New(params)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe account", err)
+	}
+	return account, nil
+}
+
+func GetConnectedAccount(stripeId string) (*stripe.Account, error) {
+	account, err := account.GetByID(stripeId, nil)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to get Stripe account", err)
+	}
+	return account, nil
+}
+
+func AccountLink(id string) (*stripe.AccountLink, error) {
+	params := &stripe.AccountLinkParams{
+		Account:    stripe.String(id),
+		RefreshURL: stripe.String(frontendHost + "/coach/stripe-refresh"),
+		ReturnURL:  stripe.String(frontendHost + "/coach/stripe-return"),
+		Type:       stripe.String(string(stripe.AccountLinkTypeAccountOnboarding)),
+	}
+	accountLink, err := accountlink.New(params)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe AccountLink", err)
+	}
+	return accountLink, nil
+}
+
+func LoginLink(stripeId string) (*stripe.LoginLink, error) {
+	params := &stripe.LoginLinkParams{
+		Account: stripe.String(stripeId),
+	}
+	link, err := loginlink.New(params)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe LoginLink", err)
+	}
+	return link, nil
 }

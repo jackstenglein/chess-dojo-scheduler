@@ -35,3 +35,9 @@ func GetApiKey() (string, error) {
 func GetEndpointSecret() (string, error) {
 	return getSecret(fmt.Sprintf("chess-dojo-%s-stripeEndpoint", stage))
 }
+
+// GetConnectEndpointSecret fetches the Stripe Connect webhook endpoint
+// secret for the current environment from AWS SecretManager.
+func GetConnectEndpointSecret() (string, error) {
+	return getSecret(fmt.Sprintf("chess-dojo-%s-stripeEndpointConnect", stage))
+}

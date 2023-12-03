@@ -15,6 +15,7 @@ import Person2Icon from '@mui/icons-material/Person2';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NightlightIcon from '@mui/icons-material/Nightlight';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import SportsIcon from '@mui/icons-material/Sports';
 
 import { useAuth } from '../auth/Auth';
 import Avatar from '../profile/Avatar';
@@ -91,6 +92,15 @@ const ProfileButton = () => {
                     </ListItemIcon>
                     <Typography textAlign='center'>Settings</Typography>
                 </MenuItem>
+
+                {user.isCoach && (
+                    <MenuItem onClick={handleClick(() => navigate('/coach'))}>
+                        <ListItemIcon>
+                            <SportsIcon />
+                        </ListItemIcon>
+                        <Typography textAlign='center'>Coach Portal</Typography>
+                    </MenuItem>
+                )}
 
                 <MenuItem>
                     <ListItemIcon>

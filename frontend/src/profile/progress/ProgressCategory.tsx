@@ -122,12 +122,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                             {hiddenTaskCount > 1 ? 's' : ''} by upgrading to a full
                             account
                         </Typography>
-                        <Button
-                            variant='outlined'
-                            href='https://www.chessdojo.club/plans-pricing'
-                            target='_blank'
-                            rel='noopener'
-                        >
+                        <Button variant='outlined' href='/prices'>
                             View Prices
                         </Button>
                     </Stack>
@@ -138,12 +133,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                         <Typography>
                             Upgrade to a full account to create your own custom tasks
                         </Typography>
-                        <Button
-                            variant='outlined'
-                            href='https://www.chessdojo.club/plans-pricing'
-                            target='_blank'
-                            rel='noopener'
-                        >
+                        <Button variant='outlined' href='/prices'>
                             View Prices
                         </Button>
                     </Stack>

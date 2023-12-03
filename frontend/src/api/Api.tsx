@@ -102,6 +102,9 @@ import {
     getPosition,
 } from './explorerApi';
 import {
+    createPaymentAccount,
+    getPaymentAccount,
+    paymentAccountLogin,
     PaymentApiContextType,
     subscriptionCheckout,
     SubscriptionCheckoutRequest,
@@ -317,6 +320,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             subscriptionCheckout: (request: SubscriptionCheckoutRequest) =>
                 subscriptionCheckout(idToken, request),
             subscriptionManage: () => subscriptionManage(idToken),
+            createPaymentAccount: () => createPaymentAccount(idToken),
+            getPaymentAccount: () => getPaymentAccount(idToken),
+            paymentAccountLogin: () => paymentAccountLogin(idToken),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

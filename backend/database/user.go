@@ -196,6 +196,9 @@ type User struct {
 	// Whether the user is a beta tester or not
 	IsBetaTester bool `dynamodbav:"isBetaTester" json:"isBetaTester"`
 
+	// Whether the user is a coach or not
+	IsCoach bool `dynamodbav:"isCoach" json:"isCoach"`
+
 	// When the user first created their account
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 
@@ -262,6 +265,9 @@ type User struct {
 
 	// The user's payment info
 	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo" json:"paymentInfo"`
+
+	// The user's coach info
+	CoachInfo *CoachInfo `dynamodbav:"coachInfo,omitempty" json:"coachInfo,omitempty"`
 }
 
 type PaymentInfo struct {
@@ -288,6 +294,14 @@ func (pi *PaymentInfo) GetCustomerId() string {
 		return ""
 	}
 	return pi.CustomerId
+}
+
+type CoachInfo struct {
+	// The Stripe connected account id
+	StripeId string `dynamodbav:"stripeId" json:"stripeId"`
+
+	// Whether Stripe onboarding is complete
+	OnboardingComplete bool `dynamodbav:"onboardingComplete" json:"onboardingComplete"`
 }
 
 type UserNotificationSettings struct {
@@ -563,6 +577,9 @@ type UserUpdate struct {
 
 	// The user's payment info. This field cannot be manually set by the user.
 	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo,omitempty" json:"-"`
+
+	// The user's coach info. This field cannot be manually set by the user.
+	CoachInfo *CoachInfo `dynamodbav:"coachInfo,omitempty" json:"-"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

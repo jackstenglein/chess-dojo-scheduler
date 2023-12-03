@@ -111,12 +111,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                         Unlock {hiddenCount} more game
                         {hiddenCount > 1 ? 's' : ''} by upgrading to a full account
                     </Typography>
-                    <Button
-                        variant='outlined'
-                        href='https://www.chessdojo.club/plans-pricing'
-                        target='_blank'
-                        rel='noopener'
-                    >
+                    <Button variant='outlined' href='/prices'>
                         View Prices
                     </Button>
                 </Stack>

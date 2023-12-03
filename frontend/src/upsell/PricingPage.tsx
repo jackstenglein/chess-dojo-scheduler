@@ -16,7 +16,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     const api = useApi();
     const request = useRequest();
     const [interval, setInterval] = useState('');
-    const [searchParams, _] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const redirect = searchParams.get('redirect') || '';
 
     const onSubscribe = (interval: 'month' | 'year') => {
