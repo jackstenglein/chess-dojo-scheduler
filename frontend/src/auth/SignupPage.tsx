@@ -77,6 +77,12 @@ const SignupPage = () => {
         auth.socialSignin('Google', redirectUri);
     };
 
+    const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter') {
+            onSignup();
+        }
+    };
+
     return (
         <Container maxWidth='md' sx={{ pt: 10 }}>
             <Stack justifyContent='center' alignItems='center' spacing={6}>
@@ -126,6 +132,7 @@ const SignupPage = () => {
                         onChange={(event) => setPassword(event.target.value)}
                         error={!!errors.password}
                         helperText={errors.password}
+                        onKeyDown={onKeyDown}
                     />
                     <LoadingButton
                         data-cy='submit-button'

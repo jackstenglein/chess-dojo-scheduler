@@ -139,6 +139,12 @@ const StartStep: React.FC<StartStepProps> = ({
     onCancel,
     loading,
 }) => {
+    const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter') {
+            onSubmit();
+        }
+    };
+
     return (
         <>
             <Typography
@@ -160,6 +166,7 @@ const StartStep: React.FC<StartStepProps> = ({
                 onChange={(event) => setEmail(event.target.value)}
                 error={!!emailError}
                 helperText={emailError}
+                onKeyDown={onKeyDown}
             />
 
             <LoadingButton
@@ -241,6 +248,12 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
             });
     };
 
+    const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter') {
+            onConfirm();
+        }
+    };
+
     return (
         <>
             <RequestSnackbar request={request} />
@@ -288,6 +301,7 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
                 onChange={(event) => setPasswordConfirm(event.target.value)}
                 error={!!passwordError}
                 helperText={passwordError}
+                onKeyDown={onKeyDown}
             />
 
             <LoadingButton
