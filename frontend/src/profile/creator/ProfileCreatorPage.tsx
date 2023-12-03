@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Stepper, Step, StepLabel, Typography, Container, Box } from '@mui/material';
 
-import { User, dojoCohorts } from '../../database/user';
+import { SubscriptionStatus, User, dojoCohorts } from '../../database/user';
 import PersonalInfoForm from './PersonalInfoForm';
 import { useAuth } from '../../auth/Auth';
 import PreferredRatingSystemForm from './PreferredRatingSystemForm';
 import ExtraRatingSystemsForm from './ExtraRatingSystemsForm';
 import DiscordForm from './DiscordForm';
 import ReferralSourceForm from './ReferralSourceForm';
+import PricingPage from '../../upsell/PricingPage';
 
 interface StepProps {
     label: string;
@@ -67,8 +68,17 @@ function getActiveStep(user: User): number {
 const ProfileCreatorPage = () => {
     const user = useAuth().user!;
     const [activeStep, setActiveStep] = useState(getActiveStep(user));
+    const [showPricingPage, setShowPricingPage] = useState(true);
 
     const Form = steps[activeStep].form;
+
+    if (
+        showPricingPage &&
+        user.subscriptionStatus !== SubscriptionStatus.Subscribed &&
+        activeStep === 0
+    ) {
+        return <PricingPage onFreeTier={() => setShowPricingPage(false)} />;
+    }
 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>

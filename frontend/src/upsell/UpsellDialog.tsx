@@ -63,7 +63,8 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
     const onViewPrices = (event: React.MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
-        navigate('/prices');
+        const currentPage = encodeURIComponent(window.location.href);
+        navigate(`/prices?redirect=${currentPage}`);
     };
 
     return (

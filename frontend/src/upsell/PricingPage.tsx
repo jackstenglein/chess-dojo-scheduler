@@ -1,22 +1,29 @@
 import { useState } from 'react';
-import { Card, CardContent, Container, Stack, Typography } from '@mui/material';
+import { Button, Card, CardContent, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { LoadingButton } from '@mui/lab';
+import { useSearchParams } from 'react-router-dom';
 
-import SellingPoint from './SellingPoint';
+import SellingPoint, { SellingPointStatus } from './SellingPoint';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 
-const PricingPage = () => {
+interface PricingPageProps {
+    onFreeTier?: () => void;
+}
+
+const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     const api = useApi();
     const request = useRequest();
     const [interval, setInterval] = useState('');
+    const [searchParams, _] = useSearchParams();
+    const redirect = searchParams.get('redirect') || '';
 
     const onSubscribe = (interval: 'month' | 'year') => {
         setInterval(interval);
 
         request.onStart();
-        api.subscriptionCheckout({ interval })
+        api.subscriptionCheckout({ interval, successUrl: redirect, cancelUrl: redirect })
             .then((resp) => {
                 console.log('subscriptionCheckout: ', resp);
                 window.location.href = resp.data.url;
@@ -38,7 +45,59 @@ const PricingPage = () => {
                     </Typography>
                 </Grid2>
 
-                <Grid2 xs={12} sm={6}>
+                {onFreeTier && (
+                    <Grid2 xs={12} sm={4}>
+                        <Card variant='outlined' sx={{ height: 1 }}>
+                            <CardContent sx={{ height: 1 }}>
+                                <Stack alignItems='center' spacing={3} height={1}>
+                                    <Stack alignItems='center'>
+                                        <Typography
+                                            variant='subtitle1'
+                                            fontWeight='bold'
+                                            color='text.secondary'
+                                            textAlign='center'
+                                        >
+                                            Free Tier
+                                        </Typography>
+
+                                        <Typography variant='h6'>$0</Typography>
+                                    </Stack>
+
+                                    <Stack spacing={1} flexGrow={1}>
+                                        <SellingPoint
+                                            description='Limited training plans, 0-2500'
+                                            status={SellingPointStatus.Restricted}
+                                        />
+                                        <SellingPoint
+                                            description='Limited Dojo games database'
+                                            status={SellingPointStatus.Restricted}
+                                        />
+                                        <SellingPoint
+                                            description='Opening courses'
+                                            status={SellingPointStatus.Excluded}
+                                        />
+                                        <SellingPoint
+                                            description='Private Discord server'
+                                            status={SellingPointStatus.Excluded}
+                                        />
+                                    </Stack>
+
+                                    <Button
+                                        variant='contained'
+                                        fullWidth
+                                        disabled={request.isLoading()}
+                                        color='subscribe'
+                                        onClick={onFreeTier}
+                                    >
+                                        Continue for Free
+                                    </Button>
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    </Grid2>
+                )}
+
+                <Grid2 xs={12} sm={onFreeTier ? 4 : 6}>
                     <Card variant='outlined' sx={{ height: 1 }}>
                         <CardContent sx={{ height: 1 }}>
                             <Stack alignItems='center' spacing={3} height={1}>
@@ -57,20 +116,20 @@ const PricingPage = () => {
 
                                 <Stack spacing={1} flexGrow={1}>
                                     <SellingPoint
-                                        included
                                         description='All training plans, 0-2500'
+                                        status={SellingPointStatus.Included}
                                     />
                                     <SellingPoint
-                                        included
-                                        description='All opening courses'
-                                    />
-                                    <SellingPoint
-                                        included
-                                        description='Private Discord server'
-                                    />
-                                    <SellingPoint
-                                        included
                                         description='Full Dojo games database'
+                                        status={SellingPointStatus.Included}
+                                    />
+                                    <SellingPoint
+                                        description='All opening courses'
+                                        status={SellingPointStatus.Included}
+                                    />
+                                    <SellingPoint
+                                        description='Private Discord server'
+                                        status={SellingPointStatus.Included}
                                     />
                                 </Stack>
 
@@ -89,7 +148,7 @@ const PricingPage = () => {
                     </Card>
                 </Grid2>
 
-                <Grid2 xs={12} sm={6}>
+                <Grid2 xs={12} sm={onFreeTier ? 4 : 6}>
                     <Card variant='outlined' sx={{ height: 1 }}>
                         <CardContent sx={{ height: 1 }}>
                             <Stack alignItems='center' spacing={3} height={1}>
@@ -108,12 +167,12 @@ const PricingPage = () => {
 
                                 <Stack spacing={1} flexGrow={1}>
                                     <SellingPoint
-                                        included
                                         description='All features from monthly membership'
+                                        status={SellingPointStatus.Included}
                                     />
                                     <SellingPoint
-                                        included
                                         description='Saves $80 / year compared to monthly membership'
+                                        status={SellingPointStatus.Included}
                                     />
                                 </Stack>
 
