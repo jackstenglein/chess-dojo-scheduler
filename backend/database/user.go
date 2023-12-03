@@ -643,7 +643,7 @@ func GetSearchKey(user *User, update *UserUpdate) string {
 
 type UserCreator interface {
 	// CreateUser creates a new User object with the provided information.
-	CreateUser(username, email, name string) (*User, error)
+	CreateUser(username, email, name, subscriptionStatus string) (*User, error)
 }
 
 type UserGetter interface {
@@ -697,7 +697,7 @@ type AdminUserLister interface {
 }
 
 // CreateUser creates a new User object with the provided information.
-func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, error) {
+func (repo *dynamoRepository) CreateUser(username, email, name, subscriptionStatus string) (*User, error) {
 	user := &User{
 		Username:           username,
 		Email:              email,
@@ -705,7 +705,7 @@ func (repo *dynamoRepository) CreateUser(username, email, name string) (*User, e
 		Name:               name,
 		CreatedAt:          time.Now().Format(time.RFC3339),
 		DojoCohort:         NoCohort,
-		SubscriptionStatus: SubscriptionStatus_Unknown,
+		SubscriptionStatus: subscriptionStatus,
 	}
 
 	err := repo.SetUserConditional(user, aws.String("attribute_not_exists(username)"))

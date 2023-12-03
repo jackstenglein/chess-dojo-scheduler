@@ -39,7 +39,7 @@ describe('Scoreboard Page', () => {
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
-            .should('have.attr', 'href', 'https://www.chessdojo.club/plans-pricing');
+            .should('have.attr', 'href', '/prices');
         cy.getBySel('current-members-scoreboard').contains('No rows');
     });
 

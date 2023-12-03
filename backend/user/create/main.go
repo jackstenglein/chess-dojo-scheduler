@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/user/access"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -45,7 +46,12 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 		return handleError(event, errors.New("Invalid request: name field is required"))
 	}
 
-	_, err := repository.CreateUser(cognitoUsername, email, name)
+	subscriptionStatus := database.SubscriptionStatus_Subscribed
+	if isForbidden, _ := access.IsForbidden(email); isForbidden {
+		subscriptionStatus = database.SubscriptionStatus_FreeTier
+	}
+
+	_, err := repository.CreateUser(cognitoUsername, email, name, subscriptionStatus)
 	if err != nil {
 		return handleError(event, err)
 	}

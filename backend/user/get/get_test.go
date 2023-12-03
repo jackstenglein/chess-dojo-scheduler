@@ -17,7 +17,7 @@ const testEmail = "test@chess-dojo-scheduler.com"
 const testName = "Test Name"
 
 func setupSuite(t *testing.T) func(t *testing.T) {
-	_, err := database.DynamoDB.CreateUser(testUsername, testEmail, testName)
+	_, err := database.DynamoDB.CreateUser(testUsername, testEmail, testName, database.SubscriptionStatus_Unknown)
 	if err != nil {
 		t.Errorf("Failed to create user: %v", err)
 	}

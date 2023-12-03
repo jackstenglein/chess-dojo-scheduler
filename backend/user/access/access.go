@@ -3,7 +3,7 @@ package access
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 
@@ -40,7 +40,7 @@ func IsForbidden(email string) (bool, error) {
 	}
 
 	if res.StatusCode >= 500 {
-		body, _ := ioutil.ReadAll(res.Body)
+		body, _ := io.ReadAll(res.Body)
 		defer res.Body.Close()
 		log.Errorf("Failed to check auth for email `%s`. Chessdojo.club returned status `%d`: %v", email, res.StatusCode, string(body))
 		return false, nil

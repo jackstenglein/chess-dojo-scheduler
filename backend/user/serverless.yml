@@ -44,6 +44,8 @@ functions:
 
   create:
     handler: create/main.go
+    environment:
+      wixApiKey: ${file(../wix.yml):wixApiKey}
     events:
       - cognitoUserPool:
           pool: ${sls:stage}-chess-dojo-scheduler-auth-pool

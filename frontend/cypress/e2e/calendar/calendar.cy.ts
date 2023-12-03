@@ -38,13 +38,13 @@ describe('Calendar Page', () => {
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
-            .should('have.attr', 'href', 'https://www.chessdojo.club/plans-pricing');
+            .should('have.attr', 'href', '/prices');
 
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
         cy.getBySel('upsell-dialog')
             .contains('View Prices')
-            .should('have.attr', 'href', 'https://www.chessdojo.club/plans-pricing');
+            .should('have.attr', 'href', '/prices');
     });
 
     it('displays correct events for tournament filters', () => {
