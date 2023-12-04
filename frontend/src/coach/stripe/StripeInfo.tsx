@@ -43,9 +43,9 @@ const StripeInfo = () => {
         <Stack spacing={3}>
             <RequestSnackbar request={request} />
 
+            <DashboardCard account={request.data} />
             <AccountStatusCard account={request.data} />
             <PayoutsCard account={request.data} />
-            <DashboardCard />
         </Stack>
     );
 };

@@ -213,8 +213,8 @@ func GetConnectedAccount(stripeId string) (*stripe.Account, error) {
 func AccountLink(id string) (*stripe.AccountLink, error) {
 	params := &stripe.AccountLinkParams{
 		Account:    stripe.String(id),
-		RefreshURL: stripe.String(frontendHost + "/coach/stripe-refresh"),
-		ReturnURL:  stripe.String(frontendHost + "/coach/stripe-return"),
+		RefreshURL: stripe.String(frontendHost + "/coach"),
+		ReturnURL:  stripe.String(frontendHost + "/coach"),
 		Type:       stripe.String(string(stripe.AccountLinkTypeAccountOnboarding)),
 	}
 	accountLink, err := accountlink.New(params)
