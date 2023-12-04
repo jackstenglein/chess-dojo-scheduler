@@ -130,6 +130,18 @@ resources:
         UserPoolId: { Ref: CognitoUserPool }
         Domain: user-pool-domain-${sls:stage}-chess-dojo-scheduler
 
+    CustomUserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain
+      DeletionPolicy: Retain
+      Properties:
+        UserPoolId: { Ref: CognitoUserPool }
+        Domain: !If
+          - IsProd
+          - auth.dojoscoreboard.com
+          - authdev.dojoscoreboard.com
+        CustomDomainConfig:
+          CertificateArn: ${file(../config-${sls:stage}.yml):domainCertificateArn}
+
     UserPoolIdentityProvider:
       Type: AWS::Cognito::UserPoolIdentityProvider
       DeletionPolicy: Retain
