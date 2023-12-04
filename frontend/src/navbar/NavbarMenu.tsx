@@ -111,7 +111,19 @@ function allStartItems(
         {
             name: 'Tournaments',
             icon: <TournamentsIcon />,
-            onClick: () => navigate('/tournaments'),
+            onClick: () => toggleExpansion('Tournaments'),
+            children: [
+                {
+                    name: 'DojoLiga',
+                    icon: null,
+                    onClick: () => navigate('/tournaments'),
+                },
+                {
+                    name: 'Open Classical',
+                    icon: null,
+                    onClick: () => navigate('/tournaments/open-classical'),
+                },
+            ],
         },
         {
             name: 'Games',
@@ -157,7 +169,19 @@ function unauthenticatedStartItems(
         {
             name: 'Tournaments',
             icon: <TournamentsIcon />,
-            onClick: () => navigate('/tournaments'),
+            onClick: () => toggleExpansion('Tournaments'),
+            children: [
+                {
+                    name: 'DojoLiga',
+                    icon: null,
+                    onClick: () => navigate('/tournaments'),
+                },
+                {
+                    name: 'Open Classical',
+                    icon: null,
+                    onClick: () => navigate('/tournaments/open-classical'),
+                },
+            ],
         },
         {
             name: 'Shop',
