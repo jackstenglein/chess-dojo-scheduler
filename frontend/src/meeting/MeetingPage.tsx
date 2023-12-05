@@ -7,6 +7,7 @@ import {
     CardContent,
     Typography,
     Link,
+    Button,
 } from '@mui/material';
 
 import { Event, getDisplayString } from '../database/event';
@@ -34,7 +35,6 @@ const MeetingPage = () => {
         if (cache.isLoading) {
             return <LoadingPage />;
         }
-
         return <NotFoundPage />;
     }
 
@@ -55,6 +55,22 @@ const MeetingPage = () => {
     const startTime = start.toLocaleTimeString();
 
     let opponent = Object.values(meeting.participants)[0];
+
+    if (!opponent) {
+        return (
+            <Container maxWidth='md' sx={{ py: 4 }}>
+                <Typography>This meeting has not been booked yet.</Typography>
+                <Button
+                    onClick={() => navigate('/calendar')}
+                    variant='contained'
+                    sx={{ mt: 2 }}
+                >
+                    Return to Calendar
+                </Button>
+            </Container>
+        );
+    }
+
     if (opponent.username === user.username) {
         opponent = {
             username: meeting.owner,
@@ -65,7 +81,7 @@ const MeetingPage = () => {
     }
 
     return (
-        <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
+        <Container maxWidth='md' sx={{ py: 4 }}>
             <Stack spacing={4}>
                 <Card variant='outlined'>
                     <CardHeader

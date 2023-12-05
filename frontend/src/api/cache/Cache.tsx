@@ -143,7 +143,7 @@ export function useCache() {
  * @returns A CacheContext.Provider wrapping the provided children.
  */
 export function CacheProvider({ children }: { children: ReactNode }) {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const events = useIdentifiableCache<Event>();
     const requirements = useIdentifiableCache<Requirement>();
     const notifications = useIdentifiableCache<Notification>();

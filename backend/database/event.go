@@ -238,6 +238,9 @@ type EventGetter interface {
 type EventLeaver interface {
 	EventGetter
 
+	// SetEvent inserts the provided Event into the database.
+	SetEvent(event *Event) error
+
 	// LeaveEvent leaves the event for the given participants. If participant is nil,
 	// then the person leaving is the owner. In that case, the first participant is made
 	// the new owner. The updated event is returned.

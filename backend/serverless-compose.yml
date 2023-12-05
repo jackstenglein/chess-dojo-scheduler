@@ -79,6 +79,7 @@ services:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      EventsTableStreamArn: ${chess-dojo-scheduler.EventsTableStreamArn}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
 
   games:

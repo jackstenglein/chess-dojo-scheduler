@@ -305,6 +305,8 @@ resources:
         TimeToLiveSpecification:
           AttributeName: expirationTime
           Enabled: true
+        StreamSpecification:
+          StreamViewType: OLD_IMAGE
 
     RequirementsTable:
       Type: AWS::DynamoDB::Table
@@ -670,6 +672,8 @@ resources:
       Value: !GetAtt NotificationsTable.Arn
     EventsTableArn:
       Value: !GetAtt EventsTable.Arn
+    EventsTableStreamArn:
+      Value: !GetAtt EventsTable.StreamArn
     TournamentsTableArn:
       Value: !GetAtt TournamentsTable.Arn
     GamesTableArn:

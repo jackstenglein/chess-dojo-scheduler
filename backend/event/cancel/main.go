@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
@@ -13,8 +15,18 @@ import (
 )
 
 var repository database.EventLeaver = database.DynamoDB
+var frontendHost = os.Getenv("frontendHost")
 
 const funcName = "event-leave-handler"
+
+const newOwnerPrefix = "Hello, the owner of your upcoming meeting has canceled, and you have been made the new owner of the meeting. "
+const noParticipantsSuffix = "The meeting currently has no other participants but is available for others to book. You can edit the meeting from the [Calendar](%s)."
+const sameOwnerPrefix = "Hello, a member of your upcoming meeting has canceled. "
+const withParticipantsSuffix = "There are still %d participants in the meeting. View it [here](%s)."
+
+func main() {
+	lambda.Start(Handler)
+}
 
 func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
@@ -62,19 +74,40 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		log.Error("Failed RecordEventCancelation: ", err)
 	}
 
-	var opponentUsername = event.Owner
-	if info.Username == event.Owner {
-		for _, p := range event.Participants {
-			opponentUsername = p.Username
+	if msgId, err := discord.SendAvailabilityNotification(newEvent); err != nil {
+		log.Error("Failed SendAvailabilityNotification: ", err)
+	} else if newEvent.DiscordMessageId != msgId {
+		// We have to save the event a second time in order to avoid first
+		// sending the Discord notification and then failing to save the event.
+		// If this save fails, we just log the error and return success since it is non-critical.
+		newEvent.DiscordMessageId = msgId
+		if err := repository.SetEvent(newEvent); err != nil {
+			log.Error("Failed to set event.DiscordMessageId: ", err)
 		}
 	}
-	if err := discord.SendCancellationNotification(opponentUsername, event.Id); err != nil {
-		log.Error("Failed SendCancellationNotification: ", err)
-	}
 
+	sendNotification(event, newEvent)
 	return api.Success(funcName, newEvent), nil
 }
 
-func main() {
-	lambda.Start(Handler)
+func sendNotification(event, newEvent *database.Event) {
+	var msg string
+
+	if newEvent.Owner != event.Owner {
+		msg = newOwnerPrefix
+	} else {
+		msg = sameOwnerPrefix
+	}
+
+	if len(newEvent.Participants) == 0 {
+		url := fmt.Sprintf("%s/calendar", frontendHost)
+		msg += fmt.Sprintf(noParticipantsSuffix, url)
+	} else {
+		url := fmt.Sprintf("%s/group/%s", frontendHost, newEvent.Id)
+		msg += fmt.Sprintf(withParticipantsSuffix, len(newEvent.Participants), url)
+	}
+
+	if err := discord.SendCancellationNotification(newEvent.Owner, msg); err != nil {
+		log.Error("Failed SendCancellationNotification: ", err)
+	}
 }

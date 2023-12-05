@@ -73,7 +73,7 @@ const sections: NotificationSettingsSection[] = [
         label: 'Discord',
         settings: [
             {
-                label: 'Notify me via a Discord DM when my availability is booked',
+                label: 'Notify me via a Discord DM when my meeting is booked',
                 path: 'discordNotificationSettings.disableMeetingBooking',
             },
             {

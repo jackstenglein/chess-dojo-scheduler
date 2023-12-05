@@ -68,6 +68,10 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - ${param:EventsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
 
   delete:
     handler: delete/main.go
@@ -143,3 +147,16 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: ${param:UsersTableArn}
+
+  expire:
+    handler: expire/main.go
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${param:EventsTableStreamArn}
+          batchWindow: 20
+          batchSize: 10
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          filterPatterns:
+            - eventName: [REMOVE]

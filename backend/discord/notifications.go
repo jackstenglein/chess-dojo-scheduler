@@ -23,7 +23,7 @@ func SendBookingNotification(username string, meetingId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it at %s/meeting/%s", frontendHost, meetingId)
+	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it [here](%s/meeting/%s).", frontendHost, meetingId)
 	return SendNotification(user, msg)
 }
 
@@ -39,13 +39,13 @@ func SendGroupJoinNotification(username string, availabilityId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it at %s/group/%s", frontendHost, availabilityId)
+	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it [here](%s/group/%s)", frontendHost, availabilityId)
 	return SendNotification(user, msg)
 }
 
 // SendCancellationNotification sends a notification of a cancelled meeting
 // to the provided user through Discord DM.
-func SendCancellationNotification(username string, meetingId string) error {
+func SendCancellationNotification(username string, msg string) error {
 	user, err := repository.GetUser(username)
 	if err != nil {
 		return err
@@ -55,7 +55,6 @@ func SendCancellationNotification(username string, meetingId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, your opponent has cancelled your upcoming meeting. View it at %s/meeting/%s", frontendHost, meetingId)
 	return SendNotification(user, msg)
 }
 
