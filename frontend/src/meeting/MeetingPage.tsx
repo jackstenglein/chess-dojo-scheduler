@@ -22,12 +22,13 @@ import { LoadingButton } from '@mui/lab';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { AvailabilityStatus, Participant, getDisplayString } from '../database/event';
+import { AvailabilityStatus, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import { useCache } from '../api/cache/Cache';
 import LoadingPage from '../loading/LoadingPage';
 import { useAuth } from '../auth/Auth';
 import { EventType, trackEvent } from '../analytics/events';
+import Avatar from '../profile/Avatar';
 
 const MeetingPage = () => {
     const { meetingId } = useParams();
@@ -75,7 +76,7 @@ const MeetingPage = () => {
     const startDate = start.toLocaleDateString();
     const startTime = start.toLocaleTimeString();
 
-    let opponent: Participant = meeting.participants![0];
+    let opponent = Object.values(meeting.participants)[0];
     if (opponent.username === user.username) {
         opponent = {
             username: meeting.owner,
@@ -206,33 +207,21 @@ const MeetingPage = () => {
                 <Card variant='outlined'>
                     <CardHeader title='Opponent' />
                     <CardContent>
-                        <Stack spacing={3}>
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Name
+                        <Stack direction='row' spacing={1} alignItems='center'>
+                            <Avatar
+                                username={opponent.username}
+                                displayName={opponent.displayName}
+                                size={25}
+                            />
+                            <Link
+                                component={RouterLink}
+                                to={`/profile/${opponent.username}`}
+                            >
+                                <Typography variant='body1'>
+                                    {opponent.displayName} ({opponent.cohort})
                                 </Typography>
-                                <Stack direction='row' spacing={2} alignItems='center'>
-                                    <Link
-                                        component={RouterLink}
-                                        to={`/profile/${opponent.username}`}
-                                    >
-                                        <Typography variant='body1'>
-                                            {opponent.displayName}
-                                        </Typography>
-                                    </Link>
-                                    <GraduationIcon
-                                        cohort={opponent.previousCohort}
-                                        size={25}
-                                    />
-                                </Stack>
-                            </Stack>
-
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Cohort
-                                </Typography>
-                                <Typography variant='body1'>{opponent.cohort}</Typography>
-                            </Stack>
+                            </Link>
+                            <GraduationIcon cohort={opponent.previousCohort} size={22} />
                         </Stack>
                     </CardContent>
                 </Card>

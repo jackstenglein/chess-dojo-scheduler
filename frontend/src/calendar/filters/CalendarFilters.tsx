@@ -233,12 +233,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
     const { events } = useEvents();
     const filterTime = new Date(new Date().getTime()).toISOString();
     const meetingCount = events.filter((e: Event) => {
-        if (!e.participants || e.participants.length === 0) {
+        if (Object.values(e.participants).length === 0) {
             return false;
         }
         if (
             e.owner !== auth.user?.username &&
-            e.participants.every((p) => p.username !== auth.user?.username)
+            !e.participants[auth.user?.username || '']
         ) {
             return false;
         }

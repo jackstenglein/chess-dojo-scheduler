@@ -25,9 +25,8 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({
 
     if (event.type === EventType.Availability) {
         if (
-            event.participants!.length === 0 ||
-            (event.owner !== user.username &&
-                event.participants!.every((p) => p.username !== user.username))
+            Object.values(event.participants).length === 0 ||
+            (event.owner !== user.username && !event.participants[user.username])
         ) {
             return <AvailabilityViewer processedEvent={processedEvent} />;
         }

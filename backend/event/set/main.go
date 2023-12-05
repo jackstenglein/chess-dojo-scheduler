@@ -218,7 +218,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	if event.Participants == nil {
-		event.Participants = make([]*database.Participant, 0)
+		event.Participants = make(map[string]*database.Participant)
 	}
 
 	if event.Type == database.EventTypeAvailability {

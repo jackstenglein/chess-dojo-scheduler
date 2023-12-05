@@ -18,13 +18,10 @@ const ListMeetingsPage = () => {
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
 
     const meetingFilter = (e: Event) => {
-        if (!e.participants || e.participants.length === 0) {
+        if (Object.values(e.participants).length === 0) {
             return false;
         }
-        if (
-            e.owner !== user.username &&
-            e.participants.every((p) => p.username !== user.username)
-        ) {
+        if (e.owner !== user.username && !e.participants[user.username]) {
             return false;
         }
         return e.endTime >= filterTime;

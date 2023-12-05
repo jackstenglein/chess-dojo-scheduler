@@ -301,12 +301,10 @@ const AvailabilityBooker = () => {
                                     Current Participants
                                 </Typography>
 
-                                {(!availability.participants ||
-                                    availability.participants?.length === 0) && (
-                                    <Typography variant='body1'>None</Typography>
-                                )}
+                                {Object.values(availability.participants).length ===
+                                    0 && <Typography variant='body1'>None</Typography>}
 
-                                {availability.participants?.map((p) => (
+                                {Object.values(availability.participants).map((p) => (
                                     <Stack
                                         key={p.username}
                                         direction='row'

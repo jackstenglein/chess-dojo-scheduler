@@ -163,9 +163,9 @@ type Event struct {
 	// unused if the event is an admin event.
 	MaxParticipants int `dynamodbav:"maxParticipants" json:"maxParticipants"`
 
-	// A list containing the participants in the event. This field is unused
+	// A map from a participant username to the participant data. This field is unused
 	// if the event is an admin event.
-	Participants []*Participant `dynamodbav:"participants" json:"participants"`
+	Participants map[string]*Participant `dynamodbav:"participants" json:"participants"`
 
 	// The ID of the Discord notification message for this event. This field
 	// is unused if the event is an admin event.
@@ -293,8 +293,8 @@ func (repo *dynamoRepository) SetEvent(event *Event) error {
 
 	// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
 	if len(event.Participants) == 0 {
-		emptyList := make([]*dynamodb.AttributeValue, 0)
-		item["participants"] = &dynamodb.AttributeValue{L: emptyList}
+		emptyMap := make(map[string]*dynamodb.AttributeValue)
+		item["participants"] = &dynamodb.AttributeValue{M: emptyMap}
 	}
 
 	input := &dynamodb.PutItemInput{
@@ -350,7 +350,7 @@ func (repo *dynamoRepository) DeleteEvent(id string) (*Event, error) {
 	result, err := repo.svc.DeleteItem(input)
 	if err != nil {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return nil, errors.Wrap(404, "Invalid request: event does not exist or is already booked", "DynamoDB conditional check failed", aerr)
+			return nil, errors.Wrap(404, "Invalid request: event does not exist", "DynamoDB conditional check failed", aerr)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "Failed Dynamo DeleteItem call", err)
 	}
@@ -382,17 +382,14 @@ func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime stri
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal participant", err)
 	}
 
-	updateExpr := "SET #p = list_append(#p, :p)"
+	updateExpr := "SET #p.#u = :p"
 	exprAttrNames := map[string]*string{
 		"#p":      aws.String("participants"),
+		"#u":      aws.String(user.Username),
 		"#status": aws.String("status"),
 	}
 	exprAttrValues := map[string]*dynamodb.AttributeValue{
-		":p": {
-			L: []*dynamodb.AttributeValue{
-				{M: p},
-			},
-		},
+		":p": {M: p},
 		":maxP": {
 			N: aws.String(strconv.Itoa(event.MaxParticipants)),
 		},

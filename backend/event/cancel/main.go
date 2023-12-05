@@ -52,7 +52,8 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Owner != info.Username && event.Participants[0].Username != info.Username {
+	_, isParticipant := event.Participants[info.Username]
+	if event.Owner != info.Username && !isParticipant {
 		err := errors.New(403, "Invalid request: user is not a participant in this meeting", "")
 		return api.Failure(funcName, err), nil
 	}
@@ -68,7 +69,9 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 
 	var opponentUsername = event.Owner
 	if info.Username == event.Owner {
-		opponentUsername = event.Participants[0].Username
+		for _, p := range event.Participants {
+			opponentUsername = p.Username
+		}
 	}
 	if err := discord.SendCancellationNotification(opponentUsername, event.Id); err != nil {
 		log.Error("Failed SendCancellationNotification: ", err)

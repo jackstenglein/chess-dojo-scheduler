@@ -22,12 +22,12 @@ export interface Event {
     location: string;
     description: string;
     maxParticipants: number;
-    participants?: Participant[];
+    participants: Record<string, Participant>;
     discordMessageId: string;
     privateDiscordEventId: string;
     publicDiscordEventId: string;
 
-    // The LigaTournament information for this event. Only present for LigaTournaments.
+    /** The LigaTournament information for this event. Only present for LigaTournaments. */
     ligaTournament?: LigaTournament;
 }
 

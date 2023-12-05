@@ -26,7 +26,7 @@ const GroupMeetingListItem: React.FC<GroupMeetingListItemProps> = ({ availabilit
                 />
                 <CardContent sx={{ pt: 0, mt: 0 }}>
                     <Typography variant='subtitle1' color='text.secondary'>
-                        {availability.participants!.length + 1} participants
+                        {Object.values(availability.participants).length + 1} participants
                     </Typography>
                 </CardContent>
             </CardActionArea>

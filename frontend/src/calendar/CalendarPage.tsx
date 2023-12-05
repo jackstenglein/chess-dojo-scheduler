@@ -34,9 +34,8 @@ function processAvailability(
 
     // This user's joined meetings
     if (
-        (event.owner === user.username ||
-            event.participants!.some((p) => p.username === user.username)) &&
-        event.participants!.length > 0
+        (event.owner === user.username || event.participants[user.username]) &&
+        Object.values(event.participants).length > 0
     ) {
         if (!filters.meetings) {
             return null;
@@ -45,12 +44,13 @@ function processAvailability(
         const title =
             event.maxParticipants === 1
                 ? 'Meeting'
-                : `Group Meeting (${event.participants!.length}/${
+                : `Group Meeting (${Object.values(event.participants).length}/${
                       event.maxParticipants
                   })`;
 
         const isOwner = event.owner === user.username;
-        const editable = isOwner && event.participants!.length < event.maxParticipants;
+        const editable =
+            isOwner && Object.values(event.participants).length < event.maxParticipants;
 
         return {
             event_id: event.id,
@@ -107,7 +107,7 @@ function processAvailability(
         event_id: event.id,
         title:
             event.maxParticipants > 1
-                ? `Bookable - Group (${event.participants!.length}/${
+                ? `Bookable - Group (${Object.values(event.participants).length}/${
                       event.maxParticipants
                   })`
                 : `Bookable - ${event.ownerDisplayName}`,
