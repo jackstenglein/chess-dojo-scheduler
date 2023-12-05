@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
@@ -47,7 +48,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 	}
 
 	subscriptionStatus := database.SubscriptionStatus_Subscribed
-	if isForbidden, _ := access.IsForbidden(email); isForbidden {
+	if isForbidden, _ := access.IsForbidden(email, 3*time.Second); isForbidden {
 		subscriptionStatus = database.SubscriptionStatus_FreeTier
 	}
 

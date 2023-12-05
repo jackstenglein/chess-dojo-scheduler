@@ -1,11 +1,13 @@
 package access
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
@@ -23,12 +25,22 @@ type AccessResponse struct {
 	} `json:"subscriptions"`
 }
 
-func IsForbidden(email string) (bool, error) {
+func IsForbidden(email string, timeout time.Duration) (bool, error) {
 	if email == "" {
 		return true, errors.New(403, "Not Authorized: no email present", "")
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://chessdojo.club/_functions/user/%s", email), nil)
+	var req *http.Request
+	var err error
+
+	if timeout > 0 {
+		ctx, cncl := context.WithTimeout(context.Background(), timeout)
+		defer cncl()
+		req, err = http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("https://chessdojo.club/_functions/user/%s", email), nil)
+	} else {
+		req, err = http.NewRequest("GET", fmt.Sprintf("https://chessdojo.club/_functions/user/%s", email), nil)
+	}
+
 	if err != nil {
 		return false, errors.Wrap(500, "Temporary server error", "Failed to create request to chessdojo.club", err)
 	}

@@ -28,7 +28,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	var isForbidden bool
 	subscriptionStatus := database.SubscriptionStatus_Subscribed
 	if !user.PaymentInfo.IsSubscribed() {
-		isForbidden, err = access.IsForbidden(user.WixEmail)
+		isForbidden, err = access.IsForbidden(user.WixEmail, 0)
 		if isForbidden {
 			subscriptionStatus = database.SubscriptionStatus_FreeTier
 		}
