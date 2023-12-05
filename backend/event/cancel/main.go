@@ -12,9 +12,9 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 )
 
-var repository database.EventCanceler = database.DynamoDB
+var repository database.EventLeaver = database.DynamoDB
 
-const funcName = "event-cancel-handler"
+const funcName = "event-leave-handler"
 
 func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
@@ -37,13 +37,8 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Type == database.EventTypeDojo {
-		err := errors.New(400, "Invalid request: this event type cannot be canceled", "")
-		return api.Failure(funcName, err), nil
-	}
-
-	if event.MaxParticipants > 1 {
-		err := errors.New(400, "Invalid request: group meetings cannot be canceled", "")
+	if event.Type != database.EventTypeAvailability {
+		err := errors.New(400, "Invalid request: this event type is not supported", "")
 		return api.Failure(funcName, err), nil
 	}
 
@@ -52,13 +47,13 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	_, isParticipant := event.Participants[info.Username]
-	if event.Owner != info.Username && !isParticipant {
+	participant := event.Participants[info.Username]
+	if event.Owner != info.Username && participant == nil {
 		err := errors.New(403, "Invalid request: user is not a participant in this meeting", "")
 		return api.Failure(funcName, err), nil
 	}
 
-	event, err = repository.CancelEvent(event)
+	newEvent, err := repository.LeaveEvent(event, participant)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
@@ -77,7 +72,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		log.Error("Failed SendCancellationNotification: ", err)
 	}
 
-	return api.Success(funcName, event), nil
+	return api.Success(funcName, newEvent), nil
 }
 
 func main() {

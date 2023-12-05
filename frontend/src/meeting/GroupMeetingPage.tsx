@@ -7,17 +7,27 @@ import {
     Typography,
     Link,
 } from '@mui/material';
-import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 
 import { useCache } from '../api/cache/Cache';
-import { getDisplayString } from '../database/event';
+import { Event, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import LoadingPage from '../loading/LoadingPage';
 import Avatar from '../profile/Avatar';
+import CancelMeetingButton from './CancelMeetingButton';
+import NotFoundPage from '../NotFoundPage';
+import { useAuth } from '../auth/Auth';
+
+const ownerCancelDialog =
+    'Ownership of this meeting will be transferred to one of the participants, and you may not be able to re-join it later if other users book it.';
+const participantCancelDialog =
+    'This will allow the meeting to be booked by other users and you may not be able to re-book it.';
 
 const GroupMeetingPage = () => {
     const { availabilityId } = useParams();
     const cache = useCache();
+    const navigate = useNavigate();
+    const user = useAuth().user!;
 
     const availability = cache.events.get(availabilityId!);
     if (!availability) {
@@ -25,12 +35,20 @@ const GroupMeetingPage = () => {
             return <LoadingPage />;
         }
 
-        return (
-            <Container sx={{ pt: 6, pb: 4 }}>
-                <Typography variant='subtitle2'>Meeting not found</Typography>
-            </Container>
-        );
+        return <NotFoundPage />;
     }
+
+    if (
+        availability.owner !== user.username &&
+        !Object.keys(availability.participants).includes(user.username)
+    ) {
+        return <NotFoundPage />;
+    }
+
+    const onCancel = (event: Event) => {
+        navigate('/calendar', { state: { canceled: true } });
+        cache.events.put(event);
+    };
 
     const start = new Date(availability.startTime);
     const startDate = start.toLocaleDateString();
@@ -43,7 +61,23 @@ const GroupMeetingPage = () => {
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
             <Stack spacing={4}>
                 <Card variant='outlined'>
-                    <CardHeader title='Meeting Details' />
+                    <CardHeader
+                        title='Meeting Details'
+                        action={
+                            <CancelMeetingButton
+                                meetingId={availability.id}
+                                dialogTitle='Leave this meeting?'
+                                dialogContent={
+                                    availability.owner === user.username
+                                        ? ownerCancelDialog
+                                        : participantCancelDialog
+                                }
+                                onSuccess={onCancel}
+                            >
+                                Leave Meeting
+                            </CancelMeetingButton>
+                        }
+                    />
                     <CardContent>
                         <Stack spacing={3}>
                             <Stack>

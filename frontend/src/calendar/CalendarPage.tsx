@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
-import { Outlet } from 'react-router-dom';
-import { Container, Grid, Stack } from '@mui/material';
+import { Outlet, useLocation } from 'react-router-dom';
+import { Container, Grid, Snackbar, Stack } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import type { SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
@@ -214,6 +214,9 @@ export default function CalendarPage() {
     const user = useAuth().user!;
     const api = useApi();
     const isFreeTier = useFreeTier();
+    const [canceled, setCanceled] = useState(
+        Boolean(useLocation().state?.canceled) || false
+    );
 
     const { events, putEvent, removeEvent, request } = useEvents();
 
@@ -353,6 +356,13 @@ export default function CalendarPage() {
             <RequestSnackbar request={request} />
             <RequestSnackbar request={deleteRequest} showSuccess />
             <RequestSnackbar request={copyRequest} />
+            <Snackbar
+                open={canceled}
+                autoHideDuration={6000}
+                onClose={() => setCanceled(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                message='Meeting canceled'
+            />
 
             <Grid container spacing={2}>
                 <Grid item xs={12} md={2.5}>

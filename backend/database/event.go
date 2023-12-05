@@ -235,12 +235,13 @@ type EventGetter interface {
 	GetEvent(id string) (*Event, error)
 }
 
-type EventCanceler interface {
+type EventLeaver interface {
 	EventGetter
 
-	// CancelEvent marks the provided event as canceled. The updated event is
-	// returned.
-	CancelEvent(event *Event) (*Event, error)
+	// LeaveEvent leaves the event for the given participants. If participant is nil,
+	// then the person leaving is the owner. In that case, the first participant is made
+	// the new owner. The updated event is returned.
+	LeaveEvent(event *Event, participant *Participant) (*Event, error)
 
 	// RecordEventCancelation saves statistics on the canceled event.
 	RecordEventCancelation(event *Event) error
@@ -449,18 +450,77 @@ func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime stri
 	return &e, nil
 }
 
-// CancelEvent marks the provided event as canceled. The updated event is
-// returned.
-func (repo *dynamoRepository) CancelEvent(event *Event) (*Event, error) {
+// LeaveEvent leaves the event for the given participants. If participant is nil,
+// then the person leaving is the owner. In that case, the first participant is made
+// the new owner. The updated event is returned.
+func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant) (*Event, error) {
 	if event.Id == "STATISTICS" {
 		return nil, errors.New(403, "Invalid request: event statistics cannot be canceled", "")
 	}
-
-	event.Status = Canceled
-	if err := repo.SetEvent(event); err != nil {
-		return nil, err
+	if len(event.Participants) == 0 {
+		return nil, errors.New(400, "Invalid request: event does not have any participants. Delete it instead", "")
 	}
-	return event, nil
+
+	updateExpr := "SET #status = :scheduled, #time = :empty, #type = :empty"
+	exprAttrNames := map[string]*string{
+		"#status": aws.String("status"),
+		"#time":   aws.String("bookedStartTime"),
+		"#type":   aws.String("bookedType"),
+		"#owner":  aws.String("owner"),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{
+		":scheduled":     {S: aws.String(string(Scheduled))},
+		":empty":         {S: aws.String("")},
+		":originalOwner": {S: aws.String(event.Owner)},
+	}
+
+	if participant == nil {
+		for _, p := range event.Participants {
+			participant = p
+			break
+		}
+
+		updateExpr += ", #owner = :owner, #ownerDisplayName = :ownerDisplayName, #ownerCohort = :ownerCohort, #ownerPreviousCohort = :ownerPreviousCohort"
+
+		exprAttrNames["#ownerDisplayName"] = aws.String("ownerDisplayName")
+		exprAttrNames["#ownerCohort"] = aws.String("ownerCohort")
+		exprAttrNames["#ownerPreviousCohort"] = aws.String("ownerPreviousCohort")
+
+		exprAttrValues[":owner"] = &dynamodb.AttributeValue{S: aws.String(participant.Username)}
+		exprAttrValues[":ownerDisplayName"] = &dynamodb.AttributeValue{S: aws.String(participant.DisplayName)}
+		exprAttrValues[":ownerCohort"] = &dynamodb.AttributeValue{S: aws.String(string(participant.Cohort))}
+		exprAttrValues[":ownerPreviousCohort"] = &dynamodb.AttributeValue{S: aws.String(string(participant.PreviousCohort))}
+	}
+
+	updateExpr += " REMOVE #p.#u"
+	exprAttrNames["#p"] = aws.String("participants")
+	exprAttrNames["#u"] = aws.String(participant.Username)
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression:       aws.String("attribute_exists(id) AND #owner = :originalOwner AND attribute_exists(#p.#u)"),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(event.Id)},
+		},
+		UpdateExpression: aws.String(updateExpr),
+		ReturnValues:     aws.String("ALL_NEW"),
+		TableName:        aws.String(eventTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: event no longer exists or has changed. Please try again.", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+
+	e := Event{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &e); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &e, nil
 }
 
 // ScanEvents returns a list of all Events in the database, up to 1MB of data.

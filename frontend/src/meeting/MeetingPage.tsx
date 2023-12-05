@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import {
     Container,
     Stack,
@@ -7,37 +6,28 @@ import {
     CardHeader,
     CardContent,
     Typography,
-    Alert,
-    Button,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    DialogContentText,
-    DialogActions,
-    IconButton,
     Link,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { LoadingButton } from '@mui/lab';
 
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { AvailabilityStatus, getDisplayString } from '../database/event';
+import { Event, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
 import { useCache } from '../api/cache/Cache';
 import LoadingPage from '../loading/LoadingPage';
 import { useAuth } from '../auth/Auth';
-import { EventType, trackEvent } from '../analytics/events';
 import Avatar from '../profile/Avatar';
+import NotFoundPage from '../NotFoundPage';
+import CancelMeetingButton from './CancelMeetingButton';
+
+const ownerCancelDialog =
+    'Ownership of this meeting will be transferred to your opponent and other users will be able to book the meeting.';
+const participantCancelDialog =
+    'This will allow the meeting to be booked by other users and you may not be able to re-book it.';
 
 const MeetingPage = () => {
     const { meetingId } = useParams();
     const cache = useCache();
     const user = useAuth().user!;
-
-    const api = useApi();
-    const [showCancelDialog, setShowCancelDialog] = useState(false);
-    const cancelRequest = useRequest();
+    const navigate = useNavigate();
 
     const meeting = cache.events.get(meetingId!);
     if (!meeting) {
@@ -45,31 +35,19 @@ const MeetingPage = () => {
             return <LoadingPage />;
         }
 
-        return (
-            <Container sx={{ pt: 6, pb: 4 }}>
-                <Typography variant='subtitle2'>Meeting not found</Typography>
-            </Container>
-        );
+        return <NotFoundPage />;
     }
-    console.log('Meeting: ', meeting);
 
-    const onCancel = () => {
-        cancelRequest.onStart();
+    if (
+        meeting.owner !== user.username &&
+        !Object.keys(meeting.participants).includes(user.username)
+    ) {
+        return <NotFoundPage />;
+    }
 
-        api.cancelEvent(meetingId!)
-            .then((response) => {
-                console.log('Cancel meeting response: ', response);
-                trackEvent(EventType.CancelMeeting, {
-                    meeting_id: meetingId,
-                });
-                cache.events.put(response.data);
-                cancelRequest.onSuccess();
-                setShowCancelDialog(false);
-            })
-            .catch((err) => {
-                console.error(err);
-                cancelRequest.onFailure(err);
-            });
+    const onCancel = (event: Event) => {
+        navigate('/calendar', { state: { canceled: true } });
+        cache.events.put(event);
     };
 
     const start = new Date(meeting.bookedStartTime || meeting.startTime);
@@ -88,48 +66,7 @@ const MeetingPage = () => {
 
     return (
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>
-            <Dialog
-                open={showCancelDialog}
-                onClose={
-                    cancelRequest.isLoading()
-                        ? undefined
-                        : () => setShowCancelDialog(false)
-                }
-            >
-                <RequestSnackbar request={cancelRequest} />
-                <DialogTitle>
-                    Cancel this meeting?
-                    <IconButton
-                        aria-label='close'
-                        onClick={() => setShowCancelDialog(false)}
-                        sx={{
-                            position: 'absolute',
-                            right: 10,
-                            top: 8,
-                        }}
-                        disabled={cancelRequest.isLoading()}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Are you sure you want to cancel this meeting? You can't undo this
-                        action.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <LoadingButton onClick={onCancel} loading={cancelRequest.isLoading()}>
-                        Cancel Meeting
-                    </LoadingButton>
-                </DialogActions>
-            </Dialog>
-
             <Stack spacing={4}>
-                {meeting.status === AvailabilityStatus.Canceled && (
-                    <Alert severity='error'>This meeting has been canceled.</Alert>
-                )}
-
                 <Card variant='outlined'>
                     <CardHeader
                         title={
@@ -143,15 +80,18 @@ const MeetingPage = () => {
                                     Meeting Details
                                 </Typography>
 
-                                {meeting.status !== AvailabilityStatus.Canceled && (
-                                    <Button
-                                        variant='contained'
-                                        color='error'
-                                        onClick={() => setShowCancelDialog(true)}
-                                    >
-                                        Cancel Meeting
-                                    </Button>
-                                )}
+                                <CancelMeetingButton
+                                    meetingId={meeting.id}
+                                    dialogTitle='Cancel this meeting?'
+                                    dialogContent={
+                                        meeting.owner === user.username
+                                            ? ownerCancelDialog
+                                            : participantCancelDialog
+                                    }
+                                    onSuccess={onCancel}
+                                >
+                                    Cancel Meeting
+                                </CancelMeetingButton>
                             </Stack>
                         }
                     />
