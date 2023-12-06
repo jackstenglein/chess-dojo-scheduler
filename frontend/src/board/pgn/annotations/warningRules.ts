@@ -83,8 +83,6 @@ export function getWarnings(chess: Chess | undefined): Record<string, Warning> {
 }
 
 function getWarningsRecursive(chess: Chess, move: Move | null): Record<string, Warning> {
-    console.log('getWarningsRecursive: ', move);
-
     const result: Record<string, Warning> = {};
 
     for (const rule of rules) {

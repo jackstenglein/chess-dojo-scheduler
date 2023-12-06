@@ -16,6 +16,8 @@ const allowedElements = [
     'ol',
     'li',
     'blockquote',
+    'strong',
+    'em',
 ];
 
 interface MarkdownProps {
