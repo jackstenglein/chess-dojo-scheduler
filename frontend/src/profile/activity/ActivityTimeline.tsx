@@ -20,6 +20,8 @@ import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import { CategoryColors } from './activity';
 import { UseTimelineResponse } from './useTimeline';
 import LoadingPage from '../../loading/LoadingPage';
+import { toDojoDateString } from '../../calendar/displayDate';
+import { useAuth } from '../../auth/Auth';
 
 const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
     day: '2-digit',
@@ -39,7 +41,11 @@ export function getTimeSpent(timelineItem: TimelineEntry): string {
     return `${hours}h ${minutes}m`;
 }
 
-function getProgressItem(entry: TimelineEntry, showConnector: boolean) {
+function getProgressItem(
+    entry: TimelineEntry,
+    showConnector: boolean,
+    timezone?: string
+) {
     const date = new Date(entry.date || entry.createdAt);
     const isCheckbox =
         entry.scoreboardDisplay === ScoreboardDisplay.Checkbox ||
@@ -60,7 +66,7 @@ function getProgressItem(entry: TimelineEntry, showConnector: boolean) {
     return (
         <TimelineItem key={`${entry.requirementId}-${entry.createdAt}-${entry.newCount}`}>
             <TimelineOppositeContent>
-                {date.toLocaleDateString(undefined, DATE_OPTIONS)}
+                {toDojoDateString(date, timezone, 'backward', DATE_OPTIONS)}
             </TimelineOppositeContent>
             <TimelineSeparator>
                 <TimelineDot
@@ -88,13 +94,17 @@ function getProgressItem(entry: TimelineEntry, showConnector: boolean) {
     );
 }
 
-function getGraduationItem(entry: TimelineEntry, showConnector: boolean) {
+function getGraduationItem(
+    entry: TimelineEntry,
+    showConnector: boolean,
+    timezone?: string
+) {
     const date = new Date(entry.createdAt);
 
     return (
         <TimelineItem key={entry.createdAt}>
             <TimelineOppositeContent>
-                {date.toLocaleDateString(undefined, DATE_OPTIONS)}
+                {toDojoDateString(date, timezone, 'backward', DATE_OPTIONS)}
             </TimelineOppositeContent>
             <TimelineSeparator>
                 <TimelineDot
@@ -118,21 +128,25 @@ function getGraduationItem(entry: TimelineEntry, showConnector: boolean) {
     );
 }
 
-function getTimelineItem(entry: TimelineEntry, showConnector: boolean) {
+function getTimelineItem(
+    entry: TimelineEntry,
+    showConnector: boolean,
+    timezone?: string
+) {
     if (entry.requirementCategory === 'Graduation') {
-        return getGraduationItem(entry, showConnector);
+        return getGraduationItem(entry, showConnector, timezone);
     }
 
-    return getProgressItem(entry, showConnector);
+    return getProgressItem(entry, showConnector, timezone);
 }
 
-function getCreatedAtItem(createdAt: string) {
+function getCreatedAtItem(createdAt: string, timezone?: string) {
     const date = new Date(createdAt);
 
     return (
         <TimelineItem key={createdAt}>
             <TimelineOppositeContent>
-                {date.toLocaleDateString(undefined, DATE_OPTIONS)}
+                {toDojoDateString(date, timezone, 'backward', DATE_OPTIONS)}
             </TimelineOppositeContent>
             <TimelineSeparator>
                 <TimelineDot
@@ -152,6 +166,7 @@ interface ActivityTimelineProps {
 }
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) => {
+    const timezone = useAuth().user?.timezoneOverride;
     const { request, entries, hasMore, onLoadMore } = timeline;
 
     if (request.isLoading() && entries.length === 0) {
@@ -187,7 +202,8 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
                     {entries.map((td, i) =>
                         getTimelineItem(
                             td,
-                            i < entries.length - 1 || user.createdAt !== ''
+                            i < entries.length - 1 || user.createdAt !== '',
+                            timezone
                         )
                     )}
 

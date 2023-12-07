@@ -51,7 +51,6 @@ export function useRequirements(
             request.onStart();
             api.listRequirements(cohort, false)
                 .then((requirements) => {
-                    console.log('listRequirements: ', requirements);
                     cache.requirements.markFetched(cohort);
                     cache.requirements.putMany(requirements);
                     request.onSuccess();
@@ -92,7 +91,6 @@ export function useRequirement(id?: string): UseRequirementResponse {
 
     useEffect(() => {
         if (requirement === undefined && id && !request.isSent()) {
-            console.log('Sending getRequirement network request');
             request.onStart();
             api.getRequirement(id)
                 .then((response) => {

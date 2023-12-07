@@ -185,7 +185,6 @@ export function useEvents(): UseEventsResponse {
 
             api.listEvents()
                 .then((events) => {
-                    console.log('Got events: ', events);
                     request.onSuccess();
                     cache.events.putMany(events);
                 })

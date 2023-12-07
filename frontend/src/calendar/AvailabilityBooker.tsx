@@ -34,7 +34,7 @@ import { EventType, trackEvent } from '../analytics/events';
 import Avatar from '../profile/Avatar';
 import { useAuth } from '../auth/Auth';
 import { TimeFormat } from '../database/user';
-import { toDojoTimeString } from './displayDate';
+import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from './displayDate';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -56,7 +56,7 @@ const AvailabilityBooker = () => {
     const api = useApi();
     const navigate = useNavigate();
     const cache = useCache();
-    const timeFormat = useAuth().user?.timeFormat || TimeFormat.TwelveHour;
+    const user = useAuth().user;
 
     const [selectedType, setSelectedType] = useState<AvailabilityType | null>(null);
     const [startTime, setStartTime] = useState<Date | null>(null);
@@ -64,13 +64,14 @@ const AvailabilityBooker = () => {
 
     const availability = cache.events.get(id!);
 
+    const timezone = user?.timezoneOverride;
+    const timeFormat = user?.timeFormat || TimeFormat.TwelveHour;
+
     useEffect(() => {
         if (availability) {
-            setStartTime(new Date(availability.startTime));
+            setStartTime(getTimeZonedDate(new Date(availability.startTime), timezone));
         }
-    }, [availability, setStartTime]);
-
-    console.log('Availability: ', availability);
+    }, [availability, setStartTime, timezone]);
 
     if (!availability) {
         if (cache.isLoading) {
@@ -100,6 +101,12 @@ const AvailabilityBooker = () => {
     const minStartTime = new Date(availability.startTime);
     const maxStartTime = new Date(availability.endTime);
 
+    console.log('Min Start Time: ', minStartTime);
+
+    const minStartDate = toDojoDateString(minStartTime, timezone);
+    const minStartStr = toDojoTimeString(minStartTime, timezone, timeFormat);
+    const maxStartStr = toDojoTimeString(maxStartTime, timezone, timeFormat);
+
     const confirmSoloBooking = () => {
         console.log('confirm solo booking: ', startTime);
 
@@ -109,18 +116,16 @@ const AvailabilityBooker = () => {
             newErrors.type = 'You must select a meeting type';
         }
 
+        let selectedTime: Date;
         if (startTime === null) {
             newErrors.time = 'You must select a time';
         } else {
-            const selectedTime = startTime!.toISOString();
+            selectedTime = getTimeZonedDate(startTime, timezone, 'forward');
             if (
-                selectedTime < availability.startTime ||
-                selectedTime > availability.endTime
+                selectedTime.toISOString() < availability.startTime ||
+                selectedTime.toISOString() > availability.endTime
             ) {
-                newErrors.time = `Must be between ${toDojoTimeString(
-                    minStartTime,
-                    timeFormat
-                )} and ${toDojoTimeString(maxStartTime, timeFormat)}`;
+                newErrors.time = `Must be between ${minStartStr} and ${maxStartStr}`;
             }
         }
 
@@ -132,7 +137,7 @@ const AvailabilityBooker = () => {
 
         console.log('Booking availability: ', availability);
         request.onStart();
-        api.bookEvent(availability.id, startTime!, selectedType!)
+        api.bookEvent(availability.id, selectedTime!, selectedType!)
             .then((response) => {
                 console.log('Book response: ', response);
                 trackEvent(EventType.BookAvailability, {
@@ -182,9 +187,6 @@ const AvailabilityBooker = () => {
         confirmSoloBooking();
     };
 
-    const minStartStr = toDojoTimeString(minStartTime, timeFormat);
-    const maxStartStr = toDojoTimeString(maxStartTime, timeFormat);
-
     return (
         <Dialog
             data-cy='availability-booker'
@@ -224,8 +226,7 @@ const AvailabilityBooker = () => {
                             {isGroup ? 'Time' : 'Available Start Times'}
                         </Typography>
                         <Typography variant='body1'>
-                            {minStartTime.toLocaleDateString()} {minStartStr} -{' '}
-                            {maxStartStr}
+                            {minStartDate} {minStartStr} - {maxStartStr}
                         </Typography>
                     </Stack>
 

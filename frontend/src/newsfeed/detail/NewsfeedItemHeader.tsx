@@ -5,7 +5,7 @@ import Avatar from '../../profile/Avatar';
 import { TimelineEntry } from '../../database/timeline';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import { CategoryColors } from '../../profile/activity/activity';
-import { toDojoTimeString } from '../../calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
 import { useAuth } from '../../auth/Auth';
 
 interface NewsfeedItemHeaderProps {
@@ -13,14 +13,17 @@ interface NewsfeedItemHeaderProps {
 }
 
 const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
-    const timeFormat = useAuth().user?.timeFormat;
+    const user = useAuth().user;
+
+    const timezone = user?.timezoneOverride;
+    const timeFormat = user?.timeFormat;
 
     const createdAt = new Date(entry.createdAt);
-    const date = createdAt.toLocaleDateString(undefined, {
+    const date = toDojoDateString(createdAt, timezone, 'backward', {
         month: 'long',
         day: 'numeric',
     });
-    const time = toDojoTimeString(createdAt, timeFormat, {
+    const time = toDojoTimeString(createdAt, timezone, timeFormat, 'backward', {
         hour: 'numeric',
         minute: '2-digit',
     });

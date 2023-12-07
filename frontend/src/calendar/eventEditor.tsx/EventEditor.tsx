@@ -140,7 +140,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
             </AppBar>
 
             <DialogTitle data-cy='event-editor-date'>
-                {defaultStart.toLocaleDateString('en-US', {
+                {defaultStart.toLocaleDateString(undefined, {
                     weekday: 'long',
                     month: 'short',
                     day: 'numeric',

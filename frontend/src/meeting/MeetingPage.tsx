@@ -18,7 +18,7 @@ import { useAuth } from '../auth/Auth';
 import Avatar from '../profile/Avatar';
 import NotFoundPage from '../NotFoundPage';
 import CancelMeetingButton from './CancelMeetingButton';
-import { toDojoTimeString } from '../calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
 
 const ownerCancelDialog =
     'Ownership of this meeting will be transferred to your opponent and other users will be able to book the meeting.';
@@ -52,8 +52,8 @@ const MeetingPage = () => {
     };
 
     const start = new Date(meeting.bookedStartTime || meeting.startTime);
-    const startDate = start.toLocaleDateString();
-    const startTime = toDojoTimeString(start, user.timeFormat);
+    const startDate = toDojoDateString(start, user.timezoneOverride);
+    const startTime = toDojoTimeString(start, user.timezoneOverride, user.timeFormat);
 
     let opponent = Object.values(meeting.participants)[0];
 

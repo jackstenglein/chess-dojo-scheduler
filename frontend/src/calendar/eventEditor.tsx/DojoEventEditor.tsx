@@ -8,6 +8,7 @@ import LocationFormSection from './LocationFormSection';
 import DescriptionFormSection from './DescriptionFormSection';
 import { User, dojoCohorts } from '../../database/user';
 import { AvailabilityStatus, Event } from '../../database/event';
+import { getTimeZonedDate } from '../displayDate';
 
 export function validateDojoEventEditor(
     user: User,
@@ -40,8 +41,17 @@ export function validateDojoEventEditor(
         return [null, errors];
     }
 
-    const startTime = editor.start!.toISOString();
-    const endTime = editor.end!.toISOString();
+    const startTime = getTimeZonedDate(
+        editor.start!,
+        user.timezoneOverride,
+        'forward'
+    ).toISOString();
+    const endTime = getTimeZonedDate(
+        editor.end!,
+        user.timezoneOverride,
+        'forward'
+    ).toISOString();
+
     return [
         {
             ...(originalEvent?.event ?? {}),

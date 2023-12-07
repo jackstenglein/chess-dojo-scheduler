@@ -3,6 +3,8 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { LoadingButton } from '@mui/lab';
 
 import { Request } from '../../api/Request';
+import { toDojoDateString } from '../../calendar/displayDate';
+import { useAuth } from '../../auth/Auth';
 
 interface LoadMoreButtonProps {
     request: Request;
@@ -17,6 +19,8 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
     startKey,
     onLoadMore,
 }) => {
+    const user = useAuth().user;
+
     if (Object.values(startKey || {}).length > 0) {
         return (
             <Stack alignItems='center' spacing={1}>
@@ -31,8 +35,12 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
         );
     }
 
+    console.log('Since: ', since);
+
     if (since) {
         const date = new Date(since);
+        console.log('Since date: ', date);
+
         return (
             <Stack alignItems='center' spacing={1}>
                 <CheckCircleOutlineIcon color='success' fontSize='large' />
@@ -42,7 +50,8 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
                         You're all caught up
                     </Typography>
                     <Typography color='text.secondary' textAlign='center'>
-                        You've seen all new posts since {date.toLocaleDateString()}
+                        You've seen all new posts since{' '}
+                        {toDojoDateString(date, user?.timezoneOverride)}
                     </Typography>
 
                     <Button onClick={onLoadMore} sx={{ textTransform: 'none' }}>

@@ -22,6 +22,7 @@ import TimesFormSection from './TimesFormSection';
 import LocationFormSection from './LocationFormSection';
 import DescriptionFormSection from './DescriptionFormSection';
 import { User, dojoCohorts } from '../../database/user';
+import { getTimeZonedDate } from '../displayDate';
 
 function getDefaultMaxParticipants(
     allAvailabilityTypes: boolean,
@@ -95,8 +96,16 @@ export function validateAvailabilityEditor(
         return [null, errors];
     }
 
-    const startTime = editor.start!.toISOString();
-    const endTime = editor.end!.toISOString();
+    const startTime = getTimeZonedDate(
+        editor.start!,
+        user.timezoneOverride,
+        'forward'
+    ).toISOString();
+    const endTime = getTimeZonedDate(
+        editor.end!,
+        user.timezoneOverride,
+        'forward'
+    ).toISOString();
 
     return [
         {
