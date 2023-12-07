@@ -26,15 +26,15 @@ const TournamentsPage = () => {
                     </TabList>
                 </Box>
 
-                <TabPanel value='calendar'>
+                <TabPanel value='calendar' sx={{ px: 0 }}>
                     <CalendarTab />
                 </TabPanel>
 
-                <TabPanel value='leaderboard'>
+                <TabPanel value='leaderboard' sx={{ px: 0 }}>
                     <LeaderboardTab />
                 </TabPanel>
 
-                <TabPanel value='info'>
+                <TabPanel value='info' sx={{ px: 0 }}>
                     <InfoTab />
                 </TabPanel>
             </TabContext>

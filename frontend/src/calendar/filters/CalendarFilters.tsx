@@ -27,7 +27,7 @@ import {
     Event,
     AvailabilityStatus,
 } from '../../database/event';
-import { dojoCohorts } from '../../database/user';
+import { TimeFormat, dojoCohorts } from '../../database/user';
 import { useAuth } from '../../auth/Auth';
 import TimezoneFilter from './TimezoneFilter';
 import { useEvents } from '../../api/cache/Cache';
@@ -81,6 +81,9 @@ export interface Filters {
     timezone: string;
     setTimezone: React.Dispatch<React.SetStateAction<string>>;
 
+    timeFormat: TimeFormat;
+    setTimeFormat: (format: TimeFormat) => void;
+
     availabilities: boolean;
     setAvailabilities: React.Dispatch<React.SetStateAction<boolean>>;
 
@@ -122,6 +125,9 @@ export function useFilters(): Filters {
     const user = useAuth().user;
 
     const [timezone, setTimezone] = useState(user?.timezoneOverride || DefaultTimezone);
+    const [timeFormat, setTimeFormat] = useState<TimeFormat>(
+        user?.timeFormat || TimeFormat.TwelveHour
+    );
     const [availabilities, setAvailabilities] = useState(true);
     const [meetings, setMeetings] = useState(true);
     const [dojoEvents, setDojoEvents] = useState(true);
@@ -171,6 +177,8 @@ export function useFilters(): Filters {
         () => ({
             timezone,
             setTimezone,
+            timeFormat,
+            setTimeFormat,
             availabilities,
             setAvailabilities,
             meetings,
@@ -195,6 +203,8 @@ export function useFilters(): Filters {
         [
             timezone,
             setTimezone,
+            timeFormat,
+            setTimeFormat,
             availabilities,
             setAvailabilities,
             meetings,
@@ -282,6 +292,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
             <TimezoneFilter
                 timezone={filters.timezone}
                 setTimezone={filters.setTimezone}
+                timeFormat={filters.timeFormat}
+                setTimeFormat={filters.setTimeFormat}
             />
 
             {meetingCount > 0 && (

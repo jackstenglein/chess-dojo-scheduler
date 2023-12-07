@@ -77,6 +77,12 @@ export enum SubscriptionStatus {
     FreeTier = 'FREE_TIER',
 }
 
+export enum TimeFormat {
+    Default = '',
+    TwelveHour = '12',
+    TwentyFourHour = '24',
+}
+
 export interface User {
     cognitoUser?: CognitoUser;
 
@@ -109,6 +115,7 @@ export interface User {
 
     enableLightMode: boolean;
     timezoneOverride: string;
+    timeFormat: TimeFormat;
 
     hasCreatedProfile: boolean;
 

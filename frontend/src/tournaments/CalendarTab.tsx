@@ -12,6 +12,7 @@ import {
 import TournamentCalendarFilters from './TournamentCalendarFilters';
 import { useEvents } from '../api/cache/Cache';
 import { Event, EventType, PositionType, TimeControlType } from '../database/event';
+import { TimeFormat } from '../database/user';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
@@ -86,6 +87,10 @@ const CalendarTab = () => {
         calendarRef.current?.scheduler.handleState(timezone, 'timeZone');
     }, [calendarRef, filters.timezone]);
 
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
+    }, [calendarRef, filters.timeFormat]);
+
     return (
         <Grid container spacing={2}>
             <Grid item xs={12} md={2.5}>
@@ -128,6 +133,7 @@ const CalendarTab = () => {
                             ? undefined
                             : filters.timezone
                     }
+                    hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                 />
             </Grid>
         </Grid>

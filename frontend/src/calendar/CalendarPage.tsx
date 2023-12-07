@@ -17,7 +17,7 @@ import {
 import ProcessedEventViewer from './ProcessedEventViewer';
 import { useEvents } from '../api/cache/Cache';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import { User } from '../database/user';
+import { TimeFormat, User } from '../database/user';
 import { Event, EventType, AvailabilityStatus } from '../database/event';
 import CalendarTutorial from './CalendarTutorial';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
@@ -351,6 +351,10 @@ export default function CalendarPage() {
         calendarRef.current?.scheduler.handleState(timezone, 'timeZone');
     }, [calendarRef, filters.timezone]);
 
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
+    }, [calendarRef, filters.timeFormat]);
+
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
             <RequestSnackbar request={request} />
@@ -423,6 +427,7 @@ export default function CalendarPage() {
                                     ? undefined
                                     : filters.timezone
                             }
+                            hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                         />
                     </Stack>
                 </Grid>

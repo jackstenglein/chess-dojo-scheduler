@@ -89,6 +89,8 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             <TimezoneFilter
                 timezone={filters.timezone}
                 setTimezone={filters.setTimezone}
+                timeFormat={filters.timeFormat}
+                setTimeFormat={filters.setTimeFormat}
             />
 
             <Accordion
