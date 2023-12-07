@@ -1,6 +1,8 @@
 import { Stack, Typography } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { useAuth } from '../../auth/Auth';
+import { TimeFormat } from '../../database/user';
 
 interface TimesFormSectionProps {
     description?: string;
@@ -26,6 +28,8 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
     endError,
     minEnd,
 }) => {
+    const timeFormat = useAuth().user?.timeFormat || TimeFormat.TwelveHour;
+
     return (
         <Stack>
             <Typography variant='h6'>Times</Typography>
@@ -51,6 +55,7 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                             sx: { mt: 2, mb: 3 },
                         },
                     }}
+                    ampm={timeFormat === TimeFormat.TwelveHour}
                 />
 
                 <DateTimePicker
@@ -66,6 +71,7 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                         },
                     }}
                     minDateTime={minEnd}
+                    ampm={timeFormat === TimeFormat.TwelveHour}
                 />
             </LocalizationProvider>
         </Stack>

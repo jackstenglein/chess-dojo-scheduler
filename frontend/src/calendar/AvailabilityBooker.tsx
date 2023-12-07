@@ -32,6 +32,8 @@ import GraduationIcon from '../scoreboard/GraduationIcon';
 import LoadingPage from '../loading/LoadingPage';
 import { EventType, trackEvent } from '../analytics/events';
 import Avatar from '../profile/Avatar';
+import { useAuth } from '../auth/Auth';
+import { TimeFormat } from '../database/user';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -53,6 +55,7 @@ const AvailabilityBooker = () => {
     const api = useApi();
     const navigate = useNavigate();
     const cache = useCache();
+    const timeFormat = useAuth().user?.timeFormat || TimeFormat.TwelveHour;
 
     const [selectedType, setSelectedType] = useState<AvailabilityType | null>(null);
     const [startTime, setStartTime] = useState<Date | null>(null);
@@ -97,6 +100,8 @@ const AvailabilityBooker = () => {
     const maxStartTime = new Date(availability.endTime);
 
     const confirmSoloBooking = () => {
+        console.log('confirm solo booking: ', startTime);
+
         const newErrors: Record<string, string> = {};
 
         if (selectedType === null) {
@@ -111,12 +116,20 @@ const AvailabilityBooker = () => {
                 selectedTime < availability.startTime ||
                 selectedTime > availability.endTime
             ) {
-                newErrors.time = `Must be between ${minStartTime.toLocaleTimeString()} and ${maxStartTime.toLocaleTimeString()}`;
+                newErrors.time = `Must be between ${minStartTime.toLocaleTimeString(
+                    undefined,
+                    {
+                        hour12: timeFormat === TimeFormat.TwelveHour,
+                    }
+                )} and ${maxStartTime.toLocaleTimeString(undefined, {
+                    hour12: timeFormat === TimeFormat.TwelveHour,
+                })}`;
             }
         }
 
         setErrors(newErrors);
-        if (Object.entries(errors).length > 0) {
+        if (Object.entries(newErrors).length > 0) {
+            console.log('Returning due to errors');
             return;
         }
 
@@ -133,8 +146,8 @@ const AvailabilityBooker = () => {
                     availability_cohorts: availability.cohorts,
                 });
                 request.onSuccess();
-                cache.events.put(response.data);
-                navigate(`/meeting/${response.data.id}`);
+                cache.events.put(response.data.event);
+                navigate(`/meeting/${response.data.event.id}`);
             })
             .catch((err) => {
                 console.error(err);
@@ -143,6 +156,7 @@ const AvailabilityBooker = () => {
     };
 
     const confirmGroupBooking = () => {
+        console.log('Confirm group booking');
         request.onStart();
         api.bookEvent(availability.id)
             .then((response) => {
@@ -155,8 +169,8 @@ const AvailabilityBooker = () => {
                     max_participants: availability.maxParticipants,
                 });
                 request.onSuccess();
-                cache.events.put(response.data);
-                navigate(`/group/${response.data.id}`);
+                cache.events.put(response.data.event);
+                navigate(`/group/${response.data.event.id}`);
             })
             .catch((err) => {
                 console.error(err);
@@ -211,8 +225,13 @@ const AvailabilityBooker = () => {
                         </Typography>
                         <Typography variant='body1'>
                             {minStartTime.toLocaleDateString()}{' '}
-                            {minStartTime.toLocaleTimeString()} -{' '}
-                            {maxStartTime.toLocaleTimeString()}
+                            {minStartTime.toLocaleTimeString(undefined, {
+                                hour12: timeFormat === TimeFormat.TwelveHour,
+                            })}{' '}
+                            -{' '}
+                            {maxStartTime.toLocaleTimeString(undefined, {
+                                hour12: timeFormat === TimeFormat.TwelveHour,
+                            })}
                         </Typography>
                     </Stack>
 
@@ -375,11 +394,26 @@ const AvailabilityBooker = () => {
                                             error: !!errors.time,
                                             helperText:
                                                 errors.time ||
-                                                `Must be between ${minStartTime.toLocaleTimeString()} and ${maxStartTime.toLocaleTimeString()}`,
+                                                `Must be between ${minStartTime.toLocaleTimeString(
+                                                    undefined,
+                                                    {
+                                                        hour12:
+                                                            timeFormat ===
+                                                            TimeFormat.TwelveHour,
+                                                    }
+                                                )} and ${maxStartTime.toLocaleTimeString(
+                                                    undefined,
+                                                    {
+                                                        hour12:
+                                                            timeFormat ===
+                                                            TimeFormat.TwelveHour,
+                                                    }
+                                                )}`,
                                         },
                                     }}
                                     minTime={new Date(availability.startTime)}
                                     maxTime={new Date(availability.endTime)}
+                                    ampm={timeFormat === TimeFormat.TwelveHour}
                                 />
                             </LocalizationProvider>
                         </>

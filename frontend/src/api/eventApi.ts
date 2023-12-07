@@ -21,7 +21,7 @@ export type EventApiContextType = {
         id: string,
         startTime?: Date,
         type?: string
-    ) => Promise<AxiosResponse<Event, any>>;
+    ) => Promise<AxiosResponse<BookEventResponse, any>>;
 
     /**
      * cancelEvent cancels the Event with the provided id.
@@ -60,6 +60,11 @@ export type EventApiContextType = {
     setEvent: (event: Event) => Promise<AxiosResponse<Event, any>>;
 };
 
+export interface BookEventResponse {
+    event: Event;
+    checkoutUrl: string;
+}
+
 /**
  * bookEvent books the provided Event. If the Event is 1 on 1, then startTime
  * and type can also be included in the request.
@@ -70,7 +75,7 @@ export type EventApiContextType = {
  * @returns An AxiosResponse containing the updated Event.
  */
 export function bookEvent(idToken: string, id: string, startTime?: Date, type?: string) {
-    return axios.put<Event>(
+    return axios.put<BookEventResponse>(
         `${BASE_URL}/event/${id}/book`,
         {
             startTime: startTime?.toISOString(),
