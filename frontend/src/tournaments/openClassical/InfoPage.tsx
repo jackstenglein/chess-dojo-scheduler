@@ -109,7 +109,7 @@ const InfoPage = () => {
                         </Link>{' '}
                         and fill in all relevant information. Please ensure your form
                         submission has been submitted successfully. Please note: Games
-                        must be submitted no later than Sunday at 12:00am EST. We cannot
+                        must be submitted no later than Sunday at midnight EST. We cannot
                         accept late game submissions. Not submitting your games in time
                         will result in a forfeit loss for both players (0 - 0).
                     </Typography>

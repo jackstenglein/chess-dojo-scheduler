@@ -103,7 +103,10 @@ const Details: React.FC<DetailsProps> = ({
     if (openClassical.acceptingRegistrations) {
         return (
             <Stack mt={3} spacing={2} alignItems='start'>
-                <Typography>The tournament has not started yet.</Typography>
+                <Typography>
+                    The tournament has not started yet. Round one begins Monday December
+                    11th. Register beforehand if you would like to play
+                </Typography>
 
                 <Button variant='contained' href='/tournaments/open-classical/register'>
                     Register
