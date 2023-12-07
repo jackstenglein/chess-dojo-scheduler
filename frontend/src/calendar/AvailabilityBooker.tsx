@@ -34,6 +34,7 @@ import { EventType, trackEvent } from '../analytics/events';
 import Avatar from '../profile/Avatar';
 import { useAuth } from '../auth/Auth';
 import { TimeFormat } from '../database/user';
+import { toDojoTimeString } from './displayDate';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -116,14 +117,10 @@ const AvailabilityBooker = () => {
                 selectedTime < availability.startTime ||
                 selectedTime > availability.endTime
             ) {
-                newErrors.time = `Must be between ${minStartTime.toLocaleTimeString(
-                    undefined,
-                    {
-                        hour12: timeFormat === TimeFormat.TwelveHour,
-                    }
-                )} and ${maxStartTime.toLocaleTimeString(undefined, {
-                    hour12: timeFormat === TimeFormat.TwelveHour,
-                })}`;
+                newErrors.time = `Must be between ${toDojoTimeString(
+                    minStartTime,
+                    timeFormat
+                )} and ${toDojoTimeString(maxStartTime, timeFormat)}`;
             }
         }
 
@@ -185,6 +182,9 @@ const AvailabilityBooker = () => {
         confirmSoloBooking();
     };
 
+    const minStartStr = toDojoTimeString(minStartTime, timeFormat);
+    const maxStartStr = toDojoTimeString(maxStartTime, timeFormat);
+
     return (
         <Dialog
             data-cy='availability-booker'
@@ -224,14 +224,8 @@ const AvailabilityBooker = () => {
                             {isGroup ? 'Time' : 'Available Start Times'}
                         </Typography>
                         <Typography variant='body1'>
-                            {minStartTime.toLocaleDateString()}{' '}
-                            {minStartTime.toLocaleTimeString(undefined, {
-                                hour12: timeFormat === TimeFormat.TwelveHour,
-                            })}{' '}
-                            -{' '}
-                            {maxStartTime.toLocaleTimeString(undefined, {
-                                hour12: timeFormat === TimeFormat.TwelveHour,
-                            })}
+                            {minStartTime.toLocaleDateString()} {minStartStr} -{' '}
+                            {maxStartStr}
                         </Typography>
                     </Stack>
 
@@ -394,21 +388,7 @@ const AvailabilityBooker = () => {
                                             error: !!errors.time,
                                             helperText:
                                                 errors.time ||
-                                                `Must be between ${minStartTime.toLocaleTimeString(
-                                                    undefined,
-                                                    {
-                                                        hour12:
-                                                            timeFormat ===
-                                                            TimeFormat.TwelveHour,
-                                                    }
-                                                )} and ${maxStartTime.toLocaleTimeString(
-                                                    undefined,
-                                                    {
-                                                        hour12:
-                                                            timeFormat ===
-                                                            TimeFormat.TwelveHour,
-                                                    }
-                                                )}`,
+                                                `Must be between ${minStartStr} and ${maxStartStr}`,
                                         },
                                     }}
                                     minTime={new Date(availability.startTime)}

@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardActionArea, CardContent, CardHeader, Typography } from '@mui/material';
 
 import { Event } from '../database/event';
+import { toDojoTimeString } from '../calendar/displayDate';
+import { useAuth } from '../auth/Auth';
 
 interface GroupMeetingListItemProps {
     availability: Event;
@@ -9,6 +11,7 @@ interface GroupMeetingListItemProps {
 
 const GroupMeetingListItem: React.FC<GroupMeetingListItemProps> = ({ availability }) => {
     const navigate = useNavigate();
+    const timeFormat = useAuth().user?.timeFormat;
 
     const onClick = () => {
         navigate('/group/' + availability.id);
@@ -21,7 +24,10 @@ const GroupMeetingListItem: React.FC<GroupMeetingListItemProps> = ({ availabilit
             <CardActionArea onClick={onClick}>
                 <CardHeader
                     title={'Group Meeting'}
-                    subheader={`${start.toLocaleDateString()} • ${start.toLocaleTimeString()}`}
+                    subheader={`${start.toLocaleDateString()} • ${toDojoTimeString(
+                        start,
+                        timeFormat
+                    )}`}
                     sx={{ pb: 0 }}
                 />
                 <CardContent sx={{ pt: 0, mt: 0 }}>

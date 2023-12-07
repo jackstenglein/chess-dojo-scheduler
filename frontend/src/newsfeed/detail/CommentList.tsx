@@ -3,6 +3,8 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import { Comment } from '../../database/game';
 import Avatar from '../../profile/Avatar';
+import { toDojoTimeString } from '../../calendar/displayDate';
+import { useAuth } from '../../auth/Auth';
 
 interface CommentListProps {
     comments: Comment[] | null;
@@ -46,6 +48,7 @@ interface CommentListItemProps {
 
 const CommentListItem: React.FC<CommentListItemProps> = ({ comment }) => {
     const createdAt = new Date(comment.createdAt);
+    const timeFormat = useAuth().user?.timeFormat;
 
     return (
         <Stack direction='row' spacing={1.5}>
@@ -70,7 +73,8 @@ const CommentListItem: React.FC<CommentListItemProps> = ({ comment }) => {
                     </Stack>
                 </Paper>
                 <Typography variant='caption' color='text.secondary'>
-                    {createdAt.toLocaleDateString()} • {createdAt.toLocaleTimeString()}
+                    {createdAt.toLocaleDateString()} •{' '}
+                    {toDojoTimeString(createdAt, timeFormat)}
                 </Typography>
             </Stack>
         </Stack>

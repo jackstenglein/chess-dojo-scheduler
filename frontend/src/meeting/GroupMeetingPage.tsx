@@ -17,6 +17,7 @@ import Avatar from '../profile/Avatar';
 import CancelMeetingButton from './CancelMeetingButton';
 import NotFoundPage from '../NotFoundPage';
 import { useAuth } from '../auth/Auth';
+import { toDojoTimeString } from '../calendar/displayDate';
 
 const ownerCancelDialog =
     'Ownership of this meeting will be transferred to one of the participants, and you may not be able to re-join it later if other users book it.';
@@ -52,10 +53,10 @@ const GroupMeetingPage = () => {
 
     const start = new Date(availability.startTime);
     const startDate = start.toLocaleDateString();
-    const startTime = start.toLocaleTimeString();
+    const startTime = toDojoTimeString(start, user.timeFormat);
 
     const end = new Date(availability.endTime);
-    const endTime = end.toLocaleTimeString();
+    const endTime = toDojoTimeString(end, user.timeFormat);
 
     return (
         <Container maxWidth='md' sx={{ pt: 4, pb: 4 }}>

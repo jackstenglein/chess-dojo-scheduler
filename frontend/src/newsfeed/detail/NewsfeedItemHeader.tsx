@@ -5,18 +5,22 @@ import Avatar from '../../profile/Avatar';
 import { TimelineEntry } from '../../database/timeline';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import { CategoryColors } from '../../profile/activity/activity';
+import { toDojoTimeString } from '../../calendar/displayDate';
+import { useAuth } from '../../auth/Auth';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;
 }
 
 const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
+    const timeFormat = useAuth().user?.timeFormat;
+
     const createdAt = new Date(entry.createdAt);
     const date = createdAt.toLocaleDateString(undefined, {
         month: 'long',
         day: 'numeric',
     });
-    const time = createdAt.toLocaleTimeString(undefined, {
+    const time = toDojoTimeString(createdAt, timeFormat, {
         hour: 'numeric',
         minute: '2-digit',
     });

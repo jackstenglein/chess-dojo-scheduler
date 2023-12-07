@@ -15,6 +15,7 @@ import { Event, AvailabilityStatus, getDisplayString } from '../database/event';
 import { useAuth } from '../auth/Auth';
 import React from 'react';
 import Avatar from '../profile/Avatar';
+import { toDojoTimeString } from '../calendar/displayDate';
 
 interface MeetingListItemProps {
     meeting: Event;
@@ -51,7 +52,10 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
             <CardActionArea onClick={onClick}>
                 <CardHeader
                     title={getDisplayString(meeting.bookedType)}
-                    subheader={`${start.toLocaleDateString()} • ${start.toLocaleTimeString()}`}
+                    subheader={`${start.toLocaleDateString()} • ${toDojoTimeString(
+                        start,
+                        user.timeFormat
+                    )}`}
                     sx={{ pb: 0 }}
                 />
                 <CardContent sx={{ pt: 0, mt: 1 }}>
