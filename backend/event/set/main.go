@@ -20,49 +20,40 @@ const funcName = "event-set-handler"
 
 var repository database.EventSetter = database.DynamoDB
 
-func checkAvailabilityTypes(types []database.AvailabilityType) error {
-	if len(types) == 0 {
-		return errors.New(400, "Invalid request: availability must include at least one type", "")
-	}
-
-	for _, t := range types {
-		if !t.IsValid() {
-			return errors.New(400, fmt.Sprintf("Invalid request: availability type `%s` is invalid", t), "")
-		}
-	}
-	return nil
+func main() {
+	lambda.Start(Handler)
 }
 
-func checkCohorts(cohorts []database.DojoCohort) error {
-	if len(cohorts) == 0 {
-		return errors.New(400, "Invalid request: availability must include at least one cohort", "")
+func Handler(ctx context.Context, request api.Request) (api.Response, error) {
+	log.SetRequestId(request.RequestContext.RequestID)
+	log.Debugf("Request: %#v", request)
+
+	info := api.GetUserInfo(request)
+	if info.Username == "" {
+		err := errors.New(403, "Invalid request: username is required", "")
+		return api.Failure(funcName, err), nil
 	}
 
-	for _, c := range cohorts {
-		if !database.IsValidCohort(c) {
-			return errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` is invalid", c), "")
-		}
-	}
-	return nil
-}
-
-func checkTimes(event *database.Event) error {
-	if event.StartTime >= event.EndTime {
-		return errors.New(400, "Invalid request: startTime must be less than endTime", "")
+	event := &database.Event{}
+	if err := json.Unmarshal([]byte(request.Body), event); err != nil {
+		err := errors.Wrap(400, "Invalid request: body format is invalid", "Unable to unmarshal body", err)
+		return api.Failure(funcName, err), nil
 	}
 
-	if _, err := time.Parse(time.RFC3339, event.StartTime); err != nil {
-		return errors.Wrap(400, "Invalid request: startTime must be RFC3339 format", "", err)
+	if event.Participants == nil {
+		event.Participants = make(map[string]*database.Participant)
 	}
 
-	endTime, err := time.Parse(time.RFC3339, event.EndTime)
-	if err != nil {
-		return errors.Wrap(400, "Invalid request: endTime must be RFC3339 format", "", err)
+	if event.Type == database.EventType_Availability {
+		return handleAvailability(info, event)
+	} else if event.Type == database.EventType_Dojo {
+		return handleDojoEvent(info, event)
+	} else if event.Type == database.EventType_Coaching {
+		return handleCoachingEvent(info, event)
 	}
 
-	expirationTime := endTime.Add(48 * time.Hour)
-	event.ExpirationTime = expirationTime.Unix()
-	return nil
+	err := errors.New(400, fmt.Sprintf("Invalid request: event type `%s` is not supported", event.Type), "")
+	return api.Failure(funcName, err), nil
 }
 
 func handleAvailability(info *api.UserInfo, event *database.Event) (api.Response, error) {
@@ -71,8 +62,8 @@ func handleAvailability(info *api.UserInfo, event *database.Event) (api.Response
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Status != database.Scheduled {
-		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.Scheduled), "")
+	if event.Status != database.SchedulingStatus_Scheduled {
+		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.SchedulingStatus_Scheduled), "")
 		return api.Failure(funcName, err), nil
 	}
 
@@ -148,8 +139,8 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Status != database.Scheduled {
-		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.Scheduled), "")
+	if event.Status != database.SchedulingStatus_Scheduled {
+		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.SchedulingStatus_Scheduled), "")
 		return api.Failure(funcName, err), nil
 	}
 
@@ -201,36 +192,108 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 	return api.Success(funcName, event), nil
 }
 
-func Handler(ctx context.Context, request api.Request) (api.Response, error) {
-	log.SetRequestId(request.RequestContext.RequestID)
-	log.Debugf("Request: %#v", request)
-
-	info := api.GetUserInfo(request)
-	if info.Username == "" {
-		err := errors.New(403, "Invalid request: username is required", "")
+func handleCoachingEvent(info *api.UserInfo, event *database.Event) (api.Response, error) {
+	user, err := repository.GetUser(info.Username)
+	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
 
-	event := &database.Event{}
-	if err := json.Unmarshal([]byte(request.Body), event); err != nil {
-		err := errors.Wrap(400, "Invalid request: body format is invalid", "Unable to unmarshal body", err)
+	if !user.IsCoach {
+		err := errors.New(403, "You must be a coach to create Coaching events", "")
+		return api.Failure(funcName, err), nil
+	}
+	if user.CoachInfo == nil || !user.CoachInfo.OnboardingComplete || user.CoachInfo.StripeId == "" {
+		err := errors.New(400, "Invalid request: you must complete stripe onboarding before creating coaching sessions", "")
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Participants == nil {
-		event.Participants = make(map[string]*database.Participant)
+	if event.Status != database.SchedulingStatus_Scheduled {
+		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.SchedulingStatus_Scheduled), "")
+		return api.Failure(funcName, err), nil
 	}
 
-	if event.Type == database.EventTypeAvailability {
-		return handleAvailability(info, event)
-	} else if event.Type == database.EventTypeDojo {
-		return handleDojoEvent(info, event)
+	if event.MaxParticipants < 1 {
+		err := errors.New(400, "Invalid request: maxParticipants must be at least one", "")
+		return api.Failure(funcName, err), nil
 	}
 
-	err := errors.New(400, fmt.Sprintf("Invalid request: event type `%s` is not supported", event.Type), "")
-	return api.Failure(funcName, err), nil
+	if err := checkTimes(event); err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
+	if err := checkCohorts(event.Cohorts); err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
+	if event.Coaching == nil || event.Coaching.FullPrice < 500 || (event.Coaching.CurrentPrice > 0 && event.Coaching.CurrentPrice < 500) {
+		err := errors.New(400, "Invalid request: coaching sessions must be at least $5", "")
+		return api.Failure(funcName, err), nil
+	}
+
+	if event.Id == "" {
+		event.Id = uuid.NewString()
+	}
+	if strings.TrimSpace(event.Location) == "" {
+		event.Location = "Discord"
+	}
+
+	event.Owner = user.Username
+	event.OwnerDisplayName = user.DisplayName
+	event.OwnerCohort = user.DojoCohort
+	event.OwnerPreviousCohort = user.PreviousCohort
+	event.BookedStartTime = ""
+	event.Types = nil
+	event.BookedType = ""
+	event.Coaching.StripeId = user.CoachInfo.StripeId
+
+	if err := repository.SetEvent(event); err != nil {
+		return api.Failure(funcName, err), nil
+	}
+
+	return api.Success(funcName, event), nil
 }
 
-func main() {
-	lambda.Start(Handler)
+func checkAvailabilityTypes(types []database.AvailabilityType) error {
+	if len(types) == 0 {
+		return errors.New(400, "Invalid request: availability must include at least one type", "")
+	}
+
+	for _, t := range types {
+		if !t.IsValid() {
+			return errors.New(400, fmt.Sprintf("Invalid request: availability type `%s` is invalid", t), "")
+		}
+	}
+	return nil
+}
+
+func checkCohorts(cohorts []database.DojoCohort) error {
+	if len(cohorts) == 0 {
+		return errors.New(400, "Invalid request: event must include at least one cohort", "")
+	}
+
+	for _, c := range cohorts {
+		if !database.IsValidCohort(c) {
+			return errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` is invalid", c), "")
+		}
+	}
+	return nil
+}
+
+func checkTimes(event *database.Event) error {
+	if event.StartTime >= event.EndTime {
+		return errors.New(400, "Invalid request: startTime must be less than endTime", "")
+	}
+
+	if _, err := time.Parse(time.RFC3339, event.StartTime); err != nil {
+		return errors.Wrap(400, "Invalid request: startTime must be RFC3339 format", "", err)
+	}
+
+	endTime, err := time.Parse(time.RFC3339, event.EndTime)
+	if err != nil {
+		return errors.Wrap(400, "Invalid request: endTime must be RFC3339 format", "", err)
+	}
+
+	expirationTime := endTime.Add(48 * time.Hour)
+	event.ExpirationTime = expirationTime.Unix()
+	return nil
 }

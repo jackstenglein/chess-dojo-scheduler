@@ -60,7 +60,7 @@ func SendCancellationNotification(username string, msg string) error {
 
 // SendAvailabilityNotification sends a notification of a new event of type EventTypeAvailability.
 func SendAvailabilityNotification(event *database.Event) (string, error) {
-	if event.Type != database.EventTypeAvailability {
+	if event.Type != database.EventType_Availability {
 		return "", errors.New(400, "Invalid request: event.type must be `AVAILABILITY`", "")
 	}
 

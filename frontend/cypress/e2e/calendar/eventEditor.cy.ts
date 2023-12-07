@@ -1,6 +1,6 @@
 import { tournamentsClock } from '../tournaments/util';
 
-describe('Availability Editor', () => {
+describe('Event Editor', () => {
     beforeEach(() => {
         cy.interceptApi('GET', '/event', { fixture: 'calendar/events.json' });
         cy.loginByCognitoApi(
@@ -14,35 +14,35 @@ describe('Availability Editor', () => {
         cy.getBySel('calendar-filters').contains('Dojo Events').click();
     });
 
-    it('shows and hides availability editor', () => {
+    it('shows and hides event editor', () => {
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
-        cy.getBySel('availability-editor');
+        cy.getBySel('event-editor');
         cy.getBySel('cancel-button').click();
-        cy.getBySel('availability-editor').should('not.exist');
+        cy.getBySel('event-editor').should('not.exist');
     });
 
     it('contains correct content', () => {
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
-        cy.getBySel('availability-editor-title').contains('Set Availability');
-        cy.getBySel('availability-editor-date').contains('Sunday, Sep 10');
+        cy.getBySel('event-editor-title').contains('Edit Event');
+        cy.getBySel('event-editor-date').contains('Sunday, Sep 10');
 
-        cy.getBySel('availability-editor').contains('Times');
-        cy.getBySel('availability-editor').contains(
+        cy.getBySel('event-editor').contains('Times');
+        cy.getBySel('event-editor').contains(
             'Availabilities must be at least one hour long'
         );
-        cy.getBySel('availability-editor').find('#start-time');
-        cy.getBySel('availability-editor').find('#end-time');
+        cy.getBySel('event-editor').find('#start-time');
+        cy.getBySel('event-editor').find('#end-time');
 
-        cy.getBySel('availability-editor').contains('Location (Optional)');
-        cy.getBySel('availability-editor').contains(
+        cy.getBySel('event-editor').contains('Location (Optional)');
+        cy.getBySel('event-editor').contains(
             'Add a Zoom link, specify a Discord classroom, etc.'
         );
         cy.getBySel('location-textfield');
 
-        cy.getBySel('availability-editor').contains('Description (Optional)');
-        cy.getBySel('availability-editor').contains(
+        cy.getBySel('event-editor').contains('Description (Optional)');
+        cy.getBySel('event-editor').contains(
             'Add a sparring position or any other notes for your opponent.'
         );
         cy.getBySel('description-textfield');
@@ -63,14 +63,14 @@ describe('Availability Editor', () => {
             'Book Study',
         ].forEach((t) => cy.getBySel('availability-types-section').contains(t));
 
-        cy.getBySel('availability-editor').contains('Max Participants');
-        cy.getBySel('availability-editor').contains(
+        cy.getBySel('event-editor').contains('Max Participants');
+        cy.getBySel('event-editor').contains(
             'The number of people that can book your availability (not including yourself).'
         );
         cy.getBySel('participants-textfield');
 
-        cy.getBySel('availability-editor').contains('Cohorts');
-        cy.getBySel('availability-editor').contains(
+        cy.getBySel('event-editor').contains('Cohorts');
+        cy.getBySel('event-editor').contains(
             'Choose the cohorts that can book your availability.'
         );
     });
@@ -88,7 +88,7 @@ describe('Availability Editor', () => {
 
         cy.getBySel('save-button').click();
 
-        cy.getBySel('availability-editor').contains('At least one type is required');
+        cy.getBySel('event-editor').contains('At least one type is required');
     });
 
     it('requires at least one cohort to save', () => {
@@ -100,7 +100,7 @@ describe('Availability Editor', () => {
         cy.getBySel('cohort-checkbox-1600-1700').click();
         cy.getBySel('save-button').click();
 
-        cy.getBySel('availability-editor').contains('At least one cohort is required');
+        cy.getBySel('event-editor').contains('At least one cohort is required');
     });
 
     it('creates and deletes availability', () => {

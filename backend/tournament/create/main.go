@@ -58,14 +58,14 @@ func (a LichessArenaResponse) ToEvent() (*database.Event, error) {
 
 	event := &database.Event{
 		Id:               a.Id,
-		Type:             database.EventTypeLigaTournament,
+		Type:             database.EventType_LigaTournament,
 		Owner:            "Sensei",
 		OwnerDisplayName: "Sensei",
 		Title:            a.Name,
 		StartTime:        a.StartsAt,
 		EndTime:          endTime.Format(time.RFC3339),
 		ExpirationTime:   expirationTime.Unix(),
-		Status:           database.Scheduled,
+		Status:           database.SchedulingStatus_Scheduled,
 		Location:         fmt.Sprintf("%s%s", lichessArenaPrefix, a.Id),
 		Description:      a.Description,
 		LigaTournament: &database.LigaTournament{
@@ -142,14 +142,14 @@ func (s LichessSwissResponse) ToEvent(round int) (*database.Event, error) {
 
 	event := &database.Event{
 		Id:               fmt.Sprintf("%s-round-%d", s.Id, round+1),
-		Type:             database.EventTypeLigaTournament,
+		Type:             database.EventType_LigaTournament,
 		Owner:            "Sensei",
 		OwnerDisplayName: "Sensei",
 		Title:            s.Name,
 		StartTime:        startTime.Format(time.RFC3339),
 		EndTime:          endTime.Format(time.RFC3339),
 		ExpirationTime:   expirationTime.Unix(),
-		Status:           database.Scheduled,
+		Status:           database.SchedulingStatus_Scheduled,
 		Location:         fmt.Sprintf("%s%s", lichessSwissPrefix, s.Id),
 		Description:      s.Description,
 		LigaTournament: &database.LigaTournament{

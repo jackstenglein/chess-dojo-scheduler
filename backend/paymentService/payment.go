@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
@@ -20,6 +21,14 @@ import (
 var frontendHost = os.Getenv("frontendHost")
 var monthlyPriceId = os.Getenv("monthlyPriceId")
 var yearlyPriceId = os.Getenv("yearlyPriceId")
+
+type CheckoutSessionType string
+
+const (
+	CheckoutSessionType_Course       CheckoutSessionType = "COURSE"
+	CheckoutSessionType_Subscription CheckoutSessionType = "SUBSCRIPTION"
+	CheckoutSessionType_Coaching     CheckoutSessionType = "COACHING"
+)
 
 func init() {
 	key, err := secrets.GetApiKey()
@@ -66,7 +75,7 @@ func PurchaseCourseUrl(user *database.User, course *database.Course, purchaseOpt
 		CancelURL:           stripe.String(cancelUrl),
 		AllowPromotionCodes: stripe.Bool(true),
 		Metadata: map[string]string{
-			"type":      "COURSE",
+			"type":      string(CheckoutSessionType_Course),
 			"courseIds": courseIds,
 		},
 	}
@@ -130,7 +139,7 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 		ClientReferenceID:   stripe.String(user.Username),
 		AllowPromotionCodes: stripe.Bool(true),
 		Metadata: map[string]string{
-			"type": "SUBSCRIPTION",
+			"type": string(CheckoutSessionType_Subscription),
 		},
 		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
 			TrialSettings: &stripe.CheckoutSessionSubscriptionDataTrialSettingsParams{
@@ -153,6 +162,66 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 		return "", errors.Wrap(500, "Temporary server error", "Failed to create Stripe checkout session", err)
 	}
 	return checkoutSession.URL, nil
+}
+
+func CoachingCheckoutSession(user *database.User, event *database.Event) (*stripe.CheckoutSession, error) {
+	price := event.Coaching.FullPrice
+	if event.Coaching.CurrentPrice > 0 {
+		price = event.Coaching.CurrentPrice
+	}
+	fee := price / 20
+
+	expiration := time.Now().Add(31 * time.Minute).Unix()
+
+	params := &stripe.CheckoutSessionParams{
+		ClientReferenceID: stripe.String(user.Username),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
+					Currency:   stripe.String("usd"),
+					UnitAmount: stripe.Int64(int64(price)),
+					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
+						Name:        stripe.String(fmt.Sprintf("Coaching Session with %s", event.OwnerDisplayName)),
+						Description: stripe.String(event.Description),
+					},
+				},
+				Quantity: stripe.Int64(1),
+			},
+		},
+		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
+		PaymentIntentData: &stripe.CheckoutSessionPaymentIntentDataParams{
+			ApplicationFeeAmount: stripe.Int64(int64(fee)),
+			TransferData: &stripe.CheckoutSessionPaymentIntentDataTransferDataParams{
+				Destination: stripe.String(event.Coaching.StripeId),
+			},
+			Metadata: map[string]string{
+				"type":    string(CheckoutSessionType_Coaching),
+				"eventId": event.Id,
+				"coachId": event.Coaching.StripeId,
+				"userId":  user.Username,
+			},
+		},
+		ExpiresAt:  stripe.Int64(expiration),
+		SubmitType: stripe.String(string(stripe.CheckoutSessionSubmitTypeBook)),
+		SuccessURL: stripe.String(fmt.Sprintf("%s/meeting/%s", frontendHost, event.Id)),
+		CancelURL:  stripe.String(fmt.Sprintf("%s/meeting/%s/cancel", frontendHost, event.Id)),
+		Metadata: map[string]string{
+			"type":    string(CheckoutSessionType_Coaching),
+			"eventId": event.Id,
+			"coachId": event.Coaching.StripeId,
+			"userId":  user.Username,
+		},
+	}
+
+	if user.PaymentInfo.GetCustomerId() != "" {
+		params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
+	}
+
+	checkoutSession, err := session.New(params)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe checkout session", err)
+	}
+	return checkoutSession, nil
 }
 
 func GetCheckoutSession(id string) (*stripe.CheckoutSession, error) {

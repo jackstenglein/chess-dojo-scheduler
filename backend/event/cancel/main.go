@@ -49,7 +49,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Type != database.EventTypeAvailability {
+	if event.Type != database.EventType_Availability {
 		err := errors.New(400, "Invalid request: this event type is not supported", "")
 		return api.Failure(funcName, err), nil
 	}

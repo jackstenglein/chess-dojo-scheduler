@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/stripe/stripe-go/v76"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
+	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 )
 
 var repository database.EventBooker = database.DynamoDB
@@ -22,6 +24,11 @@ const funcName = "event-book-handler"
 type BookEventRequest struct {
 	StartTime string                    `json:"startTime"`
 	Type      database.AvailabilityType `json:"type"`
+}
+
+type BookEventResponse struct {
+	Event       *database.Event `json:"event"`
+	CheckoutUrl string          `json:"checkoutUrl,omitempty"`
 }
 
 // checkTimes verifies that the provided startTime is contained within the provided Event.
@@ -74,6 +81,12 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
 	log.Debugf("Request: %#v", request)
 
+	info := api.GetUserInfo(request)
+	if info.Username == "" {
+		err := errors.New(400, "Invalid request: username is required", "")
+		return api.Failure(funcName, err), nil
+	}
+
 	id, _ := request.PathParameters["id"]
 	if id == "" {
 		err := errors.New(400, "Invalid request: id is required", "")
@@ -91,15 +104,11 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	info := api.GetUserInfo(request)
-	if info.Username == "" {
-		err := errors.New(400, "Invalid request: username is required", "")
-		return api.Failure(funcName, err), nil
-	}
 	if info.Username == originalEvent.Owner {
 		err := errors.New(400, "Invalid request: you cannot book your own availability", "")
 		return api.Failure(funcName, err), nil
 	}
+
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
 		return api.Failure(funcName, err), nil
@@ -109,7 +118,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if originalEvent.Type == database.EventTypeAvailability && originalEvent.MaxParticipants == 1 {
+	if originalEvent.Type == database.EventType_Availability && originalEvent.MaxParticipants == 1 {
 		if err := checkType(originalEvent, body.Type); err != nil {
 			return api.Failure(funcName, err), nil
 		}
@@ -118,7 +127,15 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		}
 	}
 
-	newEvent, err := repository.BookEvent(originalEvent, user, body.StartTime, body.Type)
+	var checkoutSession *stripe.CheckoutSession
+	if originalEvent.Type == database.EventType_Coaching {
+		checkoutSession, err = payment.CoachingCheckoutSession(user, originalEvent)
+		if err != nil {
+			return api.Failure(funcName, err), nil
+		}
+	}
+
+	newEvent, err := repository.BookEvent(originalEvent, user, body.StartTime, body.Type, checkoutSession)
 	if err != nil {
 		return api.Failure(funcName, err), nil
 	}
@@ -135,7 +152,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		log.Error("Failed SendGroupJoinNotification: ", err)
 	}
 
-	if newEvent.Status == database.Booked {
+	if newEvent.Status == database.SchedulingStatus_Booked {
 		if err := discord.DeleteMessage(originalEvent.DiscordMessageId); err != nil {
 			log.Error("Failed to delete Discord message: ", err)
 		}
@@ -143,7 +160,12 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		log.Error("Failed SendAvailabilityNotification: ", err)
 	}
 
-	return api.Success(funcName, newEvent), nil
+	var checkoutUrl string
+	if checkoutSession != nil {
+		checkoutUrl = checkoutSession.URL
+	}
+
+	return api.Success(funcName, BookEventResponse{Event: newEvent, CheckoutUrl: checkoutUrl}), nil
 }
 
 func main() {

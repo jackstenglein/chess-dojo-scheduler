@@ -10,7 +10,7 @@ import (
 
 // SetEvent creates a discord event for events of type EventTypeDojo.
 func SetEvent(event *database.Event) (string, string, error) {
-	if event.Type != database.EventTypeDojo {
+	if event.Type != database.EventType_Dojo {
 		return "", "", errors.New(400, "Invalid request: event.type must be `DOJO`", "")
 	}
 

@@ -189,7 +189,7 @@ func (repo *dynamoRepository) GetEventStatistics() (*EventStatistics, error) {
 func (repo *dynamoRepository) RecordEventCreation(event *Event) error {
 	builder := expression.UpdateBuilder{}
 
-	if event.Type == EventTypeDojo {
+	if event.Type == EventType_Dojo {
 		value := expression.Name("created.DOJO").Plus(expression.Value(1))
 		builder = builder.Set(expression.Name("created.DOJO"), value)
 	} else {
@@ -240,7 +240,7 @@ func (repo *dynamoRepository) RecordEventCreation(event *Event) error {
 
 // RecordEventBooking saves statistics on an event booking.
 func (repo *dynamoRepository) RecordEventBooking(event *Event) error {
-	if event.Type == EventTypeDojo {
+	if event.Type == EventType_Dojo {
 		return nil
 	}
 
@@ -267,7 +267,7 @@ func (repo *dynamoRepository) RecordEventBooking(event *Event) error {
 
 // RecordEventDeletion saves statistics on the deleted event.
 func (repo *dynamoRepository) RecordEventDeletion(event *Event) error {
-	if event.Type == EventTypeDojo {
+	if event.Type == EventType_Dojo {
 		return nil
 	}
 
@@ -292,7 +292,7 @@ func (repo *dynamoRepository) RecordEventDeletion(event *Event) error {
 
 // RecordEventCancelation saves statistics on the canceled event.
 func (repo *dynamoRepository) RecordEventCancelation(event *Event) error {
-	if event.Type == EventTypeDojo {
+	if event.Type == EventType_Dojo {
 		return nil
 	}
 

@@ -37,7 +37,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Type == database.EventTypeDojo || event.Type == database.EventTypeLigaTournament {
+	if event.Type == database.EventType_Dojo || event.Type == database.EventType_LigaTournament {
 		user, err := repository.GetUser(info.Username)
 		if err != nil {
 			return api.Failure(funcName, err), nil
@@ -48,6 +48,11 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		}
 	} else if event.Owner != info.Username {
 		err := errors.New(403, "You do not have permission to delete this availability", "")
+		return api.Failure(funcName, err), nil
+	}
+
+	if len(event.Participants) > 0 {
+		err := errors.New(400, "Invalid request: events with participants cannot be deleted. Cancel or leave the meeting instead.", "")
 		return api.Failure(funcName, err), nil
 	}
 

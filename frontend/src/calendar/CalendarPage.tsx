@@ -6,7 +6,7 @@ import type { SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
-import AvailabilityEditor from './AvailabilityEditor';
+import EventEditor from './eventEditor.tsx/EventEditor';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import {
     CalendarFilters,
@@ -409,7 +409,7 @@ export default function CalendarPage() {
                                         currentAction={RestrictedAction.AddCalendarEvents}
                                     />
                                 ) : (
-                                    <AvailabilityEditor scheduler={scheduler} />
+                                    <EventEditor scheduler={scheduler} />
                                 )
                             }
                             onDelete={deleteAvailability}

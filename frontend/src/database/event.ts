@@ -2,6 +2,7 @@ export enum EventType {
     Availability = 'AVAILABILITY',
     Dojo = 'DOJO',
     LigaTournament = 'LIGA_TOURNAMENT',
+    Coaching = 'COACHING',
 }
 
 export interface Event {
@@ -14,8 +15,8 @@ export interface Event {
     title: string;
     startTime: string;
     endTime: string;
-    bookedStartTime: string;
     types: AvailabilityType[];
+    bookedStartTime: string;
     bookedType: AvailabilityType;
     cohorts: string[];
     status: AvailabilityStatus;
@@ -29,6 +30,9 @@ export interface Event {
 
     /** The LigaTournament information for this event. Only present for LigaTournaments. */
     ligaTournament?: LigaTournament;
+
+    /** The coaching information for this event. Only present for EventType.Coaching. */
+    coaching?: Coaching;
 }
 
 export enum TournamentType {
@@ -79,11 +83,28 @@ export interface LigaTournament {
     currentRound?: number;
 }
 
+export interface Coaching {
+    /** The coach's Stripe id. */
+    stripeId: string;
+
+    /** The normal full price of the coaching session, in cents. */
+    fullPrice: number;
+
+    /**
+     * The current price of the coaching session, in cents. If non-positive,
+     * fullPrice is used instead.
+     */
+    currentPrice: number;
+}
+
 export interface Participant {
     username: string;
     displayName: string;
     cohort: string;
     previousCohort: string;
+
+    /** Whether the user has successfully paid. Only relevant for EventType.Coaching. */
+    hasPaid?: boolean;
 }
 
 export enum AvailabilityStatus {

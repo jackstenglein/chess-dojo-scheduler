@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/stripe/stripe-go/v76"
 )
 
 type AvailabilityType string
@@ -68,18 +69,19 @@ func GetDisplayNames(types []AvailabilityType) []string {
 type EventType string
 
 const (
-	EventTypeAvailability   EventType = "AVAILABILITY"
-	EventTypeDojo           EventType = "DOJO"
-	EventTypeLigaTournament EventType = "LIGA_TOURNAMENT"
+	EventType_Availability   EventType = "AVAILABILITY"
+	EventType_Dojo           EventType = "DOJO"
+	EventType_LigaTournament EventType = "LIGA_TOURNAMENT"
+	EventType_Coaching       EventType = "COACHING"
 )
 
 // SchedulingStatus represents the status for events.
 type SchedulingStatus string
 
 const (
-	Scheduled SchedulingStatus = "SCHEDULED"
-	Booked    SchedulingStatus = "BOOKED"
-	Canceled  SchedulingStatus = "CANCELED"
+	SchedulingStatus_Scheduled SchedulingStatus = "SCHEDULED"
+	SchedulingStatus_Booked    SchedulingStatus = "BOOKED"
+	SchedulingStatus_Canceled  SchedulingStatus = "CANCELED"
 )
 
 const EventTypeDojoOwner = "Sensei"
@@ -96,6 +98,12 @@ type Participant struct {
 
 	// The cohort the participant most recently graduated from
 	PreviousCohort DojoCohort `dynamodbav:"previousCohort" json:"previousCohort"`
+
+	// The Stripe checkout session. Only present for EventType_Coaching.
+	CheckoutSession *stripe.CheckoutSession `dynamodbav:"checkoutSession,omitempty" json:"-"`
+
+	// Whether the user has successfully paid. Only present for EventType_Coaching.
+	HasPaid bool `dynamodbav:"hasPaid,omitempty" json:"hasPaid"`
 }
 
 type Event struct {
@@ -181,6 +189,9 @@ type Event struct {
 
 	// The LigaTournament information for this event. Only present for LigaTournaments.
 	LigaTournament *LigaTournament `dynamodbav:"ligaTournament,omitempty" json:"ligaTournament,omitempty"`
+
+	// The coaching information for this event. Only present for EventType_Coaching.
+	Coaching *Coaching `dynamodbav:"coaching,omitempty" json:"coaching,omitempty"`
 }
 
 type TimeControlType string
@@ -218,6 +229,17 @@ type LigaTournament struct {
 
 	// The current round this LigaTournament object refers to. Only present for monthly Swiss tournaments.
 	CurrentRound int `dynamodbav:"currentRound,omitempty" json:"currentRound,omitempty"`
+}
+
+type Coaching struct {
+	// The coach's Stripe id
+	StripeId string `dynamodbav:"stripeId" json:"stripeId"`
+
+	// The normal full-price of the coaching session, in cents.
+	FullPrice int `dynamodbav:"fullPrice" json:"fullPrice"`
+
+	// The current price of the coaching session, in cents. If non-positive, then full price is used instead.
+	CurrentPrice int `dynamodbav:"currentPrice" json:"currentPrice"`
 }
 
 type EventSetter interface {
@@ -270,7 +292,7 @@ type EventBooker interface {
 	// The request only succeeds if the Event is not already fully booked.
 	// startTime and aType are only used if the Event is of type EventTypeAvailability
 	// and has MaxParticipants set to 1.
-	BookEvent(event *Event, user *User, startTime string, aType AvailabilityType) (*Event, error)
+	BookEvent(event *Event, user *User, startTime string, aType AvailabilityType, checkoutSession *stripe.CheckoutSession) (*Event, error)
 
 	// RecordEventBooking saves statistics on an event booking.
 	RecordEventBooking(event *Event) error
@@ -370,16 +392,17 @@ func (repo *dynamoRepository) DeleteEvent(id string) (*Event, error) {
 // The request only succeeds if the Event is not already fully booked.
 // startTime and aType are only used if the Event is of type EventTypeAvailability
 // and has MaxParticipants set to 1.
-func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime string, aType AvailabilityType) (*Event, error) {
+func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime string, aType AvailabilityType, checkoutSession *stripe.CheckoutSession) (*Event, error) {
 	if event.Id == "STATISTICS" {
 		return nil, errors.New(403, "Invalid request: event statistics cannot be booked", "")
 	}
 
 	participant := &Participant{
-		Username:       user.Username,
-		DisplayName:    user.DisplayName,
-		Cohort:         user.DojoCohort,
-		PreviousCohort: user.PreviousCohort,
+		Username:        user.Username,
+		DisplayName:     user.DisplayName,
+		Cohort:          user.DojoCohort,
+		PreviousCohort:  user.PreviousCohort,
+		CheckoutSession: checkoutSession,
 	}
 	p, err := dynamodbattribute.MarshalMap(participant)
 	if err != nil {
@@ -398,7 +421,7 @@ func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime stri
 			N: aws.String(strconv.Itoa(event.MaxParticipants)),
 		},
 		":scheduled": {
-			S: aws.String(string(Scheduled)),
+			S: aws.String(string(SchedulingStatus_Scheduled)),
 		},
 	}
 
@@ -406,13 +429,13 @@ func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime stri
 		updateExpr += ", #status = :booked, #discordMessageId = :empty"
 		exprAttrNames["#status"] = aws.String("status")
 		exprAttrValues[":booked"] = &dynamodb.AttributeValue{
-			S: aws.String(string(Booked)),
+			S: aws.String(string(SchedulingStatus_Booked)),
 		}
 		exprAttrNames["#discordMessageId"] = aws.String("discordMessageId")
 		exprAttrValues[":empty"] = &dynamodb.AttributeValue{S: aws.String("")}
 	}
 
-	if event.Type == EventTypeAvailability && event.MaxParticipants == 1 {
+	if event.Type == EventType_Availability && event.MaxParticipants == 1 {
 		exprAttrNames["#time"] = aws.String("bookedStartTime")
 		exprAttrValues[":time"] = &dynamodb.AttributeValue{
 			S: aws.String(startTime),
@@ -472,7 +495,7 @@ func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant)
 		"#owner":  aws.String("owner"),
 	}
 	exprAttrValues := map[string]*dynamodb.AttributeValue{
-		":scheduled":     {S: aws.String(string(Scheduled))},
+		":scheduled":     {S: aws.String(string(SchedulingStatus_Scheduled))},
 		":empty":         {S: aws.String("")},
 		":originalOwner": {S: aws.String(event.Owner)},
 	}
@@ -547,7 +570,7 @@ func (repo *dynamoRepository) ScanEvents(public bool, startKey string) ([]*Event
 
 	if public {
 		input.ExpressionAttributeValues[":availability"] = &dynamodb.AttributeValue{
-			S: aws.String(string(EventTypeAvailability)),
+			S: aws.String(string(EventType_Availability)),
 		}
 		input.ExpressionAttributeNames = map[string]*string{
 			"#type": aws.String("type"),

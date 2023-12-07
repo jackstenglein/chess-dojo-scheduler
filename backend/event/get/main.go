@@ -36,7 +36,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
-	if event.Type == database.EventTypeDojo {
+	if event.Type == database.EventType_Dojo {
 		return api.Success(funcName, &event), nil
 	}
 
