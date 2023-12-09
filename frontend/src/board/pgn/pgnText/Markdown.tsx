@@ -1,5 +1,6 @@
 import { Link, Typography, useTheme } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const allowedElements = [
     'code',
@@ -18,6 +19,7 @@ const allowedElements = [
     'blockquote',
     'strong',
     'em',
+    'del',
 ];
 
 interface MarkdownProps {
@@ -31,6 +33,7 @@ const Markdown: React.FC<MarkdownProps> = ({ text, inline }) => {
     return (
         <ReactMarkdown
             skipHtml
+            remarkPlugins={[remarkGfm]}
             allowedElements={allowedElements}
             components={{
                 code: (props) => <Text inline={inline}>{props.children}</Text>,
