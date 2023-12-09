@@ -240,6 +240,9 @@ type Coaching struct {
 
 	// The current price of the coaching session, in cents. If non-positive, then full price is used instead.
 	CurrentPrice int `dynamodbav:"currentPrice" json:"currentPrice"`
+
+	// Whether the coaching session is bookable by free users.
+	BookableByFreeUsers bool `dynamodbav:"bookableByFreeUsers" json:"bookableByFreeUsers"`
 }
 
 type EventSetter interface {

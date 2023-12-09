@@ -95,6 +95,9 @@ export interface Coaching {
      * fullPrice is used instead.
      */
     currentPrice: number;
+
+    /** Whether the coaching session is bookable by free users. */
+    bookableByFreeUsers: boolean;
 }
 
 export interface Participant {

@@ -1,14 +1,13 @@
 import { Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+
 import { useEvents } from '../api/cache/Cache';
 import { RequestSnackbar } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { Event } from '../database/event';
-
-import GroupMeetingListItem from './GroupMeetingListItem';
 import MeetingListItem from './MeetingListItem';
 
-const ONE_HOUR = 3600000;
+const ONE_HOUR = 3600000 * 24 * 30;
 
 const ListMeetingsPage = () => {
     const user = useAuth().user!;
@@ -57,13 +56,9 @@ const ListMeetingsPage = () => {
                     </>
                 )}
 
-                {meetings.map((e) => {
-                    if (e.maxParticipants === 1) {
-                        return <MeetingListItem key={e.id} meeting={e} />;
-                    }
-
-                    return <GroupMeetingListItem key={e.id} availability={e} />;
-                })}
+                {meetings.map((e) => (
+                    <MeetingListItem key={e.id} meeting={e} />
+                ))}
             </Stack>
         </Container>
     );

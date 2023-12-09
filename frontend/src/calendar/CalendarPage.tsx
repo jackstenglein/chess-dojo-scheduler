@@ -6,7 +6,7 @@ import type { SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
-import EventEditor from './eventEditor.tsx/EventEditor';
+import EventEditor from './eventEditor/EventEditor';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import {
     CalendarFilters,
@@ -14,10 +14,10 @@ import {
     Filters,
     useFilters,
 } from './filters/CalendarFilters';
-import ProcessedEventViewer from './ProcessedEventViewer';
+import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
 import { useEvents } from '../api/cache/Cache';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import { TimeFormat, User } from '../database/user';
+import { SubscriptionStatus, TimeFormat, User } from '../database/user';
 import { Event, EventType, AvailabilityStatus } from '../database/event';
 import CalendarTutorial from './CalendarTutorial';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
@@ -184,6 +184,48 @@ function processLigaTournament(
     };
 }
 
+function processCoachingEvent(
+    user: User,
+    filters: Filters,
+    event: Event
+): ProcessedEvent | null {
+    if (!filters.coaching) {
+        return null;
+    }
+    if (
+        !user.isAdmin &&
+        !user.isCalendarAdmin &&
+        event.cohorts &&
+        event.cohorts.length > 0 &&
+        event.cohorts.every((c) => c !== user.dojoCohort)
+    ) {
+        return null;
+    }
+    if (
+        user.subscriptionStatus === SubscriptionStatus.FreeTier &&
+        !event.coaching?.bookableByFreeUsers
+    ) {
+        return null;
+    }
+
+    const isOwner = event.owner === user.username;
+    const editable =
+        isOwner && Object.values(event.participants).length < event.maxParticipants;
+
+    return {
+        event_id: event.id,
+        title: event.title,
+        start: new Date(event.startTime),
+        end: new Date(event.endTime),
+        color: 'coaching.main',
+        editable,
+        deletable: editable,
+        draggable: editable,
+        isOwner,
+        event,
+    };
+}
+
 function getProcessedEvents(
     user: User,
     filters: Filters,
@@ -200,6 +242,8 @@ function getProcessedEvents(
             processedEvent = processDojoEvent(user, filters, event);
         } else if (event.type === EventType.LigaTournament) {
             processedEvent = processLigaTournament(user, filters, event);
+        } else if (event.type === EventType.Coaching) {
+            processedEvent = processCoachingEvent(user, filters, event);
         }
 
         if (processedEvent !== null) {

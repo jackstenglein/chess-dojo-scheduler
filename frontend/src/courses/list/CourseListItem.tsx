@@ -209,7 +209,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({ course, filters }) => {
     );
 };
 
-function displayPrice(price: number): string {
+export function displayPrice(price: number): string {
     if (price % 1 === 0) {
         return `${price}`;
     }

@@ -119,6 +119,9 @@ export interface Filters {
     setTournamentPositions: React.Dispatch<
         React.SetStateAction<Record<PositionType, boolean>>
     >;
+
+    coaching: boolean;
+    setCoaching: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function useFilters(): Filters {
@@ -173,6 +176,8 @@ export function useFilters(): Filters {
         }, {} as Record<PositionType, boolean>)
     );
 
+    const [coaching, setCoaching] = useState(true);
+
     const result = useMemo(
         () => ({
             timezone,
@@ -199,6 +204,8 @@ export function useFilters(): Filters {
             setTournamentTimeControls,
             tournamentPositions,
             setTournamentPositions,
+            coaching,
+            setCoaching,
         }),
         [
             timezone,
@@ -225,6 +232,8 @@ export function useFilters(): Filters {
             setTournamentTimeControls,
             tournamentPositions,
             setTournamentPositions,
+            coaching,
+            setCoaching,
         ]
     );
 
@@ -369,6 +378,18 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             />
                         }
                         label='Dojo Events'
+                    />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={filters.coaching}
+                                onChange={(event) =>
+                                    filters.setCoaching(event.target.checked)
+                                }
+                                color='coaching'
+                            />
+                        }
+                        label='Coaching Sessions'
                     />
 
                     <Tooltip

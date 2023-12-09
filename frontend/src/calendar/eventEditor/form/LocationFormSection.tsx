@@ -1,21 +1,27 @@
 import { Stack, TextField, Typography } from '@mui/material';
 
 interface LocationFormSectionProps {
+    subtitle: string;
     location: string;
     setLocation: (value: string) => void;
     helperText?: string;
+    required?: boolean;
+    error?: string;
 }
 
 const LocationFormSection: React.FC<LocationFormSectionProps> = ({
+    subtitle,
     location,
     setLocation,
     helperText,
+    required,
+    error,
 }) => {
     return (
         <Stack>
-            <Typography variant='h6'>Location (Optional)</Typography>
+            <Typography variant='h6'>Location {!required && '(Optional)'}</Typography>
             <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 1.5 }}>
-                Add a Zoom link, specify a Discord classroom, etc.
+                {subtitle}
             </Typography>
             <TextField
                 data-cy='location-textfield'
@@ -24,7 +30,8 @@ const LocationFormSection: React.FC<LocationFormSectionProps> = ({
                 variant='outlined'
                 value={location}
                 onChange={(event) => setLocation(event.target.value)}
-                helperText={helperText}
+                helperText={error || helperText}
+                error={Boolean(error)}
             />
         </Stack>
     );

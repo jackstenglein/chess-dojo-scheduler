@@ -39,7 +39,7 @@ func SendGroupJoinNotification(username string, availabilityId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it [here](%s/group/%s)", frontendHost, availabilityId)
+	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it [here](%s/meeting/%s)", frontendHost, availabilityId)
 	return SendNotification(user, msg)
 }
 

@@ -7,7 +7,7 @@ import {
     FormControl,
 } from '@mui/material';
 
-import { dojoCohorts } from '../../database/user';
+import { dojoCohorts } from '../../../database/user';
 
 interface CohortsFormSectionProps {
     description: string;

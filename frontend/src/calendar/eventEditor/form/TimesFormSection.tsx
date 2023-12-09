@@ -1,8 +1,8 @@
 import { Stack, Typography } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { useAuth } from '../../auth/Auth';
-import { TimeFormat } from '../../database/user';
+import { useAuth } from '../../../auth/Auth';
+import { TimeFormat } from '../../../database/user';
 
 interface TimesFormSectionProps {
     description?: string;

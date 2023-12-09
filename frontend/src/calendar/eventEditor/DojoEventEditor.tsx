@@ -1,14 +1,14 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Stack, TextField, Typography } from '@mui/material';
 
 import { UseEventEditorResponse, isValidDate } from './useEventEditor';
-import CohortsFormSection from './CohortsFormSection';
-import TimesFormSection from './TimesFormSection';
-import LocationFormSection from './LocationFormSection';
-import DescriptionFormSection from './DescriptionFormSection';
+import CohortsFormSection from './form/CohortsFormSection';
+import TimesFormSection from './form/TimesFormSection';
+import LocationFormSection from './form/LocationFormSection';
+import DescriptionFormSection from './form/DescriptionFormSection';
 import { User, dojoCohorts } from '../../database/user';
 import { AvailabilityStatus, Event } from '../../database/event';
 import { getTimeZonedDate } from '../displayDate';
+import TitleFormSection from './form/TitleFormSection';
 
 export function validateDojoEventEditor(
     user: User,
@@ -109,21 +109,12 @@ const DojoEventEditor: React.FC<DojoEventEditorProps> = ({ editor }) => {
                 minEnd={null}
             />
 
-            <Stack>
-                <Typography variant='h6'>Event Title</Typography>
-                <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 2 }}>
-                    This title will be used in the calendar and in the Discord events.
-                </Typography>
-                <TextField
-                    fullWidth
-                    label='Title'
-                    variant='outlined'
-                    value={title}
-                    onChange={(event) => setTitle(event.target.value)}
-                    error={!!errors.title}
-                    helperText={errors.title}
-                />
-            </Stack>
+            <TitleFormSection
+                title={title}
+                subtitle='This title will be used in the calendar and in the Discord events.'
+                setTitle={setTitle}
+                error={errors.title}
+            />
 
             <DescriptionFormSection
                 subtitle='This description will be visible in the calendar and the Discord events.'
@@ -135,6 +126,7 @@ const DojoEventEditor: React.FC<DojoEventEditorProps> = ({ editor }) => {
                 location={location}
                 setLocation={setLocation}
                 helperText='Defaults to "No Location Provided" if left blank.'
+                subtitle='Add a Zoom link, specify a Discord classroom, etc.'
             />
 
             <CohortsFormSection

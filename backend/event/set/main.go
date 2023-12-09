@@ -45,53 +45,53 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	if event.Type == database.EventType_Availability {
-		return handleAvailability(info, event)
+		return handleAvailability(info, event), nil
 	} else if event.Type == database.EventType_Dojo {
-		return handleDojoEvent(info, event)
+		return handleDojoEvent(info, event), nil
 	} else if event.Type == database.EventType_Coaching {
-		return handleCoachingEvent(info, event)
+		return handleCoachingEvent(info, event), nil
 	}
 
 	err := errors.New(400, fmt.Sprintf("Invalid request: event type `%s` is not supported", event.Type), "")
 	return api.Failure(funcName, err), nil
 }
 
-func handleAvailability(info *api.UserInfo, event *database.Event) (api.Response, error) {
+func handleAvailability(info *api.UserInfo, event *database.Event) api.Response {
 	if event.Owner != info.Username {
 		err := errors.New(403, "Invalid request: username does not match availability owner", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.Status != database.SchedulingStatus_Scheduled {
 		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.SchedulingStatus_Scheduled), "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.OwnerDisplayName == "" {
 		err := errors.New(400, "Invalid request: ownerDisplayName is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.MaxParticipants < 1 {
 		err := errors.New(400, "Invalid request: maxParticipants must be at least one", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if !database.IsValidCohort(event.OwnerCohort) {
 		err := errors.New(400, fmt.Sprintf("Invalid request: ownerCohort `%s` is invalid", event.OwnerCohort), "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if err := checkTimes(event); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if err := checkAvailabilityTypes(event.Types); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if err := checkCohorts(event.Cohorts); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.Id == "" {
@@ -106,7 +106,7 @@ func handleAvailability(info *api.UserInfo, event *database.Event) (api.Response
 	}
 
 	if err := repository.SetEvent(event); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if msgId, err := discord.SendAvailabilityNotification(event); err != nil {
@@ -121,35 +121,35 @@ func handleAvailability(info *api.UserInfo, event *database.Event) (api.Response
 		}
 	}
 
-	return api.Success(funcName, event), nil
+	return api.Success(funcName, event)
 }
 
-func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, error) {
+func handleDojoEvent(info *api.UserInfo, event *database.Event) api.Response {
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 	if !user.IsAdmin && !user.IsCalendarAdmin {
 		err := errors.New(403, "You do not have permission to create Dojo events", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.Title == "" {
 		err := errors.New(400, "Invalid request: title is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.Status != database.SchedulingStatus_Scheduled {
 		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.SchedulingStatus_Scheduled), "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if err := checkTimes(event); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if err := checkCohorts(event.Cohorts); len(event.Cohorts) > 0 && err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.Id == "" {
@@ -174,7 +174,7 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 	}
 
 	if err := repository.SetEvent(event); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if privateEventId, publicEventId, err := discord.SetEvent(event); err != nil {
@@ -189,52 +189,66 @@ func handleDojoEvent(info *api.UserInfo, event *database.Event) (api.Response, e
 		}
 	}
 
-	return api.Success(funcName, event), nil
+	return api.Success(funcName, event)
 }
 
-func handleCoachingEvent(info *api.UserInfo, event *database.Event) (api.Response, error) {
+func handleCoachingEvent(info *api.UserInfo, event *database.Event) api.Response {
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if !user.IsCoach {
 		err := errors.New(403, "You must be a coach to create Coaching events", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 	if user.CoachInfo == nil || !user.CoachInfo.OnboardingComplete || user.CoachInfo.StripeId == "" {
-		err := errors.New(400, "Invalid request: you must complete stripe onboarding before creating coaching sessions", "")
-		return api.Failure(funcName, err), nil
+		err := errors.New(400, "Invalid request: you must complete coach onboarding before creating coaching sessions", "")
+		return api.Failure(funcName, err)
+	}
+
+	if strings.TrimSpace(event.Title) == "" {
+		err := errors.New(400, "Invalid request: title cannot be empty", "")
+		return api.Failure(funcName, err)
+	}
+	if strings.TrimSpace(event.Description) == "" {
+		err := errors.New(400, "Invalid request: description cannot be empty", "")
+		return api.Failure(funcName, err)
+	}
+	if strings.TrimSpace(event.Location) == "" {
+		err := errors.New(400, "Invalid request: location cannot be empty", "")
+		return api.Failure(funcName, err)
 	}
 
 	if event.Status != database.SchedulingStatus_Scheduled {
 		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.SchedulingStatus_Scheduled), "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.MaxParticipants < 1 {
 		err := errors.New(400, "Invalid request: maxParticipants must be at least one", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if err := checkTimes(event); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if err := checkCohorts(event.Cohorts); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
 	if event.Coaching == nil || event.Coaching.FullPrice < 500 || (event.Coaching.CurrentPrice > 0 && event.Coaching.CurrentPrice < 500) {
 		err := errors.New(400, "Invalid request: coaching sessions must be at least $5", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
+	}
+	if event.Coaching.CurrentPrice > event.Coaching.FullPrice {
+		err := errors.New(400, "Invalid request: currentPrice must be less than fullPrice", "")
+		return api.Failure(funcName, err)
 	}
 
 	if event.Id == "" {
 		event.Id = uuid.NewString()
-	}
-	if strings.TrimSpace(event.Location) == "" {
-		event.Location = "Discord"
 	}
 
 	event.Owner = user.Username
@@ -247,10 +261,10 @@ func handleCoachingEvent(info *api.UserInfo, event *database.Event) (api.Respons
 	event.Coaching.StripeId = user.CoachInfo.StripeId
 
 	if err := repository.SetEvent(event); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(funcName, err)
 	}
 
-	return api.Success(funcName, event), nil
+	return api.Success(funcName, event)
 }
 
 func checkAvailabilityTypes(types []database.AvailabilityType) error {

@@ -150,6 +150,15 @@ export interface UseEventEditorResponse {
      */
     setCurrentPrice: (currentPrice: string) => void;
 
+    /** Whether the Event is bookable by free users. */
+    bookableByFreeUsers: boolean;
+
+    /**
+     * Sets whether the Event is bookable by free users.
+     * @param value Whether the Event is bookable by free users.
+     */
+    setBookableByFreeUsers: (value: boolean) => void;
+
     /** A map of errors in the form. */
     errors: Record<string, string>;
 
@@ -225,8 +234,19 @@ export default function useEventEditor(
         [setCohorts]
     );
 
-    const [fullPrice, setFullPrice] = useState('');
-    const [currentPrice, setCurrentPrice] = useState('');
+    const [fullPrice, setFullPrice] = useState(
+        initialEvent?.coaching?.fullPrice
+            ? `${initialEvent.coaching.fullPrice / 100}`
+            : ''
+    );
+    const [currentPrice, setCurrentPrice] = useState(
+        initialEvent?.coaching?.currentPrice
+            ? `${initialEvent.coaching.currentPrice / 100}`
+            : ''
+    );
+    const [bookableByFreeUsers, setBookableByFreeUsers] = useState(
+        initialEvent?.coaching?.bookableByFreeUsers || false
+    );
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -329,6 +349,8 @@ export default function useEventEditor(
         setFullPrice,
         currentPrice,
         setCurrentPrice,
+        bookableByFreeUsers,
+        setBookableByFreeUsers,
 
         errors,
         setErrors,

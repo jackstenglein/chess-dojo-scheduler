@@ -3,7 +3,7 @@ import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { Grid } from '@mui/material';
 
-import ProcessedEventViewer from '../calendar/ProcessedEventViewer';
+import ProcessedEventViewer from '../calendar/eventViewer/ProcessedEventViewer';
 import {
     DefaultTimezone,
     useFilters,

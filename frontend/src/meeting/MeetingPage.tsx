@@ -1,4 +1,4 @@
-import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     Container,
     Stack,
@@ -6,22 +6,24 @@ import {
     CardHeader,
     CardContent,
     Typography,
-    Link,
     Button,
 } from '@mui/material';
 
 import { Event, getDisplayString } from '../database/event';
-import GraduationIcon from '../scoreboard/GraduationIcon';
 import { useCache } from '../api/cache/Cache';
 import LoadingPage from '../loading/LoadingPage';
 import { useAuth } from '../auth/Auth';
-import Avatar from '../profile/Avatar';
 import NotFoundPage from '../NotFoundPage';
 import CancelMeetingButton from './CancelMeetingButton';
 import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
+import Field from '../calendar/eventViewer/Field';
+import ParticipantsList from '../calendar/eventViewer/ParticipantsList';
+import { dojoCohorts } from '../database/user';
 
-const ownerCancelDialog =
+const soloMeetingOwnerCancelDialog =
     'Ownership of this meeting will be transferred to your opponent and other users will be able to book the meeting.';
+const groupMeetingOwnerCancelDialog =
+    'Ownership of this meeting will be transferred to one of the participants, and you may not be able to re-join it later if other users book it.';
 const participantCancelDialog =
     'This will allow the meeting to be booked by other users and you may not be able to re-book it.';
 
@@ -55,9 +57,10 @@ const MeetingPage = () => {
     const startDate = toDojoDateString(start, user.timezoneOverride);
     const startTime = toDojoTimeString(start, user.timezoneOverride, user.timeFormat);
 
-    let opponent = Object.values(meeting.participants)[0];
+    const end = new Date(meeting.endTime);
+    const endTime = toDojoTimeString(end, user.timezoneOverride, user.timeFormat);
 
-    if (!opponent) {
+    if (Object.values(meeting.participants).length === 0) {
         return (
             <Container maxWidth='md' sx={{ py: 4 }}>
                 <Typography>This meeting has not been booked yet.</Typography>
@@ -72,13 +75,18 @@ const MeetingPage = () => {
         );
     }
 
-    if (opponent.username === user.username) {
-        opponent = {
-            username: meeting.owner,
-            displayName: meeting.ownerDisplayName,
-            cohort: meeting.ownerCohort,
-            previousCohort: meeting.ownerPreviousCohort,
-        };
+    const isSolo = meeting.maxParticipants === 1;
+
+    let cancelDialogTitle = 'Cancel this meeting?';
+    let cancelDialogContent = participantCancelDialog;
+
+    if (isSolo && meeting.owner === user.username) {
+        cancelDialogContent = soloMeetingOwnerCancelDialog;
+    } else if (!isSolo) {
+        cancelDialogTitle = 'Leave this meeting?';
+        if (meeting.owner === user.username) {
+            cancelDialogContent = groupMeetingOwnerCancelDialog;
+        }
     }
 
     return (
@@ -86,60 +94,24 @@ const MeetingPage = () => {
             <Stack spacing={4}>
                 <Card variant='outlined'>
                     <CardHeader
-                        title={
-                            <Stack
-                                direction='row'
-                                justifyContent='space-between'
-                                flexWrap='wrap'
-                                rowGap={1}
+                        title='Meeting Details'
+                        action={
+                            <CancelMeetingButton
+                                meetingId={meeting.id}
+                                dialogTitle={cancelDialogTitle}
+                                dialogContent={cancelDialogContent}
+                                onSuccess={onCancel}
                             >
-                                <Typography variant='h5' mr={1}>
-                                    Meeting Details
-                                </Typography>
-
-                                <CancelMeetingButton
-                                    meetingId={meeting.id}
-                                    dialogTitle='Cancel this meeting?'
-                                    dialogContent={
-                                        meeting.owner === user.username
-                                            ? ownerCancelDialog
-                                            : participantCancelDialog
-                                    }
-                                    onSuccess={onCancel}
-                                >
-                                    Cancel Meeting
-                                </CancelMeetingButton>
-                            </Stack>
+                                {isSolo ? 'Cancel' : 'Leave'} Meeting
+                            </CancelMeetingButton>
                         }
                     />
                     <CardContent>
                         <Stack spacing={3}>
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Start Time
-                                </Typography>
-                                <Typography variant='body1'>
-                                    {startDate} {startTime}
-                                </Typography>
-                            </Stack>
-
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Meeting Type
-                                </Typography>
-                                <Typography variant='body1'>
-                                    {getDisplayString(meeting.bookedType)}
-                                </Typography>
-                            </Stack>
-
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Location
-                                </Typography>
-                                <Typography variant='body1'>
-                                    {meeting.location || 'Discord'}
-                                </Typography>
-                            </Stack>
+                            <Field
+                                title='Time'
+                                body={`${startDate} ${startTime} - ${endTime}`}
+                            />
 
                             {meeting.description && (
                                 <Stack>
@@ -157,29 +129,41 @@ const MeetingPage = () => {
                                     </Typography>
                                 </Stack>
                             )}
+
+                            <Field
+                                title='Location'
+                                body={meeting.location || 'Discord'}
+                            />
+
+                            <Field
+                                title='Meeting Type(s)'
+                                body={
+                                    meeting.bookedType
+                                        ? getDisplayString(meeting.bookedType)
+                                        : meeting.types
+                                              .map((t) => getDisplayString(t))
+                                              .join(', ')
+                                }
+                            />
+
+                            {!isSolo && (
+                                <Field
+                                    title='Cohorts'
+                                    body={
+                                        meeting.cohorts.length === dojoCohorts.length
+                                            ? 'All Cohorts'
+                                            : meeting.cohorts.join(', ')
+                                    }
+                                />
+                            )}
                         </Stack>
                     </CardContent>
                 </Card>
 
                 <Card variant='outlined'>
-                    <CardHeader title='Opponent' />
+                    <CardHeader title='Participants' />
                     <CardContent>
-                        <Stack direction='row' spacing={1} alignItems='center'>
-                            <Avatar
-                                username={opponent.username}
-                                displayName={opponent.displayName}
-                                size={25}
-                            />
-                            <Link
-                                component={RouterLink}
-                                to={`/profile/${opponent.username}`}
-                            >
-                                <Typography variant='body1'>
-                                    {opponent.displayName} ({opponent.cohort})
-                                </Typography>
-                            </Link>
-                            <GraduationIcon cohort={opponent.previousCohort} size={22} />
-                        </Stack>
+                        <ParticipantsList event={meeting} />
                     </CardContent>
                 </Card>
             </Stack>

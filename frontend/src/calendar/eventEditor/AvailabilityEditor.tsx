@@ -1,7 +1,6 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import {
     Stack,
-    TextField,
     FormControlLabel,
     Checkbox,
     FormHelperText,
@@ -17,12 +16,13 @@ import {
     getDisplayString,
 } from '../../database/event';
 import { UseEventEditorResponse, getMinEnd, isValidDate } from './useEventEditor';
-import CohortsFormSection from './CohortsFormSection';
-import TimesFormSection from './TimesFormSection';
-import LocationFormSection from './LocationFormSection';
-import DescriptionFormSection from './DescriptionFormSection';
+import CohortsFormSection from './form/CohortsFormSection';
+import TimesFormSection from './form/TimesFormSection';
+import LocationFormSection from './form/LocationFormSection';
+import DescriptionFormSection from './form/DescriptionFormSection';
 import { User, dojoCohorts } from '../../database/user';
 import { getTimeZonedDate } from '../displayDate';
+import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
 
 function getDefaultMaxParticipants(
     allAvailabilityTypes: boolean,
@@ -86,9 +86,15 @@ export function validateAvailabilityEditor(
         editor.availabilityTypes
     );
     if (editor.maxParticipants !== '') {
-        maxParticipants = parseInt(editor.maxParticipants);
-        if (isNaN(maxParticipants)) {
-            errors.maxParticipants = 'You must specify a number';
+        maxParticipants = parseFloat(editor.maxParticipants);
+        if (
+            isNaN(maxParticipants) ||
+            !Number.isInteger(maxParticipants) ||
+            maxParticipants < 1
+        ) {
+            errors.maxParticipants = 'You must specify an integer greater than 0';
+        } else {
+            maxParticipants = Math.round(maxParticipants);
         }
     }
 
@@ -189,6 +195,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                 location={location}
                 setLocation={setLocation}
                 helperText='Defaults to "Discord" if left blank.'
+                subtitle='Add a Zoom link, specify a Discord classroom, etc.'
             />
 
             <DescriptionFormSection
@@ -241,26 +248,12 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                 </FormControl>
             </Stack>
 
-            <Stack>
-                <Typography variant='h6'>Max Participants</Typography>
-                <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 1.5 }}>
-                    The number of people that can book your availability (not including
-                    yourself).
-                </Typography>
-                <TextField
-                    data-cy='participants-textfield'
-                    fullWidth
-                    label='Max Participants'
-                    variant='outlined'
-                    value={maxParticipants}
-                    inputProps={{
-                        inputMode: 'numeric',
-                        pattern: '[0-9]*',
-                    }}
-                    onChange={(event) => setMaxParticipants(event.target.value)}
-                    helperText={`Defaults to ${defaultMaxParticipants} if left blank.`}
-                />
-            </Stack>
+            <MaxParticipantsFormSection
+                maxParticipants={maxParticipants}
+                setMaxParticipants={setMaxParticipants}
+                subtitle='The number of people that can book your availability (not including yourself).'
+                helperText={`Defaults to ${defaultMaxParticipants} if left blank.`}
+            />
 
             <CohortsFormSection
                 description='Choose the cohorts that can book your availability.'

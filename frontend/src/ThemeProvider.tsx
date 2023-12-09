@@ -4,6 +4,7 @@ import { createTheme } from '@mui/material/styles';
 import { CssBaseline, PaletteMode } from '@mui/material';
 
 import { useAuth } from './auth/Auth';
+import { deepPurple } from '@mui/material/colors';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -11,12 +12,14 @@ declare module '@mui/material/styles' {
         endgame: Palette['primary'];
         dojoOrange: Palette['primary'];
         subscribe: Palette['primary'];
+        coaching: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
         endgame?: Palette['primary'];
         dojoOrange?: PaletteOptions['primary'];
         subscribe?: PaletteOptions['primary'];
+        coaching?: PaletteOptions['primary'];
     }
 }
 
@@ -29,6 +32,7 @@ declare module '@mui/material' {
     interface CheckboxPropsColorOverrides {
         opening: true;
         endgame: true;
+        coaching: true;
     }
 
     interface ButtonPropsColorOverrides {
@@ -97,6 +101,12 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
                             main: '#1565c0',
                         },
                         name: 'subscribe',
+                    }),
+                    coaching: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: deepPurple[400],
+                        },
+                        name: 'coaching',
                     }),
                 },
             }),

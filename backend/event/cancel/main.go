@@ -103,7 +103,7 @@ func sendNotification(event, newEvent *database.Event) {
 		url := fmt.Sprintf("%s/calendar", frontendHost)
 		msg += fmt.Sprintf(noParticipantsSuffix, url)
 	} else {
-		url := fmt.Sprintf("%s/group/%s", frontendHost, newEvent.Id)
+		url := fmt.Sprintf("%s/meeting/%s", frontendHost, newEvent.Id)
 		msg += fmt.Sprintf(withParticipantsSuffix, len(newEvent.Participants), url)
 	}
 

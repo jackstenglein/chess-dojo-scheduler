@@ -4,14 +4,12 @@ import {
     CardActionArea,
     CardContent,
     CardHeader,
-    Chip,
     Typography,
     Link,
     Stack,
 } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
-import { Event, AvailabilityStatus, getDisplayString } from '../database/event';
+import { Event, getDisplayString } from '../database/event';
 import { useAuth } from '../auth/Auth';
 import React from 'react';
 import Avatar from '../profile/Avatar';
@@ -51,7 +49,11 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
         <Card variant='outlined' sx={{ width: 1 }}>
             <CardActionArea onClick={onClick}>
                 <CardHeader
-                    title={getDisplayString(meeting.bookedType)}
+                    title={
+                        meeting.maxParticipants > 1
+                            ? 'Group Meeting'
+                            : getDisplayString(meeting.bookedType)
+                    }
                     subheader={`${toDojoDateString(
                         start,
                         user.timezoneOverride
@@ -63,30 +65,28 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
                     sx={{ pb: 0 }}
                 />
                 <CardContent sx={{ pt: 0, mt: 1 }}>
-                    {meeting.status === AvailabilityStatus.Canceled && (
-                        <Chip
-                            color='error'
-                            label='Canceled'
-                            icon={<ErrorOutlineIcon />}
-                        />
+                    {meeting.maxParticipants > 1 ? (
+                        <Typography variant='subtitle1' color='text.secondary'>
+                            {Object.values(meeting.participants).length + 1} participants
+                        </Typography>
+                    ) : (
+                        <Stack direction='row' spacing={1} alignItems='center'>
+                            <Avatar
+                                username={opponent.username}
+                                displayName={opponent.displayName}
+                                size={25}
+                            />
+                            <Link
+                                component={RouterLink}
+                                to={`/profile/${opponent.username}`}
+                                onClick={onClickOpponent}
+                            >
+                                <Typography variant='subtitle1'>
+                                    {opponent.displayName} ({opponent.cohort})
+                                </Typography>
+                            </Link>
+                        </Stack>
                     )}
-
-                    <Stack direction='row' spacing={1} alignItems='center'>
-                        <Avatar
-                            username={opponent.username}
-                            displayName={opponent.displayName}
-                            size={25}
-                        />
-                        <Link
-                            component={RouterLink}
-                            to={`/profile/${opponent.username}`}
-                            onClick={onClickOpponent}
-                        >
-                            <Typography variant='subtitle1'>
-                                {opponent.displayName} ({opponent.cohort})
-                            </Typography>
-                        </Link>
-                    </Stack>
                 </CardContent>
             </CardActionArea>
         </Card>

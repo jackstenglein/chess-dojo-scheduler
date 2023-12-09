@@ -27,6 +27,7 @@ import { trackEvent, EventType as AnalyticsEventType } from '../../analytics/eve
 import useEventEditor from './useEventEditor';
 import AvailabilityEditor, { validateAvailabilityEditor } from './AvailabilityEditor';
 import DojoEventEditor, { validateDojoEventEditor } from './DojoEventEditor';
+import CoachingEditor, { validateCoachingEditor } from './CoachingEditor';
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -68,6 +69,8 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                 break;
 
             case EventType.Coaching:
+                [event, errors] = validateCoachingEditor(user, originalEvent, editor);
+                break;
         }
 
         editor.setErrors(errors);
@@ -159,7 +162,6 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                             <Typography variant='h6'>Event Type</Typography>
                             <FormControl>
                                 <RadioGroup
-                                    row
                                     value={editor.type}
                                     onChange={(e) =>
                                         editor.setType(e.target.value as EventType)
@@ -194,6 +196,9 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                     )}
                     {editor.type === EventType.Dojo && (
                         <DojoEventEditor editor={editor} />
+                    )}
+                    {editor.type === EventType.Coaching && (
+                        <CoachingEditor editor={editor} />
                     )}
                 </Stack>
             </DialogContent>

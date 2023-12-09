@@ -3,11 +3,11 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import AvailabilityViewer from './AvailabilityViewer';
 import MeetingViewer from './MeetingViewer';
-import GroupViewer from './GroupViewer';
-import { Event, EventType } from '../database/event';
-import { useAuth } from '../auth/Auth';
+import { Event, EventType } from '../../database/event';
+import { useAuth } from '../../auth/Auth';
 import DojoEventViewer from './DojoEventViewer';
 import LigaTournamentViewer from './LigaTournamentViewer';
+import CoachingViewer from './CoachingViewer';
 
 interface ProcessedEventViewerProps {
     processedEvent: ProcessedEvent;
@@ -30,14 +30,13 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({
         ) {
             return <AvailabilityViewer processedEvent={processedEvent} />;
         }
-        if (event.maxParticipants === 1) {
-            return <MeetingViewer processedEvent={processedEvent} />;
-        }
-        return <GroupViewer processedEvent={processedEvent} />;
+        return <MeetingViewer processedEvent={processedEvent} />;
     } else if (event.type === EventType.Dojo) {
         return <DojoEventViewer processedEvent={processedEvent} />;
     } else if (event.type === EventType.LigaTournament) {
         return <LigaTournamentViewer processedEvent={processedEvent} />;
+    } else if (event.type === EventType.Coaching) {
+        return <CoachingViewer processedEvent={processedEvent} />;
     }
 
     return null;

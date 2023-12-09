@@ -169,7 +169,7 @@ func CoachingCheckoutSession(user *database.User, event *database.Event) (*strip
 	if event.Coaching.CurrentPrice > 0 {
 		price = event.Coaching.CurrentPrice
 	}
-	fee := price / 20
+	fee := price / 5
 
 	expiration := time.Now().Add(31 * time.Minute).Unix()
 

@@ -6,6 +6,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { Course, CoursePurchaseOption } from '../../database/course';
 import { useApi } from '../../api/Api';
 import { useRequest } from '../../api/Request';
+import { displayPrice } from '../list/CourseListItem';
 
 interface PurchaseOptionProps {
     course: Course;
@@ -102,12 +103,5 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({ course, purchaseOption 
         </Card>
     );
 };
-
-function displayPrice(price: number): string {
-    if (price % 1 === 0) {
-        return `${price}`;
-    }
-    return price.toFixed(2);
-}
 
 export default PurchaseOption;

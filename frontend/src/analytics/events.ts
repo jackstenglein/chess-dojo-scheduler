@@ -31,6 +31,7 @@ export enum EventType {
     // Calendar actions
     SetAvailability = 'set_availability',
     BookAvailability = 'book_availability',
+    BookCoaching = 'book_coaching',
     CancelMeeting = 'cancel_meeting',
 
     // Material actions
