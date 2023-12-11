@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService/secrets"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/webhook"
@@ -15,6 +17,7 @@ import (
 
 const funcName = "payment-connect-webhook"
 
+var repository database.UserUpdater = database.DynamoDB
 var endpointSecret = ""
 
 func init() {
@@ -68,5 +71,33 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 // Responds to Stripe account.updated events.
 func handleAccountUpdated(event *stripe.Event) api.Response {
+	var account stripe.Account
+	if err := json.Unmarshal(event.Data.Raw, &account); err != nil {
+		err = errors.Wrap(400, "Invalid request: unable to unmarshal event data", "", err)
+		return api.Failure(funcName, err)
+	}
+
+	username := account.Metadata["username"]
+	if username == "" {
+		err := errors.New(400, "Invalid request: account does not have username metadata", "")
+		return api.Failure(funcName, err)
+	}
+
+	onboardingComplete := account.DetailsSubmitted &&
+		account.ChargesEnabled &&
+		account.PayoutsEnabled &&
+		account.Capabilities != nil &&
+		account.Capabilities.Transfers == stripe.AccountCapabilityStatusActive
+
+	update := database.UserUpdate{
+		CoachInfo: &database.CoachInfo{
+			StripeId:           account.ID,
+			OnboardingComplete: onboardingComplete,
+		},
+	}
+	if _, err := repository.UpdateUser(username, &update); err != nil {
+		return api.Failure(funcName, err)
+	}
+
 	return api.Success(funcName, nil)
 }

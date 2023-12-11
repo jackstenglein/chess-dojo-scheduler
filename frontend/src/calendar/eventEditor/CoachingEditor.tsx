@@ -176,8 +176,9 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                     </Button>
                 }
             >
-                You cannot create coaching sessions until you have completed your
-                onboarding in the coach portal.
+                Your coach account has missing or outdated information. You cannot create
+                coaching sessions until you have updated your information in the coach
+                portal.
             </Alert>
         );
     }

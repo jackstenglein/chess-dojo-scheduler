@@ -203,7 +203,7 @@ func handleCoachingEvent(info *api.UserInfo, event *database.Event) api.Response
 		return api.Failure(funcName, err)
 	}
 	if user.CoachInfo == nil || !user.CoachInfo.OnboardingComplete || user.CoachInfo.StripeId == "" {
-		err := errors.New(400, "Invalid request: you must complete coach onboarding before creating coaching sessions", "")
+		err := errors.New(400, "Invalid request: your coach account must be updated in the coach portal", "")
 		return api.Failure(funcName, err)
 	}
 

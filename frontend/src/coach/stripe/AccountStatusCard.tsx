@@ -71,6 +71,7 @@ const AccountStatusCard: React.FC<AccountStatusCardProps> = ({ account }) => {
         !account.details_submitted ||
         !account.charges_enabled ||
         !account.payouts_enabled ||
+        !account.capabilities.transfers ||
         !account.capabilities.tax_reporting_us_1099_k;
 
     return (
