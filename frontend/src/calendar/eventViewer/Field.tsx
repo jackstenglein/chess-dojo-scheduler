@@ -1,8 +1,8 @@
 import { Stack, Typography } from '@mui/material';
 
 interface FieldProps {
-    title: string;
-    body: string;
+    title?: string;
+    body?: string;
 }
 
 const Field: React.FC<FieldProps> = ({ title, body }) => {

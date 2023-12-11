@@ -15,7 +15,7 @@ export interface Event {
     title: string;
     startTime: string;
     endTime: string;
-    types: AvailabilityType[];
+    types?: AvailabilityType[];
     bookedStartTime: string;
     bookedType: AvailabilityType;
     cohorts: string[];

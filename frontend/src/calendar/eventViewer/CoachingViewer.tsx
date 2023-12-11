@@ -1,6 +1,7 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { useNavigate } from 'react-router-dom';
 
 import { Event } from '../../database/event';
 import OwnerField from './OwnerField';
@@ -10,6 +11,7 @@ import { displayPrice } from '../../courses/list/CourseListItem';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { EventType, trackEvent } from '../../analytics/events';
+import { useAuth } from '../../auth/Auth';
 
 interface CoachingViewerProps {
     processedEvent: ProcessedEvent;
@@ -18,10 +20,10 @@ interface CoachingViewerProps {
 const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
     const api = useApi();
     const request = useRequest();
+    const user = useAuth().user;
+    const navigate = useNavigate();
 
     const event: Event = processedEvent.event;
-    const isOwner: boolean = processedEvent.isOwner;
-
     if (!event.coaching) {
         return null;
     }
@@ -44,9 +46,12 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
             });
     };
 
+    const isOwner: boolean = processedEvent.isOwner;
+    const isParticipant = Boolean(event.participants[user?.username || '']);
     const fullPrice = event.coaching.fullPrice;
     const currentPrice = event.coaching.currentPrice;
-    const percentOff = Math.round(((fullPrice - currentPrice) / fullPrice) * 100);
+    const percentOff =
+        currentPrice > 0 ? Math.round(((fullPrice - currentPrice) / fullPrice) * 100) : 0;
 
     return (
         <Stack data-cy='coaching-viewer' sx={{ pt: 2 }} spacing={2}>
@@ -79,32 +84,44 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                 <Typography variant='subtitle2' color='text.secondary'>
                     Price
                 </Typography>
-                <Stack direction='row' spacing={1} alignItems='baseline'>
-                    <Typography
-                        variant='body1'
-                        sx={{
-                            color: percentOff > 0 ? 'error.main' : undefined,
-                            textDecoration: percentOff > 0 ? 'line-through' : undefined,
-                        }}
-                    >
-                        ${displayPrice(fullPrice / 100)}
-                    </Typography>
+                {isParticipant ? (
+                    <Typography>Already Booked</Typography>
+                ) : (
+                    <Stack direction='row' spacing={1} alignItems='baseline'>
+                        <Typography
+                            variant='body1'
+                            sx={{
+                                color: percentOff > 0 ? 'error.main' : undefined,
+                                textDecoration:
+                                    percentOff > 0 ? 'line-through' : undefined,
+                            }}
+                        >
+                            ${displayPrice(fullPrice / 100)}
+                        </Typography>
 
-                    {percentOff > 0 && (
-                        <>
-                            <Typography variant='body1' color='success.main'>
-                                ${displayPrice(currentPrice / 100)}
-                            </Typography>
+                        {percentOff > 0 && (
+                            <>
+                                <Typography variant='body1' color='success.main'>
+                                    ${displayPrice(currentPrice / 100)}
+                                </Typography>
 
-                            <Typography variant='body2' color='text.secondary'>
-                                (-{percentOff}%)
-                            </Typography>
-                        </>
-                    )}
-                </Stack>
+                                <Typography variant='body2' color='text.secondary'>
+                                    (-{percentOff}%)
+                                </Typography>
+                            </>
+                        )}
+                    </Stack>
+                )}
             </Stack>
 
-            {!isOwner && (
+            {isOwner || isParticipant ? (
+                <Button
+                    variant='contained'
+                    onClick={() => navigate(`/meeting/${event.id}`)}
+                >
+                    View Details
+                </Button>
+            ) : (
                 <Stack spacing={2} pb={1}>
                     <LoadingButton
                         data-cy='book-button'

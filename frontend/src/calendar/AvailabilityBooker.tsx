@@ -35,6 +35,8 @@ import Avatar from '../profile/Avatar';
 import { useAuth } from '../auth/Auth';
 import { TimeFormat } from '../database/user';
 import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from './displayDate';
+import Field from './eventViewer/Field';
+import OwnerField from './eventViewer/OwnerField';
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -221,49 +223,12 @@ const AvailabilityBooker = () => {
             </AppBar>
             <DialogContent>
                 <Stack sx={{ pt: 2 }} spacing={3}>
-                    <Stack>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                            {isGroup ? 'Time' : 'Available Start Times'}
-                        </Typography>
-                        <Typography variant='body1'>
-                            {minStartDate} {minStartStr} - {maxStartStr}
-                        </Typography>
-                    </Stack>
-
-                    <Stack>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                            Owner
-                        </Typography>
-                        <Stack direction='row' spacing={1} alignItems='center'>
-                            <Avatar
-                                username={availability.owner}
-                                displayName={availability.ownerDisplayName}
-                                size={25}
-                            />
-                            <Link
-                                component={RouterLink}
-                                to={`/profile/${availability.owner}`}
-                            >
-                                <Typography variant='body1'>
-                                    {availability.ownerDisplayName} (
-                                    {availability.ownerCohort})
-                                </Typography>
-                            </Link>
-                            <GraduationIcon
-                                cohort={availability.ownerPreviousCohort}
-                                size={22}
-                            />
-                        </Stack>
-                    </Stack>
-
-                    <Stack>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                            Location
-                        </Typography>
-                        <Typography variant='body1'>
-                            {availability.location || 'Discord'}
-                        </Typography>
-                    </Stack>
+                    <Field
+                        title={isGroup ? 'Time' : 'Available Start Times'}
+                        body={`${minStartDate} ${minStartStr} - ${maxStartStr}`}
+                    />
+                    <OwnerField title='Owner' event={availability} />
+                    <Field title='Location' body={availability.location || 'Discord'} />
 
                     {availability.description && (
                         <Stack>
@@ -281,34 +246,21 @@ const AvailabilityBooker = () => {
 
                     {isGroup && (
                         <>
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Meeting Types
-                                </Typography>
-                                <Typography variant='body1'>
-                                    {availability.types
-                                        .map((t) => getDisplayString(t))
-                                        .join(', ')}
-                                </Typography>
-                            </Stack>
+                            <Field
+                                title='Meeting Types'
+                                body={availability.types
+                                    ?.map((t) => getDisplayString(t))
+                                    .join(', ')}
+                            />
 
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Cohorts
-                                </Typography>
-                                <Typography variant='body1'>
-                                    {availability.cohorts.join(', ')}
-                                </Typography>
-                            </Stack>
-
-                            <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Max Participants
-                                </Typography>
-                                <Typography variant='body1'>
-                                    {availability.maxParticipants}
-                                </Typography>
-                            </Stack>
+                            <Field
+                                title='Cohorts'
+                                body={availability.cohorts.join(', ')}
+                            />
+                            <Field
+                                title='Max Participants'
+                                body={`${availability.maxParticipants}`}
+                            />
 
                             <Stack>
                                 <Typography variant='subtitle2' color='text.secondary'>
@@ -362,7 +314,7 @@ const AvailabilityBooker = () => {
                                         )
                                     }
                                 >
-                                    {availability.types.map((t) => (
+                                    {availability.types?.map((t) => (
                                         <FormControlLabel
                                             key={t}
                                             control={

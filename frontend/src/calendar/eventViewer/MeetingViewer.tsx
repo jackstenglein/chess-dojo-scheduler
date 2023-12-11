@@ -28,7 +28,7 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
             ) : (
                 <Field
                     title='Meeting Types'
-                    body={event.types.map((t) => getDisplayString(t)).join(', ')}
+                    body={event.types?.map((t) => getDisplayString(t)).join(', ') || ''}
                 />
             )}
 

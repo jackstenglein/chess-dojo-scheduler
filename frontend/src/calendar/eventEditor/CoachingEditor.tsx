@@ -208,6 +208,10 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
         errors,
     } = editor;
 
+    const percentOff = Math.round(
+        ((parseFloat(fullPrice) - parseFloat(currentPrice)) / parseFloat(fullPrice)) * 100
+    );
+
     return (
         <>
             <TimesFormSection
@@ -269,7 +273,7 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
 
             <Stack>
                 <Typography variant='h6'>Pricing</Typography>
-                <Stack spacing={3} mt={2}>
+                <Stack spacing={3} mt={2} mb={6}>
                     <TextField
                         fullWidth
                         label='Full Price'
@@ -301,6 +305,10 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                             ),
                         }}
                     />
+
+                    {fullPrice !== '' && currentPrice !== '' && !isNaN(percentOff) && (
+                        <Typography>Percent Off: {percentOff}%</Typography>
+                    )}
                 </Stack>
             </Stack>
         </>

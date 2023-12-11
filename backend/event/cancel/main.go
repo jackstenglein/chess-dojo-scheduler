@@ -49,6 +49,10 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(funcName, err), nil
 	}
 
+	if event.Type == database.EventType_Coaching {
+		return leaveCoachingSession(info.Username, event), nil
+	}
+
 	if event.Type != database.EventType_Availability {
 		err := errors.New(400, "Invalid request: this event type is not supported", "")
 		return api.Failure(funcName, err), nil
@@ -88,6 +92,31 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 
 	sendNotification(event, newEvent)
 	return api.Success(funcName, newEvent), nil
+}
+
+// handles a user leaving a coaching session that they have booked. The user may need a refund
+// depending on whether they have already paid and how far in advance they are canceling.
+func leaveCoachingSession(username string, event *database.Event) api.Response {
+	participant := event.Participants[username]
+	if participant == nil {
+		err := errors.New(403, "Invalid request: user is not a participant in this meeting", "")
+		return api.Failure(funcName, err)
+	}
+
+	var newEvent *database.Event
+	var err error
+
+	if !participant.HasPaid {
+		newEvent, err = repository.LeaveEvent(event, participant)
+		if err != nil {
+			return api.Failure(funcName, err)
+		}
+	} else {
+		return api.Failure(funcName, errors.New(400, "Invalid request: canceling paid meetings is not implemented yet", ""))
+	}
+
+	sendNotification(event, newEvent)
+	return api.Success(funcName, newEvent)
 }
 
 func sendNotification(event, newEvent *database.Event) {

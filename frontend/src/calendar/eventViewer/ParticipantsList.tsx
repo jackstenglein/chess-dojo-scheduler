@@ -1,16 +1,25 @@
-import { Link, Stack, Typography } from '@mui/material';
+import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
 import Avatar from '../../profile/Avatar';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 import { Event } from '../../database/event';
+import { useAuth } from '../../auth/Auth';
+import { Warning } from '@mui/icons-material';
 
 interface ParticipantsListProps {
     event: Event;
     maxItems?: number;
+    showPaymentWarning?: boolean;
 }
 
-const ParticipantsList: React.FC<ParticipantsListProps> = ({ event, maxItems }) => {
+const ParticipantsList: React.FC<ParticipantsListProps> = ({
+    event,
+    maxItems,
+    showPaymentWarning,
+}) => {
+    const user = useAuth().user;
+
     return (
         <Stack spacing={1}>
             <Stack direction='row' spacing={1} alignItems='center'>
@@ -47,6 +56,21 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({ event, maxItems }) 
                             </Typography>
                         </Link>
                         <GraduationIcon cohort={p.previousCohort} size={22} />
+
+                        {showPaymentWarning &&
+                            !p.hasPaid &&
+                            (user?.username === event.owner ||
+                                user?.username === p.username) && (
+                                <Tooltip
+                                    title={
+                                        user.username === event.owner
+                                            ? 'This user has not paid and will lose their booking in <30 min'
+                                            : 'You have not completed payment and will lose your booking soon'
+                                    }
+                                >
+                                    <Warning color='warning' />
+                                </Tooltip>
+                            )}
                     </Stack>
                 ))}
         </Stack>

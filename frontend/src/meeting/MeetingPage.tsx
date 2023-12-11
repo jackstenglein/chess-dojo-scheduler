@@ -7,9 +7,11 @@ import {
     CardContent,
     Typography,
     Button,
+    Tooltip,
+    Alert,
 } from '@mui/material';
 
-import { Event, getDisplayString } from '../database/event';
+import { Event, EventType, getDisplayString } from '../database/event';
 import { useCache } from '../api/cache/Cache';
 import LoadingPage from '../loading/LoadingPage';
 import { useAuth } from '../auth/Auth';
@@ -19,6 +21,10 @@ import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
 import Field from '../calendar/eventViewer/Field';
 import ParticipantsList from '../calendar/eventViewer/ParticipantsList';
 import { dojoCohorts } from '../database/user';
+import { Warning } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { useApi } from '../api/Api';
 
 const soloMeetingOwnerCancelDialog =
     'Ownership of this meeting will be transferred to your opponent and other users will be able to book the meeting.';
@@ -32,6 +38,8 @@ const MeetingPage = () => {
     const cache = useCache();
     const user = useAuth().user!;
     const navigate = useNavigate();
+    const checkoutRequest = useRequest();
+    const api = useApi();
 
     const meeting = cache.events.get(meetingId!);
     if (!meeting) {
@@ -75,26 +83,65 @@ const MeetingPage = () => {
         );
     }
 
+    const isOwner = meeting.owner === user.username;
+    const isCoaching = meeting.type === EventType.Coaching;
     const isSolo = meeting.maxParticipants === 1;
+    const participant = meeting.participants[user.username];
 
     let cancelDialogTitle = 'Cancel this meeting?';
     let cancelDialogContent = participantCancelDialog;
 
-    if (isSolo && meeting.owner === user.username) {
+    if (isSolo && isOwner) {
         cancelDialogContent = soloMeetingOwnerCancelDialog;
     } else if (!isSolo) {
         cancelDialogTitle = 'Leave this meeting?';
-        if (meeting.owner === user.username) {
+        if (isOwner) {
             cancelDialogContent = groupMeetingOwnerCancelDialog;
         }
     }
 
+    const onCompletePayment = () => {
+        checkoutRequest.onStart();
+        api.getEventCheckout(meetingId!)
+            .then((resp) => {
+                window.location.href = resp.data.url;
+            })
+            .catch((err) => {
+                console.error('getEventCheckout: ', err);
+                checkoutRequest.onFailure(err);
+            });
+    };
+
+    console.log('Meeting: ', meeting);
+
     return (
         <Container maxWidth='md' sx={{ py: 4 }}>
+            <RequestSnackbar request={checkoutRequest} />
+
             <Stack spacing={4}>
+                {isCoaching && !isOwner && !participant.hasPaid && (
+                    <Alert
+                        severity='warning'
+                        variant='filled'
+                        action={
+                            <LoadingButton
+                                color='inherit'
+                                size='small'
+                                loading={checkoutRequest.isLoading()}
+                                onClick={onCompletePayment}
+                            >
+                                Complete Payment
+                            </LoadingButton>
+                        }
+                    >
+                        You have not completed payment for this coaching session and will
+                        lose your booking soon.
+                    </Alert>
+                )}
+
                 <Card variant='outlined'>
                     <CardHeader
-                        title='Meeting Details'
+                        title={meeting.title || 'Meeting Details'}
                         action={
                             <CancelMeetingButton
                                 meetingId={meeting.id}
@@ -141,7 +188,7 @@ const MeetingPage = () => {
                                     meeting.bookedType
                                         ? getDisplayString(meeting.bookedType)
                                         : meeting.types
-                                              .map((t) => getDisplayString(t))
+                                              ?.map((t) => getDisplayString(t))
                                               .join(', ')
                                 }
                             />
@@ -161,9 +208,27 @@ const MeetingPage = () => {
                 </Card>
 
                 <Card variant='outlined'>
-                    <CardHeader title='Participants' />
+                    <CardHeader
+                        title={
+                            <Stack direction='row' spacing={2} alignItems='center'>
+                                <Typography variant='h5'>Participants</Typography>
+                                {isCoaching &&
+                                    isOwner &&
+                                    Object.values(meeting.participants).some(
+                                        (p) => !p.hasPaid
+                                    ) && (
+                                        <Tooltip title='Some users have not paid and will lose their booking in ~30 min'>
+                                            <Warning color='warning' />
+                                        </Tooltip>
+                                    )}
+                            </Stack>
+                        }
+                    />
                     <CardContent>
-                        <ParticipantsList event={meeting} />
+                        <ParticipantsList
+                            event={meeting}
+                            showPaymentWarning={isCoaching}
+                        />
                     </CardContent>
                 </Card>
             </Stack>

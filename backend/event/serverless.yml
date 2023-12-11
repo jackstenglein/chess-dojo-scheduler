@@ -56,6 +56,21 @@ functions:
         Resource:
           - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
 
+  checkout:
+    handler: checkout/main.go
+    events:
+      - httpApi:
+          path: /event/{id}/checkout
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:EventsTableArn}
+
   cancel:
     handler: cancel/main.go
     events:

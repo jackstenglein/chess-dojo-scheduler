@@ -24,6 +24,13 @@ export type EventApiContextType = {
     ) => Promise<AxiosResponse<BookEventResponse, any>>;
 
     /**
+     * Returns a Stripe Checkout URL for the given Event. The caller must already be a particpiant of the Event.
+     * @param id The id of the Event to get the Checkout URL for.
+     * @returns The Stripe Checkout URL for the Event.
+     */
+    getEventCheckout: (id: string) => Promise<AxiosResponse<CheckoutEventResponse, any>>;
+
+    /**
      * cancelEvent cancels the Event with the provided id.
      * @param id The Event id to cancel.
      * @returns An AxiosReponse containing the updated Event.
@@ -83,6 +90,24 @@ export function bookEvent(idToken: string, id: string, startTime?: Date, type?: 
         },
         { headers: { Authorization: 'Bearer ' + idToken } }
     );
+}
+
+export interface CheckoutEventResponse {
+    url: string;
+}
+
+/**
+ * Returns a Stripe Checkout URL for the given Event. The caller must already be a particpiant of the Event.
+ * @param idToken The id token of the current signed-in user.
+ * @param id The id of the Event to get the Checkout URL for.
+ * @returns The Stripe Checkout URL for the Event.
+ */
+export function getEventCheckout(idToken: string, id: string) {
+    return axios.get<CheckoutEventResponse>(`${BASE_URL}/event/${id}/checkout`, {
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
 }
 
 /**

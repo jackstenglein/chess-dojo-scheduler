@@ -7,7 +7,7 @@ import { useAuth } from '../auth/Auth';
 import { Event } from '../database/event';
 import MeetingListItem from './MeetingListItem';
 
-const ONE_HOUR = 3600000 * 24 * 30;
+const ONE_HOUR = 3600000;
 
 const ListMeetingsPage = () => {
     const user = useAuth().user!;

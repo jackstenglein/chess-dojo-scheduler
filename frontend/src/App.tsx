@@ -58,6 +58,7 @@ import InfoPage from './tournaments/openClassical/InfoPage';
 import ListCoursesPage from './courses/list/ListCoursesPage';
 import PricingPage from './upsell/PricingPage';
 import CoachPortalPage from './coach/CoachPortalPage';
+import StripeCancelationPage from './meeting/StripeCancelationPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -124,7 +125,10 @@ const router = createBrowserRouter(
                     </Route>
                     <Route path='meeting'>
                         <Route index element={<ListMeetingsPage />} />
-                        <Route path=':meetingId' element={<MeetingPage />} />
+                        <Route path=':meetingId'>
+                            <Route index element={<MeetingPage />} />
+                            <Route path='cancel' element={<StripeCancelationPage />} />
+                        </Route>
                     </Route>
                     <Route path='group/:availabilityId' element={<GroupMeetingPage />} />
                     <Route path='games'>

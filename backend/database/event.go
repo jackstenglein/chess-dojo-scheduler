@@ -479,6 +479,49 @@ func (repo *dynamoRepository) BookEvent(event *Event, user *User, startTime stri
 	return &e, nil
 }
 
+// Updates the given event so that the participant with the given username is marked as paid. The participant's
+// hasPaid attribute is set to true and their checkoutSession is set to the provided checkoutSession.
+func (repo *dynamoRepository) MarkParticipantPaid(eventId, participant string, checkoutSession *stripe.CheckoutSession) (*Event, error) {
+	checkout, err := dynamodbattribute.MarshalMap(checkoutSession)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal checkout session", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(eventId)},
+		},
+		ConditionExpression: aws.String("attribute_exists(id) AND attribute_exists(#p.#u)"),
+		UpdateExpression:    aws.String("SET #p.#u.#hasPaid = :true, #p.#u.#checkout = :checkout"),
+		ExpressionAttributeNames: map[string]*string{
+			"#p":        aws.String("participants"),
+			"#u":        aws.String(participant),
+			"#hasPaid":  aws.String("hasPaid"),
+			"#checkout": aws.String("checkoutSession"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":true":     {BOOL: aws.Bool(true)},
+			":checkout": {M: checkout},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(eventTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: event no longer exists or participant does not exist", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+
+	e := Event{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &e); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &e, nil
+}
+
 // LeaveEvent leaves the event for the given participants. If participant is nil,
 // then the person leaving is the owner. In that case, the first participant is made
 // the new owner. The updated event is returned.

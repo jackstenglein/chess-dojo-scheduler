@@ -95,7 +95,7 @@ function processAvailability(
         return null;
     }
 
-    if (!filters.allTypes && event.types.every((t) => !filters.types[t])) {
+    if (!filters.allTypes && event.types?.every((t) => !filters.types[t])) {
         return null;
     }
 

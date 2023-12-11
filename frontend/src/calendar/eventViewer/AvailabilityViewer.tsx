@@ -38,7 +38,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
             <Field
                 title='Available Types'
                 body={event.types
-                    .map((t: AvailabilityType) => getDisplayString(t))
+                    ?.map((t: AvailabilityType) => getDisplayString(t))
                     .join(', ')}
             />
 

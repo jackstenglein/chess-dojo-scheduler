@@ -11,9 +11,10 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService/secrets"
-	stripe "github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/webhook"
+	stripe "github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/webhook"
 )
 
 var repository = database.DynamoDB
@@ -63,6 +64,9 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	case "checkout.session.completed":
 		return handleCheckoutSessionCompleted(&stripeEvent), nil
 
+	case "checkout.session.expired":
+		return handleCheckoutSessionExpired(&stripeEvent), nil
+
 	case "customer.subscription.deleted":
 		return handleSubscriptionDeletion(&stripeEvent), nil
 
@@ -86,10 +90,12 @@ func handleCheckoutSessionCompleted(event *stripe.Event) api.Response {
 
 	checkoutType := checkoutSession.Metadata["type"]
 	switch checkoutType {
-	case "COURSE":
+	case string(payment.CheckoutSessionType_Course):
 		return handleCoursePurchase(checkoutSession.ClientReferenceID, strings.Split(checkoutSession.Metadata["courseIds"], ","))
-	case "SUBSCRIPTION":
+	case string(payment.CheckoutSessionType_Subscription):
 		return handleSubscriptionPurchase(&checkoutSession)
+	case string(payment.CheckoutSessionType_Coaching):
+		return handleCoachingPurchase(&checkoutSession)
 	}
 
 	return api.Success(funcName, nil)
@@ -144,6 +150,69 @@ func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Res
 	if err != nil {
 		return api.Failure(funcName, err)
 	}
+	return api.Success(funcName, nil)
+}
+
+// Handles a successful coaching lesson purchase by setting the event participant's
+// stripe data.
+func handleCoachingPurchase(checkoutSession *stripe.CheckoutSession) api.Response {
+	username := checkoutSession.Metadata["username"]
+	eventId := checkoutSession.Metadata["eventId"]
+
+	if username == "" || eventId == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: username and eventId are required metadata", ""))
+	}
+
+	if _, err := repository.MarkParticipantPaid(eventId, username, checkoutSession); err != nil {
+		return api.Failure(funcName, err)
+	}
+	return api.Success(funcName, nil)
+}
+
+// Handles a Stripe checkout session expiring.
+func handleCheckoutSessionExpired(event *stripe.Event) api.Response {
+	var checkoutSession stripe.CheckoutSession
+	if err := json.Unmarshal(event.Data.Raw, &checkoutSession); err != nil {
+		err := errors.Wrap(400, "Invalid request: unable to unmarshall event data", "", err)
+		return api.Failure(funcName, err)
+	}
+	log.Debugf("Checkout session expired: %s", spew.Sdump(checkoutSession))
+
+	checkoutType := checkoutSession.Metadata["type"]
+	switch checkoutType {
+	case string(payment.CheckoutSessionType_Coaching):
+		return handleCoachingSessionExpired(&checkoutSession)
+	}
+
+	log.Debugf("Unhandled checkout session type: %s", checkoutType)
+	return api.Success(funcName, nil)
+}
+
+// Handles a Stripe checkout session for a coaching lesson expiring.
+func handleCoachingSessionExpired(checkoutSession *stripe.CheckoutSession) api.Response {
+	username := checkoutSession.Metadata["username"]
+	coachUsername := checkoutSession.Metadata["coachUsername"]
+	eventId := checkoutSession.Metadata["eventId"]
+
+	if username == "" || coachUsername == "" || eventId == "" {
+		return api.Failure(funcName, errors.New(400, "Invalid request: username, coachUsername and eventId are required metadata", ""))
+	}
+
+	participant := database.Participant{
+		Username: username,
+	}
+	event := database.Event{
+		Id:    eventId,
+		Owner: coachUsername,
+		Participants: map[string]*database.Participant{
+			username: &participant,
+		},
+	}
+	_, err := repository.LeaveEvent(&event, &participant)
+	if err != nil {
+		return api.Failure(funcName, errors.Wrap(500, "Temporary server error", "Failed to leave event", err))
+	}
+
 	return api.Success(funcName, nil)
 }
 

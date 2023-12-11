@@ -195,10 +195,11 @@ func CoachingCheckoutSession(user *database.User, event *database.Event) (*strip
 				Destination: stripe.String(event.Coaching.StripeId),
 			},
 			Metadata: map[string]string{
-				"type":    string(CheckoutSessionType_Coaching),
-				"eventId": event.Id,
-				"coachId": event.Coaching.StripeId,
-				"userId":  user.Username,
+				"type":          string(CheckoutSessionType_Coaching),
+				"eventId":       event.Id,
+				"coachStripeId": event.Coaching.StripeId,
+				"coachUsername": event.Owner,
+				"username":      user.Username,
 			},
 		},
 		ExpiresAt:  stripe.Int64(expiration),
@@ -206,10 +207,11 @@ func CoachingCheckoutSession(user *database.User, event *database.Event) (*strip
 		SuccessURL: stripe.String(fmt.Sprintf("%s/meeting/%s", frontendHost, event.Id)),
 		CancelURL:  stripe.String(fmt.Sprintf("%s/meeting/%s/cancel", frontendHost, event.Id)),
 		Metadata: map[string]string{
-			"type":    string(CheckoutSessionType_Coaching),
-			"eventId": event.Id,
-			"coachId": event.Coaching.StripeId,
-			"userId":  user.Username,
+			"type":          string(CheckoutSessionType_Coaching),
+			"eventId":       event.Id,
+			"coachStripeId": event.Coaching.StripeId,
+			"coachUsername": event.Owner,
+			"username":      user.Username,
 		},
 	}
 

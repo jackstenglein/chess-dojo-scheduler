@@ -58,6 +58,7 @@ import {
     deleteEvent,
     EventApiContextType,
     getEvent,
+    getEventCheckout,
     listEvents,
     setEvent,
 } from './eventApi';
@@ -204,6 +205,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             bookEvent: (id: string, startTime?: Date, type?: string) =>
                 bookEvent(idToken, id, startTime, type),
+            getEventCheckout: (id: string) => getEventCheckout(idToken, id),
             cancelEvent: (id: string) => cancelEvent(idToken, id),
             deleteEvent: (id: string) => deleteEvent(idToken, id),
             getEvent: (id: string) => getEvent(idToken, id),
