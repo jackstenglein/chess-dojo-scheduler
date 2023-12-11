@@ -10,6 +10,8 @@ import {
     Tooltip,
     Alert,
 } from '@mui/material';
+import { Warning } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 
 import { Event, EventType, getDisplayString } from '../database/event';
 import { useCache } from '../api/cache/Cache';
@@ -20,18 +22,74 @@ import CancelMeetingButton from './CancelMeetingButton';
 import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
 import Field from '../calendar/eventViewer/Field';
 import ParticipantsList from '../calendar/eventViewer/ParticipantsList';
-import { dojoCohorts } from '../database/user';
-import { Warning } from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
+import { User, dojoCohorts } from '../database/user';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useApi } from '../api/Api';
 
-const soloMeetingOwnerCancelDialog =
-    'Ownership of this meeting will be transferred to your opponent and other users will be able to book the meeting.';
-const groupMeetingOwnerCancelDialog =
-    'Ownership of this meeting will be transferred to one of the participants, and you may not be able to re-join it later if other users book it.';
-const participantCancelDialog =
-    'This will allow the meeting to be booked by other users and you may not be able to re-book it.';
+const CANCELATION_DEADLINE = 24 * 1000 * 60 * 60; // 24 hours
+
+/**
+ * Returns the cancel dialog title and content for the given user and meeting.
+ * @param user The user canceling the meeting.
+ * @param meeting The meeting being canceled.
+ * @returns An array containing the cancel dialog button, title and content.
+ */
+function getCancelDialog(user: User, meeting: Event): [string, string, string] {
+    const isOwner = meeting.owner === user.username;
+    const isCoaching = meeting.type === EventType.Coaching;
+
+    if (isOwner && isCoaching) {
+        return [
+            'Cancel Meeting',
+            'Cancel this meeting?',
+            'Canceling this meeting will refund all participants.',
+        ];
+    } else if (isCoaching) {
+        const now = new Date().getTime();
+        const cancelationTime =
+            new Date(meeting.bookedStartTime || meeting.startTime).getTime() -
+            CANCELATION_DEADLINE;
+        if (now >= cancelationTime) {
+            return [
+                'Leave Meeting',
+                'Leave this meeting?',
+                'It is within 24 hours of the start of the meeting, so you will not receive a refund.',
+            ];
+        }
+        return [
+            'Leave Meeting',
+            'Leave this meeting?',
+            'You will receive a full refund if you cancel now or more than 24 hours before the start of the meeting.',
+        ];
+    }
+
+    const isSolo = meeting.maxParticipants === 1;
+    if (isSolo && isOwner) {
+        return [
+            'Cancel Meeting',
+            'Cancel this meeting?',
+            'Ownership of this meeting will be transferred to your opponent and other users will be able to book the meeting.',
+        ];
+    } else if (isOwner) {
+        return [
+            'Leave Meeting',
+            'Leave this meeting?',
+            'Ownership of this meeting will be transferred to one of the participants, and you may not be able to re-join it later if other users book it.',
+        ];
+    } else if (isSolo) {
+        return [
+            'Cancel Meeting',
+            'Cancel this meeting?',
+            'This will allow the meeting to be booked by other users and you may not be able to re-book it.',
+        ];
+    } else {
+        return [
+            'Leave Meeting',
+            'Leave this meeting?',
+            'This will allow the meeting to be booked by other users and you may not be able to re-book it.',
+        ];
+    }
+}
 
 const MeetingPage = () => {
     const { meetingId } = useParams();
@@ -88,17 +146,10 @@ const MeetingPage = () => {
     const isSolo = meeting.maxParticipants === 1;
     const participant = meeting.participants[user.username];
 
-    let cancelDialogTitle = 'Cancel this meeting?';
-    let cancelDialogContent = participantCancelDialog;
-
-    if (isSolo && isOwner) {
-        cancelDialogContent = soloMeetingOwnerCancelDialog;
-    } else if (!isSolo) {
-        cancelDialogTitle = 'Leave this meeting?';
-        if (isOwner) {
-            cancelDialogContent = groupMeetingOwnerCancelDialog;
-        }
-    }
+    const [cancelButton, cancelDialogTitle, cancelDialogContent] = getCancelDialog(
+        user,
+        meeting
+    );
 
     const onCompletePayment = () => {
         checkoutRequest.onStart();
@@ -149,7 +200,7 @@ const MeetingPage = () => {
                                 dialogContent={cancelDialogContent}
                                 onSuccess={onCancel}
                             >
-                                {isSolo ? 'Cancel' : 'Leave'} Meeting
+                                {cancelButton}
                             </CancelMeetingButton>
                         }
                     />

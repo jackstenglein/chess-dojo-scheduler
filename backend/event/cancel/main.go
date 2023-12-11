@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
@@ -103,16 +104,23 @@ func leaveCoachingSession(username string, event *database.Event) api.Response {
 		return api.Failure(funcName, err)
 	}
 
-	var newEvent *database.Event
-	var err error
+	now := time.Now()
+	eventStart, err := time.Parse(time.RFC3339, event.StartTime)
+	if err != nil {
+		err = errors.Wrap(400, "Invalid request: event does not have a valid start time", "time.Parse failure", err)
+		return api.Failure(funcName, err)
+	}
+	cancelationTime := eventStart.Add(-23 * time.Hour).Add(-55 * time.Minute)
 
-	if !participant.HasPaid {
+	var newEvent *database.Event
+
+	if !participant.HasPaid || now.After(cancelationTime) {
 		newEvent, err = repository.LeaveEvent(event, participant)
 		if err != nil {
 			return api.Failure(funcName, err)
 		}
 	} else {
-		return api.Failure(funcName, errors.New(400, "Invalid request: canceling paid meetings is not implemented yet", ""))
+		return api.Failure(funcName, errors.New(400, "Invalid request: refunding paid meetings is not implemented yet", ""))
 	}
 
 	sendNotification(event, newEvent)
