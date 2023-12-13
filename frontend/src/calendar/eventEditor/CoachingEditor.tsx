@@ -20,7 +20,7 @@ import TitleFormSection from './form/TitleFormSection';
 import { UseEventEditorResponse, isValidDate } from './useEventEditor';
 import { User, dojoCohorts } from '../../database/user';
 import { getTimeZonedDate } from '../displayDate';
-import { AvailabilityStatus, Event } from '../../database/event';
+import { EventStatus, Event } from '../../database/event';
 import { useAuth } from '../../auth/Auth';
 
 function validatePrice(priceStr: string): [number, string] {
@@ -138,7 +138,7 @@ export function validateCoachingEditor(
             endTime,
             types: [],
             cohorts: selectedCohorts,
-            status: AvailabilityStatus.Scheduled,
+            status: EventStatus.Scheduled,
             location: editor.location.trim(),
             description: editor.description.trim(),
             maxParticipants,

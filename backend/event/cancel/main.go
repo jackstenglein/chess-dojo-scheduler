@@ -13,6 +13,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
+	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 )
 
 var repository database.EventLeaver = database.DynamoDB
@@ -51,6 +52,9 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	if event.Type == database.EventType_Coaching {
+		if info.Username == event.Owner {
+			return cancelCoachingSession(event), nil
+		}
 		return leaveCoachingSession(info.Username, event), nil
 	}
 
@@ -95,6 +99,24 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	return api.Success(funcName, newEvent), nil
 }
 
+// handles a coach canceling a session that has been booked. Any users who have paid are issued
+// a full refund.
+func cancelCoachingSession(event *database.Event) api.Response {
+	newEvent, err := repository.CancelEvent(event)
+	if err != nil {
+		return api.Failure(funcName, err)
+	}
+
+	for _, p := range newEvent.Participants {
+		_, err := payment.CreateEventRefund(event, p, 100)
+		if err != nil {
+			log.Errorf("Failed to create refund: %v", err)
+		}
+	}
+
+	return api.Success(funcName, newEvent)
+}
+
 // handles a user leaving a coaching session that they have booked. The user may need a refund
 // depending on whether they have already paid and how far in advance they are canceling.
 func leaveCoachingSession(username string, event *database.Event) api.Response {
@@ -116,11 +138,16 @@ func leaveCoachingSession(username string, event *database.Event) api.Response {
 
 	if !participant.HasPaid || now.After(cancelationTime) {
 		newEvent, err = repository.LeaveEvent(event, participant)
+	} else {
+		_, err = payment.CreateEventRefund(event, participant, 100)
 		if err != nil {
 			return api.Failure(funcName, err)
 		}
-	} else {
-		return api.Failure(funcName, errors.New(400, "Invalid request: refunding paid meetings is not implemented yet", ""))
+		newEvent, err = repository.LeaveEvent(event, participant)
+	}
+
+	if err != nil {
+		return api.Failure(funcName, err)
 	}
 
 	sendNotification(event, newEvent)

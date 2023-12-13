@@ -19,7 +19,7 @@ export interface Event {
     bookedStartTime: string;
     bookedType: AvailabilityType;
     cohorts: string[];
-    status: AvailabilityStatus;
+    status: EventStatus;
     location: string;
     description: string;
     maxParticipants: number;
@@ -110,7 +110,7 @@ export interface Participant {
     hasPaid?: boolean;
 }
 
-export enum AvailabilityStatus {
+export enum EventStatus {
     Scheduled = 'SCHEDULED',
     Booked = 'BOOKED',
     Canceled = 'CANCELED',

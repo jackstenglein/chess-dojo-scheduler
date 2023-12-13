@@ -16,6 +16,7 @@ import (
 	bpsession "github.com/stripe/stripe-go/v76/billingportal/session"
 	"github.com/stripe/stripe-go/v76/checkout/session"
 	"github.com/stripe/stripe-go/v76/loginlink"
+	"github.com/stripe/stripe-go/v76/refund"
 )
 
 var frontendHost = os.Getenv("frontendHost")
@@ -304,4 +305,35 @@ func LoginLink(stripeId string) (*stripe.LoginLink, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe LoginLink", err)
 	}
 	return link, nil
+}
+
+func CreateEventRefund(event *database.Event, participant *database.Participant, percentage int64) (*stripe.Refund, error) {
+	if percentage <= 0 {
+		return nil, nil
+	}
+	if !participant.HasPaid {
+		return nil, nil
+	}
+
+	amount := participant.CheckoutSession.AmountTotal * percentage / 100
+	params := &stripe.RefundParams{
+		PaymentIntent:   stripe.String(participant.CheckoutSession.PaymentIntent.ID),
+		Amount:          stripe.Int64(amount),
+		ReverseTransfer: stripe.Bool(true),
+		Metadata: map[string]string{
+			"type":          string(CheckoutSessionType_Coaching),
+			"eventId":       event.Id,
+			"coachStripeId": event.Coaching.StripeId,
+			"coachUsername": event.Owner,
+			"username":      participant.Username,
+		},
+	}
+
+	result, err := refund.New(params)
+	if serr, ok := err.(*stripe.Error); ok {
+		if serr.Code == stripe.ErrorCodeChargeAlreadyRefunded {
+			return nil, nil
+		}
+	}
+	return result, errors.Wrap(500, "Failed to create Stripe refund", "", err)
 }

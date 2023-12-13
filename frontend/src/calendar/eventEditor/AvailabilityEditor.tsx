@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 
 import {
-    AvailabilityStatus,
+    EventStatus,
     AvailabilityType,
     Event,
     getDefaultNumberOfParticipants,
@@ -126,7 +126,7 @@ export function validateAvailabilityEditor(
             endTime,
             types: selectedTypes,
             cohorts: selectedCohorts,
-            status: AvailabilityStatus.Scheduled,
+            status: EventStatus.Scheduled,
             location: editor.location,
             description: editor.description,
             maxParticipants,

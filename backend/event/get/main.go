@@ -15,7 +15,11 @@ var repository database.EventGetter = database.DynamoDB
 
 const funcName = "event-get-handler"
 
-func Handler(ctx context.Context, request api.Request) (api.Response, error) {
+func main() {
+	lambda.Start(handler)
+}
+
+func handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
 	log.Debugf("Request: %#v", request)
 
@@ -44,16 +48,14 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Success(funcName, &event), nil
 	}
 
-	for _, p := range event.Participants {
-		if p.Username == info.Username {
-			return api.Success(funcName, &event), nil
-		}
+	p := event.Participants[info.Username]
+	if p == nil {
+		err = errors.New(403, "Invalid request: user is not a member of this meeting", "")
+		return api.Failure(funcName, err), nil
 	}
 
-	err = errors.New(403, "Invalid request: user is not a member of this meeting", "")
-	return api.Failure(funcName, err), nil
-}
-
-func main() {
-	lambda.Start(Handler)
+	if event.Type == database.EventType_Coaching && !p.HasPaid {
+		event.Location = "Location is hidden until payment is complete"
+	}
+	return api.Success(funcName, &event), nil
 }

@@ -2,7 +2,7 @@ import { AppBar, Container, Toolbar } from '@mui/material';
 
 import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
-import { Event, AvailabilityStatus } from '../database/event';
+import { Event, EventStatus } from '../database/event';
 import NavbarMenu from './NavbarMenu';
 
 const Navbar = () => {
@@ -21,7 +21,7 @@ const Navbar = () => {
         ) {
             return false;
         }
-        return e.status !== AvailabilityStatus.Canceled && e.endTime >= filterTime;
+        return e.status !== EventStatus.Canceled && e.endTime >= filterTime;
     }).length;
 
     return (

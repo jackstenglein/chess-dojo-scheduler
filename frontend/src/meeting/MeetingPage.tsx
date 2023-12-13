@@ -13,7 +13,7 @@ import {
 import { Warning } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 
-import { Event, EventType, getDisplayString } from '../database/event';
+import { Event, EventStatus, EventType, getDisplayString } from '../database/event';
 import { useCache } from '../api/cache/Cache';
 import LoadingPage from '../loading/LoadingPage';
 import { useAuth } from '../auth/Auth';
@@ -59,7 +59,7 @@ function getCancelDialog(user: User, meeting: Event): [string, string, string] {
         return [
             'Leave Meeting',
             'Leave this meeting?',
-            'You will receive a full refund if you cancel now or more than 24 hours before the start of the meeting.',
+            'It is greater than 24 hours before the start of the meeting, so you will receive a full refund.',
         ];
     }
 
@@ -144,6 +144,7 @@ const MeetingPage = () => {
     const isOwner = meeting.owner === user.username;
     const isCoaching = meeting.type === EventType.Coaching;
     const isSolo = meeting.maxParticipants === 1;
+    const isCanceled = meeting.status === EventStatus.Canceled;
     const participant = meeting.participants[user.username];
 
     const [cancelButton, cancelDialogTitle, cancelDialogContent] = getCancelDialog(
@@ -170,7 +171,7 @@ const MeetingPage = () => {
             <RequestSnackbar request={checkoutRequest} />
 
             <Stack spacing={4}>
-                {isCoaching && !isOwner && !participant.hasPaid && (
+                {isCoaching && !isOwner && !participant.hasPaid && !isCanceled && (
                     <Alert
                         severity='warning'
                         variant='filled'
@@ -190,18 +191,27 @@ const MeetingPage = () => {
                     </Alert>
                 )}
 
+                {isCoaching && isCanceled && (
+                    <Alert severity='warning' variant='filled'>
+                        This meeting has been canceled by the coach. If you have already
+                        completed payment, you will receive a full refund.
+                    </Alert>
+                )}
+
                 <Card variant='outlined'>
                     <CardHeader
                         title={meeting.title || 'Meeting Details'}
                         action={
-                            <CancelMeetingButton
-                                meetingId={meeting.id}
-                                dialogTitle={cancelDialogTitle}
-                                dialogContent={cancelDialogContent}
-                                onSuccess={onCancel}
-                            >
-                                {cancelButton}
-                            </CancelMeetingButton>
+                            !isCanceled && (
+                                <CancelMeetingButton
+                                    meetingId={meeting.id}
+                                    dialogTitle={cancelDialogTitle}
+                                    dialogContent={cancelDialogContent}
+                                    onSuccess={onCancel}
+                                >
+                                    {cancelButton}
+                                </CancelMeetingButton>
+                            )
                         }
                     />
                     <CardContent>

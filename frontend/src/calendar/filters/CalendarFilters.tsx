@@ -25,7 +25,7 @@ import {
     displayTimeControlType,
     getDisplayString,
     Event,
-    AvailabilityStatus,
+    EventStatus,
 } from '../../database/event';
 import { TimeFormat, dojoCohorts } from '../../database/user';
 import { useAuth } from '../../auth/Auth';
@@ -261,7 +261,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         ) {
             return false;
         }
-        return e.status !== AvailabilityStatus.Canceled && e.endTime >= filterTime;
+        return e.status !== EventStatus.Canceled && e.endTime >= filterTime;
     }).length;
 
     const handleChange =

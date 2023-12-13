@@ -18,7 +18,7 @@ import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
 import { useEvents } from '../api/cache/Cache';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import { SubscriptionStatus, TimeFormat, User } from '../database/user';
-import { Event, EventType, AvailabilityStatus } from '../database/event';
+import { Event, EventType, EventStatus } from '../database/event';
 import CalendarTutorial from './CalendarTutorial';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import UpsellAlert from '../upsell/UpsellAlert';
@@ -28,7 +28,7 @@ function processAvailability(
     filters: Filters,
     event: Event
 ): ProcessedEvent | null {
-    if (event.status === AvailabilityStatus.Canceled) {
+    if (event.status === EventStatus.Canceled) {
         return null;
     }
 
@@ -87,7 +87,7 @@ function processAvailability(
     }
 
     // Other users' bookable availabilities
-    if (!user.isAdmin && event.status !== AvailabilityStatus.Scheduled) {
+    if (!user.isAdmin && event.status !== EventStatus.Scheduled) {
         return null;
     }
 
@@ -209,6 +209,12 @@ function processCoachingEvent(
     }
 
     const isOwner = event.owner === user.username;
+    const isParticipant = Boolean(event.participants[user.username]);
+
+    if (event.status !== EventStatus.Scheduled && !isOwner && !isParticipant) {
+        return null;
+    }
+
     const editable =
         isOwner && Object.values(event.participants).length < event.maxParticipants;
 

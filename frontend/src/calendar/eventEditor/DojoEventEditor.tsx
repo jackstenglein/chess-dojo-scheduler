@@ -6,7 +6,7 @@ import TimesFormSection from './form/TimesFormSection';
 import LocationFormSection from './form/LocationFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
 import { User, dojoCohorts } from '../../database/user';
-import { AvailabilityStatus, Event } from '../../database/event';
+import { EventStatus, Event } from '../../database/event';
 import { getTimeZonedDate } from '../displayDate';
 import TitleFormSection from './form/TitleFormSection';
 
@@ -65,7 +65,7 @@ export function validateDojoEventEditor(
             endTime,
             types: [],
             cohorts: selectedCohorts,
-            status: AvailabilityStatus.Scheduled,
+            status: EventStatus.Scheduled,
             location: editor.location,
             description: editor.description,
             maxParticipants: 0,

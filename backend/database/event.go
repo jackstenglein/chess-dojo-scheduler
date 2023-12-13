@@ -266,6 +266,9 @@ type EventLeaver interface {
 	// SetEvent inserts the provided Event into the database.
 	SetEvent(event *Event) error
 
+	// CancelEvent marks the provided Event as canceled.
+	CancelEvent(event *Event) (*Event, error)
+
 	// LeaveEvent leaves the event for the given participants. If participant is nil,
 	// then the person leaving is the owner. In that case, the first participant is made
 	// the new owner. The updated event is returned.
@@ -584,6 +587,47 @@ func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant)
 	if err != nil {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
 			return nil, errors.Wrap(400, "Invalid request: event no longer exists or has changed. Please try again.", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+
+	e := Event{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &e); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &e, nil
+}
+
+// CancelEvent marks the provided Event as canceled.
+func (repo *dynamoRepository) CancelEvent(event *Event) (*Event, error) {
+	if event.Id == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: event statistics cannot be canceled", "")
+	}
+
+	updateExpr := "SET #status = :canceled"
+	exprAttrNames := map[string]*string{
+		"#status": aws.String("status"),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{
+		":canceled": {S: aws.String(string(SchedulingStatus_Canceled))},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression:       aws.String("attribute_exists(id)"),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(event.Id)},
+		},
+		UpdateExpression: aws.String(updateExpr),
+		ReturnValues:     aws.String("ALL_NEW"),
+		TableName:        aws.String(eventTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: event not found.", "DynamoDB conditional check failed", aerr)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
 	}

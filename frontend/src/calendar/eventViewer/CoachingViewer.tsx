@@ -1,9 +1,9 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Button, Stack, Typography } from '@mui/material';
+import { Alert, Button, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useNavigate } from 'react-router-dom';
 
-import { Event } from '../../database/event';
+import { Event, EventStatus } from '../../database/event';
 import OwnerField from './OwnerField';
 import Field from './Field';
 import { dojoCohorts } from '../../database/user';
@@ -56,6 +56,13 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
     return (
         <Stack data-cy='coaching-viewer' sx={{ pt: 2 }} spacing={2}>
             <RequestSnackbar request={request} />
+            {event.status === EventStatus.Canceled && (isOwner || isParticipant) && (
+                <Alert severity='warning' variant='filled'>
+                    {isOwner
+                        ? 'You have canceled this event.'
+                        : 'This event has been canceled by the coach. If you already paid, you will receive a full refund.'}
+                </Alert>
+            )}
 
             <Typography>{event.title}</Typography>
 
