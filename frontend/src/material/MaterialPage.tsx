@@ -24,7 +24,7 @@ const MaterialPage = () => {
                         <Tab label='Openings' value='openings' />
                         <Tab label='Books' value='books' />
                         <Tab label='Sparring Positions' value='sparring' />
-                        <Tab label='Model Games' value='modelGames' />
+                        <Tab label='Model Annotations' value='modelGames' />
                         <Tab label='Games to Memorize' value='memorizeGames' />
                         <Tab label='Rating Conversions' value='ratings' />
                     </TabList>
