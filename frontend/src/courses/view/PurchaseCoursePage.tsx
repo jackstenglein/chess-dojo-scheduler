@@ -4,6 +4,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Course } from '../../database/course';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import PurchaseOption from './PurchaseOption';
+import { useNavigate } from 'react-router-dom';
 
 interface PurchaseCoursePageProps {
     course?: Course;
@@ -77,8 +78,15 @@ interface PurchaseMessageProps {
 }
 
 const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier }) => {
-    let content = null;
+    const navigate = useNavigate();
+    const onViewPrices = (event: React.MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const currentPage = encodeURIComponent(window.location.href);
+        navigate(`/prices?redirect=${currentPage}`);
+    };
 
+    let content = null;
     if (isFreeTier) {
         if (!course.availableForFreeUsers) {
             content = (
@@ -91,10 +99,9 @@ const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier })
                     action={
                         <Button
                             color='inherit'
-                            href='https://www.chessdojo.club/plans-pricing'
-                            target='_blank'
-                            rel='noopener'
+                            href='/prices'
                             size='small'
+                            onClick={onViewPrices}
                         >
                             View Prices
                         </Button>

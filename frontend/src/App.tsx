@@ -106,10 +106,10 @@ const router = createBrowserRouter(
                 <Route path=':type/:id' element={<CoursePage />} />
             </Route>
 
+            <Route path='prices' element={<PricingPage />} />
+
             <Route element={<RequireAuth />}>
                 <Route element={<GraduationPrompt />}>
-                    <Route path='prices' element={<PricingPage />} />
-
                     <Route path='profile'>
                         <Route index element={<ProfilePage />} />
                         <Route path='edit' element={<ProfileEditorPage />} />

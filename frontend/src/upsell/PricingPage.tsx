@@ -2,17 +2,21 @@ import { useState } from 'react';
 import { Button, Card, CardContent, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { LoadingButton } from '@mui/lab';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import SellingPoint, { SellingPointStatus } from './SellingPoint';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { useAuth } from '../auth/Auth';
 
 interface PricingPageProps {
     onFreeTier?: () => void;
 }
 
 const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
+    const user = useAuth().user;
+    const navigate = useNavigate();
+
     const api = useApi();
     const request = useRequest();
     const [interval, setInterval] = useState('');
@@ -20,6 +24,10 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     const redirect = searchParams.get('redirect') || '';
 
     const onSubscribe = (interval: 'month' | 'year') => {
+        if (!user) {
+            navigate('/signup');
+        }
+
         setInterval(interval);
 
         request.onStart();
