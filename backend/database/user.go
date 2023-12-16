@@ -779,6 +779,7 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*
 
 	encoder := dynamodbattribute.NewEncoder()
 	encoder.NullEmptyString = false
+	encoder.EnableEmptyCollections = true
 	av, err := encoder.Encode(update)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
