@@ -10,6 +10,15 @@ export enum CourseType {
  * defined as a series of related chapters designed for a specific cohort range.
  */
 export interface Course {
+    /** The owner of the course. */
+    owner: string;
+
+    /** The display name of the owner of the course. */
+    ownerDisplayName: string;
+
+    /** The stripe ID of the owner of the course. */
+    stripeId: string;
+
     /** The type of the course. */
     type: CourseType;
 
@@ -45,21 +54,12 @@ export interface Course {
     cohortRange: string;
 
     /**
-     * The price of the course in cents. A non-positive number indicates that the course is
-     * not for sale separately from the training plan.
-     */
-    price: number;
-
-    /**
      * Whether the course is included with a training-plan subscription.
      */
     includedWithSubscription: boolean;
 
     /** Whether the course is available for free-tier users. */
     availableForFreeUsers: boolean;
-
-    /** The buy button id on Stripe. */
-    stripeBuyButtonId: string;
 
     /**
      * The options to purchase the course.
@@ -85,9 +85,6 @@ export interface CoursePurchaseOption {
      * then fullPrice is used instead.
      */
     currentPrice: number;
-
-    /** The buy button id on Stripe. */
-    buyButtonId: string;
 
     /** A short description of the purchase option. */
     description: string;

@@ -20,8 +20,9 @@ import NotFoundPage from '../../NotFoundPage';
 import Contents from './Contents';
 import { GetCourseResponse } from '../../api/courseApi';
 import PurchaseCoursePage from './PurchaseCoursePage';
-import { AuthStatus, useAuth } from '../../auth/Auth';
+import { AuthStatus, useAuth, useFreeTier } from '../../auth/Auth';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../localStorage';
+import { SubscriptionStatus } from '../../database/user';
 
 type CoursePageParams = {
     type: CourseType;
@@ -32,6 +33,7 @@ const CoursePage = () => {
     const navigate = useNavigate();
     const auth = useAuth();
     const anonymousUser = auth.user === undefined;
+    const isFreeTier = useFreeTier();
     const api = useApi();
     const params = useParams<CoursePageParams>();
     const request = useRequest<GetCourseResponse>();
@@ -83,7 +85,7 @@ const CoursePage = () => {
     }, [chapter, moduleIndex]);
 
     if (isBlocked) {
-        return <PurchaseCoursePage course={course} />;
+        return <PurchaseCoursePage course={course} isFreeTier={isFreeTier} />;
     }
 
     if (!request.isSent() || request.isLoading()) {

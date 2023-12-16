@@ -15,6 +15,15 @@ const (
 // Course contains the full information for a course. A course is
 // defined as a series of related chapters designed for a specific cohort range.
 type Course struct {
+	// The owner of the course.
+	Owner string `dynamodbav:"owner" json:"owner"`
+
+	// The display name of the owner of the course.
+	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
+
+	// The stripe ID of the owner of the course.
+	StripeId string `dynamodbav:"stripeId" json:"stripeId"`
+
 	// The type of the course and the hash key of the table.
 	Type CourseType `dynamodbav:"type" json:"type"`
 
@@ -62,9 +71,6 @@ type CoursePurchaseOption struct {
 
 	// The current price of the purchase option in cents. If non-positive, then FullPrice is used instead.
 	CurrentPrice int `dynamodbav:"currentPrice" json:"currentPrice"`
-
-	// The buy button id on Stripe.
-	BuyButtonId string `dynamodbav:"buyButtonId" json:"buyButtonId"`
 
 	// A short description of the purchase option.
 	Description string `dynamodbav:"description,omitempty" json:"description,omitempty"`
@@ -200,7 +206,7 @@ func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]Course
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":type": {S: aws.String(courseType)},
 		},
-		IndexName: aws.String("SummaryIdx"),
+		IndexName: aws.String("SummaryIndex"),
 		TableName: aws.String(courseTable),
 	}
 	var courses []Course
@@ -214,7 +220,7 @@ func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]Course
 // ScanCourses returns a list of all courses.
 func (repo *dynamoRepository) ScanCourses(startKey string) ([]Course, string, error) {
 	input := &dynamodb.ScanInput{
-		IndexName: aws.String("SummaryIdx"),
+		IndexName: aws.String("SummaryIndex"),
 		TableName: aws.String(courseTable),
 	}
 	var courses []Course

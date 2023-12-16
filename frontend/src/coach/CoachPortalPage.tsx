@@ -4,6 +4,7 @@ import { useAuth } from '../auth/Auth';
 import NotFoundPage from '../NotFoundPage';
 import StripeInfo from './stripe/StripeInfo';
 import ConnectStripeAccount from './stripe/ConnectStripeAccount';
+import CoursesCard from './courseEditor/CoursesCard';
 
 const CoachPortalPage = () => {
     const user = useAuth().user!;
@@ -20,7 +21,14 @@ const CoachPortalPage = () => {
                     <Divider />
                 </Stack>
 
-                {user.coachInfo?.stripeId ? <StripeInfo /> : <ConnectStripeAccount />}
+                {user.coachInfo?.stripeId ? (
+                    <>
+                        <StripeInfo />
+                        <CoursesCard />
+                    </>
+                ) : (
+                    <ConnectStripeAccount />
+                )}
             </Stack>
         </Container>
     );

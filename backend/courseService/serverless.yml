@@ -147,11 +147,15 @@ resources:
               NonKeyAttributes:
                 - name
                 - description
+                - whatsIncluded
                 - color
                 - cohorts
                 - cohortRange
-                - price
                 - includedWithSubscription
+                - availableForFreeUsers
+                - purchaseOptions
+                - owner
+                - ownerDisplayName
           - IndexName: SummaryIdx
             KeySchema:
               - AttributeName: type

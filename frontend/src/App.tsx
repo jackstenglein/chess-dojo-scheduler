@@ -59,6 +59,7 @@ import ListCoursesPage from './courses/list/ListCoursesPage';
 import PricingPage from './upsell/PricingPage';
 import CoachPortalPage from './coach/CoachPortalPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
+import CourseEditorPage from './coach/courseEditor/CourseEditorPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -163,7 +164,10 @@ const router = createBrowserRouter(
                         <Route path=':owner/:id' element={<NewsfeedDetailPage />} />
                     </Route>
 
-                    <Route path='coach' element={<CoachPortalPage />} />
+                    <Route path='coach'>
+                        <Route index element={<CoachPortalPage />} />
+                        <Route path='courses/:type/:id' element={<CourseEditorPage />} />
+                    </Route>
                 </Route>
             </Route>
             <Route path='*' element={<NotFoundPage />} />
