@@ -9,6 +9,7 @@ import { User, dojoCohorts } from '../../database/user';
 import { EventStatus, Event } from '../../database/event';
 import { getTimeZonedDate } from '../displayDate';
 import TitleFormSection from './form/TitleFormSection';
+import { Checkbox, FormControlLabel } from '@mui/material';
 
 export function validateDojoEventEditor(
     user: User,
@@ -69,6 +70,7 @@ export function validateDojoEventEditor(
             location: editor.location,
             description: editor.description,
             maxParticipants: 0,
+            hideFromPublicDiscord: editor.hideFromPublicDiscord,
         },
         errors,
     ];
@@ -94,11 +96,23 @@ const DojoEventEditor: React.FC<DojoEventEditorProps> = ({ editor }) => {
         setAllCohorts,
         cohorts,
         setCohort,
+        hideFromPublicDiscord,
+        setHideFromPublicDiscord,
         errors,
     } = editor;
 
     return (
         <>
+            <FormControlLabel
+                label='Hide from public Discord server? If checked, no event will be created in the public Discord.'
+                control={
+                    <Checkbox
+                        checked={hideFromPublicDiscord}
+                        onChange={(e) => setHideFromPublicDiscord(e.target.checked)}
+                    />
+                }
+            />
+
             <TimesFormSection
                 start={start}
                 setStart={setStart}

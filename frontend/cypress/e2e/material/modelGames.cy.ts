@@ -20,7 +20,7 @@ describe('Model Games Tab', () => {
     it('allows switching cohorts', () => {
         cy.getBySel('cohort-select').click();
         cy.contains('1400-1500').click();
-        cy.getBySel('pgn-selector').contains('Opponent - Evan');
+        cy.getBySel('pgn-selector').contains('Ben Wicks - Emma Williams');
 
         cy.getBySel('cohort-select').click();
         cy.contains('1500-1600').click();

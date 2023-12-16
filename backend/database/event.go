@@ -183,6 +183,10 @@ type Event struct {
 	// type is EventTypeAvailability.
 	PrivateDiscordEventId string `dynamodbav:"privateDiscordEventId" json:"privateDiscordEventId"`
 
+	// Whether to hide the event from the public Discord. This field is used only if type is
+	// EventType_Dojo.
+	HideFromPublicDiscord bool `dynamodbav:"hideFromPublicDiscord" json:"hideFromPublicDiscord"`
+
 	// The ID of the public Discord guild event for this event. This field is unused if
 	// type is EventTypeAvailability.
 	PublicDiscordEventId string `dynamodbav:"publicDiscordEventId" json:"publicDiscordEventId"`

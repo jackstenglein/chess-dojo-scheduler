@@ -26,6 +26,11 @@ export interface Event {
     participants: Record<string, Participant>;
     discordMessageId: string;
     privateDiscordEventId: string;
+
+    /** Whether to hide the Event from the public Discord server. */
+    hideFromPublicDiscord: boolean;
+
+    /** The ID of the public Discord guild event for this Event. */
     publicDiscordEventId: string;
 
     /** The LigaTournament information for this event. Only present for LigaTournaments. */

@@ -159,6 +159,15 @@ export interface UseEventEditorResponse {
      */
     setBookableByFreeUsers: (value: boolean) => void;
 
+    /** Whether the Event is hidden from the public Discord server. */
+    hideFromPublicDiscord: boolean;
+
+    /**
+     * Sets whether the Event is hidden from the public Discord server.
+     * @param value Whether the Event is hidden from the public Discord server.
+     */
+    setHideFromPublicDiscord: (value: boolean) => void;
+
     /** A map of errors in the form. */
     errors: Record<string, string>;
 
@@ -247,6 +256,8 @@ export default function useEventEditor(
     const [bookableByFreeUsers, setBookableByFreeUsers] = useState(
         initialEvent?.coaching?.bookableByFreeUsers || false
     );
+
+    const [hideFromPublicDiscord, setHideFromPublicDiscord] = useState(false);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -351,6 +362,9 @@ export default function useEventEditor(
         setCurrentPrice,
         bookableByFreeUsers,
         setBookableByFreeUsers,
+
+        hideFromPublicDiscord,
+        setHideFromPublicDiscord,
 
         errors,
         setErrors,
