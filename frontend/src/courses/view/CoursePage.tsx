@@ -22,7 +22,6 @@ import { GetCourseResponse } from '../../api/courseApi';
 import PurchaseCoursePage from './PurchaseCoursePage';
 import { AuthStatus, useAuth, useFreeTier } from '../../auth/Auth';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../localStorage';
-import { SubscriptionStatus } from '../../database/user';
 
 type CoursePageParams = {
     type: CourseType;

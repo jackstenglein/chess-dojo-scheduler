@@ -25,7 +25,7 @@ const CoursesCard = () => {
                     request.onFailure(err);
                 });
         }
-    }, [request, api]);
+    }, [request, api, user]);
 
     return (
         <Card variant='outlined'>

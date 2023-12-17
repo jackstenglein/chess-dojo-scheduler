@@ -1,9 +1,31 @@
-import { AppBar, Container, Toolbar } from '@mui/material';
+import {
+    AppBar,
+    Container,
+    Slide,
+    Toolbar,
+    useMediaQuery,
+    useScrollTrigger,
+} from '@mui/material';
 
 import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
 import { Event, EventStatus } from '../database/event';
 import NavbarMenu from './NavbarMenu';
+
+interface HideOnScrollProps {
+    children: React.ReactElement;
+}
+
+function HideOnScroll(props: HideOnScrollProps) {
+    const isMedium = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+    const trigger = useScrollTrigger({ threshold: 20 });
+
+    return (
+        <Slide appear={false} direction='down' in={!trigger || isMedium}>
+            {props.children}
+        </Slide>
+    );
+}
 
 const Navbar = () => {
     const auth = useAuth();
@@ -25,17 +47,19 @@ const Navbar = () => {
     }).length;
 
     return (
-        <AppBar
-            data-cy='navbar'
-            position='sticky'
-            sx={{ zIndex: 1300, height: 'var(--navbar-height)' }}
-        >
-            <Container maxWidth='xl' sx={{ height: 1 }}>
-                <Toolbar disableGutters sx={{ height: 1 }}>
-                    <NavbarMenu meetingCount={meetingCount} />
-                </Toolbar>
-            </Container>
-        </AppBar>
+        <HideOnScroll>
+            <AppBar
+                data-cy='navbar'
+                position='sticky'
+                sx={{ zIndex: 1300, height: 'var(--navbar-height)' }}
+            >
+                <Container maxWidth='xl' sx={{ height: 1 }}>
+                    <Toolbar disableGutters sx={{ height: 1 }}>
+                        <NavbarMenu meetingCount={meetingCount} />
+                    </Toolbar>
+                </Container>
+            </AppBar>
+        </HideOnScroll>
     );
 };
 
