@@ -13,8 +13,6 @@ import (
 
 var repository database.GameLister = database.DynamoDB
 
-const funcName = "game-list-cohort-handler"
-
 type ListGamesResponse struct {
 	Games            []*database.Game `json:"games"`
 	LastEvaluatedKey string           `json:"lastEvaluatedKey,omitempty"`
@@ -27,7 +25,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	cohort, ok := event.PathParameters["cohort"]
 	if !ok {
 		err := errors.New(400, "Invalid request: header cohort is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	startDate, _ := event.QueryStringParameters["startDate"]
@@ -36,10 +34,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	games, lastKey, err := repository.ListGamesByCohort(cohort, startDate, endDate, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListGamesResponse{
+	return api.Success(&ListGamesResponse{
 		Games:            games,
 		LastEvaluatedKey: lastKey,
 	}), nil

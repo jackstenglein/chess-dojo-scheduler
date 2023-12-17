@@ -11,18 +11,16 @@ import (
 
 var repository database.UserStatisticsGetter = database.DynamoDB
 
-const funcName = "user-statistics-get-handler"
-
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
 	stats, err := repository.GetUserStatistics()
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, stats), nil
+	return api.Success(stats), nil
 }
 
 func main() {

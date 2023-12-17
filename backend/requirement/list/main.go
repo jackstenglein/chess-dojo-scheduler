@@ -12,8 +12,6 @@ import (
 
 var repository database.RequirementLister = database.DynamoDB
 
-const funcName = "requirement-list-handler"
-
 type ListRequirementsResponse struct {
 	Requirements     []*database.Requirement `json:"requirements"`
 	LastEvaluatedKey string                  `json:"lastEvaluatedKey,omitempty"`
@@ -29,9 +27,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if cohort == "" || cohort == string(database.AllCohorts) {
 		requirements, lastKey, err := repository.ScanRequirements("", startKey)
 		if err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
-		return api.Success(funcName, &ListRequirementsResponse{
+		return api.Success(&ListRequirementsResponse{
 			Requirements:     requirements,
 			LastEvaluatedKey: lastKey,
 		}), nil
@@ -42,10 +40,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	requirements, lastKey, err := repository.ListRequirements(database.DojoCohort(cohort), scoreboardOnly, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListRequirementsResponse{
+	return api.Success(&ListRequirementsResponse{
 		Requirements:     requirements,
 		LastEvaluatedKey: lastKey,
 	}), nil

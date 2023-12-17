@@ -20,8 +20,6 @@ import (
 var repository = database.DynamoDB
 var endpointSecret = ""
 
-const funcName = "payment-webhook"
-
 func init() {
 	key, err := secrets.GetApiKey()
 	if err != nil {
@@ -48,13 +46,13 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	signatureHeader, ok := event.Headers["stripe-signature"]
 	if !ok {
 		err := errors.New(400, "Invalid request: missing stripe signature", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	stripeEvent, err := webhook.ConstructEvent([]byte(event.Body), signatureHeader, endpointSecret)
 	if err != nil {
 		err = errors.Wrap(400, "Invalid request: stripe signature did not verify", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	str := spew.Sdump(stripeEvent)
@@ -74,7 +72,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		log.Debugf("Unhandled event type: %s", stripeEvent.Type)
 	}
 
-	return api.Success(funcName, nil), nil
+	return api.Success(nil), nil
 }
 
 // Responds to Stripe checkout.session.completed events.
@@ -82,7 +80,7 @@ func handleCheckoutSessionCompleted(event *stripe.Event) api.Response {
 	var checkoutSession stripe.CheckoutSession
 	if err := json.Unmarshal(event.Data.Raw, &checkoutSession); err != nil {
 		err := errors.Wrap(400, "Invalid request: unable to unmarshal event data", "", err)
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	str := spew.Sdump(checkoutSession)
@@ -98,19 +96,19 @@ func handleCheckoutSessionCompleted(event *stripe.Event) api.Response {
 		return handleCoachingPurchase(&checkoutSession)
 	}
 
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }
 
 // Saves the given courseIds in the provided user's PurchasedCourses map.
 func handleCoursePurchase(username string, courseIds []string) api.Response {
 	if username == "" {
 		// Course purchased by anonymous user
-		return api.Success(funcName, nil)
+		return api.Success(nil)
 	}
 
 	user, err := repository.GetUser(username)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	if user.PurchasedCourses == nil {
@@ -125,15 +123,15 @@ func handleCoursePurchase(username string, courseIds []string) api.Response {
 		PurchasedCourses: &user.PurchasedCourses,
 	})
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }
 
 // Handles saving a subscription purchase on the user in the checkout session.
 func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Response {
 	if checkoutSession.ClientReferenceID == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: no clientReferenceId included", ""))
+		return api.Failure(errors.New(400, "Invalid request: no clientReferenceId included", ""))
 	}
 
 	paymentInfo := database.PaymentInfo{
@@ -148,9 +146,9 @@ func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Res
 
 	_, err := repository.UpdateUser(checkoutSession.ClientReferenceID, &update)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }
 
 // Handles a successful coaching lesson purchase by setting the event participant's
@@ -160,13 +158,13 @@ func handleCoachingPurchase(checkoutSession *stripe.CheckoutSession) api.Respons
 	eventId := checkoutSession.Metadata["eventId"]
 
 	if username == "" || eventId == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username and eventId are required metadata", ""))
+		return api.Failure(errors.New(400, "Invalid request: username and eventId are required metadata", ""))
 	}
 
 	if _, err := repository.MarkParticipantPaid(eventId, username, checkoutSession); err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }
 
 // Handles a Stripe checkout session expiring.
@@ -174,7 +172,7 @@ func handleCheckoutSessionExpired(event *stripe.Event) api.Response {
 	var checkoutSession stripe.CheckoutSession
 	if err := json.Unmarshal(event.Data.Raw, &checkoutSession); err != nil {
 		err := errors.Wrap(400, "Invalid request: unable to unmarshall event data", "", err)
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 	log.Debugf("Checkout session expired: %s", spew.Sdump(checkoutSession))
 
@@ -185,7 +183,7 @@ func handleCheckoutSessionExpired(event *stripe.Event) api.Response {
 	}
 
 	log.Debugf("Unhandled checkout session type: %s", checkoutType)
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }
 
 // Handles a Stripe checkout session for a coaching lesson expiring.
@@ -195,7 +193,7 @@ func handleCoachingSessionExpired(checkoutSession *stripe.CheckoutSession) api.R
 	eventId := checkoutSession.Metadata["eventId"]
 
 	if username == "" || coachUsername == "" || eventId == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username, coachUsername and eventId are required metadata", ""))
+		return api.Failure(errors.New(400, "Invalid request: username, coachUsername and eventId are required metadata", ""))
 	}
 
 	participant := database.Participant{
@@ -210,10 +208,10 @@ func handleCoachingSessionExpired(checkoutSession *stripe.CheckoutSession) api.R
 	}
 	_, err := repository.LeaveEvent(&event, &participant)
 	if err != nil {
-		return api.Failure(funcName, errors.Wrap(500, "Temporary server error", "Failed to leave event", err))
+		return api.Failure(errors.Wrap(500, "Temporary server error", "Failed to leave event", err))
 	}
 
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }
 
 // Handles deleting a subscription on the user in the subscription metadata.
@@ -221,7 +219,7 @@ func handleSubscriptionDeletion(event *stripe.Event) api.Response {
 	var subscription stripe.Subscription
 	if err := json.Unmarshal(event.Data.Raw, &subscription); err != nil {
 		err := errors.Wrap(400, "Invalid request: unable to unmarshal event data", "", err)
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	str := spew.Sdump(subscription)
@@ -229,7 +227,7 @@ func handleSubscriptionDeletion(event *stripe.Event) api.Response {
 
 	username := subscription.Metadata["username"]
 	if username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: no username in subscription metadata", ""))
+		return api.Failure(errors.New(400, "Invalid request: no username in subscription metadata", ""))
 	}
 
 	paymentInfo := database.PaymentInfo{
@@ -244,7 +242,7 @@ func handleSubscriptionDeletion(event *stripe.Event) api.Response {
 
 	_, err := repository.UpdateUser(username, &update)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }

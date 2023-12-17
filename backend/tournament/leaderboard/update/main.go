@@ -14,8 +14,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "tournament-leaderboard-update-handler"
-
 var repository = database.DynamoDB
 
 var botAccessToken = os.Getenv("botAccessToken")
@@ -31,24 +29,24 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	auth, _ := request.Headers["authorization"]
 	if auth != fmt.Sprintf("Basic %s", botAccessToken) {
 		err := errors.New(401, "Authorization header is invalid", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	leaderboardReq := database.Leaderboard{}
 	if err := json.Unmarshal([]byte(request.Body), &leaderboardReq); err != nil {
-		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+		return api.Failure(errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
 	log.Debugf("Request leaderboard: %#v", leaderboardReq)
 	tournamentType, err := getTournamentType(leaderboardReq)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	currentMonthly, err := repository.GetLeaderboard("monthly", tournamentType, leaderboardReq.TimeControl, database.CurrentLeaderboard)
 	if err != nil {
 		if lerr, ok := err.(*errors.Error); !ok || lerr.Code != 404 {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 		// If we get here, the leaderboard doesn't exist yet and the error was a 404, which is fine
 	}
@@ -56,7 +54,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	currentYearly, err := repository.GetLeaderboard("yearly", tournamentType, leaderboardReq.TimeControl, database.CurrentLeaderboard)
 	if err != nil {
 		if lerr, ok := err.(*errors.Error); !ok || lerr.Code != 404 {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 		// If we get here, the leaderboard doesn't exist yet and the error was a 404, which is fine
 	}
@@ -92,13 +90,13 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 
 	currentMonthly.Players = leaderboardReq.Players
 	if err := repository.SetLeaderboard(*currentMonthly); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if err := repository.SetLeaderboard(*currentYearly); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, nil), nil
+	return api.Success(nil), nil
 }
 
 // getTournamentType returns the tournament type for the given leaderboard.

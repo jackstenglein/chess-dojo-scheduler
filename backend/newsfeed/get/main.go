@@ -10,8 +10,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "newsfeed-get-handler"
-
 var repository database.TimelineGetter = database.DynamoDB
 
 func main() {
@@ -25,19 +23,19 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	owner := event.PathParameters["owner"]
 	if owner == "" {
 		err := errors.New(400, "Invalid request: owner is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id := event.PathParameters["id"]
 	if id == "" {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	entry, err := repository.GetTimelineEntry(owner, id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, entry), nil
+	return api.Success(entry), nil
 }

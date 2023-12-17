@@ -13,8 +13,6 @@ import (
 
 var repository database.GameLister = database.DynamoDB
 
-const funcName = "game-list-featured-handler"
-
 type ListGamesResponse struct {
 	Games            []*database.Game `json:"games"`
 	LastEvaluatedKey string           `json:"lastEvaluatedKey,omitempty"`
@@ -29,10 +27,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	games, lastKey, err := repository.ListFeaturedGames(monthAgo, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListGamesResponse{
+	return api.Success(&ListGamesResponse{
 		Games:            games,
 		LastEvaluatedKey: lastKey,
 	}), nil

@@ -14,8 +14,6 @@ import (
 
 var repository database.GameLister = database.DynamoDB
 
-const funcName = "game-list-owner-handler"
-
 type ListGamesResponse struct {
 	Games            []*database.Game `json:"games"`
 	LastEvaluatedKey string           `json:"lastEvaluatedKey,omitempty"`
@@ -41,10 +39,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 		games, lastKey, err := repository.ListGamesByOwner(searchUsername, startDate, endDate, startKey)
 		if err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 
-		return api.Success(funcName, &ListGamesResponse{
+		return api.Success(&ListGamesResponse{
 			Games:            games,
 			LastEvaluatedKey: lastKey,
 		}), nil
@@ -52,15 +50,15 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if color != string(database.White) && color != string(database.Black) && color != string(database.Either) {
 		err := errors.New(400, fmt.Sprintf("Invalid request: color `%s` is invalid", color), "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	games, lastKey, err := repository.ListGamesByPlayer(player, database.PlayerColor(color), startDate, endDate, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListGamesResponse{
+	return api.Success(&ListGamesResponse{
 		Games:            games,
 		LastEvaluatedKey: lastKey,
 	}), nil

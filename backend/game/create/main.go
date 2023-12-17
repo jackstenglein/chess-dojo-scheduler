@@ -30,8 +30,6 @@ type CreateGameResponse struct {
 
 var repository database.GamePutter = database.DynamoDB
 
-const funcName = "game-create-handler"
-
 func main() {
 	lambda.Start(handler)
 }
@@ -43,11 +41,11 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	req := CreateGameRequest{}
 	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
 		err = errors.Wrap(400, "Invalid request: body cannot be unmarshaled", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if req.Orientation != "white" && req.Orientation != "black" {
 		err := errors.New(400, "Invalid request: orientation must be `white` or `black`", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	var pgnText string
@@ -68,31 +66,31 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	info := api.GetUserInfo(event)
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	games, headers, err := getGames(user, pgnTexts, req.Headers, req.Orientation)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if headers != nil {
-		return api.Success(funcName, &CreateGameResponse{Headers: headers, Count: len(headers)}), nil
+		return api.Success(&CreateGameResponse{Headers: headers, Count: len(headers)}), nil
 	}
 
 	if len(games) == 0 {
 		err := errors.New(400, "Invalid request: no games found", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	updated, err := repository.BatchPutGames(games)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if err := repository.RecordGameCreation(user, updated); err != nil {
@@ -105,9 +103,9 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	if req.Type == game.LichessChapter || req.Type == game.Manual {
-		return api.Success(funcName, games[0]), nil
+		return api.Success(games[0]), nil
 	}
-	return api.Success(funcName, &CreateGameResponse{Count: updated}), nil
+	return api.Success(&CreateGameResponse{Count: updated}), nil
 }
 
 func getGames(user *database.User, pgnTexts []string, reqHeaders []*game.HeaderData, orientation string) ([]*database.Game, []*game.HeaderData, error) {

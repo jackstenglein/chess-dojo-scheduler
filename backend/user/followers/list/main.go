@@ -13,8 +13,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-followers-list-handler"
-
 var repository database.FollowerLister = database.DynamoDB
 
 type ListFollowersResponse struct {
@@ -33,7 +31,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (api.Res
 	username := event.PathParameters["username"]
 	if username == "" {
 		err := errors.New(400, "Invalid request: username is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	startKey := event.QueryStringParameters["startKey"]
 
@@ -50,10 +48,10 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (api.Res
 	}
 
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListFollowersResponse{
+	return api.Success(&ListFollowersResponse{
 		Followers: followers,
 		LastKey:   lastKey,
 	}), nil

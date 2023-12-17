@@ -10,8 +10,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-timeline-list-handler"
-
 var repository database.TimelineLister = database.DynamoDB
 
 type ListTimelineEntriesResponse struct {
@@ -25,17 +23,17 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	owner, _ := event.PathParameters["owner"]
 	if owner == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: owner is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: owner is required", "")), nil
 	}
 
 	startKey, _ := event.QueryStringParameters["startKey"]
 
 	entries, lastKey, err := repository.ListTimelineEntries(owner, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListTimelineEntriesResponse{
+	return api.Success(&ListTimelineEntriesResponse{
 		Entries:          entries,
 		LastEvaluatedKey: lastKey,
 	}), nil

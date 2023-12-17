@@ -11,8 +11,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/user/access"
 )
 
-const funcName = "user-access-handler"
-
 var repository database.UserUpdater = database.DynamoDB
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
@@ -22,7 +20,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	info := api.GetUserInfo(event)
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	var isForbidden bool
@@ -55,10 +53,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, nil), nil
+	return api.Success(nil), nil
 }
 
 func main() {

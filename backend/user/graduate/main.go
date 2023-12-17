@@ -14,8 +14,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-graduate-handler"
-
 var repository database.GraduationCreator = database.DynamoDB
 
 type GraduationRequest struct {
@@ -32,22 +30,22 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
 	request := &GraduationRequest{}
 	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
-		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+		return api.Failure(errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	nextCohort := user.DojoCohort.GetNextCohort()
 	if nextCohort == database.NoCohort {
-		return api.Failure(funcName, errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` cannot graduate", user.DojoCohort), "")), nil
+		return api.Failure(errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` cannot graduate", user.DojoCohort), "")), nil
 	}
 
 	var requirements []*database.Requirement
@@ -55,7 +53,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	for ok := true; ok; ok = (startKey != "") {
 		reqs, lastKey, err := repository.ListRequirements(user.DojoCohort, true, startKey)
 		if err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 		requirements = append(requirements, reqs...)
 		startKey = lastKey
@@ -100,7 +98,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		NonDojoMinutes:      nonDojoTime,
 	}
 	if err := repository.PutGraduation(&graduation); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	timelineEntry := database.TimelineEntry{
@@ -136,10 +134,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 	user, err = repository.UpdateUser(info.Username, &update)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &GraduationResponse{Graduation: &graduation, UserUpdate: user}), nil
+	return api.Success(&GraduationResponse{Graduation: &graduation, UserUpdate: user}), nil
 }
 
 func main() {

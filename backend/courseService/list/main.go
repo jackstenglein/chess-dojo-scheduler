@@ -14,8 +14,6 @@ import (
 
 var repository database.CourseLister = database.DynamoDB
 
-const funcName = "course-list-handler"
-
 type ListCoursesResponse struct {
 	Courses          []database.Course `json:"courses"`
 	LastEvaluatedKey string            `json:"lastEvaluatedKey,omitempty"`
@@ -40,16 +38,16 @@ func handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (api.Res
 	} else {
 		courseType := event.PathParameters["type"]
 		if courseType == "" {
-			return api.Failure(funcName, errors.New(400, "Invalid request: type is required", "")), nil
+			return api.Failure(errors.New(400, "Invalid request: type is required", "")), nil
 		}
 		courses, lastKey, err = repository.ListCourses(courseType, startKey)
 	}
 
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListCoursesResponse{
+	return api.Success(&ListCoursesResponse{
 		Courses:          courses,
 		LastEvaluatedKey: lastKey,
 	}), nil

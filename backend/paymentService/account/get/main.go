@@ -11,8 +11,6 @@ import (
 	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 )
 
-const funcName = "payment-account-get-handler"
-
 var repository database.UserGetter = database.DynamoDB
 
 func main() {
@@ -25,21 +23,21 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if user.CoachInfo == nil || user.CoachInfo.StripeId == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: user does not have a Stripe account", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: user does not have a Stripe account", "")), nil
 	}
 
 	account, err := payment.GetConnectedAccount(user.CoachInfo.StripeId)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, account), nil
+	return api.Success(account), nil
 }

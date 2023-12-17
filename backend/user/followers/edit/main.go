@@ -11,8 +11,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-follower-edit-handler"
-
 var repository database.FollowerEditor = database.DynamoDB
 
 type EditFollowerRequest struct {
@@ -31,22 +29,22 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
 		err := errors.New(400, "Invalid request: username is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	req := EditFollowerRequest{}
 	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
 		err := errors.Wrap(400, "Invalid request: failed to unmarshal request body", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if req.Poster == "" {
 		err := errors.New(400, "Invalid request: poster is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if info.Username == req.Poster {
 		err := errors.New(400, "Invalid request: you cannot follow yourself", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if req.Action == "follow" {
@@ -56,24 +54,24 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	err := errors.New(400, "Invalid request: action must be `follow` or `unfollow`", "")
-	return api.Failure(funcName, err), nil
+	return api.Failure(err), nil
 }
 
 // handleFollow handles a follow request.
 func handleFollow(posterUsername, followerUsername string) api.Response {
 	poster, err := repository.GetUser(posterUsername)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	follower, err := repository.GetUser(followerUsername)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	entry, err := repository.CreateFollower(poster, follower)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	notification := database.NewFollowerNotification(entry, follower.DojoCohort)
@@ -81,14 +79,14 @@ func handleFollow(posterUsername, followerUsername string) api.Response {
 		log.Error("Failed to create notification: ", err)
 	}
 
-	return api.Success(funcName, entry)
+	return api.Success(entry)
 }
 
 // handleUnfollow handles an unfollow request.
 func handleUnfollow(poster, follower string) api.Response {
 	err := repository.DeleteFollower(poster, follower)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }

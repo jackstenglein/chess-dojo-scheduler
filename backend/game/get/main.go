@@ -13,8 +13,6 @@ import (
 
 var repository database.GameGetter = database.DynamoDB
 
-const funcName = "game-get-handler"
-
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -22,27 +20,27 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	cohort, ok := event.PathParameters["cohort"]
 	if !ok {
 		err := errors.New(400, "Invalid request: cohort is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id, ok := event.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if b, err := base64.StdEncoding.DecodeString(id); err != nil {
 		err = errors.Wrap(400, "Invalid request: id is not base64 encoded", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	} else {
 		id = string(b)
 	}
 
 	game, err := repository.GetGame(cohort, id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, game), nil
+	return api.Success(game), nil
 }
 
 func main() {

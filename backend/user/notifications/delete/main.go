@@ -10,8 +10,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-notification-delete-handler"
-
 var repository = database.DynamoDB
 
 func main() {
@@ -24,17 +22,17 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
 	id := event.PathParameters["id"]
 	if id == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: id is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: id is required", "")), nil
 	}
 
 	err := repository.DeleteNotification(info.Username, id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, nil), nil
+	return api.Success(nil), nil
 }

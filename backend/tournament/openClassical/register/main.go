@@ -19,8 +19,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/user/ratings"
 )
 
-const funcName = "open-classical-register-handler"
-
 var media = database.S3
 var stage = os.Getenv("stage")
 
@@ -65,33 +63,33 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	request := &RegisterRequest{}
 	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if info.Email != "" {
 		request.Email = info.Email
 	}
 
 	if err := checkRequest(request); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	client, err := getSheetsClient(ctx)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	call := getAppendCall(ctx, client, request)
 	_, err = call.Do()
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to write to sheet", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if err := os.Remove("/tmp/openClassicalServiceAccountKey.json"); err != nil {
 		log.Errorf("Failed to rmeove JSON file: %v", err)
 	}
 
-	return api.Success(funcName, nil), nil
+	return api.Success(nil), nil
 }
 
 // Returns an error if the request is invalid.

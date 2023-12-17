@@ -19,8 +19,6 @@ import (
 var repository database.EventLeaver = database.DynamoDB
 var frontendHost = os.Getenv("frontendHost")
 
-const funcName = "event-leave-handler"
-
 const newOwnerPrefix = "Hello, the owner of your upcoming meeting has canceled, and you have been made the new owner of the meeting. "
 const noParticipantsSuffix = "The meeting currently has no other participants but is available for others to book. You can edit the meeting from the [Calendar](%s)."
 const sameOwnerPrefix = "Hello, a member of your upcoming meeting has canceled. "
@@ -37,18 +35,18 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	info := api.GetUserInfo(request)
 	if info.Username == "" {
 		err := errors.New(403, "Invalid request: not authenticated", "Username from Cognito token was empty")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id, ok := request.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	event, err := repository.GetEvent(id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if event.Type == database.EventType_Coaching {
@@ -60,23 +58,23 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 
 	if event.Type != database.EventType_Availability {
 		err := errors.New(400, "Invalid request: this event type is not supported", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if len(event.Participants) == 0 {
 		err := errors.New(400, "Invalid request: nobody has booked this availability. Delete it instead", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	participant := event.Participants[info.Username]
 	if event.Owner != info.Username && participant == nil {
 		err := errors.New(403, "Invalid request: user is not a participant in this meeting", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	newEvent, err := repository.LeaveEvent(event, participant)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if err := repository.RecordEventCancelation(event); err != nil {
@@ -96,7 +94,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	sendNotification(event, newEvent)
-	return api.Success(funcName, newEvent), nil
+	return api.Success(newEvent), nil
 }
 
 // handles a coach canceling a session that has been booked. Any users who have paid are issued
@@ -104,7 +102,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 func cancelCoachingSession(event *database.Event) api.Response {
 	newEvent, err := repository.CancelEvent(event)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	for _, p := range newEvent.Participants {
@@ -114,7 +112,7 @@ func cancelCoachingSession(event *database.Event) api.Response {
 		}
 	}
 
-	return api.Success(funcName, newEvent)
+	return api.Success(newEvent)
 }
 
 // handles a user leaving a coaching session that they have booked. The user may need a refund
@@ -123,14 +121,14 @@ func leaveCoachingSession(username string, event *database.Event) api.Response {
 	participant := event.Participants[username]
 	if participant == nil {
 		err := errors.New(403, "Invalid request: user is not a participant in this meeting", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	now := time.Now()
 	eventStart, err := time.Parse(time.RFC3339, event.StartTime)
 	if err != nil {
 		err = errors.Wrap(400, "Invalid request: event does not have a valid start time", "time.Parse failure", err)
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 	cancelationTime := eventStart.Add(-23 * time.Hour).Add(-55 * time.Minute)
 
@@ -141,17 +139,17 @@ func leaveCoachingSession(username string, event *database.Event) api.Response {
 	} else {
 		_, err = payment.CreateEventRefund(event, participant, 100)
 		if err != nil {
-			return api.Failure(funcName, err)
+			return api.Failure(err)
 		}
 		newEvent, err = repository.LeaveEvent(event, participant)
 	}
 
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	sendNotification(event, newEvent)
-	return api.Success(funcName, newEvent)
+	return api.Success(newEvent)
 }
 
 func sendNotification(event, newEvent *database.Event) {

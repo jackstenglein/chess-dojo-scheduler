@@ -10,8 +10,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-notification-list-handler"
-
 var repository = database.DynamoDB
 
 type ListNotificationsResponse struct {
@@ -25,17 +23,17 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	username := api.GetUserInfo(event).Username
 	if username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "Username missing")), nil
+		return api.Failure(errors.New(400, "Invalid request: username is required", "Username missing")), nil
 	}
 
 	startKey, _ := event.QueryStringParameters["startKey"]
 
 	notifications, lastKey, err := repository.ListNotifications(username, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListNotificationsResponse{
+	return api.Success(&ListNotificationsResponse{
 		Notifications:    notifications,
 		LastEvaluatedKey: lastKey,
 	}), nil

@@ -12,8 +12,6 @@ import (
 
 var repository database.EventLister = database.DynamoDB
 
-const funcName = "event-list-handler"
-
 type ListEventsResponse struct {
 	Events           []*database.Event `json:"events"`
 	LastEvaluatedKey string            `json:"lastEvaluatedKey,omitempty"`
@@ -28,10 +26,10 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 
 	events, lastKey, err := repository.ScanEvents(info.Username == "", startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListEventsResponse{
+	return api.Success(&ListEventsResponse{
 		Events:           events,
 		LastEvaluatedKey: lastKey,
 	}), nil

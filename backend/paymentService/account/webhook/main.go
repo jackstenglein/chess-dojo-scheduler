@@ -15,8 +15,6 @@ import (
 	"github.com/stripe/stripe-go/webhook"
 )
 
-const funcName = "payment-connect-webhook"
-
 var repository database.UserUpdater = database.DynamoDB
 var endpointSecret = ""
 
@@ -46,13 +44,13 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	signatureHeader, ok := event.Headers["stripe-signature"]
 	if !ok {
 		err := errors.New(400, "Invalid request: missing stripe signature", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	stripeEvent, err := webhook.ConstructEvent([]byte(event.Body), signatureHeader, endpointSecret)
 	if err != nil {
 		err = errors.Wrap(400, "Invalid request: stripe signature did not verify", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	str := spew.Sdump(stripeEvent)
@@ -66,7 +64,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		log.Debugf("Unhandled event type: %s", stripeEvent.Type)
 	}
 
-	return api.Success(funcName, nil), nil
+	return api.Success(nil), nil
 }
 
 // Responds to Stripe account.updated events.
@@ -74,13 +72,13 @@ func handleAccountUpdated(event *stripe.Event) api.Response {
 	var account stripe.Account
 	if err := json.Unmarshal(event.Data.Raw, &account); err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal event data", "", err)
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	username := account.Metadata["username"]
 	if username == "" {
 		err := errors.New(400, "Invalid request: account does not have username metadata", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	onboardingComplete := account.DetailsSubmitted &&
@@ -96,8 +94,8 @@ func handleAccountUpdated(event *stripe.Event) api.Response {
 		},
 	}
 	if _, err := repository.UpdateUser(username, &update); err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
-	return api.Success(funcName, nil)
+	return api.Success(nil)
 }

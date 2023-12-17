@@ -17,8 +17,6 @@ import (
 
 type Event events.CloudWatchEvent
 
-const funcName = "user-ratings-update-handler"
-
 var repository = database.DynamoDB
 
 var now = time.Now()

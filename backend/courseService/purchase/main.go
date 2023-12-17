@@ -13,8 +13,6 @@ import (
 
 var repository database.CourseGetter = database.DynamoDB
 
-const funcName = "course-purchase-handler"
-
 type PurchaseCourseResponse struct {
 	Url string `json:"url"`
 }
@@ -32,12 +30,12 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	courseType := event.PathParameters["type"]
 	id := event.PathParameters["id"]
 	if courseType == "" || id == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: type and id are required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: type and id are required", "")), nil
 	}
 
 	course, err := repository.GetCourse(courseType, id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	purchaseOption := course.PurchaseOptions[0]
@@ -63,8 +61,8 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	url, err := payment.PurchaseCourseUrl(user, course, purchaseOption, cancelUrl)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, PurchaseCourseResponse{Url: url}), nil
+	return api.Success(PurchaseCourseResponse{Url: url}), nil
 }

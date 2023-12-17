@@ -16,8 +16,6 @@ import (
 
 var repository database.GameCommenter = database.DynamoDB
 
-const funcName = "game-comment-create-handler"
-
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -25,17 +23,17 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	cohort, ok := event.PathParameters["cohort"]
 	if !ok {
 		err := errors.New(400, "Invalid request: cohort is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id, ok := event.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if b, err := base64.StdEncoding.DecodeString(id); err != nil {
 		err = errors.Wrap(400, "Invalid request: id is not base64 encoded", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	} else {
 		id = string(b)
 	}
@@ -43,27 +41,27 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	comment := database.Comment{}
 	if err := json.Unmarshal([]byte(event.Body), &comment); err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if comment.Owner != api.GetUserInfo(event).Username {
 		err := errors.New(400, "Invalid request: owner does not match caller", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if comment.OwnerDisplayName == "" {
 		err := errors.New(400, "Invalid request: ownerDisplayName must not be empty", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if string(comment.OwnerCohort) == "" {
 		err := errors.New(400, "Invalid request: ownerCohort must not be empty", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if comment.Content == "" {
 		err := errors.New(400, "Invalid request: content must not be empty", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	comment.Id = uuid.NewString()
@@ -72,7 +70,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	game, err := repository.CreateComment(cohort, id, &comment)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if comment.Owner != game.Owner {
@@ -82,7 +80,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	return api.Success(funcName, game), nil
+	return api.Success(game), nil
 }
 
 func main() {

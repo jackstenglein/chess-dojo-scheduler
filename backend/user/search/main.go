@@ -11,8 +11,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-search-handler"
-
 var repository database.UserLister = database.DynamoDB
 
 type SearchUsersResponse struct {
@@ -33,16 +31,16 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	startKey, _ := event.QueryStringParameters["startKey"]
 
 	if query == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: query is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: query is required", "")), nil
 	}
 	if fieldStr == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: fields is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: fields is required", "")), nil
 	}
 
 	fields := strings.Split(fieldStr, ",")
 	users, lastKey, err := repository.SearchUsers(query, fields, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	for _, user := range users {
@@ -53,7 +51,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	return api.Success(funcName, &SearchUsersResponse{
+	return api.Success(&SearchUsersResponse{
 		Users:            users,
 		LastEvaluatedKey: lastKey,
 	}), nil

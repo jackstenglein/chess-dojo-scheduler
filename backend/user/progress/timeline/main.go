@@ -12,8 +12,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-progress-timeline-update-handler"
-
 var repository database.UserProgressUpdater = database.DynamoDB
 
 type UpdateTimelineRequest struct {
@@ -70,52 +68,52 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
 	request := &UpdateTimelineRequest{}
 	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
-		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+		return api.Failure(errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 	if request.RequirementId == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: requirementId is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: requirementId is required", "")), nil
 	}
 	if request.Cohort == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: cohort is required", "")), nil
 	}
 
 	if len(request.Updated) == 0 && len(request.Deleted) == 0 {
-		return api.Failure(funcName, errors.New(400, "Invalid request: at least one change is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: at least one change is required", "")), nil
 	}
 
 	for _, entry := range request.Updated {
 		if entry.Owner != info.Username {
-			return api.Failure(funcName, errors.New(400, "Invalid request: you are not the owner of an updated entry", "")), nil
+			return api.Failure(errors.New(400, "Invalid request: you are not the owner of an updated entry", "")), nil
 		}
 	}
 
 	for _, entry := range request.Deleted {
 		if entry.Owner != info.Username {
-			return api.Failure(funcName, errors.New(400, "Invalid request: you are not the owner of a deleted entry", "")), nil
+			return api.Failure(errors.New(400, "Invalid request: you are not the owner of a deleted entry", "")), nil
 		}
 	}
 
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if len(request.Deleted) > 0 {
 		_, err := repository.DeleteTimelineEntries(request.Deleted)
 		if err != nil {
-			return api.Failure(funcName, errors.Wrap(500, "Temporary server error", "Failed to delete timeline entries", err)), nil
+			return api.Failure(errors.Wrap(500, "Temporary server error", "Failed to delete timeline entries", err)), nil
 		}
 	}
 
 	if len(request.Updated) > 0 {
 		_, err := repository.PutTimelineEntries(request.Updated)
 		if err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 	}
 
@@ -137,9 +135,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 	user, err = repository.UpdateUser(user.Username, update)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, user), nil
+	return api.Success(user), nil
 }
 
 func main() {

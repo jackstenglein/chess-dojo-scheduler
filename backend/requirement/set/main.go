@@ -16,25 +16,23 @@ import (
 
 var repository database.RequirementSetter = database.DynamoDB
 
-const funcName = "requirement-set-handler"
-
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
 	user, err := repository.GetUser(api.GetUserInfo(event).Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if !user.IsAdmin && !user.IsCalendarAdmin {
 		err := errors.New(403, "You do not have permission to perform this action", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	requirement := &database.Requirement{}
 	if err := json.Unmarshal([]byte(event.Body), requirement); err != nil {
 		err := errors.Wrap(400, "Invalid request: body format is invalid", "Unable to unmarshal body", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if requirement.Id == "" {
@@ -44,27 +42,27 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if requirement.Category == "" {
 		err := errors.New(400, "Invalid request: category is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if requirement.Name == "" {
 		err := errors.New(400, "Invalid request: name is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if requirement.Description == "" {
 		err := errors.New(400, "Invalid request: description is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if len(requirement.Counts) == 0 {
 		err := errors.New(400, "Invalid request: counts must have at least one object", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if requirement.SortPriority == "" {
 		err := errors.New(400, "Invalid request: sortPriority is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if !requirement.ScoreboardDisplay.IsValid() {
 		err := errors.New(400, fmt.Sprintf("Invalid request: scoreboardDisplay %q is invalid", requirement.ScoreboardDisplay), "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if requirement.NumberOfCohorts == 0 {
 		requirement.NumberOfCohorts = 1
@@ -72,10 +70,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	requirement.UpdatedAt = time.Now().Format(time.RFC3339)
 
 	if err := repository.SetRequirement(requirement); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, requirement), nil
+	return api.Success(requirement), nil
 }
 
 func main() {

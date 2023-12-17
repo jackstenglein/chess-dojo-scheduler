@@ -11,8 +11,6 @@ import (
 	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 )
 
-const funcName = "subscription-manage-handler"
-
 var repository database.UserGetter = database.DynamoDB
 
 type SubscriptionManageResponse struct {
@@ -30,17 +28,17 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	info := api.GetUserInfo(event)
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if user.PaymentInfo == nil || user.PaymentInfo.CustomerId == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: user does not have a Stripe customer ID", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: user does not have a Stripe customer ID", "")), nil
 	}
 
 	session, err := payment.GetBillingPortalSession(user.PaymentInfo.CustomerId)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, SubscriptionManageResponse{Url: session.URL}), nil
+	return api.Success(SubscriptionManageResponse{Url: session.URL}), nil
 }

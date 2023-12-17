@@ -9,8 +9,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "openClassical-get-handler"
-
 var repository = database.DynamoDB
 
 func main() {
@@ -23,8 +21,8 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	openClassical, err := repository.GetOpenClassical(database.CurrentLeaderboard)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, openClassical), nil
+	return api.Success(openClassical), nil
 }

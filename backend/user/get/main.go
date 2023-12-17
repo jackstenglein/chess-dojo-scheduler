@@ -13,8 +13,6 @@ import (
 
 var repository database.UserGetter = database.DynamoDB
 
-const funcName = "user-get-handler"
-
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -27,12 +25,12 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	if username == "" {
 		err := errors.New(400, "Invalid request: username is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	user, err := repository.GetUser(username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if user.Username != info.Username {
@@ -43,7 +41,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	return api.Success(funcName, user), err
+	return api.Success(user), err
 }
 
 func main() {

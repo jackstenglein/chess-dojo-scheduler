@@ -43,7 +43,7 @@ func GetUserInfo(event Request) *UserInfo {
 }
 
 // errorToResponse converts the given error into an AWS ApiGateway Response object.
-func errorToResponse(e *errors.Error, funcName string) Response {
+func errorToResponse(e *errors.Error) Response {
 	if e == nil {
 		return Response{StatusCode: 200}
 	}
@@ -68,17 +68,16 @@ func errorToResponse(e *errors.Error, funcName string) Response {
 		Body:            message,
 		Headers: map[string]string{
 			"Content-Type":                "application/json",
-			"X-Chess-Dojo-Scheduler-Func": funcName,
 			"Access-Control-Allow-Origin": "*",
 		},
 	}
 }
 
 // Failure converts the given error into an AWS ApiGateway Response object.
-func Failure(funcName string, err error) Response {
+func Failure(err error) Response {
 	var lerr *errors.Error
 	if errors.As(err, &lerr) {
-		return errorToResponse(lerr, funcName)
+		return errorToResponse(lerr)
 	}
 
 	log.Error(err)
@@ -99,7 +98,6 @@ func Failure(funcName string, err error) Response {
 		Body:            message,
 		Headers: map[string]string{
 			"Content-Type":                "application/json",
-			"X-Chess-Dojo-Scheduler-Func": funcName,
 			"Access-Control-Allow-Origin": "*",
 		},
 	}
@@ -107,7 +105,7 @@ func Failure(funcName string, err error) Response {
 
 // Success returns an AWS ApiGateway Response object with the provided
 // object encoded as the JSON body.
-func Success(funcName string, in interface{}) Response {
+func Success(in interface{}) Response {
 	body, err := json.Marshal(in)
 	if err != nil {
 		log.Error(err)
@@ -117,7 +115,6 @@ func Success(funcName string, in interface{}) Response {
 			Body:            fmt.Sprintf("{\"publicMessage\": \"Request was successful, but body failed to marshal: %s\"}", err),
 			Headers: map[string]string{
 				"Content-Type":                "application/json",
-				"X-Chess-Dojo-Scheduler-Func": funcName,
 				"Access-Control-Allow-Origin": "*",
 			},
 		}
@@ -130,7 +127,6 @@ func Success(funcName string, in interface{}) Response {
 		Body:            string(body),
 		Headers: map[string]string{
 			"Content-Type":                "application/json",
-			"X-Chess-Dojo-Scheduler-Func": funcName,
 			"Access-Control-Allow-Origin": "*",
 		},
 	}

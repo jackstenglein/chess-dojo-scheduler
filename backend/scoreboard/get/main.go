@@ -11,8 +11,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "scoreboard-get-handler"
-
 const (
 	requestType_Dojo      = "dojo"
 	requestType_Following = "following"
@@ -45,7 +43,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	err := errors.New(400, fmt.Sprintf("Invalid request: unknown request type `%s`", requestType), "")
-	return api.Failure(funcName, err), nil
+	return api.Failure(err), nil
 }
 
 // handleFullDojo fetches a list of scoreboard summaries for the full dojo,
@@ -53,10 +51,10 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 func handleFullDojo(startKey string) api.Response {
 	summaries, lastKey, err := repository.ListScoreboardSummaries(startKey)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
-	return api.Success(funcName, &GetScoreboardResponse{
+	return api.Success(&GetScoreboardResponse{
 		Data:             summaries,
 		LastEvaluatedKey: lastKey,
 	})
@@ -67,13 +65,13 @@ func handleFullDojo(startKey string) api.Response {
 func handleFollowing(event api.Request) api.Response {
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", ""))
+		return api.Failure(errors.New(400, "Invalid request: username is required", ""))
 	}
 
 	startKey := event.QueryStringParameters["startKey"]
 	followingEntries, lastKey, err := repository.ListFollowingLimit(info.Username, startKey, 100)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	following := make([]string, len(followingEntries))
@@ -83,10 +81,10 @@ func handleFollowing(event api.Request) api.Response {
 
 	summaries, err := repository.GetScoreboardSummaries(following)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
-	return api.Success(funcName, &GetScoreboardResponse{
+	return api.Success(&GetScoreboardResponse{
 		Data:             summaries,
 		LastEvaluatedKey: lastKey,
 	})
@@ -97,10 +95,10 @@ func handleFollowing(event api.Request) api.Response {
 func handleCohort(cohort, startKey string) api.Response {
 	users, lastKey, err := repository.GetCohort(cohort, startKey)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
-	return api.Success(funcName, &GetScoreboardResponse{
+	return api.Success(&GetScoreboardResponse{
 		Data:             users,
 		LastEvaluatedKey: lastKey,
 	})

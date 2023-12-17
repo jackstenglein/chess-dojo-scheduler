@@ -12,8 +12,6 @@ import (
 
 var repository database.EventGetter = database.DynamoDB
 
-const funcName = "event-checkout-handler"
-
 type EventCheckoutResponse struct {
 	Url string `json:"url"`
 }
@@ -29,35 +27,35 @@ func handler(ctx context.Context, request api.Request) (api.Response, error) {
 	info := api.GetUserInfo(request)
 	if info.Username == "" {
 		err := errors.New(403, "Invalid request: not authenticated", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id := request.PathParameters["id"]
 	if id == "" {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	event, err := repository.GetEvent(id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if event.Type != database.EventType_Coaching {
 		err := errors.New(400, "Invalid request: event must be a coaching session", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	p := event.Participants[info.Username]
 	if p == nil {
-		return api.Failure(funcName, errors.New(403, "Invalid request: user is not a participant of this event. Your booking may have already expired.", "")), nil
+		return api.Failure(errors.New(403, "Invalid request: user is not a participant of this event. Your booking may have already expired.", "")), nil
 	}
 	if p.HasPaid {
-		return api.Failure(funcName, errors.New(400, "Invalid request: user has already paid", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: user has already paid", "")), nil
 	}
 	if p.CheckoutSession == nil {
-		return api.Failure(funcName, errors.New(400, "Invalid request: user has no associated checkout session", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: user has no associated checkout session", "")), nil
 	}
 
-	return api.Success(funcName, EventCheckoutResponse{Url: p.CheckoutSession.URL}), nil
+	return api.Success(EventCheckoutResponse{Url: p.CheckoutSession.URL}), nil
 }

@@ -16,8 +16,6 @@ import (
 
 var repository database.TimelineCommenter = database.DynamoDB
 
-const funcName = "newsfeed-comment-create-handler"
-
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -25,29 +23,29 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	owner := event.PathParameters["owner"]
 	if owner == "" {
 		err := errors.New(400, "Invalid request: owner is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id := event.PathParameters["id"]
 	if id == "" {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	comment := database.Comment{}
 	if err := json.Unmarshal([]byte(event.Body), &comment); err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if strings.TrimSpace(comment.Content) == "" {
 		err := errors.New(400, "Invalid request: content must not be empty", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	commenter, err := repository.GetUser(api.GetUserInfo(event).Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	comment.Owner = commenter.Username
@@ -59,7 +57,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	entry, err := repository.CreateTimelineComment(owner, id, &comment)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if entry.Owner != comment.Owner {
@@ -69,7 +67,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	return api.Success(funcName, entry), nil
+	return api.Success(entry), nil
 }
 
 func main() {
