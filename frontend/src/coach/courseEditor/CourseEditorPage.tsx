@@ -21,15 +21,30 @@ import {
     Typography,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Delete } from '@mui/icons-material';
+import { ArrowUpward, Delete } from '@mui/icons-material';
 
 import { useRequest } from '../../api/Request';
 import { GetCourseResponse } from '../../api/courseApi';
-import { Course, CourseType } from '../../database/course';
+import { Course, CourseSellingPoint, CourseType } from '../../database/course';
 import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
 import { dojoCohorts, getCohortRange } from '../../database/user';
 import PurchaseCoursePreview from './PurchaseCoursePreview';
+import LoadingPage from '../../loading/LoadingPage';
+
+interface CoursePurchaseOptionEditor {
+    name: string;
+    fullPrice: string;
+    currentPrice: string;
+    sellingPoints: CourseSellingPoint[];
+}
+
+const defaultCoursePurchaseOptionEditor = {
+    name: '',
+    fullPrice: '',
+    currentPrice: '',
+    sellingPoints: [],
+};
 
 function getCohortRangeDescription(cohortRange: string[]): string {
     if (cohortRange.length === dojoCohorts.length) {
@@ -68,8 +83,9 @@ const CourseEditorPage = () => {
     const [cohortRangeStr, setCohortRangeStr] = useState('');
     const [includedWithSubscription, setIncludedWithSubscription] = useState(false);
     const [availableForFreeUsers, setAvailableForFreeUsers] = useState(true);
-    const [fullPrice, setFullPrice] = useState('');
-    const [currentPrice, setCurrentPrice] = useState('');
+    const [purchaseOptions, setPurchaseOptions] = useState<CoursePurchaseOptionEditor[]>([
+        defaultCoursePurchaseOptionEditor,
+    ]);
 
     const [showPreview, setShowPreview] = useState(false);
 
@@ -92,9 +108,13 @@ const CourseEditorPage = () => {
                     setAvailableForFreeUsers(course.availableForFreeUsers);
 
                     if (course.purchaseOptions && course.purchaseOptions.length > 0) {
-                        setFullPrice(`${course.purchaseOptions[0].fullPrice / 100}`);
-                        setCurrentPrice(
-                            `${course.purchaseOptions[0].currentPrice / 100}`
+                        setPurchaseOptions(
+                            course.purchaseOptions.map((option) => ({
+                                name: option.name,
+                                fullPrice: `${option.fullPrice / 100}`,
+                                currentPrice: `${option.currentPrice / 100}`,
+                                sellingPoints: option.sellingPoints || [],
+                            }))
                         );
                     }
                 })
@@ -105,6 +125,10 @@ const CourseEditorPage = () => {
         }
     }, [request, api, params]);
 
+    if (params.type && params.id && (!request.isSent() || request.isLoading())) {
+        return <LoadingPage />;
+    }
+
     const onChangeWhatsIncluded = (idx: number, value: string) => {
         setWhatsIncluded([
             ...whatsIncluded.slice(0, idx),
@@ -113,10 +137,137 @@ const CourseEditorPage = () => {
         ]);
     };
 
+    const onMoveUpWhatsIncluded = (idx: number) => {
+        setWhatsIncluded([
+            ...whatsIncluded.slice(0, idx - 1),
+            whatsIncluded[idx],
+            whatsIncluded[idx - 1],
+            ...whatsIncluded.slice(idx + 1),
+        ]);
+    };
+
     const onDeleteWhatsIncluded = (idx: number) => {
         setWhatsIncluded([
             ...whatsIncluded.slice(0, idx),
             ...whatsIncluded.slice(idx + 1),
+        ]);
+    };
+
+    const onAddPurchaseOption = () => {
+        setPurchaseOptions([...purchaseOptions, defaultCoursePurchaseOptionEditor]);
+    };
+
+    const onChangePurchaseOption = (
+        idx: number,
+        key: Omit<keyof CoursePurchaseOptionEditor, 'sellingPoints'>,
+        value: string
+    ) => {
+        setPurchaseOptions([
+            ...purchaseOptions.slice(0, idx),
+            {
+                ...purchaseOptions[idx],
+                [key as string]: value,
+            },
+            ...purchaseOptions.slice(idx + 1),
+        ]);
+    };
+
+    const onMoveUpPurchaseOption = (idx: number) => {
+        setPurchaseOptions([
+            ...purchaseOptions.slice(0, idx - 1),
+            purchaseOptions[idx],
+            purchaseOptions[idx - 1],
+            ...purchaseOptions.slice(idx + 1),
+        ]);
+    };
+
+    const onDeletePurchaseOption = (idx: number) => {
+        setPurchaseOptions([
+            ...purchaseOptions.slice(0, idx),
+            ...purchaseOptions.slice(idx + 1),
+        ]);
+    };
+
+    const onAddSellingPoint = (purchaseOptionIdx: number) => {
+        setPurchaseOptions([
+            ...purchaseOptions.slice(0, purchaseOptionIdx),
+            {
+                ...purchaseOptions[purchaseOptionIdx],
+                sellingPoints: [
+                    ...purchaseOptions[purchaseOptionIdx].sellingPoints,
+                    {
+                        description: '',
+                        included: true,
+                    },
+                ],
+            },
+            ...purchaseOptions.slice(purchaseOptionIdx + 1),
+        ]);
+    };
+
+    const onChangeSellingPoint = (
+        purchaseOptionIdx: number,
+        sellingPointIdx: number,
+        key: keyof CourseSellingPoint,
+        value: string | boolean
+    ) => {
+        setPurchaseOptions([
+            ...purchaseOptions.slice(0, purchaseOptionIdx),
+            {
+                ...purchaseOptions[purchaseOptionIdx],
+                sellingPoints: [
+                    ...purchaseOptions[purchaseOptionIdx].sellingPoints.slice(
+                        0,
+                        sellingPointIdx
+                    ),
+                    {
+                        ...purchaseOptions[purchaseOptionIdx].sellingPoints[
+                            sellingPointIdx
+                        ],
+                        [key]: value,
+                    },
+                    ...purchaseOptions[purchaseOptionIdx].sellingPoints.slice(
+                        sellingPointIdx + 1
+                    ),
+                ],
+            },
+            ...purchaseOptions.slice(purchaseOptionIdx + 1),
+        ]);
+    };
+
+    const onMoveUpSellingPoint = (purchaseOptionIdx: number, sellingPointIdx: number) => {
+        const purchaseOption = purchaseOptions[purchaseOptionIdx];
+        setPurchaseOptions([
+            ...purchaseOptions.slice(0, purchaseOptionIdx),
+            {
+                ...purchaseOption,
+                sellingPoints: [
+                    ...purchaseOption.sellingPoints.slice(0, sellingPointIdx - 1),
+                    purchaseOption.sellingPoints[sellingPointIdx],
+                    purchaseOption.sellingPoints[sellingPointIdx - 1],
+                    ...purchaseOption.sellingPoints.slice(sellingPointIdx + 1),
+                ],
+            },
+            ...purchaseOptions.slice(purchaseOptionIdx + 1),
+        ]);
+    };
+
+    const onDeleteSellingPoint = (purchaseOptionIdx: number, sellingPointIdx: number) => {
+        setPurchaseOptions([
+            ...purchaseOptions.slice(0, purchaseOptionIdx),
+            {
+                ...purchaseOptions[purchaseOptionIdx],
+                sellingPoints: [
+                    ...purchaseOptions[purchaseOptionIdx].sellingPoints.slice(
+                        0,
+                        sellingPointIdx
+                    ),
+                    ...purchaseOptions[purchaseOptionIdx].sellingPoints.slice(
+                        sellingPointIdx + 1
+                    ),
+                ],
+            },
+            ...purchaseOptions.slice(purchaseOptionIdx + 1),
         ]);
     };
 
@@ -137,14 +288,11 @@ const CourseEditorPage = () => {
         cohortRange: cohortRangeStr.trim() ? cohortRangeStr.trim() : cohortRange,
         includedWithSubscription,
         availableForFreeUsers,
-        purchaseOptions: [
-            {
-                name: '',
-                description: '',
-                fullPrice: 100 * parseFloat(fullPrice),
-                currentPrice: 100 * parseFloat(currentPrice),
-            },
-        ],
+        purchaseOptions: purchaseOptions.map((option) => ({
+            ...option,
+            fullPrice: 100 * parseFloat(option.fullPrice),
+            currentPrice: 100 * parseFloat(option.currentPrice),
+        })),
     };
 
     if (showPreview) {
@@ -212,6 +360,14 @@ const CourseEditorPage = () => {
                                         onChangeWhatsIncluded(idx, e.target.value)
                                     }
                                 />
+                                <Tooltip title='Move Up'>
+                                    <IconButton
+                                        disabled={idx === 0}
+                                        onClick={() => onMoveUpWhatsIncluded(idx)}
+                                    >
+                                        <ArrowUpward />
+                                    </IconButton>
+                                </Tooltip>
                                 <Tooltip title='Delete'>
                                     <IconButton
                                         onClick={() => onDeleteWhatsIncluded(idx)}
@@ -335,32 +491,182 @@ const CourseEditorPage = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <FormLabel>Pricing</FormLabel>
-                    <Stack spacing={3} mt={2}>
-                        <TextField
-                            label='Full Price'
-                            value={fullPrice}
-                            onChange={(e) => setFullPrice(e.target.value)}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position='start'>$</InputAdornment>
-                                ),
-                            }}
-                        />
-                        <TextField
-                            label='Sale Price'
-                            variant='outlined'
-                            value={currentPrice}
-                            onChange={(e) => setCurrentPrice(e.target.value)}
-                            helperText={
-                                'If you want your course to display as being on sale, enter a sale price and it will be shown as a discount off the full price. If left blank, users must pay the full price.'
-                            }
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position='start'>$</InputAdornment>
-                                ),
-                            }}
-                        />
+                    <Typography variant='h6'>Purchase Options</Typography>
+                    <Typography color='text.secondary'>
+                        Each purchase option represents a different price point for your
+                        course. Most courses only require one purchase option. You should
+                        generally use multiple purchase options only if you are bundling
+                        this course with another course. If you have multiple purchase
+                        options, the first is used to display the price on the course list
+                        page.
+                    </Typography>
+
+                    <Stack spacing={5} mt={4}>
+                        {purchaseOptions.map((option, idx) => (
+                            <Stack key={idx} spacing={2} mt={2}>
+                                <Stack direction='row' spacing={1} alignItems='center'>
+                                    <Typography>Purchase Option {idx + 1}</Typography>
+                                    <Tooltip title='Move Up'>
+                                        <IconButton
+                                            disabled={idx === 0}
+                                            onClick={() => onMoveUpPurchaseOption(idx)}
+                                        >
+                                            <ArrowUpward />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title='Delete'>
+                                        <IconButton
+                                            onClick={() => onDeletePurchaseOption(idx)}
+                                        >
+                                            <Delete />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Stack>
+
+                                <Stack direction='row' spacing={1}>
+                                    <TextField
+                                        label='Name'
+                                        value={option.name}
+                                        onChange={(e) =>
+                                            onChangePurchaseOption(
+                                                idx,
+                                                'name',
+                                                e.target.value
+                                            )
+                                        }
+                                        helperText='If left blank, it defaults to the course name. Generally set this only if you have multiple purchase options.'
+                                    />
+                                    <TextField
+                                        label='Full Price'
+                                        value={option.fullPrice}
+                                        onChange={(e) =>
+                                            onChangePurchaseOption(
+                                                idx,
+                                                'fullPrice',
+                                                e.target.value
+                                            )
+                                        }
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position='start'>
+                                                    $
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                    <TextField
+                                        label='Sale Price'
+                                        variant='outlined'
+                                        value={option.currentPrice}
+                                        onChange={(e) =>
+                                            onChangePurchaseOption(
+                                                idx,
+                                                'currentPrice',
+                                                e.target.value
+                                            )
+                                        }
+                                        helperText={
+                                            'If you want this option to display as being on sale, enter a sale price and it will be shown as a discount off the full price. If left blank, users must pay the full price.'
+                                        }
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position='start'>
+                                                    $
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Stack>
+
+                                <FormGroup>
+                                    <FormLabel>Selling Points</FormLabel>
+                                    <FormHelperText>
+                                        Generally add selling points only if you have
+                                        multiple purchase options and need to distinguish
+                                        between them. Mark a selling point as excluded if
+                                        you want to highlight that one purchase option
+                                        doesn't provide a specific feature.
+                                    </FormHelperText>
+                                    <Stack mt={2} spacing={3}>
+                                        {option.sellingPoints.map((item, spIdx) => (
+                                            <Stack
+                                                direction='row'
+                                                spacing={1}
+                                                alignItems='center'
+                                            >
+                                                <TextField
+                                                    key={spIdx}
+                                                    fullWidth
+                                                    label='Description'
+                                                    value={item.description}
+                                                    onChange={(e) =>
+                                                        onChangeSellingPoint(
+                                                            idx,
+                                                            spIdx,
+                                                            'description',
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                                <FormControlLabel
+                                                    label='Included?'
+                                                    control={
+                                                        <Checkbox
+                                                            checked={item.included}
+                                                            onChange={(e) =>
+                                                                onChangeSellingPoint(
+                                                                    idx,
+                                                                    spIdx,
+                                                                    'included',
+                                                                    e.target.checked
+                                                                )
+                                                            }
+                                                        />
+                                                    }
+                                                />
+                                                <Tooltip title='Move Up'>
+                                                    <IconButton
+                                                        disabled={spIdx === 0}
+                                                        onClick={() =>
+                                                            onMoveUpSellingPoint(
+                                                                idx,
+                                                                spIdx
+                                                            )
+                                                        }
+                                                    >
+                                                        <ArrowUpward />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title='Delete'>
+                                                    <IconButton
+                                                        onClick={() =>
+                                                            onDeleteSellingPoint(
+                                                                idx,
+                                                                spIdx
+                                                            )
+                                                        }
+                                                    >
+                                                        <Delete />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Stack>
+                                        ))}
+                                        <Button
+                                            sx={{ alignSelf: 'start' }}
+                                            onClick={() => onAddSellingPoint(idx)}
+                                        >
+                                            Add Selling Point
+                                        </Button>
+                                    </Stack>
+                                </FormGroup>
+
+                                <Divider />
+                            </Stack>
+                        ))}
+
+                        <Button sx={{ alignSelf: 'start' }} onClick={onAddPurchaseOption}>
+                            Add Purchase Option
+                        </Button>
                     </Stack>
                 </FormGroup>
             </Stack>

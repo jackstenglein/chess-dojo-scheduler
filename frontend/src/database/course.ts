@@ -86,9 +86,6 @@ export interface CoursePurchaseOption {
      */
     currentPrice: number;
 
-    /** A short description of the purchase option. */
-    description: string;
-
     /** A list of selling points for the purchase option. */
     sellingPoints?: CourseSellingPoint[];
 }

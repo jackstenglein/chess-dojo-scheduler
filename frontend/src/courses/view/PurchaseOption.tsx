@@ -22,7 +22,7 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({
     const api = useApi();
     const request = useRequest();
 
-    const { name, fullPrice, currentPrice, description, sellingPoints } = purchaseOption;
+    const { name, fullPrice, currentPrice, sellingPoints } = purchaseOption;
     const percentOff = Math.round(((fullPrice - currentPrice) / fullPrice) * 100);
 
     const onBuy = () => {
@@ -81,8 +81,6 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({
                             )}
                         </Stack>
                     </Stack>
-
-                    {description && <Typography>{description}</Typography>}
 
                     {sellingPoints && (
                         <Stack spacing={1}>

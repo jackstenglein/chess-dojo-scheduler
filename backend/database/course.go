@@ -72,9 +72,6 @@ type CoursePurchaseOption struct {
 	// The current price of the purchase option in cents. If non-positive, then FullPrice is used instead.
 	CurrentPrice int `dynamodbav:"currentPrice" json:"currentPrice"`
 
-	// A short description of the purchase option.
-	Description string `dynamodbav:"description,omitempty" json:"description,omitempty"`
-
 	// A list of selling points for the purchase option.
 	SellingPoints []CourseSellingPoint `dynamodbav:"sellingPoints,omitempty" json:"sellingPoints,omitempty"`
 

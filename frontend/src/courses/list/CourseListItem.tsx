@@ -4,12 +4,13 @@ import {
     CardActions,
     CardContent,
     Chip,
+    Link,
     Stack,
     Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import React from 'react';
 
 import { Course, CoursePurchaseOption } from '../../database/course';
@@ -109,6 +110,12 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
             <CardActionArea sx={{ flexGrow: 1 }} {...actionAreaProps}>
                 <CardContent>
                     <Typography variant='h5'>{course.name}</Typography>
+                    <Typography variant='body2'>
+                        By{' '}
+                        <Link component={RouterLink} to={`/profile/${course.owner}`}>
+                            {course.ownerDisplayName}
+                        </Link>
+                    </Typography>
 
                     {isPurchased ? (
                         <Stack direction='row' alignItems='center' mb={1} spacing={0.5}>
