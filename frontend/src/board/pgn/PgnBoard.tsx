@@ -20,6 +20,7 @@ import { ClockTextFieldId, CommentTextFieldId } from './Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { TagTextFieldId } from './Tags';
 import AnnotationWarnings from './annotations/AnnotationWarnings';
+import PlayerHeader from './PlayerHeader';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -171,7 +172,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     gridTemplateRows: {
                         xs: `${
                             showPlayerHeaders ? 'auto auto' : ''
-                        } auto auto auto minmax(auto, 400px)`,
+                        } auto auto minmax(auto, calc(100vh - (100vw - 32px) - 30px ${
+                            showPlayerHeaders ? '- 56px' : ''
+                        } - 40px)) auto auto`,
                         md: `${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
                         } var(--board-size) ${
@@ -195,8 +198,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                              "board"
                              ${showPlayerHeaders ? '"playerfooter"' : ''}
                              "boardButtons"
-                             "underboard" 
-                             "coach"`,
+                             "coach"
+                             "extraButtons"
+                             "underboard"`,
 
                         md: `${showPlayerHeaders ? '". playerheader . coach ."' : ''}
                              ". board . coach ." 
@@ -243,9 +247,15 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     />
                 </Box>
 
+                {chess && showPlayerHeaders && (
+                    <>
+                        <PlayerHeader type='header' pgn={chess?.pgn} />
+                        <PlayerHeader type='footer' pgn={chess?.pgn} />
+                    </>
+                )}
+
                 {board && chess && (
                     <BoardTools
-                        showPlayerHeaders={showPlayerHeaders}
                         onClickMove={onClickMove}
                         showTags={showTags}
                         showEditor={showEditor && user && game?.owner === user.username}
@@ -260,7 +270,10 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     <Stack
                         gridArea='coach'
                         height={1}
-                        sx={{ overflowY: 'auto', mt: { xs: 2, md: 0 } }}
+                        sx={{
+                            overflowY: 'auto',
+                            mb: { xs: 1, md: 0 },
+                        }}
                     >
                         {showAnnotationWarnings && <AnnotationWarnings />}
                         <PgnText onClickMove={onClickMove} />
