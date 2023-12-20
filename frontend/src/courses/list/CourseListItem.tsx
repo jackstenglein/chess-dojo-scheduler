@@ -112,7 +112,11 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                     <Typography variant='h5'>{course.name}</Typography>
                     <Typography variant='body2'>
                         By{' '}
-                        <Link component={RouterLink} to={`/profile/${course.owner}`}>
+                        <Link
+                            component={RouterLink}
+                            to={`/profile/${course.owner}`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             {course.ownerDisplayName}
                         </Link>
                     </Typography>
