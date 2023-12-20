@@ -131,41 +131,35 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                                 Included with subscription
                             </Typography>
                         </Stack>
-                    ) : (
-                        purchaseOption && (
-                            <Stack
-                                direction='row'
-                                spacing={1}
-                                alignItems='baseline'
-                                mb={1}
+                    ) : purchaseOption ? (
+                        <Stack direction='row' spacing={1} alignItems='baseline' mb={1}>
+                            <Typography
+                                variant='h6'
+                                sx={{
+                                    color: percentOff > 0 ? 'error.main' : undefined,
+                                    textDecoration:
+                                        percentOff > 0 ? 'line-through' : undefined,
+                                }}
                             >
-                                <Typography
-                                    variant='h6'
-                                    sx={{
-                                        color: percentOff > 0 ? 'error.main' : undefined,
-                                        textDecoration:
-                                            percentOff > 0 ? 'line-through' : undefined,
-                                    }}
-                                >
-                                    ${displayPrice(purchaseOption.fullPrice / 100)}
-                                </Typography>
+                                ${displayPrice(purchaseOption.fullPrice / 100)}
+                            </Typography>
 
-                                {percentOff > 0 && (
-                                    <>
-                                        <Typography variant='h6' color='success.main'>
-                                            $
-                                            {displayPrice(
-                                                purchaseOption.currentPrice / 100
-                                            )}
-                                        </Typography>
+                            {percentOff > 0 && (
+                                <>
+                                    <Typography variant='h6' color='success.main'>
+                                        ${displayPrice(purchaseOption.currentPrice / 100)}
+                                    </Typography>
 
-                                        <Typography color='text.secondary'>
-                                            (-{percentOff}%)
-                                        </Typography>
-                                    </>
-                                )}
-                            </Stack>
-                        )
+                                    <Typography color='text.secondary'>
+                                        (-{percentOff}%)
+                                    </Typography>
+                                </>
+                            )}
+                        </Stack>
+                    ) : (
+                        <Typography variant='subtitle1' color='text.secondary'>
+                            Subscription Required
+                        </Typography>
                     )}
 
                     <Stack direction='row' mb={2} spacing={1}>

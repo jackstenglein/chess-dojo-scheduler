@@ -42,7 +42,7 @@ export function avatarProps(name: string, size: number | SxSize = 74) {
         uppercaseLetters = tokens
             .slice(0, 3)
             .map((v) => v[0])
-            .map((v) => v.toLocaleUpperCase())
+            .map((v) => v?.toLocaleUpperCase() || '')
             .join('');
     }
 

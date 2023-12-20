@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Button, Card, CardContent, CardHeader, Link, Typography } from '@mui/material';
+import { Card, CardContent, CardHeader, Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
 import { useApi } from '../../api/Api';
@@ -31,7 +31,7 @@ const CoursesCard = () => {
         <Card variant='outlined'>
             <CardHeader
                 title='Courses'
-                action={<Button variant='contained'>Create Course</Button>}
+                // action={<Button variant='contained'>Create Course</Button>}
             />
             <CardContent>
                 {(!request.isSent() || request.isLoading()) && <LoadingPage />}
@@ -40,15 +40,17 @@ const CoursesCard = () => {
                     <Typography>You haven't created any courses yet.</Typography>
                 )}
 
-                {request.data?.map((course) => (
-                    <Link
-                        key={course.id}
-                        component={RouterLink}
-                        to={`courses/${course.type}/${course.id}`}
-                    >
-                        {course.name}
-                    </Link>
-                ))}
+                <Stack spacing={0.5}>
+                    {request.data?.map((course) => (
+                        <Link
+                            key={course.id}
+                            component={RouterLink}
+                            to={`courses/${course.type}/${course.id}`}
+                        >
+                            {course.name}
+                        </Link>
+                    ))}
+                </Stack>
             </CardContent>
         </Card>
     );

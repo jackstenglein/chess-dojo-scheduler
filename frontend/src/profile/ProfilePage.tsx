@@ -77,6 +77,11 @@ const ProfilePage = () => {
         }
     }, [api, currentUserProfile, followRequest, username]);
 
+    const reset = request.reset;
+    useEffect(() => {
+        reset();
+    }, [username, reset]);
+
     const user = currentUserProfile ? currentUser : request.data;
 
     if (!user && request.isLoading()) {

@@ -68,6 +68,7 @@ import {
     CourseApiContextType,
     listAllCourses,
     purchaseCourse,
+    setCourse,
 } from './courseApi';
 import {
     getLeaderboard,
@@ -111,6 +112,7 @@ import {
     SubscriptionCheckoutRequest,
     subscriptionManage,
 } from './paymentApi';
+import { Course } from '../database/course';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -282,6 +284,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 purchaseOption?: string,
                 cancelUrl?: string
             ) => purchaseCourse(idToken, type, id, purchaseOption, cancelUrl),
+            setCourse: (course: Course) => setCourse(idToken, course),
 
             getLeaderboard: (
                 timePeriod: TimePeriod,

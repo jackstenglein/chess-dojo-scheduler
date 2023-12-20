@@ -24,6 +24,7 @@ export interface Request<T = any> {
     reset: () => void;
     isLoading: () => boolean;
     isSent: () => boolean;
+    isFailure: () => boolean;
 }
 
 /**
@@ -70,6 +71,10 @@ export function useRequest<T = any>(): Request<T> {
         return status !== RequestStatus.NotSent;
     }, [status]);
 
+    const isFailure = useCallback(() => {
+        return status === RequestStatus.Failure;
+    }, [status]);
+
     return useMemo(
         () => ({
             status,
@@ -81,8 +86,20 @@ export function useRequest<T = any>(): Request<T> {
             reset,
             isLoading,
             isSent,
+            isFailure,
         }),
-        [status, data, error, onStart, onSuccess, onFailure, reset, isLoading, isSent]
+        [
+            status,
+            data,
+            error,
+            onStart,
+            onSuccess,
+            onFailure,
+            reset,
+            isLoading,
+            isSent,
+            isFailure,
+        ]
     );
 }
 

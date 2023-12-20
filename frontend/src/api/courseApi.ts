@@ -51,6 +51,13 @@ export type CourseApiContextType = {
         purchaseOption?: string,
         cancelUrl?: string
     ) => Promise<AxiosResponse<PurchaseCourseResponse>>;
+
+    /**
+     * setCourse saves the provided Course to the database and returns the final version.
+     * @param course The Course to save.
+     * @returns An AxiosResponse containing the Course as saved in the database.
+     */
+    setCourse: (course: Course) => Promise<AxiosResponse<Course, any>>;
 };
 
 /** A response to a getCourse request. */
@@ -178,5 +185,17 @@ export function purchaseCourse(
     return axios.get<PurchaseCourseResponse>(url, {
         params: { purchaseOption, cancelUrl },
         headers,
+    });
+}
+
+/**
+ * setCourse saves the provided Course to the database and returns the final version.
+ * @param idToken The id token of the current signed-in user.
+ * @param course The Course to save.
+ * @returns An AxiosResponse containing the Course as saved in the database.
+ */
+export function setCourse(idToken: string, course: Course) {
+    return axios.put<Course>(`${BASE_URL}/courses`, course, {
+        headers: { Authorization: 'Bearer ' + idToken },
     });
 }
