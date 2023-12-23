@@ -163,110 +163,136 @@ const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
                     </Grid2>
 
                     {system !== RatingSystem.Custom && (
-                        <Grid2
-                            xs={6}
-                            sm={4}
-                            md
-                            display='flex'
-                            justifyContent={{ xs: 'end', sm: 'center' }}
-                        >
-                            <Stack alignItems='end'>
-                                <Stack spacing={0.5} direction='row' alignItems='center'>
-                                    <Typography variant='caption' color='text.secondary'>
-                                        Normalized
+                        <>
+                            <Grid2
+                                xs={6}
+                                sm={4}
+                                md
+                                display='flex'
+                                justifyContent={{ xs: 'end', sm: 'center' }}
+                            >
+                                <Stack alignItems='end'>
+                                    <Stack
+                                        spacing={0.5}
+                                        direction='row'
+                                        alignItems='center'
+                                    >
+                                        <Typography
+                                            variant='caption'
+                                            color='text.secondary'
+                                        >
+                                            Normalized
+                                        </Typography>
+                                        <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
+                                            <Help
+                                                fontSize='inherit'
+                                                sx={{
+                                                    color: 'text.secondary',
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    </Stack>
+
+                                    <Typography
+                                        sx={{
+                                            fontSize: '2.25rem',
+                                            lineHeight: 1,
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {Math.round(
+                                            normalizeToFide(
+                                                data.currentRating.value,
+                                                system
+                                            )
+                                        )}
                                     </Typography>
-                                    <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
-                                        <Help
-                                            fontSize='inherit'
-                                            sx={{
-                                                color: 'text.secondary',
-                                            }}
-                                        />
-                                    </Tooltip>
                                 </Stack>
+                            </Grid2>
 
-                                <Typography
-                                    sx={{
-                                        fontSize: '2.25rem',
-                                        lineHeight: 1,
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    {Math.round(
-                                        normalizeToFide(data.currentRating.value, system)
-                                    )}
-                                </Typography>
-                            </Stack>
-                        </Grid2>
+                            <Grid2
+                                xs={6}
+                                sm={4}
+                                md
+                                display='flex'
+                                justifyContent={{ xs: 'start', sm: 'center' }}
+                            >
+                                <Stack alignItems={{ xs: 'start', sm: 'end' }}>
+                                    <Stack
+                                        spacing={0.5}
+                                        direction='row'
+                                        alignItems='center'
+                                    >
+                                        <Typography
+                                            variant='caption'
+                                            color='text.secondary'
+                                        >
+                                            Percentile
+                                        </Typography>
+                                        <Tooltip title='The percent of players in the Dojo whose normalized preferred rating is below yours'>
+                                            <Help
+                                                fontSize='inherit'
+                                                sx={{
+                                                    color: 'text.secondary',
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    </Stack>
+
+                                    <Typography
+                                        sx={{
+                                            fontSize: '2.25rem',
+                                            lineHeight: 1,
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {data.currentRating.percentile}%
+                                    </Typography>
+                                </Stack>
+                            </Grid2>
+
+                            <Grid2
+                                xs={6}
+                                sm={4}
+                                md
+                                display='flex'
+                                justifyContent={{ xs: 'end', sm: 'center' }}
+                            >
+                                <Stack alignItems='end'>
+                                    <Stack
+                                        spacing={0.5}
+                                        direction='row'
+                                        alignItems='center'
+                                    >
+                                        <Typography
+                                            variant='caption'
+                                            color='text.secondary'
+                                        >
+                                            Cohort Percentile
+                                        </Typography>
+                                        <Tooltip title='The percent of players in your cohort whose normalized preferred rating is below yours'>
+                                            <Help
+                                                fontSize='inherit'
+                                                sx={{
+                                                    color: 'text.secondary',
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    </Stack>
+
+                                    <Typography
+                                        sx={{
+                                            fontSize: '2.25rem',
+                                            lineHeight: 1,
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {data.currentRating.cohortPercentile}%
+                                    </Typography>
+                                </Stack>
+                            </Grid2>
+                        </>
                     )}
-
-                    <Grid2
-                        xs={6}
-                        sm={4}
-                        md
-                        display='flex'
-                        justifyContent={{ xs: 'start', sm: 'center' }}
-                    >
-                        <Stack alignItems={{ xs: 'start', sm: 'end' }}>
-                            <Stack spacing={0.5} direction='row' alignItems='center'>
-                                <Typography variant='caption' color='text.secondary'>
-                                    Percentile
-                                </Typography>
-                                <Tooltip title='The percent of players in the Dojo whose normalized preferred rating is below yours'>
-                                    <Help
-                                        fontSize='inherit'
-                                        sx={{
-                                            color: 'text.secondary',
-                                        }}
-                                    />
-                                </Tooltip>
-                            </Stack>
-
-                            <Typography
-                                sx={{
-                                    fontSize: '2.25rem',
-                                    lineHeight: 1,
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                {data.currentRating.percentile}%
-                            </Typography>
-                        </Stack>
-                    </Grid2>
-
-                    <Grid2
-                        xs={6}
-                        sm={4}
-                        md
-                        display='flex'
-                        justifyContent={{ xs: 'end', sm: 'center' }}
-                    >
-                        <Stack alignItems='end'>
-                            <Stack spacing={0.5} direction='row' alignItems='center'>
-                                <Typography variant='caption' color='text.secondary'>
-                                    Cohort Percentile
-                                </Typography>
-                                <Tooltip title='The percent of players in your cohort whose normalized preferred rating is below yours'>
-                                    <Help
-                                        fontSize='inherit'
-                                        sx={{
-                                            color: 'text.secondary',
-                                        }}
-                                    />
-                                </Tooltip>
-                            </Stack>
-
-                            <Typography
-                                sx={{
-                                    fontSize: '2.25rem',
-                                    lineHeight: 1,
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                {data.currentRating.cohortPercentile}%
-                            </Typography>
-                        </Stack>
-                    </Grid2>
                 </Grid2>
 
                 <Stack>

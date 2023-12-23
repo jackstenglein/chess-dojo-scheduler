@@ -82,6 +82,10 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
         review.ratings
     ).filter((data) => data[1].isPreferred)[0];
 
+    const customRatingData = Object.entries(review.ratings).filter(
+        (data) => data[0] === RatingSystem.Custom
+    )[0][1];
+
     const userJoinedAt = review.userJoinedAt;
     let dojoMemberSince = '';
 
@@ -123,17 +127,27 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
 
             <Stack width={1} spacing={5}>
                 {Object.entries(review.ratings).map(([system, data]) => {
-                    if (system === preferredRatingSystem) {
+                    if (
+                        system === preferredRatingSystem ||
+                        system === RatingSystem.Custom
+                    ) {
                         return null;
                     }
                     return (
                         <RatingCard
+                            key={system}
                             system={system as RatingSystem}
                             data={data}
                             dark={dark}
                         />
                     );
                 })}
+
+                <RatingCard
+                    system={RatingSystem.Custom}
+                    data={customRatingData}
+                    dark={dark}
+                />
             </Stack>
         </Stack>
     );
