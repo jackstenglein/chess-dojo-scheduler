@@ -11,6 +11,9 @@ import LoadingPage from '../../loading/LoadingPage';
 import NotFoundPage from '../../NotFoundPage';
 import RatingsSection from './ratings/RatingsSection';
 import GraduationSection from './GraduationSection';
+import DojoPointSection from './DojoPointSection';
+import TimeSection from './TimeSection';
+import GameSection from './GameSection';
 
 export interface SectionProps {
     review: YearReview;
@@ -70,7 +73,7 @@ const YearReviewPage = () => {
                         }}
                         alignItems='center'
                         fontSize={{
-                            xs: '11vw',
+                            xs: '15vw',
                             sm: 'clamp(30px,7vw,8em)',
                         }}
                     >
@@ -81,17 +84,29 @@ const YearReviewPage = () => {
                                 xs: 'clamp(48px,7vw,96px)',
                             }}
                         />
-                        <Typography
-                            variant='h2'
-                            fontWeight='800'
-                            color='dojoOrange.main'
-                            sx={{
-                                fontSize: '0.75em',
-                                lineHeight: 'clamp(36px,7.3vw,.9em)',
-                            }}
-                        >
-                            {review.displayName}'s
-                        </Typography>
+                        <Stack spacing={0.5} alignItems='start'>
+                            <Typography
+                                variant='h2'
+                                fontWeight='800'
+                                color='dojoOrange.main'
+                                sx={{
+                                    fontSize: '0.55em',
+                                    // lineHeight: 'clamp(36px,7.3vw,.9em)',
+                                }}
+                            >
+                                {review.displayName}
+                            </Typography>
+                            <Typography
+                                variant='h3'
+                                fontWeight='800'
+                                color='text.secondary'
+                                sx={{
+                                    fontSize: '0.3em',
+                                }}
+                            >
+                                {review.currentCohort}
+                            </Typography>
+                        </Stack>
                     </Stack>
 
                     <Typography
@@ -136,9 +151,22 @@ const YearReviewPage = () => {
                 />
             </Stack>
 
-            <Stack maxWidth='md' spacing={5} sx={{ pb: 4, margin: 'auto' }}>
+            <Stack maxWidth='md' spacing={7} sx={{ pb: 4, margin: 'auto' }}>
                 <RatingsSection review={review} />
                 <GraduationSection review={review} />
+                <DojoPointSection review={review} />
+                <TimeSection review={review} />
+                <GameSection review={review} />
+
+                <Typography
+                    variant='h6'
+                    fontWeight='800'
+                    fontSize='clamp(16px,3vw,32px)'
+                    textAlign='center'
+                >
+                    Thank you for being part of the Dojo this year! We can't wait to see
+                    what you and the rest of the Dojo will accomplish in 2024!
+                </Typography>
             </Stack>
         </Container>
     );

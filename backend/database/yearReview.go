@@ -54,10 +54,11 @@ type YearReviewRatingData struct {
 }
 
 type YearReview struct {
-	Username     string `dynamodbav:"username" json:"username"`
-	DisplayName  string `dynamodbav:"displayName" json:"displayName"`
-	UserJoinedAt string `dynamodbav:"userJoinedAt" json:"userJoinedAt"`
-	Period       string `dynamodbav:"period" json:"period"`
+	Username      string     `dynamodbav:"username" json:"username"`
+	Period        string     `dynamodbav:"period" json:"period"`
+	CurrentCohort DojoCohort `dynamodbav:"currentCohort" json:"currentCohort"`
+	DisplayName   string     `dynamodbav:"displayName" json:"displayName"`
+	UserJoinedAt  string     `dynamodbav:"userJoinedAt" json:"userJoinedAt"`
 
 	Ratings map[RatingSystem]YearReviewRatingData `dynamodbav:"ratings" json:"ratings"`
 

@@ -19,9 +19,9 @@ func main() {
 		log.Errorf("Failed to get requirements: %v", err)
 		os.Exit(1)
 	}
-	dojoRequirements := make(map[string]bool)
+	dojoRequirements := make(map[string]*database.Requirement)
 	for _, r := range requirements {
-		dojoRequirements[r.Id] = r.Category != "Non-Dojo"
+		dojoRequirements[r.Id] = r
 	}
 
 	var reviews []*database.YearReview
@@ -76,7 +76,7 @@ func fetchRequirements() ([]*database.Requirement, error) {
 	return requirements, nil
 }
 
-func processUser(user *database.User, requirements []*database.Requirement, dojoRequirements map[string]bool) (*database.YearReview, error) {
+func processUser(user *database.User, requirements []*database.Requirement, dojoRequirements map[string]*database.Requirement) (*database.YearReview, error) {
 	log.Debugf("Processing user %s", user.Username)
 
 	if !user.HasCreatedProfile {
@@ -84,13 +84,14 @@ func processUser(user *database.User, requirements []*database.Requirement, dojo
 	}
 
 	yearReview := database.YearReview{
-		Username:     user.Username,
-		DisplayName:  user.DisplayName,
-		UserJoinedAt: user.CreatedAt,
-		Period:       "2023",
-		Ratings:      map[database.RatingSystem]database.YearReviewRatingData{},
-		Cohorts:      map[database.DojoCohort]*database.YearReviewData{},
-		Total:        *initializeYearReviewData(START_DATE, END_DATE),
+		Username:      user.Username,
+		DisplayName:   user.DisplayName,
+		UserJoinedAt:  user.CreatedAt,
+		Period:        "2023",
+		CurrentCohort: user.DojoCohort,
+		Ratings:       map[database.RatingSystem]database.YearReviewRatingData{},
+		Cohorts:       map[database.DojoCohort]*database.YearReviewData{},
+		Total:         *initializeYearReviewData(START_DATE, END_DATE),
 	}
 
 	processRatings(user, &yearReview)
@@ -109,7 +110,7 @@ func processUser(user *database.User, requirements []*database.Requirement, dojo
 		return nil, err
 	}
 
-	if err := processTimeline(user, &yearReview); err != nil {
+	if err := processTimeline(user, &yearReview, dojoRequirements); err != nil {
 		return nil, err
 	}
 	return &yearReview, nil
@@ -230,7 +231,7 @@ func processGames(user *database.User, review *database.YearReview) error {
 	return nil
 }
 
-func processTimeline(user *database.User, review *database.YearReview) error {
+func processTimeline(user *database.User, review *database.YearReview, requirements map[string]*database.Requirement) error {
 	log.Debug("Processing timeline")
 
 	var timeline []*database.TimelineEntry
@@ -246,19 +247,29 @@ func processTimeline(user *database.User, review *database.YearReview) error {
 		for _, t := range timeline {
 			date := t.Id[0:10]
 			if date < START_DATE || date > END_DATE {
-				return nil
+				continue
 			}
 			month := strings.Split(date, "-")[1]
+
+			points := t.DojoPoints
+			if points == 0 {
+				points = calculatePoints(t, requirements)
+			}
+
+			requirementName := t.RequirementName
+			if requirementName == "GameSubmission" {
+				requirementName = "Annotated Games"
+			}
 
 			review.Total.MinutesSpent.Total.Value += t.MinutesSpent
 			review.Total.MinutesSpent.ByPeriod[month] += t.MinutesSpent
 			review.Total.MinutesSpent.ByCategory[t.RequirementCategory] += t.MinutesSpent
-			review.Total.MinutesSpent.ByTask[t.RequirementName] += t.MinutesSpent
+			review.Total.MinutesSpent.ByTask[requirementName] += t.MinutesSpent
 
-			review.Total.DojoPoints.Total.Value += t.DojoPoints
-			review.Total.DojoPoints.ByCategory[month] += t.DojoPoints
-			review.Total.DojoPoints.ByCategory[t.RequirementCategory] += t.DojoPoints
-			review.Total.DojoPoints.ByTask[t.RequirementName] += t.DojoPoints
+			review.Total.DojoPoints.Total.Value += points
+			review.Total.DojoPoints.ByPeriod[month] += points
+			review.Total.DojoPoints.ByCategory[t.RequirementCategory] += points
+			review.Total.DojoPoints.ByTask[requirementName] += points
 
 			if _, ok := review.Cohorts[t.Cohort]; !ok {
 				log.Debugf("Unknown cohort %s", t.Cohort)
@@ -268,14 +279,42 @@ func processTimeline(user *database.User, review *database.YearReview) error {
 			review.Cohorts[t.Cohort].MinutesSpent.Total.Value += t.MinutesSpent
 			review.Cohorts[t.Cohort].MinutesSpent.ByPeriod[month] += t.MinutesSpent
 			review.Cohorts[t.Cohort].MinutesSpent.ByCategory[t.RequirementCategory] += t.MinutesSpent
-			review.Cohorts[t.Cohort].MinutesSpent.ByTask[t.RequirementName] += t.MinutesSpent
+			review.Cohorts[t.Cohort].MinutesSpent.ByTask[requirementName] += t.MinutesSpent
 
-			review.Cohorts[t.Cohort].DojoPoints.Total.Value += t.DojoPoints
-			review.Cohorts[t.Cohort].DojoPoints.ByPeriod[month] += t.DojoPoints
-			review.Cohorts[t.Cohort].DojoPoints.ByCategory[t.RequirementCategory] += t.DojoPoints
-			review.Cohorts[t.Cohort].DojoPoints.ByCategory[t.RequirementName] += t.DojoPoints
+			review.Cohorts[t.Cohort].DojoPoints.Total.Value += points
+			review.Cohorts[t.Cohort].DojoPoints.ByPeriod[month] += points
+			review.Cohorts[t.Cohort].DojoPoints.ByCategory[t.RequirementCategory] += points
+			review.Cohorts[t.Cohort].DojoPoints.ByTask[requirementName] += points
 		}
 	}
 
 	return nil
+}
+
+func calculatePoints(timeline *database.TimelineEntry, requirements map[string]*database.Requirement) float32 {
+
+	requirement := requirements[timeline.RequirementId]
+	if requirement == nil {
+		return 0
+	}
+
+	progress := database.RequirementProgress{
+		Counts:    make(map[database.DojoCohort]int),
+		UpdatedAt: timeline.CreatedAt,
+	}
+	if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
+		progress.Counts[database.AllCohorts] = timeline.PreviousCount
+	} else {
+		progress.Counts[timeline.Cohort] = timeline.PreviousCount
+	}
+	originalScore := requirement.CalculateScore(timeline.Cohort, &progress)
+
+	if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
+		progress.Counts[database.AllCohorts] = timeline.NewCount
+	} else {
+		progress.Counts[timeline.Cohort] = timeline.NewCount
+	}
+	newScore := requirement.CalculateScore(timeline.Cohort, &progress)
+
+	return newScore - originalScore
 }

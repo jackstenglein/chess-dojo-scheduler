@@ -40,7 +40,7 @@ const decimalSecondaryAxes: AxisOptions<Datum>[] = [
     },
 ];
 
-function formatTime(value: number) {
+export function formatTime(value: number) {
     const hours = Math.floor(value / 60);
     const minutes = Math.round(value % 60);
     if (minutes === 0 && hours > 0) {

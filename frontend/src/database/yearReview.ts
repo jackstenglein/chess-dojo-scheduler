@@ -30,20 +30,17 @@ export interface YearReviewDataPoint {
 export interface YearReviewData {
     startDate: string;
     endDate: string;
-    dojoPoints: {
-        total: YearReviewDataPoint;
-        byPeriod: Record<string, number>;
-        byCategory: Record<string, number>;
-        byTask: Record<string, number>;
-    };
-    minutesSpent: {
-        total: YearReviewDataPoint;
-        byPeriod: Record<string, number>;
-        byCategory: Record<string, number>;
-        byTask: Record<string, number>;
-    };
+    dojoPoints: YearReviewDataSection;
+    minutesSpent: YearReviewDataSection;
     games: {
         total: YearReviewDataPoint;
         byPeriod: Record<string, number>;
     };
+}
+
+export interface YearReviewDataSection {
+    total: YearReviewDataPoint;
+    byPeriod: Record<string, number>;
+    byCategory: Record<string, number>;
+    byTask: Record<string, number>;
 }
