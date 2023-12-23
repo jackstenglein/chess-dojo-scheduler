@@ -121,7 +121,8 @@ const FollowerListItem: React.FC<FollowerListItemProps> = ({
                     displayName={
                         isFollowing ? entry.posterDisplayName : entry.followerDisplayName
                     }
-                    size={{ xs: 40, sm: 52 }}
+                    size={{ xs: '40px', sm: '52px' }}
+                    fontSize={{ xs: '0.76rem', sm: '0.98rem' }}
                 />
 
                 <Link

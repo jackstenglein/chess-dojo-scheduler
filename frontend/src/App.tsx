@@ -60,6 +60,7 @@ import PricingPage from './upsell/PricingPage';
 import CoachPortalPage from './coach/CoachPortalPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
 import CourseEditorPage from './coach/courseEditor/CourseEditorPage';
+import YearReviewPage from './profile/yearReview/YearReviewPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -117,6 +118,7 @@ const router = createBrowserRouter(
                             <Route index element={<ProfilePage />} />
                             <Route path='followers' element={<FollowersPage />} />
                             <Route path='following' element={<FollowersPage />} />
+                            <Route path='yearreview/:year' element={<YearReviewPage />} />
                         </Route>
                     </Route>
 

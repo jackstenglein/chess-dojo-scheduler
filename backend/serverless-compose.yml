@@ -117,3 +117,8 @@ services:
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+
+  yearReviewService:
+    path: yearReviewService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}

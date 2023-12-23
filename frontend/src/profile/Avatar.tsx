@@ -27,12 +27,24 @@ interface AvatarProps {
     size?: number | SxSize;
 
     /**
+     * The size of the text if there is no image. Only used if size is of type SxSize.
+     */
+    fontSize?: SxSize;
+
+    /**
      * If provided, this overrides user and username to display this image URL instead.
      */
     url?: string;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ user, username, displayName, size, url }) => {
+const Avatar: React.FC<AvatarProps> = ({
+    user,
+    username,
+    displayName,
+    size,
+    fontSize,
+    url,
+}) => {
     const { imageBypass } = useCache();
 
     if (user) {
@@ -47,7 +59,7 @@ const Avatar: React.FC<AvatarProps> = ({ user, username, displayName, size, url 
         }
     }
 
-    return <MuiAvatar src={url} {...avatarProps(displayName || '', size)} />;
+    return <MuiAvatar src={url} {...avatarProps(displayName || '', size, fontSize)} />;
 };
 
 export default Avatar;

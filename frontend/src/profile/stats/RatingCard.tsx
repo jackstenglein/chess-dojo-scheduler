@@ -24,7 +24,7 @@ import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';
 
-function getMemberLink(ratingSystem: RatingSystem, username: string): string {
+export function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     switch (ratingSystem) {
         case RatingSystem.Chesscom:
             return `https://www.chess.com/member/${username}`;
@@ -65,7 +65,10 @@ function datesAreSameDay(first: Date, second: Date) {
     );
 }
 
-function getChartData(ratingHistory: RatingHistory[] | undefined, currentRating: number) {
+export function getChartData(
+    ratingHistory: RatingHistory[] | undefined,
+    currentRating: number
+) {
     if (!ratingHistory || ratingHistory.length === 0) {
         return [];
     }
@@ -115,12 +118,12 @@ interface Datum {
     rating: number;
 }
 
-const primaryAxis: AxisOptions<Datum> = {
+export const primaryAxis: AxisOptions<Datum> = {
     scaleType: 'time',
     getValue: (datum) => datum.date,
 };
 
-const secondaryAxes: Array<AxisOptions<Datum>> = [
+export const secondaryAxes: Array<AxisOptions<Datum>> = [
     {
         scaleType: 'linear',
         getValue: (datum) => datum.rating,

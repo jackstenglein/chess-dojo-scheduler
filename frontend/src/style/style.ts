@@ -21,11 +21,11 @@ function stringToColor(string: string) {
 }
 
 export type SxSize = {
-    xs?: number;
-    sm?: number;
-    md?: number;
-    lg?: number;
-    xl?: number;
+    xs?: string;
+    sm?: string;
+    md?: string;
+    lg?: string;
+    xl?: string;
 };
 
 /**
@@ -34,7 +34,7 @@ export type SxSize = {
  * @param name The name of the user.
  * @returns The props for the Avatar.
  */
-export function avatarProps(name: string, size: number | SxSize = 74) {
+export function avatarProps(name: string, size: number | SxSize = 74, fontSize?: SxSize) {
     let uppercaseLetters = name.replace(/[a-z]/g, '').slice(0, 3);
 
     let tokens = name.split(' ');
@@ -51,24 +51,24 @@ export function avatarProps(name: string, size: number | SxSize = 74) {
     }
 
     let height;
-    let fontSize;
+    let chosenFontSize;
     if (typeof size === 'number') {
         height = `${size}px`;
-        fontSize = `${(1.4 * size) / 74}rem`;
+        chosenFontSize = `${(1.4 * size) / 74}rem`;
     } else {
         height = {
-            xs: size.xs !== undefined ? `${size.xs}px` : undefined,
-            sm: size.sm !== undefined ? `${size.sm}px` : undefined,
-            md: size.md !== undefined ? `${size.md}px` : undefined,
-            lg: size.lg !== undefined ? `${size.lg}px` : undefined,
-            xl: size.xl !== undefined ? `${size.xl}px` : undefined,
+            xs: size.xs !== undefined ? size.xs : undefined,
+            sm: size.sm !== undefined ? size.sm : undefined,
+            md: size.md !== undefined ? size.md : undefined,
+            lg: size.lg !== undefined ? size.lg : undefined,
+            xl: size.xl !== undefined ? size.xl : undefined,
         };
-        fontSize = {
-            xs: size.xs !== undefined ? `${(1.4 * size.xs) / 74}rem` : undefined,
-            sm: size.sm !== undefined ? `${(1.4 * size.sm) / 74}rem` : undefined,
-            md: size.md !== undefined ? `${(1.4 * size.md) / 74}rem` : undefined,
-            lg: size.lg !== undefined ? `${(1.4 * size.lg) / 74}rem` : undefined,
-            xl: size.xl !== undefined ? `${(1.4 * size.xl) / 74}rem` : undefined,
+        chosenFontSize = {
+            xs: fontSize?.xs !== undefined ? fontSize.xs : undefined,
+            sm: fontSize?.sm !== undefined ? fontSize.sm : undefined,
+            md: fontSize?.md !== undefined ? fontSize.md : undefined,
+            lg: fontSize?.lg !== undefined ? fontSize.lg : undefined,
+            xl: fontSize?.xl !== undefined ? fontSize.xl : undefined,
         };
     }
 
@@ -77,7 +77,7 @@ export function avatarProps(name: string, size: number | SxSize = 74) {
             bgcolor: stringToColor(name),
             height: height,
             width: height,
-            fontSize: fontSize,
+            fontSize: chosenFontSize,
         },
         children: uppercaseLetters,
         alt: name,
