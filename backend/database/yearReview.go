@@ -61,7 +61,7 @@ type YearReview struct {
 
 	Ratings map[RatingSystem]YearReviewRatingData `dynamodbav:"ratings" json:"ratings"`
 
-	Graduations YearReviewIntData              `dynamodbav:"graduations" json:"graduations"`
+	Graduations []DojoCohort                   `dynamodbav:"graduations" json:"graduations"`
 	Cohorts     map[DojoCohort]*YearReviewData `dynamodbav:"cohorts" json:"cohorts"`
 
 	Total YearReviewData `dynamodbav:"total" json:"total"`

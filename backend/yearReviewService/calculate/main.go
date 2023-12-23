@@ -190,10 +190,10 @@ func processGraduations(user *database.User, review *database.YearReview) error 
 		if err != nil {
 			return err
 		}
-		review.Graduations.Value += len(graduations)
 
 		for _, grad := range graduations {
 			review.Cohorts[grad.PreviousCohort] = initializeYearReviewData(grad.StartedAt, grad.CreatedAt)
+			review.Graduations = append(review.Graduations, grad.PreviousCohort)
 		}
 	}
 	return nil

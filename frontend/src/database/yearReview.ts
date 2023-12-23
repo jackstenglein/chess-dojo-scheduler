@@ -7,7 +7,7 @@ export interface YearReview {
     displayName: string;
     userJoinedAt: string;
     ratings: Record<RatingSystem, YearReviewRatingData>;
-    graduations: YearReviewDataPoint;
+    graduations: string[];
     cohorts: Record<string, YearReviewData>;
     total: YearReviewData;
 }

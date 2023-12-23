@@ -10,6 +10,7 @@ import { getYearReview } from '../../api/yearReviewApi';
 import LoadingPage from '../../loading/LoadingPage';
 import NotFoundPage from '../../NotFoundPage';
 import RatingsSection from './ratings/RatingsSection';
+import GraduationSection from './GraduationSection';
 
 export interface SectionProps {
     review: YearReview;
@@ -135,9 +136,10 @@ const YearReviewPage = () => {
                 />
             </Stack>
 
-            <Container maxWidth='md'>
+            <Stack maxWidth='md' spacing={5} sx={{ pb: 4, margin: 'auto' }}>
                 <RatingsSection review={review} />
-            </Container>
+                <GraduationSection review={review} />
+            </Stack>
         </Container>
     );
 };
