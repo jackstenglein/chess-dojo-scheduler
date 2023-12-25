@@ -6,12 +6,14 @@ interface PercentilesProps {
     cohort: string;
     percentile: number;
     cohortPercentile: number;
+    description: string;
 }
 
 const Percentiles: React.FC<PercentilesProps> = ({
     cohort,
     percentile,
     cohortPercentile,
+    description,
 }) => {
     return (
         <>
@@ -21,7 +23,9 @@ const Percentiles: React.FC<PercentilesProps> = ({
                         <Typography variant='caption' color='text.secondary'>
                             Percentile
                         </Typography>
-                        <Tooltip title='The percent of players in the Dojo whose total time is below yours'>
+                        <Tooltip
+                            title={`The percent of Dojo members whose ${description} is below yours`}
+                        >
                             <Help
                                 fontSize='inherit'
                                 sx={{
@@ -50,7 +54,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
                             Cohort Percentile
                         </Typography>
                         <Tooltip
-                            title={`The percent of players in the ${cohort} cohort whose total time is below yours`}
+                            title={`The percent of members in the ${cohort} cohort whose ${description} is below yours`}
                         >
                             <Help
                                 fontSize='inherit'

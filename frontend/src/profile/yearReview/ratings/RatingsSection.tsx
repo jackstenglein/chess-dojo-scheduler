@@ -116,6 +116,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
             </Typography>
 
             <RatingCard
+                cohort={review.currentCohort}
                 system={preferredRatingSystem as RatingSystem}
                 data={preferredRatingData}
                 dark={dark}
@@ -136,6 +137,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                     return (
                         <RatingCard
                             key={system}
+                            cohort={review.currentCohort}
                             system={system as RatingSystem}
                             data={data}
                             dark={dark}
@@ -144,6 +146,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                 })}
 
                 <RatingCard
+                    cohort={review.currentCohort}
                     system={RatingSystem.Custom}
                     data={customRatingData}
                     dark={dark}

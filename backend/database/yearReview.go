@@ -6,8 +6,9 @@ import (
 )
 
 type YearReviewFloatData struct {
-	Value      float32 `dynamodbav:"value" json:"value"`
-	Percentile float32 `dynamodbav:"percentile" json:"percentile"`
+	Value            float32 `dynamodbav:"value" json:"value"`
+	Percentile       float32 `dynamodbav:"percentile" json:"percentile"`
+	CohortPercentile float32 `dynamodbav:"cohortPercentile" json:"cohortPercentile"`
 }
 
 type YearReviewIntData struct {
@@ -36,9 +37,6 @@ type YearReviewMinutesSpent struct {
 }
 
 type YearReviewData struct {
-	StartDate string `dynamodbav:"startDate" json:"startDate"`
-	EndDate   string `dynamodbav:"endDate" json:"endDate"`
-
 	DojoPoints   YearReviewDojoPoints   `dynamodbav:"dojoPoints" json:"dojoPoints"`
 	MinutesSpent YearReviewMinutesSpent `dynamodbav:"minutesSpent" json:"minutesSpent"`
 	Games        YearReviewGamesData    `dynamodbav:"games" json:"games"`

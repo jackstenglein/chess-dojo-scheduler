@@ -27,8 +27,6 @@ export interface YearReviewDataPoint {
 }
 
 export interface YearReviewData {
-    startDate: string;
-    endDate: string;
     dojoPoints: YearReviewDataSection;
     minutesSpent: YearReviewDataSection;
     games: {

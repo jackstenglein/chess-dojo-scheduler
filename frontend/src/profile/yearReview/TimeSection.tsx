@@ -70,6 +70,7 @@ const TimeSection: React.FC<SectionProps> = ({ review }) => {
                         </Grid2>
 
                         <Percentiles
+                            description='total time spent'
                             cohort={review.currentCohort}
                             percentile={data.total.percentile}
                             cohortPercentile={data.total.cohortPercentile}

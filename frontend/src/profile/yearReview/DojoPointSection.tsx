@@ -138,6 +138,7 @@ const DojoPointSection: React.FC<SectionProps> = ({ review }) => {
                         </Grid2>
 
                         <Percentiles
+                            description='total Dojo points'
                             cohort={review.currentCohort}
                             percentile={data.total.percentile}
                             cohortPercentile={data.total.cohortPercentile}

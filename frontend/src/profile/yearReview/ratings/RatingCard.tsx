@@ -18,12 +18,13 @@ import {
 } from '../../stats/RatingCard';
 
 interface RatingCardProps {
+    cohort: string;
     system: RatingSystem;
     data: YearReviewRatingData;
     dark: boolean;
 }
 
-const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
+const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) => {
     const historyData = useMemo(
         () => getChartData(data.history, data.currentRating.value),
         [data]
@@ -230,7 +231,15 @@ const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
                                         >
                                             Percentile
                                         </Typography>
-                                        <Tooltip title='The percent of players in the Dojo whose normalized preferred rating is below yours'>
+                                        <Tooltip
+                                            title={
+                                                data.isPreferred
+                                                    ? 'The percent of Dojo members whose normalized preferred rating is below yours'
+                                                    : `The percent of Dojo members whose ${formatRatingSystem(
+                                                          system
+                                                      )} rating is below yours`
+                                            }
+                                        >
                                             <Help
                                                 fontSize='inherit'
                                                 sx={{
@@ -273,7 +282,15 @@ const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
                                         >
                                             Cohort Percentile
                                         </Typography>
-                                        <Tooltip title='The percent of players in your cohort whose normalized preferred rating is below yours'>
+                                        <Tooltip
+                                            title={
+                                                data.isPreferred
+                                                    ? `The percent of members in the ${cohort} cohort whose normalized preferred rating is below yours`
+                                                    : `The percent of members in the ${cohort} cohort whose ${formatRatingSystem(
+                                                          system
+                                                      )} rating is below yours`
+                                            }
+                                        >
                                             <Help
                                                 fontSize='inherit'
                                                 sx={{

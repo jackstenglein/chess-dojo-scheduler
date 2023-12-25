@@ -54,6 +54,7 @@ const GameSection: React.FC<SectionProps> = ({ review }) => {
                         </Grid2>
 
                         <Percentiles
+                            description='submitted games'
                             cohort={review.currentCohort}
                             percentile={data.total.percentile}
                             cohortPercentile={data.total.cohortPercentile}
