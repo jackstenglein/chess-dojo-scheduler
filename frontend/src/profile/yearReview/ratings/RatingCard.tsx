@@ -99,7 +99,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                     >
                         <Stack alignItems='end'>
                             <Typography variant='caption' color='text.secondary'>
-                                Dec 31, 2023
+                                Dec 25, 2023
                             </Typography>
                             <Typography
                                 sx={{

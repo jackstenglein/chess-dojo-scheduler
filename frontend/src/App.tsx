@@ -61,6 +61,7 @@ import CoachPortalPage from './coach/CoachPortalPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
 import CourseEditorPage from './coach/courseEditor/CourseEditorPage';
 import YearReviewPage from './profile/yearReview/YearReviewPage';
+import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -109,16 +110,18 @@ const router = createBrowserRouter(
 
             <Route path='prices' element={<PricingPage />} />
 
+            <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
+
             <Route element={<RequireAuth />}>
                 <Route element={<GraduationPrompt />}>
                     <Route path='profile'>
                         <Route index element={<ProfilePage />} />
                         <Route path='edit' element={<ProfileEditorPage />} />
+                        <Route path='yearreview' element={<YearReviewRedirect />} />
                         <Route path=':username'>
                             <Route index element={<ProfilePage />} />
                             <Route path='followers' element={<FollowersPage />} />
                             <Route path='following' element={<FollowersPage />} />
-                            <Route path='yearreview/:year' element={<YearReviewPage />} />
                         </Route>
                     </Route>
 
