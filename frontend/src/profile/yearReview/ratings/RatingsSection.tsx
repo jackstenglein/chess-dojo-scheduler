@@ -84,7 +84,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
 
     const customRatingData = Object.entries(review.ratings).filter(
         (data) => data[0] === RatingSystem.Custom
-    )[0][1];
+    )[0]?.[1];
 
     const userJoinedAt = review.userJoinedAt;
     let dojoMemberSince = '';
@@ -145,12 +145,14 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                     );
                 })}
 
-                <RatingCard
-                    cohort={review.currentCohort}
-                    system={RatingSystem.Custom}
-                    data={customRatingData}
-                    dark={dark}
-                />
+                {customRatingData && (
+                    <RatingCard
+                        cohort={review.currentCohort}
+                        system={RatingSystem.Custom}
+                        data={customRatingData}
+                        dark={dark}
+                    />
+                )}
             </Stack>
         </Stack>
     );

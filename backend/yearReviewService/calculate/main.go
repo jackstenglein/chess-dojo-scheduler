@@ -97,12 +97,11 @@ func fetchRequirements() ([]*database.Requirement, error) {
 }
 
 func processUser(user *database.User, requirements []*database.Requirement, dojoRequirements map[string]*database.Requirement) (*database.YearReview, error) {
-	log.Debugf("Processing user %s", user.Username)
-
-	if !user.HasCreatedProfile {
+	if !user.HasCreatedProfile || user.Ratings == nil || !user.DojoCohort.IsValid() {
 		log.Debugf("Skipping user %s because they have not created profile", user.Username)
 		return nil, nil
 	}
+	log.Debugf("Processing user %s", user.Username)
 
 	yearReview := database.YearReview{
 		Username:      user.Username,
@@ -150,12 +149,13 @@ func initializeYearReviewData() *database.YearReviewData {
 }
 
 func processRatings(user *database.User, review *database.YearReview) {
-	log.Debug("Processing ratings")
-
 	for rs, history := range user.RatingHistories {
+		if user.Ratings[rs] == nil {
+			continue
+		}
+
 		startRating := 0
 		currentRating := user.Ratings[rs].CurrentRating
-
 		if currentRating <= 0 {
 			continue
 		}
@@ -213,8 +213,6 @@ func processRatings(user *database.User, review *database.YearReview) {
 }
 
 func processGraduations(user *database.User, review *database.YearReview) error {
-	log.Debug("Processing graduations")
-
 	var graduations []*database.Graduation
 	var startKey = ""
 	var err error
@@ -233,8 +231,6 @@ func processGraduations(user *database.User, review *database.YearReview) error 
 }
 
 func processGames(user *database.User, review *database.YearReview) error {
-	log.Debug("Processing games")
-
 	var games []*database.Game
 	var startKey = ""
 	var err error
@@ -259,8 +255,6 @@ func processGames(user *database.User, review *database.YearReview) error {
 }
 
 func processTimeline(user *database.User, review *database.YearReview, requirements map[string]*database.Requirement) error {
-	log.Debug("Processing timeline")
-
 	var timeline []*database.TimelineEntry
 	var startKey = ""
 	var err error

@@ -42,7 +42,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
                             fontWeight: 'bold',
                         }}
                     >
-                        {percentile}%
+                        {Math.round(10 * percentile) / 10}%
                     </Typography>
                 </Stack>
             </Grid2>
@@ -72,7 +72,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
                             fontWeight: 'bold',
                         }}
                     >
-                        {cohortPercentile}%
+                        {Math.round(10 * cohortPercentile) / 10}%
                     </Typography>
                 </Stack>
             </Grid2>
