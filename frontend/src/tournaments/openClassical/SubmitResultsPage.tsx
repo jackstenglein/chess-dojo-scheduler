@@ -143,6 +143,12 @@ const SubmitResultsPage = () => {
                     </Typography>
 
                     <Typography>Your submission has been recorded. Thank you!</Typography>
+
+                    <Typography fontWeight='bold'>
+                        Note: your results will be added to the main page after they have
+                        been reviewed. This can take a few days. All results will be
+                        posted before the start of the next round.
+                    </Typography>
                 </Stack>
             </Container>
         );
