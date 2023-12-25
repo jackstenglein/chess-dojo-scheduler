@@ -8,16 +8,15 @@ export interface YearReview {
     userJoinedAt: string;
     ratings: Record<RatingSystem, YearReviewRatingData>;
     graduations: string[];
-    cohorts: Record<string, YearReviewData>;
     total: YearReviewData;
 }
 
 export interface YearReviewRatingData {
     username: string;
     isPreferred: boolean;
-    startRating: YearReviewDataPoint;
+    startRating: number;
     currentRating: YearReviewDataPoint;
-    ratingChange: YearReviewDataPoint;
+    ratingChange: number;
     history: RatingHistory[];
 }
 

@@ -47,9 +47,9 @@ type YearReviewData struct {
 type YearReviewRatingData struct {
 	Username      string            `dynamodbav:"username,omitempty" json:"username,omitempty"`
 	IsPreferred   bool              `dynamodbav:"isPreferred" json:"isPreferred"`
-	StartRating   YearReviewIntData `dynamodbav:"startRating" json:"startRating"`
+	StartRating   int               `dynamodbav:"startRating" json:"startRating"`
 	CurrentRating YearReviewIntData `dynamodbav:"currentRating" json:"currentRating"`
-	RatingChange  YearReviewIntData `dynamodbav:"ratingChange" json:"ratingChange"`
+	RatingChange  int               `dynamodbav:"ratingChange" json:"ratingChange"`
 	History       []RatingHistory   `dynamodbav:"history" json:"history"`
 }
 
@@ -60,10 +60,9 @@ type YearReview struct {
 	DisplayName   string     `dynamodbav:"displayName" json:"displayName"`
 	UserJoinedAt  string     `dynamodbav:"userJoinedAt" json:"userJoinedAt"`
 
-	Ratings map[RatingSystem]YearReviewRatingData `dynamodbav:"ratings" json:"ratings"`
+	Ratings map[RatingSystem]*YearReviewRatingData `dynamodbav:"ratings" json:"ratings"`
 
-	Graduations []DojoCohort                   `dynamodbav:"graduations" json:"graduations"`
-	Cohorts     map[DojoCohort]*YearReviewData `dynamodbav:"cohorts" json:"cohorts"`
+	Graduations []DojoCohort `dynamodbav:"graduations" json:"graduations"`
 
 	Total YearReviewData `dynamodbav:"total" json:"total"`
 }

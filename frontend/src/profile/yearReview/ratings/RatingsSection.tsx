@@ -22,7 +22,7 @@ function getDescription(
 
     let main;
 
-    if (data.ratingChange.value === 0) {
+    if (data.ratingChange === 0) {
         main = (
             <>
                 remained the same, at{' '}
@@ -32,12 +32,12 @@ function getDescription(
                 . But next year will see some great growth!
             </>
         );
-    } else if (data.ratingChange.value > 0) {
+    } else if (data.ratingChange > 0) {
         main = (
             <>
                 increased from{' '}
                 <Typography component='span' fontWeight='800'>
-                    {data.startRating.value}
+                    {data.startRating}
                 </Typography>{' '}
                 to{' '}
                 <Typography component='span' fontWeight='800'>
@@ -45,7 +45,7 @@ function getDescription(
                 </Typography>
                 . That's{' '}
                 <Typography component='span' fontWeight='800'>
-                    {data.ratingChange.value}
+                    {data.ratingChange}
                 </Typography>{' '}
                 points! Keep up the great work next year!
             </>
@@ -55,7 +55,7 @@ function getDescription(
             <>
                 decreased from{' '}
                 <Typography component='span' fontWeight='800'>
-                    {data.startRating.value}
+                    {data.startRating}
                 </Typography>{' '}
                 to{' '}
                 <Typography component='span' fontWeight='800'>

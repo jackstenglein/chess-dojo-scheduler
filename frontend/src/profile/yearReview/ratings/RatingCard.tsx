@@ -84,7 +84,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
                                     fontWeight: 'bold',
                                 }}
                             >
-                                {data.startRating.value}
+                                {data.startRating}
                             </Typography>
                         </Stack>
                     </Grid2>
@@ -125,7 +125,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
                             </Typography>
 
                             <Stack direction='row' alignItems='start'>
-                                {data.ratingChange.value >= 0 ? (
+                                {data.ratingChange >= 0 ? (
                                     <ArrowUpward
                                         sx={{
                                             fontSize: '2.25rem',
@@ -152,12 +152,12 @@ const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
                                         fontWeight: 'bold',
                                     }}
                                     color={
-                                        data.ratingChange.value >= 0
+                                        data.ratingChange >= 0
                                             ? 'success.main'
                                             : 'error.main'
                                     }
                                 >
-                                    {Math.abs(data.ratingChange.value)}
+                                    {Math.abs(data.ratingChange)}
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -247,7 +247,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {data.currentRating.percentile}%
+                                        {Math.round(10 * data.currentRating.percentile) /
+                                            10}
+                                        %
                                     </Typography>
                                 </Stack>
                             </Grid2>
@@ -288,7 +290,10 @@ const RatingCard: React.FC<RatingCardProps> = ({ system, data, dark }) => {
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {data.currentRating.cohortPercentile}%
+                                        {Math.round(
+                                            10 * data.currentRating.cohortPercentile
+                                        ) / 10}
+                                        %
                                     </Typography>
                                 </Stack>
                             </Grid2>
