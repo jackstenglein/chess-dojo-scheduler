@@ -7,6 +7,7 @@ import { Game } from '../../database/game';
 import { useNavigate } from 'react-router-dom';
 import DeleteGameButton from './DeleteGameButton';
 import { useAuth } from '../../auth/Auth';
+import { EventType, trackEvent } from '../../analytics/events';
 
 interface PgnErrorBoundaryProps {
     pgn: string;
@@ -42,6 +43,10 @@ class PgnErrorBoundary extends Component<
         console.log('Error: ', error);
         console.log('Info: ', info);
         this.setState({ hasError: true, error, info });
+        trackEvent(EventType.PgnErrorBoundary, {
+            location: window.location.href,
+            error: error?.toString() || '',
+        });
     }
 
     render() {

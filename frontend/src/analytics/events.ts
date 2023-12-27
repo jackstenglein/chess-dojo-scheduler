@@ -40,6 +40,10 @@ export enum EventType {
 
     // Upsell
     ViewUpsellDialog = 'view_upsell_dialog',
+
+    // Error events
+    ErrorBoundary = 'error_boundary',
+    PgnErrorBoundary = 'pgn_error_boundary',
 }
 
 export function trackEvent(type: EventType, params?: any) {

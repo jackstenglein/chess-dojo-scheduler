@@ -2,6 +2,7 @@
 
 import { Container, Stack, Typography } from '@mui/material';
 import { Component } from 'react';
+import { EventType, trackEvent } from './analytics/events';
 
 interface ErrorBoundaryState {
     hasError: boolean;
@@ -23,6 +24,10 @@ class ErrorBoundary extends Component<any, ErrorBoundaryState, any> {
         console.log('Error: ', error);
         console.log('Info: ', info);
         this.setState({ hasError: true, error, info });
+        trackEvent(EventType.ErrorBoundary, {
+            location: window.location.href,
+            error: error?.toString() || '',
+        });
     }
 
     render() {
