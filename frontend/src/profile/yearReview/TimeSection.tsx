@@ -111,19 +111,21 @@ const TimeSection: React.FC<SectionProps> = ({ review }) => {
                             </Box>
                         </Stack>
 
-                        <Stack alignItems='start' spacing={0.5}>
-                            <Typography>Top 10 Tasks</Typography>
-                            <Box width={1} height={400} mt={2}>
-                                <Chart
-                                    options={{
-                                        data: taskData,
-                                        primaryAxis,
-                                        secondaryAxes,
-                                        dark,
-                                    }}
-                                />
-                            </Box>
-                        </Stack>
+                        {taskData && (
+                            <Stack alignItems='start' spacing={0.5}>
+                                <Typography>Top 10 Tasks</Typography>
+                                <Box width={1} height={400} mt={2}>
+                                    <Chart
+                                        options={{
+                                            data: taskData,
+                                            primaryAxis,
+                                            secondaryAxes,
+                                            dark,
+                                        }}
+                                    />
+                                </Box>
+                            </Stack>
+                        )}
                     </Stack>
                 </CardContent>
             </Card>
