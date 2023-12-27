@@ -88,7 +88,7 @@ func main() {
 				},
 				Subject: &ses.Content{
 					Charset: aws.String("UTF-8"),
-					Data:    aws.String("Training Program News - Dojo Digest Vol. 3"),
+					Data:    aws.String("Training Program News - Dojo Digest Vol. 4"),
 				},
 			},
 			Source: aws.String("chessdojotwitch@gmail.com"),
