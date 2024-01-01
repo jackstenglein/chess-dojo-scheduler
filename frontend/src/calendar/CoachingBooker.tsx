@@ -12,7 +12,7 @@ import { LoadingButton } from '@mui/lab';
 
 import { Event } from '../database/event';
 import { Transition } from './AvailabilityBooker';
-import { RequestStatus, useRequest } from '../api/Request';
+import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import OwnerField from './eventViewer/OwnerField';
 import Field from './eventViewer/Field';
 import { dojoCohorts } from '../database/user';
@@ -164,6 +164,8 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                         }
                     />
                 </Stack>
+
+                <RequestSnackbar request={request} />
             </DialogContent>
         </Dialog>
     );
