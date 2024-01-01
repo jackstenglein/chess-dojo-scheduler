@@ -29,7 +29,6 @@ import { CacheProvider } from './api/cache/Cache';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import GamePage from './games/view/GamePage';
 import ListGamesPage from './games/list/ListGamesPage';
-import AvailabilityBooker from './calendar/AvailabilityBooker';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import NotFoundPage from './NotFoundPage';
 import RequirementPage from './requirements/RequirementPage';
@@ -62,6 +61,7 @@ import StripeCancelationPage from './meeting/StripeCancelationPage';
 import CourseEditorPage from './coach/courseEditor/CourseEditorPage';
 import YearReviewPage from './profile/yearReview/YearReviewPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
+import EventBooker from './calendar/EventBooker';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -127,7 +127,7 @@ const router = createBrowserRouter(
 
                     <Route path='recent' element={<RecentPage />} />
                     <Route path='calendar' element={<CalendarPage />}>
-                        <Route path='availability/:id' element={<AvailabilityBooker />} />
+                        <Route path='availability/:id' element={<EventBooker />} />
                     </Route>
                     <Route path='meeting'>
                         <Route index element={<ListMeetingsPage />} />
