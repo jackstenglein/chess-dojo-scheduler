@@ -149,6 +149,9 @@ type User struct {
 	// The user's subscription status
 	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
 
+	// Override subscription status to give full site access. Can only be set manually in DynamoDB
+	SubscriptionOverride bool `dynamodbav:"subscriptionOverride" json:"-"`
+
 	// The name of the user
 	Name string `dynamodbav:"name" json:"-"`
 
