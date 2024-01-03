@@ -32,7 +32,7 @@ import ListGamesPage from './games/list/ListGamesPage';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import NotFoundPage from './NotFoundPage';
 import RequirementPage from './requirements/RequirementPage';
-import { GraduationPrompt } from './profile/GraduationPrompt';
+import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import RecentPage from './recent/RecentPage';
 import HelpPage from './help/HelpPage';
 import EditGamePage from './games/edit/EditGamePage';
@@ -113,7 +113,7 @@ const router = createBrowserRouter(
             <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
 
             <Route element={<RequireAuth />}>
-                <Route element={<GraduationPrompt />}>
+                <Route element={<SwitchCohortPrompt />}>
                     <Route path='profile'>
                         <Route index element={<ProfilePage />} />
                         <Route path='edit' element={<ProfileEditorPage />} />

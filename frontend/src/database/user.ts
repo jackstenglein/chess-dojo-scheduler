@@ -573,6 +573,12 @@ export function getRatingBoundary(
     return boundary;
 }
 
+/**
+ * Returns the minimum rating for the given cohort and rating system.
+ * @param cohort The cohort to get the minimum rating for.
+ * @param ratingSystem The rating system to get the minimum rating for.
+ * @returns The minimum rating for the given cohort and rating system.
+ */
 export function getMinRatingBoundary(cohort: string, ratingSystem: RatingSystem): number {
     const cohortIdx = dojoCohorts.findIndex((c) => c === cohort);
     if (cohortIdx <= 0) {
@@ -619,6 +625,9 @@ export function shouldPromptGraduation(user?: User): boolean {
     if (!user || !user.dojoCohort || !user.ratingSystem) {
         return false;
     }
+    if (user.ratingSystem === RatingSystem.Custom) {
+        return false;
+    }
     const cohortBoundaries = ratingBoundaries[user.dojoCohort];
     if (!cohortBoundaries) {
         return false;
@@ -630,6 +639,23 @@ export function shouldPromptGraduation(user?: User): boolean {
     }
 
     return getCurrentRating(user) >= ratingBoundary;
+}
+
+/**
+ * Returns whether the user should be prompted to demote themselves. Demotion is currently prompted when
+ * they are 25 points or more below their current cohort.
+ * @param user The user to potentially prompt for demotion.
+ * @returns
+ */
+export function shouldPromptDemotion(user?: User): boolean {
+    if (!user || !user.dojoCohort || !user.ratingSystem) {
+        return false;
+    }
+    if (user.ratingSystem === RatingSystem.Custom) {
+        return false;
+    }
+    const minRating = getMinRatingBoundary(user.dojoCohort, user.ratingSystem);
+    return getCurrentRating(user) < minRating - 25;
 }
 
 export function hasCreatedProfile(user: User): boolean {
