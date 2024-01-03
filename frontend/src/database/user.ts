@@ -641,6 +641,8 @@ export function shouldPromptGraduation(user?: User): boolean {
     return getCurrentRating(user) >= ratingBoundary;
 }
 
+const THREE_MONTHS = 1000 * 60 * 60 * 24 * 90;
+
 /**
  * Returns whether the user should be prompted to demote themselves. Demotion is currently prompted when
  * they are 25 points or more below their current cohort.
@@ -654,8 +656,29 @@ export function shouldPromptDemotion(user?: User): boolean {
     if (user.ratingSystem === RatingSystem.Custom) {
         return false;
     }
-    const minRating = getMinRatingBoundary(user.dojoCohort, user.ratingSystem);
-    return getCurrentRating(user) < minRating - 25;
+    const minRating = getMinRatingBoundary(user.dojoCohort, user.ratingSystem) - 25;
+    if (getCurrentRating(user) >= minRating) {
+        return false;
+    }
+
+    const history = user.ratingHistories?.[user.ratingSystem];
+    if (!history) {
+        return false;
+    }
+
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setTime(new Date().getTime() - THREE_MONTHS);
+    const threeMonthsAgoStr = threeMonthsAgo.toISOString();
+
+    for (let i = history.length - 1; i >= 0; i--) {
+        if (history[i].date >= threeMonthsAgoStr && history[i].rating >= minRating) {
+            return false;
+        }
+        if (history[i].date < threeMonthsAgoStr) {
+            break;
+        }
+    }
+    return true;
 }
 
 export function hasCreatedProfile(user: User): boolean {

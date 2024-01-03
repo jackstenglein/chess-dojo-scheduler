@@ -71,7 +71,7 @@ export function SwitchCohortPrompt() {
                               user
                           )}! Go to your profile to
                     officially graduate!`
-                        : `Your rating is less than your cohort's minimum rating. We recommend moving down a cohort in your settings.`}
+                        : `Your rating has been less than your cohort's minimum rating for 90 days. We recommend moving down a cohort in your settings.`}
                 </Alert>
             </Snackbar>
         </>
