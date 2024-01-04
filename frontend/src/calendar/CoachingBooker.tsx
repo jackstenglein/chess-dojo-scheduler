@@ -15,11 +15,12 @@ import { Transition } from './AvailabilityBooker';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import OwnerField from './eventViewer/OwnerField';
 import Field from './eventViewer/Field';
-import { dojoCohorts } from '../database/user';
+import { TimeFormat, dojoCohorts } from '../database/user';
 import { useAuth } from '../auth/Auth';
 import { displayPrice } from '../courses/list/CourseListItem';
 import { useApi } from '../api/Api';
 import { EventType, trackEvent } from '../analytics/events';
+import { toDojoDateString, toDojoTimeString } from './displayDate';
 
 interface CoachingBookerProps {
     event: Event;
@@ -40,6 +41,15 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
     const currentPrice = event.coaching.currentPrice;
     const percentOff =
         currentPrice > 0 ? Math.round(((fullPrice - currentPrice) / fullPrice) * 100) : 0;
+
+    const startTime = new Date(event.startTime);
+    const endTime = new Date(event.endTime);
+
+    const timezone = user?.timezoneOverride;
+    const timeFormat = user?.timeFormat || TimeFormat.TwelveHour;
+    const startDate = toDojoDateString(startTime, timezone);
+    const startTimeStr = toDojoTimeString(startTime, timezone, timeFormat);
+    const endTimeStr = toDojoTimeString(endTime, timezone, timeFormat);
 
     const onBook = () => {
         request.onStart();
@@ -93,6 +103,11 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
             <DialogContent>
                 <Stack sx={{ pt: 2 }} spacing={3}>
                     <Typography variant='h6'>{event.title}</Typography>
+
+                    <Field
+                        title='Time'
+                        body={`${startDate} ${startTimeStr} - ${endTimeStr}`}
+                    />
 
                     <Stack>
                         <Typography variant='subtitle2' color='text.secondary'>
