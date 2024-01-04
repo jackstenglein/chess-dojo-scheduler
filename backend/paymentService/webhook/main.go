@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
@@ -208,6 +209,12 @@ func handleCoachingSessionExpired(checkoutSession *stripe.CheckoutSession) api.R
 	}
 	_, err := repository.LeaveEvent(&event, &participant)
 	if err != nil {
+		var lerr *errors.Error
+		if errors.As(err, &lerr) {
+			if _, ok := lerr.Cause.(*dynamodb.ConditionalCheckFailedException); ok {
+				return api.Success(nil)
+			}
+		}
 		return api.Failure(errors.Wrap(500, "Temporary server error", "Failed to leave event", err))
 	}
 
