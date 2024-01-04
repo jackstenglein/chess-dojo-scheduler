@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Container, Grid, Snackbar, Stack } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
-import type { SchedulerRef } from '@aldabil/react-scheduler/types';
+import type { DayHours, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
@@ -22,6 +22,7 @@ import { Event, EventType, EventStatus } from '../database/event';
 import CalendarTutorial from './CalendarTutorial';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import UpsellAlert from '../upsell/UpsellAlert';
+import { getTimeZonedDate } from './displayDate';
 
 function processAvailability(
     user: User,
@@ -242,6 +243,17 @@ function getProcessedEvents(
     for (const event of events) {
         let processedEvent: ProcessedEvent | null = null;
 
+        const startHour = getTimeZonedDate(
+            new Date(event.startTime),
+            filters.timezone
+        ).getHours();
+        if (
+            startHour < (filters.minHour?.getHours() || 0) ||
+            startHour > (filters.maxHour?.getHours() || 24)
+        ) {
+            continue;
+        }
+
         if (event.type === EventType.Availability) {
             processedEvent = processAvailability(user, filters, event);
         } else if (event.type === EventType.Dojo) {
@@ -405,6 +417,39 @@ export default function CalendarPage() {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
     }, [calendarRef, filters.timeFormat]);
 
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(
+            {
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                weekStartOn: 0,
+                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                navigation: true,
+            },
+            'month'
+        );
+        calendarRef.current?.scheduler.handleState(
+            {
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                weekStartOn: 0,
+                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                step: 60,
+                navigation: true,
+            },
+            'week'
+        );
+        calendarRef.current?.scheduler.handleState(
+            {
+                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                step: 60,
+                navigation: true,
+            },
+            'day'
+        );
+    }, [calendarRef, filters.minHour, filters.maxHour]);
+
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
             <RequestSnackbar request={request} />
@@ -437,21 +482,24 @@ export default function CalendarPage() {
                             month={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                                 weekStartOn: 0,
-                                startHour: 0,
-                                endHour: 24,
+                                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                                endHour: ((filters.maxHour?.getHours() || 23) +
+                                    1) as DayHours,
                                 navigation: true,
                             }}
                             week={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                                 weekStartOn: 0,
-                                startHour: 0,
-                                endHour: 24,
+                                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                                endHour: ((filters.maxHour?.getHours() || 23) +
+                                    1) as DayHours,
                                 step: 60,
                                 navigation: true,
                             }}
                             day={{
-                                startHour: 0,
-                                endHour: 24,
+                                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                                endHour: ((filters.maxHour?.getHours() || 23) +
+                                    1) as DayHours,
                                 step: 60,
                                 navigation: true,
                             }}

@@ -14,6 +14,8 @@ import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
 import { DefaultTimezone } from './CalendarFilters';
 import { TimeFormat } from '../../database/user';
+import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 function getTimezoneOptions() {
     const options = [];
@@ -35,6 +37,12 @@ interface TimezoneFilterProps {
 
     timeFormat: string;
     setTimeFormat: (format: TimeFormat) => void;
+
+    minHour: Date | null;
+    setMinHour: (d: Date | null) => void;
+
+    maxHour: Date | null;
+    setMaxHour: (d: Date | null) => void;
 }
 
 const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
@@ -42,6 +50,10 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
     setTimezone,
     timeFormat,
     setTimeFormat,
+    minHour,
+    setMinHour,
+    maxHour,
+    setMaxHour,
 }) => {
     const api = useApi();
     const auth = useAuth();
@@ -103,6 +115,23 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                     />
                 </RadioGroup>
             </FormControl>
+
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <TimePicker
+                    label='Min Hour'
+                    views={['hours']}
+                    ampm={timeFormat === TimeFormat.TwelveHour}
+                    value={minHour}
+                    onChange={(v) => setMinHour(v)}
+                />
+                <TimePicker
+                    label='Max Hour'
+                    views={['hours']}
+                    ampm={timeFormat === TimeFormat.TwelveHour}
+                    value={maxHour}
+                    onChange={(v) => setMaxHour(v)}
+                />
+            </LocalizationProvider>
         </Stack>
     );
 };

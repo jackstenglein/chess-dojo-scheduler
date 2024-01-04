@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
+import { DayHours, ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { Grid } from '@mui/material';
 
@@ -90,6 +90,39 @@ const CalendarTab = () => {
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
     }, [calendarRef, filters.timeFormat]);
+
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(
+            {
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                weekStartOn: 0,
+                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                navigation: true,
+            },
+            'month'
+        );
+        calendarRef.current?.scheduler.handleState(
+            {
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                weekStartOn: 0,
+                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                step: 60,
+                navigation: true,
+            },
+            'week'
+        );
+        calendarRef.current?.scheduler.handleState(
+            {
+                startHour: (filters.minHour?.getHours() as DayHours) || 0,
+                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                step: 60,
+                navigation: true,
+            },
+            'day'
+        );
+    }, [calendarRef, filters.minHour, filters.maxHour]);
 
     return (
         <Grid container spacing={2}>

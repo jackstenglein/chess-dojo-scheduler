@@ -8,6 +8,7 @@ import {
     useMediaQuery,
     Tooltip,
     Link,
+    Button,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
@@ -31,6 +32,7 @@ import { TimeFormat, dojoCohorts } from '../../database/user';
 import { useAuth } from '../../auth/Auth';
 import TimezoneFilter from './TimezoneFilter';
 import { useEvents } from '../../api/cache/Cache';
+import { useLocalStorage } from '../../ThemeProvider';
 
 export const DefaultTimezone = 'DEFAULT';
 
@@ -77,6 +79,34 @@ export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     paddingLeft: theme.spacing(1),
 }));
 
+const initialFilterTypes = Object.values(AvailabilityType).reduce((map, type) => {
+    map[type] = false;
+    return map;
+}, {} as Record<AvailabilityType, boolean>);
+
+const initialFilterCohorts = dojoCohorts.reduce((map, cohort) => {
+    map[cohort] = false;
+    return map;
+}, {} as Record<string, boolean>);
+
+const initialFilterTournamentTypes = Object.values(TournamentType).reduce((map, type) => {
+    map[type] = true;
+    return map;
+}, {} as Record<TournamentType, boolean>);
+
+const initialFilterTournamentTimeControls = Object.values(TimeControlType).reduce(
+    (map, type) => {
+        map[type] = true;
+        return map;
+    },
+    {} as Record<TimeControlType, boolean>
+);
+
+const initialFilterTournamentPositions = Object.values(PositionType).reduce((m, t) => {
+    m[t] = true;
+    return m;
+}, {} as Record<PositionType, boolean>);
+
 export interface Filters {
     timezone: string;
     setTimezone: React.Dispatch<React.SetStateAction<string>>;
@@ -84,99 +114,109 @@ export interface Filters {
     timeFormat: TimeFormat;
     setTimeFormat: (format: TimeFormat) => void;
 
+    minHour: Date | null;
+    setMinHour: (d: Date | null) => void;
+
+    maxHour: Date | null;
+    setMaxHour: (d: Date | null) => void;
+
     availabilities: boolean;
-    setAvailabilities: React.Dispatch<React.SetStateAction<boolean>>;
+    setAvailabilities: (v: boolean) => void;
 
     meetings: boolean;
-    setMeetings: React.Dispatch<React.SetStateAction<boolean>>;
+    setMeetings: (v: boolean) => void;
 
     dojoEvents: boolean;
-    setDojoEvents: React.Dispatch<React.SetStateAction<boolean>>;
+    setDojoEvents: (v: boolean) => void;
 
     allTypes: boolean;
-    setAllTypes: React.Dispatch<React.SetStateAction<boolean>>;
+    setAllTypes: (v: boolean) => void;
 
     types: Record<AvailabilityType, boolean>;
-    setTypes: React.Dispatch<React.SetStateAction<Record<AvailabilityType, boolean>>>;
+    setTypes: (v: Record<AvailabilityType, boolean>) => void;
 
     allCohorts: boolean;
-    setAllCohorts: React.Dispatch<React.SetStateAction<boolean>>;
+    setAllCohorts: (v: boolean) => void;
 
     cohorts: Record<string, boolean>;
-    setCohorts: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+    setCohorts: (v: Record<string, boolean>) => void;
 
     tournamentTypes: Record<TournamentType, boolean>;
-    setTournamentTypes: React.Dispatch<
-        React.SetStateAction<Record<TournamentType, boolean>>
-    >;
+    setTournamentTypes: (v: Record<TournamentType, boolean>) => void;
 
     tournamentTimeControls: Record<TimeControlType, boolean>;
-    setTournamentTimeControls: React.Dispatch<
-        React.SetStateAction<Record<TimeControlType, boolean>>
-    >;
+    setTournamentTimeControls: (v: Record<TimeControlType, boolean>) => void;
 
     tournamentPositions: Record<PositionType, boolean>;
-    setTournamentPositions: React.Dispatch<
-        React.SetStateAction<Record<PositionType, boolean>>
-    >;
+    setTournamentPositions: (v: Record<PositionType, boolean>) => void;
 
     coaching: boolean;
-    setCoaching: React.Dispatch<React.SetStateAction<boolean>>;
+    setCoaching: (v: boolean) => void;
 }
 
+const test = new Date('2024-01-03T13:28:24.642Z');
+
 export function useFilters(): Filters {
+    console.log('Test date: ', test);
+
     const user = useAuth().user;
 
     const [timezone, setTimezone] = useState(user?.timezoneOverride || DefaultTimezone);
     const [timeFormat, setTimeFormat] = useState<TimeFormat>(
         user?.timeFormat || TimeFormat.TwelveHour
     );
-    const [availabilities, setAvailabilities] = useState(true);
-    const [meetings, setMeetings] = useState(true);
-    const [dojoEvents, setDojoEvents] = useState(true);
-
-    const [allTypes, setAllTypes] = useState(true);
-    const [types, setTypes] = useState<Record<AvailabilityType, boolean>>(
-        Object.values(AvailabilityType).reduce((map, type) => {
-            map[type] = false;
-            return map;
-        }, {} as Record<AvailabilityType, boolean>)
+    const [minHour, setMinHour] = useLocalStorage<Date | null>(
+        'calendarFilters.minHour',
+        new Date(new Date().setHours(0)),
+        (v) => new Date(JSON.parse(v))
+    );
+    const [maxHour, setMaxHour] = useLocalStorage<Date | null>(
+        'calendarFilters.maxHour',
+        new Date(new Date().setHours(23)),
+        (v) => new Date(JSON.parse(v))
     );
 
-    const [allCohorts, setAllCohorts] = useState(true);
-    const [cohorts, setCohorts] = useState<Record<string, boolean>>(
-        dojoCohorts.reduce((map, cohort) => {
-            map[cohort] = false;
-            return map;
-        }, {} as Record<string, boolean>)
+    const [availabilities, setAvailabilities] = useLocalStorage(
+        'calendarFilters.availabilties',
+        true
+    );
+    const [meetings, setMeetings] = useLocalStorage('calendarFilters.meetings', true);
+    const [dojoEvents, setDojoEvents] = useLocalStorage(
+        'calendarFilters.dojoEvents',
+        true
     );
 
-    const [tournamentTypes, setTournamentTypes] = useState<
-        Record<TournamentType, boolean>
-    >(
-        Object.values(TournamentType).reduce((map, type) => {
-            map[type] = true;
-            return map;
-        }, {} as Record<TournamentType, boolean>)
+    const [allTypes, setAllTypes] = useLocalStorage('calendarFilters.allTypes', true);
+    const [types, setTypes] = useLocalStorage(
+        'calendarFilters.types',
+        initialFilterTypes
     );
 
-    const [tournamentTimeControls, setTournamentTimeControls] = useState<
-        Record<TimeControlType, boolean>
-    >(
-        Object.values(TimeControlType).reduce((map, type) => {
-            map[type] = true;
-            return map;
-        }, {} as Record<TimeControlType, boolean>)
+    const [allCohorts, setAllCohorts] = useLocalStorage(
+        'calendarFilters.allCohorts',
+        true
+    );
+    const [cohorts, setCohorts] = useLocalStorage(
+        'calendarFilters.cohorts',
+        initialFilterCohorts
     );
 
-    const [tournamentPositions, setTournamentPositions] = useState(
-        Object.values(PositionType).reduce((m, t) => {
-            m[t] = true;
-            return m;
-        }, {} as Record<PositionType, boolean>)
+    const [tournamentTypes, setTournamentTypes] = useLocalStorage(
+        'calendarFilters.tournamentTypes',
+        initialFilterTournamentTypes
     );
 
-    const [coaching, setCoaching] = useState(true);
+    const [tournamentTimeControls, setTournamentTimeControls] = useLocalStorage(
+        'calendarFilters.tournamentTimeControls',
+        initialFilterTournamentTimeControls
+    );
+
+    const [tournamentPositions, setTournamentPositions] = useLocalStorage(
+        'calendarFilters.tournamentPositions',
+        initialFilterTournamentPositions
+    );
+
+    const [coaching, setCoaching] = useLocalStorage('calendarFilters.coaching', true);
 
     const result = useMemo(
         () => ({
@@ -184,6 +224,10 @@ export function useFilters(): Filters {
             setTimezone,
             timeFormat,
             setTimeFormat,
+            minHour,
+            setMinHour,
+            maxHour,
+            setMaxHour,
             availabilities,
             setAvailabilities,
             meetings,
@@ -212,6 +256,10 @@ export function useFilters(): Filters {
             setTimezone,
             timeFormat,
             setTimeFormat,
+            minHour,
+            setMinHour,
+            maxHour,
+            setMaxHour,
             availabilities,
             setAvailabilities,
             meetings,
@@ -292,6 +340,20 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         });
     };
 
+    const onReset = () => {
+        filters.setAvailabilities(true);
+        filters.setMeetings(true);
+        filters.setDojoEvents(true);
+        filters.setAllTypes(true);
+        filters.setTypes(initialFilterTypes);
+        filters.setAllCohorts(true);
+        filters.setCohorts(initialFilterCohorts);
+        filters.setTournamentTypes(initialFilterTournamentTypes);
+        filters.setTournamentTimeControls(initialFilterTournamentTimeControls);
+        filters.setTournamentPositions(initialFilterTournamentPositions);
+        filters.setCoaching(true);
+    };
+
     return (
         <Stack
             data-cy='calendar-filters'
@@ -303,6 +365,10 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                 setTimezone={filters.setTimezone}
                 timeFormat={filters.timeFormat}
                 setTimeFormat={filters.setTimeFormat}
+                minHour={filters.minHour}
+                setMinHour={filters.setMinHour}
+                maxHour={filters.maxHour}
+                setMaxHour={filters.setMaxHour}
             />
 
             {meetingCount > 0 && (
@@ -310,6 +376,10 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     View {meetingCount} upcoming meeting{meetingCount !== 1 ? 's' : ''}
                 </Link>
             )}
+
+            <Button variant='outlined' onClick={onReset} sx={{ alignSelf: 'start' }}>
+                Reset Filters
+            </Button>
 
             <Accordion
                 expanded={forceExpansion || expanded === 'myCalendar'}

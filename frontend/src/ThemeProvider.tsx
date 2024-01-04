@@ -43,14 +43,33 @@ declare module '@mui/material' {
 
 const defaultTheme = createTheme({});
 
-export function useLocalStorage(
+export function useLocalStorage<T>(
     storageKey: string,
-    fallbackState: string
-): [string, (v: string) => void] {
-    const [value, setValue] = useState(localStorage.getItem(storageKey) || fallbackState);
+    fallbackState: T,
+    parser?: (v: string) => T
+): [T, (v: T) => void] {
+    let initialValue = fallbackState;
+    const localStorageVal = localStorage.getItem(storageKey);
+    try {
+        if (
+            localStorageVal &&
+            localStorageVal !== 'null' &&
+            localStorageVal !== 'undefined'
+        ) {
+            if (parser) {
+                initialValue = parser(localStorageVal);
+            } else {
+                initialValue = JSON.parse(localStorageVal);
+            }
+        }
+    } catch (err) {
+        console.error(err);
+    }
+
+    const [value, setValue] = useState<T>(initialValue);
 
     useEffect(() => {
-        localStorage.setItem(storageKey, value);
+        localStorage.setItem(storageKey, JSON.stringify(value));
     }, [value, storageKey]);
 
     return [value, setValue];
