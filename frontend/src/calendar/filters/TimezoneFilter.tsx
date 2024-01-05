@@ -76,6 +76,9 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
     const browserDefaultLabel =
         timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
 
+    let minHourNum = minHour?.getHours() || 0;
+    let maxHourNum = (maxHour?.getHours() || 23) + 1;
+
     return (
         <Stack spacing={2}>
             <Stack id='current-timezone'>
@@ -123,6 +126,15 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                     ampm={timeFormat === TimeFormat.TwelveHour}
                     value={minHour}
                     onChange={(v) => setMinHour(v)}
+                    maxTime={maxHour}
+                    slotProps={{
+                        textField: {
+                            helperText:
+                                minHourNum > maxHourNum
+                                    ? 'Min hour cannot be greater than max hour'
+                                    : undefined,
+                        },
+                    }}
                 />
                 <TimePicker
                     label='Max Hour'
@@ -130,6 +142,15 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                     ampm={timeFormat === TimeFormat.TwelveHour}
                     value={maxHour}
                     onChange={(v) => setMaxHour(v)}
+                    minTime={minHour}
+                    slotProps={{
+                        textField: {
+                            helperText:
+                                maxHourNum < minHourNum
+                                    ? 'Max hour cannot be less than min hour'
+                                    : undefined,
+                        },
+                    }}
                 />
             </LocalizationProvider>
         </Stack>

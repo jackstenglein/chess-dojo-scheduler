@@ -91,13 +91,27 @@ const CalendarTab = () => {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
     }, [calendarRef, filters.timeFormat]);
 
+    let minHour = filters.minHour?.getHours() || 0;
+    let maxHour = (filters.maxHour?.getHours() || 23) + 1;
+
+    if (minHour < 0 || minHour > 23) {
+        minHour = 0;
+    }
+    if (maxHour < 0 || maxHour > 24) {
+        maxHour = 24;
+    }
+    if (minHour > maxHour) {
+        minHour = 0;
+        maxHour = 23;
+    }
+
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(
             {
                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                 weekStartOn: 0,
-                startHour: (filters.minHour?.getHours() as DayHours) || 0,
-                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                startHour: minHour as DayHours,
+                endHour: maxHour as DayHours,
                 navigation: true,
             },
             'month'
@@ -106,8 +120,8 @@ const CalendarTab = () => {
             {
                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                 weekStartOn: 0,
-                startHour: (filters.minHour?.getHours() as DayHours) || 0,
-                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                startHour: minHour as DayHours,
+                endHour: maxHour as DayHours,
                 step: 60,
                 navigation: true,
             },
@@ -115,14 +129,14 @@ const CalendarTab = () => {
         );
         calendarRef.current?.scheduler.handleState(
             {
-                startHour: (filters.minHour?.getHours() as DayHours) || 0,
-                endHour: ((filters.maxHour?.getHours() || 23) + 1) as DayHours,
+                startHour: minHour as DayHours,
+                endHour: maxHour as DayHours,
                 step: 60,
                 navigation: true,
             },
             'day'
         );
-    }, [calendarRef, filters.minHour, filters.maxHour]);
+    }, [calendarRef, minHour, maxHour]);
 
     return (
         <Grid container spacing={2}>
@@ -139,21 +153,21 @@ const CalendarTab = () => {
                     month={{
                         weekDays: [0, 1, 2, 3, 4, 5, 6],
                         weekStartOn: 0,
-                        startHour: 0,
-                        endHour: 24,
+                        startHour: minHour as DayHours,
+                        endHour: maxHour as DayHours,
                         navigation: true,
                     }}
                     week={{
                         weekDays: [0, 1, 2, 3, 4, 5, 6],
                         weekStartOn: 0,
-                        startHour: 0,
-                        endHour: 24,
+                        startHour: minHour as DayHours,
+                        endHour: maxHour as DayHours,
                         step: 60,
                         navigation: true,
                     }}
                     day={{
-                        startHour: 0,
-                        endHour: 24,
+                        startHour: minHour as DayHours,
+                        endHour: maxHour as DayHours,
                         step: 60,
                         navigation: true,
                     }}
