@@ -1,14 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-    Alert,
-    Box,
-    Button,
-    Container,
-    IconButton,
-    Stack,
-    Tab,
-    Tabs,
-} from '@mui/material';
+import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
@@ -33,7 +24,6 @@ import DiscordChip from './info/DiscordChip';
 import CountChip from './info/CountChip';
 import { FollowerEntry } from '../database/follower';
 import UserInfo from './info/UserInfo';
-import { Close } from '@mui/icons-material';
 
 export type ProfilePageProps = {
     username: string;
@@ -48,7 +38,6 @@ const ProfilePage = () => {
     const request = useRequest<User>();
     const isFreeTier = useFreeTier();
     const followRequest = useRequest<FollowerEntry>();
-    const [hideYearReview, setHideYearReview] = useState(false);
 
     const currentUserProfile = !username || username === currentUser.username;
 
@@ -87,12 +76,6 @@ const ProfilePage = () => {
                 });
         }
     }, [api, currentUserProfile, followRequest, username]);
-
-    const reset = request.reset;
-    useEffect(() => {
-        reset();
-        setHideYearReview(false);
-    }, [username, reset, setHideYearReview]);
 
     const user = currentUserProfile ? currentUser : request.data;
 
@@ -137,45 +120,11 @@ const ProfilePage = () => {
             });
     };
 
-    const onViewYearReview = () => {
-        navigate(`/yearreview/${user.username}/2023`);
-    };
-
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
             <RequestSnackbar request={followRequest} />
 
             <Stack>
-                {!hideYearReview && (
-                    <Alert
-                        severity='info'
-                        variant='filled'
-                        action={
-                            <Stack direction='row'>
-                                <Button
-                                    color='inherit'
-                                    size='small'
-                                    onClick={onViewYearReview}
-                                >
-                                    View
-                                </Button>
-                                <IconButton
-                                    size='small'
-                                    color='inherit'
-                                    onClick={() => setHideYearReview(true)}
-                                >
-                                    <Close />
-                                </IconButton>
-                            </Stack>
-                        }
-                        sx={{ mb: 5 }}
-                    >
-                        {currentUserProfile
-                            ? 'Your 2023 Year in Review is available! See how you stack up against the rest of the Dojo!'
-                            : `View ${user.displayName}'s 2023 Year in Review!`}
-                    </Alert>
-                )}
-
                 <Stack
                     direction='row'
                     justifyContent='space-between'
