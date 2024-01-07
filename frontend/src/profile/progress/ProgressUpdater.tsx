@@ -97,6 +97,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     const [hours, setHours] = useState('');
     const [minutes, setMinutes] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [notes, setNotes] = useState('');
     const request = useRequest();
 
     const isComplete = currentCount >= totalCount;
@@ -150,7 +151,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             requirement.id,
             incrementalCount,
             hoursInt * 60 + minutesInt,
-            date
+            date,
+            notes
         )
             .then((response) => {
                 console.log('updateUserProgress: ', response);
@@ -176,7 +178,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     return (
         <>
             <DialogContent>
-                <Stack spacing={2}>
+                <Stack spacing={3}>
                     {isSlider && isRequirement(requirement) && (
                         <InputSlider
                             value={value}
@@ -201,58 +203,70 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                         />
                     )}
 
-                    <DialogContentText>{getContentText(isNonDojo)}</DialogContentText>
+                    <TextField
+                        label='Comments'
+                        placeholder='Optional comments about your progress or the task itself. Visible to others on the newsfeed.'
+                        multiline={true}
+                        maxRows={3}
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                    />
 
-                    <Grid container width={1}>
-                        <Grid item xs={12} sm>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <DatePicker
-                                    label='Date'
-                                    disableFuture
-                                    value={date}
-                                    onChange={setDate}
-                                    slotProps={{ textField: { fullWidth: true } }}
+                    <Stack spacing={2}>
+                        <DialogContentText>{getContentText(isNonDojo)}</DialogContentText>
+
+                        <Grid container width={1}>
+                            <Grid item xs={12} sm>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <DatePicker
+                                        label='Date'
+                                        disableFuture
+                                        value={date}
+                                        onChange={setDate}
+                                        slotProps={{ textField: { fullWidth: true } }}
+                                    />
+                                </LocalizationProvider>
+                            </Grid>
+                            <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
+                                <TextField
+                                    label='Hours'
+                                    value={hours}
+                                    inputProps={{
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    onChange={(event) => setHours(event.target.value)}
+                                    error={!!errors.hours}
+                                    helperText={errors.hours}
+                                    fullWidth
                                 />
-                            </LocalizationProvider>
+                            </Grid>
+                            <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
+                                <TextField
+                                    label='Minutes'
+                                    value={minutes}
+                                    inputProps={{
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    onChange={(event) => setMinutes(event.target.value)}
+                                    error={!!errors.minutes}
+                                    helperText={errors.minutes}
+                                    fullWidth
+                                />
+                            </Grid>
                         </Grid>
-                        <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
-                            <TextField
-                                label='Hours'
-                                value={hours}
-                                inputProps={{
-                                    inputMode: 'numeric',
-                                    pattern: '[0-9]*',
-                                }}
-                                onChange={(event) => setHours(event.target.value)}
-                                error={!!errors.hours}
-                                helperText={errors.hours}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
-                            <TextField
-                                label='Minutes'
-                                value={minutes}
-                                inputProps={{
-                                    inputMode: 'numeric',
-                                    pattern: '[0-9]*',
-                                }}
-                                onChange={(event) => setMinutes(event.target.value)}
-                                error={!!errors.minutes}
-                                helperText={errors.minutes}
-                                fullWidth
-                            />
-                        </Grid>
-                    </Grid>
-                    <DialogContentText>
-                        Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
-                    </DialogContentText>
-                    {addedTime > TIME_WARNING_THRESHOLD_MINS && (
-                        <Alert severity='warning' variant='filled'>
-                            You're adding a lot of time! Please double-check your input
-                            before saving.
-                        </Alert>
-                    )}
+                        <DialogContentText>
+                            Total Time:{' '}
+                            {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
+                        </DialogContentText>
+                        {addedTime > TIME_WARNING_THRESHOLD_MINS && (
+                            <Alert severity='warning' variant='filled'>
+                                You're adding a lot of time! Please double-check your
+                                input before saving.
+                            </Alert>
+                        )}
+                    </Stack>
                 </Stack>
             </DialogContent>
             <DialogActions>

@@ -22,6 +22,7 @@ type ProgressUpdateRequest struct {
 	IncrementalCount        int                 `json:"incrementalCount"`
 	IncrementalMinutesSpent int                 `json:"incrementalMinutesSpent"`
 	Date                    string              `json:"date"`
+	Notes                   string              `json:"notes"`
 }
 
 func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task *database.CustomTask) (api.Response, error) {
@@ -63,6 +64,7 @@ func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task 
 		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
 		Date:                date.Format(time.RFC3339),
 		CreatedAt:           now.Format(time.RFC3339),
+		Notes:               request.Notes,
 	}
 	if err := repository.PutTimelineEntry(timelineEntry); err != nil {
 		return api.Failure(err), nil
@@ -143,6 +145,7 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
 		Date:                date.Format(time.RFC3339),
 		CreatedAt:           updatedAt,
+		Notes:               request.Notes,
 	}
 
 	if err := repository.PutTimelineEntry(timelineEntry); err != nil {

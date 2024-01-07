@@ -76,6 +76,9 @@ type TimelineEntry struct {
 	// The info on game submission, if this timeline entry is for a game submission
 	GameInfo *TimelineGameInfo `dynamodbav:"gameInfo,omitempty" json:"gameInfo,omitempty"`
 
+	// The notes the user left on the timeline entry
+	Notes string `dynamodbav:"notes,omitempty" json:"notes"`
+
 	// The comments left on the timeline entry
 	Comments []Comment `dynamodbav:"comments,omitempty" json:"comments"`
 

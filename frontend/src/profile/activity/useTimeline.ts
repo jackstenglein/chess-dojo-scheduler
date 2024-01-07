@@ -8,6 +8,7 @@ export interface UseTimelineResponse {
     entries: TimelineEntry[];
     hasMore: boolean;
     onLoadMore: () => void;
+    onEdit: (i: number, entry: TimelineEntry) => void;
 }
 
 export function useTimeline(owner: string): UseTimelineResponse {
@@ -47,10 +48,18 @@ export function useTimeline(owner: string): UseTimelineResponse {
         reset();
     }, [reset]);
 
+    const onEdit = useCallback(
+        (i: number, entry: TimelineEntry) => {
+            setEntries((e) => [...e.slice(0, i), entry, ...e.slice(i + 1)]);
+        },
+        [setEntries]
+    );
+
     return {
         request,
         entries,
         hasMore: startKey !== undefined,
         onLoadMore,
+        onEdit,
     };
 }

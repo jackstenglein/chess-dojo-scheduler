@@ -103,6 +103,12 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
                     suffix={entry.progressBarSuffix}
                 />
             )}
+
+            {entry.notes && (
+                <Typography py={2} whiteSpace='pre-line'>
+                    {entry.notes}
+                </Typography>
+            )}
         </Stack>
     );
 };

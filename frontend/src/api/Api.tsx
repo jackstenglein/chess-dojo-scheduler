@@ -166,7 +166,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 requirementId: string,
                 incrementalCount: number,
                 incrementalMinutesSpent: number,
-                date: Date | null
+                date: Date | null,
+                notes: string
             ) =>
                 updateUserProgress(
                     idToken,
@@ -175,6 +176,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     incrementalCount,
                     incrementalMinutesSpent,
                     date,
+                    notes,
                     auth.updateUser
                 ),
             updateUserTimeline: (

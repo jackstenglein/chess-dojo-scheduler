@@ -8,6 +8,7 @@ import { useAuth } from '../../auth/Auth';
 
 interface LoadMoreButtonProps {
     request: Request;
+    hasMore?: boolean;
     since?: string;
     startKey?: Record<string, string>;
     onLoadMore: () => void;
@@ -15,13 +16,14 @@ interface LoadMoreButtonProps {
 
 const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
     request,
+    hasMore,
     since,
     startKey,
     onLoadMore,
 }) => {
     const user = useAuth().user;
 
-    if (Object.values(startKey || {}).length > 0) {
+    if (hasMore || Object.values(startKey || {}).length > 0) {
         return (
             <Stack alignItems='center' spacing={1}>
                 <LoadingButton
@@ -35,12 +37,8 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
         );
     }
 
-    console.log('Since: ', since);
-
     if (since) {
         const date = new Date(since);
-        console.log('Since date: ', date);
-
         return (
             <Stack alignItems='center' spacing={1}>
                 <CheckCircleOutlineIcon color='success' fontSize='large' />

@@ -24,6 +24,7 @@ export interface TimelineEntry {
     graduationInfo?: TimelineGraduationInfo;
     gameInfo?: TimelineGameInfo;
 
+    notes: string;
     comments: Comment[] | null;
     reactions: Record<string, Reaction> | null;
 }
