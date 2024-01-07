@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { DayHours, ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { Grid } from '@mui/material';
 
@@ -8,6 +8,7 @@ import {
     DefaultTimezone,
     useFilters,
     Filters,
+    getHours,
 } from '../calendar/filters/CalendarFilters';
 import TournamentCalendarFilters from './TournamentCalendarFilters';
 import { useEvents } from '../api/cache/Cache';
@@ -91,27 +92,15 @@ const CalendarTab = () => {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
     }, [calendarRef, filters.timeFormat]);
 
-    let minHour = filters.minHour?.getHours() || 0;
-    let maxHour = (filters.maxHour?.getHours() || 23) + 1;
-
-    if (minHour < 0 || minHour > 23) {
-        minHour = 0;
-    }
-    if (maxHour < 0 || maxHour > 24) {
-        maxHour = 24;
-    }
-    if (minHour > maxHour) {
-        minHour = 0;
-        maxHour = 23;
-    }
+    const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
 
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(
             {
                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                 weekStartOn: 0,
-                startHour: minHour as DayHours,
-                endHour: maxHour as DayHours,
+                startHour: minHour,
+                endHour: maxHour,
                 navigation: true,
             },
             'month'
@@ -120,8 +109,8 @@ const CalendarTab = () => {
             {
                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                 weekStartOn: 0,
-                startHour: minHour as DayHours,
-                endHour: maxHour as DayHours,
+                startHour: minHour,
+                endHour: maxHour,
                 step: 60,
                 navigation: true,
             },
@@ -129,8 +118,8 @@ const CalendarTab = () => {
         );
         calendarRef.current?.scheduler.handleState(
             {
-                startHour: minHour as DayHours,
-                endHour: maxHour as DayHours,
+                startHour: minHour,
+                endHour: maxHour,
                 step: 60,
                 navigation: true,
             },
@@ -153,21 +142,21 @@ const CalendarTab = () => {
                     month={{
                         weekDays: [0, 1, 2, 3, 4, 5, 6],
                         weekStartOn: 0,
-                        startHour: minHour as DayHours,
-                        endHour: maxHour as DayHours,
+                        startHour: minHour,
+                        endHour: maxHour,
                         navigation: true,
                     }}
                     week={{
                         weekDays: [0, 1, 2, 3, 4, 5, 6],
                         weekStartOn: 0,
-                        startHour: minHour as DayHours,
-                        endHour: maxHour as DayHours,
+                        startHour: minHour,
+                        endHour: maxHour,
                         step: 60,
                         navigation: true,
                     }}
                     day={{
-                        startHour: minHour as DayHours,
-                        endHour: maxHour as DayHours,
+                        startHour: minHour,
+                        endHour: maxHour,
                         step: 60,
                         navigation: true,
                     }}

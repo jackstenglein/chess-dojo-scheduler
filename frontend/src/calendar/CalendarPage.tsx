@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Container, Grid, Snackbar, Stack } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
-import type { DayHours, SchedulerRef } from '@aldabil/react-scheduler/types';
+import type { SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 import { useApi } from '../api/Api';
@@ -12,6 +12,7 @@ import {
     CalendarFilters,
     DefaultTimezone,
     Filters,
+    getHours,
     useFilters,
 } from './filters/CalendarFilters';
 import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
@@ -417,27 +418,15 @@ export default function CalendarPage() {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
     }, [calendarRef, filters.timeFormat]);
 
-    let minHour = filters.minHour?.getHours() || 0;
-    let maxHour = (filters.maxHour?.getHours() || 23) + 1;
-
-    if (minHour < 0 || minHour > 23) {
-        minHour = 0;
-    }
-    if (maxHour < 0 || maxHour > 24) {
-        maxHour = 24;
-    }
-    if (minHour > maxHour) {
-        minHour = 0;
-        maxHour = 23;
-    }
+    const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
 
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(
             {
                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                 weekStartOn: 0,
-                startHour: minHour as DayHours,
-                endHour: maxHour as DayHours,
+                startHour: minHour,
+                endHour: maxHour,
                 navigation: true,
             },
             'month'
@@ -446,8 +435,8 @@ export default function CalendarPage() {
             {
                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                 weekStartOn: 0,
-                startHour: minHour as DayHours,
-                endHour: maxHour as DayHours,
+                startHour: minHour,
+                endHour: maxHour,
                 step: 60,
                 navigation: true,
             },
@@ -455,8 +444,8 @@ export default function CalendarPage() {
         );
         calendarRef.current?.scheduler.handleState(
             {
-                startHour: minHour as DayHours,
-                endHour: maxHour as DayHours,
+                startHour: minHour,
+                endHour: maxHour,
                 step: 60,
                 navigation: true,
             },
@@ -496,21 +485,21 @@ export default function CalendarPage() {
                             month={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                                 weekStartOn: 0,
-                                startHour: minHour as DayHours,
-                                endHour: maxHour as DayHours,
+                                startHour: minHour,
+                                endHour: maxHour,
                                 navigation: true,
                             }}
                             week={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                                 weekStartOn: 0,
-                                startHour: minHour as DayHours,
-                                endHour: maxHour as DayHours,
+                                startHour: minHour,
+                                endHour: maxHour,
                                 step: 60,
                                 navigation: true,
                             }}
                             day={{
-                                startHour: minHour as DayHours,
-                                endHour: maxHour as DayHours,
+                                startHour: minHour,
+                                endHour: maxHour,
                                 step: 60,
                                 navigation: true,
                             }}

@@ -33,6 +33,7 @@ import { useAuth } from '../../auth/Auth';
 import TimezoneFilter from './TimezoneFilter';
 import { useEvents } from '../../api/cache/Cache';
 import { useLocalStorage } from '../../ThemeProvider';
+import { DayHours } from '@aldabil/react-scheduler/types';
 
 export const DefaultTimezone = 'DEFAULT';
 
@@ -154,11 +155,7 @@ export interface Filters {
     setCoaching: (v: boolean) => void;
 }
 
-const test = new Date('2024-01-03T13:28:24.642Z');
-
 export function useFilters(): Filters {
-    console.log('Test date: ', test);
-
     const user = useAuth().user;
 
     const [timezone, setTimezone] = useState(user?.timezoneOverride || DefaultTimezone);
@@ -286,6 +283,33 @@ export function useFilters(): Filters {
     );
 
     return result;
+}
+
+/**
+ * Returns the hours of the given minimum and maximum dates. If the dates are out of range,
+ * the hours will be set to their default values.
+ * @param minDate The minimum date.
+ * @param maxDate The maximum date.
+ * @returns The hours of the minimum and maximum dates.
+ */
+export function getHours(
+    minDate: Date | null,
+    maxDate: Date | null
+): [DayHours, DayHours] {
+    let minHour = minDate?.getHours() || 0;
+    let maxHour = (maxDate?.getHours() || 23) + 1;
+
+    if (minHour < 0 || minHour > 23) {
+        minHour = 0;
+    }
+    if (maxHour < 0 || maxHour > 24) {
+        maxHour = 24;
+    }
+    if (minHour >= maxHour) {
+        minHour = 0;
+        maxHour = 24;
+    }
+    return [minHour as DayHours, maxHour as DayHours];
 }
 
 interface CalendarFiltersProps {

@@ -130,7 +130,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                     slotProps={{
                         textField: {
                             helperText:
-                                minHourNum > maxHourNum
+                                minHourNum >= maxHourNum
                                     ? 'Min hour cannot be greater than max hour'
                                     : undefined,
                         },
@@ -146,7 +146,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                     slotProps={{
                         textField: {
                             helperText:
-                                maxHourNum < minHourNum
+                                maxHourNum <= minHourNum
                                     ? 'Max hour cannot be less than min hour'
                                     : undefined,
                         },
