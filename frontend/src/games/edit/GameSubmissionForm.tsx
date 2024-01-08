@@ -121,6 +121,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
 
                 {type === SubmissionType.LichessChapter && (
                     <TextField
+                        data-cy='lichess-chapter-url'
                         label='Lichess Chapter URL'
                         placeholder='https://lichess.org/study/abcd1234/abcd1234'
                         value={lichessUrl}
@@ -128,13 +129,14 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                         error={!!errors.lichessUrl}
                         helperText={
                             errors.lichessUrl ||
-                            'Your Lichess study must be unlisted or public'
+                            'Your Lichess study must be unlisted or public. Paste "Current chapter URL" from Lichess.'
                         }
                     />
                 )}
 
                 {type === SubmissionType.LichessStudy && (
                     <TextField
+                        data-cy='lichess-study-url'
                         label='Lichess Study URL'
                         placeholder='https://lichess.org/study/abcd1234'
                         value={lichessUrl}
@@ -142,13 +144,14 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                         error={!!errors.lichessUrl}
                         helperText={
                             errors.lichessUrl ||
-                            'Your Lichess study must be unlisted or public'
+                            'Your Lichess study must be unlisted or public. Paste "Study URL" from Lichess.'
                         }
                     />
                 )}
 
                 {type === SubmissionType.Manual && (
                     <TextField
+                        data-cy='pgn-text'
                         label='PGN Text'
                         placeholder={pgnTextPlaceholder}
                         value={pgnText}
@@ -181,6 +184,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                 </FormControl>
 
                 <LoadingButton
+                    data-cy='submit'
                     variant='contained'
                     loading={loading}
                     onClick={handleSubmit}

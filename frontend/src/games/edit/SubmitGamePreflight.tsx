@@ -145,6 +145,7 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                                 )}
 
                                 <TextField
+                                    data-cy={`white-${i}`}
                                     label='White'
                                     value={h.white}
                                     onChange={(e) =>
@@ -155,6 +156,7 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                                 />
 
                                 <TextField
+                                    data-cy={`black-${i}`}
                                     label='Black'
                                     value={h.black}
                                     onChange={(e) =>
@@ -172,6 +174,7 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                                     }}
                                     slotProps={{
                                         textField: {
+                                            id: `date-${i}`,
                                             error: errors[i] && !!errors[i].date,
                                             helperText:
                                                 (errors[i] && errors[i].date) || ' ',
@@ -187,7 +190,11 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                 <Button onClick={onClose} disabled={loading}>
                     Cancel
                 </Button>
-                <LoadingButton onClick={submit} loading={loading}>
+                <LoadingButton
+                    data-cy='submit-preflight'
+                    onClick={submit}
+                    loading={loading}
+                >
                     Submit
                 </LoadingButton>
             </DialogActions>
