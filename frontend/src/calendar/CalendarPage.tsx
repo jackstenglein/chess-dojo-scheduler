@@ -194,7 +194,10 @@ function processCoachingEvent(
     if (!filters.coaching) {
         return null;
     }
+
+    const isOwner = event.owner === user.username;
     if (
+        !isOwner &&
         !user.isAdmin &&
         !user.isCalendarAdmin &&
         event.cohorts &&
@@ -204,15 +207,14 @@ function processCoachingEvent(
         return null;
     }
     if (
+        !isOwner &&
         user.subscriptionStatus === SubscriptionStatus.FreeTier &&
         !event.coaching?.bookableByFreeUsers
     ) {
         return null;
     }
 
-    const isOwner = event.owner === user.username;
     const isParticipant = Boolean(event.participants[user.username]);
-
     if (event.status !== EventStatus.Scheduled && !isOwner && !isParticipant) {
         return null;
     }
