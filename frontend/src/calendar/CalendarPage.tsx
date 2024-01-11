@@ -26,8 +26,8 @@ import UpsellAlert from '../upsell/UpsellAlert';
 import { getTimeZonedDate } from './displayDate';
 
 function processAvailability(
-    user: User,
-    filters: Filters,
+    user: User | undefined,
+    filters: Filters | undefined,
     event: Event
 ): ProcessedEvent | null {
     if (event.status === EventStatus.Canceled) {
@@ -36,10 +36,11 @@ function processAvailability(
 
     // This user's joined meetings
     if (
+        user &&
         (event.owner === user.username || event.participants[user.username]) &&
         Object.values(event.participants).length > 0
     ) {
-        if (!filters.meetings) {
+        if (filters && !filters.meetings) {
             return null;
         }
 
@@ -68,8 +69,8 @@ function processAvailability(
     }
 
     // This user's created availabilities
-    if (event.owner === user.username) {
-        if (!filters.availabilities) {
+    if (event.owner === user?.username) {
+        if (filters && !filters.availabilities) {
             return null;
         }
 
@@ -89,19 +90,19 @@ function processAvailability(
     }
 
     // Other users' bookable availabilities
-    if (!user.isAdmin && event.status !== EventStatus.Scheduled) {
+    if (!user?.isAdmin && event.status !== EventStatus.Scheduled) {
         return null;
     }
 
-    if (!user.isAdmin && event.cohorts.every((c) => c !== user.dojoCohort)) {
+    if (user && !user.isAdmin && event.cohorts.every((c) => c !== user.dojoCohort)) {
         return null;
     }
 
-    if (!filters.allTypes && event.types?.every((t) => !filters.types[t])) {
+    if (filters && !filters.allTypes && event.types?.every((t) => !filters.types[t])) {
         return null;
     }
 
-    if (!filters.allCohorts && !filters.cohorts[event.ownerCohort]) {
+    if (filters && !filters.allCohorts && !filters.cohorts[event.ownerCohort]) {
         return null;
     }
 
@@ -125,15 +126,16 @@ function processAvailability(
 }
 
 function processDojoEvent(
-    user: User,
-    filters: Filters,
+    user: User | undefined,
+    filters: Filters | undefined,
     event: Event
 ): ProcessedEvent | null {
-    if (!filters.dojoEvents) {
+    if (filters && !filters.dojoEvents) {
         return null;
     }
 
     if (
+        user &&
         !user.isAdmin &&
         !user.isCalendarAdmin &&
         event.cohorts &&
@@ -149,26 +151,29 @@ function processDojoEvent(
         start: new Date(event.startTime),
         end: new Date(event.endTime),
         color: 'success.main',
-        editable: user.isAdmin || user.isCalendarAdmin,
-        deletable: user.isAdmin || user.isCalendarAdmin,
-        draggable: user.isAdmin || user.isCalendarAdmin,
+        editable: user?.isAdmin || user?.isCalendarAdmin,
+        deletable: user?.isAdmin || user?.isCalendarAdmin,
+        draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
     };
 }
 
 function processLigaTournament(
-    user: User,
-    filters: Filters,
+    user: User | undefined,
+    filters: Filters | undefined,
     event: Event
 ): ProcessedEvent | null {
-    if (!filters.dojoEvents) {
+    if (filters && !filters.dojoEvents) {
         return null;
     }
     if (!event.ligaTournament) {
         return null;
     }
-    if (!filters.tournamentTimeControls[event.ligaTournament.timeControlType]) {
+    if (
+        filters &&
+        !filters.tournamentTimeControls[event.ligaTournament.timeControlType]
+    ) {
         return null;
     }
 
@@ -178,25 +183,26 @@ function processLigaTournament(
         start: new Date(event.startTime),
         end: new Date(event.endTime),
         color: 'warning.main',
-        editable: user.isAdmin || user.isCalendarAdmin,
-        deletable: user.isAdmin || user.isCalendarAdmin,
-        draggable: user.isAdmin || user.isCalendarAdmin,
+        editable: user?.isAdmin || user?.isCalendarAdmin,
+        deletable: user?.isAdmin || user?.isCalendarAdmin,
+        draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
     };
 }
 
-function processCoachingEvent(
-    user: User,
-    filters: Filters,
+export function processCoachingEvent(
+    user: User | undefined,
+    filters: Filters | undefined,
     event: Event
 ): ProcessedEvent | null {
-    if (!filters.coaching) {
+    if (filters && !filters.coaching) {
         return null;
     }
 
-    const isOwner = event.owner === user.username;
+    const isOwner = event.owner === user?.username;
     if (
+        user &&
         !isOwner &&
         !user.isAdmin &&
         !user.isCalendarAdmin &&
@@ -206,21 +212,18 @@ function processCoachingEvent(
     ) {
         return null;
     }
-    if (
-        !isOwner &&
-        user.subscriptionStatus === SubscriptionStatus.FreeTier &&
-        !event.coaching?.bookableByFreeUsers
-    ) {
+
+    const isFreeTier = !user || user.subscriptionStatus === SubscriptionStatus.FreeTier;
+    if (!isOwner && isFreeTier && !event.coaching?.bookableByFreeUsers) {
         return null;
     }
 
-    const isParticipant = Boolean(event.participants[user.username]);
+    const isParticipant = user && Boolean(event.participants[user.username]);
     if (event.status !== EventStatus.Scheduled && !isOwner && !isParticipant) {
         return null;
     }
 
-    const editable =
-        isOwner && Object.values(event.participants).length < event.maxParticipants;
+    const editable = isOwner && Object.values(event.participants).length === 0;
 
     return {
         event_id: event.id,
@@ -236,9 +239,9 @@ function processCoachingEvent(
     };
 }
 
-function getProcessedEvents(
-    user: User,
-    filters: Filters,
+export function getProcessedEvents(
+    user: User | undefined,
+    filters: Filters | undefined,
     events: Event[]
 ): ProcessedEvent[] {
     const result: ProcessedEvent[] = [];
@@ -248,11 +251,11 @@ function getProcessedEvents(
 
         const startHour = getTimeZonedDate(
             new Date(event.startTime),
-            filters.timezone
+            filters?.timezone
         ).getHours();
         if (
-            startHour < (filters.minHour?.getHours() || 0) ||
-            startHour > (filters.maxHour?.getHours() || 24)
+            startHour < (filters?.minHour?.getHours() || 0) ||
+            startHour > (filters?.maxHour?.getHours() || 24)
         ) {
             continue;
         }

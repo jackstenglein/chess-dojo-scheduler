@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { Course } from '../../database/course';
-import LoadingPage from '../../loading/LoadingPage';
+import { useApi } from '../../../api/Api';
+import { useRequest } from '../../../api/Request';
+import { useAuth } from '../../../auth/Auth';
+import { Course } from '../../../database/course';
+import LoadingPage from '../../../loading/LoadingPage';
 
 const CoursesCard = () => {
     const user = useAuth().user!;

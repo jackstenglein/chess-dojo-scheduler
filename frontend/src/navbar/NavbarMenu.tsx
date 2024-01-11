@@ -151,6 +151,11 @@ function allStartItems(
                     onClick: () => navigate('/courses'),
                 },
                 {
+                    name: 'Coaching',
+                    icon: null,
+                    onClick: () => navigate('/coaching'),
+                },
+                {
                     name: 'Merch',
                     icon: null,
                     onClick: () =>
@@ -192,6 +197,11 @@ function unauthenticatedStartItems(
                     name: 'Courses',
                     icon: null,
                     onClick: () => navigate('/courses'),
+                },
+                {
+                    name: 'Coaching',
+                    icon: null,
+                    onClick: () => navigate('/coaching'),
                 },
                 {
                     name: 'Merch',

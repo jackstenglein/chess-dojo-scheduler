@@ -56,12 +56,13 @@ import CoursePage from './courses/view/CoursePage';
 import InfoPage from './tournaments/openClassical/InfoPage';
 import ListCoursesPage from './courses/list/ListCoursesPage';
 import PricingPage from './upsell/PricingPage';
-import CoachPortalPage from './coach/CoachPortalPage';
+import CoachPortalPage from './coaching/coaches/CoachPortalPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
-import CourseEditorPage from './coach/courseEditor/CourseEditorPage';
+import CourseEditorPage from './coaching/coaches/courseEditor/CourseEditorPage';
 import YearReviewPage from './profile/yearReview/YearReviewPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
 import EventBooker from './calendar/EventBooker';
+import CoachingPage from './coaching/customers/CoachingPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -107,6 +108,7 @@ const router = createBrowserRouter(
                 <Route index element={<ListCoursesPage />} />
                 <Route path=':type/:id' element={<CoursePage />} />
             </Route>
+            <Route path='coaching' element={<CoachingPage />} />
 
             <Route path='prices' element={<PricingPage />} />
 

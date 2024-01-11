@@ -24,13 +24,13 @@ import {
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { ArrowUpward, Delete } from '@mui/icons-material';
 
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Course, CourseSellingPoint, CourseType } from '../../database/course';
-import { useApi } from '../../api/Api';
-import { useAuth } from '../../auth/Auth';
-import { dojoCohorts, getCohortRange } from '../../database/user';
+import { RequestSnackbar, useRequest } from '../../../api/Request';
+import { Course, CourseSellingPoint, CourseType } from '../../../database/course';
+import { useApi } from '../../../api/Api';
+import { useAuth } from '../../../auth/Auth';
+import { dojoCohorts, getCohortRange } from '../../../database/user';
 import PurchaseCoursePreview from './PurchaseCoursePreview';
-import LoadingPage from '../../loading/LoadingPage';
+import LoadingPage from '../../../loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 
 interface CoursePurchaseOptionEditor {

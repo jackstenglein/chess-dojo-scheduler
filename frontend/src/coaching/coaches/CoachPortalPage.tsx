@@ -1,7 +1,7 @@
 import { Container, Divider, Stack, Typography } from '@mui/material';
 
-import { useAuth } from '../auth/Auth';
-import NotFoundPage from '../NotFoundPage';
+import { useAuth } from '../../auth/Auth';
+import NotFoundPage from '../../NotFoundPage';
 import StripeInfo from './stripe/StripeInfo';
 import ConnectStripeAccount from './stripe/ConnectStripeAccount';
 import CoursesCard from './courseEditor/CoursesCard';

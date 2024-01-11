@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { AccountBalance, CreditCard, Help } from '@mui/icons-material';
 
-import { StripeAccount, StripePayoutMethod } from '../../database/payment';
+import { StripeAccount, StripePayoutMethod } from '../../../database/payment';
 
 const PayoutsCard = ({ account }: { account?: StripeAccount }) => {
     if (!account) {

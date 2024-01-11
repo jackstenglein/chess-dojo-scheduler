@@ -1,0 +1,226 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Scheduler } from '@aldabil/react-scheduler';
+import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
+import { Stack } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+
+import { useEvents } from '../../api/cache/Cache';
+import { EventType } from '../../database/event';
+import {
+    DefaultTimezone,
+    getHours,
+    useFilters,
+} from '../../calendar/filters/CalendarFilters';
+import { getProcessedEvents } from '../../calendar/CalendarPage';
+import { useAuth } from '../../auth/Auth';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import EventEditor from '../../calendar/eventEditor/EventEditor';
+import ProcessedEventViewer from '../../calendar/eventViewer/ProcessedEventViewer';
+import { TimeFormat } from '../../database/user';
+import { useApi } from '../../api/Api';
+import TimezoneFilter from '../../calendar/filters/TimezoneFilter';
+
+const CoachingCalendar = () => {
+    const api = useApi();
+    const user = useAuth().user;
+    const { events, putEvent, removeEvent, request } = useEvents();
+    const coachingEvents = useMemo(
+        () => events.filter((e) => e.type === EventType.Coaching),
+        [events]
+    );
+    const calendarRef = useRef<SchedulerRef>(null);
+    const filters = useFilters();
+
+    const [shiftHeld, setShiftHeld] = useState(false);
+    const copyRequest = useRequest();
+    const deleteRequest = useRequest();
+
+    const processedEvents = useMemo(() => {
+        const modifiedFilters = { ...filters, coaching: true };
+        return getProcessedEvents(user, modifiedFilters, coachingEvents);
+    }, [user, filters, coachingEvents]);
+
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(processedEvents, 'events');
+    }, [processedEvents, calendarRef]);
+
+    const deleteAvailability = useCallback(
+        async (id: string) => {
+            try {
+                console.log('Deleting availability with id: ', id);
+                // Don't use deleteRequest.onStart as it messes up the
+                // scheduler library
+                await api.deleteEvent(id);
+                console.log(`Event ${id} deleted`);
+
+                removeEvent(id);
+                deleteRequest.onSuccess('Availability deleted');
+                return id;
+            } catch (err) {
+                console.error(err);
+                deleteRequest.onFailure(err);
+            }
+        },
+        [api, removeEvent, deleteRequest]
+    );
+
+    const downHandler = useCallback(
+        ({ key }: { key: string }) => {
+            if (key === 'Shift') {
+                setShiftHeld(true);
+            }
+        },
+        [setShiftHeld]
+    );
+
+    const upHandler = useCallback(
+        ({ key }: { key: string }) => {
+            if (key === 'Shift') {
+                setShiftHeld(false);
+            }
+        },
+        [setShiftHeld]
+    );
+
+    useEffect(() => {
+        window.addEventListener('keydown', downHandler);
+        window.addEventListener('keyup', upHandler);
+        return () => {
+            window.removeEventListener('keydown', downHandler);
+            window.removeEventListener('keyup', upHandler);
+        };
+    }, [downHandler, upHandler]);
+
+    const view = calendarRef.current?.scheduler.view;
+    const copyAvailability = useCallback(
+        async (
+            startDate: Date,
+            newEvent: ProcessedEvent,
+            originalEvent: ProcessedEvent
+        ) => {
+            try {
+                let startIso = newEvent.start.toISOString();
+                let endIso = newEvent.end.toISOString();
+
+                if (view === 'month') {
+                    // In month view, we force the time when dragging to be the same as the
+                    // original event because the user can't drag to individual time slots
+                    const originalStartIso = originalEvent.start.toISOString();
+                    const originalEndIso = originalEvent.end.toISOString();
+                    startIso =
+                        startIso.substring(0, startIso.indexOf('T')) +
+                        originalStartIso.substring(originalStartIso.indexOf('T'));
+                    endIso =
+                        endIso.substring(0, endIso.indexOf('T')) +
+                        originalEndIso.substring(originalEndIso.indexOf('T'));
+                }
+
+                copyRequest.onStart();
+
+                let id = originalEvent.event?.id;
+                let discordMessageId = originalEvent.event?.discordMessageId;
+                let privateDiscordEventId = originalEvent.event?.privateDiscordEventId;
+                let publicDiscordEventId = originalEvent.event?.publicDiscordEventId;
+
+                // If shift is held, then set the id and discord ids to
+                // undefined in order to create a new event
+                if (shiftHeld) {
+                    id = undefined;
+                    discordMessageId = undefined;
+                    privateDiscordEventId = undefined;
+                    publicDiscordEventId = undefined;
+                }
+
+                const response = await api.setEvent({
+                    ...(originalEvent.event ?? {}),
+                    startTime: startIso,
+                    endTime: endIso,
+                    id,
+                    discordMessageId,
+                    privateDiscordEventId,
+                    publicDiscordEventId,
+                });
+                const availability = response.data;
+
+                putEvent(availability);
+                copyRequest.onSuccess();
+            } catch (err) {
+                copyRequest.onFailure(err);
+            }
+        },
+        [copyRequest, api, shiftHeld, view, putEvent]
+    );
+
+    const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
+
+    return (
+        <Grid2 container spacing={2}>
+            <RequestSnackbar request={request} />
+            <Grid2 xs={12} md={2.5}>
+                <Stack
+                    data-cy='calendar-filters'
+                    sx={{
+                        pt: 0.5,
+                        pb: 2,
+                        position: { md: 'sticky' },
+                        top: { md: '88px' },
+                    }}
+                    spacing={{ xs: 3, sm: 4 }}
+                >
+                    <TimezoneFilter
+                        timezone={filters.timezone}
+                        setTimezone={filters.setTimezone}
+                        timeFormat={filters.timeFormat}
+                        setTimeFormat={filters.setTimeFormat}
+                        minHour={filters.minHour}
+                        setMinHour={filters.setMinHour}
+                        maxHour={filters.maxHour}
+                        setMaxHour={filters.setMaxHour}
+                    />
+                </Stack>
+            </Grid2>
+            <Grid2 xs={12} md={9.5}>
+                <Scheduler
+                    ref={calendarRef}
+                    editable={user?.isCoach}
+                    month={{
+                        weekDays: [0, 1, 2, 3, 4, 5, 6],
+                        weekStartOn: 0,
+                        startHour: minHour,
+                        endHour: maxHour,
+                        navigation: true,
+                    }}
+                    week={{
+                        weekDays: [0, 1, 2, 3, 4, 5, 6],
+                        weekStartOn: 0,
+                        startHour: minHour,
+                        endHour: maxHour,
+                        step: 60,
+                        navigation: true,
+                    }}
+                    day={{
+                        startHour: minHour,
+                        endHour: maxHour,
+                        step: 60,
+                        navigation: true,
+                    }}
+                    customEditor={(scheduler) => <EventEditor scheduler={scheduler} />}
+                    onDelete={deleteAvailability}
+                    onEventDrop={copyAvailability}
+                    viewerExtraComponent={(fields, event) => (
+                        <ProcessedEventViewer processedEvent={event} />
+                    )}
+                    events={processedEvents}
+                    timeZone={
+                        filters.timezone === DefaultTimezone
+                            ? undefined
+                            : filters.timezone
+                    }
+                    hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
+                />
+            </Grid2>
+        </Grid2>
+    );
+};
+
+export default CoachingCalendar;

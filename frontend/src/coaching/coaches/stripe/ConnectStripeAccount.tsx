@@ -1,8 +1,8 @@
 import { LoadingButton } from '@mui/lab';
 import { Stack, Card, CardHeader, CardContent, Typography } from '@mui/material';
 
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useApi } from '../../../api/Api';
+import { RequestSnackbar, useRequest } from '../../../api/Request';
 import { OpenInNew } from '@mui/icons-material';
 
 const ConnectStripeAccount = () => {

@@ -2,9 +2,9 @@ import { Card, CardContent, CardHeader, Stack, Typography } from '@mui/material'
 import { LoadingButton } from '@mui/lab';
 import { OpenInNew } from '@mui/icons-material';
 
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { StripeAccount } from '../../database/payment';
+import { useApi } from '../../../api/Api';
+import { RequestSnackbar, useRequest } from '../../../api/Request';
+import { StripeAccount } from '../../../database/payment';
 
 const DashboardCard = ({ account }: { account?: StripeAccount }) => {
     const api = useApi();

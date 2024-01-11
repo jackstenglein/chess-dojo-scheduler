@@ -1,7 +1,7 @@
 import Grid2 from '@mui/material/Unstable_Grid2';
 
-import { Course } from '../../database/course';
-import CourseListItem from '../../courses/list/CourseListItem';
+import { Course } from '../../../database/course';
+import CourseListItem from '../../../courses/list/CourseListItem';
 import { useState } from 'react';
 import {
     Box,
@@ -15,7 +15,7 @@ import {
     Typography,
 } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import PurchaseCoursePage from '../../courses/view/PurchaseCoursePage';
+import PurchaseCoursePage from '../../../courses/view/PurchaseCoursePage';
 
 interface PurchaseCoursePreviewProps {
     course: Course;
