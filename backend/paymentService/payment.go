@@ -254,14 +254,6 @@ func CreateConnectedAccount(username, email string) (*stripe.Account, error) {
 		BusinessProfile: &stripe.AccountBusinessProfileParams{
 			ProductDescription: stripe.String("Chess courses and coaching"),
 		},
-		Capabilities: &stripe.AccountCapabilitiesParams{
-			Transfers: &stripe.AccountCapabilitiesTransfersParams{
-				Requested: stripe.Bool(true),
-			},
-			TaxReportingUS1099K: &stripe.AccountCapabilitiesTaxReportingUS1099KParams{
-				Requested: stripe.Bool(true),
-			},
-		},
 		Email: stripe.String(email),
 		Metadata: map[string]string{
 			"username": username,
