@@ -266,6 +266,12 @@ func CreateConnectedAccount(username, email string) (*stripe.Account, error) {
 	return account, nil
 }
 
+func DeleteConnectedAccount(stripeId string) error {
+	params := &stripe.AccountParams{}
+	_, err := account.Del(stripeId, params)
+	return errors.Wrap(500, "Temporary server error", "Failed to delete Stripe account", err)
+}
+
 func GetConnectedAccount(stripeId string) (*stripe.Account, error) {
 	account, err := account.GetByID(stripeId, nil)
 	if err != nil {
