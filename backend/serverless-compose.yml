@@ -111,6 +111,8 @@ services:
       TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
       GamesTableStreamArn: ${chess-dojo-scheduler.GamesTableStreamArn}
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
 
   emailService:
     path: email

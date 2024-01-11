@@ -219,18 +219,11 @@ describe('Edit Games Page', () => {
     });
 
     it('displays error page on invalid PGN', () => {
-        cy.on('uncaught:exception', () => {
-            // return false to prevent the PGN error from failing this test
-            return false;
-        });
-
         cy.contains('Manual Entry').click();
         cy.getBySel('pgn-text').type(INVALID_PGN);
         cy.getBySel('submit').click();
 
-        cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
-        cy.contains('Invalid PGN');
-        cy.contains('Resubmit PGN');
-        deleteCurrentGame();
+        cy.location('pathname').should('equal', '/games/submit');
+        cy.getBySel('error-snackbar').contains('Invalid PGN');
     });
 });

@@ -131,6 +131,35 @@ functions:
           - dynamodb:DeleteItem
         Resource: !GetAtt ExplorerTable.Arn
 
+  createGame:
+    timeout: 28
+    handler: game/create.handler
+    events:
+      - httpApi:
+          path: /game2
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource:
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:BatchWriteItem
+        Resource:
+          - ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - ${param:TimelineTableArn}
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

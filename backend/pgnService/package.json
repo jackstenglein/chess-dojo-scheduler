@@ -5,12 +5,14 @@
         "@aws-sdk/client-dynamodb": "^3.436.0",
         "@aws-sdk/util-dynamodb": "^3.436.0",
         "@jackstenglein/chess": "^1.0.53",
-        "deep-equal": "^2.2.3"
+        "deep-equal": "^2.2.3",
+        "uuid": "^9.0.1"
     },
     "devDependencies": {
         "@types/aws-lambda": "^8.10.125",
         "@types/deep-equal": "^1.0.4",
         "@types/node": "^18.18.7",
+        "@types/uuid": "^9.0.7",
         "esbuild": "^0.19.5",
         "serverless": "^3.22.0",
         "serverless-esbuild": "^1.48.5"

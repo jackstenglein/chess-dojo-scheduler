@@ -168,6 +168,7 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
 
                                 <DatePicker
                                     label='Date'
+                                    disableFuture
                                     value={h.date}
                                     onChange={(newValue) => {
                                         onChangeHeader(i, 'date', newValue);

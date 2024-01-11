@@ -157,6 +157,7 @@ export function RequestSnackbar<T = any>({
         <>
             {displayError && (
                 <Snackbar
+                    data-cy='error-snackbar'
                     open={displayError}
                     autoHideDuration={6000}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
@@ -168,6 +169,7 @@ export function RequestSnackbar<T = any>({
             )}
 
             <Snackbar
+                data-cy='success-snackbar'
                 open={displaySuccess}
                 autoHideDuration={6000}
                 onClose={request.reset}

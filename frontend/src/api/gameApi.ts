@@ -175,7 +175,7 @@ export function isGame(obj: any): obj is Game {
  * @returns The newly created Game.
  */
 export function createGame(idToken: string, req: CreateGameRequest) {
-    return axios.post<Game | CreateGameResponse>(BASE_URL + '/game', req, {
+    return axios.post<Game | CreateGameResponse>(BASE_URL + '/game2', req, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
