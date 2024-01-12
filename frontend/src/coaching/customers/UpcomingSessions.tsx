@@ -32,7 +32,10 @@ const UpcomingSessions: React.FC<UpcomingSessionsProps> = ({
 
     const predicate = filterFunction || displayEvent;
     const coachingEvents = useMemo(
-        () => events.filter((e) => predicate(e, viewer)),
+        () =>
+            events
+                .filter((e) => predicate(e, viewer))
+                .sort((lhs, rhs) => lhs.startTime.localeCompare(rhs.startTime)),
         [events, viewer, predicate]
     );
     const [view, setView] = useState('list');
