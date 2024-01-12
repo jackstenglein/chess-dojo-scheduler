@@ -5,7 +5,7 @@ import { LoadingButton } from '@mui/lab';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { listCoaches } from '../../api/coachApi';
-import { User } from '../../database/user';
+import { User, compareCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import UserInfo from '../../profile/info/UserInfo';
 import { FollowerEntry } from '../../database/follower';
@@ -22,7 +22,11 @@ const CoachesTab = () => {
             listCoaches()
                 .then((resp) => {
                     console.log('listCoaches: ', resp);
-                    request.onSuccess(resp.data);
+                    request.onSuccess(
+                        resp.data.sort((lhs, rhs) =>
+                            compareCohorts(rhs.dojoCohort, lhs.dojoCohort)
+                        )
+                    );
                 })
                 .catch((err) => {
                     console.error('listCoaches: ', err);
@@ -72,7 +76,10 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
         }
     }, [api, currentUser, followRequest, coach]);
 
-    const onFollow = () => {
+    const onFollow = (event: React.MouseEvent<HTMLElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+
         if (!currentUser || currentUser?.username === coach.username) {
             return;
         }
