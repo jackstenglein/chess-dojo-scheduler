@@ -264,7 +264,7 @@ function getGame(
 
         chess.setHeader('White', chess.header().White?.trim() || '');
         chess.setHeader('Black', chess.header().Black?.trim() || '');
-        chess.setHeader('Date', chess.header().Date?.replace('-', '.') || '');
+        chess.setHeader('Date', chess.header().Date?.replaceAll('-', '.') || '');
 
         if (
             !chess.header().White ||
@@ -291,7 +291,7 @@ function getGame(
         return [
             {
                 cohort: user.dojoCohort,
-                id: `${uploadDate.replace('-', '.')}_${uuidv4()}`,
+                id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
                 white: chess.header().White.toLowerCase(),
                 black: chess.header().Black.toLowerCase(),
                 date: chess.header().Date,
@@ -332,14 +332,14 @@ function isValidDate(date?: string): boolean {
         return false;
     }
 
-    if (isNaN(Date.parse(date.replace('.', '-')))) {
+    if (isNaN(Date.parse(date.replaceAll('.', '-')))) {
         return false;
     }
 
     const now = new Date();
     now.setDate(now.getDate() + 2);
 
-    const d = new Date(date.replace('.', '-'));
+    const d = new Date(date.replaceAll('.', '-'));
     if (d > now) {
         return false;
     }

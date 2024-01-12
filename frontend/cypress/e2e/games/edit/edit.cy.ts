@@ -116,7 +116,10 @@ describe('Edit Games Page', () => {
         cy.getBySel('lichess-chapter-url').type(LICHESS_CHAPTER_URL);
         cy.getBySel('submit').click();
 
-        cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
+        cy.location('pathname').should(
+            'match',
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+        );
         cy.getBySel('player-header-header').contains('Test2');
         cy.getBySel('player-header-footer').contains('Test1');
         cy.contains('e4');
@@ -129,7 +132,10 @@ describe('Edit Games Page', () => {
         cy.contains('Black').click();
         cy.getBySel('submit').click();
 
-        cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
+        cy.location('pathname').should(
+            'match',
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+        );
         cy.getBySel('player-header-header').contains('Test1');
         cy.getBySel('player-header-footer').contains('Test2');
         cy.contains('e4');
@@ -166,7 +172,10 @@ describe('Edit Games Page', () => {
         cy.get('#date-0').type('01072024');
         cy.getBySel('submit-preflight').click();
 
-        cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
+        cy.location('pathname').should(
+            'match',
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+        );
         cy.getBySel('player-header-header').contains('Test4');
         cy.getBySel('player-header-footer').contains('Test3');
         cy.contains('d4');
@@ -202,7 +211,10 @@ describe('Edit Games Page', () => {
         cy.get('.MuiDataGrid-row').first().contains('Test1 (1300)');
         cy.get('.MuiDataGrid-row').first().contains('Test2 (1400)');
         cy.get('.MuiDataGrid-row').first().click();
-        cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
+        cy.location('pathname').should(
+            'match',
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+        );
         cy.getBySel('player-header-header').contains('Test2');
         cy.getBySel('player-header-footer').contains('Test1');
         cy.contains('e4');
@@ -211,7 +223,10 @@ describe('Edit Games Page', () => {
         cy.get('.MuiDataGrid-row').first().contains('Test3 (??)');
         cy.get('.MuiDataGrid-row').first().contains('Test4 (??)');
         cy.get('.MuiDataGrid-row').first().click();
-        cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
+        cy.location('pathname').should(
+            'match',
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+        );
         cy.getBySel('player-header-header').contains('Test4');
         cy.getBySel('player-header-footer').contains('Test3');
         cy.contains('d4');
