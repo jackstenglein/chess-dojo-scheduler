@@ -1142,3 +1142,40 @@ func (repo *dynamoRepository) SearchUsers(query string, fields []string, startKe
 	}
 	return users, lastKey, nil
 }
+
+// BatchGetUsers returns a list of users with the provided usernames.
+func (repo *dynamoRepository) BatchGetUsers(usernames []string) ([]*User, error) {
+	if len(usernames) == 0 {
+		return []*User{}, nil
+	}
+	if len(usernames) > 100 {
+		return nil, errors.New(500, "Temporary server error", "More than 100 items in BatchGetUsers request")
+	}
+
+	input := &dynamodb.BatchGetItemInput{
+		RequestItems: map[string]*dynamodb.KeysAndAttributes{
+			userTable: {
+				Keys: []map[string]*dynamodb.AttributeValue{},
+			},
+		},
+	}
+
+	for _, u := range usernames {
+		key := map[string]*dynamodb.AttributeValue{
+			"username": {S: aws.String(u)},
+		}
+		input.RequestItems[userTable].Keys = append(input.RequestItems[userTable].Keys, key)
+	}
+
+	result, err := repo.svc.BatchGetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed call to BatchGetItem", err)
+	}
+	list := result.Responses[userTable]
+
+	var resultEntries []*User
+	if err := dynamodbattribute.UnmarshalListOfMaps(list, &resultEntries); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal BatchGetItem result", err)
+	}
+	return resultEntries, nil
+}

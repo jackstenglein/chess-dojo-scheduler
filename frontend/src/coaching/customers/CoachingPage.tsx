@@ -3,6 +3,7 @@ import { Box, Container, Tab, Tabs } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 
 import UpcomingSessions from './UpcomingSessions';
+import CoachesTab from './CoachesTab';
 
 const CoachingPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'coaches' });
@@ -20,7 +21,9 @@ const CoachingPage = () => {
                         <Tab label='Upcoming Sessions' value='sessions' />
                     </Tabs>
                 </Box>
-                <TabPanel value='coaches'>Item One</TabPanel>
+                <TabPanel value='coaches'>
+                    <CoachesTab />
+                </TabPanel>
                 <TabPanel value='sessions'>
                     <UpcomingSessions />
                 </TabPanel>
