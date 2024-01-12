@@ -91,6 +91,7 @@ export interface User {
     discordUsername: string;
     dojoCohort: string;
     bio: string;
+    coachBio?: string;
 
     subscriptionStatus: string;
 

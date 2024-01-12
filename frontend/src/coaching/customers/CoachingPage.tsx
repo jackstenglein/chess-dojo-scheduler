@@ -1,7 +1,8 @@
 import { TabContext, TabPanel } from '@mui/lab';
 import { Box, Container, Tab, Tabs } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
-import CoachingCalendar from './CoachingCalendar';
+
+import UpcomingSessions from './UpcomingSessions';
 
 const CoachingPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'coaches' });
@@ -16,14 +17,12 @@ const CoachingPage = () => {
                         variant='scrollable'
                     >
                         <Tab label='Coaches' value='coaches' />
-                        <Tab label='List' value='list' />
-                        <Tab label='Calendar' value='calendar' />
+                        <Tab label='Upcoming Sessions' value='sessions' />
                     </Tabs>
                 </Box>
                 <TabPanel value='coaches'>Item One</TabPanel>
-                <TabPanel value='list'>Item Two</TabPanel>
-                <TabPanel value='calendar' sx={{ px: 0 }}>
-                    <CoachingCalendar />
+                <TabPanel value='sessions'>
+                    <UpcomingSessions />
                 </TabPanel>
             </TabContext>
         </Container>

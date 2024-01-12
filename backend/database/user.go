@@ -169,6 +169,9 @@ type User struct {
 	// The user's bio
 	Bio string `dynamodbav:"bio" json:"bio"`
 
+	// The user's coach bio. Only present if the user is a coach
+	CoachBio string `dynamodbav:"coachBio,omitempty" json:"coachBio,omitempty"`
+
 	// The user's preferred rating system
 	RatingSystem RatingSystem `dynamodbav:"ratingSystem" json:"ratingSystem"`
 
@@ -504,6 +507,9 @@ type UserUpdate struct {
 
 	// The user's bio
 	Bio *string `dynamodbav:"bio,omitempty" json:"bio,omitempty"`
+
+	// The user's coach bio. Only present if the user is a coach
+	CoachBio *string `dynamodbav:"coachBio,omitempty" json:"coachBio,omitempty"`
 
 	// The user's preferred rating system
 	RatingSystem *RatingSystem `dynamodbav:"ratingSystem,omitempty" json:"ratingSystem,omitempty"`

@@ -4,8 +4,7 @@ import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Stack } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
-import { useEvents } from '../../api/cache/Cache';
-import { EventType } from '../../database/event';
+import { Event } from '../../database/event';
 import {
     DefaultTimezone,
     getHours,
@@ -13,21 +12,28 @@ import {
 } from '../../calendar/filters/CalendarFilters';
 import { getProcessedEvents } from '../../calendar/CalendarPage';
 import { useAuth } from '../../auth/Auth';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { Request, RequestSnackbar, useRequest } from '../../api/Request';
 import EventEditor from '../../calendar/eventEditor/EventEditor';
 import ProcessedEventViewer from '../../calendar/eventViewer/ProcessedEventViewer';
 import { TimeFormat } from '../../database/user';
 import { useApi } from '../../api/Api';
 import TimezoneFilter from '../../calendar/filters/TimezoneFilter';
 
-const CoachingCalendar = () => {
+interface CoachingCalendarProps {
+    events: Event[];
+    putEvent: (e: Event) => void;
+    removeEvent: (id: string) => void;
+    request: Request;
+}
+
+const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
+    events,
+    putEvent,
+    removeEvent,
+    request,
+}) => {
     const api = useApi();
     const user = useAuth().user;
-    const { events, putEvent, removeEvent, request } = useEvents();
-    const coachingEvents = useMemo(
-        () => events.filter((e) => e.type === EventType.Coaching),
-        [events]
-    );
     const calendarRef = useRef<SchedulerRef>(null);
     const filters = useFilters();
 
@@ -37,8 +43,8 @@ const CoachingCalendar = () => {
 
     const processedEvents = useMemo(() => {
         const modifiedFilters = { ...filters, coaching: true };
-        return getProcessedEvents(user, modifiedFilters, coachingEvents);
-    }, [user, filters, coachingEvents]);
+        return getProcessedEvents(user, modifiedFilters, events);
+    }, [user, filters, events]);
 
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(processedEvents, 'events');

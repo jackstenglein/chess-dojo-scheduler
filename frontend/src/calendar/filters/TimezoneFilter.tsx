@@ -83,7 +83,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
         <Stack spacing={2}>
             <Stack id='current-timezone'>
                 <Typography variant='h6' color='text.secondary' ml={1}>
-                    Current Timezone
+                    Timezone
                 </Typography>
                 <FormControl size='small'>
                     <Select
