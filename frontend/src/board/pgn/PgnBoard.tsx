@@ -13,14 +13,15 @@ import { Box, Stack, SxProps, Theme } from '@mui/material';
 import Board, { BoardApi, PrimitiveMove, reconcile } from '../Board';
 import PgnText from './pgnText/PgnText';
 import { Color } from 'chessground/types';
-import BoardTools from './BoardTools';
+import BoardTools from './boardTools/BoardTools';
 import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
-import { ClockTextFieldId, CommentTextFieldId } from './Editor';
+import { ClockTextFieldId, CommentTextFieldId } from './boardTools/Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
-import { TagTextFieldId } from './Tags';
+import { TagTextFieldId } from './boardTools/Tags';
 import AnnotationWarnings from './annotations/AnnotationWarnings';
 import PlayerHeader from './PlayerHeader';
+import Underboard from './boardTools/Underboard';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -175,16 +176,18 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         } auto auto minmax(auto, calc(100vh - (100vw - 32px) - 30px ${
                             showPlayerHeaders ? '- 56px' : ''
                         } - 40px)) auto auto`,
+
                         md: `${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
                         } var(--board-size) ${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
                         } auto auto`,
+
                         xl: `${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
                         } var(--board-size) ${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
-                        } auto`,
+                        } 48px`,
                     },
                     gridTemplateColumns: {
                         xs: '1fr',
@@ -223,7 +226,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                                        } playerfooter . coach ."`
                                      : ''
                              }
-                             ". ${showUnderboard ? '. .' : ''} boardButtons . . ."`,
+                             ". ${
+                                 showUnderboard ? 'underboard .' : ''
+                             } boardButtons . coach ."`,
                     },
                 }
             }
@@ -255,29 +260,35 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 )}
 
                 {board && chess && (
-                    <BoardTools
-                        onClickMove={onClickMove}
-                        showTags={showTags}
-                        showEditor={showEditor && user && game?.owner === user.username}
-                        showExplorer={showExplorer}
-                        showSave={user && game?.owner === user.username}
-                        showDelete={user && game?.owner === user.username}
-                        game={game}
-                    />
-                )}
+                    <>
+                        <BoardTools
+                            onClickMove={onClickMove}
+                            showSave={user && game?.owner === user.username}
+                            showDelete={user && game?.owner === user.username}
+                            game={game}
+                        />
 
-                {board && chess && (
-                    <Stack
-                        gridArea='coach'
-                        height={1}
-                        sx={{
-                            overflowY: 'auto',
-                            mb: { xs: 1, md: 0 },
-                        }}
-                    >
-                        {showAnnotationWarnings && <AnnotationWarnings />}
-                        <PgnText onClickMove={onClickMove} />
-                    </Stack>
+                        <Underboard
+                            showTags={showTags}
+                            showEditor={
+                                showEditor && user && game?.owner === user.username
+                            }
+                            showExplorer={showExplorer}
+                            game={game}
+                        />
+
+                        <Stack
+                            gridArea='coach'
+                            height={1}
+                            sx={{
+                                overflowY: 'auto',
+                                mb: { xs: 1, md: 0 },
+                            }}
+                        >
+                            {showAnnotationWarnings && <AnnotationWarnings />}
+                            <PgnText onClickMove={onClickMove} />
+                        </Stack>
+                    </>
                 )}
             </ChessContext.Provider>
         </Box>

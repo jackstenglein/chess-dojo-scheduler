@@ -17,8 +17,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
-import { useChess } from './PgnBoard';
-import { getInitialClock } from './PlayerHeader';
+import { useChess } from '../PgnBoard';
+import { getInitialClock } from '../PlayerHeader';
 import React, { useEffect, useState } from 'react';
 import { Event, EventType } from '@jackstenglein/chess';
 import {
@@ -31,7 +31,7 @@ import {
     positionalNags,
     setNagInSet,
     setNagsInSet,
-} from './Nag';
+} from '../Nag';
 import { FormControl } from '@mui/base';
 
 export const CommentTextFieldId = 'commentTextField';

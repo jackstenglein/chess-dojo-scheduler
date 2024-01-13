@@ -6,12 +6,12 @@ import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
 import { Stack, Tooltip, IconButton } from '@mui/material';
 import { Check, ContentCopy, ContentPaste, Link, Save } from '@mui/icons-material';
 
-import DeleteGameButton from '../../../games/view/DeleteGameButton';
-import { useChess } from '../PgnBoard';
-import { Game } from '../../../database/game';
-import { useApi } from '../../../api/Api';
-import { EventType, trackEvent } from '../../../analytics/events';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
+import DeleteGameButton from '../../../../games/view/DeleteGameButton';
+import { useChess } from '../../PgnBoard';
+import { Game } from '../../../../database/game';
+import { useApi } from '../../../../api/Api';
+import { EventType, trackEvent } from '../../../../analytics/events';
+import { RequestSnackbar, useRequest } from '../../../../api/Request';
 
 interface StartButtonsProps {
     showSave?: boolean;
@@ -101,7 +101,7 @@ const StartButtons: React.FC<StartButtonsProps> = ({ showSave, showDelete, game 
     };
 
     return (
-        <Stack direction='row'>
+        <Stack direction='row' sx={{ position: 'absolute', left: 0 }}>
             <CopyToClipboard text={window.location.href} onCopy={() => onCopy('link')}>
                 <Tooltip title='Copy URL'>
                     <IconButton aria-label='copy-url'>

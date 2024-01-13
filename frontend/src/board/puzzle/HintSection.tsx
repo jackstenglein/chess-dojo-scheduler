@@ -7,7 +7,7 @@ import ChatBubble from './ChatBubble';
 import { Status } from './PuzzleBoard';
 import Coach from './Coach';
 import PgnText from '../pgn/pgnText/PgnText';
-import BoardTools from '../pgn/BoardTools';
+import BoardTools from '../pgn/boardTools/BoardTools';
 
 interface HintSectionProps {
     status: Status;

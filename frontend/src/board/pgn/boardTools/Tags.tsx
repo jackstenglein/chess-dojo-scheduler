@@ -13,13 +13,13 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { EventType } from '@jackstenglein/chess';
+import { Chess, EventType } from '@jackstenglein/chess';
 import { Link as RouterLink } from 'react-router-dom';
 
-import GraduationIcon from '../../scoreboard/GraduationIcon';
-import { Game } from '../../database/game';
-import { useChess } from './PgnBoard';
-import Avatar from '../../profile/Avatar';
+import GraduationIcon from '../../../scoreboard/GraduationIcon';
+import { Game } from '../../../database/game';
+import { useChess } from '../PgnBoard';
+import Avatar from '../../../profile/Avatar';
 
 export const TagTextFieldId = 'tagEditor';
 
@@ -30,14 +30,13 @@ interface TagsProps {
 }
 
 interface TagProps {
+    chess?: Chess;
     name: string;
     value: string;
     allowEdits?: boolean;
 }
 
-const Tag: React.FC<TagProps> = ({ name, value, allowEdits }) => {
-    const chess = useChess().chess;
-
+const Tag: React.FC<TagProps> = ({ chess, name, value, allowEdits }) => {
     const handleChange = (newValue: string) => {
         chess?.setHeader(name, newValue);
     };
@@ -197,7 +196,13 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                 )}
 
                 {Object.entries(tags).map(([key, value]) => (
-                    <Tag key={key} name={key} value={value} allowEdits={allowEdits} />
+                    <Tag
+                        key={key}
+                        name={key}
+                        chess={chess}
+                        value={value}
+                        allowEdits={allowEdits}
+                    />
                 ))}
 
                 {allowEdits && <NewTag />}
