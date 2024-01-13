@@ -42,6 +42,9 @@ export type Game = GameInfo & {
     pgn: string;
     comments: Comment[];
     orientation?: 'white' | 'black';
+
+    /** Whether the game is unlisted or not. */
+    unlisted: boolean;
 };
 
 export function isDefaultHeader(header: string): boolean {

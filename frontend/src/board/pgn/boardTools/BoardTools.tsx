@@ -5,24 +5,18 @@ import { Game } from '../../../database/game';
 import { useLightMode } from '../../../ThemeProvider';
 import StartButtons from './boardButtons/StartButtons';
 import ControlButtons from './boardButtons/ControlButtons';
+import StatusIcon from './boardButtons/StatusIcon';
 
 interface BoardToolsProps {
     onClickMove: (move: Move | null) => void;
 
     showSave?: boolean;
-    showDelete?: boolean;
     game?: Game;
 }
 
-const BoardTools: React.FC<BoardToolsProps> = ({
-    onClickMove,
-
-    showSave,
-    showDelete,
-    game,
-}) => {
+const BoardTools: React.FC<BoardToolsProps> = ({ onClickMove, showSave, game }) => {
     const light = useLightMode();
-    const isMedium = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+    const isMedium = useMediaQuery((theme: any) => theme.breakpoints.up('sm'));
 
     return (
         <>
@@ -39,16 +33,13 @@ const BoardTools: React.FC<BoardToolsProps> = ({
                 <Stack
                     direction='row'
                     justifyContent={isMedium ? 'center' : 'end'}
+                    alignItems='center'
                     flexWrap='wrap'
                     position='relative'
                 >
-                    <StartButtons
-                        showSave={showSave}
-                        showDelete={showDelete}
-                        game={game}
-                    />
-
+                    <StartButtons />
                     <ControlButtons onClickMove={onClickMove} />
+                    {showSave && game && <StatusIcon game={game} hidden={!isMedium} />}
                 </Stack>
             </Paper>
         </>

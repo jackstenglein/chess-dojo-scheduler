@@ -263,9 +263,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                     <>
                         <BoardTools
                             onClickMove={onClickMove}
-                            showSave={user && game?.owner === user.username}
-                            showDelete={user && game?.owner === user.username}
                             game={game}
+                            showSave={showEditor && game?.owner === user?.username}
                         />
 
                         <Underboard

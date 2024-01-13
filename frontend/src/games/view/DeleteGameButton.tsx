@@ -19,7 +19,7 @@ import { EventType, trackEvent } from '../../analytics/events';
 
 interface DeleteGameButtonProps {
     game: Game;
-    variant?: 'icon' | 'contained';
+    variant?: 'icon' | 'contained' | 'outlined';
 }
 
 const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({

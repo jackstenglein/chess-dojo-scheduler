@@ -111,6 +111,9 @@ type Game struct {
 
 	// The default board orientation for the game
 	Orientation string `dynamodbav:"orientation" json:"orientation,omitempty"`
+
+	// Whether the game is unlisted
+	Unlisted bool `dynamodbav:"unlisted" json:"unlisted"`
 }
 
 type GameUpdate struct {

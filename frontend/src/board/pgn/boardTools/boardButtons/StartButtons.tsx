@@ -1,38 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { unstable_usePrompt } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
+import { EventType as ChessEventType } from '@jackstenglein/chess';
 import { Stack, Tooltip, IconButton } from '@mui/material';
-import { Check, ContentCopy, ContentPaste, Link, Save } from '@mui/icons-material';
+import { Check, ContentCopy, ContentPaste, Link } from '@mui/icons-material';
 
-import DeleteGameButton from '../../../../games/view/DeleteGameButton';
 import { useChess } from '../../PgnBoard';
-import { Game } from '../../../../database/game';
-import { useApi } from '../../../../api/Api';
-import { EventType, trackEvent } from '../../../../analytics/events';
-import { RequestSnackbar, useRequest } from '../../../../api/Request';
 
-interface StartButtonsProps {
-    showSave?: boolean;
-    showDelete?: boolean;
-    game?: Game;
-}
-
-const StartButtons: React.FC<StartButtonsProps> = ({ showSave, showDelete, game }) => {
+const StartButtons = () => {
     const { chess } = useChess();
     const [copied, setCopied] = useState('');
-    const api = useApi();
-    const request = useRequest();
 
-    const [initialPgn, setInitialPgn] = useState(chess?.renderPgn() || '');
-    const [editorPgn, setEditorPgn] = useState(initialPgn);
-    unstable_usePrompt({
-        when: !!showSave && initialPgn !== editorPgn,
-        message:
-            'Your PGN has unsaved changes that will be lost. Are you sure you want to leave?',
-    });
-
+    const [editorPgn, setEditorPgn] = useState(chess?.renderPgn() || '');
     useEffect(() => {
         if (chess) {
             const observer = {
@@ -47,14 +26,8 @@ const StartButtons: React.FC<StartButtonsProps> = ({ showSave, showDelete, game 
                     ChessEventType.PromoteVariation,
                     ChessEventType.UpdateHeader,
                 ],
-                handler: (event: Event) => {
-                    if (event.type === ChessEventType.Initialized) {
-                        const pgn = chess.renderPgn();
-                        setInitialPgn(pgn);
-                        setEditorPgn(pgn);
-                    } else {
-                        setEditorPgn(chess.renderPgn());
-                    }
+                handler: () => {
+                    setEditorPgn(chess.renderPgn());
                 },
             };
 
@@ -62,31 +35,6 @@ const StartButtons: React.FC<StartButtonsProps> = ({ showSave, showDelete, game 
             return () => chess.removeObserver(observer);
         }
     }, [chess, setEditorPgn]);
-
-    const onSave = useCallback(() => {
-        if (!game || !chess) {
-            return;
-        }
-
-        request.onStart();
-        api.updateGame(game.cohort, game.id, {
-            type: 'manual',
-            pgnText: chess.renderPgn(),
-            orientation: game.orientation || 'white',
-        })
-            .then(() => {
-                trackEvent(EventType.UpdateGame, {
-                    method: 'manual',
-                    dojo_cohort: game.cohort,
-                });
-                request.onSuccess('Game updated');
-                setInitialPgn(editorPgn);
-            })
-            .catch((err) => {
-                console.error('updateGame: ', err);
-                request.onFailure(err);
-            });
-    }, [chess, api, game, request, editorPgn]);
 
     const onCopy = (name: string) => {
         setCopied(name);
@@ -135,25 +83,6 @@ const StartButtons: React.FC<StartButtonsProps> = ({ showSave, showDelete, game 
                     </IconButton>
                 </Tooltip>
             </CopyToClipboard>
-
-            {showSave && (
-                <Tooltip title='Save PGN'>
-                    <IconButton onClick={onSave}>
-                        <Save
-                            sx={{
-                                color:
-                                    editorPgn === initialPgn
-                                        ? 'text.secondary'
-                                        : 'warning.main',
-                            }}
-                        />
-                    </IconButton>
-                </Tooltip>
-            )}
-
-            {showDelete && game && <DeleteGameButton game={game} />}
-
-            <RequestSnackbar request={request} showSuccess />
         </Stack>
     );
 };

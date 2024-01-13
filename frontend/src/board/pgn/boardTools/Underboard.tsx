@@ -12,9 +12,10 @@ import { useLightMode } from '../../../ThemeProvider';
 import Tags from './Tags';
 import Editor from './Editor';
 import Explorer from '../explorer/Explorer';
-import { Edit, Sell, Storage } from '@mui/icons-material';
+import { Edit, Sell, Settings as SettingsIcon, Storage } from '@mui/icons-material';
 import { useChess } from '../PgnBoard';
 import { Game } from '../../../database/game';
+import Settings from './Settings';
 
 interface UnderboardProps {
     showEditor?: boolean;
@@ -84,18 +85,36 @@ const Underboard: React.FC<UnderboardProps> = ({
                                 <Edit />
                             </UnderboardButton>
                         )}
+
                         <UnderboardButton
                             tooltip='Position Database'
                             value='explorer'
                             sx={{
                                 borderBottomRightRadius: 0,
-
                                 borderTop: light ? 0 : undefined,
-                                borderRight: light ? 0 : undefined,
+                                borderRight: showEditor
+                                    ? undefined
+                                    : light
+                                    ? 0
+                                    : undefined,
                             }}
                         >
                             <Storage />
                         </UnderboardButton>
+
+                        {showEditor && (
+                            <UnderboardButton
+                                tooltip='Settings'
+                                value='settings'
+                                sx={{
+                                    borderTop: light ? 0 : undefined,
+                                    borderRight: light ? 0 : undefined,
+                                    borderBottomRightRadius: 0,
+                                }}
+                            >
+                                <SettingsIcon />
+                            </UnderboardButton>
+                        )}
                     </ToggleButtonGroup>
                 </Paper>
             )}
@@ -110,6 +129,7 @@ const Underboard: React.FC<UnderboardProps> = ({
                 )}
                 {underboard === 'editor' && <Editor />}
                 {underboard === 'explorer' && <Explorer />}
+                {underboard === 'settings' && game && <Settings game={game} />}
             </Stack>
         </Card>
     );

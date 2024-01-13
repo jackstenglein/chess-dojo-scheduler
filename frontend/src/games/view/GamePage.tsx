@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-    Box,
-    Button,
-    Container,
-    IconButton,
-    Stack,
-    TextField,
-    Typography,
-} from '@mui/material';
+import { useParams } from 'react-router-dom';
+import { Box, Container, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -81,7 +73,6 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ cohort, id, onSuccess }) 
 const GamePage = () => {
     const api = useApi();
     const user = useAuth().user!;
-    const navigate = useNavigate();
     const request = useRequest<Game>();
     const featureRequest = useRequest();
     const { cohort, id } = useParams();
@@ -179,42 +170,23 @@ const GamePage = () => {
                         />
 
                         <Stack gridArea='extras' spacing={2}>
-                            <Stack direction='row' my={2} spacing={2} flexWrap='wrap'>
-                                {user.isAdmin && (
-                                    <Stack
-                                        direction='row'
-                                        alignSelf='start'
-                                        alignItems='center'
-                                        spacing={2}
-                                    >
-                                        <Typography>Feature Game?</Typography>
-                                        <IconButton onClick={onFeature}>
-                                            {request.data.isFeatured === 'true' ? (
-                                                <CheckBoxIcon color='primary' />
-                                            ) : (
-                                                <CheckBoxOutlineBlankIcon />
-                                            )}
-                                        </IconButton>
-                                    </Stack>
-                                )}
-
-                                {request.data.owner === user.username && (
-                                    <Stack
-                                        direction='row'
-                                        alignSelf='start'
-                                        alignItems='center'
-                                        spacing={2}
-                                        sx={{ mb: 2 }}
-                                    >
-                                        <Button
-                                            variant='contained'
-                                            onClick={() => navigate('edit')}
-                                        >
-                                            Import PGN
-                                        </Button>
-                                    </Stack>
-                                )}
-                            </Stack>
+                            {user.isAdmin && (
+                                <Stack
+                                    direction='row'
+                                    alignSelf='start'
+                                    alignItems='center'
+                                    spacing={2}
+                                >
+                                    <Typography>Feature Game?</Typography>
+                                    <IconButton onClick={onFeature}>
+                                        {request.data.isFeatured === 'true' ? (
+                                            <CheckBoxIcon color='primary' />
+                                        ) : (
+                                            <CheckBoxOutlineBlankIcon />
+                                        )}
+                                    </IconButton>
+                                </Stack>
+                            )}
 
                             <Typography id='comments' variant='h6'>
                                 Comments
