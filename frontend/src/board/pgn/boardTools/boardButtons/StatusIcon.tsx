@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash.debounce';
 import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
+import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import { CloudDone, CloudOff } from '@mui/icons-material';
 
 import { useApi } from '../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../api/Request';
 import { Game } from '../../../../database/game';
 import { useChess } from '../../PgnBoard';
 import { EventType, trackEvent } from '../../../../analytics/events';
-import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
-import { CloudDone, CloudOff } from '@mui/icons-material';
 import { useAuth } from '../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../calendar/displayDate';
 
@@ -39,6 +39,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
     const api = useApi();
     const request = useRequest<Date>();
     const [initialPgn, setInitialPgn] = useState(chess?.renderPgn() || '');
+    const [hasChanges, setHasChanges] = useState(false);
     const user = useAuth().user;
 
     const onSave = (cohort: string, id: string, pgnText: string) => {
@@ -55,11 +56,14 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                     });
                     request.onSuccess(new Date());
                     setInitialPgn(pgnText);
+                    setHasChanges(false);
                 })
                 .catch((err) => {
                     console.error('updateGame: ', err);
                     request.onFailure(err);
                 });
+        } else {
+            setHasChanges(false);
         }
     };
 
@@ -84,7 +88,9 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                         const pgn = chess.renderPgn();
                         setInitialPgn(pgn);
                     } else {
-                        debouncedOnSave(game.cohort, game.id, chess.renderPgn());
+                        const pgn = chess.renderPgn();
+                        setHasChanges(true);
+                        debouncedOnSave(game.cohort, game.id, pgn);
                     }
                 },
             };
@@ -92,7 +98,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
             chess.addObserver(observer);
             return () => chess.removeObserver(observer);
         }
-    }, [chess, game, setInitialPgn, debouncedOnSave]);
+    }, [chess, game, setInitialPgn, debouncedOnSave, setHasChanges]);
 
     return (
         <Box
@@ -115,6 +121,10 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                     >
                         <CloudOff color='error' />
                     </IconButton>
+                </Tooltip>
+            ) : hasChanges ? (
+                <Tooltip title='Unsaved changes.'>
+                    <CloudOff sx={{ color: 'text.secondary' }} />
                 </Tooltip>
             ) : (
                 <Tooltip
