@@ -14,7 +14,7 @@ export type GameApiContextType = {
      */
     createGame: (
         req: CreateGameRequest
-    ) => Promise<AxiosResponse<Game | CreateGameResponse, any>>;
+    ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
 
     /**
      * getGame returns the requested game.
@@ -49,7 +49,7 @@ export type GameApiContextType = {
         cohort: string,
         id: string,
         req: CreateGameRequest
-    ) => Promise<AxiosResponse<Game, any>>;
+    ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
 
     /**
      * deleteGame removes the specified game from the database. The caller
@@ -160,7 +160,7 @@ export interface GameHeader {
     date: string;
 }
 
-export interface CreateGameResponse {
+export interface EditGameResponse {
     headers: GameHeader[];
     count: number;
 }
@@ -176,7 +176,7 @@ export function isGame(obj: any): obj is Game {
  * @returns The newly created Game.
  */
 export function createGame(idToken: string, req: CreateGameRequest) {
-    return axios.post<Game | CreateGameResponse>(BASE_URL + '/game2', req, {
+    return axios.post<Game | EditGameResponse>(BASE_URL + '/game2', req, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -248,7 +248,7 @@ export function updateGame(
     // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded
     id = btoa(id);
 
-    return axios.put<Game>(BASE_URL + `/game2/${cohort}/${id}`, req, {
+    return axios.put<Game | EditGameResponse>(BASE_URL + `/game2/${cohort}/${id}`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }

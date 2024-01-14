@@ -46,7 +46,7 @@ async function updateGame(
     const request = getRequest(event);
     const [update, headers] = await getGameUpdate(request);
     if (headers) {
-        return success({ count: 1, headers });
+        return success({ count: 1, headers: [headers] });
     }
     if (!update) {
         throw new ApiError({

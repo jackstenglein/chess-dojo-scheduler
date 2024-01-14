@@ -51,7 +51,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game, hidden }) => {
             })
                 .then(() => {
                     trackEvent(EventType.UpdateGame, {
-                        method: 'manual',
+                        method: 'autosave',
                         dojo_cohort: cohort,
                     });
                     request.onSuccess(new Date());

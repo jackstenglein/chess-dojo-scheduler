@@ -14,6 +14,7 @@ import { RestrictedAction } from '../../upsell/UpsellDialog';
 interface Preflight {
     req: CreateGameRequest;
     headers: GameHeader[];
+    function: 'create' | 'edit';
 }
 
 const EditGamePage = () => {
@@ -31,6 +32,10 @@ const EditGamePage = () => {
             .then((response) => {
                 if (isGame(response.data)) {
                     const game = response.data;
+                    trackEvent(EventType.SubmitGame, {
+                        count: 1,
+                        method: req.type,
+                    });
                     navigate(
                         `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
                             '?',
@@ -39,7 +44,11 @@ const EditGamePage = () => {
                     );
                 } else if (response.data.headers) {
                     request.onSuccess();
-                    setPreflight({ req, headers: response.data.headers });
+                    setPreflight({
+                        function: 'create',
+                        req,
+                        headers: response.data.headers,
+                    });
                 } else {
                     const count = response.data.count;
                     trackEvent(EventType.SubmitGame, {
@@ -62,13 +71,21 @@ const EditGamePage = () => {
         }
         request.onStart();
         api.updateGame(cohort, id, req)
-            .then(() => {
-                trackEvent(EventType.UpdateGame, {
-                    method: req.type,
-                    dojo_cohort: cohort,
-                });
-                navigate(`/games/${cohort}/${id}`);
-                request.onSuccess();
+            .then((response) => {
+                if (isGame(response.data)) {
+                    trackEvent(EventType.UpdateGame, {
+                        method: req.type,
+                        dojo_cohort: cohort,
+                    });
+                    navigate(`/games/${cohort}/${id}`);
+                } else if (response.data.headers) {
+                    request.onSuccess();
+                    setPreflight({
+                        function: 'edit',
+                        req,
+                        headers: response.data.headers,
+                    });
+                }
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
@@ -78,7 +95,11 @@ const EditGamePage = () => {
 
     const onPreflight = (headers: GameHeader[]) => {
         console.log('Headers: ', headers);
-        onCreate({ ...preflight!.req, headers });
+        if (preflight?.function === 'create') {
+            onCreate({ ...preflight.req, headers });
+        } else if (preflight?.function === 'edit') {
+            onEdit({ ...preflight.req, headers });
+        }
     };
 
     const title = cohort && id ? 'Edit Game' : 'Submit Game';

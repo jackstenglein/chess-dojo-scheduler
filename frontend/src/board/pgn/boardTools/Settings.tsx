@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { useRequest } from '../../../api/Request';
 import { useApi } from '../../../api/Api';
 import { EventType, trackEvent } from '../../../analytics/events';
+import { isGame } from '../../../api/gameApi';
 
 interface SettingsProps {
     game: Game;
@@ -45,7 +46,9 @@ const Settings: React.FC<SettingsProps> = ({ game, onSaveGame }) => {
                     dojo_cohort: game.cohort,
                 });
                 request.onSuccess();
-                onSaveGame?.(resp.data);
+                if (isGame(resp.data)) {
+                    onSaveGame?.(resp.data);
+                }
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
