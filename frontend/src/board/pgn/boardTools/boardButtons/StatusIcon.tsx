@@ -32,10 +32,9 @@ const useDebounce = (callback: (...args: any) => void, delay: number = 3000) => 
 
 interface StatusIconProps {
     game: Game;
-    hidden: boolean;
 }
 
-const StatusIcon: React.FC<StatusIconProps> = ({ game, hidden }) => {
+const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
     const { chess } = useChess();
     const api = useApi();
     const request = useRequest<Date>();
@@ -95,22 +94,12 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game, hidden }) => {
         }
     }, [chess, game, setInitialPgn, debouncedOnSave]);
 
-    if (hidden) {
-        return (
-            <>
-                <RequestSnackbar request={request} />
-            </>
-        );
-    }
-
     return (
         <Box
             sx={{
                 pr: request.isFailure() ? undefined : 1,
                 display: 'flex',
                 alignItems: 'center',
-                position: 'absolute',
-                right: 0,
             }}
         >
             {request.isLoading() ? (
@@ -139,7 +128,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game, hidden }) => {
                                   user?.timezoneOverride,
                                   user?.timeFormat
                               )}`
-                            : `Saved. No changes made since opening.`
+                            : `No changes made since opening.`
                     }
                 >
                     <CloudDone sx={{ color: 'text.secondary' }} />

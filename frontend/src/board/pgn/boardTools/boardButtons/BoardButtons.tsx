@@ -1,5 +1,5 @@
 import { Move } from '@jackstenglein/chess';
-import { Stack, Paper, useMediaQuery } from '@mui/material';
+import { Stack, Paper, Box } from '@mui/material';
 
 import { Game } from '../../../../database/game';
 import { useLightMode } from '../../../../ThemeProvider';
@@ -16,7 +16,6 @@ interface BoardButtonsProps {
 
 const BoardButtons: React.FC<BoardButtonsProps> = ({ onClickMove, showSave, game }) => {
     const light = useLightMode();
-    const isMedium = useMediaQuery((theme: any) => theme.breakpoints.up('sm'));
 
     return (
         <>
@@ -32,14 +31,18 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ onClickMove, showSave, game
             >
                 <Stack
                     direction='row'
-                    justifyContent={isMedium ? 'center' : 'end'}
+                    justifyContent='space-between'
                     alignItems='center'
                     flexWrap='wrap'
                     position='relative'
                 >
                     <StartButtons />
                     <ControlButtons onClickMove={onClickMove} />
-                    {showSave && game && <StatusIcon game={game} hidden={!isMedium} />}
+                    {showSave && game ? (
+                        <StatusIcon game={game} />
+                    ) : (
+                        <Box sx={{ width: '40px' }}></Box>
+                    )}
                 </Stack>
             </Paper>
         </>

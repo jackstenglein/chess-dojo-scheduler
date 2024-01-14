@@ -1,46 +1,34 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import copy from 'copy-to-clipboard';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { EventType as ChessEventType } from '@jackstenglein/chess';
-import { Stack, Tooltip, IconButton } from '@mui/material';
-import { Check, ContentCopy, ContentPaste, Link } from '@mui/icons-material';
+import { Stack, Tooltip, IconButton, Menu, MenuItem } from '@mui/material';
+import { Check, ContentPaste } from '@mui/icons-material';
 
 import { useChess } from '../../PgnBoard';
 
 const StartButtons = () => {
     const { chess } = useChess();
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [copied, setCopied] = useState('');
 
-    const [editorPgn, setEditorPgn] = useState(chess?.renderPgn() || '');
-    useEffect(() => {
-        if (chess) {
-            const observer = {
-                types: [
-                    ChessEventType.NewVariation,
-                    ChessEventType.UpdateComment,
-                    ChessEventType.UpdateCommand,
-                    ChessEventType.UpdateNags,
-                    ChessEventType.Initialized,
-                    ChessEventType.UpdateDrawables,
-                    ChessEventType.DeleteMove,
-                    ChessEventType.PromoteVariation,
-                    ChessEventType.UpdateHeader,
-                ],
-                handler: () => {
-                    setEditorPgn(chess.renderPgn());
-                },
-            };
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
 
-            chess.addObserver(observer);
-            return () => chess.removeObserver(observer);
-        }
-    }, [chess, setEditorPgn]);
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     const onCopy = (name: string) => {
         setCopied(name);
+        handleClose();
         setTimeout(() => {
             setCopied('');
         }, 2500);
+    };
+
+    const onCopyUrl = () => {
+        copy(window.location.href);
+        onCopy('url');
     };
 
     const onCopyFen = () => {
@@ -48,41 +36,28 @@ const StartButtons = () => {
         onCopy('fen');
     };
 
-    return (
-        <Stack direction='row' sx={{ position: 'absolute', left: 0 }}>
-            <CopyToClipboard text={window.location.href} onCopy={() => onCopy('link')}>
-                <Tooltip title='Copy URL'>
-                    <IconButton aria-label='copy-url'>
-                        {copied === 'link' ? (
-                            <Check sx={{ color: 'text.secondary' }} />
-                        ) : (
-                            <Link sx={{ color: 'text.secondary' }} />
-                        )}
-                    </IconButton>
-                </Tooltip>
-            </CopyToClipboard>
+    const onCopyPGN = () => {
+        copy(chess?.renderPgn() || '');
+        onCopy('pgn');
+    };
 
-            <Tooltip title='Copy FEN'>
-                <IconButton aria-label='copy-fen' onClick={onCopyFen}>
-                    {copied === 'fen' ? (
+    return (
+        <Stack direction='row'>
+            <Tooltip title='Copy'>
+                <IconButton onClick={handleClick}>
+                    {copied ? (
                         <Check sx={{ color: 'text.secondary' }} />
                     ) : (
-                        <ContentCopy sx={{ color: 'text.secondary' }} />
+                        <ContentPaste sx={{ color: 'text.secondary' }} />
                     )}
                 </IconButton>
             </Tooltip>
 
-            <CopyToClipboard text={editorPgn} onCopy={() => onCopy('pgn')}>
-                <Tooltip title='Copy PGN'>
-                    <IconButton aria-label='copy-pgn'>
-                        {copied === 'pgn' ? (
-                            <Check sx={{ color: 'text.secondary' }} />
-                        ) : (
-                            <ContentPaste sx={{ color: 'text.secondary' }} />
-                        )}
-                    </IconButton>
-                </Tooltip>
-            </CopyToClipboard>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                <MenuItem onClick={onCopyUrl}>Copy URL</MenuItem>
+                <MenuItem onClick={onCopyFen}>Copy FEN</MenuItem>
+                <MenuItem onClick={onCopyPGN}>Copy PGN</MenuItem>
+            </Menu>
         </Stack>
     );
 };
