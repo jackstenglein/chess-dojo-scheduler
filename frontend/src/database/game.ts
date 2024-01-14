@@ -45,6 +45,9 @@ export type Game = GameInfo & {
 
     /** Whether the game is unlisted or not. */
     unlisted: boolean;
+
+    /** The datetime the game was last modified in ISO format. */
+    updatedAt?: string;
 };
 
 export function isDefaultHeader(header: string): boolean {

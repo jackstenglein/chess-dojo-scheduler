@@ -1,20 +1,20 @@
 import { Move } from '@jackstenglein/chess';
 import { Stack, Paper, useMediaQuery } from '@mui/material';
 
-import { Game } from '../../../database/game';
-import { useLightMode } from '../../../ThemeProvider';
-import StartButtons from './boardButtons/StartButtons';
-import ControlButtons from './boardButtons/ControlButtons';
-import StatusIcon from './boardButtons/StatusIcon';
+import { Game } from '../../../../database/game';
+import { useLightMode } from '../../../../ThemeProvider';
+import StartButtons from './StartButtons';
+import ControlButtons from './ControlButtons';
+import StatusIcon from './StatusIcon';
 
-interface BoardToolsProps {
+interface BoardButtonsProps {
     onClickMove: (move: Move | null) => void;
 
     showSave?: boolean;
     game?: Game;
 }
 
-const BoardTools: React.FC<BoardToolsProps> = ({ onClickMove, showSave, game }) => {
+const BoardButtons: React.FC<BoardButtonsProps> = ({ onClickMove, showSave, game }) => {
     const light = useLightMode();
     const isMedium = useMediaQuery((theme: any) => theme.breakpoints.up('sm'));
 
@@ -46,4 +46,4 @@ const BoardTools: React.FC<BoardToolsProps> = ({ onClickMove, showSave, game }) 
     );
 };
 
-export default BoardTools;
+export default BoardButtons;

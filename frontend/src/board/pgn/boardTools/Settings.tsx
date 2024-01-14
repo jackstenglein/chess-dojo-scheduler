@@ -8,22 +8,50 @@ import {
     RadioGroup,
     Stack,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+
 import DeleteGameButton from '../../../games/view/DeleteGameButton';
 import { Game } from '../../../database/game';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useRequest } from '../../../api/Request';
+import { useApi } from '../../../api/Api';
+import { EventType, trackEvent } from '../../../analytics/events';
 
 interface SettingsProps {
     game: Game;
+    onSaveGame?: (g: Game) => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ game }) => {
+const Settings: React.FC<SettingsProps> = ({ game, onSaveGame }) => {
     const [visibility, setVisibility] = useState(game.unlisted ? 'unlisted' : 'public');
     const [orientation, setOrientation] = useState<string>(game.orientation || 'white');
     const navigate = useNavigate();
+    const request = useRequest();
+    const api = useApi();
 
     const saveDisabled =
         (visibility === 'unlisted') === game.unlisted && orientation === game.orientation;
+
+    const onSave = () => {
+        request.onStart();
+        api.updateGame(game.cohort, game.id, {
+            orientation,
+            unlisted: visibility === 'unlisted',
+        })
+            .then((resp) => {
+                trackEvent(EventType.UpdateGame, {
+                    method: 'settings',
+                    dojo_cohort: game.cohort,
+                });
+                request.onSuccess();
+                onSaveGame?.(resp.data);
+            })
+            .catch((err) => {
+                console.error('updateGame: ', err);
+                request.onFailure(err);
+            });
+    };
 
     return (
         <CardContent>
@@ -71,9 +99,14 @@ const Settings: React.FC<SettingsProps> = ({ game }) => {
                 </Stack>
 
                 <Stack spacing={2}>
-                    <Button variant='contained' disabled={saveDisabled}>
+                    <LoadingButton
+                        variant='contained'
+                        disabled={saveDisabled}
+                        loading={request.isLoading()}
+                        onClick={onSave}
+                    >
                         Save Changes
-                    </Button>
+                    </LoadingButton>
                     <Button variant='outlined' onClick={() => navigate('edit')}>
                         Replace PGN
                     </Button>

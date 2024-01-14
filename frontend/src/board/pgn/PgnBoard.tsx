@@ -13,7 +13,7 @@ import { Box, Stack, SxProps, Theme } from '@mui/material';
 import Board, { BoardApi, PrimitiveMove, reconcile } from '../Board';
 import PgnText from './pgnText/PgnText';
 import { Color } from 'chessground/types';
-import BoardTools from './boardTools/BoardTools';
+import BoardButtons from './boardTools/boardButtons/BoardButtons';
 import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
 import { ClockTextFieldId, CommentTextFieldId } from './boardTools/Editor';
@@ -46,8 +46,8 @@ interface PgnBoardProps {
     showTags?: boolean;
     showEditor?: boolean;
     showExplorer?: boolean;
-    showAnnotationWarnings?: boolean;
     game?: Game;
+    onSaveGame?: (g: Game) => void;
     startOrientation?: Color;
     sx?: SxProps<Theme>;
 }
@@ -58,8 +58,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     showTags,
     showEditor,
     showExplorer,
-    showAnnotationWarnings,
     game,
+    onSaveGame,
     showPlayerHeaders = true,
     startOrientation = 'white',
     sx,
@@ -161,6 +161,13 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         [chess, board]
     );
 
+    const orientation = game?.orientation || 'white';
+    useEffect(() => {
+        if (board && board.state.orientation !== orientation) {
+            board.toggleOrientation();
+        }
+    }, [board, orientation]);
+
     const showUnderboard = showTags || showEditor || showExplorer;
 
     return (
@@ -261,7 +268,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
                 {board && chess && (
                     <>
-                        <BoardTools
+                        <BoardButtons
                             onClickMove={onClickMove}
                             game={game}
                             showSave={showEditor && game?.owner === user?.username}
@@ -274,6 +281,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                             }
                             showExplorer={showExplorer}
                             game={game}
+                            onSaveGame={onSaveGame}
                         />
 
                         <Stack
@@ -284,7 +292,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                                 mb: { xs: 1, md: 0 },
                             }}
                         >
-                            {showAnnotationWarnings && <AnnotationWarnings />}
+                            {showEditor && user && game?.owner === user.username && (
+                                <AnnotationWarnings />
+                            )}
                             <PgnText onClickMove={onClickMove} />
                         </Stack>
                     </>

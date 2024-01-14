@@ -160,6 +160,21 @@ functions:
         Resource:
           - ${param:TimelineTableArn}
 
+  updateGame:
+    handler: game/update.handler
+    events:
+      - httpApi:
+          path: /game2/{cohort}/{id+}
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:GamesTableArn}
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

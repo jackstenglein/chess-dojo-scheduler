@@ -22,6 +22,7 @@ interface UnderboardProps {
     showTags?: boolean;
     showExplorer?: boolean;
     game?: Game;
+    onSaveGame?: (g: Game) => void;
 }
 
 const Underboard: React.FC<UnderboardProps> = ({
@@ -29,6 +30,7 @@ const Underboard: React.FC<UnderboardProps> = ({
     showTags,
     showExplorer,
     game,
+    onSaveGame,
 }) => {
     const chess = useChess().chess;
     const [underboard, setUnderboard] = useState(
@@ -129,7 +131,9 @@ const Underboard: React.FC<UnderboardProps> = ({
                 )}
                 {underboard === 'editor' && <Editor />}
                 {underboard === 'explorer' && <Explorer />}
-                {underboard === 'settings' && game && <Settings game={game} />}
+                {underboard === 'settings' && game && (
+                    <Settings game={game} onSaveGame={onSaveGame} />
+                )}
             </Stack>
         </Card>
     );

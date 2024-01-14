@@ -1,6 +1,5 @@
 'use strict';
 
-import axios from 'axios';
 import {
     BatchWriteItemCommand,
     DynamoDBClient,
@@ -16,33 +15,20 @@ import { v4 as uuidv4 } from 'uuid';
 import { Chess } from '@jackstenglein/chess';
 
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
-import { Game, GameOrientation } from './types';
+import {
+    CreateGameRequest,
+    Game,
+    GameImportHeaders,
+    GameImportType,
+    GameOrientation,
+} from './types';
+import { getLichessChapter, getLichessStudy } from './lichess';
 
-const dynamo = new DynamoDBClient({ region: 'us-east-1' });
+export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const usersTable = process.env.stage + '-users';
-const gamesTable = process.env.stage + '-games';
+export const gamesTable = process.env.stage + '-games';
 
-enum GameImportType {
-    LichessChapter = 'lichessChapter',
-    LichessStudy = 'lichessStudy',
-    Manual = 'manual',
-}
-
-interface GameImportHeaders {
-    white: string;
-    black: string;
-    date: string;
-}
-
-interface CreateGameRequest {
-    type: GameImportType;
-    url?: string;
-    pgnText?: string;
-    headers?: GameImportHeaders[];
-    orientation: GameOrientation;
-}
-
-function success(value: any): APIGatewayProxyResultV2 {
+export function success(value: any): APIGatewayProxyResultV2 {
     console.log('Response: %j', value);
     return {
         statusCode: 200,
@@ -59,7 +45,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         let pgnTexts: string[] = [];
         if (request.type === GameImportType.LichessChapter) {
-            pgnTexts = await getLichessChapter(request.url);
+            pgnTexts = [await getLichessChapter(request.url)];
         } else if (request.type === GameImportType.LichessStudy) {
             pgnTexts = await getLichessStudy(request.url);
         } else if (request.type === GameImportType.Manual) {
@@ -83,7 +69,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             user,
             pgnTexts,
             request.headers,
-            request.orientation
+            request.orientation!
         );
         if (headers.length > 0) {
             return success({ count: headers.length, headers });
@@ -135,7 +121,7 @@ async function getUser(event: APIGatewayProxyEventV2): Promise<Record<string, an
     return caller;
 }
 
-function getUserInfo(event: any): { username: string; email: string } {
+export function getUserInfo(event: any): { username: string; email: string } {
     const claims = event.requestContext?.authorizer?.jwt?.claims;
     if (!claims) {
         return {
@@ -153,7 +139,7 @@ function getUserInfo(event: any): { username: string; email: string } {
 function getRequest(event: APIGatewayProxyEventV2): CreateGameRequest {
     let request: CreateGameRequest;
     try {
-        request = JSON.parse(event.body || '');
+        request = JSON.parse(event.body || '{}');
     } catch (err) {
         console.error('Failed to unmarshal body: ', err);
         throw new ApiError({
@@ -174,45 +160,6 @@ function getRequest(event: APIGatewayProxyEventV2): CreateGameRequest {
     }
 
     return request;
-}
-
-async function getLichessChapter(url?: string): Promise<string[]> {
-    if (!url) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage:
-                'Invalid request: url is required when importing from Lichess chapter',
-        });
-    }
-
-    const response = await axios.get<string>(`${url}.pgn?source=true`);
-    console.log('Get lichess chapter URL resp: %j', response);
-    return [response.data];
-}
-
-async function getLichessStudy(url?: string): Promise<string[]> {
-    if (!url) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage:
-                'Invalid request: url is required when importing from Lichess study',
-        });
-    }
-
-    const response = await axios.get<string>(`${url}.pgn?source=true`);
-    const games = response.data.split('\n\n\n[');
-    return games
-        .map((g, i) => {
-            g = g.trim();
-            if (!g) {
-                return g;
-            }
-            if (i === 0) {
-                return g;
-            }
-            return `[${g}`;
-        })
-        .filter((v) => v !== '');
 }
 
 function getGames(
@@ -244,8 +191,8 @@ function getGames(
     return [games, []];
 }
 
-function getGame(
-    user: Record<string, any>,
+export function getGame(
+    user: Record<string, any> | undefined,
     pgnText: string,
     headers: GameImportHeaders | undefined,
     orientation: GameOrientation
@@ -290,21 +237,23 @@ function getGame(
 
         return [
             {
-                cohort: user.dojoCohort,
+                cohort: user?.dojoCohort || '',
                 id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
                 white: chess.header().White.toLowerCase(),
                 black: chess.header().Black.toLowerCase(),
                 date: chess.header().Date,
                 createdAt: now.toISOString(),
-                owner: user.username,
-                ownerDisplayName: user.displayName,
-                ownerPreviousCohort: user.previousCohort || '',
+                updatedAt: now.toISOString(),
+                owner: user?.username || '',
+                ownerDisplayName: user?.displayName || '',
+                ownerPreviousCohort: user?.previousCohort || '',
                 headers: chess.header(),
                 isFeatured: 'false',
                 featuredAt: 'NOT_FEATURED',
                 pgn: chess.renderPgn(),
                 orientation,
                 comments: [],
+                unlisted: false,
             },
             {
                 white: chess.header().White,

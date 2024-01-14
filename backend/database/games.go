@@ -85,6 +85,9 @@ type Game struct {
 	// The date and time the game was created. This is in the time.RFC3339 format.
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 
+	// The date and time the game was last modified in time.RFC3339 format.
+	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt,omitempty"`
+
 	// The username of the owner of this game
 	Owner string `dynamodbav:"owner" json:"owner"`
 

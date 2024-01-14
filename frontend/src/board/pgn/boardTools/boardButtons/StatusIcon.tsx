@@ -7,10 +7,10 @@ import { RequestSnackbar, useRequest } from '../../../../api/Request';
 import { Game } from '../../../../database/game';
 import { useChess } from '../../PgnBoard';
 import { EventType, trackEvent } from '../../../../analytics/events';
-import { Box, CircularProgress, Tooltip } from '@mui/material';
-import { CloudDone } from '@mui/icons-material';
+import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import { CloudDone, CloudOff } from '@mui/icons-material';
 import { useAuth } from '../../../../auth/Auth';
-import { toDojoTimeString } from '../../../../calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '../../../../calendar/displayDate';
 
 const useDebounce = (callback: (...args: any) => void, delay: number = 3000) => {
     const ref = useRef<any>();
@@ -48,7 +48,6 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game, hidden }) => {
             api.updateGame(cohort, id, {
                 type: 'manual',
                 pgnText,
-                orientation: game.orientation || 'white',
             })
                 .then(() => {
                     trackEvent(EventType.UpdateGame, {
@@ -99,7 +98,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game, hidden }) => {
     if (hidden) {
         return (
             <>
-                <RequestSnackbar request={request} showSuccess />
+                <RequestSnackbar request={request} />
             </>
         );
     }
@@ -107,7 +106,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game, hidden }) => {
     return (
         <Box
             sx={{
-                pr: 1,
+                pr: request.isFailure() ? undefined : 1,
                 display: 'flex',
                 alignItems: 'center',
                 position: 'absolute',
@@ -118,12 +117,25 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game, hidden }) => {
                 <Tooltip title='Saving'>
                     <CircularProgress size={24} />
                 </Tooltip>
+            ) : request.isFailure() ? (
+                <Tooltip title='Failed to save. Click to retry.'>
+                    <IconButton
+                        onClick={() =>
+                            chess && onSave(game.cohort, game.id, chess.renderPgn())
+                        }
+                    >
+                        <CloudOff color='error' />
+                    </IconButton>
+                </Tooltip>
             ) : (
                 <Tooltip
                     title={
-                        request.data
-                            ? `Saved at ${toDojoTimeString(
-                                  request.data,
+                        request.data || game.updatedAt
+                            ? `Last saved at ${toDojoDateString(
+                                  request.data || new Date(game.updatedAt!),
+                                  user?.timezoneOverride
+                              )} ${toDojoTimeString(
+                                  request.data || new Date(game.updatedAt!),
                                   user?.timezoneOverride,
                                   user?.timeFormat
                               )}`

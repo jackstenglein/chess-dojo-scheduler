@@ -146,11 +146,12 @@ export type GameApiContextType = {
 };
 
 export interface CreateGameRequest {
-    type: 'lichessChapter' | 'lichessStudy' | 'manual';
+    type?: 'lichessChapter' | 'lichessStudy' | 'manual';
     url?: string;
     pgnText?: string;
     headers?: GameHeader[];
-    orientation: string;
+    orientation?: string;
+    unlisted?: boolean;
 }
 
 export interface GameHeader {
@@ -244,9 +245,10 @@ export function updateGame(
     req: CreateGameRequest
 ) {
     cohort = encodeURIComponent(cohort);
-    id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
+    // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded
+    id = btoa(id);
 
-    return axios.put<Game>(BASE_URL + `/game/${cohort}/${id}`, req, {
+    return axios.put<Game>(BASE_URL + `/game2/${cohort}/${id}`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }

@@ -161,12 +161,12 @@ const GamePage = () => {
                 {request.data?.pgn && (
                     <PgnErrorBoundary pgn={request.data.pgn} game={request.data}>
                         <PgnBoard
-                            game={request.data}
-                            pgn={request.data.pgn}
-                            startOrientation={request.data.orientation}
                             showTags
                             showEditor
-                            showAnnotationWarnings={request.data.owner === user.username}
+                            game={request.data}
+                            onSaveGame={request.onSuccess}
+                            pgn={request.data.pgn}
+                            startOrientation={request.data.orientation}
                         />
 
                         <Stack gridArea='extras' spacing={2}>
