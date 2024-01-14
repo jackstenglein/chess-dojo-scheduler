@@ -124,8 +124,11 @@ async function getGameUpdate(
 ): Promise<[GameUpdate | null, GameImportHeaders | null]> {
     const update: GameUpdate = {
         updatedAt: new Date().toISOString(),
-        orientation: request.orientation,
     };
+
+    if (request.orientation) {
+        update.orientation = request.orientation;
+    }
 
     if (request.type) {
         let pgnText = '';
