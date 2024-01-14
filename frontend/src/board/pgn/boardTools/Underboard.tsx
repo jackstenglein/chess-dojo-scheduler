@@ -151,7 +151,7 @@ const UnderboardButton: React.FC<UnderboardButtonProps> = ({
 }) => {
     return (
         <Tooltip title={tooltip}>
-            <ToggleButton value={value} {...props}>
+            <ToggleButton data-cy={value} value={value} {...props}>
                 {children}
             </ToggleButton>
         </Tooltip>

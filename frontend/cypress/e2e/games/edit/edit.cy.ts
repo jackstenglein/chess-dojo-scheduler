@@ -43,6 +43,7 @@ const INVALID_PGN = `[Event "DojoScoreboard Cypress Study: Chapter 1"]
 `;
 
 function deleteCurrentGame() {
+    cy.getBySel('settings').click();
     cy.getBySel('delete-game-button').click();
     cy.getBySel('delete-game-confirm-button').click();
     cy.location('pathname').should('equal', '/profile');
