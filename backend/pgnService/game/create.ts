@@ -298,7 +298,7 @@ function getGame(
                 createdAt: now.toISOString(),
                 owner: user.username,
                 ownerDisplayName: user.displayName,
-                ownerPreviousCohort: user.previousCohort,
+                ownerPreviousCohort: user.previousCohort || '',
                 headers: chess.header(),
                 isFeatured: 'false',
                 featuredAt: 'NOT_FEATURED',
@@ -348,11 +348,14 @@ function isValidDate(date?: string): boolean {
 }
 
 async function batchPutGames(games: Game[]): Promise<number> {
-    const writeRequests = games.map((g) => ({
-        PutRequest: {
-            Item: marshall(g),
-        },
-    }));
+    const writeRequests = games.map((g) => {
+        console.log('Marshalling game: %j', g);
+        return {
+            PutRequest: {
+                Item: marshall(g),
+            },
+        };
+    });
 
     let updated = 0;
     for (let i = 0; i < writeRequests.length; i += 25) {
