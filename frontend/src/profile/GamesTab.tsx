@@ -1,5 +1,10 @@
-import { Button, Stack } from '@mui/material';
-import { DataGrid, GridPaginationModel, GridRowParams } from '@mui/x-data-grid';
+import { Button, Stack, Tooltip } from '@mui/material';
+import {
+    DataGrid,
+    GridPaginationModel,
+    GridRenderCellParams,
+    GridRowParams,
+} from '@mui/x-data-grid';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -12,6 +17,7 @@ import { usePagination } from '../games/list/pagination';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import UpsellAlert from '../upsell/UpsellAlert';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface GamesTabProps {
     user: User;
@@ -23,10 +29,34 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const currentUser = useAuth().user!;
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
-    const columns = useMemo(
-        () => gameTableColumns.filter((c) => c.field !== 'owner'),
-        []
-    );
+    const columns = useMemo(() => {
+        const columns = gameTableColumns.filter((c) => c.field !== 'owner');
+        if (currentUser.username === user.username) {
+            columns.push({
+                field: 'unlisted',
+                headerName: 'Visibility',
+                align: 'center',
+                headerAlign: 'center',
+                minWidth: 75,
+                width: 75,
+                renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
+                    if (params.row.unlisted) {
+                        return (
+                            <Tooltip title='Unlisted'>
+                                <VisibilityOff sx={{ color: 'text.secondary' }} />
+                            </Tooltip>
+                        );
+                    }
+                    return (
+                        <Tooltip title='Public'>
+                            <Visibility sx={{ color: 'text.secondary' }} />
+                        </Tooltip>
+                    );
+                },
+            });
+        }
+        return columns;
+    }, [currentUser.username, user.username]);
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user.username, startKey),
@@ -101,6 +131,16 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                     rowHeight={70}
                     onRowClick={onClickRow}
                     sx={{ width: 1 }}
+                    initialState={{
+                        sorting: {
+                            sortModel: [
+                                {
+                                    field: 'publishedAt',
+                                    sort: 'desc',
+                                },
+                            ],
+                        },
+                    }}
                 />
             )}
         </Stack>

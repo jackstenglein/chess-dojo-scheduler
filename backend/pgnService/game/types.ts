@@ -21,6 +21,9 @@ export interface Game {
     /** The datetime the game was last modified, in ISO format. */
     updatedAt: string;
 
+    /** The datetime the game was last changed from unlisted to public, in ISO format. */
+    publishedAt?: string;
+
     /** The username of the submitter of the game. */
     owner: string;
 
@@ -34,10 +37,10 @@ export interface Game {
     headers: Record<string, string>;
 
     /** Whether the game is featured or not. */
-    isFeatured: 'true' | 'false';
+    isFeatured?: 'true' | 'false';
 
     /** If the game is featured, the date time it was featured. */
-    featuredAt: string;
+    featuredAt?: string;
 
     /** The PGN of the game. */
     pgn: string;
@@ -63,6 +66,7 @@ export interface CreateGameRequest {
     pgnText?: string;
     headers?: GameImportHeaders[];
     orientation?: GameOrientation;
+    unlisted?: boolean;
 }
 
 export interface UpdateGameRequest extends CreateGameRequest {
@@ -91,6 +95,12 @@ export interface GameUpdate {
 
     /** The orientation of the game. */
     orientation?: GameOrientation;
+
+    /** Whether the game is unlisted. */
+    unlisted?: boolean;
+
+    /** The datetime the game was last changed from unlisted to public, in ISO format. */
+    publishedAt?: string | null;
 }
 
 export enum GameImportType {

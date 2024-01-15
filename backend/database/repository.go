@@ -39,6 +39,11 @@ var followersTable = stage + "-followers"
 var newsfeedTable = stage + "-newsfeed"
 var yearReviewTable = stage + "-yearReviews"
 
+const GameTableOwnerIndex = "OwnerIdx"
+const GameTableWhiteIndex = "WhiteIndex"
+const GameTableBlackIndex = "BlackIndex"
+const GameTableFeaturedIndex = "FeaturedIndex"
+
 // getItem handles sending a DynamoDB GetItem request and unmarshals the result into the provided output
 // value, which must be a non-nil pointer. If the result of the GetItem request is nil, then
 // a 404 error is returned. All other errors result in a 500 error.

@@ -236,7 +236,7 @@ func processGames(user *database.User, review *database.YearReview) error {
 	var err error
 
 	for ok := true; ok; ok = startKey != "" {
-		games, startKey, err = repository.ListGamesByOwner(user.Username, "", "", startKey)
+		games, startKey, err = repository.ListGamesByOwner(true, user.Username, "", "", startKey)
 		if err != nil {
 			return err
 		}

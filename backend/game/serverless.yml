@@ -160,15 +160,15 @@ functions:
           - Fn::Join:
               - ''
               - - ${param:GamesTableArn}
-                - '/index/OwnerIndex'
+                - '/index/OwnerIdx'
           - Fn::Join:
               - ''
               - - ${param:GamesTableArn}
-                - '/index/WhiteIdx'
+                - '/index/WhiteIndex'
           - Fn::Join:
               - ''
               - - ${param:GamesTableArn}
-                - '/index/BlackIdx'
+                - '/index/BlackIndex'
 
   listByOpening:
     handler: list/opening/main.go
@@ -188,7 +188,7 @@ functions:
           - Fn::Join:
               - ''
               - - ${param:GamesTableArn}
-                - '/index/OwnerIndex'
+                - '/index/OwnerIdx'
 
   listByFeatured:
     handler: list/featured/main.go
@@ -207,7 +207,7 @@ functions:
           - Fn::Join:
               - ''
               - - ${param:GamesTableArn}
-                - '/index/FeaturedIdx'
+                - '/index/FeaturedIndex'
 
   updateStatistics:
     handler: statistics/update/main.go

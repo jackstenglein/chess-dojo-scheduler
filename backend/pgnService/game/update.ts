@@ -129,6 +129,10 @@ async function getGameUpdate(
     if (request.orientation) {
         update.orientation = request.orientation;
     }
+    if (request.unlisted !== undefined) {
+        update.unlisted = request.unlisted;
+        update.publishedAt = request.unlisted ? null : new Date().toISOString();
+    }
 
     if (request.type) {
         let pgnText = '';
@@ -156,7 +160,8 @@ async function getGameUpdate(
             undefined,
             pgnText,
             request.headers?.[0],
-            request.orientation || GameOrientation.White
+            request.orientation || GameOrientation.White,
+            request.unlisted
         );
         if (!game) {
             return [null, headers];

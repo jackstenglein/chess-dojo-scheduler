@@ -88,6 +88,9 @@ type Game struct {
 	// The date and time the game was last modified in time.RFC3339 format.
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt,omitempty"`
 
+	// The date and time the game was first published in time.RFC3339 format.
+	PublishedAt string `dynamodbav:"publishedAt,omitempty" json:"publishedAt,omitempty"`
+
 	// The username of the owner of this game
 	Owner string `dynamodbav:"owner" json:"owner"`
 
@@ -101,10 +104,10 @@ type Game struct {
 	Headers map[string]string `dynamodbav:"headers" json:"headers"`
 
 	// Whether the game has been featured by the sensei
-	IsFeatured string `dynamodbav:"isFeatured" json:"isFeatured"`
+	IsFeatured string `dynamodbav:"isFeatured,omitempty" json:"isFeatured,omitempty"`
 
 	// The date the game was marked as featured
-	FeaturedAt string `dynamodbav:"featuredAt" json:"featuredAt"`
+	FeaturedAt string `dynamodbav:"featuredAt,omitempty" json:"featuredAt,omitempty"`
 
 	// The PGN text of the game
 	Pgn string `dynamodbav:"pgn" json:"pgn,omitempty"`
@@ -177,8 +180,8 @@ type GameLister interface {
 	ListGamesByCohort(cohort, startDate, endDate, startKey string) ([]*Game, string, error)
 
 	// ListGamesByOwner returns a list of Games matching the provided owner. The PGN text is excluded and must be
-	// fetched separately with a call to GetGame.
-	ListGamesByOwner(owner, startDate, endDate, startKey string) ([]*Game, string, error)
+	// fetched separately with a call to GetGame. Unlisted games are not included, unless isOwner is true.
+	ListGamesByOwner(isOwner bool, owner, startDate, endDate, startKey string) ([]*Game, string, error)
 
 	// ListGamesByPlayer returns a list of Games matching the provided player. The PGN text is excluded and must
 	// be fetched separately with a call to GetGame.
@@ -409,9 +412,13 @@ func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, star
 		"#white":            aws.String("white"),
 		"#black":            aws.String("black"),
 		"#date":             aws.String("date"),
+		"#createdAt":        aws.String("createdAt"),
+		"#updatedAt":        aws.String("updatedAt"),
+		"#publishedAt":      aws.String("publishedAt"),
 		"#owner":            aws.String("owner"),
 		"#ownerDisplayName": aws.String("ownerDisplayName"),
 		"#headers":          aws.String("headers"),
+		"#unlisted":         aws.String("unlisted"),
 	}
 	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
 		":cohort": {
@@ -423,16 +430,19 @@ func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, star
 		":memorizeGames": {
 			S: aws.String("games_to_memorize"),
 		},
+		":unlisted": {
+			BOOL: aws.Bool(true),
+		},
 	}
 
 	keyConditionExpression = addDates(keyConditionExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
 
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression:    aws.String(keyConditionExpression),
-		FilterExpression:          aws.String("#owner <> :modelGames AND #owner <> :memorizeGames"),
+		FilterExpression:          aws.String("#owner <> :modelGames AND #owner <> :memorizeGames AND (attribute_not_exists(unlisted) OR #unlisted <> :unlisted)"),
 		ExpressionAttributeNames:  expressionAttributeNames,
 		ExpressionAttributeValues: expressionAttributeValues,
-		ProjectionExpression:      aws.String("#cohort,#id,#white,#black,#date,#owner,#ownerDisplayName,#headers"),
+		ProjectionExpression:      aws.String("#cohort,#id,#white,#black,#date,#createdAt,#updatedAt,#publishedAt,#owner,#ownerDisplayName,#headers"),
 		ScanIndexForward:          aws.Bool(false),
 		TableName:                 aws.String(gameTable),
 	}
@@ -446,8 +456,8 @@ func (repo *dynamoRepository) ListGamesByCohort(cohort, startDate, endDate, star
 }
 
 // ListGamesByOwner returns a list of Games matching the provided owner. The PGN text is excluded and must be
-// fetched separately with a call to GetGame.
-func (repo *dynamoRepository) ListGamesByOwner(owner, startDate, endDate, startKey string) ([]*Game, string, error) {
+// fetched separately with a call to GetGame. Unlisted games are not included, unless isOwner is true.
+func (repo *dynamoRepository) ListGamesByOwner(isOwner bool, owner, startDate, endDate, startKey string) ([]*Game, string, error) {
 	keyConditionExpression := "#owner = :owner"
 	expressionAttributeNames := map[string]*string{
 		"#owner": aws.String("owner"),
@@ -458,14 +468,22 @@ func (repo *dynamoRepository) ListGamesByOwner(owner, startDate, endDate, startK
 		},
 	}
 
+	var filterExpression *string
+	if !isOwner {
+		filterExpression = aws.String("attribute_not_exists(unlisted) OR #unlisted <> :unlisted")
+		expressionAttributeNames["#unlisted"] = aws.String("unlisted")
+		expressionAttributeValues[":unlisted"] = &dynamodb.AttributeValue{BOOL: aws.Bool(true)}
+	}
+
 	keyConditionExpression = addDates(keyConditionExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
 
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression:    aws.String(keyConditionExpression),
+		FilterExpression:          filterExpression,
 		ExpressionAttributeNames:  expressionAttributeNames,
 		ExpressionAttributeValues: expressionAttributeValues,
 		ScanIndexForward:          aws.Bool(false),
-		IndexName:                 aws.String("OwnerIndex"),
+		IndexName:                 aws.String(GameTableOwnerIndex),
 		TableName:                 aws.String(gameTable),
 	}
 
@@ -498,7 +516,7 @@ func (repo *dynamoRepository) ListGamesByPlayer(player string, color PlayerColor
 	games := make([]*Game, 0)
 
 	if (color == White || color == Either) && (startKey == "" || startKeys.WhiteKey != "") {
-		whiteGames, whiteKey, err := repo.listColorGames(player, string(White), startDate, endDate, startKeys.WhiteKey)
+		whiteGames, whiteKey, err := repo.listColorGames(player, White, startDate, endDate, startKeys.WhiteKey)
 		if err != nil {
 			return nil, "", err
 		}
@@ -507,7 +525,7 @@ func (repo *dynamoRepository) ListGamesByPlayer(player string, color PlayerColor
 	}
 
 	if (color == Black || color == Either) && (startKey == "" || startKeys.BlackKey != "") {
-		blackGames, blackKey, err := repo.listColorGames(player, string(Black), startDate, endDate, startKeys.BlackKey)
+		blackGames, blackKey, err := repo.listColorGames(player, Black, startDate, endDate, startKeys.BlackKey)
 		if err != nil {
 			return nil, "", err
 		}
@@ -529,23 +547,32 @@ func (repo *dynamoRepository) ListGamesByPlayer(player string, color PlayerColor
 	return games, lastKey, nil
 }
 
-func (repo *dynamoRepository) listColorGames(player, color, startDate, endDate, startKey string) ([]*Game, string, error) {
+func (repo *dynamoRepository) listColorGames(player string, color PlayerColor, startDate, endDate, startKey string) ([]*Game, string, error) {
 	expressionAttrName := fmt.Sprintf("#%s", color)
 	keyConditionExpression := fmt.Sprintf("%s = :player", expressionAttrName)
 	expressionAttributeNames := map[string]*string{
-		expressionAttrName: aws.String(color),
+		expressionAttrName: aws.String(string(color)),
+		"#unlisted":        aws.String("unlisted"),
 	}
 	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
 		":player": {
 			S: aws.String(strings.ToLower(player)),
 		},
+		":unlisted": {
+			BOOL: aws.Bool(true),
+		},
 	}
 
 	keyConditionExpression = addDates(keyConditionExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
 
-	indexName := strings.Title(color) + "Idx"
+	indexName := GameTableWhiteIndex
+	if color == Black {
+		indexName = GameTableBlackIndex
+	}
+
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression:    aws.String(keyConditionExpression),
+		FilterExpression:          aws.String("attribute_not_exists(unlisted) OR #unlisted <> :unlisted"),
 		ExpressionAttributeNames:  expressionAttributeNames,
 		ExpressionAttributeValues: expressionAttributeValues,
 		ScanIndexForward:          aws.Bool(false),
@@ -565,15 +592,18 @@ func (repo *dynamoRepository) listColorGames(player, color, startDate, endDate, 
 func (repo *dynamoRepository) ListFeaturedGames(date, startKey string) ([]*Game, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#f = :true AND #d >= :d"),
+		FilterExpression:       aws.String("attribute_not_exists(unlisted) OR #unlisted <> :unlisted"),
 		ExpressionAttributeNames: map[string]*string{
-			"#f": aws.String("isFeatured"),
-			"#d": aws.String("featuredAt"),
+			"#f":        aws.String("isFeatured"),
+			"#d":        aws.String("featuredAt"),
+			"#unlisted": aws.String("unlisted"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":true": {S: aws.String("true")},
-			":d":    {S: aws.String(date)},
+			":true":     {S: aws.String("true")},
+			":d":        {S: aws.String(date)},
+			":unlisted": {BOOL: aws.Bool(true)},
 		},
-		IndexName: aws.String("FeaturedIdx"),
+		IndexName: aws.String(GameTableFeaturedIndex),
 		TableName: aws.String(gameTable),
 	}
 
@@ -588,14 +618,18 @@ func (repo *dynamoRepository) ListFeaturedGames(date, startKey string) ([]*Game,
 // ListGamesByEco returns a list of Games matching the provided ECO. The PGN text is excluded and must be
 // fetched separately with a call to GetGame.
 func (repo *dynamoRepository) ListGamesByEco(eco, startDate, endDate, startKey string) ([]*Game, string, error) {
-	filterExpression := "#h.#eco = :eco"
+	filterExpression := "#h.#eco = :eco AND (attribute_not_exists(unlisted) OR #unlisted <> :unlisted)"
 	expressionAttributeNames := map[string]*string{
-		"#h":   aws.String("headers"),
-		"#eco": aws.String("ECO"),
+		"#h":        aws.String("headers"),
+		"#eco":      aws.String("ECO"),
+		"#unlisted": aws.String("unlisted"),
 	}
 	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
 		":eco": {
 			S: aws.String(eco),
+		},
+		":unlisted": {
+			BOOL: aws.Bool(true),
 		},
 	}
 
@@ -605,7 +639,7 @@ func (repo *dynamoRepository) ListGamesByEco(eco, startDate, endDate, startKey s
 		FilterExpression:          aws.String(filterExpression),
 		ExpressionAttributeNames:  expressionAttributeNames,
 		ExpressionAttributeValues: expressionAttributeValues,
-		IndexName:                 aws.String("OwnerIndex"),
+		IndexName:                 aws.String(GameTableOwnerIndex),
 		TableName:                 aws.String(gameTable),
 	}
 

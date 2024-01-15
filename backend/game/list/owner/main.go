@@ -37,7 +37,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		if ownerSpecified {
 			searchUsername = owner
 		}
-		games, lastKey, err := repository.ListGamesByOwner(searchUsername, startDate, endDate, startKey)
+		games, lastKey, err := repository.ListGamesByOwner(searchUsername == info.Username, searchUsername, startDate, endDate, startKey)
 		if err != nil {
 			return api.Failure(err), nil
 		}

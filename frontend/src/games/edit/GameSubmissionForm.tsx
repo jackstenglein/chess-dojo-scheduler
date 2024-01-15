@@ -3,6 +3,7 @@ import {
     Container,
     FormControl,
     FormControlLabel,
+    FormHelperText,
     FormLabel,
     MenuItem,
     Radio,
@@ -52,11 +53,12 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
     );
     const [lichessUrl, setLichessUrl] = useState('');
     const [pgnText, setPgnText] = useState('');
-    const [orientation, setOrientation] = useState('white');
     const [white, setWhite] = useState('');
     const [black, setBlack] = useState('');
     const [date, setDate] = useState<Date | null>(null);
     const [result, setResult] = useState('');
+    const [visibility, setVisibility] = useState('public');
+    const [orientation, setOrientation] = useState('white');
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSubmit = () => {
@@ -75,7 +77,10 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
             errors.pgnText = 'This field is required';
         }
 
+        let unlisted = visibility === 'unlisted';
         if (type === GameSubmissionType.StartingPosition) {
+            unlisted = true;
+
             if (white.trim() === '') {
                 errors.white = 'This field is required';
             }
@@ -108,6 +113,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                 type === GameSubmissionType.StartingPosition
                     ? [getGameHeader({ white, black, date, result })]
                     : undefined,
+            unlisted,
         });
     };
 
@@ -252,7 +258,51 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                     </LocalizationProvider>
                 )}
 
-                <FormControl sx={{ py: 3 }}>
+                <FormControl sx={{ pt: 3 }}>
+                    <FormLabel>Visibility</FormLabel>
+                    <RadioGroup
+                        row
+                        value={
+                            type === GameSubmissionType.StartingPosition
+                                ? 'unlisted'
+                                : visibility
+                        }
+                        onChange={(e) => setVisibility(e.target.value)}
+                    >
+                        <FormControlLabel
+                            value='public'
+                            control={
+                                <Radio
+                                    disabled={
+                                        type === GameSubmissionType.StartingPosition
+                                    }
+                                />
+                            }
+                            label='Public'
+                        />
+                        <FormControlLabel
+                            value='unlisted'
+                            control={
+                                <Radio
+                                    disabled={
+                                        type === GameSubmissionType.StartingPosition
+                                    }
+                                />
+                            }
+                            label='Unlisted'
+                        />
+                    </RadioGroup>
+                    <FormHelperText>
+                        Unlisted games are not indexed in the position database, do not
+                        show up on the search page and are not visible to others on your
+                        profile. However, you can still share them with the direct link.
+                        This allows you to share your annotations with others for feedback
+                        before publishing them to the entire Dojo. Empty PGNs are required
+                        to start as unlisted because they have no annotations.
+                    </FormHelperText>
+                </FormControl>
+
+                <FormControl sx={{ pt: 1, pb: 3 }}>
                     <FormLabel>Board Orientation</FormLabel>
                     <RadioGroup
                         row

@@ -428,6 +428,25 @@ resources:
                 - black
                 - date
                 - headers
+          - IndexName: OwnerIdx
+            KeySchema:
+              - AttributeName: owner
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
           - IndexName: WhiteIdx
             KeySchema:
               - AttributeName: white
@@ -458,6 +477,44 @@ resources:
                 - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
+          - IndexName: WhiteIndex
+            KeySchema:
+              - AttributeName: white
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - black
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
+          - IndexName: BlackIndex
+            KeySchema:
+              - AttributeName: black
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
           - IndexName: FeaturedIdx
             KeySchema:
               - AttributeName: isFeatured
@@ -474,6 +531,26 @@ resources:
                 - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
+          - IndexName: FeaturedIndex
+            KeySchema:
+              - AttributeName: isFeatured
+                KeyType: HASH
+              - AttributeName: featuredAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
 
     TournamentsTable:
       Type: AWS::DynamoDB::Table

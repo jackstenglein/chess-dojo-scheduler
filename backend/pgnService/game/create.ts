@@ -71,7 +71,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             user,
             pgnTexts,
             request.headers,
-            request.orientation!
+            request.orientation!,
+            request.unlisted
         );
         if (headers.length > 0) {
             return success({ count: headers.length, headers });
@@ -168,7 +169,8 @@ function getGames(
     user: Record<string, any>,
     pgnTexts: string[],
     reqHeaders: GameImportHeaders[] | undefined,
-    orientation: GameOrientation
+    orientation: GameOrientation,
+    unlisted: boolean | undefined
 ): [Game[], GameImportHeaders[]] {
     const games: Game[] = [];
     const headers: GameImportHeaders[] = [];
@@ -177,7 +179,13 @@ function getGames(
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
 
-        const [game, header] = getGame(user, pgnTexts[i], reqHeaders?.[i], orientation);
+        const [game, header] = getGame(
+            user,
+            pgnTexts[i],
+            reqHeaders?.[i],
+            orientation,
+            unlisted
+        );
 
         headers.push(header);
         if (!game) {
@@ -197,7 +205,8 @@ export function getGame(
     user: Record<string, any> | undefined,
     pgnText: string,
     headers: GameImportHeaders | undefined,
-    orientation: GameOrientation
+    orientation: GameOrientation,
+    unlisted: boolean | undefined
 ): [Game | null, GameImportHeaders] {
     try {
         const chess = new Chess({ pgn: pgnText });
@@ -249,16 +258,15 @@ export function getGame(
                 date: chess.header().Date,
                 createdAt: now.toISOString(),
                 updatedAt: now.toISOString(),
+                ...(unlisted ? {} : { publishedAt: now.toISOString() }),
                 owner: user?.username || '',
                 ownerDisplayName: user?.displayName || '',
                 ownerPreviousCohort: user?.previousCohort || '',
                 headers: chess.header(),
-                isFeatured: 'false',
-                featuredAt: 'NOT_FEATURED',
                 pgn: chess.renderPgn(),
                 orientation,
                 comments: [],
-                unlisted: false,
+                unlisted: Boolean(unlisted),
             },
             {
                 white: chess.header().White,

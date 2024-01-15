@@ -228,7 +228,7 @@ const ProfilePage = () => {
                         <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
                             <ActivityTab user={user} />
                         </TabPanel>
-                        <TabPanel value='games' sx={{ px: { xs: 0, sm: 3 } }}>
+                        <TabPanel value='games' sx={{ px: { xs: 0 } }}>
                             <GamesTab user={user} />
                         </TabPanel>
                     </TabContext>
