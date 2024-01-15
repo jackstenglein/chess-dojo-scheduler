@@ -415,19 +415,6 @@ resources:
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         GlobalSecondaryIndexes:
-          - IndexName: OwnerIndex
-            KeySchema:
-              - AttributeName: owner
-                KeyType: HASH
-              - AttributeName: id
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - white
-                - black
-                - date
-                - headers
           - IndexName: OwnerIdx
             KeySchema:
               - AttributeName: owner
@@ -447,36 +434,6 @@ resources:
                 - ownerPreviousCohort
                 - headers
                 - unlisted
-          - IndexName: WhiteIdx
-            KeySchema:
-              - AttributeName: white
-                KeyType: HASH
-              - AttributeName: id
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - black
-                - date
-                - owner
-                - ownerDisplayName
-                - ownerPreviousCohort
-                - headers
-          - IndexName: BlackIdx
-            KeySchema:
-              - AttributeName: black
-                KeyType: HASH
-              - AttributeName: id
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - white
-                - date
-                - owner
-                - ownerDisplayName
-                - ownerPreviousCohort
-                - headers
           - IndexName: WhiteIndex
             KeySchema:
               - AttributeName: white
@@ -515,22 +472,6 @@ resources:
                 - ownerPreviousCohort
                 - headers
                 - unlisted
-          - IndexName: FeaturedIdx
-            KeySchema:
-              - AttributeName: isFeatured
-                KeyType: HASH
-              - AttributeName: featuredAt
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - white
-                - black
-                - date
-                - owner
-                - ownerDisplayName
-                - ownerPreviousCohort
-                - headers
           - IndexName: FeaturedIndex
             KeySchema:
               - AttributeName: isFeatured
