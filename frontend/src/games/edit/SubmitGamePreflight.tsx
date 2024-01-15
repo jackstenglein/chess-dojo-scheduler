@@ -6,6 +6,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    MenuItem,
     Stack,
     TextField,
     Typography,
@@ -16,11 +17,13 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { GameHeader } from '../../api/gameApi';
 import { LoadingButton } from '@mui/lab';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 interface FormHeader {
     white: string;
     black: string;
     date: Date | null;
+    result: string;
 }
 
 function getFormHeader(h: GameHeader): FormHeader {
@@ -35,10 +38,11 @@ function getFormHeader(h: GameHeader): FormHeader {
         white: h.white,
         black: h.black,
         date,
+        result: h.result,
     };
 }
 
-function getGameHeader(h: FormHeader): GameHeader {
+export function getGameHeader(h: FormHeader): GameHeader {
     let date = h.date!.toISOString();
     date = date.substring(0, date.indexOf('T'));
     date = date.replaceAll('-', '.');
@@ -46,6 +50,7 @@ function getGameHeader(h: FormHeader): GameHeader {
         white: h.white,
         black: h.black,
         date,
+        result: h.result,
     };
 }
 
@@ -53,6 +58,7 @@ interface FormError {
     white: string;
     black: string;
     date: string;
+    result: string;
 }
 
 interface SubmitGamePreflightProps {
@@ -94,13 +100,17 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
     const submit = () => {
         let errors: Record<number, FormError> = {};
         headers.forEach((h, i) => {
-            const error: FormError = { white: '', black: '', date: '' };
+            const error: FormError = { white: '', black: '', result: '', date: '' };
             if (h.white.trim() === '') {
                 error.white = 'This field is required';
                 errors[i] = error;
             }
             if (h.black.trim() === '') {
                 error.black = 'This field is required';
+                errors[i] = error;
+            }
+            if (h.result.trim() === '') {
+                error.result = 'This field is required';
                 errors[i] = error;
             }
             if (h.date === null || isNaN(h.date.getTime())) {
@@ -131,58 +141,86 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Stack spacing={3} mt={3}>
                         {headers.map((h, i) => (
-                            <Stack
-                                key={i}
-                                direction='row'
-                                spacing={1}
-                                alignItems='baseline'
-                                justifyContent='space-between'
-                            >
+                            <Grid2 key={i} container columnSpacing={1} rowSpacing={2}>
                                 {multiple && (
-                                    <Typography variant='caption'>
-                                        Chapter {i + 1}
-                                    </Typography>
+                                    <Grid2
+                                        xs={12}
+                                        sm='auto'
+                                        display='flex'
+                                        alignItems='center'
+                                    >
+                                        <Typography variant='caption'>
+                                            Chapter {i + 1}
+                                        </Typography>
+                                    </Grid2>
                                 )}
 
-                                <TextField
-                                    data-cy={`white-${i}`}
-                                    label='White'
-                                    value={h.white}
-                                    onChange={(e) =>
-                                        onChangeHeader(i, 'white', e.target.value)
-                                    }
-                                    error={errors[i] && !!errors[i].white}
-                                    helperText={(errors[i] && errors[i].white) || ' '}
-                                />
+                                <Grid2 xs={12} sm={true}>
+                                    <TextField
+                                        fullWidth
+                                        data-cy={`white-${i}`}
+                                        label='White'
+                                        value={h.white}
+                                        onChange={(e) =>
+                                            onChangeHeader(i, 'white', e.target.value)
+                                        }
+                                        error={!!errors[i]?.white}
+                                        helperText={errors[i]?.white}
+                                    />
+                                </Grid2>
 
-                                <TextField
-                                    data-cy={`black-${i}`}
-                                    label='Black'
-                                    value={h.black}
-                                    onChange={(e) =>
-                                        onChangeHeader(i, 'black', e.target.value)
-                                    }
-                                    error={errors[i] && !!errors[i].black}
-                                    helperText={(errors[i] && errors[i].black) || ' '}
-                                />
+                                <Grid2 xs={12} sm={true}>
+                                    <TextField
+                                        fullWidth
+                                        data-cy={`black-${i}`}
+                                        label='Black'
+                                        value={h.black}
+                                        onChange={(e) =>
+                                            onChangeHeader(i, 'black', e.target.value)
+                                        }
+                                        error={!!errors[i]?.black}
+                                        helperText={errors[i]?.black}
+                                    />
+                                </Grid2>
 
-                                <DatePicker
-                                    label='Date'
-                                    disableFuture
-                                    value={h.date}
-                                    onChange={(newValue) => {
-                                        onChangeHeader(i, 'date', newValue);
-                                    }}
-                                    slotProps={{
-                                        textField: {
-                                            id: `date-${i}`,
-                                            error: errors[i] && !!errors[i].date,
-                                            helperText:
-                                                (errors[i] && errors[i].date) || ' ',
-                                        },
-                                    }}
-                                />
-                            </Stack>
+                                <Grid2 xs={12} sm={true}>
+                                    <TextField
+                                        select
+                                        data-cy={`result-${i}`}
+                                        label='Result'
+                                        value={h.result}
+                                        onChange={(e) =>
+                                            onChangeHeader(i, 'result', e.target.value)
+                                        }
+                                        error={!!errors[i]?.result}
+                                        helperText={errors[i]?.result}
+                                        fullWidth
+                                    >
+                                        <MenuItem value='1-0'>White Won</MenuItem>
+                                        <MenuItem value='1/2-1/2'>Draw</MenuItem>
+                                        <MenuItem value='0-1'>Black Won</MenuItem>
+                                    </TextField>
+                                </Grid2>
+
+                                <Grid2 xs={12} sm={true}>
+                                    <DatePicker
+                                        label='Date'
+                                        disableFuture
+                                        value={h.date}
+                                        onChange={(newValue) => {
+                                            onChangeHeader(i, 'date', newValue);
+                                        }}
+                                        slotProps={{
+                                            textField: {
+                                                id: `date-${i}`,
+                                                error: !!errors[i]?.date,
+                                                helperText: errors[i]?.date,
+                                                fullWidth: true,
+                                            },
+                                        }}
+                                    />
+                                </Grid2>
+                            </Grid2>
                         ))}
                     </Stack>
                 </LocalizationProvider>

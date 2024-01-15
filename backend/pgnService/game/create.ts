@@ -57,13 +57,15 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 });
             }
             pgnTexts = [request.pgnText];
+        } else if (request.type === GameImportType.StartingPosition) {
+            pgnTexts = [''];
         } else {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage: `Invalid request: type ${request.type} not supported`,
             });
         }
-        console.log('PGN texts: ', pgnTexts);
+        console.log('PGN texts length: ', pgnTexts.length);
 
         const [games, headers] = getGames(
             user,
@@ -208,15 +210,21 @@ export function getGame(
         if (headers?.date) {
             chess.setHeader('Date', headers.date);
         }
+        if (headers?.result) {
+            chess.setHeader('Result', headers.result);
+        }
 
         chess.setHeader('White', chess.header().White?.trim() || '');
         chess.setHeader('Black', chess.header().Black?.trim() || '');
         chess.setHeader('Date', chess.header().Date?.replaceAll('-', '.') || '');
+        chess.setHeader('Result', chess.header().Result?.replace('*', '').trim() || '');
+        chess.setHeader('PlyCount', `${chess.plyCount()}`);
 
         if (
             !chess.header().White ||
             !chess.header().Black ||
-            !isValidDate(chess.header().Date)
+            !isValidDate(chess.header().Date) ||
+            !isValidResult(chess.header().Result)
         ) {
             return [
                 null,
@@ -224,12 +232,9 @@ export function getGame(
                     white: chess.header().White,
                     black: chess.header().Black,
                     date: chess.header().Date,
+                    result: chess.header().Result,
                 },
             ];
-        }
-
-        if (!chess.header().PlyCount) {
-            chess.setHeader('PlyCount', `${chess.plyCount()}`);
         }
 
         const now = new Date();
@@ -259,6 +264,7 @@ export function getGame(
                 white: chess.header().White,
                 black: chess.header().Black,
                 date: chess.header().Date,
+                result: chess.header().Result,
             },
         ];
     } catch (err) {
@@ -294,6 +300,13 @@ function isValidDate(date?: string): boolean {
     }
 
     return true;
+}
+
+function isValidResult(result?: string): boolean {
+    if (!result) {
+        return false;
+    }
+    return result === '1-0' || result === '0-1' || result === '1/2-1/2';
 }
 
 async function batchPutGames(games: Game[]): Promise<number> {

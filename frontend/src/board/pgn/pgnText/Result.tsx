@@ -1,9 +1,28 @@
+import { useEffect, useState } from 'react';
 import { Stack, Divider, Typography } from '@mui/material';
-import { TAGS } from '@jackstenglein/chess';
+import { TAGS, EventType, Event } from '@jackstenglein/chess';
+
 import { useChess } from '../PgnBoard';
 
 const Result = () => {
     const { chess } = useChess();
+    const [, setForceRender] = useState(0);
+
+    useEffect(() => {
+        if (chess) {
+            const observer = {
+                types: [EventType.UpdateHeader],
+                handler: (event: Event) => {
+                    if (event.headerName === TAGS.Result) {
+                        setForceRender((v) => v + 1);
+                    }
+                },
+            };
+
+            chess.addObserver(observer);
+            return () => chess.removeObserver(observer);
+        }
+    }, [chess, setForceRender]);
 
     const result = chess?.pgn.header.tags[TAGS.Result];
     if (!result) {

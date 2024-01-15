@@ -97,10 +97,12 @@ export enum GameImportType {
     LichessChapter = 'lichessChapter',
     LichessStudy = 'lichessStudy',
     Manual = 'manual',
+    StartingPosition = 'startingPosition',
 }
 
 export interface GameImportHeaders {
     white: string;
     black: string;
     date: string;
+    result: string;
 }

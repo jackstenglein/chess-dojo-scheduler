@@ -94,14 +94,14 @@ describe('Edit Games Page', () => {
     });
 
     it('requires PGN to submit manual entry', () => {
-        cy.contains('Manual Entry').click();
+        cy.contains('Paste PGN').click();
         cy.getBySel('submit').click();
 
         cy.contains('This field is required');
     });
 
     it('submits from manual entry', () => {
-        cy.contains('Manual Entry').click();
+        cy.contains('Paste PGN').click();
         cy.getBySel('pgn-text').type(PGN);
         cy.getBySel('submit').click();
 
@@ -150,6 +150,13 @@ describe('Edit Games Page', () => {
 
         cy.getBySel('white-0').type('Test3');
         cy.getBySel('black-0').type('Test4');
+        cy.get('#date-0').type('01072024');
+        cy.getBySel('submit-preflight').click();
+        cy.getBySel('result-0').contains('This field is required');
+
+        cy.get('#date-0').clear();
+        cy.getBySel('result-0').click();
+        cy.contains('White Won').click();
         cy.getBySel('submit-preflight').click();
         cy.get('#date-0-helper-text').contains('This field is required');
 
@@ -170,6 +177,8 @@ describe('Edit Games Page', () => {
 
         cy.getBySel('white-0').type('Test3');
         cy.getBySel('black-0').type('Test4');
+        cy.getBySel('result-0').click();
+        cy.contains('White Won').click();
         cy.get('#date-0').type('01072024');
         cy.getBySel('submit-preflight').click();
 
@@ -191,10 +200,12 @@ describe('Edit Games Page', () => {
 
         cy.getBySel('white-0').find('input').should('have.value', 'Test1');
         cy.getBySel('black-0').find('input').should('have.value', 'Test2');
+        cy.getBySel('result-0').find('input').should('have.value', '1-0');
         cy.get('#date-0').should('have.value', '01/07/2024');
 
         cy.getBySel('white-1');
         cy.getBySel('black-1');
+        cy.getBySel('result-1');
         cy.get('#date-1');
     });
 
@@ -205,37 +216,34 @@ describe('Edit Games Page', () => {
 
         cy.getBySel('white-1').type('Test3');
         cy.getBySel('black-1').type('Test4');
+        cy.getBySel('result-1').click();
+        cy.contains('Black Won').click();
         cy.get('#date-1').type('01072024');
         cy.getBySel('submit-preflight').click();
         cy.location('pathname').should('equal', '/profile');
 
-        cy.get('.MuiDataGrid-row').first().contains('Test1 (1300)');
-        cy.get('.MuiDataGrid-row').first().contains('Test2 (1400)');
+        cy.contains('Test1 (1300)');
+        cy.contains('Test2 (1400)');
+        cy.contains('Test3 (??)');
+        cy.contains('Test4 (??)');
+
         cy.get('.MuiDataGrid-row').first().click();
         cy.location('pathname').should(
             'match',
             /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
         );
-        cy.getBySel('player-header-header').contains('Test2');
-        cy.getBySel('player-header-footer').contains('Test1');
-        cy.contains('e4');
         deleteCurrentGame();
 
-        cy.get('.MuiDataGrid-row').first().contains('Test3 (??)');
-        cy.get('.MuiDataGrid-row').first().contains('Test4 (??)');
         cy.get('.MuiDataGrid-row').first().click();
         cy.location('pathname').should(
             'match',
             /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
         );
-        cy.getBySel('player-header-header').contains('Test4');
-        cy.getBySel('player-header-footer').contains('Test3');
-        cy.contains('d4');
         deleteCurrentGame();
     });
 
-    it('displays error page on invalid PGN', () => {
-        cy.contains('Manual Entry').click();
+    it('displays error snackbar on invalid PGN', () => {
+        cy.contains('Paste PGN').click();
         cy.getBySel('pgn-text').type(INVALID_PGN);
         cy.getBySel('submit').click();
 

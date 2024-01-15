@@ -145,8 +145,15 @@ export type GameApiContextType = {
     ) => Promise<AxiosResponse<Game, any>>;
 };
 
+export enum GameSubmissionType {
+    LichessChapter = 'lichessChapter',
+    LichessStudy = 'lichessStudy',
+    Manual = 'manual',
+    StartingPosition = 'startingPosition',
+}
+
 export interface CreateGameRequest {
-    type?: 'lichessChapter' | 'lichessStudy' | 'manual';
+    type?: GameSubmissionType;
     url?: string;
     pgnText?: string;
     headers?: GameHeader[];
@@ -158,6 +165,7 @@ export interface GameHeader {
     white: string;
     black: string;
     date: string;
+    result: string;
 }
 
 export interface EditGameResponse {

@@ -12,7 +12,6 @@ export async function getLichessChapter(url?: string): Promise<string> {
     }
 
     const response = await axios.get<string>(`${url}.pgn?source=true`);
-    console.log('Get lichess chapter URL resp: %j', response);
     return response.data;
 }
 

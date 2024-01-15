@@ -4,6 +4,7 @@ import {
     FormControl,
     FormControlLabel,
     FormLabel,
+    MenuItem,
     Radio,
     RadioGroup,
     Stack,
@@ -11,7 +12,10 @@ import {
     Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { CreateGameRequest } from '../../api/gameApi';
+import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { getGameHeader } from './SubmitGamePreflight';
 
 const lichessStudyRegex = new RegExp('^https://lichess.org/study/.{8}$');
 const lichessChapterRegex = new RegExp('^https://lichess.org/study/.{8}/.{8}$');
@@ -28,12 +32,6 @@ const pgnTextPlaceholder = `[Event "Classical game"]
 { Before the game, I did some quick prep and saw that my opponent plays the Sicilian. I usually play the Alapin against the Sicilian and didn't see any reason to change that, so I rewatched a GothamChess video on the opening right before the game. }
 1. e4 { [%clk 1:30:00] } 1... c5 { [%clk 1:30:00] } 2. c3 { [%clk 1:30:21] } 2... Nf6 { [%clk 1:30:18] }`;
 
-enum SubmissionType {
-    LichessChapter = 'lichessChapter',
-    LichessStudy = 'lichessStudy',
-    Manual = 'manual',
-}
-
 interface GameSubmissionFormProps {
     title: string;
     description?: string;
@@ -49,26 +47,47 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
     isCreating,
     onSubmit,
 }) => {
-    const [type, setType] = useState<SubmissionType>(SubmissionType.LichessChapter);
+    const [type, setType] = useState<GameSubmissionType>(
+        GameSubmissionType.LichessChapter
+    );
     const [lichessUrl, setLichessUrl] = useState('');
     const [pgnText, setPgnText] = useState('');
     const [orientation, setOrientation] = useState('white');
+    const [white, setWhite] = useState('');
+    const [black, setBlack] = useState('');
+    const [date, setDate] = useState<Date | null>(null);
+    const [result, setResult] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSubmit = () => {
         const errors: Record<string, string> = {};
         if (
-            type === SubmissionType.LichessChapter &&
+            type === GameSubmissionType.LichessChapter &&
             !lichessChapterRegex.test(lichessUrl)
         ) {
             errors.lichessUrl = 'Does not match the Lichess chapter URL format';
         } else if (
-            type === SubmissionType.LichessStudy &&
+            type === GameSubmissionType.LichessStudy &&
             !lichessStudyRegex.test(lichessUrl)
         ) {
             errors.lichessUrl = 'Does not match the Lichess study URL format';
-        } else if (type === SubmissionType.Manual && pgnText === '') {
+        } else if (type === GameSubmissionType.Manual && pgnText.trim() === '') {
             errors.pgnText = 'This field is required';
+        }
+
+        if (type === GameSubmissionType.StartingPosition) {
+            if (white.trim() === '') {
+                errors.white = 'This field is required';
+            }
+            if (black.trim() === '') {
+                errors.black = 'This field is required';
+            }
+            if (!date || isNaN(date.getTime())) {
+                errors.date = 'This field is required';
+            }
+            if (result.trim() === '') {
+                errors.result = 'This field is required';
+            }
         }
 
         setErrors(errors);
@@ -79,12 +98,16 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
         onSubmit({
             type,
             url:
-                type === SubmissionType.LichessChapter ||
-                type === SubmissionType.LichessStudy
+                type === GameSubmissionType.LichessChapter ||
+                type === GameSubmissionType.LichessStudy
                     ? lichessUrl
                     : undefined,
-            pgnText: type === SubmissionType.Manual ? pgnText : undefined,
+            pgnText: type === GameSubmissionType.Manual ? pgnText : undefined,
             orientation,
+            headers:
+                type === GameSubmissionType.StartingPosition
+                    ? [getGameHeader({ white, black, date, result })]
+                    : undefined,
         });
     };
 
@@ -97,29 +120,34 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                 <FormControl>
                     <RadioGroup
                         value={type}
-                        onChange={(e, v) => setType(v as SubmissionType)}
+                        onChange={(e, v) => setType(v as GameSubmissionType)}
                     >
                         <FormControlLabel
-                            value={SubmissionType.LichessChapter}
+                            value={GameSubmissionType.LichessChapter}
                             control={<Radio />}
                             label='Import from Lichess Study (Single Chapter Only)'
                         />
                         {isCreating && (
                             <FormControlLabel
-                                value={SubmissionType.LichessStudy}
+                                value={GameSubmissionType.LichessStudy}
                                 control={<Radio />}
                                 label='Bulk Import from Lichess Study (All Chapters)'
                             />
                         )}
                         <FormControlLabel
-                            value={SubmissionType.Manual}
+                            value={GameSubmissionType.Manual}
                             control={<Radio />}
-                            label='Manual Entry'
+                            label='Paste PGN'
+                        />
+                        <FormControlLabel
+                            value={GameSubmissionType.StartingPosition}
+                            control={<Radio />}
+                            label='Starting Position (Empty PGN)'
                         />
                     </RadioGroup>
                 </FormControl>
 
-                {type === SubmissionType.LichessChapter && (
+                {type === GameSubmissionType.LichessChapter && (
                     <TextField
                         data-cy='lichess-chapter-url'
                         label='Lichess Chapter URL'
@@ -134,7 +162,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                     />
                 )}
 
-                {type === SubmissionType.LichessStudy && (
+                {type === GameSubmissionType.LichessStudy && (
                     <TextField
                         data-cy='lichess-study-url'
                         label='Lichess Study URL'
@@ -149,7 +177,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                     />
                 )}
 
-                {type === SubmissionType.Manual && (
+                {type === GameSubmissionType.Manual && (
                     <TextField
                         data-cy='pgn-text'
                         label='PGN Text'
@@ -161,6 +189,67 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                         error={!!errors.pgnText}
                         helperText={errors.pgnText}
                     />
+                )}
+
+                {type === GameSubmissionType.StartingPosition && (
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <Stack
+                            direction='row'
+                            spacing={1}
+                            alignItems='baseline'
+                            justifyContent='space-between'
+                        >
+                            <TextField
+                                fullWidth
+                                data-cy={`white`}
+                                label='White'
+                                value={white}
+                                onChange={(e) => setWhite(e.target.value)}
+                                error={!!errors.white}
+                                helperText={errors.white}
+                            />
+
+                            <TextField
+                                fullWidth
+                                data-cy={`black`}
+                                label='Black'
+                                value={black}
+                                onChange={(e) => setBlack(e.target.value)}
+                                error={!!errors.black}
+                                helperText={errors.black}
+                            />
+
+                            <TextField
+                                fullWidth
+                                select
+                                data-cy={`result`}
+                                label='Result'
+                                value={result}
+                                onChange={(e) => setResult(e.target.value)}
+                                error={!!errors.result}
+                                helperText={errors.result}
+                            >
+                                <MenuItem value='1-0'>White Won</MenuItem>
+                                <MenuItem value='1/2-1/2'>Draw</MenuItem>
+                                <MenuItem value='0-1'>Black Won</MenuItem>
+                            </TextField>
+
+                            <DatePicker
+                                label='Date'
+                                disableFuture
+                                value={date}
+                                onChange={(newValue) => setDate(newValue)}
+                                slotProps={{
+                                    textField: {
+                                        id: `date`,
+                                        error: !!errors.date,
+                                        helperText: errors.date,
+                                        fullWidth: true,
+                                    },
+                                }}
+                            />
+                        </Stack>
+                    </LocalizationProvider>
                 )}
 
                 <FormControl sx={{ py: 3 }}>

@@ -135,17 +135,20 @@ async function getGameUpdate(
         if (request.type === GameImportType.LichessChapter) {
             pgnText = await getLichessChapter(request.url);
         } else if (request.type === GameImportType.Manual) {
-            pgnText = request.pgnText || '';
+            if (!request.pgnText) {
+                throw new ApiError({
+                    statusCode: 400,
+                    publicMessage:
+                        'Invalid request: PGN is required when using manual import type',
+                });
+            }
+            pgnText = request.pgnText;
+        } else if (request.type === GameImportType.StartingPosition) {
+            pgnText = '';
         } else {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage: `Invalid request: type '${request.type}' not supported`,
-            });
-        }
-        if (!pgnText) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'Invalid request: empty PGN',
             });
         }
 

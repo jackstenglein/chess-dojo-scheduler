@@ -11,6 +11,7 @@ import { useChess } from '../../PgnBoard';
 import { EventType, trackEvent } from '../../../../analytics/events';
 import { useAuth } from '../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../calendar/displayDate';
+import { GameSubmissionType } from '../../../../api/gameApi';
 
 const useDebounce = (callback: (...args: any) => void, delay: number = 3000) => {
     const ref = useRef<any>();
@@ -46,7 +47,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
         if (pgnText !== initialPgn) {
             request.onStart();
             api.updateGame(cohort, id, {
-                type: 'manual',
+                type: GameSubmissionType.Manual,
                 pgnText,
             })
                 .then(() => {

@@ -47,6 +47,15 @@ export const ClockTypeDescriptions: Record<string, string> = {
     clk: 'Clock Time. The time displayed on the clock after the current move was played. h:mm:ss',
 };
 
+const rerenderHeaders = [
+    TAGS.White,
+    TAGS.WhiteElo,
+    TAGS.Black,
+    TAGS.BlackElo,
+    TAGS.Result,
+    TAGS.TimeControl,
+];
+
 const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
     const { chess, board } = useChess();
     const [, setForceRender] = useState(0);
@@ -59,12 +68,19 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
                     EventType.LegalMove,
                     EventType.NewVariation,
                     EventType.UpdateCommand,
+                    EventType.UpdateHeader,
                 ],
                 handler: (event: Event) => {
                     if (
                         event.type === EventType.UpdateCommand &&
                         event.commandName !== 'clk' &&
                         event.commandName !== 'emt'
+                    ) {
+                        return;
+                    }
+                    if (
+                        event.type === EventType.UpdateHeader &&
+                        !rerenderHeaders.includes(event.headerName || '')
                     ) {
                         return;
                     }
