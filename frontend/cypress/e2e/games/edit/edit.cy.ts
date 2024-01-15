@@ -77,6 +77,21 @@ describe('Edit Games Page', () => {
         cy.contains('Does not match the Lichess chapter URL format').should('not.exist');
     });
 
+    it('submits from Lichess chapter URL', () => {
+        cy.getBySel('lichess-chapter-url').type(LICHESS_CHAPTER_URL);
+        cy.getBySel('submit').click();
+
+        cy.location('pathname').should(
+            'match',
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+        );
+        cy.getBySel('player-header-header').contains('Test2');
+        cy.getBySel('player-header-footer').contains('Test1');
+        cy.contains('e4');
+
+        deleteCurrentGame();
+    });
+
     it('requires Lichess study URL to bulk submit', () => {
         cy.interceptApi('POST', '/game', { statusCode: 403 });
         cy.contains('Bulk Import from Lichess Study').click();
@@ -113,17 +128,47 @@ describe('Edit Games Page', () => {
         deleteCurrentGame();
     });
 
-    it('submits from Lichess chapter URL', () => {
-        cy.getBySel('lichess-chapter-url').type(LICHESS_CHAPTER_URL);
+    it('requires all data to submit empty PGN', () => {
+        cy.contains('Starting Position').click();
+
+        cy.getBySel('white').type('Test3');
+        cy.getBySel('black').type('Test4');
+        cy.get('#date').type('01072024');
+        cy.getBySel('submit').click();
+        cy.getBySel('result').contains('This field is required');
+
+        cy.get('#date').clear();
+        cy.getBySel('result').click();
+        cy.contains('White Won').click();
+        cy.getBySel('submit').click();
+        cy.get('#date-helper-text').contains('This field is required');
+
+        cy.get('#date').type('01072024');
+        cy.getBySel('white').find('input').clear();
+        cy.getBySel('submit').click();
+        cy.getBySel('white').contains('This field is required');
+
+        cy.getBySel('white').type('Test3');
+        cy.getBySel('black').find('input').clear();
+        cy.getBySel('submit').click();
+        cy.getBySel('black').contains('This field is required');
+    });
+
+    it('submits from empty PGN', () => {
+        cy.contains('Starting Position').click();
+
+        cy.getBySel('white').type('Test3');
+        cy.getBySel('black').type('Test4');
+        cy.getBySel('result').click();
+        cy.contains('White Won').click();
+        cy.get('#date').type('01072024');
         cy.getBySel('submit').click();
 
-        cy.location('pathname').should(
-            'match',
-            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
-        );
-        cy.getBySel('player-header-header').contains('Test2');
-        cy.getBySel('player-header-footer').contains('Test1');
-        cy.contains('e4');
+        cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
+        cy.getBySel('player-header-header').contains('Test4');
+        cy.getBySel('player-header-header').contains('0');
+        cy.getBySel('player-header-footer').contains('Test3');
+        cy.getBySel('player-header-footer').contains('1');
 
         deleteCurrentGame();
     });
@@ -171,7 +216,7 @@ describe('Edit Games Page', () => {
         cy.getBySel('black-0').contains('This field is required');
     });
 
-    it('gets required data through preflight', () => {
+    it('submits through preflight', () => {
         cy.getBySel('lichess-chapter-url').type(LICHESS_CHAPTER_MISSING_DATA_URL);
         cy.getBySel('submit').click();
 
