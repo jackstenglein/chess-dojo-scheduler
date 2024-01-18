@@ -1,3 +1,5 @@
+import { Comment } from './game';
+
 export enum EventType {
     Availability = 'AVAILABILITY',
     Dojo = 'DOJO',
@@ -38,6 +40,9 @@ export interface Event {
 
     /** The coaching information for this event. Only present for EventType.Coaching. */
     coaching?: Coaching;
+
+    /** Messages on the meeting. */
+    messages?: Comment[];
 }
 
 export enum TournamentType {

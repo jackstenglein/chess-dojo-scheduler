@@ -196,6 +196,9 @@ type Event struct {
 
 	// The coaching information for this event. Only present for EventType_Coaching.
 	Coaching *Coaching `dynamodbav:"coaching,omitempty" json:"coaching,omitempty"`
+
+	// Messages sent on the event.
+	Messages []Comment `dynamodbav:"messages,omitempty" json:"messages,omitempty"`
 }
 
 type TimeControlType string
@@ -314,6 +317,13 @@ type EventLister interface {
 	// startKey is an optional parameter that can be used to perform pagination.
 	// The list of meetings and the next start key are returned.
 	ScanEvents(public bool, startKey string) ([]*Event, string, error)
+}
+
+type EventMessager interface {
+	// CreateEventMessage adds the given message to the event with the given id. The owner included in the
+	// message must be a participant of the event and must have completed payment, if the event is a coaching
+	// session.
+	CreateEventMessage(id string, message *Comment) (*Event, error)
 }
 
 // SetEvent inserts the provided Event into the database.
@@ -677,4 +687,53 @@ func (repo *dynamoRepository) ScanEvents(public bool, startKey string) ([]*Event
 		return nil, "", err
 	}
 	return events, lastKey, nil
+}
+
+// CreateEventMessage adds the given message to the event with the given id. The owner included in the
+// message must be a participant of the event and must have completed payment, if the event is a coaching
+// session.
+func (repo *dynamoRepository) CreateEventMessage(id string, message *Comment) (*Event, error) {
+	item, err := dynamodbattribute.MarshalMap(message)
+	if err != nil {
+		return nil, errors.Wrap(400, "Invalid request: message cannot be marshaled", "", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("#owner = :u OR (attribute_exists(#p.#u) AND (#type <> :coaching OR #p.#u.#paid = :true))"),
+		UpdateExpression:    aws.String("SET #m = list_append(if_not_exists(#m, :empty_list), :m)"),
+		ExpressionAttributeNames: map[string]*string{
+			"#p":     aws.String("participants"),
+			"#u":     aws.String(message.Owner),
+			"#owner": aws.String("owner"),
+			"#type":  aws.String("type"),
+			"#paid":  aws.String("hasPaid"),
+			"#m":     aws.String("messages"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":u":          {S: aws.String(message.Owner)},
+			":coaching":   {S: aws.String(string(EventType_Coaching))},
+			":true":       {BOOL: aws.Bool(true)},
+			":empty_list": {L: []*dynamodb.AttributeValue{}},
+			":m":          {L: []*dynamodb.AttributeValue{{M: item}}},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(id)},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(eventTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: event does not exist or you do not have permission to create a message", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+
+	event := Event{}
+	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &event); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal CreateEventMessage result", err)
+	}
+	return &event, nil
 }

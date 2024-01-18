@@ -10,6 +10,7 @@ import ReactionList from './ReactionList';
 import NewsfeedItemHeader from './NewsfeedItemHeader';
 import GraduationNewsfeedItem from './GraduationNewsfeedItem';
 import GameNewsfeedItem from './GameNewsfeedItem';
+import { useApi } from '../../api/Api';
 
 interface NewsfeedItemProps {
     entry: TimelineEntry;
@@ -18,6 +19,8 @@ interface NewsfeedItemProps {
 }
 
 const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments }) => {
+    const api = useApi();
+
     return (
         <Card variant='outlined'>
             <CardContent>
@@ -39,7 +42,11 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments 
                         maxComments={maxComments}
                         viewCommentsLink={`/newsfeed/${entry.owner}/${entry.id}`}
                     />
-                    <CommentEditor owner={entry.owner} id={entry.id} onSuccess={onEdit} />
+                    <CommentEditor
+                        createFunctionProps={{ owner: entry.owner, id: entry.id }}
+                        createFunction={api.createNewsfeedComment}
+                        onSuccess={onEdit}
+                    />
                 </Stack>
             </CardContent>
         </Card>

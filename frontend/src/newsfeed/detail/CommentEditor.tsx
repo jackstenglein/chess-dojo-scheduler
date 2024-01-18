@@ -1,24 +1,31 @@
 import { useState } from 'react';
 import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import { AxiosResponse } from 'axios';
 
 import { useAuth } from '../../auth/Auth';
 import Avatar from '../../profile/Avatar';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { TimelineEntry } from '../../database/timeline';
-import { useApi } from '../../api/Api';
 
-interface CommentEditorProps {
-    owner: string;
-    id: string;
-    onSuccess: (entry: TimelineEntry) => void;
+interface CommentEditorProps<T, CreateFunctionProps> {
+    createFunctionProps: CreateFunctionProps;
+    createFunction: (
+        props: CreateFunctionProps,
+        content: string
+    ) => Promise<AxiosResponse<T>>;
+    onSuccess: (item: T) => void;
+    label?: string;
+    tooltip?: string;
 }
 
-const CommentEditor: React.FC<CommentEditorProps> = ({ owner, id, onSuccess }) => {
+function CommentEditor<T, CreateFunctionProps>(
+    props: CommentEditorProps<T, CreateFunctionProps>
+) {
+    const { createFunctionProps, createFunction, onSuccess, label, tooltip } = props;
+
     const user = useAuth().user!;
     const [comment, setComment] = useState('');
     const request = useRequest();
-    const api = useApi();
 
     const onSubmit = () => {
         const content = comment.trim();
@@ -27,7 +34,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ owner, id, onSuccess }) =
         }
 
         request.onStart();
-        api.createNewsfeedComment(owner, id, content)
+        createFunction(createFunctionProps, content)
             .then((resp) => {
                 console.log(resp);
                 setComment('');
@@ -46,7 +53,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ owner, id, onSuccess }) =
 
             <Avatar user={user} size={40} />
             <TextField
-                label='Add a comment...'
+                label={label || 'Add a comment...'}
                 fullWidth
                 multiline
                 value={comment}
@@ -58,7 +65,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ owner, id, onSuccess }) =
                     <CircularProgress size={40} />
                 </div>
             ) : (
-                <Tooltip title='Post Comment'>
+                <Tooltip title={tooltip || 'Post Comment'}>
                     <div style={{ alignSelf: 'end' }}>
                         <IconButton
                             onClick={onSubmit}
@@ -72,6 +79,6 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ owner, id, onSuccess }) =
             )}
         </Stack>
     );
-};
+}
 
 export default CommentEditor;

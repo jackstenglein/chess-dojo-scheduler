@@ -32,14 +32,12 @@ export type NewsfeedApiContextType = {
 
     /**
      * Adds the given content as a comment on the given TimelineEntry.
-     * @param owner The owner of the TimelineEntry.
-     * @param id The id of the TimelineEntry.
+     * @param props The owner and id of the TimelineEntry.
      * @param content The text content of the comment.
      * @returns The updated TimelineEntry.
      */
     createNewsfeedComment: (
-        owner: string,
-        id: string,
+        props: { owner: string; id: string },
         content: string
     ) => Promise<AxiosResponse<TimelineEntry, any>>;
 
@@ -109,19 +107,17 @@ export function listNewsfeed(
 /**
  * Adds the given content as a comment on the given TimelineEntry.
  * @param idToken The id token of the current signed-in user.
- * @param owner The owner of the TimelineEntry.
- * @param id The id of the TimelineEntry.
+ * @param props The owner and id of the TimelineEntry.
  * @param content The text content of the comment.
  * @returns The updated TimelineEntry.
  */
 export function createNewsfeedComment(
     idToken: string,
-    owner: string,
-    id: string,
+    props: { owner: string; id: string },
     content: string
 ) {
     return axios.post<TimelineEntry>(
-        `${BASE_URL}/newsfeed/${owner}/${id}/comments`,
+        `${BASE_URL}/newsfeed/${props.owner}/${props.id}/comments`,
         { content },
         {
             headers: {

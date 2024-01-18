@@ -55,6 +55,7 @@ import {
 import {
     bookEvent,
     cancelEvent,
+    createMessage,
     deleteEvent,
     EventApiContextType,
     getEvent,
@@ -215,6 +216,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getEvent: (id: string) => getEvent(idToken, id),
             listEvents: (startKey?: string) => listEvents(idToken, startKey),
             setEvent: (event: Event) => setEvent(idToken, event),
+            createMessage: (id: string, content: string) =>
+                createMessage(idToken, auth.user!, id, content),
 
             createGame: (req: CreateGameRequest) => createGame(idToken, req),
             getGame: (cohort: string, id: string) => getGame(idToken, cohort, id),
@@ -313,8 +316,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 skipLastFetch?: boolean,
                 startKey?: string
             ) => listNewsfeed(idToken, newsfeedIds, skipLastFetch, startKey),
-            createNewsfeedComment: (owner: string, id: string, content: string) =>
-                createNewsfeedComment(idToken, owner, id, content),
+            createNewsfeedComment: (
+                props: { owner: string; id: string },
+                content: string
+            ) => createNewsfeedComment(idToken, props, content),
             setNewsfeedReaction: (owner: string, id: string, types: string[]) =>
                 setNewsfeedReaction(idToken, owner, id, types),
 

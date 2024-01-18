@@ -54,6 +54,7 @@ func handler(ctx context.Context, request api.Request) (api.Response, error) {
 
 	if event.Type == database.EventType_Coaching && !p.HasPaid {
 		event.Location = "Location is hidden until payment is complete"
+		event.Messages = nil
 	}
 	return api.Success(&event), nil
 }

@@ -185,3 +185,19 @@ functions:
           parallelizationFactor: 2
           filterPatterns:
             - eventName: [REMOVE]
+
+  createMessage:
+    handler: message/create/main.go
+    events:
+      - httpApi:
+          path: /event/{id+}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:EventsTableArn}

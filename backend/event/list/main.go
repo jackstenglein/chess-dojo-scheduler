@@ -29,6 +29,14 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
+	for _, e := range events {
+		p := e.Participants[info.Username]
+		if e.Type == database.EventType_Coaching && e.Owner != info.Username && (p == nil || !p.HasPaid) {
+			e.Location = "Location is hidden until payment is complete"
+			e.Messages = nil
+		}
+	}
+
 	return api.Success(&ListEventsResponse{
 		Events:           events,
 		LastEvaluatedKey: lastKey,

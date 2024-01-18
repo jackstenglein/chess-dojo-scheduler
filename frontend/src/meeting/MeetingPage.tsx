@@ -25,6 +25,7 @@ import ParticipantsList from '../calendar/eventViewer/ParticipantsList';
 import { User, dojoCohorts } from '../database/user';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useApi } from '../api/Api';
+import MeetingMessages from './MeetingMessages';
 
 const CANCELATION_DEADLINE = 24 * 1000 * 60 * 60; // 24 hours
 
@@ -292,6 +293,8 @@ const MeetingPage = () => {
                         />
                     </CardContent>
                 </Card>
+
+                <MeetingMessages />
             </Stack>
         </Container>
     );
