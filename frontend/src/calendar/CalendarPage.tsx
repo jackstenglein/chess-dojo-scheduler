@@ -223,17 +223,15 @@ export function processCoachingEvent(
         return null;
     }
 
-    const editable = isOwner && Object.values(event.participants).length === 0;
-
     return {
         event_id: event.id,
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
         color: 'coaching.main',
-        editable,
-        deletable: editable,
-        draggable: editable,
+        editable: isOwner,
+        deletable: isOwner && Object.values(event.participants).length === 0,
+        draggable: isOwner,
         isOwner,
         event,
     };
