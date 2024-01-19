@@ -28,7 +28,7 @@ func main() {
 		log.Fatalln("Failed to create html file: ", errors.Wrap(500, "Temporary server error", "Failed to create file for service account key", err))
 	}
 
-	if err = media.Download("chess-dojo-email-templates", "dojoDigestMinified.html", f); err != nil {
+	if err = media.Download("chess-dojo-email-templates", "liveClassesMinified.html", f); err != nil {
 		log.Fatalln("Failed to download html", err)
 	}
 	f.Close()
@@ -88,7 +88,7 @@ func main() {
 				},
 				Subject: &ses.Content{
 					Charset: aws.String("UTF-8"),
-					Data:    aws.String("Training Program News - Dojo Digest Vol. 4"),
+					Data:    aws.String("ChessDojo Update - Live Classes & Coaching!"),
 				},
 			},
 			Source: aws.String("chessdojotwitch@gmail.com"),
