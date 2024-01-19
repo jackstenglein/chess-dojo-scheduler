@@ -45,7 +45,10 @@ type CohortStatistics struct {
 	InactiveParticipants int `dynamodbav:"inactiveParticipants" json:"inactiveParticipants"`
 
 	// The number of free participants in the cohort
-	FreeParticipants int `dynamodbav:"freeParticipants" json:"freeParticipants"`
+	FreeActiveParticipants int `dynamodbav:"freeActiveParticipants" json:"freeActiveParticipants"`
+
+	// The number of free inactive participants in the cohort
+	FreeInactiveParticipants int `dynamodbav:"freeInactiveParticipants" json:"freeInactiveParticipants"`
 
 	// The number of conversions from free tier to subscribed in the cohort
 	FreeTierConversions int `dynamodbav:"freeTierConversions" json:"freeTierConversions"`

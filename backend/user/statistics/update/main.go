@@ -109,8 +109,15 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 	if !user.DojoCohort.IsValid() || user.RatingSystem == "" {
 		return
 	}
+
+	isActive := user.UpdatedAt >= monthAgo
+
 	if user.SubscriptionStatus == database.SubscriptionStatus_FreeTier {
-		stats.Cohorts[user.DojoCohort].FreeParticipants += 1
+		if isActive {
+			stats.Cohorts[user.DojoCohort].FreeActiveParticipants += 1
+		} else {
+			stats.Cohorts[user.DojoCohort].FreeInactiveParticipants += 1
+		}
 		return
 	}
 
@@ -119,7 +126,6 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 		return
 	}
 
-	isActive := user.UpdatedAt >= monthAgo
 	ratingChange := currentRating - startRating
 	score := user.CalculateScore(requirements)
 

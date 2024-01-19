@@ -109,9 +109,19 @@ function getAdminParticipantsSeries(data: UserStatistics | undefined): Series[] 
             }),
         },
         {
-            label: 'Free',
+            label: 'Free Active',
             data: dojoCohorts.map((c) => {
-                const result = data.cohorts[c].freeParticipants || 0;
+                const result = data.cohorts[c].freeActiveParticipants || 0;
+                return {
+                    cohort: c,
+                    value: isFinite(result) ? result : 0,
+                };
+            }),
+        },
+        {
+            label: 'Free Inactive',
+            data: dojoCohorts.map((c) => {
+                const result = data.cohorts[c].freeInactiveParticipants || 0;
                 return {
                     cohort: c,
                     value: isFinite(result) ? result : 0,
@@ -240,7 +250,8 @@ const StatisticsPage = () => {
                   (d, c) =>
                       d.cohorts[c].activeParticipants +
                       d.cohorts[c].inactiveParticipants +
-                      d.cohorts[c].freeParticipants
+                      d.cohorts[c].freeActiveParticipants +
+                      d.cohorts[c].freeInactiveParticipants
               );
     }, [request.data, user.isAdmin]);
 
