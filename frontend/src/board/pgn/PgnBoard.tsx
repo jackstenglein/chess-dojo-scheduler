@@ -16,12 +16,12 @@ import { Color } from 'chessground/types';
 import BoardButtons from './boardTools/boardButtons/BoardButtons';
 import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
-import { ClockTextFieldId, CommentTextFieldId } from './boardTools/Editor';
+import { ClockTextFieldId, CommentTextFieldId } from './boardTools/underboard/Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
-import { TagTextFieldId } from './boardTools/Tags';
+import { TagTextFieldId } from './boardTools/underboard/Tags';
 import AnnotationWarnings from './annotations/AnnotationWarnings';
 import PlayerHeader from './PlayerHeader';
-import Underboard from './boardTools/Underboard';
+import Underboard from './boardTools/underboard/Underboard';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -275,10 +275,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         />
 
                         <Underboard
-                            showTags={showTags}
-                            showEditor={
-                                showEditor && user && game?.owner === user.username
-                            }
                             showExplorer={showExplorer}
                             game={game}
                             onSaveGame={onSaveGame}

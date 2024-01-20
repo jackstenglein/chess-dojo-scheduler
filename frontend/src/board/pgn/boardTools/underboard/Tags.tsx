@@ -16,10 +16,10 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Chess, EventType } from '@jackstenglein/chess';
 import { Link as RouterLink } from 'react-router-dom';
 
-import GraduationIcon from '../../../scoreboard/GraduationIcon';
-import { Game } from '../../../database/game';
-import { useChess } from '../PgnBoard';
-import Avatar from '../../../profile/Avatar';
+import GraduationIcon from '../../../../scoreboard/GraduationIcon';
+import { Game } from '../../../../database/game';
+import { useChess } from '../../PgnBoard';
+import Avatar from '../../../../profile/Avatar';
 
 export const TagTextFieldId = 'tagEditor';
 

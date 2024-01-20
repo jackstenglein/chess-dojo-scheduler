@@ -10,14 +10,14 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-import DeleteGameButton from '../../../games/view/DeleteGameButton';
-import { Game } from '../../../database/game';
+import DeleteGameButton from '../../../../games/view/DeleteGameButton';
+import { Game } from '../../../../database/game';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useRequest } from '../../../api/Request';
-import { useApi } from '../../../api/Api';
-import { EventType, trackEvent } from '../../../analytics/events';
-import { isGame } from '../../../api/gameApi';
+import { useRequest } from '../../../../api/Request';
+import { useApi } from '../../../../api/Api';
+import { EventType, trackEvent } from '../../../../analytics/events';
+import { isGame } from '../../../../api/gameApi';
 
 interface SettingsProps {
     game: Game;

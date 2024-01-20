@@ -10,9 +10,9 @@ import { Stack, Tooltip, IconButton } from '@mui/material';
 import { useCallback, useEffect } from 'react';
 
 import { useChess } from '../../PgnBoard';
-import { ClockTextFieldId, CommentTextFieldId } from '../Editor';
+import { ClockTextFieldId, CommentTextFieldId } from '../underboard/Editor';
 import { GameCommentTextFieldId } from '../../../../games/view/GamePage';
-import { TagTextFieldId } from '../Tags';
+import { TagTextFieldId } from '../underboard/Tags';
 
 interface ControlButtonsProps {
     onClickMove: (move: Move | null) => void;

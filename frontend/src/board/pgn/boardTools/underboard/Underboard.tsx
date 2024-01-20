@@ -7,38 +7,42 @@ import {
     ToggleButtonProps,
     Tooltip,
 } from '@mui/material';
+import {
+    AccessAlarm,
+    Edit,
+    Sell,
+    Settings as SettingsIcon,
+    Storage,
+} from '@mui/icons-material';
 import { useState } from 'react';
-import { useLightMode } from '../../../ThemeProvider';
+
+import { useLightMode } from '../../../../ThemeProvider';
 import Tags from './Tags';
 import Editor from './Editor';
-import Explorer from '../explorer/Explorer';
-import { Edit, Sell, Settings as SettingsIcon, Storage } from '@mui/icons-material';
-import { useChess } from '../PgnBoard';
-import { Game } from '../../../database/game';
+import Explorer from '../../explorer/Explorer';
+import { useChess } from '../../PgnBoard';
+import { Game } from '../../../../database/game';
 import Settings from './Settings';
+import { useAuth } from '../../../../auth/Auth';
+import ClockUsage from './ClockUsage';
 
 interface UnderboardProps {
-    showEditor?: boolean;
-    showTags?: boolean;
     showExplorer?: boolean;
     game?: Game;
     onSaveGame?: (g: Game) => void;
 }
 
-const Underboard: React.FC<UnderboardProps> = ({
-    showEditor,
-    showTags,
-    showExplorer,
-    game,
-    onSaveGame,
-}) => {
+const Underboard: React.FC<UnderboardProps> = ({ showExplorer, game, onSaveGame }) => {
+    const user = useAuth().user;
     const chess = useChess().chess;
+
+    const showEditor = game && game.owner === user?.username;
     const [underboard, setUnderboard] = useState(
-        showEditor ? 'editor' : showTags ? 'tags' : showExplorer ? 'explorer' : ''
+        showEditor ? 'editor' : Boolean(game) ? 'tags' : showExplorer ? 'explorer' : ''
     );
     const light = useLightMode();
 
-    if (!showEditor && !showTags && !showExplorer) {
+    if (!showExplorer && !game) {
         return null;
     }
 
@@ -55,7 +59,7 @@ const Underboard: React.FC<UnderboardProps> = ({
             }}
             variant={light ? 'outlined' : 'elevation'}
         >
-            {(showEditor || showTags) && (
+            {game && (
                 <Paper elevation={10} sx={{ boxShadow: 'none' }}>
                     <ToggleButtonGroup
                         size='small'
@@ -92,6 +96,16 @@ const Underboard: React.FC<UnderboardProps> = ({
                             tooltip='Position Database'
                             value='explorer'
                             sx={{
+                                borderTop: light ? 0 : undefined,
+                            }}
+                        >
+                            <Storage />
+                        </UnderboardButton>
+
+                        <UnderboardButton
+                            tooltip='Clock Usage'
+                            value='clocks'
+                            sx={{
                                 borderBottomRightRadius: 0,
                                 borderTop: light ? 0 : undefined,
                                 borderRight: showEditor
@@ -101,7 +115,7 @@ const Underboard: React.FC<UnderboardProps> = ({
                                     : undefined,
                             }}
                         >
-                            <Storage />
+                            <AccessAlarm />
                         </UnderboardButton>
 
                         {showEditor && (
@@ -134,6 +148,7 @@ const Underboard: React.FC<UnderboardProps> = ({
                 {underboard === 'settings' && game && (
                     <Settings game={game} onSaveGame={onSaveGame} />
                 )}
+                {underboard === 'clocks' && <ClockUsage />}
             </Stack>
         </Card>
     );
