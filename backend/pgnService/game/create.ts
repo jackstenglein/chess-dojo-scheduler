@@ -4,6 +4,7 @@ import {
     BatchWriteItemCommand,
     DynamoDBClient,
     GetItemCommand,
+    PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
@@ -27,6 +28,7 @@ import { getLichessChapter, getLichessStudy } from './lichess';
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const usersTable = process.env.stage + '-users';
 export const gamesTable = process.env.stage + '-games';
+export const timelineTable = process.env.stage + '-timeline';
 
 export function success(value: any): APIGatewayProxyResultV2 {
     console.log('Response: %j', value);
@@ -88,6 +90,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const updated = await batchPutGames(games);
         if (games.length === 1) {
             // TODO: create timeline entry
+            if (games[0].timelineId) {
+                await createTimelineEntry(games[0]);
+            }
             return success(games[0]);
         }
         return success({ count: updated });
@@ -248,6 +253,7 @@ export function getGame(
 
         const now = new Date();
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
+        const timelineId = unlisted ? '' : `${uploadDate}_${uuidv4()}`;
 
         return [
             {
@@ -267,6 +273,7 @@ export function getGame(
                 orientation,
                 comments: [],
                 unlisted: Boolean(unlisted),
+                timelineId,
             },
             {
                 white: chess.header().White,
@@ -353,4 +360,31 @@ async function batchPutGames(games: Game[]): Promise<number> {
     }
 
     return updated;
+}
+
+export async function createTimelineEntry(game: Game) {
+    try {
+        await dynamo.send(
+            new PutItemCommand({
+                Item: marshall({
+                    owner: game.owner,
+                    id: game.timelineId,
+                    ownerDisplayName: game.ownerDisplayName,
+                    requirementId: 'GameSubmission',
+                    requirementName: 'GameSubmission',
+                    scoreboardDisplay: 'HIDDEN',
+                    cohort: game.cohort,
+                    createdAt: game.publishedAt,
+                    gameInfo: {
+                        id: game.id,
+                        headers: game.headers,
+                    },
+                    dojoPoints: 1,
+                }),
+                TableName: timelineTable,
+            })
+        );
+    } catch (err) {
+        console.error('Failed to create timeline entry: ', err);
+    }
 }

@@ -14,7 +14,7 @@ const GameNewsfeedItem: React.FC<GameNewsfeedItemProps> = ({ entry }) => {
     return (
         <Stack>
             <Typography mt={1}>
-                Submitted a{' '}
+                Published a{' '}
                 <Link
                     component={RouterLink}
                     to={`/games/${entry.cohort.replaceAll(

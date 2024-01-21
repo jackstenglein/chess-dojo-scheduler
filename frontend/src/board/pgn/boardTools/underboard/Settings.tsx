@@ -38,7 +38,11 @@ const Settings: React.FC<SettingsProps> = ({ game, onSaveGame }) => {
         request.onStart();
         api.updateGame(game.cohort, game.id, {
             orientation,
-            unlisted: visibility === 'unlisted',
+            unlisted:
+                (visibility === 'unlisted') === game.unlisted
+                    ? undefined
+                    : visibility === 'unlisted',
+            timelineId: game.timelineId,
         })
             .then((resp) => {
                 trackEvent(EventType.UpdateGame, {

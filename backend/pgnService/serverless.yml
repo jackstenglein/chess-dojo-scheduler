@@ -145,7 +145,6 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-          - dynamodb:PutItem
         Resource:
           - ${param:UsersTableArn}
       - Effect: Allow
@@ -174,6 +173,12 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+        Resource:
+          - ${param:TimelineTableArn}
 
 resources:
   Conditions:

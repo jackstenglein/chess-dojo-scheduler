@@ -63,19 +63,19 @@ function formatTime(value: number): string {
 
 function getInitialClock(pgn?: Pgn): number {
     if (!pgn) {
-        return -1;
+        return 0;
     }
 
     const timeControl = pgn.header.tags[TAGS.TimeControl];
     if (!timeControl) {
-        return -1;
+        return 0;
     }
 
     const descriptor = timeControl.split(':')[0];
     const time = descriptor.split('/').slice(-1)[0];
     const startTime = parseInt(time?.split('+')[0]);
     if (isNaN(startTime) || startTime <= 0) {
-        return -1;
+        return 0;
     }
 
     return startTime;
@@ -102,7 +102,7 @@ function getIncrement(pgn?: Pgn): number {
 
 function convertClockToSeconds(clk?: string): number {
     if (!clk) {
-        return -1;
+        return 0;
     }
 
     const tokens = clk.split(':');
@@ -118,11 +118,11 @@ function convertClockToSeconds(clk?: string): number {
         minutes = parseInt(tokens[0]);
         seconds = parseInt(tokens[1]);
     } else {
-        return -1;
+        return 0;
     }
 
     if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
-        return -1;
+        return 0;
     }
 
     return hours * 3600 + minutes * 60 + seconds;
@@ -209,8 +209,8 @@ const ClockUsage = () => {
     }
 
     return (
-        <CardContent>
-            <Stack spacing={4}>
+        <CardContent sx={{ height: 1 }}>
+            <Stack height={1} spacing={4}>
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
                         Remaining Clock Time by Move
@@ -231,7 +231,7 @@ const ClockUsage = () => {
                     <Typography variant='caption' color='text.secondary'>
                         Time Used Per Move
                     </Typography>
-                    <Box width={1} height={(15 * chess.plyCount()) / 2}>
+                    <Box width={1} height={15 * Math.ceil(chess.plyCount() / 2) + 10}>
                         <Chart
                             options={{
                                 data: data[1],
@@ -243,12 +243,18 @@ const ClockUsage = () => {
                     </Box>
                 </Stack>
 
-                <Typography variant='caption' color='text.secondary' textAlign='center'>
-                    Graphs are generated using the %clk annotation in the PGN, which can
-                    be set in the PGN editor. %emt format is currently not supported but
-                    will be added soon. Initial time is taken from the TimeControl header,
-                    which can be set in the tags.
-                </Typography>
+                <Stack flexGrow={1} justifyContent='end'>
+                    <Typography
+                        variant='caption'
+                        color='text.secondary'
+                        textAlign='center'
+                    >
+                        Graphs are generated using the %clk annotation in the PGN, which
+                        can be set in the PGN editor. %emt format is currently not
+                        supported but will be added soon. Initial time is taken from the
+                        TimeControl header, which can be set in the tags.
+                    </Typography>
+                </Stack>
             </Stack>
         </CardContent>
     );

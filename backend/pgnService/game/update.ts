@@ -5,6 +5,14 @@ import {
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
+import { v4 as uuidv4 } from 'uuid';
+import {
+    ConditionalCheckFailedException,
+    DeleteItemCommand,
+    UpdateItemCommand,
+} from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
 import {
     CreateGameRequest,
@@ -16,12 +24,15 @@ import {
     UpdateGameRequest,
 } from './types';
 import { getLichessChapter } from './lichess';
-import { dynamo, gamesTable, getGame, getUserInfo, success } from './create';
 import {
-    ConditionalCheckFailedException,
-    UpdateItemCommand,
-} from '@aws-sdk/client-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+    createTimelineEntry,
+    dynamo,
+    gamesTable,
+    getGame,
+    getUserInfo,
+    success,
+    timelineTable,
+} from './create';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -57,6 +68,12 @@ async function updateGame(
     }
 
     const game = await applyUpdate(userInfo.username, request.cohort, request.id, update);
+    if (update.timelineId) {
+        await createTimelineEntry(game);
+    } else if (update.unlisted && request.timelineId) {
+        await deleteTimelineEntry(game, request.timelineId);
+    }
+
     return success(game);
 }
 
@@ -132,6 +149,9 @@ async function getGameUpdate(
     if (request.unlisted !== undefined) {
         update.unlisted = request.unlisted;
         update.publishedAt = request.unlisted ? null : new Date().toISOString();
+        update.timelineId = request.unlisted
+            ? ''
+            : `${update.publishedAt?.split('T')[0]}_${uuidv4()}`;
     }
 
     if (request.type) {
@@ -247,4 +267,20 @@ function getUpdateParams(params: { [key: string]: any }) {
             { removeUndefinedValues: true }
         ),
     };
+}
+
+export async function deleteTimelineEntry(game: Game, id: string) {
+    try {
+        await dynamo.send(
+            new DeleteItemCommand({
+                Key: {
+                    owner: { S: game.owner },
+                    id: { S: id },
+                },
+                TableName: timelineTable,
+            })
+        );
+    } catch (err) {
+        console.error('Failed to delete timeline entry: ', err);
+    }
 }

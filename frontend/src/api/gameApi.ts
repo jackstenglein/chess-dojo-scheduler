@@ -159,6 +159,7 @@ export interface CreateGameRequest {
     headers?: GameHeader[];
     orientation?: string;
     unlisted?: boolean;
+    timelineId?: string;
 }
 
 export interface GameHeader {

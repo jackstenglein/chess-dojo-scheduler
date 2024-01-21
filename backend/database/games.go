@@ -120,6 +120,9 @@ type Game struct {
 
 	// Whether the game is unlisted
 	Unlisted bool `dynamodbav:"unlisted" json:"unlisted"`
+
+	// The ID of the timeline entry associated with this game's publishing
+	TimelineId string `dynamodbav:"timelineId" json:"timelineId"`
 }
 
 type GameUpdate struct {

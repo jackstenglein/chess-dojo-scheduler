@@ -53,6 +53,9 @@ export interface Game {
 
     /** Whether the game is unlisted. */
     unlisted: boolean;
+
+    /** The ID of the timeline entry associated with this game's publishing. */
+    timelineId?: string;
 }
 
 export enum GameOrientation {
@@ -72,6 +75,7 @@ export interface CreateGameRequest {
 export interface UpdateGameRequest extends CreateGameRequest {
     cohort: string;
     id: string;
+    timelineId?: string;
 }
 
 export interface GameUpdate {
@@ -101,6 +105,9 @@ export interface GameUpdate {
 
     /** The datetime the game was last changed from unlisted to public, in ISO format. */
     publishedAt?: string | null;
+
+    /** The ID of the timeline entry associated with this game's publishing. */
+    timelineId?: string;
 }
 
 export enum GameImportType {

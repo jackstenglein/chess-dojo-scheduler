@@ -52,6 +52,7 @@ export type Game = GameInfo & {
     pgn: string;
     comments: Comment[];
     orientation?: 'white' | 'black';
+    timelineId?: string;
 };
 
 export function isDefaultHeader(header: string): boolean {
