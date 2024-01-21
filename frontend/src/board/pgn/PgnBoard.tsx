@@ -182,7 +182,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                             showPlayerHeaders ? 'auto auto' : ''
                         } auto auto minmax(auto, calc(100vh - (100vw - 32px) - 30px ${
                             showPlayerHeaders ? '- 56px' : ''
-                        } - 40px)) auto auto`,
+                        } - 40px)) auto`,
 
                         md: `${
                             showPlayerHeaders ? 'var(--player-header-height)' : ''
@@ -209,7 +209,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                              ${showPlayerHeaders ? '"playerfooter"' : ''}
                              "boardButtons"
                              "coach"
-                             "extraButtons"
                              "underboard"`,
 
                         md: `${showPlayerHeaders ? '". playerheader . coach ."' : ''}

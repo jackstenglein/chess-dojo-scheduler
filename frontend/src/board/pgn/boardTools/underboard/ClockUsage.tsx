@@ -1,9 +1,9 @@
 import { Box, CardContent, Stack, Typography } from '@mui/material';
-
-import { useChess } from '../../PgnBoard';
 import { useMemo } from 'react';
 import { Pgn, TAGS } from '@jackstenglein/chess';
 import { AxisOptions, Chart } from 'react-charts';
+
+import { useChess } from '../../PgnBoard';
 import { useLightMode } from '../../../../ThemeProvider';
 
 interface Datum {
@@ -140,9 +140,6 @@ const ClockUsage = () => {
         const initialClock = getInitialClock(chess.pgn);
         const increment = getIncrement(chess.pgn);
 
-        console.log('Initial clock: ', initialClock);
-        console.log('Increment: ', increment);
-
         const whiteLineData: Datum[] = [
             {
                 move: 0,
@@ -245,6 +242,13 @@ const ClockUsage = () => {
                         />
                     </Box>
                 </Stack>
+
+                <Typography variant='caption' color='text.secondary' textAlign='center'>
+                    Graphs are generated using the %clk annotation in the PGN, which can
+                    be set in the PGN editor. %emt format is currently not supported but
+                    will be added soon. Initial time is taken from the TimeControl header,
+                    which can be set in the tags.
+                </Typography>
             </Stack>
         </CardContent>
     );

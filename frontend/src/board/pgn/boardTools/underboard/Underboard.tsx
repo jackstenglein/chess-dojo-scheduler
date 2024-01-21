@@ -54,7 +54,7 @@ const Underboard: React.FC<UnderboardProps> = ({ showExplorer, game, onSaveGame 
                 display: 'flex',
                 flexDirection: 'column',
                 boxShadow: 'none',
-                maxHeight: { xs: '22em', xl: 1 },
+                maxHeight: { xl: 1 },
                 mt: { xs: 1, xl: 0 },
             }}
             variant={light ? 'outlined' : 'elevation'}
