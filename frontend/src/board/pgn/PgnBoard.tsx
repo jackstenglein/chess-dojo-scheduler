@@ -19,7 +19,6 @@ import { useAuth } from '../../auth/Auth';
 import { ClockTextFieldId, CommentTextFieldId } from './boardTools/underboard/Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { TagTextFieldId } from './boardTools/underboard/Tags';
-import AnnotationWarnings from './annotations/AnnotationWarnings';
 import PlayerHeader from './PlayerHeader';
 import Underboard from './boardTools/underboard/Underboard';
 
@@ -287,9 +286,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                                 mb: { xs: 1, md: 0 },
                             }}
                         >
-                            {showEditor && user && game?.owner === user.username && (
-                                <AnnotationWarnings />
-                            )}
                             <PgnText onClickMove={onClickMove} />
                         </Stack>
                     </>

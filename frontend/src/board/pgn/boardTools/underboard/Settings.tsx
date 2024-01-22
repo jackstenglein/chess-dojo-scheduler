@@ -18,6 +18,7 @@ import { useRequest } from '../../../../api/Request';
 import { useApi } from '../../../../api/Api';
 import { EventType, trackEvent } from '../../../../analytics/events';
 import { isGame } from '../../../../api/gameApi';
+import AnnotationWarnings from '../../annotations/AnnotationWarnings';
 
 interface SettingsProps {
     game: Game;
@@ -63,6 +64,8 @@ const Settings: React.FC<SettingsProps> = ({ game, onSaveGame }) => {
     return (
         <CardContent>
             <Stack spacing={5} mt={1}>
+                <AnnotationWarnings />
+
                 <Stack spacing={3}>
                     <FormControl>
                         <FormLabel>Visibility</FormLabel>
