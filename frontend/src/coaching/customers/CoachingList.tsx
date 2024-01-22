@@ -19,6 +19,10 @@ export function displayEvent(event: Event, viewer?: User): boolean {
         return false;
     }
 
+    if (event.startTime <= new Date().toISOString()) {
+        return false;
+    }
+
     const isOwner = event.owner === viewer?.username;
     if (
         viewer &&
