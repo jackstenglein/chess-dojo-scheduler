@@ -1,10 +1,11 @@
 import { Box, CardContent, Stack, Typography } from '@mui/material';
-import { useMemo } from 'react';
-import { Pgn, TAGS } from '@jackstenglein/chess';
+import { useEffect, useMemo, useState } from 'react';
+import { EventType, Pgn, TAGS, Event, Chess } from '@jackstenglein/chess';
 import { AxisOptions, Chart } from 'react-charts';
 
 import { useChess } from '../../PgnBoard';
 import { useLightMode } from '../../../../ThemeProvider';
+import ClockEditor from './ClockEditor';
 
 interface Datum {
     move: number;
@@ -46,7 +47,7 @@ const secondaryBarAxis: Array<AxisOptions<Datum>> = [
     },
 ];
 
-function formatTime(value: number): string {
+export function formatTime(value: number): string {
     let result = '';
     const hours = Math.floor(value / 3600);
     if (hours > 0) {
@@ -61,7 +62,7 @@ function formatTime(value: number): string {
     return result;
 }
 
-function getInitialClock(pgn?: Pgn): number {
+export function getInitialClock(pgn?: Pgn): number {
     if (!pgn) {
         return 0;
     }
@@ -81,7 +82,7 @@ function getInitialClock(pgn?: Pgn): number {
     return startTime;
 }
 
-function getIncrement(pgn?: Pgn): number {
+export function getIncrement(pgn?: Pgn): number {
     if (!pgn) {
         return 0;
     }
@@ -100,9 +101,9 @@ function getIncrement(pgn?: Pgn): number {
     return increment;
 }
 
-function convertClockToSeconds(clk?: string): number {
+export function convertClockToSeconds(clk?: string): number | undefined {
     if (!clk) {
-        return 0;
+        return undefined;
     }
 
     const tokens = clk.split(':');
@@ -118,27 +119,73 @@ function convertClockToSeconds(clk?: string): number {
         minutes = parseInt(tokens[0]);
         seconds = parseInt(tokens[1]);
     } else {
-        return 0;
+        return undefined;
     }
 
     if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
-        return 0;
+        return undefined;
     }
 
     return hours * 3600 + minutes * 60 + seconds;
 }
 
-const ClockUsage = () => {
+function shouldRerender(chess: Chess, event: Event): boolean {
+    if (event.type === EventType.UpdateCommand) {
+        return event.commandName === 'clk';
+    }
+    if (event.type === EventType.UpdateHeader) {
+        return event.headerName === TAGS.TimeControl;
+    }
+    if (event.type === EventType.LegalMove) {
+        return chess.lastMove() === event.move;
+    }
+    if (event.type === EventType.DeleteMove) {
+        return !event.mainlineMove;
+    }
+    if (event.type === EventType.PromoteVariation) {
+        return chess.isInMainline(event.variantRoot);
+    }
+    return false;
+}
+
+interface ClockUsageProps {
+    showEditor?: boolean;
+}
+
+const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     const { chess } = useChess();
     const light = useLightMode();
+    const [forceRender, setForceRender] = useState(0);
+
+    const initialClock = getInitialClock(chess?.pgn);
+    const increment = getIncrement(chess?.pgn);
+
+    useEffect(() => {
+        if (chess && showEditor) {
+            const observer = {
+                types: [
+                    EventType.UpdateCommand,
+                    EventType.UpdateHeader,
+                    EventType.LegalMove,
+                    EventType.DeleteMove,
+                    EventType.PromoteVariation,
+                ],
+                handler: (event: Event) => {
+                    if (shouldRerender(chess, event)) {
+                        setForceRender((v) => v + 1);
+                    }
+                },
+            };
+
+            chess.addObserver(observer);
+            return () => chess.removeObserver(observer);
+        }
+    }, [chess, setForceRender, showEditor]);
 
     const data = useMemo(() => {
-        if (!chess) {
+        if (!chess || forceRender < 0) {
             return [];
         }
-
-        const initialClock = getInitialClock(chess.pgn);
-        const increment = getIncrement(chess.pgn);
 
         const whiteLineData: Datum[] = [
             {
@@ -162,7 +209,7 @@ const ClockUsage = () => {
             whiteLineData.push({
                 move: i / 2 + 1,
                 seconds:
-                    firstTime >= 0
+                    firstTime !== undefined
                         ? firstTime
                         : whiteLineData[whiteLineData.length - 1].seconds,
             });
@@ -171,7 +218,7 @@ const ClockUsage = () => {
             blackLineData.push({
                 move: i / 2 + 1,
                 seconds:
-                    secondTime >= 0
+                    secondTime !== undefined
                         ? secondTime
                         : blackLineData[blackLineData.length - 1].seconds,
             });
@@ -202,7 +249,7 @@ const ClockUsage = () => {
                 { label: 'Black', data: blackBarData.reverse() },
             ],
         ];
-    }, [chess]);
+    }, [chess, increment, initialClock, forceRender]);
 
     if (!chess) {
         return null;
@@ -243,18 +290,7 @@ const ClockUsage = () => {
                     </Box>
                 </Stack>
 
-                <Stack flexGrow={1} justifyContent='end'>
-                    <Typography
-                        variant='caption'
-                        color='text.secondary'
-                        textAlign='center'
-                    >
-                        Graphs are generated using the %clk annotation in the PGN, which
-                        can be set in the PGN editor. %emt format is currently not
-                        supported but will be added soon. Initial time is taken from the
-                        TimeControl header, which can be set in the tags.
-                    </Typography>
-                </Stack>
+                {showEditor && <ClockEditor />}
             </Stack>
         </CardContent>
     );

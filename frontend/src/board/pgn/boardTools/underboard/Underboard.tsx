@@ -148,7 +148,7 @@ const Underboard: React.FC<UnderboardProps> = ({ showExplorer, game, onSaveGame 
                 {underboard === 'settings' && game && (
                     <Settings game={game} onSaveGame={onSaveGame} />
                 )}
-                {underboard === 'clocks' && <ClockUsage />}
+                {underboard === 'clocks' && <ClockUsage showEditor={showEditor} />}
             </Stack>
         </Card>
     );

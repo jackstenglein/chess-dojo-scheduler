@@ -47,6 +47,22 @@ export const ClockTypeDescriptions: Record<string, string> = {
     clk: 'Clock Time. The time displayed on the clock after the current move was played. h:mm:ss',
 };
 
+function getMoveClockText(
+    clockCommand: 'emt' | 'clk',
+    pgn?: Pgn,
+    move?: Move | null
+): string | undefined {
+    let currentMove: Move | null | undefined = move;
+    while (currentMove) {
+        if (currentMove.commentDiag?.[clockCommand]) {
+            return currentMove.commentDiag[clockCommand];
+        }
+        currentMove = currentMove.previous?.previous;
+    }
+
+    return getInitialClock(pgn);
+}
+
 const rerenderHeaders = [
     TAGS.White,
     TAGS.WhiteElo,
@@ -103,7 +119,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
     let playerElo = '';
     let playerResult = '';
     let move: Move | null | undefined = currentMove;
-    let clockCommand = move?.commentDiag?.emt ? 'emt' : 'clk';
+    let clockCommand: 'emt' | 'clk' = move?.commentDiag?.emt ? 'emt' : 'clk';
 
     if (
         (type === 'header' && board.state.orientation === 'white') ||
@@ -173,28 +189,18 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
                     )}
                 </Stack>
 
-                {move ? (
-                    <Typography variant='subtitle2' color='text.secondary'>
-                        {move.commentDiag && move.commentDiag[clockCommand] && (
-                            <>
-                                {move.commentDiag[clockCommand]}
-                                <Tooltip title={ClockTypeDescriptions[clockCommand]}>
-                                    <Typography
-                                        variant='subtitle2'
-                                        color='text.secondary'
-                                        display='inline'
-                                    >
-                                        {` (${clockCommand.toUpperCase()})`}
-                                    </Typography>
-                                </Tooltip>
-                            </>
-                        )}
-                    </Typography>
-                ) : (
-                    <Typography variant='subtitle2' color='text.secondary'>
-                        {getInitialClock(pgn)}
-                    </Typography>
-                )}
+                <Typography variant='subtitle2' color='text.secondary'>
+                    {getMoveClockText(clockCommand, pgn, move)}
+                    <Tooltip title={ClockTypeDescriptions[clockCommand]}>
+                        <Typography
+                            variant='subtitle2'
+                            color='text.secondary'
+                            display='inline'
+                        >
+                            {` (${clockCommand.toUpperCase()})`}
+                        </Typography>
+                    </Tooltip>
+                </Typography>
             </Stack>
         </Paper>
     );
