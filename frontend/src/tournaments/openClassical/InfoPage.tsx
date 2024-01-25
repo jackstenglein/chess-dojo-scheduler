@@ -69,13 +69,16 @@ const InfoPage = () => {
                         If a player is able to show evidence that the person they were
                         paired with was unresponsive or did not make a concerted effort to
                         schedule a game in a round, that player will be awarded a forfeit
-                        win (1 - 0). A concerted effort consists of either reaching out
+                        win (1-0). A concerted effort consists of either reaching out
                         first or responding to an initial contact within 48 hours; and
                         offering at least 3 different times, on at least 2 separate days,
                         that you are available to play that week. If both players make a
                         concerted effort to schedule a game and are still unable to find a
-                        time to play, the game can be submitted as a Draw (1/2 - 1/2). In
-                        case of a dispute, please contact the Tournament Director.
+                        time to play, the game can be submitted as a Draw (1/2-1/2). If a
+                        time is agreed upon to play and one player does not show up to
+                        that game within 30 minutes of the agreed upon time, the present
+                        player will be awarded a forfeit win (1-0). In case of a dispute,
+                        please contact the Tournament Director.
                     </Typography>
                 </Stack>
 
@@ -83,9 +86,7 @@ const InfoPage = () => {
                     <Typography variant='h6'>Playing Games</Typography>
                     <Divider sx={{ mb: 1 }} />
                     <Typography>
-                        The preferred time control for this tournament follows the
-                        recommended time controls laid out by the Dojo Training Program
-                        for each rating band.
+                        The preferred time control for this tournament is as follows:
                     </Typography>
                     <ul>
                         <li>Open: 90+30</li>

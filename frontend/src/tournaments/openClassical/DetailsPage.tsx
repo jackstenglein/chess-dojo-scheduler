@@ -17,20 +17,19 @@ import { OpenClassical, OpenClassicalPairing } from '../../database/tournament';
 import LoadingPage from '../../loading/LoadingPage';
 import { useAuth } from '../../auth/Auth';
 import Editor from './Editor';
+import StandingsTable from './StandingsTable';
 
 const DetailsPage = () => {
     const api = useApi();
     const request = useRequest<OpenClassical>();
     const user = useAuth().user;
-    const [round, setRound] = useState(0);
 
     const onSuccess = request.onSuccess;
     const handleData = useCallback(
         (openClassical: OpenClassical) => {
-            setRound(Object.values(openClassical.sections)[0]?.rounds?.length || 1);
             onSuccess(openClassical);
         },
-        [setRound, onSuccess]
+        [onSuccess]
     );
 
     useEffect(() => {
@@ -39,7 +38,7 @@ const DetailsPage = () => {
             api.getOpenClassical()
                 .then((resp) => {
                     console.log('getOpenClassical: ', resp);
-                    handleData(resp.data);
+                    request.onSuccess(resp.data);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -68,33 +67,19 @@ const DetailsPage = () => {
                 )}
             </Stack>
 
-            <Details
-                openClassical={request.data}
-                round={round}
-                setRound={setRound}
-                maxRound={
-                    Object.values(request.data?.sections || {})[0]?.rounds?.length || 0
-                }
-            />
+            <Details openClassical={request.data} />
         </Container>
     );
 };
 
 interface DetailsProps {
     openClassical?: OpenClassical;
-    round: number;
-    setRound: (round: number) => void;
-    maxRound: number;
 }
 
-const Details: React.FC<DetailsProps> = ({
-    openClassical,
-    round,
-    setRound,
-    maxRound,
-}) => {
+const Details: React.FC<DetailsProps> = ({ openClassical }) => {
     const [region, setRegion] = useState('A');
     const [section, setSection] = useState('Open');
+    const [view, setView] = useState('standings');
 
     if (!openClassical) {
         return null;
@@ -116,7 +101,12 @@ const Details: React.FC<DetailsProps> = ({
     }
 
     const pairings =
-        openClassical.sections[`${region}_${section}`]?.rounds[round - 1]?.pairings ?? [];
+        view === 'standings'
+            ? []
+            : openClassical.sections[`${region}_${section}`]?.rounds[parseInt(view) - 1]
+                  ?.pairings ?? [];
+
+    const maxRound = openClassical.sections[`${region}_${section}`]?.rounds.length || 0;
 
     return (
         <Stack mt={4} spacing={3}>
@@ -159,32 +149,41 @@ const Details: React.FC<DetailsProps> = ({
                 </TextField>
 
                 <TextField
-                    label='Round'
+                    label='View'
                     select
-                    value={round}
-                    onChange={(e) => setRound(parseInt(e.target.value))}
+                    value={view}
+                    onChange={(e) => setView(e.target.value)}
                     sx={{
                         flexGrow: 1,
                     }}
                 >
+                    <MenuItem value='standings'>Overall Standings</MenuItem>
                     {Array(maxRound)
                         .fill(0)
                         .map((_, i) => (
                             <MenuItem key={i + 1} value={`${i + 1}`}>
-                                {i + 1}
+                                Round {i + 1}
                             </MenuItem>
                         ))}
                 </TextField>
             </Stack>
 
-            <DataGrid
-                columns={pairingTableColumns}
-                rows={pairings}
-                getRowId={(pairing) =>
-                    `${pairing.white.lichessUsername}-${pairing.black.lichessUsername}`
-                }
-                autoHeight
-            />
+            {view === 'standings' ? (
+                <StandingsTable
+                    openClassical={openClassical}
+                    region={region}
+                    ratingRange={section}
+                />
+            ) : (
+                <DataGrid
+                    columns={pairingTableColumns}
+                    rows={pairings}
+                    getRowId={(pairing) =>
+                        `${pairing.white.lichessUsername}-${pairing.black.lichessUsername}`
+                    }
+                    autoHeight
+                />
+            )}
         </Stack>
     );
 };

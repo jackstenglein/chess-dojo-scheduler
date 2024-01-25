@@ -132,6 +132,15 @@ type OpenClassicalSection struct {
 	// The name of the section.
 	Name string `dynamodbav:"name" json:"name"`
 
+	// The region of the section.
+	Region string `dynamodbav:"region" json:"region"`
+
+	// The rating section of the section.
+	Section string `dynamodbav:"section" json:"section"`
+
+	// The players in the section, mapped by their Lichess username.
+	Players map[string]OpenClassicalPlayer `dynamodbav:"players" json:"players"`
+
 	// The rounds in the tournament for this section.
 	Rounds []OpenClassicalRound `dynamodbav:"rounds" json:"rounds"`
 }
@@ -145,19 +154,19 @@ type OpenClassicalRound struct {
 // OpenClassicalPairing represents a single pairing in the Open Classical tournaments,
 // which are separate from the regular leaderboards.
 type OpenClassicalPairing struct {
-	// The player with the white pieces
-	White OpenClassicalPlayer `dynamodbav:"white" json:"white"`
+	// The Lichess username of the player with the white pieces
+	White OpenClassicalPlayerSummary `dynamodbav:"white" json:"white"`
 
 	// The player with the black pieces
-	Black OpenClassicalPlayer `dynamodbav:"black" json:"black"`
+	Black OpenClassicalPlayerSummary `dynamodbav:"black" json:"black"`
 
 	// The result of the game
 	Result string `dynamodbav:"result" json:"result"`
 }
 
-// OpenClassicalPlayer represents a player in the Open Classical tournaments, which
-// are separate from the regular tournaments.
-type OpenClassicalPlayer struct {
+// OpenClassicalPlayerSummary represents the minimum information needed to schedule
+// a game with a player in the Open Classical.
+type OpenClassicalPlayerSummary struct {
 	// The Lichess username of the player
 	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
 
@@ -169,6 +178,28 @@ type OpenClassicalPlayer struct {
 
 	// The player's Lichess rating at the start of the Open Classical
 	Rating int `dynamodbav:"rating" json:"rating"`
+}
+
+// OpenClassicalPlayer represents a player in the Open Classical tournaments, which
+// are separate from the regular tournaments. As opposed to the OpenClassicalPlayerSummary,
+// this type contains the player's full registration information.
+type OpenClassicalPlayer struct {
+	OpenClassicalPlayerSummary
+
+	// The username of the player in the Dojo Scoreboard, if they are logged in
+	Username string `dynamodbav:"username" json:"username"`
+
+	// The email of the player
+	Email string `dynamodbav:"email" json:"-"`
+
+	// The region the player is in
+	Region string `dynamodbav:"region" json:"region"`
+
+	// The section the player is in
+	Section string `dynamodbav:"section" json:"section"`
+
+	// The player's bye requests
+	ByeRequests []bool `dynamodbav:"byeRequests" json:"byeRequests"`
 }
 
 // SetOpenClassical inserts the provided OpenClassical into the database.

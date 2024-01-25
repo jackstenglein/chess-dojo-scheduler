@@ -39,6 +39,9 @@ export interface OpenClassicalPairing {
 
     /** The player with the black pieces. */
     black: OpenClassicalPlayer;
+
+    /** The result of the pairing. */
+    result: string;
 }
 
 export interface OpenClassicalRound {
@@ -63,6 +66,12 @@ export interface OpenClassical {
 export interface OpenClassicalSection {
     /** The name of the section. */
     name: string;
+
+    region: string;
+
+    section: string;
+
+    players: Record<string, OpenClassicalPlayer>;
 
     /** The rounds in the tournament for this section. */
     rounds: OpenClassicalRound[];
