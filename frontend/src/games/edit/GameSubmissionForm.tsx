@@ -17,6 +17,7 @@ import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getGameHeader } from './SubmitGamePreflight';
+import { useFreeTier } from '../../auth/Auth';
 
 const lichessStudyRegex = new RegExp('^https://lichess.org/study/.{8}$');
 const lichessChapterRegex = new RegExp('^https://lichess.org/study/.{8}/.{8}$');
@@ -48,6 +49,8 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
     isCreating,
     onSubmit,
 }) => {
+    const isFreeTier = useFreeTier();
+
     const [type, setType] = useState<GameSubmissionType>(
         GameSubmissionType.LichessChapter
     );
@@ -78,6 +81,9 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
         }
 
         let unlisted = visibility === 'unlisted';
+        if (isFreeTier) {
+            unlisted = true;
+        }
         if (type === GameSubmissionType.StartingPosition) {
             unlisted = true;
 
@@ -258,12 +264,12 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                     </LocalizationProvider>
                 )}
 
-                <FormControl sx={{ pt: 3 }}>
+                <FormControl sx={{ pt: 3 }} disabled={isFreeTier}>
                     <FormLabel>Visibility</FormLabel>
                     <RadioGroup
                         row
                         value={
-                            type === GameSubmissionType.StartingPosition
+                            isFreeTier || type === GameSubmissionType.StartingPosition
                                 ? 'unlisted'
                                 : visibility
                         }
@@ -274,6 +280,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                             control={
                                 <Radio
                                     disabled={
+                                        isFreeTier ||
                                         type === GameSubmissionType.StartingPosition
                                     }
                                 />
@@ -285,6 +292,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                             control={
                                 <Radio
                                     disabled={
+                                        isFreeTier ||
                                         type === GameSubmissionType.StartingPosition
                                     }
                                 />
@@ -293,6 +301,8 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                         />
                     </RadioGroup>
                     <FormHelperText>
+                        {isFreeTier &&
+                            'Free-tier members can only submit unlisted games. '}
                         Unlisted games are not indexed in the position database, do not
                         show up on the search page and are not visible to others on your
                         profile. However, you can still share them with the direct link.

@@ -150,12 +150,7 @@ const ListGamesPage = () => {
     };
 
     const onSubmit = () => {
-        if (isFreeTier) {
-            setUpsellAction(RestrictedAction.SubmitGames);
-            setUpsellDialogOpen(true);
-        } else {
-            navigate('submit');
-        }
+        navigate('submit');
     };
 
     const onDownloadDatabase = () => {
@@ -168,6 +163,14 @@ const ListGamesPage = () => {
             <UpsellPage
                 redirectTo='/games'
                 currentAction={RestrictedAction.SearchDatabase}
+            />
+        );
+    }
+    if (isFreeTier && type === 'position') {
+        return (
+            <UpsellPage
+                redirectTo='/games'
+                currentAction={RestrictedAction.DatabaseExplorer}
             />
         );
     }

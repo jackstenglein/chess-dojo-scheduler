@@ -14,12 +14,13 @@ export enum RestrictedAction {
     AccessAllTasks = 'Access all training plan tasks for all cohorts (0-2500)',
     AccessOpenings = 'Access all opening courses',
     AddCalendarEvents = 'Add events to the Dojo Calendar',
-    SubmitGames = 'View the full Dojo Database and submit games',
+    SubmitGames = 'View the full Dojo Database and publish your games',
     JoinScoreboard = 'Get added to the Dojo Scoreboard',
     JoinDiscord = 'Join the Training Program Discord server',
     Graduate = 'Graduate and get featured in the graduation shows on Twitch',
     DownloadDatabase = 'Download the full Dojo Database',
     SearchDatabase = 'Search the Dojo Database by player',
+    DatabaseExplorer = 'Search the Dojo Database by position',
 }
 
 const defaultBulletPoints = [

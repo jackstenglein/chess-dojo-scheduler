@@ -5,7 +5,7 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar } from '../api/Request';
@@ -15,7 +15,6 @@ import { User } from '../database/user';
 import { gameTableColumns } from '../games/list/ListGamesPage';
 import { usePagination } from '../games/list/pagination';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import UpsellAlert from '../upsell/UpsellAlert';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
@@ -28,7 +27,6 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const api = useApi();
     const currentUser = useAuth().user!;
     const isFreeTier = useFreeTier();
-    const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const columns = useMemo(() => {
         const columns = gameTableColumns.filter((c) => c.field !== 'owner');
         if (currentUser.username === user.username) {
@@ -85,22 +83,12 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     };
 
     const onSubmit = () => {
-        if (isFreeTier) {
-            setUpsellDialogOpen(true);
-        } else {
-            navigate('/games/submit');
-        }
+        navigate('/games/submit');
     };
 
     return (
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
-            <UpsellDialog
-                open={upsellDialogOpen}
-                onClose={setUpsellDialogOpen}
-                currentAction={RestrictedAction.SubmitGames}
-            />
-
             {currentUser.username === user.username && (
                 <Button variant='contained' onClick={onSubmit}>
                     Submit a Game

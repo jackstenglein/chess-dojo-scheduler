@@ -39,6 +39,8 @@ import LoadingPage from '../../../loading/LoadingPage';
 import { reconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
 import { Request } from '../../../api/Request';
+import { useFreeTier } from '../../../auth/Auth';
+import UpsellAlert from '../../../upsell/UpsellAlert';
 
 const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -76,6 +78,7 @@ const Database: React.FC<DatabaseProps> = ({
     setMaxCohort,
 }) => {
     const { chess, board } = useChess();
+    const isFreeTier = useFreeTier();
 
     const cohortRange = useMemo(
         () => getCohortRange(minCohort, maxCohort),
@@ -246,6 +249,17 @@ const Database: React.FC<DatabaseProps> = ({
             },
         ];
     }, [totalGames, cohortRange]);
+
+    if (type === 'dojo' && isFreeTier) {
+        return (
+            <Box mt={2}>
+                <UpsellAlert>
+                    Upgrade to a full account to search the Dojo Database by position and
+                    subscribe to positions.
+                </UpsellAlert>
+            </Box>
+        );
+    }
 
     if (!position && (!request.isSent() || request.isLoading())) {
         return <LoadingPage />;

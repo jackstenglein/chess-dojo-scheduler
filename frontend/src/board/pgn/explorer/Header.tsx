@@ -27,6 +27,7 @@ import { dojoCohorts } from '../../../database/user';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
 import { LoadingButton } from '@mui/lab';
+import { useFreeTier } from '../../../auth/Auth';
 
 interface HeaderProps {
     fen: string;
@@ -43,6 +44,7 @@ const Header: React.FC<HeaderProps> = ({
     maxCohort,
     setFollower,
 }) => {
+    const isFreeTier = useFreeTier();
     const [copied, setCopied] = useState('');
     const [showFollowDialog, setShowFollowDialog] = useState(false);
 
@@ -83,7 +85,8 @@ const Header: React.FC<HeaderProps> = ({
                 >
                     <IconButton
                         color={follower ? 'success' : 'info'}
-                        onClick={() => setShowFollowDialog(true)}
+                        onClick={() => setShowFollowDialog(!isFreeTier)}
+                        disabled={isFreeTier}
                     >
                         {follower ? <BookmarkAddedIcon /> : <BookmarkAddIcon />}
                     </IconButton>

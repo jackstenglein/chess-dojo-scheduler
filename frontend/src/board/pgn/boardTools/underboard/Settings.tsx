@@ -3,6 +3,7 @@ import {
     CardContent,
     FormControl,
     FormControlLabel,
+    FormHelperText,
     FormLabel,
     Radio,
     RadioGroup,
@@ -19,6 +20,7 @@ import { useApi } from '../../../../api/Api';
 import { EventType, trackEvent } from '../../../../analytics/events';
 import { isGame } from '../../../../api/gameApi';
 import AnnotationWarnings from '../../annotations/AnnotationWarnings';
+import { useFreeTier } from '../../../../auth/Auth';
 
 interface SettingsProps {
     game: Game;
@@ -26,6 +28,7 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = ({ game, onSaveGame }) => {
+    const isFreeTier = useFreeTier();
     const [visibility, setVisibility] = useState(game.unlisted ? 'unlisted' : 'public');
     const [orientation, setOrientation] = useState<string>(game.orientation || 'white');
     const navigate = useNavigate();
@@ -42,7 +45,7 @@ const Settings: React.FC<SettingsProps> = ({ game, onSaveGame }) => {
             unlisted:
                 (visibility === 'unlisted') === game.unlisted
                     ? undefined
-                    : visibility === 'unlisted',
+                    : isFreeTier || visibility === 'unlisted',
             timelineId: game.timelineId,
         })
             .then((resp) => {
@@ -67,7 +70,7 @@ const Settings: React.FC<SettingsProps> = ({ game, onSaveGame }) => {
                 <AnnotationWarnings />
 
                 <Stack spacing={3}>
-                    <FormControl>
+                    <FormControl disabled={isFreeTier}>
                         <FormLabel>Visibility</FormLabel>
                         <RadioGroup
                             row
@@ -76,15 +79,20 @@ const Settings: React.FC<SettingsProps> = ({ game, onSaveGame }) => {
                         >
                             <FormControlLabel
                                 value='public'
-                                control={<Radio />}
+                                control={<Radio disabled={isFreeTier} />}
                                 label='Public'
                             />
                             <FormControlLabel
                                 value='unlisted'
-                                control={<Radio />}
+                                control={<Radio disabled={isFreeTier} />}
                                 label='Unlisted'
                             />
                         </RadioGroup>
+                        {isFreeTier && (
+                            <FormHelperText>
+                                Free-tier users can only submit unlisted games
+                            </FormHelperText>
+                        )}
                     </FormControl>
 
                     <FormControl>

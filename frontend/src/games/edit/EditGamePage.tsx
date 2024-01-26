@@ -7,9 +7,6 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import GameSubmissionForm from './GameSubmissionForm';
 import SubmitGamePreflight from './SubmitGamePreflight';
 import { EventType, trackEvent } from '../../analytics/events';
-import { useFreeTier } from '../../auth/Auth';
-import UpsellPage from '../../upsell/UpsellPage';
-import { RestrictedAction } from '../../upsell/UpsellDialog';
 
 interface Preflight {
     req: CreateGameRequest;
@@ -22,7 +19,6 @@ const EditGamePage = () => {
     const request = useRequest();
     const { cohort, id } = useParams();
     const navigate = useNavigate();
-    const isFreeTier = useFreeTier();
 
     const [preflight, setPreflight] = useState<Preflight>();
 
@@ -108,15 +104,6 @@ const EditGamePage = () => {
             ? "Overwrite this game's PGN data? Any comments will remain."
             : undefined;
     const onSubmit = cohort && id ? onEdit : onCreate;
-
-    if (isFreeTier) {
-        return (
-            <UpsellPage
-                redirectTo='/games'
-                currentAction={RestrictedAction.SubmitGames}
-            />
-        );
-    }
 
     return (
         <>
