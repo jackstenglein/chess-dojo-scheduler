@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useCallback, useEffect } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import {
     Button,
     Container,
@@ -18,11 +18,14 @@ import LoadingPage from '../../loading/LoadingPage';
 import { useAuth } from '../../auth/Auth';
 import Editor from './Editor';
 import StandingsTable from './StandingsTable';
+import EntrantsTable from './EntrantsTable';
 
 const DetailsPage = () => {
     const api = useApi();
     const request = useRequest<OpenClassical>();
     const user = useAuth().user;
+    const [searchParams] = useSearchParams({ tournament: 'CURRENT' });
+    const tournament = searchParams.get('tournament') || 'CURRENT';
 
     const onSuccess = request.onSuccess;
     const handleData = useCallback(
@@ -32,10 +35,17 @@ const DetailsPage = () => {
         [onSuccess]
     );
 
+    const reset = request.reset;
+    useEffect(() => {
+        if (tournament) {
+            reset();
+        }
+    }, [reset, tournament]);
+
     useEffect(() => {
         if (!request.isSent()) {
             request.onStart();
-            api.getOpenClassical()
+            api.getOpenClassical(tournament)
                 .then((resp) => {
                     console.log('getOpenClassical: ', resp);
                     request.onSuccess(resp.data);
@@ -45,7 +55,7 @@ const DetailsPage = () => {
                     request.onFailure(err);
                 });
         }
-    }, [api, request, handleData]);
+    }, [api, request, handleData, tournament]);
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
@@ -60,6 +70,12 @@ const DetailsPage = () => {
                     <Typography variant='h4'>Open Classical</Typography>
                     <Link component={RouterLink} to='/tournaments/open-classical/info'>
                         Rules and Info
+                    </Link>
+                    <Link
+                        component={RouterLink}
+                        to='/tournaments/open-classical/previous'
+                    >
+                        Previous Tournaments
                     </Link>
                 </Stack>
                 {(user?.isAdmin || user?.isTournamentAdmin) && (
@@ -77,55 +93,74 @@ interface DetailsProps {
 }
 
 const Details: React.FC<DetailsProps> = ({ openClassical }) => {
-    const [region, setRegion] = useState('A');
-    const [section, setSection] = useState('Open');
-    const [view, setView] = useState('standings');
+    const [searchParams, setSearchParams] = useSearchParams({
+        region: 'A',
+        ratingRange: 'Open',
+        view: 'standings',
+    });
+
+    const region = searchParams.get('region') || 'A';
+    const ratingRange = searchParams.get('ratingRange') || 'Open';
+    const view = searchParams.get('view') || 'standings';
 
     if (!openClassical) {
         return null;
     }
 
-    if (openClassical.acceptingRegistrations) {
-        return (
-            <Stack mt={3} spacing={2} alignItems='start'>
-                <Typography>
-                    The tournament has not started yet. Round one begins Monday December
-                    11th. Register beforehand if you would like to play
-                </Typography>
-
-                <Button variant='contained' href='/tournaments/open-classical/register'>
-                    Register
-                </Button>
-            </Stack>
-        );
-    }
-
     const pairings =
         view === 'standings'
             ? []
-            : openClassical.sections[`${region}_${section}`]?.rounds[parseInt(view) - 1]
-                  ?.pairings ?? [];
+            : openClassical.sections[`${region}_${ratingRange}`]?.rounds[
+                  parseInt(view) - 1
+              ]?.pairings ?? [];
 
-    const maxRound = openClassical.sections[`${region}_${section}`]?.rounds.length || 0;
+    const maxRound =
+        openClassical.sections[`${region}_${ratingRange}`]?.rounds.length || 0;
+
+    const updateSearchParams = (key: string, value: string) => {
+        const updatedParams = new URLSearchParams(searchParams.toString());
+        updatedParams.set(key, value);
+        setSearchParams(updatedParams);
+    };
 
     return (
         <Stack mt={4} spacing={3}>
-            <Typography>
-                Results for each round will be posted after the full round is complete.{' '}
-                <Link
-                    component={RouterLink}
-                    to='/tournaments/open-classical/submit-results'
-                >
-                    Submit Results
-                </Link>
-            </Typography>
+            {openClassical.acceptingRegistrations ? (
+                <Stack mt={4} pb={5} spacing={2} alignItems='start'>
+                    <Typography>
+                        The tournament is still accepting registrations. Round one begins
+                        Monday February 5th. Register beforehand if you would like to
+                        play.
+                    </Typography>
+
+                    <Button
+                        variant='contained'
+                        href='/tournaments/open-classical/register'
+                    >
+                        Register
+                    </Button>
+                </Stack>
+            ) : openClassical.startsAt === 'CURRENT' ? (
+                <Typography>
+                    Results for each round will be posted after the full round is
+                    complete.{' '}
+                    <Link
+                        component={RouterLink}
+                        to='/tournaments/open-classical/submit-results'
+                    >
+                        Submit Results
+                    </Link>
+                </Typography>
+            ) : (
+                <Typography>Results from the {openClassical.name} tournament:</Typography>
+            )}
 
             <Stack direction='row' width={1} spacing={2}>
                 <TextField
                     label='Region'
                     select
                     value={region}
-                    onChange={(e) => setRegion(e.target.value)}
+                    onChange={(e) => updateSearchParams('region', e.target.value)}
                     sx={{
                         flexGrow: 1,
                     }}
@@ -138,8 +173,8 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     data-cy='section'
                     label='Section'
                     select
-                    value={section}
-                    onChange={(e) => setSection(e.target.value)}
+                    value={ratingRange}
+                    onChange={(e) => updateSearchParams('ratingRange', e.target.value)}
                     sx={{
                         flexGrow: 1,
                     }}
@@ -148,31 +183,39 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     <MenuItem value='U1800'>U1800</MenuItem>
                 </TextField>
 
-                <TextField
-                    label='View'
-                    select
-                    value={view}
-                    onChange={(e) => setView(e.target.value)}
-                    sx={{
-                        flexGrow: 1,
-                    }}
-                >
-                    <MenuItem value='standings'>Overall Standings</MenuItem>
-                    {Array(maxRound)
-                        .fill(0)
-                        .map((_, i) => (
-                            <MenuItem key={i + 1} value={`${i + 1}`}>
-                                Round {i + 1}
-                            </MenuItem>
-                        ))}
-                </TextField>
+                {!openClassical.acceptingRegistrations && (
+                    <TextField
+                        label='View'
+                        select
+                        value={view}
+                        onChange={(e) => updateSearchParams('view', e.target.value)}
+                        sx={{
+                            flexGrow: 1,
+                        }}
+                    >
+                        <MenuItem value='standings'>Overall Standings</MenuItem>
+                        {Array(maxRound)
+                            .fill(0)
+                            .map((_, i) => (
+                                <MenuItem key={i + 1} value={`${i + 1}`}>
+                                    Round {i + 1}
+                                </MenuItem>
+                            ))}
+                    </TextField>
+                )}
             </Stack>
 
-            {view === 'standings' ? (
+            {openClassical.acceptingRegistrations ? (
+                <EntrantsTable
+                    openClassical={openClassical}
+                    region={region}
+                    ratingRange={ratingRange}
+                />
+            ) : view === 'standings' ? (
                 <StandingsTable
                     openClassical={openClassical}
                     region={region}
-                    ratingRange={section}
+                    ratingRange={ratingRange}
                 />
             ) : (
                 <DataGrid

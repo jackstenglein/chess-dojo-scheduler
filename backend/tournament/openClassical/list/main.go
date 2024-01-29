@@ -11,6 +11,11 @@ import (
 
 var repository = database.DynamoDB
 
+type ListPreviousOpenClassicalsResponse struct {
+	OpenClassicals   []database.OpenClassical `json:"openClassicals"`
+	LastEvaluatedKey string                   `json:"lastEvaluatedKey"`
+}
+
 func main() {
 	lambda.Start(handler)
 }
@@ -19,15 +24,14 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	startsAt := event.QueryStringParameters["startsAt"]
-	if startsAt == "" {
-		startsAt = database.CurrentLeaderboard
-	}
-
-	openClassical, err := repository.GetOpenClassical(startsAt)
+	startKey := event.QueryStringParameters["startKey"]
+	openClassicals, lastKey, err := repository.ListPreviousOpenClassicals(startKey)
 	if err != nil {
 		return api.Failure(err), nil
 	}
 
-	return api.Success(openClassical), nil
+	return api.Success(ListPreviousOpenClassicalsResponse{
+		OpenClassicals:   openClassicals,
+		LastEvaluatedKey: lastKey,
+	}), nil
 }

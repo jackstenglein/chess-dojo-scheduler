@@ -503,6 +503,8 @@ resources:
             AttributeType: S
           - AttributeName: startsAt
             AttributeType: S
+          - AttributeName: name
+            AttributeType: S
         KeySchema:
           - AttributeName: type
             KeyType: HASH
@@ -522,6 +524,15 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+        GlobalSecondaryIndexes:
+          - IndexName: OpenClassicalIndex
+            KeySchema:
+              - AttributeName: type
+                KeyType: HASH
+              - AttributeName: name
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
 
     NotificationsTable:
       Type: AWS::DynamoDB::Table

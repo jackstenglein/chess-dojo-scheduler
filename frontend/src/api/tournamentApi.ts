@@ -59,6 +59,13 @@ export type TournamentApiContextType = {
     putOpenClassicalPairings: (
         req: OpenClassicalPutPairingsRequest
     ) => Promise<AxiosResponse<OpenClassical, any>>;
+
+    /**
+     * Returns a list of previous open classicals.
+     * @param startKey The optional start key to use when listing the open classicals.
+     * @returns A list of previous open classicals, in descending order by date.
+     */
+    listPreviousOpenClassicals: (startKey?: string) => Promise<OpenClassical[]>;
 };
 
 /** A request to register for the Open Classical. */
@@ -194,4 +201,33 @@ export function putOpenClassicalPairings(
         req,
         { headers: { Authorization: 'Bearer ' + idToken } }
     );
+}
+
+interface ListPreviousOpenClassicalsResponse {
+    openClassicals: OpenClassical[];
+    lastEvaluatedKey: string;
+}
+
+/**
+ * Returns a list of previous open classicals.
+ * @param startKey The optional start key to use when listing the open classicals.
+ * @returns A list of previous open classicals, in descending order by date.
+ */
+export async function listPreviousOpenClassicals(startKey?: string) {
+    const result: OpenClassical[] = [];
+    const params = { startKey };
+
+    do {
+        const resp = await axios.get<ListPreviousOpenClassicalsResponse>(
+            `${BASE_URL}/public/tournaments/open-classical/previous`,
+            {
+                params,
+            }
+        );
+
+        result.push(...resp.data.openClassicals);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+
+    return result;
 }

@@ -74,6 +74,7 @@ import {
 import {
     getLeaderboard,
     getOpenClassical,
+    listPreviousOpenClassicals,
     OpenClassicalPutPairingsRequest,
     OpenClassicalRegistrationRequest,
     OpenClassicalSubmitResultsRequest,
@@ -305,6 +306,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 submitResultsForOpenClassical(idToken, req),
             putOpenClassicalPairings: (req: OpenClassicalPutPairingsRequest) =>
                 putOpenClassicalPairings(idToken, req),
+            listPreviousOpenClassicals: (startKey?: string) =>
+                listPreviousOpenClassicals(startKey),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),

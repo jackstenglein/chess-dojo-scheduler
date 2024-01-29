@@ -486,7 +486,7 @@ func (repo *dynamoRepository) ListGamesByOwner(isOwner bool, owner, startDate, e
 		ExpressionAttributeNames:  expressionAttributeNames,
 		ExpressionAttributeValues: expressionAttributeValues,
 		ScanIndexForward:          aws.Bool(false),
-		IndexName:                 aws.String(GameTableOwnerIndex),
+		IndexName:                 aws.String(gameTableOwnerIndex),
 		TableName:                 aws.String(gameTable),
 	}
 
@@ -568,9 +568,9 @@ func (repo *dynamoRepository) listColorGames(player string, color PlayerColor, s
 
 	keyConditionExpression = addDates(keyConditionExpression, expressionAttributeNames, expressionAttributeValues, startDate, endDate)
 
-	indexName := GameTableWhiteIndex
+	indexName := gameTableWhiteIndex
 	if color == Black {
-		indexName = GameTableBlackIndex
+		indexName = gameTableBlackIndex
 	}
 
 	input := &dynamodb.QueryInput{
@@ -606,7 +606,7 @@ func (repo *dynamoRepository) ListFeaturedGames(date, startKey string) ([]*Game,
 			":d":        {S: aws.String(date)},
 			":unlisted": {BOOL: aws.Bool(true)},
 		},
-		IndexName: aws.String(GameTableFeaturedIndex),
+		IndexName: aws.String(gameTableFeaturedIndex),
 		TableName: aws.String(gameTable),
 	}
 
@@ -642,7 +642,7 @@ func (repo *dynamoRepository) ListGamesByEco(eco, startDate, endDate, startKey s
 		FilterExpression:          aws.String(filterExpression),
 		ExpressionAttributeNames:  expressionAttributeNames,
 		ExpressionAttributeValues: expressionAttributeValues,
-		IndexName:                 aws.String(GameTableOwnerIndex),
+		IndexName:                 aws.String(gameTableOwnerIndex),
 		TableName:                 aws.String(gameTable),
 	}
 

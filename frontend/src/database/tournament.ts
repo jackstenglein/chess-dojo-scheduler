@@ -56,6 +56,9 @@ export interface OpenClassical {
      */
     startsAt: string;
 
+    /** The name of the tournament. */
+    name: string;
+
     /** Whether the tournament is accepting registrations or not. */
     acceptingRegistrations: boolean;
 

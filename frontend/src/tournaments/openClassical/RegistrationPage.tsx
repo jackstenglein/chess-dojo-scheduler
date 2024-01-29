@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
     Checkbox,
@@ -15,13 +16,14 @@ import { LoadingButton } from '@mui/lab';
 
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
-import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 
 const RegistrationPage = () => {
     const auth = useAuth();
     const user = auth.user;
     const api = useApi();
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
     const [lichessUsername, setLichessUsername] = useState(
@@ -101,7 +103,9 @@ const RegistrationPage = () => {
         })
             .then((resp) => {
                 console.log('registerForOpenClassical: ', resp);
-                request.onSuccess();
+                navigate(
+                    `/tournaments/open-classical?region=${region}&ratingRange=${section}`
+                );
             })
             .catch((err) => {
                 console.error(err);
@@ -109,24 +113,8 @@ const RegistrationPage = () => {
             });
     };
 
-    if (request.status === RequestStatus.Success) {
-        return (
-            <Container maxWidth='md' sx={{ py: 5 }}>
-                <Stack spacing={4}>
-                    <Typography variant='h6' alignSelf='start'>
-                        Register for the Open Classical
-                    </Typography>
-
-                    <Typography>
-                        Your registration has been recorded. Thank you!
-                    </Typography>
-                </Stack>
-            </Container>
-        );
-    }
-
     return (
-        <Container maxWidth='md' sx={{ py: 5 }}>
+        <Container maxWidth='md' sx={{ pt: 5, pb: 10 }}>
             <RequestSnackbar request={request} />
 
             <Stack spacing={4} alignItems='center'>

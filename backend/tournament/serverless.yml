@@ -97,12 +97,9 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - s3:GetObject
-        Resource: !Join
-          - ''
-          - - 'arn:aws:s3:::'
-            - ${param:SecretsBucket}
-            - /openClassicalServiceAccountKey.json
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
 
   openClassicalSubmitResults:
     handler: openClassical/results/submit/main.go
@@ -137,6 +134,22 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: ${param:TournamentsTableArn}
+
+  listOpenClassicals:
+    handler: openClassical/list/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/open-classical/previous
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:TournamentsTableArn}
+                - '/index/OpenClassicalIndex'
 
 resources:
   Resources:

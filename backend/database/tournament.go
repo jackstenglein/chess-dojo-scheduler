@@ -120,11 +120,18 @@ type OpenClassical struct {
 	// For the current Open Classical, this is set to the value of CurrentLeaderboard.
 	StartsAt string `dynamodbav:"startsAt" json:"startsAt"`
 
+	// The name of a completed tournament. This attribute is only present on completed
+	// open classicals.
+	Name string `dynamodbav:"name" json:"name"`
+
 	// Whether the open classical is accepting registrations or not.
 	AcceptingRegistrations bool `dynamodbav:"acceptingRegistrations" json:"acceptingRegistrations"`
 
 	// The sections in the tournament
 	Sections map[string]OpenClassicalSection `dynamodbav:"sections" json:"sections"`
+
+	// Players who are not in good standing and cannot register, mapped by their Lichess username.
+	BannedPlayers map[string]OpenClassicalPlayer `dynamodbav:"bannedPlayers" json:"bannedPlayers"`
 }
 
 // A section in the Open Classical tournament. Generally consists of both a region and a rating range.
@@ -236,4 +243,92 @@ func (repo *dynamoRepository) GetOpenClassical(startsAt string) (*OpenClassical,
 	openClassical := OpenClassical{}
 	err := repo.getItem(input, &openClassical)
 	return &openClassical, err
+}
+
+// UpdateOpenClassicalRegistration adds the provided player to the given open classical. If the player
+// already exists in a different section, they are removed.
+func (repo *dynamoRepository) UpdateOpenClassicalRegistration(openClassical *OpenClassical, player *OpenClassicalPlayer) (*OpenClassical, error) {
+	item, err := dynamodbattribute.MarshalMap(player)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal open classical player", err)
+	}
+
+	updateExpr := "REMOVE "
+	exprAttrNames := map[string]*string{
+		"#acceptingRegistrations": aws.String("acceptingRegistrations"),
+		"#sections":               aws.String("sections"),
+		"#players":                aws.String("players"),
+		"#username":               aws.String(strings.ToLower(player.LichessUsername)),
+	}
+
+	for key, section := range openClassical.Sections {
+		if section.Region != player.Region || section.Section != player.Section {
+			sectionName := fmt.Sprintf("#%s", key)
+			updateExpr += fmt.Sprintf("#sections.%s.#players.#username, ", sectionName)
+			exprAttrNames[sectionName] = aws.String(key)
+		}
+	}
+	updateExpr = updateExpr[0 : len(updateExpr)-2]
+
+	sectionName := fmt.Sprintf("#%s_%s", player.Region, player.Section)
+	updateExpr += fmt.Sprintf(" SET #sections.%s.#players.#username = :player", sectionName)
+	exprAttrNames[sectionName] = aws.String(fmt.Sprintf("%s_%s", player.Region, player.Section))
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type": {
+				S: aws.String(string(openClassical.Type)),
+			},
+			"startsAt": {
+				S: aws.String(openClassical.StartsAt),
+			},
+		},
+		UpdateExpression:         aws.String(updateExpr),
+		ConditionExpression:      aws.String("#acceptingRegistrations = :true"),
+		ExpressionAttributeNames: exprAttrNames,
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":player": {M: item},
+			":true":   {BOOL: aws.Bool(true)},
+		},
+		TableName:    aws.String(tournamentTable),
+		ReturnValues: aws.String("ALL_NEW"),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Registration for this tournament has already closed", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+	}
+
+	resultTnmt := OpenClassical{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &resultTnmt); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &resultTnmt, nil
+}
+
+// ListPreviousOpenClassicals returns a list of OpenClassicals whose name is not CURRENT.
+// The list is sorted in descending order by name.
+func (repo *dynamoRepository) ListPreviousOpenClassicals(startKey string) ([]OpenClassical, string, error) {
+	input := dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#type = :openClassical"),
+		ExpressionAttributeNames: map[string]*string{
+			"#type": aws.String("type"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":openClassical": {S: aws.String("OPEN_CLASSICAL")},
+		},
+		IndexName:        aws.String(tournamentTableOpenClassicalIndex),
+		TableName:        aws.String(tournamentTable),
+		ScanIndexForward: aws.Bool(false),
+	}
+
+	var openClassicals []OpenClassical
+	lastKey, err := repo.query(&input, startKey, &openClassicals)
+	if err != nil {
+		return nil, "", err
+	}
+	return openClassicals, lastKey, nil
 }
