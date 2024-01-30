@@ -207,7 +207,7 @@ func handleCoachingSessionExpired(checkoutSession *stripe.CheckoutSession) api.R
 			username: &participant,
 		},
 	}
-	_, err := repository.LeaveEvent(&event, &participant)
+	_, err := repository.LeaveEvent(&event, &participant, true)
 	if err != nil {
 		var lerr *errors.Error
 		if errors.As(err, &lerr) {

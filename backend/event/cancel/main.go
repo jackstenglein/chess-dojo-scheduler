@@ -72,7 +72,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	newEvent, err := repository.LeaveEvent(event, participant)
+	newEvent, err := repository.LeaveEvent(event, participant, false)
 	if err != nil {
 		return api.Failure(err), nil
 	}
@@ -135,13 +135,13 @@ func leaveCoachingSession(username string, event *database.Event) api.Response {
 	var newEvent *database.Event
 
 	if !participant.HasPaid || now.After(cancelationTime) {
-		newEvent, err = repository.LeaveEvent(event, participant)
+		newEvent, err = repository.LeaveEvent(event, participant, false)
 	} else {
 		_, err = payment.CreateEventRefund(event, participant, 100)
 		if err != nil {
 			return api.Failure(err)
 		}
-		newEvent, err = repository.LeaveEvent(event, participant)
+		newEvent, err = repository.LeaveEvent(event, participant, false)
 	}
 
 	if err != nil {

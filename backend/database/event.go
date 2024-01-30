@@ -278,8 +278,9 @@ type EventLeaver interface {
 
 	// LeaveEvent leaves the event for the given participants. If participant is nil,
 	// then the person leaving is the owner. In that case, the first participant is made
-	// the new owner. The updated event is returned.
-	LeaveEvent(event *Event, participant *Participant) (*Event, error)
+	// the new owner. If requireNoPayment is true, then the participant must not have paid in order to be removed.
+	// The updated event is returned.
+	LeaveEvent(event *Event, participant *Participant, requireNoPayment bool) (*Event, error)
 
 	// RecordEventCancelation saves statistics on the canceled event.
 	RecordEventCancelation(event *Event) error
@@ -542,7 +543,7 @@ func (repo *dynamoRepository) MarkParticipantPaid(eventId, participant string, c
 // LeaveEvent leaves the event for the given participants. If participant is nil,
 // then the person leaving is the owner. In that case, the first participant is made
 // the new owner. The updated event is returned.
-func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant) (*Event, error) {
+func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant, requireNoPayment bool) (*Event, error) {
 	if event.Id == "STATISTICS" {
 		return nil, errors.New(403, "Invalid request: event statistics cannot be canceled", "")
 	}
@@ -585,8 +586,16 @@ func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant)
 	exprAttrNames["#p"] = aws.String("participants")
 	exprAttrNames["#u"] = aws.String(participant.Username)
 
+	conditionExpr := "attribute_exists(id) AND #owner = :originalOwner AND attribute_exists(#p.#u)"
+
+	if requireNoPayment {
+		conditionExpr += " AND #p.#u.#hasPaid <> :true"
+		exprAttrNames["#hasPaid"] = aws.String("hasPaid")
+		exprAttrValues[":true"] = &dynamodb.AttributeValue{BOOL: aws.Bool(true)}
+	}
+
 	input := &dynamodb.UpdateItemInput{
-		ConditionExpression:       aws.String("attribute_exists(id) AND #owner = :originalOwner AND attribute_exists(#p.#u)"),
+		ConditionExpression:       aws.String(conditionExpr),
 		ExpressionAttributeNames:  exprAttrNames,
 		ExpressionAttributeValues: exprAttrValues,
 		Key: map[string]*dynamodb.AttributeValue{
