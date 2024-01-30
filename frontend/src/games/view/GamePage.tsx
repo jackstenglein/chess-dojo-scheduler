@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Container, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Box, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -118,19 +118,22 @@ const GamePage = () => {
     }
 
     return (
-        <Container
-            maxWidth={false}
+        <Box
             sx={{
                 pt: 4,
                 pb: 4,
+                px: 0,
                 '--gap': '16px',
                 '--site-header-height': '80px',
                 '--site-header-margin': '60px',
                 '--player-header-height': '28px',
-                '--underboard-width': '400px',
+                '--underboard-width': '450px',
                 '--coach-width': '400px',
                 '--tools-height': '40px',
-                '--board-width': 'calc(100vw - var(--coach-width) - 60px)',
+                '--board-width': {
+                    xs: 'calc(100vw - var(--coach-width) - 60px)',
+                    xl: 'calc(100vw - var(--coach-width) - var(--underboard-width) - 60px)',
+                },
                 '--board-height':
                     'calc(100vh - var(--site-header-height) - var(--site-header-margin) - var(--tools-height) - 8px - 2 * var(--player-header-height))',
                 '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
@@ -201,7 +204,7 @@ const GamePage = () => {
                     </PgnErrorBoundary>
                 )}
             </Box>
-        </Container>
+        </Box>
     );
 };
 

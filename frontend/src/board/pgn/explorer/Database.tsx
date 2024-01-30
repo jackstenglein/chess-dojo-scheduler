@@ -190,7 +190,7 @@ const Database: React.FC<DatabaseProps> = ({
                         </Stack>
                     );
                 },
-                flex: 1,
+                flex: 0.75,
             },
             {
                 field: 'results',

@@ -533,6 +533,11 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: KEYS_ONLY
+            ProvisionedThroughput: !If
+              - IsProd
+              - ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+              - !Ref AWS::NoValue
 
     NotificationsTable:
       Type: AWS::DynamoDB::Table
