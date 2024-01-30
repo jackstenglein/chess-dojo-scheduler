@@ -646,9 +646,9 @@ const THREE_MONTHS = 1000 * 60 * 60 * 24 * 90;
 
 /**
  * Returns whether the user should be prompted to demote themselves. Demotion is currently prompted when
- * they are 25 points or more below their current cohort.
+ * they are 25 points or more below their current cohort for 90 days.
  * @param user The user to potentially prompt for demotion.
- * @returns
+ * @returns True if the user should be prompted to demote.
  */
 export function shouldPromptDemotion(user?: User): boolean {
     if (!user || !user.dojoCohort || !user.ratingSystem) {
@@ -671,15 +671,17 @@ export function shouldPromptDemotion(user?: User): boolean {
     threeMonthsAgo.setTime(new Date().getTime() - THREE_MONTHS);
     const threeMonthsAgoStr = threeMonthsAgo.toISOString();
 
+    let haveFullHistory = false;
     for (let i = history.length - 1; i >= 0; i--) {
         if (history[i].date >= threeMonthsAgoStr && history[i].rating >= minRating) {
             return false;
         }
         if (history[i].date < threeMonthsAgoStr) {
+            haveFullHistory = true;
             break;
         }
     }
-    return true;
+    return haveFullHistory;
 }
 
 export function hasCreatedProfile(user: User): boolean {
