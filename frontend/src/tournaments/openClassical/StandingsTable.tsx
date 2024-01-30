@@ -4,6 +4,8 @@ import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 
 import { OpenClassical } from '../../database/tournament';
 
+const NUM_ROUNDS = 7;
+
 function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
     const result: GridColDef<StandingsTableRow>[] = [];
 
@@ -97,7 +99,7 @@ const standingsTableColumns: GridColDef<StandingsTableRow>[] = [
         align: 'center',
         headerAlign: 'center',
     },
-    ...getRoundColumns(7),
+    ...getRoundColumns(NUM_ROUNDS),
 ];
 
 type Result = 'W' | 'L' | 'D' | 'X' | 'Bye' | '';
@@ -182,7 +184,6 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
                             ? 'Bye'
                             : getResult(pairing.result, 'w'),
                 };
-                white.total += getScore(white.rounds[idx].result);
 
                 const black = players[pairing.black.lichessUsername];
                 black.rounds[idx] = {
@@ -192,14 +193,30 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
                             ? 'Bye'
                             : getResult(pairing.result, 'b'),
                 };
-                black.total += getScore(black.rounds[idx].result);
             });
         });
 
-        const rows = Object.values(players)
-            .filter((v) => v.lichessUsername !== 'No Opponent')
-            .sort((lhs, rhs) => rhs.total - lhs.total);
-        return rows;
+        const rows = Object.values(players).filter(
+            (v) => v.lichessUsername !== 'No Opponent'
+        );
+
+        rows.forEach((player) => {
+            for (let i = 0; i < section.rounds.length; i++) {
+                const round = player.rounds[i];
+                if (!round) {
+                    // Player received a bye
+                    player.total += 0.5;
+                } else {
+                    player.total += getScore(round.result);
+                }
+            }
+
+            for (let i = section.rounds.length; i < NUM_ROUNDS; i++) {
+                player.rounds[i] = { opponent: '', result: '' };
+            }
+        });
+
+        return rows.sort((lhs, rhs) => rhs.total - lhs.total);
     }, [openClassical, region, ratingRange]);
 
     if (!openClassical) {
