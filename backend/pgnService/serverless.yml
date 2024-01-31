@@ -15,7 +15,7 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-1
-  logRetentionInDays: 30
+  logRetentionInDays: 14
   environment:
     stage: ${sls:stage}
   httpApi:
