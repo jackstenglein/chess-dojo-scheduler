@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
+
+	"gopkg.in/gomail.v2"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -73,28 +77,29 @@ func main() {
 			continue
 		}
 
-		input := &ses.SendEmailInput{
-			Destination: &ses.Destination{
-				ToAddresses: []*string{
-					aws.String(email),
-				},
-			},
-			Message: &ses.Message{
-				Body: &ses.Body{
-					Html: &ses.Content{
-						Charset: aws.String("UTF-8"),
-						Data:    aws.String(content),
-					},
-				},
-				Subject: &ses.Content{
-					Charset: aws.String("UTF-8"),
-					Data:    aws.String("Training Program News - Dojo Digest Vol. 5"),
-				},
-			},
-			Source: aws.String("chessdojotwitch@gmail.com"),
+		msg := gomail.NewMessage()
+		msg.SetHeader("From", "ChessDojo Digest <digest@mail.dojoscoreboard.com>")
+		msg.SetHeader("To", email)
+		msg.SetHeader("Subject", "Training Program News - Dojo Digest Vol. 5")
+		msg.SetHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+		msg.SetHeader("List-Unsubscribe", fmt.Sprintf("<https://g4shdaq6ug.execute-api.us-east-1.amazonaws.com/public/dojodigest/unsubscribe?email=%s>", email))
+		msg.SetBody("text/html", content)
+
+		var rawEmail bytes.Buffer
+		_, err = msg.WriteTo(&rawEmail)
+		if err != nil {
+			log.Printf("Failed to dump email: %v\n", err)
+			failed++
+			continue
 		}
 
-		_, err = svc.SendEmail(input)
+		input := &ses.SendRawEmailInput{
+			Destinations: []*string{aws.String(email)},
+			Source:       aws.String("digest@mail.dojoscoreboard.com"),
+			RawMessage:   &ses.RawMessage{Data: rawEmail.Bytes()},
+		}
+
+		_, err = svc.SendRawEmail(input)
 		if err != nil {
 			log.Printf("Failed to send to %q: %v\n", email, err)
 			failed++

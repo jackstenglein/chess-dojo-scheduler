@@ -34,10 +34,15 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	request := &UnsubscribeRequest{}
-	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
-		err = errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)
-		return api.Failure(err), nil
+	request := UnsubscribeRequest{}
+
+	if _, ok := event.QueryStringParameters["email"]; ok {
+		request.Email = event.QueryStringParameters["email"]
+	} else {
+		if err := json.Unmarshal([]byte(event.Body), &request); err != nil {
+			err = errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)
+			return api.Failure(err), nil
+		}
 	}
 
 	if request.Email == "" {
@@ -49,7 +54,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	call := getAppendCall(ctx, client, request)
+	call := getAppendCall(ctx, client, &request)
 	_, err = call.Do()
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to write to sheet", err)
