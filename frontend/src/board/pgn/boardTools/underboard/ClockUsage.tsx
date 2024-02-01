@@ -1,5 +1,5 @@
 import { Box, CardContent, Stack, Typography } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EventType, Pgn, TAGS, Event, Chess, Move } from '@jackstenglein/chess';
 import { AxisOptions, Chart, Datum as ChartDatum } from 'react-charts';
 
@@ -150,6 +150,14 @@ function shouldRerender(chess: Chess, event: Event): boolean {
     return false;
 }
 
+function getSeriesStyle(series: any) {
+    console.log('Series: %j', series);
+    return {
+        fill: series.label === 'White' ? 'rgb(250, 164, 58)' : 'rgb(15, 131, 171)',
+        stroke: series.label === 'White' ? 'rgb(250, 164, 58)' : 'rgb(15, 131, 171)',
+    };
+}
+
 interface ClockUsageProps {
     showEditor?: boolean;
 }
@@ -285,6 +293,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 secondaryAxes,
                                 dark: !light,
                                 onClickDatum,
+                                getSeriesStyle,
                             }}
                         />
                     </Box>
@@ -302,6 +311,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 secondaryAxes: secondaryBarAxis,
                                 dark: !light,
                                 onClickDatum,
+                                getSeriesStyle,
                             }}
                         />
                     </Box>
