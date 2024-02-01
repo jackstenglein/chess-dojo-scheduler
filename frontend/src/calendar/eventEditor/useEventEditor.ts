@@ -257,7 +257,9 @@ export default function useEventEditor(
         initialEvent?.coaching?.bookableByFreeUsers || false
     );
 
-    const [hideFromPublicDiscord, setHideFromPublicDiscord] = useState(false);
+    const [hideFromPublicDiscord, setHideFromPublicDiscord] = useState(
+        initialEvent?.hideFromPublicDiscord || false
+    );
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
