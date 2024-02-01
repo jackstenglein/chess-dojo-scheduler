@@ -1,19 +1,21 @@
 import { Box, CardContent, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { EventType, Pgn, TAGS, Event, Chess } from '@jackstenglein/chess';
-import { AxisOptions, Chart } from 'react-charts';
+import { EventType, Pgn, TAGS, Event, Chess, Move } from '@jackstenglein/chess';
+import { AxisOptions, Chart, Datum as ChartDatum } from 'react-charts';
 
 import { useChess } from '../../PgnBoard';
 import { useLightMode } from '../../../../ThemeProvider';
 import ClockEditor from './ClockEditor';
+import { reconcile } from '../../../Board';
 
 interface Datum {
-    move: number;
+    moveNumber: number;
     seconds: number;
+    move: Move | null;
 }
 
 const primaryAxis: AxisOptions<Datum> = {
-    getValue: (datum) => datum.move,
+    getValue: (datum) => datum.moveNumber,
     scaleType: 'linear',
     formatters: {
         scale: (value) => (value % 1 === 0 ? `${value}` : ''),
@@ -32,7 +34,7 @@ const secondaryAxes: Array<AxisOptions<Datum>> = [
 ];
 
 const barAxis: AxisOptions<Datum> = {
-    getValue: (datum) => datum.move,
+    getValue: (datum) => datum.moveNumber,
     scaleType: 'band',
     position: 'left',
     formatters: {
@@ -153,7 +155,7 @@ interface ClockUsageProps {
 }
 
 const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
-    const { chess } = useChess();
+    const { chess, board } = useChess();
     const light = useLightMode();
     const [forceRender, setForceRender] = useState(0);
 
@@ -189,14 +191,16 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
 
         const whiteLineData: Datum[] = [
             {
-                move: 0,
+                moveNumber: 0,
                 seconds: initialClock,
+                move: null,
             },
         ];
         const blackLineData: Datum[] = [
             {
-                move: 0,
+                moveNumber: 0,
                 seconds: initialClock,
+                move: null,
             },
         ];
 
@@ -207,35 +211,39 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         for (let i = 0; i < moves.length; i += 2) {
             const firstTime = convertClockToSeconds(moves[i]?.commentDiag?.clk);
             whiteLineData.push({
-                move: i / 2 + 1,
+                moveNumber: i / 2 + 1,
                 seconds:
                     firstTime !== undefined
                         ? firstTime
                         : whiteLineData[whiteLineData.length - 1].seconds,
+                move: moves[i],
             });
 
             const secondTime = convertClockToSeconds(moves[i + 1]?.commentDiag?.clk);
             blackLineData.push({
-                move: i / 2 + 1,
+                moveNumber: i / 2 + 1,
                 seconds:
                     secondTime !== undefined
                         ? secondTime
                         : blackLineData[blackLineData.length - 1].seconds,
+                move: moves[i + 1] ? moves[i + 1] : moves[i],
             });
 
             whiteBarData.push({
-                move: i / 2 + 1,
+                moveNumber: i / 2 + 1,
                 seconds:
                     whiteLineData[whiteLineData.length - 2].seconds -
                     whiteLineData[whiteLineData.length - 1].seconds +
                     increment,
+                move: moves[i],
             });
             blackBarData.push({
-                move: i / 2 + 1,
+                moveNumber: i / 2 + 1,
                 seconds:
                     blackLineData[blackLineData.length - 2].seconds -
                     blackLineData[blackLineData.length - 1].seconds +
                     increment,
+                move: moves[i + 1] ? moves[i + 1] : moves[i],
             });
         }
 
@@ -255,6 +263,13 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         return null;
     }
 
+    const onClickDatum = (datum: ChartDatum<Datum> | null) => {
+        if (datum) {
+            chess.seek(datum.originalDatum.move);
+            reconcile(chess, board);
+        }
+    };
+
     return (
         <CardContent sx={{ height: 1 }}>
             <Stack height={1} spacing={4}>
@@ -269,6 +284,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 primaryAxis,
                                 secondaryAxes,
                                 dark: !light,
+                                onClickDatum,
                             }}
                         />
                     </Box>
@@ -285,6 +301,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 primaryAxis: barAxis,
                                 secondaryAxes: secondaryBarAxis,
                                 dark: !light,
+                                onClickDatum,
                             }}
                         />
                     </Box>
