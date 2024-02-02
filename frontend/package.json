@@ -5,6 +5,7 @@
     "dependencies": {
         "@aldabil/react-scheduler": "^2.7.26",
         "@aws-amplify/auth": "^5.6.4",
+        "@bendk/chess-tree": "github:bendk/chess-tree",
         "@emotion/react": "^11.11.4",
         "@emotion/styled": "^11.11.0",
         "@fortawesome/fontawesome-free": "^6.4.2",
@@ -29,6 +30,7 @@
         "@widgetbot/react-embed": "^1.9.0",
         "aws-amplify": "^5.3.10",
         "chessground": "^9.0.4",
+        "client-zip": "^2.4.4",
         "copy-to-clipboard": "^3.3.3",
         "date-fns": "^2.30.0",
         "lodash.debounce": "^4.0.8",

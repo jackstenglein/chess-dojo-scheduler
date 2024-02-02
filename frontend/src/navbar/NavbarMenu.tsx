@@ -177,21 +177,9 @@ function unauthenticatedStartItems(
 ): NavbarItem[] {
     return [
         {
-            name: 'Tournaments',
-            icon: <TournamentsIcon />,
-            onClick: () => toggleExpansion('Tournaments'),
-            children: [
-                {
-                    name: 'DojoLiga',
-                    icon: null,
-                    onClick: () => navigate('/tournaments'),
-                },
-                {
-                    name: 'Open Classical',
-                    icon: null,
-                    onClick: () => navigate('/tournaments/open-classical'),
-                },
-            ],
+            name: 'Book',
+            icon: <MenuBookIcon />,
+            onClick: () => navigate('/book/'),
         },
         {
             name: 'Shop',
