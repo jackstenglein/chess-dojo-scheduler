@@ -71,7 +71,15 @@ func PurchaseCourseUrl(user *database.User, course *database.Course, purchaseOpt
 				Quantity: stripe.Int64(1),
 			},
 		},
-		Mode:                stripe.String(string(stripe.CheckoutSessionModePayment)),
+		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
+		PaymentIntentData: &stripe.CheckoutSessionPaymentIntentDataParams{
+			Metadata: map[string]string{
+				"type":      string(CheckoutSessionType_Course),
+				"courseIds": courseIds,
+			},
+			Description:         stripe.String("Course"),
+			StatementDescriptor: stripe.String("ChessDojo Course"),
+		},
 		SuccessURL:          stripe.String(fmt.Sprintf("%s?checkout={CHECKOUT_SESSION_ID}", courseUrl)),
 		CancelURL:           stripe.String(cancelUrl),
 		AllowPromotionCodes: stripe.Bool(true),
@@ -83,6 +91,9 @@ func PurchaseCourseUrl(user *database.User, course *database.Course, purchaseOpt
 
 	if user != nil {
 		params.ClientReferenceID = stripe.String(user.Username)
+		params.AddMetadata("username", user.Username)
+		params.PaymentIntentData.AddMetadata("username", user.Username)
+
 		if user.PaymentInfo.GetCustomerId() != "" {
 			params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
 		}
@@ -202,6 +213,8 @@ func CoachingCheckoutSession(user *database.User, event *database.Event) (*strip
 				"coachUsername": event.Owner,
 				"username":      user.Username,
 			},
+			Description:         stripe.String("Coaching Session"),
+			StatementDescriptor: stripe.String("ChessDojo Coaching"),
 		},
 		ExpiresAt:  stripe.Int64(expiration),
 		SubmitType: stripe.String(string(stripe.CheckoutSessionSubmitTypeBook)),
