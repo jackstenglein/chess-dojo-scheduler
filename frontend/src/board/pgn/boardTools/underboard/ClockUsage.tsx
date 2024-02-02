@@ -1,5 +1,5 @@
 import { Box, CardContent, Stack, Typography } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { EventType, Pgn, TAGS, Event, Chess, Move } from '@jackstenglein/chess';
 import { AxisOptions, Chart, Datum as ChartDatum } from 'react-charts';
 
