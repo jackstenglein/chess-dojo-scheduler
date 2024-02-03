@@ -79,7 +79,7 @@
     },
     "devDependencies": {
         "@types/lodash.debounce": "^4.0.9",
-        "@types/react-copy-to-clipboard": "^5.0.4",
+        "@types/react-copy-to-clipboard": "^5.0.7",
         "@types/react-resizable": "^3.0.7",
         "@types/uuid": "^9.0.3",
         "cypress": "^13.6.4",
