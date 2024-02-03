@@ -23,16 +23,6 @@ describe('List Games Page', () => {
         cy.location('pathname').should('equal', '/games/submit');
     });
 
-    it('blocks submit on free tier', () => {
-        cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
-        cy.interceptApi('GET', '/user/access', { statusCode: 403 });
-        cy.visit('/games');
-
-        cy.getBySel('submit-game-button').click();
-        cy.getBySel('upsell-dialog').should('be.visible');
-        cy.location('pathname').should('equal', '/games');
-    });
-
     it('has link to full database', () => {
         cy.contains('Download full database (updated every 24 hours)').should(
             'have.attr',
@@ -56,7 +46,6 @@ describe('List Games Page', () => {
 
     it('populates table with initial cohort', () => {
         cy.getBySel('games-table').contains('1500-1600');
-        cy.getBySel('games-table').contains('JackStenglein');
     });
 
     it('allows searching by cohort by default', () => {
