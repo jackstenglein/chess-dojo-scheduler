@@ -42,6 +42,12 @@ export interface OpenClassicalPairing {
 
     /** The result of the pairing. */
     result: string;
+
+    /** The URL of the game that was played. */
+    gameUrl: string;
+
+    /** Whether the result is verified. */
+    verified: boolean;
 }
 
 export interface OpenClassicalRound {

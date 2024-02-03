@@ -169,6 +169,12 @@ type OpenClassicalPairing struct {
 
 	// The result of the game
 	Result string `dynamodbav:"result" json:"result"`
+
+	// The URL of the game that was played
+	GameUrl string `dynamodbav:"gameUrl" json:"gameUrl"`
+
+	// Whether the result is verified
+	Verified bool `dynamodbav:"verified" json:"verified"`
 }
 
 // OpenClassicalPlayerSummary represents the minimum information needed to schedule
@@ -207,6 +213,14 @@ type OpenClassicalPlayer struct {
 
 	// The player's bye requests
 	ByeRequests []bool `dynamodbav:"byeRequests" json:"byeRequests"`
+}
+
+type OpenClassicalPairingUpdate struct {
+	Region       string
+	Section      string
+	Round        int
+	PairingIndex int
+	Pairing      *OpenClassicalPairing
 }
 
 // SetOpenClassical inserts the provided OpenClassical into the database.
@@ -331,4 +345,57 @@ func (repo *dynamoRepository) ListPreviousOpenClassicals(startKey string) ([]Ope
 		return nil, "", err
 	}
 	return openClassicals, lastKey, nil
+}
+
+// Sets the pairing on the current open classical to match the given update. The update succeeds
+// only if the pairing is not already marked as verified.
+func (repo *dynamoRepository) UpdateOpenClassicalResult(update *OpenClassicalPairingUpdate) (*OpenClassical, error) {
+	item, err := dynamodbattribute.MarshalMap(update.Pairing)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal open classical pairing", err)
+	}
+
+	sectionName := fmt.Sprintf("#%s_%s", update.Region, update.Section)
+	pairingPath := fmt.Sprintf("#sections.%s.#rounds[%d].#pairings[%d]", sectionName, update.Round, update.PairingIndex)
+
+	updateExpr := fmt.Sprintf("SET %s = :item", pairingPath)
+	conditionExpr := fmt.Sprintf("attribute_exists(%s) AND %s.#verified <> :true", pairingPath, pairingPath)
+	exprAttrNames := map[string]*string{
+		"#sections": aws.String("sections"),
+		sectionName: aws.String(fmt.Sprintf("%s_%s", update.Region, update.Section)),
+		"#rounds":   aws.String("rounds"),
+		"#pairings": aws.String("pairings"),
+		"#verified": aws.String("verified"),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{
+		":item": {M: item},
+		":true": {BOOL: aws.Bool(true)},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
+			"startsAt": {S: aws.String(string(CurrentLeaderboard))},
+		},
+		UpdateExpression:          aws.String(updateExpr),
+		ConditionExpression:       aws.String(conditionExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		TableName:                 aws.String(tournamentTable),
+		ReturnValues:              aws.String("ALL_NEW"),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "This pairing does not exist or its result has already been verified. Contact the TD to change it.", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+	}
+
+	resultTnmt := OpenClassical{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &resultTnmt); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &resultTnmt, nil
 }

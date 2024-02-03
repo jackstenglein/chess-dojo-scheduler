@@ -116,6 +116,11 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
           - s3:GetObject
         Resource: !Join
           - ''

@@ -7,6 +7,7 @@ import {
     MenuItem,
     Stack,
     TextField,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -19,6 +20,7 @@ import { useAuth } from '../../auth/Auth';
 import Editor from './Editor';
 import StandingsTable from './StandingsTable';
 import EntrantsTable from './EntrantsTable';
+import { OpenInNew, Warning } from '@mui/icons-material';
 
 const DetailsPage = () => {
     const api = useApi();
@@ -268,6 +270,42 @@ const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         flex: 0.5,
         align: 'center',
         headerAlign: 'center',
+        renderCell: (params) => {
+            if (params.value === '*') {
+                return params.value;
+            }
+            if (params.row.verified) {
+                return params.value;
+            }
+            return (
+                <Stack direction='row' alignItems='center' spacing={1}>
+                    <div>{params.value}</div>
+                    <Tooltip title='This result has not been verified and may be changed later by the TD'>
+                        <Warning color='warning' fontSize='small' />
+                    </Tooltip>
+                </Stack>
+            );
+        },
+    },
+    {
+        field: 'gameUrl',
+        headerName: 'Game',
+        width: 75,
+        align: 'center',
+        headerAlign: 'center',
+        renderCell: (params) => {
+            if (
+                params.value.startsWith('https://lichess.org/') ||
+                params.value.startsWith('https://www.chess.com/')
+            ) {
+                return (
+                    <a target='_blank' rel='noopener noreferrer' href={params.value}>
+                        <OpenInNew color='primary' fontSize='small' />
+                    </a>
+                );
+            }
+            return null;
+        },
     },
 ];
 

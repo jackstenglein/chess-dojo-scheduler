@@ -48,7 +48,7 @@ export type TournamentApiContextType = {
      */
     submitResultsForOpenClassical: (
         req: OpenClassicalSubmitResultsRequest
-    ) => Promise<AxiosResponse<void, any>>;
+    ) => Promise<AxiosResponse<OpenClassical, any>>;
 
     /**
      * Sets the pairings for the given round using the given PGN data. Only admins and tournament
@@ -84,7 +84,6 @@ export interface OpenClassicalSubmitResultsRequest {
     email: string;
     region: string;
     section: string;
-    round: string;
     gameUrl: string;
     white: string;
     black: string;
@@ -175,7 +174,7 @@ export function submitResultsForOpenClassical(
     idToken: string,
     req: OpenClassicalSubmitResultsRequest
 ) {
-    return axios.post<void>(
+    return axios.post<OpenClassical>(
         `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/results`,
         req,
         {
