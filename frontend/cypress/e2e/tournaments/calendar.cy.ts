@@ -23,7 +23,7 @@ describe('Calendar Tab', () => {
     });
 
     it('has correct filters', () => {
-        cy.getBySel('calendar-filters').contains('Current Timezone');
+        cy.getBySel('calendar-filters').contains('Timezone');
         cy.getBySel('calendar-filters').getBySel('timezone-selector');
 
         cy.getBySel('calendar-filters').contains('Types');

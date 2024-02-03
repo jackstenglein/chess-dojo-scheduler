@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
@@ -12,12 +13,11 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
+	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 )
 
 var repository database.EventLeaver = database.DynamoDB
 var frontendHost = os.Getenv("frontendHost")
-
-const funcName = "event-leave-handler"
 
 const newOwnerPrefix = "Hello, the owner of your upcoming meeting has canceled, and you have been made the new owner of the meeting. "
 const noParticipantsSuffix = "The meeting currently has no other participants but is available for others to book. You can edit the meeting from the [Calendar](%s)."
@@ -35,43 +35,46 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	info := api.GetUserInfo(request)
 	if info.Username == "" {
 		err := errors.New(403, "Invalid request: not authenticated", "Username from Cognito token was empty")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id, ok := request.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	event, err := repository.GetEvent(id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if event.Type == database.EventType_Coaching {
+		if info.Username == event.Owner {
+			return cancelCoachingSession(event), nil
+		}
 		return leaveCoachingSession(info.Username, event), nil
 	}
 
 	if event.Type != database.EventType_Availability {
 		err := errors.New(400, "Invalid request: this event type is not supported", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if len(event.Participants) == 0 {
 		err := errors.New(400, "Invalid request: nobody has booked this availability. Delete it instead", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	participant := event.Participants[info.Username]
 	if event.Owner != info.Username && participant == nil {
 		err := errors.New(403, "Invalid request: user is not a participant in this meeting", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	newEvent, err := repository.LeaveEvent(event, participant)
+	newEvent, err := repository.LeaveEvent(event, participant, false)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if err := repository.RecordEventCancelation(event); err != nil {
@@ -91,7 +94,25 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	sendNotification(event, newEvent)
-	return api.Success(funcName, newEvent), nil
+	return api.Success(newEvent), nil
+}
+
+// handles a coach canceling a session that has been booked. Any users who have paid are issued
+// a full refund.
+func cancelCoachingSession(event *database.Event) api.Response {
+	newEvent, err := repository.CancelEvent(event)
+	if err != nil {
+		return api.Failure(err)
+	}
+
+	for _, p := range newEvent.Participants {
+		_, err := payment.CreateEventRefund(event, p, 100)
+		if err != nil {
+			log.Errorf("Failed to create refund: %v", err)
+		}
+	}
+
+	return api.Success(newEvent)
 }
 
 // handles a user leaving a coaching session that they have booked. The user may need a refund
@@ -100,23 +121,35 @@ func leaveCoachingSession(username string, event *database.Event) api.Response {
 	participant := event.Participants[username]
 	if participant == nil {
 		err := errors.New(403, "Invalid request: user is not a participant in this meeting", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
-	var newEvent *database.Event
-	var err error
+	now := time.Now()
+	eventStart, err := time.Parse(time.RFC3339, event.StartTime)
+	if err != nil {
+		err = errors.Wrap(400, "Invalid request: event does not have a valid start time", "time.Parse failure", err)
+		return api.Failure(err)
+	}
+	cancelationTime := eventStart.Add(-23 * time.Hour).Add(-55 * time.Minute)
 
-	if !participant.HasPaid {
-		newEvent, err = repository.LeaveEvent(event, participant)
-		if err != nil {
-			return api.Failure(funcName, err)
-		}
+	var newEvent *database.Event
+
+	if !participant.HasPaid || now.After(cancelationTime) {
+		newEvent, err = repository.LeaveEvent(event, participant, false)
 	} else {
-		return api.Failure(funcName, errors.New(400, "Invalid request: canceling paid meetings is not implemented yet", ""))
+		_, err = payment.CreateEventRefund(event, participant, 100)
+		if err != nil {
+			return api.Failure(err)
+		}
+		newEvent, err = repository.LeaveEvent(event, participant, false)
+	}
+
+	if err != nil {
+		return api.Failure(err)
 	}
 
 	sendNotification(event, newEvent)
-	return api.Success(funcName, newEvent)
+	return api.Success(newEvent)
 }
 
 func sendNotification(event, newEvent *database.Event) {

@@ -65,17 +65,32 @@ const InfoPage = () => {
                 <Stack>
                     <Typography variant='h6'>Disputes</Typography>
                     <Divider sx={{ mb: 1 }} />
-                    <Typography>
-                        If a player is able to show evidence that the person they were
-                        paired with was unresponsive or did not make a concerted effort to
-                        schedule a game in a round, that player will be awarded a forfeit
-                        win (1 - 0). A concerted effort consists of either reaching out
-                        first or responding to an initial contact within 48 hours; and
-                        offering at least 3 different times, on at least 2 separate days,
-                        that you are available to play that week. If both players make a
-                        concerted effort to schedule a game and are still unable to find a
-                        time to play, the game can be submitted as a Draw (1/2 - 1/2). In
-                        case of a dispute, please contact the Tournament Director.
+                    <Typography component='div'>
+                        If a player's opponent 1. is unresponsive within 48 hours of you
+                        reaching out to them to schedule your game, 2. does not make a
+                        concerted effort to schedule a game in a round, or 3. does not
+                        show up within 30 minutes of an agreed upon time to play, that
+                        player can:
+                        <ul>
+                            <li>Submit the game as a forfeit win for themselves</li>
+                            <li>
+                                When submitting your game will be given the option to
+                                report your opponent - this alerts the TD that the player
+                                in question should be considered for removal from this and
+                                future tournaments
+                            </li>
+                            <li>
+                                DM the TD on Discord with screenshots of your attempts to
+                                reach out to your opponent
+                            </li>
+                        </ul>
+                        A concerted effort consists of either reaching out first or
+                        responding to an initial contact within 48 hours; and offering at
+                        least 3 different times, on at least 2 separate days, that you are
+                        available to play that week. If both players make a concerted
+                        effort to schedule a game and are still unable to find a time to
+                        play, the game can be submitted as a draw (1/2-1/2). In case of a
+                        dispute, please contact the TD on Discord.
                     </Typography>
                 </Stack>
 
@@ -83,9 +98,7 @@ const InfoPage = () => {
                     <Typography variant='h6'>Playing Games</Typography>
                     <Divider sx={{ mb: 1 }} />
                     <Typography>
-                        The preferred time control for this tournament follows the
-                        recommended time controls laid out by the Dojo Training Program
-                        for each rating band.
+                        The preferred time control for this tournament is as follows:
                     </Typography>
                     <ul>
                         <li>Open: 90+30</li>

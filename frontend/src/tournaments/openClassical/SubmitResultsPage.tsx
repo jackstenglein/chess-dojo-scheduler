@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
     Checkbox,
@@ -13,7 +14,7 @@ import { LoadingButton } from '@mui/lab';
 
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
-import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
 
 function gamePlayed(result: string): boolean {
@@ -24,11 +25,11 @@ const SubmitResultsPage = () => {
     const auth = useAuth();
     const user = auth.user;
     const api = useApi();
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
     const [section, setSection] = useState('');
     const [region, setRegion] = useState('');
-    const [round, setRound] = useState('');
     const [gameUrl, setGameUrl] = useState('');
     const [white, setWhite] = useState('');
     const [black, setBlack] = useState('');
@@ -90,9 +91,6 @@ const SubmitResultsPage = () => {
         if (section === '') {
             newErrors.section = 'This field is required';
         }
-        if (round.trim() === '') {
-            newErrors.round = 'This field is required';
-        }
         if (gamePlayed(result) && gameUrl.trim() === '') {
             newErrors.gameUrl = 'This field is required';
         }
@@ -116,7 +114,6 @@ const SubmitResultsPage = () => {
             email: email.trim(),
             region,
             section,
-            round: round.trim(),
             gameUrl: gameUrl.trim(),
             white: white.trim(),
             black: black.trim(),
@@ -127,6 +124,12 @@ const SubmitResultsPage = () => {
             .then((resp) => {
                 console.log('submitResultsForOpenClassical: ', resp);
                 request.onSuccess();
+                const round =
+                    resp.data.sections?.[`${region}_${section}`]?.rounds?.length ||
+                    'standings';
+                navigate(
+                    `/tournaments/open-classical?region=${region}&ratingRange=${section}&view=${round}`
+                );
             })
             .catch((err) => {
                 console.error(err);
@@ -134,28 +137,20 @@ const SubmitResultsPage = () => {
             });
     };
 
-    if (request.status === RequestStatus.Success) {
-        return (
-            <Container maxWidth='md' sx={{ py: 5 }}>
-                <Stack spacing={4}>
-                    <Typography data-cy='title' variant='h6'>
-                        Submit Results for the Open Classical
-                    </Typography>
-
-                    <Typography>Your submission has been recorded. Thank you!</Typography>
-                </Stack>
-            </Container>
-        );
-    }
-
     return (
-        <Container maxWidth='md' sx={{ py: 5 }}>
+        <Container maxWidth='md' sx={{ pt: 5, pb: 10 }}>
             <RequestSnackbar request={request} />
 
             <Stack spacing={4}>
-                <Typography data-cy='title' variant='h6'>
-                    Submit Results for the Open Classical
-                </Typography>
+                <Stack spacing={1}>
+                    <Typography data-cy='title' variant='h6'>
+                        Submit Results for the Open Classical
+                    </Typography>
+                    <Typography>
+                        Results are submitted for the current active round. No late
+                        results will be accepted.
+                    </Typography>
+                </Stack>
 
                 {!user && (
                     <TextField
@@ -198,23 +193,6 @@ const SubmitResultsPage = () => {
                 >
                     <MenuItem value='Open'>Open</MenuItem>
                     <MenuItem value='U1800'>U1800</MenuItem>
-                </TextField>
-
-                <TextField
-                    data-cy='round'
-                    label='Round'
-                    select
-                    required
-                    value={round}
-                    onChange={(e) => setRound(e.target.value)}
-                    error={Boolean(errors.round)}
-                    helperText={errors.round}
-                >
-                    {Array.from(Array(7)).map((_, i) => (
-                        <MenuItem key={i} value={`${i + 1}`}>
-                            {i + 1}
-                        </MenuItem>
-                    ))}
                 </TextField>
 
                 <TextField

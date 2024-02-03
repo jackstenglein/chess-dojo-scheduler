@@ -15,7 +15,7 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-1
-  logRetentionInDays: 30
+  logRetentionInDays: 14
   environment:
     stage: ${sls:stage}
   httpApi:
@@ -130,6 +130,55 @@ functions:
           - dynamodb:PutItem
           - dynamodb:DeleteItem
         Resource: !GetAtt ExplorerTable.Arn
+
+  createGame:
+    timeout: 28
+    handler: game/create.handler
+    events:
+      - httpApi:
+          path: /game2
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:BatchWriteItem
+        Resource:
+          - ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - ${param:TimelineTableArn}
+
+  updateGame:
+    handler: game/update.handler
+    events:
+      - httpApi:
+          path: /game2/{cohort}/{id+}
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+        Resource:
+          - ${param:TimelineTableArn}
 
 resources:
   Conditions:

@@ -49,7 +49,11 @@ func SetEvent(event *database.Event) (string, string, error) {
 		return "", "", err
 	}
 
-	publicEventId, err := setGuildEvent(publicGuildId, event.PublicDiscordEventId, discord, params)
+	var publicEventId string
+	if !event.HideFromPublicDiscord {
+		publicEventId, err = setGuildEvent(publicGuildId, event.PublicDiscordEventId, discord, params)
+	}
+
 	return privateEventId, publicEventId, err
 }
 

@@ -169,6 +169,9 @@ export interface Game {
 
     /** The PGN of the game. */
     pgn: string;
+
+    /** Whether the game is unlisted. */
+    unlisted: boolean;
 }
 
 /** The header data of a PGN. */

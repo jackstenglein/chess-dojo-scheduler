@@ -8,11 +8,15 @@ import { Course } from '../../database/course';
 import { useApi } from '../../api/Api';
 import CourseListItem from './CourseListItem';
 import LoadingPage from '../../loading/LoadingPage';
+import { useAuth } from '../../auth/Auth';
+import { SubscriptionStatus } from '../../database/user';
+import { getCheckoutSessionId } from '../localStorage';
 
 const ListCoursesPage = () => {
     const courseFilters = useCourseFilters();
     const request = useRequest<Course[]>();
     const api = useApi();
+    const user = useAuth().user;
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -26,7 +30,7 @@ const ListCoursesPage = () => {
                     request.onFailure(err);
                 });
         }
-    });
+    }, [request, api]);
 
     const noItems = !request.data?.length;
 
@@ -41,11 +45,22 @@ const ListCoursesPage = () => {
 
                 <Grid2 container xs={12} md={10} spacing={2}>
                     {request.data?.map((course) => (
-                        <CourseListItem
-                            key={course.id}
-                            course={course}
-                            filters={courseFilters}
-                        />
+                        <Grid2 key={course.id} xs={12} md={6} lg={4}>
+                            <CourseListItem
+                                key={course.id}
+                                course={course}
+                                isFreeTier={
+                                    user?.subscriptionStatus !==
+                                    SubscriptionStatus.Subscribed
+                                }
+                                isPurchased={
+                                    user?.purchasedCourses
+                                        ? user.purchasedCourses[course.id]
+                                        : getCheckoutSessionId(course.id) !== ''
+                                }
+                                filters={courseFilters}
+                            />
+                        </Grid2>
                     ))}
 
                     {noItems && request.isLoading() && <LoadingPage />}

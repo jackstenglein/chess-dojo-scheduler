@@ -29,7 +29,7 @@ function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
 }
 
 const graduationDayOfWeek = 4; // Thursday
-const numberOfOptions = 3;
+const numberOfOptions = 4;
 const lastWeek = new Date();
 lastWeek.setDate(lastWeek.getDate() - 7);
 

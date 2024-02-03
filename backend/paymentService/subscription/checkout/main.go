@@ -12,8 +12,6 @@ import (
 	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 )
 
-const funcName = "subscription-checkout-handler"
-
 var repository database.UserGetter = database.DynamoDB
 
 type SubscriptionCheckoutResponse struct {
@@ -31,18 +29,18 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	info := api.GetUserInfo(event)
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	request := payment.PurchaseSubscriptionRequest{}
 	if err := json.Unmarshal([]byte(event.Body), &request); err != nil {
-		return api.Failure(funcName, errors.New(400, "Invalid request: body could not be unmarshalled", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: body could not be unmarshalled", "")), nil
 	}
 
 	url, err := payment.PurchaseSubscriptionUrl(user, &request)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, SubscriptionCheckoutResponse{Url: url}), nil
+	return api.Success(SubscriptionCheckoutResponse{Url: url}), nil
 }

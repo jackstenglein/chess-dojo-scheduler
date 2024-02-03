@@ -15,8 +15,6 @@ import (
 
 var repository database.CourseGetter = database.DynamoDB
 
-const funcName = "course-get-handler"
-
 type GetCourseResponse struct {
 	// The requested course.
 	Course *database.Course `json:"course"`
@@ -37,12 +35,12 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	courseType := event.PathParameters["type"]
 	id := event.PathParameters["id"]
 	if courseType == "" || id == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: type and id are required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: type and id are required", "")), nil
 	}
 
 	course, err := repository.GetCourse(courseType, id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	info := api.GetUserInfo(event)
@@ -52,7 +50,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	caller, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	// The caller must subscribe to access the course
@@ -97,7 +95,7 @@ func checkAnonymousAccess(event api.Request, course *database.Course) (api.Respo
 }
 
 func accessGranted(course *database.Course) (api.Response, error) {
-	return api.Success(funcName, GetCourseResponse{
+	return api.Success(GetCourseResponse{
 		Course:    course,
 		IsBlocked: false,
 	}), nil
@@ -105,7 +103,7 @@ func accessGranted(course *database.Course) (api.Response, error) {
 
 func accessDenied(course *database.Course) (api.Response, error) {
 	course.Chapters = nil
-	return api.Success(funcName, GetCourseResponse{
+	return api.Success(GetCourseResponse{
 		Course:    course,
 		IsBlocked: true,
 	}), nil

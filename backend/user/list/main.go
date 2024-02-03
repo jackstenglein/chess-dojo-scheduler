@@ -13,8 +13,6 @@ import (
 
 var repository database.UserLister = database.DynamoDB
 
-const funcName = "user-list-handler"
-
 type ListUsersResponse struct {
 	Users            []*database.User `json:"users"`
 	LastEvaluatedKey string           `json:"lastEvaluatedKey,omitempty"`
@@ -26,16 +24,16 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	cohort, _ := event.PathParameters["cohort"]
 	if cohort == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: cohort is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: cohort is required", "")), nil
 	}
 	startKey, _ := event.QueryStringParameters["startKey"]
 
 	users, lastKey, err := repository.ListUsersByCohort(database.DojoCohort(cohort), startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListUsersResponse{
+	return api.Success(&ListUsersResponse{
 		Users:            users,
 		LastEvaluatedKey: lastKey,
 	}), nil

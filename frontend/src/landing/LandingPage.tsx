@@ -14,7 +14,7 @@ const LandingPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/profile' />;
+        return <Navigate to='/profile' replace />;
     }
 
     return (

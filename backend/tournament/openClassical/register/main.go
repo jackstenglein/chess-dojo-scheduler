@@ -19,10 +19,9 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/user/ratings"
 )
 
-const funcName = "open-classical-register-handler"
-
 var media = database.S3
 var stage = os.Getenv("stage")
+var repository = database.DynamoDB
 
 const (
 	maxByeLength = 7
@@ -65,33 +64,52 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	request := &RegisterRequest{}
 	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if info.Email != "" {
 		request.Email = info.Email
 	}
 
 	if err := checkRequest(request); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	client, err := getSheetsClient(ctx)
+	openClassical, err := repository.GetOpenClassical(database.CurrentLeaderboard)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	call := getAppendCall(ctx, client, request)
-	_, err = call.Do()
+	if !openClassical.AcceptingRegistrations {
+		err := errors.New(400, "Registration for this tournament has already closed", "")
+		return api.Failure(err), nil
+	}
+
+	lichessLowercase := strings.ToLower(request.LichessUsername)
+	if _, ok := openClassical.BannedPlayers[lichessLowercase]; ok {
+		err := errors.New(400, "You are currently not in good standing. Please contact TD Alex Dodd via Discord to register", "")
+		return api.Failure(err), nil
+	}
+
+	openClassicalPlayer := database.OpenClassicalPlayer{
+		OpenClassicalPlayerSummary: database.OpenClassicalPlayerSummary{
+			LichessUsername: request.LichessUsername,
+			DiscordUsername: request.DiscordUsername,
+			Title:           request.Title,
+			Rating:          request.LichessRating,
+		},
+		Username:    info.Username,
+		Email:       request.Email,
+		Region:      request.Region,
+		Section:     request.Section,
+		ByeRequests: request.ByeRequests,
+	}
+
+	openClassical, err = repository.UpdateOpenClassicalRegistration(openClassical, &openClassicalPlayer)
 	if err != nil {
-		err = errors.Wrap(500, "Temporary server error", "Failed to write to sheet", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	if err := os.Remove("/tmp/openClassicalServiceAccountKey.json"); err != nil {
-		log.Errorf("Failed to rmeove JSON file: %v", err)
-	}
-
-	return api.Success(funcName, nil), nil
+	return api.Success(openClassical), nil
 }
 
 // Returns an error if the request is invalid.
@@ -127,6 +145,10 @@ func checkRequest(req *RegisterRequest) error {
 	}
 
 	rating, err := ratings.FetchLichessRating(req.LichessUsername)
+	if req.Section == "U1800" && rating >= 1800 {
+		return errors.New(400, "Your Lichess rating is above 1800. Please register for the open section instead.", "")
+	}
+
 	req.LichessRating = rating
 	return err
 }

@@ -1,33 +1,14 @@
-import {
-    Timeline,
-    TimelineItem,
-    TimelineSeparator,
-    TimelineDot,
-    TimelineConnector,
-    TimelineContent,
-    timelineOppositeContentClasses,
-    TimelineOppositeContent,
-    LoadingButton,
-} from '@mui/lab';
-import { Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 
 import { RequestSnackbar } from '../../api/Request';
-import { ScoreboardDisplay } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
 import { User } from '../../database/user';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
-import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
-import { CategoryColors } from './activity';
 import { UseTimelineResponse } from './useTimeline';
 import LoadingPage from '../../loading/LoadingPage';
-import { toDojoDateString } from '../../calendar/displayDate';
 import { useAuth } from '../../auth/Auth';
-
-const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
-    day: '2-digit',
-    month: '2-digit',
-    year: '2-digit',
-};
+import NewsfeedItem from '../../newsfeed/detail/NewsfeedItem';
+import LoadMoreButton from '../../newsfeed/list/LoadMoreButton';
+import NewsfeedItemHeader from '../../newsfeed/detail/NewsfeedItemHeader';
 
 export function getTimeSpent(timelineItem: TimelineEntry): string {
     if (timelineItem.minutesSpent === 0) {
@@ -41,124 +22,36 @@ export function getTimeSpent(timelineItem: TimelineEntry): string {
     return `${hours}h ${minutes}m`;
 }
 
-function getProgressItem(
-    entry: TimelineEntry,
-    showConnector: boolean,
-    timezone?: string
-) {
-    const date = new Date(entry.date || entry.createdAt);
-    const isCheckbox =
-        entry.scoreboardDisplay === ScoreboardDisplay.Checkbox ||
-        entry.scoreboardDisplay === ScoreboardDisplay.Hidden;
-    const isSlider =
-        entry.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
-        entry.scoreboardDisplay === ScoreboardDisplay.Unspecified;
-    const isComplete = entry.newCount >= entry.totalCount;
-    const timeSpent = getTimeSpent(entry);
-
-    let description = 'Updated';
-    if (isComplete) {
-        description = 'Completed';
-    } else if (isCheckbox) {
-        description = 'Unchecked';
+const CreatedAtItem: React.FC<{ user: User; viewer?: User }> = ({ user, viewer }) => {
+    if (!user.createdAt) {
+        return null;
     }
 
-    return (
-        <TimelineItem key={`${entry.requirementId}-${entry.createdAt}-${entry.newCount}`}>
-            <TimelineOppositeContent>
-                {toDojoDateString(date, timezone, 'backward', DATE_OPTIONS)}
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-                <TimelineDot
-                    sx={{
-                        backgroundColor: CategoryColors[entry.requirementCategory],
-                    }}
-                />
-                {showConnector && <TimelineConnector />}
-            </TimelineSeparator>
-            <TimelineContent>
-                <Typography variant='subtitle1' component='span'>
-                    {description} {entry.requirementName}
-                </Typography>
-                {isSlider && (
-                    <ScoreboardProgress
-                        value={entry.newCount}
-                        min={0}
-                        max={entry.totalCount}
-                        suffix={entry.progressBarSuffix}
-                    />
-                )}
-                {timeSpent && <Typography variant='subtitle2'>{timeSpent}</Typography>}
-            </TimelineContent>
-        </TimelineItem>
-    );
-}
-
-function getGraduationItem(
-    entry: TimelineEntry,
-    showConnector: boolean,
-    timezone?: string
-) {
-    const date = new Date(entry.createdAt);
+    const entry = {
+        id: 'createdAt',
+        owner: user.username,
+        ownerDisplayName: user.displayName,
+        createdAt: user.createdAt,
+        requirementId: 'CreatedAt',
+        requirementName: 'CreatedAt',
+        requirementCategory: 'Welcome to the Dojo',
+        cohort:
+            user.graduationCohorts?.length > 0
+                ? user.graduationCohorts[0]
+                : user.dojoCohort,
+    };
 
     return (
-        <TimelineItem key={entry.createdAt}>
-            <TimelineOppositeContent>
-                {toDojoDateString(date, timezone, 'backward', DATE_OPTIONS)}
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-                <TimelineDot
-                    sx={{
-                        backgroundColor: CategoryColors.Graduation,
-                    }}
-                />
-                {showConnector && <TimelineConnector />}
-            </TimelineSeparator>
-            <TimelineContent>
-                <Stack direction='row' alignItems='center' spacing={1}>
-                    <Stack>
-                        <Typography variant='subtitle1' component='span'>
-                            Graduated from {entry.cohort}
-                        </Typography>
-                    </Stack>
-                    <GraduationIcon cohort={entry.cohort} size={30} />
+        <Card variant='outlined'>
+            <CardContent>
+                <Stack>
+                    <NewsfeedItemHeader entry={entry as TimelineEntry} />
+                    <Typography>Joined the Dojo!</Typography>
                 </Stack>
-            </TimelineContent>
-        </TimelineItem>
+            </CardContent>
+        </Card>
     );
-}
-
-function getTimelineItem(
-    entry: TimelineEntry,
-    showConnector: boolean,
-    timezone?: string
-) {
-    if (entry.requirementCategory === 'Graduation') {
-        return getGraduationItem(entry, showConnector, timezone);
-    }
-
-    return getProgressItem(entry, showConnector, timezone);
-}
-
-function getCreatedAtItem(createdAt: string, timezone?: string) {
-    const date = new Date(createdAt);
-
-    return (
-        <TimelineItem key={createdAt}>
-            <TimelineOppositeContent>
-                {toDojoDateString(date, timezone, 'backward', DATE_OPTIONS)}
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-                <TimelineDot
-                    sx={{
-                        backgroundColor: CategoryColors['Welcome to the Dojo'],
-                    }}
-                />
-            </TimelineSeparator>
-            <TimelineContent>Joined the Dojo</TimelineContent>
-        </TimelineItem>
-    );
-}
+};
 
 interface ActivityTimelineProps {
     user: User;
@@ -166,13 +59,13 @@ interface ActivityTimelineProps {
 }
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) => {
-    const timezone = useAuth().user?.timezoneOverride;
-    const { request, entries, hasMore, onLoadMore } = timeline;
+    const viewer = useAuth().user;
+    const { request, entries, hasMore, onLoadMore, onEdit } = timeline;
 
     if (request.isLoading() && entries.length === 0) {
         return (
-            <Stack>
-                <Typography variant='h6' alignSelf='start'>
+            <Stack mt={2}>
+                <Typography variant='h5' alignSelf='start'>
                     Timeline
                 </Typography>
                 <LoadingPage />
@@ -181,55 +74,34 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
     }
 
     return (
-        <Stack>
-            <Typography variant='h6' alignSelf='start'>
+        <Stack mt={2} spacing={2}>
+            <Typography variant='h5' alignSelf='start'>
                 Timeline
             </Typography>
 
             {entries.length === 0 ? (
                 <Typography>No events yet</Typography>
             ) : (
-                <Timeline
-                    sx={{
-                        [`& .${timelineOppositeContentClasses.root}`]: {
-                            paddingLeft: 0,
-                            flex: 0,
-                        },
-                        marginTop: 0,
-                        paddingTop: '8px',
-                    }}
-                >
-                    {entries.map((td, i) =>
-                        getTimelineItem(
-                            td,
-                            i < entries.length - 1 || user.createdAt !== '',
-                            timezone
-                        )
-                    )}
+                <Stack spacing={3}>
+                    {entries.map((entry, i) => (
+                        <NewsfeedItem
+                            key={entry.id}
+                            entry={entry}
+                            onEdit={(e) => onEdit(i, e)}
+                            maxComments={3}
+                        />
+                    ))}
 
                     {hasMore && (
-                        <Stack
-                            width='fit-content'
-                            height='84px'
-                            justifyContent='start'
-                            alignItems='center'
-                            mx={3.1}
-                        >
-                            <TimelineConnector />
-                            <LoadingButton
-                                variant='outlined'
-                                sx={{ alignSelf: 'center', my: 1 }}
-                                loading={request.isLoading()}
-                                onClick={onLoadMore}
-                            >
-                                Load More
-                            </LoadingButton>
-                            <TimelineConnector />
-                        </Stack>
+                        <LoadMoreButton
+                            onLoadMore={onLoadMore}
+                            hasMore={hasMore}
+                            request={request}
+                        />
                     )}
 
-                    {user.createdAt && getCreatedAtItem(user.createdAt)}
-                </Timeline>
+                    <CreatedAtItem user={user} viewer={viewer} />
+                </Stack>
             )}
 
             <RequestSnackbar request={request} />

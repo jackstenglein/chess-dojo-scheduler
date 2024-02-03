@@ -111,13 +111,13 @@ async function processRecord(record: DynamoDBRecord) {
             return;
         }
 
-        if (oldGame?.pgn === newGame?.pgn) {
-            console.log('PGN was not updated, skipping');
+        if (oldGame?.pgn === newGame?.pgn && oldGame?.unlisted === newGame?.unlisted) {
+            console.log('Neither PGN nor unlisted was updated, skipping');
             return;
         }
 
-        const oldExplorerPositions = extractPositions(oldGame?.pgn);
-        const newExplorerPositions = extractPositions(newGame?.pgn);
+        const oldExplorerPositions = extractPositions(oldGame);
+        const newExplorerPositions = extractPositions(newGame);
         const updates = getUpdates(oldExplorerPositions, newExplorerPositions);
 
         console.log('Old positions: ', oldExplorerPositions);
@@ -142,12 +142,15 @@ async function processRecord(record: DynamoDBRecord) {
  * @param pgn The PGN to extract ExplorerPositionUpdates from.
  * @returns A map from normalized FEN to ExplorerPositionUpdate.
  */
-function extractPositions(pgn?: string): Record<string, ExplorerPositionExtraction> {
-    if (!pgn) {
+function extractPositions(game?: Game): Record<string, ExplorerPositionExtraction> {
+    if (game?.unlisted) {
+        return {};
+    }
+    if (!game?.pgn) {
         return {};
     }
 
-    const chess = new Chess({ pgn });
+    const chess = new Chess({ pgn: game.pgn });
     if (chess.history().length === 0) {
         return {};
     }

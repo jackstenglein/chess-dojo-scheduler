@@ -20,8 +20,6 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-const funcName = "user-update-handler"
-
 var repository database.UserUpdater = database.DynamoDB
 var mediaStore database.MediaStore = database.S3
 var stage = os.Getenv("stage")
@@ -41,17 +39,17 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	update := &database.UserUpdate{}
 	if err := json.Unmarshal([]byte(event.Body), update); err != nil {
-		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+		return api.Failure(errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
 	autopickCohort, _ := event.QueryStringParameters["autopickCohort"]
@@ -63,26 +61,26 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		displayName := strings.TrimSpace(*update.DisplayName)
 		update.DisplayName = &displayName
 		if *update.DisplayName == "" {
-			return api.Failure(funcName, errors.New(400, "Invalid request: displayName cannot be empty", "")), nil
+			return api.Failure(errors.New(400, "Invalid request: displayName cannot be empty", "")), nil
 		}
 	}
 	if update.RatingSystem != nil {
 		ratingSystem := strings.TrimSpace(string(*update.RatingSystem))
 		update.RatingSystem = (*database.RatingSystem)(&ratingSystem)
 		if *update.RatingSystem == "" {
-			return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem cannot be empty", "")), nil
+			return api.Failure(errors.New(400, "Invalid request: ratingSystem cannot be empty", "")), nil
 		}
 	}
 	if update.DojoCohort != nil {
 		cohort := strings.TrimSpace(string(*update.DojoCohort))
 		update.DojoCohort = (*database.DojoCohort)(&cohort)
 		if *update.DojoCohort == "" {
-			return api.Failure(funcName, errors.New(400, "Invalid request: dojoCohort cannot be empty", "")), nil
+			return api.Failure(errors.New(400, "Invalid request: dojoCohort cannot be empty", "")), nil
 		}
 	}
 
 	if err := saveReferralSource(ctx, user, update); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if update.DiscordUsername != nil {
@@ -91,7 +89,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		if *update.DiscordUsername != "" {
 			avatarUrl, err := discord.GetDiscordAvatarURL(*update.DiscordUsername)
 			if err != nil {
-				return api.Failure(funcName, err), nil
+				return api.Failure(err), nil
 			}
 			if !user.ProfilePictureSet && avatarUrl != "" {
 				if err := mediaStore.CopyImageFromURL(avatarUrl, fmt.Sprintf("/profile/%s", info.Username)); err != nil {
@@ -102,7 +100,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	if err := fetchRatings(user, update); err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if update.ProfilePictureData != nil {
@@ -112,7 +110,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 			err = mediaStore.UploadImage(fmt.Sprintf("/profile/%s", info.Username), *update.ProfilePictureData)
 		}
 		if err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 		update.ProfilePictureSet = aws.Bool(true)
 	}
@@ -120,9 +118,9 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	update.SearchKey = aws.String(database.GetSearchKey(user, update))
 	user, err = repository.UpdateUser(info.Username, update)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, user), nil
+	return api.Success(user), nil
 }
 
 func fetchCurrentRating(rating *database.Rating, fetcher ratings.RatingFetchFunc) error {
@@ -160,24 +158,24 @@ func fetchRatings(user *database.User, update *database.UserUpdate) error {
 
 func handleAutopickCohort(user *database.User, update *database.UserUpdate) api.Response {
 	if update.RatingSystem == nil || *update.RatingSystem == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem is required when autopickCohort is true", ""))
+		return api.Failure(errors.New(400, "Invalid request: ratingSystem is required when autopickCohort is true", ""))
 	}
 	if *update.RatingSystem == database.Custom {
-		return api.Failure(funcName, errors.New(400, "Invalid request: ratingSystem cannot be CUSTOM when autopickCohort is true", ""))
+		return api.Failure(errors.New(400, "Invalid request: ratingSystem cannot be CUSTOM when autopickCohort is true", ""))
 	}
 
 	if err := fetchRatings(user, update); err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 	if cohort := update.AutopickCohort(); cohort == database.NoCohort {
-		return api.Failure(funcName, errors.New(500, "Unable to choose cohort. Please contact support", fmt.Sprintf("Autopick cohort returned NoCohort for update %+v", update)))
+		return api.Failure(errors.New(500, "Unable to choose cohort. Please contact support", fmt.Sprintf("Autopick cohort returned NoCohort for update %+v", update)))
 	}
 
 	user, err := repository.UpdateUser(user.Username, update)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
-	return api.Success(funcName, user)
+	return api.Success(user)
 }
 
 func saveReferralSource(ctx context.Context, user *database.User, update *database.UserUpdate) error {

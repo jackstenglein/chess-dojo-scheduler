@@ -120,17 +120,33 @@ type OpenClassical struct {
 	// For the current Open Classical, this is set to the value of CurrentLeaderboard.
 	StartsAt string `dynamodbav:"startsAt" json:"startsAt"`
 
+	// The name of a completed tournament. This attribute is only present on completed
+	// open classicals.
+	Name string `dynamodbav:"name" json:"name"`
+
 	// Whether the open classical is accepting registrations or not.
 	AcceptingRegistrations bool `dynamodbav:"acceptingRegistrations" json:"acceptingRegistrations"`
 
 	// The sections in the tournament
 	Sections map[string]OpenClassicalSection `dynamodbav:"sections" json:"sections"`
+
+	// Players who are not in good standing and cannot register, mapped by their Lichess username.
+	BannedPlayers map[string]OpenClassicalPlayer `dynamodbav:"bannedPlayers" json:"bannedPlayers"`
 }
 
 // A section in the Open Classical tournament. Generally consists of both a region and a rating range.
 type OpenClassicalSection struct {
 	// The name of the section.
 	Name string `dynamodbav:"name" json:"name"`
+
+	// The region of the section.
+	Region string `dynamodbav:"region" json:"region"`
+
+	// The rating section of the section.
+	Section string `dynamodbav:"section" json:"section"`
+
+	// The players in the section, mapped by their Lichess username.
+	Players map[string]OpenClassicalPlayer `dynamodbav:"players" json:"players"`
 
 	// The rounds in the tournament for this section.
 	Rounds []OpenClassicalRound `dynamodbav:"rounds" json:"rounds"`
@@ -145,19 +161,25 @@ type OpenClassicalRound struct {
 // OpenClassicalPairing represents a single pairing in the Open Classical tournaments,
 // which are separate from the regular leaderboards.
 type OpenClassicalPairing struct {
-	// The player with the white pieces
-	White OpenClassicalPlayer `dynamodbav:"white" json:"white"`
+	// The Lichess username of the player with the white pieces
+	White OpenClassicalPlayerSummary `dynamodbav:"white" json:"white"`
 
 	// The player with the black pieces
-	Black OpenClassicalPlayer `dynamodbav:"black" json:"black"`
+	Black OpenClassicalPlayerSummary `dynamodbav:"black" json:"black"`
 
 	// The result of the game
 	Result string `dynamodbav:"result" json:"result"`
+
+	// The URL of the game that was played
+	GameUrl string `dynamodbav:"gameUrl" json:"gameUrl"`
+
+	// Whether the result is verified
+	Verified bool `dynamodbav:"verified" json:"verified"`
 }
 
-// OpenClassicalPlayer represents a player in the Open Classical tournaments, which
-// are separate from the regular tournaments.
-type OpenClassicalPlayer struct {
+// OpenClassicalPlayerSummary represents the minimum information needed to schedule
+// a game with a player in the Open Classical.
+type OpenClassicalPlayerSummary struct {
 	// The Lichess username of the player
 	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
 
@@ -169,6 +191,36 @@ type OpenClassicalPlayer struct {
 
 	// The player's Lichess rating at the start of the Open Classical
 	Rating int `dynamodbav:"rating" json:"rating"`
+}
+
+// OpenClassicalPlayer represents a player in the Open Classical tournaments, which
+// are separate from the regular tournaments. As opposed to the OpenClassicalPlayerSummary,
+// this type contains the player's full registration information.
+type OpenClassicalPlayer struct {
+	OpenClassicalPlayerSummary
+
+	// The username of the player in the Dojo Scoreboard, if they are logged in
+	Username string `dynamodbav:"username" json:"username"`
+
+	// The email of the player
+	Email string `dynamodbav:"email" json:"-"`
+
+	// The region the player is in
+	Region string `dynamodbav:"region" json:"region"`
+
+	// The section the player is in
+	Section string `dynamodbav:"section" json:"section"`
+
+	// The player's bye requests
+	ByeRequests []bool `dynamodbav:"byeRequests" json:"byeRequests"`
+}
+
+type OpenClassicalPairingUpdate struct {
+	Region       string
+	Section      string
+	Round        int
+	PairingIndex int
+	Pairing      *OpenClassicalPairing
 }
 
 // SetOpenClassical inserts the provided OpenClassical into the database.
@@ -205,4 +257,145 @@ func (repo *dynamoRepository) GetOpenClassical(startsAt string) (*OpenClassical,
 	openClassical := OpenClassical{}
 	err := repo.getItem(input, &openClassical)
 	return &openClassical, err
+}
+
+// UpdateOpenClassicalRegistration adds the provided player to the given open classical. If the player
+// already exists in a different section, they are removed.
+func (repo *dynamoRepository) UpdateOpenClassicalRegistration(openClassical *OpenClassical, player *OpenClassicalPlayer) (*OpenClassical, error) {
+	item, err := dynamodbattribute.MarshalMap(player)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal open classical player", err)
+	}
+
+	updateExpr := "REMOVE "
+	exprAttrNames := map[string]*string{
+		"#acceptingRegistrations": aws.String("acceptingRegistrations"),
+		"#sections":               aws.String("sections"),
+		"#players":                aws.String("players"),
+		"#username":               aws.String(strings.ToLower(player.LichessUsername)),
+	}
+
+	for key, section := range openClassical.Sections {
+		if section.Region != player.Region || section.Section != player.Section {
+			sectionName := fmt.Sprintf("#%s", key)
+			updateExpr += fmt.Sprintf("#sections.%s.#players.#username, ", sectionName)
+			exprAttrNames[sectionName] = aws.String(key)
+		}
+	}
+	updateExpr = updateExpr[0 : len(updateExpr)-2]
+
+	sectionName := fmt.Sprintf("#%s_%s", player.Region, player.Section)
+	updateExpr += fmt.Sprintf(" SET #sections.%s.#players.#username = :player", sectionName)
+	exprAttrNames[sectionName] = aws.String(fmt.Sprintf("%s_%s", player.Region, player.Section))
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type": {
+				S: aws.String(string(openClassical.Type)),
+			},
+			"startsAt": {
+				S: aws.String(openClassical.StartsAt),
+			},
+		},
+		UpdateExpression:         aws.String(updateExpr),
+		ConditionExpression:      aws.String("#acceptingRegistrations = :true"),
+		ExpressionAttributeNames: exprAttrNames,
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":player": {M: item},
+			":true":   {BOOL: aws.Bool(true)},
+		},
+		TableName:    aws.String(tournamentTable),
+		ReturnValues: aws.String("ALL_NEW"),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Registration for this tournament has already closed", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+	}
+
+	resultTnmt := OpenClassical{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &resultTnmt); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &resultTnmt, nil
+}
+
+// ListPreviousOpenClassicals returns a list of OpenClassicals whose name is not CURRENT.
+// The list is sorted in descending order by name.
+func (repo *dynamoRepository) ListPreviousOpenClassicals(startKey string) ([]OpenClassical, string, error) {
+	input := dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#type = :openClassical"),
+		ExpressionAttributeNames: map[string]*string{
+			"#type": aws.String("type"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":openClassical": {S: aws.String("OPEN_CLASSICAL")},
+		},
+		IndexName:        aws.String(tournamentTableOpenClassicalIndex),
+		TableName:        aws.String(tournamentTable),
+		ScanIndexForward: aws.Bool(false),
+	}
+
+	var openClassicals []OpenClassical
+	lastKey, err := repo.query(&input, startKey, &openClassicals)
+	if err != nil {
+		return nil, "", err
+	}
+	return openClassicals, lastKey, nil
+}
+
+// Sets the pairing on the current open classical to match the given update. The update succeeds
+// only if the pairing is not already marked as verified.
+func (repo *dynamoRepository) UpdateOpenClassicalResult(update *OpenClassicalPairingUpdate) (*OpenClassical, error) {
+	item, err := dynamodbattribute.MarshalMap(update.Pairing)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal open classical pairing", err)
+	}
+
+	sectionName := fmt.Sprintf("#%s_%s", update.Region, update.Section)
+	pairingPath := fmt.Sprintf("#sections.%s.#rounds[%d].#pairings[%d]", sectionName, update.Round, update.PairingIndex)
+
+	updateExpr := fmt.Sprintf("SET %s = :item", pairingPath)
+	conditionExpr := fmt.Sprintf("attribute_exists(%s) AND %s.#verified <> :true", pairingPath, pairingPath)
+	exprAttrNames := map[string]*string{
+		"#sections": aws.String("sections"),
+		sectionName: aws.String(fmt.Sprintf("%s_%s", update.Region, update.Section)),
+		"#rounds":   aws.String("rounds"),
+		"#pairings": aws.String("pairings"),
+		"#verified": aws.String("verified"),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{
+		":item": {M: item},
+		":true": {BOOL: aws.Bool(true)},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
+			"startsAt": {S: aws.String(string(CurrentLeaderboard))},
+		},
+		UpdateExpression:          aws.String(updateExpr),
+		ConditionExpression:       aws.String(conditionExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		TableName:                 aws.String(tournamentTable),
+		ReturnValues:              aws.String("ALL_NEW"),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "This pairing does not exist or its result has already been verified. Contact the TD to change it.", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+	}
+
+	resultTnmt := OpenClassical{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &resultTnmt); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &resultTnmt, nil
 }

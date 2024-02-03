@@ -2,16 +2,11 @@
 
 import {
     DeleteItemCommand,
-    DynamoDB,
     DynamoDBClient,
     PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { Chess } from '@jackstenglein/chess';
-import {
-    APIGatewayProxyEventV2,
-    APIGatewayProxyHandlerV2,
-    APIGatewayProxyResultV2,
-} from 'aws-lambda';
+import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ExplorerPositionFollower, normalizeFen } from './types';
 import { marshall } from '@aws-sdk/util-dynamodb';
 
@@ -120,7 +115,7 @@ function getUserInfo(event: any): UserInfo {
     };
 }
 
-function handleError(code: number, err: any): APIGatewayProxyResultV2 {
+export function handleError(code: number, err: any): APIGatewayProxyResultV2 {
     console.error(err);
 
     return {

@@ -3,6 +3,8 @@ package database
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
 type CourseType string
@@ -12,6 +14,18 @@ const (
 	Other   CourseType = "OTHER"
 )
 
+type CourseColor string
+
+const (
+	CourseColor_White CourseColor = "White"
+	CourseColor_Black CourseColor = "Black"
+	CourseColor_None  CourseColor = "None"
+)
+
+func (c CourseColor) IsValid() bool {
+	return c == CourseColor_White || c == CourseColor_Black || c == CourseColor_None
+}
+
 // Course contains the full information for a course. A course is
 // defined as a series of related chapters designed for a specific cohort range.
 type Course struct {
@@ -20,6 +34,15 @@ type Course struct {
 
 	// The id of the course and the range key of the table.
 	Id string `dynamodbav:"id" json:"id"`
+
+	// The owner of the course.
+	Owner string `dynamodbav:"owner" json:"owner"`
+
+	// The display name of the owner of the course.
+	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
+
+	// The stripe ID of the owner of the course.
+	StripeId string `dynamodbav:"stripeId" json:"stripeId"`
 
 	// The name of the course.
 	Name string `dynamodbav:"name" json:"name"`
@@ -31,7 +54,7 @@ type Course struct {
 	WhatsIncluded []string `dynamodbav:"whatsIncluded" json:"whatsIncluded"`
 
 	// The color the course is designed for.
-	Color string `dynamodbav:"color" json:"color"`
+	Color CourseColor `dynamodbav:"color" json:"color"`
 
 	// The cohorts the course is designed for.
 	Cohorts []DojoCohort `dynamodbav:"cohorts" json:"cohorts"`
@@ -62,12 +85,6 @@ type CoursePurchaseOption struct {
 
 	// The current price of the purchase option in cents. If non-positive, then FullPrice is used instead.
 	CurrentPrice int `dynamodbav:"currentPrice" json:"currentPrice"`
-
-	// The buy button id on Stripe.
-	BuyButtonId string `dynamodbav:"buyButtonId" json:"buyButtonId"`
-
-	// A short description of the purchase option.
-	Description string `dynamodbav:"description,omitempty" json:"description,omitempty"`
 
 	// A list of selling points for the purchase option.
 	SellingPoints []CourseSellingPoint `dynamodbav:"sellingPoints,omitempty" json:"sellingPoints,omitempty"`
@@ -200,7 +217,7 @@ func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]Course
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":type": {S: aws.String(courseType)},
 		},
-		IndexName: aws.String("SummaryIdx"),
+		IndexName: aws.String("SummaryIndex"),
 		TableName: aws.String(courseTable),
 	}
 	var courses []Course
@@ -214,7 +231,7 @@ func (repo *dynamoRepository) ListCourses(courseType, startKey string) ([]Course
 // ScanCourses returns a list of all courses.
 func (repo *dynamoRepository) ScanCourses(startKey string) ([]Course, string, error) {
 	input := &dynamodb.ScanInput{
-		IndexName: aws.String("SummaryIdx"),
+		IndexName: aws.String("SummaryIndex"),
 		TableName: aws.String(courseTable),
 	}
 	var courses []Course
@@ -223,4 +240,35 @@ func (repo *dynamoRepository) ScanCourses(startKey string) ([]Course, string, er
 		return nil, "", err
 	}
 	return courses, lastKey, nil
+}
+
+// CourseSetter provides an interface for setting Courses.
+type CourseSetter interface {
+	// Required to fetch the user's coach permissions.
+	UserGetter
+
+	// SetCourse saves the provided course to the database.
+	SetCourse(course *Course) error
+}
+
+// SetCourse saves the provided course to the database.
+func (repo *dynamoRepository) SetCourse(course *Course) error {
+	item, err := dynamodbattribute.MarshalMap(course)
+	if err != nil {
+		return errors.New(500, "Temporary server error", "Unable to marshal course")
+	}
+
+	input := &dynamodb.PutItemInput{
+		ConditionExpression: aws.String("attribute_not_exists(id) OR #owner = :owner"),
+		ExpressionAttributeNames: map[string]*string{
+			"#owner": aws.String("owner"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":owner": {S: aws.String(course.Owner)},
+		},
+		Item:      item,
+		TableName: aws.String(courseTable),
+	}
+	_, err = repo.svc.PutItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed Dynamo PutItem", err)
 }

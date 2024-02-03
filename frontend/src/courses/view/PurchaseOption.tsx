@@ -11,16 +11,25 @@ import { displayPrice } from '../list/CourseListItem';
 interface PurchaseOptionProps {
     course: Course;
     purchaseOption: CoursePurchaseOption;
+    preview?: boolean;
 }
 
-const PurchaseOption: React.FC<PurchaseOptionProps> = ({ course, purchaseOption }) => {
+const PurchaseOption: React.FC<PurchaseOptionProps> = ({
+    course,
+    purchaseOption,
+    preview,
+}) => {
     const api = useApi();
     const request = useRequest();
 
-    const { name, fullPrice, currentPrice, description, sellingPoints } = purchaseOption;
+    const { name, fullPrice, currentPrice, sellingPoints } = purchaseOption;
     const percentOff = Math.round(((fullPrice - currentPrice) / fullPrice) * 100);
 
     const onBuy = () => {
+        if (preview) {
+            return;
+        }
+
         request.onStart();
         api.purchaseCourse(course.type, course.id, purchaseOption.name)
             .then((resp) => {
@@ -44,7 +53,7 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({ course, purchaseOption 
                             fontWeight='bold'
                             color='text.secondary'
                         >
-                            {name}
+                            {name || course.name}
                         </Typography>
 
                         <Stack direction='row' spacing={1} alignItems='baseline'>
@@ -72,8 +81,6 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({ course, purchaseOption 
                             )}
                         </Stack>
                     </Stack>
-
-                    {description && <Typography>{description}</Typography>}
 
                     {sellingPoints && (
                         <Stack spacing={1}>

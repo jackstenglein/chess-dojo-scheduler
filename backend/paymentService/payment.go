@@ -16,6 +16,7 @@ import (
 	bpsession "github.com/stripe/stripe-go/v76/billingportal/session"
 	"github.com/stripe/stripe-go/v76/checkout/session"
 	"github.com/stripe/stripe-go/v76/loginlink"
+	"github.com/stripe/stripe-go/v76/refund"
 )
 
 var frontendHost = os.Getenv("frontendHost")
@@ -70,7 +71,15 @@ func PurchaseCourseUrl(user *database.User, course *database.Course, purchaseOpt
 				Quantity: stripe.Int64(1),
 			},
 		},
-		Mode:                stripe.String(string(stripe.CheckoutSessionModePayment)),
+		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
+		PaymentIntentData: &stripe.CheckoutSessionPaymentIntentDataParams{
+			Metadata: map[string]string{
+				"type":      string(CheckoutSessionType_Course),
+				"courseIds": courseIds,
+			},
+			Description:         stripe.String("Course"),
+			StatementDescriptor: stripe.String("ChessDojo Course"),
+		},
 		SuccessURL:          stripe.String(fmt.Sprintf("%s?checkout={CHECKOUT_SESSION_ID}", courseUrl)),
 		CancelURL:           stripe.String(cancelUrl),
 		AllowPromotionCodes: stripe.Bool(true),
@@ -82,6 +91,9 @@ func PurchaseCourseUrl(user *database.User, course *database.Course, purchaseOpt
 
 	if user != nil {
 		params.ClientReferenceID = stripe.String(user.Username)
+		params.AddMetadata("username", user.Username)
+		params.PaymentIntentData.AddMetadata("username", user.Username)
+
 		if user.PaymentInfo.GetCustomerId() != "" {
 			params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
 		}
@@ -201,6 +213,8 @@ func CoachingCheckoutSession(user *database.User, event *database.Event) (*strip
 				"coachUsername": event.Owner,
 				"username":      user.Username,
 			},
+			Description:         stripe.String("Coaching Session"),
+			StatementDescriptor: stripe.String("ChessDojo Coaching"),
 		},
 		ExpiresAt:  stripe.Int64(expiration),
 		SubmitType: stripe.String(string(stripe.CheckoutSessionSubmitTypeBook)),
@@ -253,14 +267,6 @@ func CreateConnectedAccount(username, email string) (*stripe.Account, error) {
 		BusinessProfile: &stripe.AccountBusinessProfileParams{
 			ProductDescription: stripe.String("Chess courses and coaching"),
 		},
-		Capabilities: &stripe.AccountCapabilitiesParams{
-			Transfers: &stripe.AccountCapabilitiesTransfersParams{
-				Requested: stripe.Bool(true),
-			},
-			TaxReportingUS1099K: &stripe.AccountCapabilitiesTaxReportingUS1099KParams{
-				Requested: stripe.Bool(true),
-			},
-		},
 		Email: stripe.String(email),
 		Metadata: map[string]string{
 			"username": username,
@@ -271,6 +277,12 @@ func CreateConnectedAccount(username, email string) (*stripe.Account, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe account", err)
 	}
 	return account, nil
+}
+
+func DeleteConnectedAccount(stripeId string) error {
+	params := &stripe.AccountParams{}
+	_, err := account.Del(stripeId, params)
+	return errors.Wrap(500, "Temporary server error", "Failed to delete Stripe account", err)
 }
 
 func GetConnectedAccount(stripeId string) (*stripe.Account, error) {
@@ -304,4 +316,35 @@ func LoginLink(stripeId string) (*stripe.LoginLink, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe LoginLink", err)
 	}
 	return link, nil
+}
+
+func CreateEventRefund(event *database.Event, participant *database.Participant, percentage int64) (*stripe.Refund, error) {
+	if percentage <= 0 {
+		return nil, nil
+	}
+	if !participant.HasPaid {
+		return nil, nil
+	}
+
+	amount := participant.CheckoutSession.AmountTotal * percentage / 100
+	params := &stripe.RefundParams{
+		PaymentIntent:   stripe.String(participant.CheckoutSession.PaymentIntent.ID),
+		Amount:          stripe.Int64(amount),
+		ReverseTransfer: stripe.Bool(true),
+		Metadata: map[string]string{
+			"type":          string(CheckoutSessionType_Coaching),
+			"eventId":       event.Id,
+			"coachStripeId": event.Coaching.StripeId,
+			"coachUsername": event.Owner,
+			"username":      participant.Username,
+		},
+	}
+
+	result, err := refund.New(params)
+	if serr, ok := err.(*stripe.Error); ok {
+		if serr.Code == stripe.ErrorCodeChargeAlreadyRefunded {
+			return nil, nil
+		}
+	}
+	return result, errors.Wrap(500, "Failed to create Stripe refund", "", err)
 }

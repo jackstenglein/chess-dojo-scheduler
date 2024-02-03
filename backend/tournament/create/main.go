@@ -16,7 +16,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "tournament-create-handler"
 const lichessArenaPrefix = "https://lichess.org/tournament/"
 const lichessSwissPrefix = "https://lichess.org/swiss/"
 
@@ -176,38 +175,38 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	auth, _ := request.Headers["authorization"]
 	if auth != fmt.Sprintf("Basic %s", botAccessToken) {
 		err := errors.New(401, "Authorization header is invalid", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	req := CreateTournamentsRequest{}
 	err := json.Unmarshal([]byte(request.Body), &req)
 	if err != nil {
-		return api.Failure(funcName, errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
+		return api.Failure(errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
 	var events []*database.Event
 	if strings.HasPrefix(req.Url, lichessArenaPrefix) {
 		event, err := handleArena(req.Url)
 		if err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 		events = append(events, event)
 	} else if strings.HasPrefix(req.Url, lichessSwissPrefix) {
 		e, err := handleSwiss(req.Url)
 		if err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 		events = append(events, e...)
 	} else {
-		return api.Failure(funcName, errors.New(400, "Invalid request: unknown URL format", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: unknown URL format", "")), nil
 	}
 
 	for _, event := range events {
 		if err := repository.SetEvent(event); err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 	}
-	return api.Success(funcName, events), nil
+	return api.Success(events), nil
 }
 
 func handleArena(url string) (*database.Event, error) {

@@ -23,8 +23,8 @@ export const CategoryColors: Record<string, string> = {
 
 export const ScoreCategories = [
     'Games + Analysis',
-    'Middlegames + Strategy',
     'Tactics',
+    'Middlegames + Strategy',
     'Endgame',
     'Opening',
 ];

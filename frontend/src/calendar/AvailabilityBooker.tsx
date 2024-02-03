@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
     Dialog,
     AppBar,
@@ -15,8 +15,6 @@ import {
     Radio,
     FormHelperText,
     Slide,
-    Snackbar,
-    Alert,
     Link,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -27,9 +25,8 @@ import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { useApi } from '../api/Api';
 import { useCache } from '../api/cache/Cache';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { AvailabilityType, getDisplayString } from '../database/event';
+import { AvailabilityType, Event, getDisplayString } from '../database/event';
 import GraduationIcon from '../scoreboard/GraduationIcon';
-import LoadingPage from '../loading/LoadingPage';
 import { EventType, trackEvent } from '../analytics/events';
 import Avatar from '../profile/Avatar';
 import { useAuth } from '../auth/Auth';
@@ -38,7 +35,7 @@ import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from './displayD
 import Field from './eventViewer/Field';
 import OwnerField from './eventViewer/OwnerField';
 
-const Transition = React.forwardRef(function Transition(
+export const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
         children: React.ReactElement;
     },
@@ -47,13 +44,11 @@ const Transition = React.forwardRef(function Transition(
     return <Slide direction='up' ref={ref} {...props} />;
 });
 
-type AvailabilityBookerProps = {
-    id: string;
-};
+interface AvailabilityBookerProps {
+    availability: Event;
+}
 
-const AvailabilityBooker = () => {
-    const { id } = useParams<AvailabilityBookerProps>();
-
+const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability }) => {
     const request = useRequest();
     const api = useApi();
     const navigate = useNavigate();
@@ -64,8 +59,6 @@ const AvailabilityBooker = () => {
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const availability = cache.events.get(id!);
-
     const timezone = user?.timezoneOverride;
     const timeFormat = user?.timeFormat || TimeFormat.TwelveHour;
 
@@ -75,35 +68,9 @@ const AvailabilityBooker = () => {
         }
     }, [availability, setStartTime, timezone]);
 
-    if (!availability) {
-        if (cache.isLoading) {
-            return <LoadingPage />;
-        }
-
-        return (
-            <Snackbar
-                open
-                autoHideDuration={6000}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    variant='filled'
-                    severity='error'
-                    sx={{ width: '100%' }}
-                    onClose={() => navigate('/calendar')}
-                >
-                    This availability cannot be found. It is either fully booked, deleted
-                    by the owner or not available to your cohort.
-                </Alert>
-            </Snackbar>
-        );
-    }
-
     const isGroup = availability.maxParticipants > 1;
     const minStartTime = new Date(availability.startTime);
     const maxStartTime = new Date(availability.endTime);
-
-    console.log('Min Start Time: ', minStartTime);
 
     const minStartDate = toDojoDateString(minStartTime, timezone);
     const minStartStr = toDojoTimeString(minStartTime, timezone, timeFormat);

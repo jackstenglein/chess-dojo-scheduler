@@ -26,6 +26,7 @@ const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
                     href='/prices'
                     size='small'
                     onClick={onViewPrices}
+                    sx={{ textAlign: 'center' }}
                 >
                     View Prices
                 </Button>

@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
 import { Event } from '../database/event';
+import { User } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -65,6 +66,14 @@ export type EventApiContextType = {
      * @returns An AxiosResponse containing the Event as saved in the database.
      */
     setEvent: (event: Event) => Promise<AxiosResponse<Event, any>>;
+
+    /**
+     * Adds the given message to the given event.
+     * @param id The id of the event.
+     * @param content The text content of the message.
+     * @returns An AxiosResponse containing the updated Event.
+     */
+    createMessage: (id: string, content: string) => Promise<AxiosResponse<Event, any>>;
 };
 
 export interface BookEventResponse {
@@ -199,6 +208,35 @@ export async function listEvents(idToken: string, startKey?: string) {
  */
 export function setEvent(idToken: string, event: Event) {
     return axios.put<Event>(`${BASE_URL}/event`, event, {
+        headers: {
+            Authorization: 'Bearer ' + idToken,
+        },
+    });
+}
+
+/**
+ * Adds the given message to the given event.
+ * @param idToken The id token of the current signed-in user.
+ * @param messager The user sending the message.
+ * @param id The id of the event.
+ * @param content The text content of the message.
+ * @returns An AxiosResponse containing the updated Event.
+ */
+export function createMessage(
+    idToken: string,
+    messager: User,
+    id: string,
+    content: string
+) {
+    const comment = {
+        owner: messager.username,
+        ownerDisplayName: messager.displayName,
+        ownerCohort: messager.dojoCohort,
+        ownerPreviousCohort: messager.previousCohort,
+        content,
+    };
+
+    return axios.post<Event>(`${BASE_URL}/event/${id}`, comment, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

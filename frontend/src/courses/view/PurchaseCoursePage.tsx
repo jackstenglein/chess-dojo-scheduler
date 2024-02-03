@@ -2,17 +2,21 @@ import { Container, Stack, Typography, Divider, Alert, Button } from '@mui/mater
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import { Course } from '../../database/course';
-import { useFreeTier } from '../../auth/Auth';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import PurchaseOption from './PurchaseOption';
+import { useNavigate } from 'react-router-dom';
 
 interface PurchaseCoursePageProps {
     course?: Course;
+    preview?: boolean;
+    isFreeTier: boolean;
 }
 
-const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course }) => {
-    const isFreeTier = useFreeTier();
-
+const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
+    course,
+    preview,
+    isFreeTier,
+}) => {
     if (!course) {
         return null;
     }
@@ -28,7 +32,7 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course }) => {
 
                 <Stack spacing={2} mt={2}>
                     <Grid2 container rowSpacing={2} columnSpacing={4} alignItems='center'>
-                        <PurchaseMessage course={course} />
+                        <PurchaseMessage course={course} isFreeTier={isFreeTier} />
 
                         <Grid2 xs={12} sm={12} md={6} lg={6} xl={4}>
                             <Stack spacing={2}>
@@ -57,6 +61,7 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course }) => {
                                     <PurchaseOption
                                         course={course}
                                         purchaseOption={option}
+                                        preview={preview}
                                     />
                                 </Grid2>
                             ))}
@@ -69,13 +74,19 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course }) => {
 
 interface PurchaseMessageProps {
     course: Course;
+    isFreeTier: boolean;
 }
 
-const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course }) => {
-    const isFreeTier = useFreeTier();
+const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier }) => {
+    const navigate = useNavigate();
+    const onViewPrices = (event: React.MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const currentPage = encodeURIComponent(window.location.href);
+        navigate(`/prices?redirect=${currentPage}`);
+    };
 
     let content = null;
-
     if (isFreeTier) {
         if (!course.availableForFreeUsers) {
             content = (
@@ -88,10 +99,9 @@ const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course }) => {
                     action={
                         <Button
                             color='inherit'
-                            href='https://www.chessdojo.club/plans-pricing'
-                            target='_blank'
-                            rel='noopener'
+                            href='/prices'
                             size='small'
+                            onClick={onViewPrices}
                         >
                             View Prices
                         </Button>

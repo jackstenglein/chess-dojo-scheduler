@@ -12,7 +12,7 @@ provider:
   runtime: provided.al2
   architecture: arm64
   region: us-east-1
-  logRetentionInDays: 30
+  logRetentionInDays: 14
   environment:
     stage: ${sls:stage}
   httpApi:
@@ -345,6 +345,28 @@ functions:
         Action:
           - dynamodb:Scan
         Resource: ${param:GraduationsTableArn}
+
+  checkSubscriptions:
+    handler: subscriptionCheck/main.go
+    events:
+      - schedule:
+          rate: cron(45 23 1 * ? *)
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:UsersTableArn}
+                - '/index/CohortIdx'
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:UsersTableArn}
+    environment:
+      wixApiKey: ${file(../wix.yml):wixApiKey}
 
   updateTimeSpent:
     handler: timeline/statistics/main.go

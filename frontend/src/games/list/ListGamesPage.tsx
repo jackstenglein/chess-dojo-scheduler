@@ -5,6 +5,7 @@ import {
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
+    GridValueFormatterParams,
 } from '@mui/x-data-grid';
 
 import { GameInfo } from '../../database/game';
@@ -74,6 +75,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         renderCell: RenderResult,
         align: 'center',
         headerAlign: 'center',
+        width: 75,
     },
     {
         field: 'moves',
@@ -84,21 +86,29 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
                 : '?',
         align: 'center',
         headerAlign: 'center',
+        width: 75,
     },
     {
-        field: 'createdAt',
-        headerName: 'Upload Date',
+        field: 'publishedAt',
+        headerName: 'Publish Date',
         valueGetter: (params) => {
-            return params.row.id.split('_')[0];
+            return (
+                params.row.publishedAt ||
+                params.row.createdAt ||
+                params.row.id.split('_')[0]
+            );
         },
-        width: 100,
+        valueFormatter: (params: GridValueFormatterParams<string>) => {
+            return params.value.split('T')[0].replaceAll('-', '.');
+        },
+        width: 120,
         align: 'right',
         headerAlign: 'right',
     },
     {
         field: 'date',
         headerName: 'Date Played',
-        width: 100,
+        width: 110,
         align: 'right',
         headerAlign: 'right',
     },
@@ -140,12 +150,7 @@ const ListGamesPage = () => {
     };
 
     const onSubmit = () => {
-        if (isFreeTier) {
-            setUpsellAction(RestrictedAction.SubmitGames);
-            setUpsellDialogOpen(true);
-        } else {
-            navigate('submit');
-        }
+        navigate('submit');
     };
 
     const onDownloadDatabase = () => {
@@ -158,6 +163,14 @@ const ListGamesPage = () => {
             <UpsellPage
                 redirectTo='/games'
                 currentAction={RestrictedAction.SearchDatabase}
+            />
+        );
+    }
+    if (isFreeTier && type === 'position') {
+        return (
+            <UpsellPage
+                redirectTo='/games'
+                currentAction={RestrictedAction.DatabaseExplorer}
             />
         );
     }
@@ -198,6 +211,16 @@ const ListGamesPage = () => {
                         autoHeight
                         rowHeight={70}
                         onRowClick={onClickRow}
+                        initialState={{
+                            sorting: {
+                                sortModel: [
+                                    {
+                                        field: 'publishedAt',
+                                        sort: 'desc',
+                                    },
+                                ],
+                            },
+                        }}
                     />
                 </Grid>
 

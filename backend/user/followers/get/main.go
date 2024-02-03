@@ -10,8 +10,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "user-follower-check-handler"
-
 var repository database.FollowerGetter = database.DynamoDB
 
 func main() {
@@ -25,18 +23,18 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
 		err := errors.New(400, "Invalid request: username is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	poster := event.PathParameters["poster"]
 	if poster == "" {
 		err := errors.New(400, "Invalid request: poster is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	entry, err := repository.GetFollowerEntry(poster, info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, entry), nil
+	return api.Success(entry), nil
 }

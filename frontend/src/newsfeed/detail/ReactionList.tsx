@@ -25,6 +25,7 @@ const ReactionTypes = [
     '🥥',
     '💪',
     '🦀',
+    '🍉',
     '⚔️', // crossed swords
     '🛠️',
     '\u2764\uFE0F', // heart

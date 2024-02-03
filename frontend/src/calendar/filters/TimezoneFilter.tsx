@@ -14,6 +14,8 @@ import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
 import { DefaultTimezone } from './CalendarFilters';
 import { TimeFormat } from '../../database/user';
+import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 function getTimezoneOptions() {
     const options = [];
@@ -35,6 +37,12 @@ interface TimezoneFilterProps {
 
     timeFormat: string;
     setTimeFormat: (format: TimeFormat) => void;
+
+    minHour: Date | null;
+    setMinHour: (d: Date | null) => void;
+
+    maxHour: Date | null;
+    setMaxHour: (d: Date | null) => void;
 }
 
 const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
@@ -42,6 +50,10 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
     setTimezone,
     timeFormat,
     setTimeFormat,
+    minHour,
+    setMinHour,
+    maxHour,
+    setMaxHour,
 }) => {
     const api = useApi();
     const auth = useAuth();
@@ -64,11 +76,14 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
     const browserDefaultLabel =
         timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
 
+    let minHourNum = minHour?.getHours() || 0;
+    let maxHourNum = (maxHour?.getHours() || 23) + 1;
+
     return (
         <Stack spacing={2}>
             <Stack id='current-timezone'>
                 <Typography variant='h6' color='text.secondary' ml={1}>
-                    Current Timezone
+                    Timezone
                 </Typography>
                 <FormControl size='small'>
                     <Select
@@ -103,6 +118,41 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                     />
                 </RadioGroup>
             </FormControl>
+
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <TimePicker
+                    label='Min Hour'
+                    views={['hours']}
+                    ampm={timeFormat === TimeFormat.TwelveHour}
+                    value={minHour}
+                    onChange={(v) => setMinHour(v)}
+                    maxTime={maxHour}
+                    slotProps={{
+                        textField: {
+                            helperText:
+                                minHourNum >= maxHourNum
+                                    ? 'Min hour cannot be greater than max hour'
+                                    : undefined,
+                        },
+                    }}
+                />
+                <TimePicker
+                    label='Max Hour'
+                    views={['hours']}
+                    ampm={timeFormat === TimeFormat.TwelveHour}
+                    value={maxHour}
+                    onChange={(v) => setMaxHour(v)}
+                    minTime={minHour}
+                    slotProps={{
+                        textField: {
+                            helperText:
+                                maxHourNum <= minHourNum
+                                    ? 'Max hour cannot be less than min hour'
+                                    : undefined,
+                        },
+                    }}
+                />
+            </LocalizationProvider>
         </Stack>
     );
 };

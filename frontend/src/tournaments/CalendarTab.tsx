@@ -8,6 +8,7 @@ import {
     DefaultTimezone,
     useFilters,
     Filters,
+    getHours,
 } from '../calendar/filters/CalendarFilters';
 import TournamentCalendarFilters from './TournamentCalendarFilters';
 import { useEvents } from '../api/cache/Cache';
@@ -91,6 +92,41 @@ const CalendarTab = () => {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
     }, [calendarRef, filters.timeFormat]);
 
+    const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
+
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(
+            {
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                weekStartOn: 0,
+                startHour: minHour,
+                endHour: maxHour,
+                navigation: true,
+            },
+            'month'
+        );
+        calendarRef.current?.scheduler.handleState(
+            {
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                weekStartOn: 0,
+                startHour: minHour,
+                endHour: maxHour,
+                step: 60,
+                navigation: true,
+            },
+            'week'
+        );
+        calendarRef.current?.scheduler.handleState(
+            {
+                startHour: minHour,
+                endHour: maxHour,
+                step: 60,
+                navigation: true,
+            },
+            'day'
+        );
+    }, [calendarRef, minHour, maxHour]);
+
     return (
         <Grid container spacing={2}>
             <Grid item xs={12} md={2.5}>
@@ -106,21 +142,21 @@ const CalendarTab = () => {
                     month={{
                         weekDays: [0, 1, 2, 3, 4, 5, 6],
                         weekStartOn: 0,
-                        startHour: 0,
-                        endHour: 24,
+                        startHour: minHour,
+                        endHour: maxHour,
                         navigation: true,
                     }}
                     week={{
                         weekDays: [0, 1, 2, 3, 4, 5, 6],
                         weekStartOn: 0,
-                        startHour: 0,
-                        endHour: 24,
+                        startHour: minHour,
+                        endHour: maxHour,
                         step: 60,
                         navigation: true,
                     }}
                     day={{
-                        startHour: 0,
-                        endHour: 24,
+                        startHour: minHour,
+                        endHour: maxHour,
                         step: 60,
                         navigation: true,
                     }}

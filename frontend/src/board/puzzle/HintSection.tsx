@@ -7,7 +7,7 @@ import ChatBubble from './ChatBubble';
 import { Status } from './PuzzleBoard';
 import Coach from './Coach';
 import PgnText from '../pgn/pgnText/PgnText';
-import BoardTools from '../pgn/BoardTools';
+import BoardButtons from '../pgn/boardTools/boardButtons/BoardButtons';
 
 interface HintSectionProps {
     status: Status;
@@ -233,7 +233,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
         <>
             <Stack flexGrow={1} spacing={1} sx={{ overflowY: 'hidden' }}>
                 <PgnText onClickMove={onMove} />
-                <BoardTools showPlayerHeaders={false} onClickMove={onMove} />
+                <BoardButtons onClickMove={onMove} />
             </Stack>
             <Stack>
                 <ChatBubble>{chatText}</ChatBubble>

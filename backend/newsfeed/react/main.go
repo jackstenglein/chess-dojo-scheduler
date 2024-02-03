@@ -14,8 +14,6 @@ import (
 
 var repository database.TimelineReactor = database.DynamoDB
 
-const funcName = "newsfeed-react-handler"
-
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
@@ -23,24 +21,24 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	owner := event.PathParameters["owner"]
 	if owner == "" {
 		err := errors.New(400, "Invalid request: owner is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id := event.PathParameters["id"]
 	if id == "" {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	reaction := database.Reaction{}
 	if err := json.Unmarshal([]byte(event.Body), &reaction); err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	reactor, err := repository.GetUser(api.GetUserInfo(event).Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	reaction.Username = reactor.Username
@@ -50,7 +48,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	entry, err := repository.SetTimelineReaction(owner, id, &reaction)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if entry.Owner != reactor.Username {
@@ -60,7 +58,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	return api.Success(funcName, entry), nil
+	return api.Success(entry), nil
 }
 
 func main() {

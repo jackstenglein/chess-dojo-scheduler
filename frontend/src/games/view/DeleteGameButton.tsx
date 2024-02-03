@@ -19,7 +19,7 @@ import { EventType, trackEvent } from '../../analytics/events';
 
 interface DeleteGameButtonProps {
     game: Game;
-    variant?: 'icon' | 'contained';
+    variant?: 'icon' | 'contained' | 'outlined';
 }
 
 const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
@@ -56,12 +56,16 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
         <>
             {variant === 'icon' ? (
                 <Tooltip title='Delete Game'>
-                    <IconButton onClick={() => setShowDeleteModal(true)}>
+                    <IconButton
+                        data-cy='delete-game-button'
+                        onClick={() => setShowDeleteModal(true)}
+                    >
                         <DeleteIcon sx={{ color: 'text.secondary' }} />
                     </IconButton>
                 </Tooltip>
             ) : (
                 <Button
+                    data-cy='delete-game-button'
                     variant={variant}
                     onClick={() => setShowDeleteModal(true)}
                     color='error'
@@ -84,6 +88,7 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
                         Cancel
                     </Button>
                     <LoadingButton
+                        data-cy='delete-game-confirm-button'
                         color='error'
                         loading={request.isLoading()}
                         onClick={onDelete}

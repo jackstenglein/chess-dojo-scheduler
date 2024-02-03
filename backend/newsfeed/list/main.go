@@ -15,7 +15,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "newsfeed-list-handler"
 const limit = 25
 
 var repository = database.DynamoDB
@@ -40,7 +39,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	newsfeedIdsStr := event.QueryStringParameters["newsfeedIds"]
 	if newsfeedIdsStr == "" {
 		err := errors.New(400, "Invalid request: newsfeedIds is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	newsfeedIds := strings.Split(newsfeedIdsStr, ",")
@@ -48,7 +47,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		if newsfeedId == "following" {
 			if info.Username == "" {
 				err := errors.New(400, "Invalid request: username is required to list following newsfeed", "")
-				return api.Failure(funcName, err), nil
+				return api.Failure(err), nil
 			}
 			newsfeedIds[i] = info.Username
 		}
@@ -59,7 +58,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if startKey != "" {
 		if err := json.Unmarshal([]byte(startKey), &startKeys); err != nil {
 			err = errors.Wrap(400, "Invalid request: startKey is not valid", "startKey could not be unmarshaled", err)
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 	}
 
@@ -73,14 +72,14 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 
 		if err := fetchEntries(newsfeedId, startKeys[newsfeedId], lastFetch, timelineEntries, lastKeys); err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 	}
 
 	log.Debugf("Fetching timeline entries: %#v", timelineEntries)
 	resultEntries, err := repository.BatchGetTimelineEntries(timelineEntries)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if len(lastKeys) == 0 && info.Username != "" && event.QueryStringParameters["skipLastFetched"] == "" {
@@ -93,7 +92,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	return api.Success(funcName, &ListNewsfeedResponse{
+	return api.Success(&ListNewsfeedResponse{
 		Entries:   resultEntries,
 		LastFetch: lastFetch,
 		LastKeys:  lastKeys,

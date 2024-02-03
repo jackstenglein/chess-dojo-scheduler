@@ -12,7 +12,7 @@ provider:
   runtime: provided.al2
   architecture: arm64
   region: us-east-1
-  logRetentionInDays: 30
+  logRetentionInDays: 14
   environment:
     stage: ${sls:stage}
   httpApi:

@@ -42,6 +42,9 @@ func getZipFile() (*os.File, *zip.Writer, io.Writer, error) {
 
 func processGames(w io.Writer, games []*database.Game) error {
 	for _, game := range games {
+		if game.Unlisted {
+			continue
+		}
 		if _, err := w.Write([]byte(game.Pgn)); err != nil {
 			return err
 		}

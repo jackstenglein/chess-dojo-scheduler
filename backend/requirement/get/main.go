@@ -13,23 +13,21 @@ import (
 
 var repository database.RequirementGetter = database.DynamoDB
 
-const funcName = "requirement-get-handler"
-
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
 	id, _ := event.PathParameters["id"]
 	if id == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: id is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: id is required", "")), nil
 	}
 
 	requirement, err := repository.GetRequirement(id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, requirement), nil
+	return api.Success(requirement), nil
 }
 
 func main() {

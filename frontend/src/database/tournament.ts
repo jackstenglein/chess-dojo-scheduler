@@ -39,6 +39,15 @@ export interface OpenClassicalPairing {
 
     /** The player with the black pieces. */
     black: OpenClassicalPlayer;
+
+    /** The result of the pairing. */
+    result: string;
+
+    /** The URL of the game that was played. */
+    gameUrl: string;
+
+    /** Whether the result is verified. */
+    verified: boolean;
 }
 
 export interface OpenClassicalRound {
@@ -53,6 +62,9 @@ export interface OpenClassical {
      */
     startsAt: string;
 
+    /** The name of the tournament. */
+    name: string;
+
     /** Whether the tournament is accepting registrations or not. */
     acceptingRegistrations: boolean;
 
@@ -63,6 +75,12 @@ export interface OpenClassical {
 export interface OpenClassicalSection {
     /** The name of the section. */
     name: string;
+
+    region: string;
+
+    section: string;
+
+    players: Record<string, OpenClassicalPlayer>;
 
     /** The rounds in the tournament for this section. */
     rounds: OpenClassicalRound[];

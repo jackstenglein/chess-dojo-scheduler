@@ -91,6 +91,10 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                 setTimezone={filters.setTimezone}
                 timeFormat={filters.timeFormat}
                 setTimeFormat={filters.setTimeFormat}
+                minHour={filters.minHour}
+                setMinHour={filters.setMinHour}
+                maxHour={filters.maxHour}
+                setMaxHour={filters.setMaxHour}
             />
 
             <Accordion
@@ -116,7 +120,6 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                                 event.target.checked
                                             )
                                         }
-                                        disabled={!filters.dojoEvents}
                                     />
                                 }
                                 label={displayTournamentType(type)}

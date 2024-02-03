@@ -13,8 +13,6 @@ import (
 
 var repository database.GraduationLister = database.DynamoDB
 
-const funcName = "graduation-list-handler"
-
 type ListGraduationsResponse struct {
 	Graduations      []*database.Graduation `json:"graduations"`
 	LastEvaluatedKey string                 `json:"lastEvaluatedKey,omitempty"`
@@ -25,10 +23,10 @@ func byCohortHandler(event api.Request) (api.Response, error) {
 	startKey, _ := event.QueryStringParameters["startKey"]
 	graduations, lastKey, err := repository.ListGraduationsByCohort(database.DojoCohort(cohort), startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	return api.Success(funcName, &ListGraduationsResponse{
+	return api.Success(&ListGraduationsResponse{
 		Graduations:      graduations,
 		LastEvaluatedKey: lastKey,
 	}), nil
@@ -39,9 +37,9 @@ func byOwnerHandler(event api.Request) (api.Response, error) {
 	startKey, _ := event.QueryStringParameters["startKey"]
 	graduations, lastKey, err := repository.ListGraduationsByOwner(username, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, &ListGraduationsResponse{
+	return api.Success(&ListGraduationsResponse{
 		Graduations:      graduations,
 		LastEvaluatedKey: lastKey,
 	}), nil
@@ -52,9 +50,9 @@ func byDateHandler(event api.Request) (api.Response, error) {
 	monthAgo := time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
 	graduations, lastKey, err := repository.ListGraduationsByDate(monthAgo, startKey)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, &ListGraduationsResponse{
+	return api.Success(&ListGraduationsResponse{
 		Graduations:      graduations,
 		LastEvaluatedKey: lastKey,
 	}), nil

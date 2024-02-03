@@ -12,7 +12,7 @@ provider:
   runtime: provided.al2
   architecture: arm64
   region: us-east-1
-  logRetentionInDays: 30
+  logRetentionInDays: 14
   environment:
     stage: ${sls:stage}
   httpApi:
@@ -109,6 +109,25 @@ functions:
         Resource:
           - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
 
+  set:
+    handler: set/main.go
+    events:
+      - httpApi:
+          path: /courses
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt CoursesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -147,22 +166,6 @@ resources:
               NonKeyAttributes:
                 - name
                 - description
-                - color
-                - cohorts
-                - cohortRange
-                - price
-                - includedWithSubscription
-          - IndexName: SummaryIdx
-            KeySchema:
-              - AttributeName: type
-                KeyType: HASH
-              - AttributeName: id
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - name
-                - description
                 - whatsIncluded
                 - color
                 - cohorts
@@ -170,3 +173,5 @@ resources:
                 - includedWithSubscription
                 - availableForFreeUsers
                 - purchaseOptions
+                - owner
+                - ownerDisplayName

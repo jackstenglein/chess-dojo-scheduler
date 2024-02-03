@@ -1,3 +1,5 @@
+import { Comment } from './game';
+
 export enum EventType {
     Availability = 'AVAILABILITY',
     Dojo = 'DOJO',
@@ -19,13 +21,18 @@ export interface Event {
     bookedStartTime: string;
     bookedType: AvailabilityType;
     cohorts: string[];
-    status: AvailabilityStatus;
+    status: EventStatus;
     location: string;
     description: string;
     maxParticipants: number;
     participants: Record<string, Participant>;
     discordMessageId: string;
     privateDiscordEventId: string;
+
+    /** Whether to hide the Event from the public Discord server. */
+    hideFromPublicDiscord: boolean;
+
+    /** The ID of the public Discord guild event for this Event. */
     publicDiscordEventId: string;
 
     /** The LigaTournament information for this event. Only present for LigaTournaments. */
@@ -33,6 +40,9 @@ export interface Event {
 
     /** The coaching information for this event. Only present for EventType.Coaching. */
     coaching?: Coaching;
+
+    /** Messages on the meeting. */
+    messages?: Comment[];
 }
 
 export enum TournamentType {
@@ -110,7 +120,7 @@ export interface Participant {
     hasPaid?: boolean;
 }
 
-export enum AvailabilityStatus {
+export enum EventStatus {
     Scheduled = 'SCHEDULED',
     Booked = 'BOOKED',
     Canceled = 'CANCELED',

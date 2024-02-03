@@ -11,8 +11,6 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const funcName = "tournament-leaderboard-get-handler"
-
 var repository = database.DynamoDB
 var now = time.Now()
 
@@ -31,25 +29,25 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 
 	if timePeriod != "monthly" && timePeriod != "yearly" {
 		err := errors.New(400, "Invalid request: timePeriod must be `monthly` or `yearly`", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if tournamentType == "" {
 		err := errors.New(400, "Invalid request: tournamentType is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if timeControl == "" {
 		err := errors.New(400, "Invalid request: timeControl is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 	if date == "" {
 		err := errors.New(400, "Invalid request: date is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	t, err := time.Parse(time.RFC3339, date)
 	if err != nil {
 		err = errors.Wrap(400, "Invalid request: date format is invalid", "time.Parse failure", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	var startsAt string
@@ -69,7 +67,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 
 	leaderboard, err := repository.GetLeaderboard(timePeriod, tournamentType, timeControl, startsAt)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, leaderboard), nil
+	return api.Success(leaderboard), nil
 }

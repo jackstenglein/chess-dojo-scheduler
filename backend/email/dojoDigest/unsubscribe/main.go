@@ -16,8 +16,6 @@ import (
 	sheets "google.golang.org/api/sheets/v4"
 )
 
-const funcName = "dojo-digest-unsubscribe-handler"
-
 const sheetId = "1Z83rWOA6xvIoNHoh0NK1j16shXDtoTHOj4mRSMG0x8Y"
 const sheetRange = "Sheet1"
 
@@ -36,33 +34,38 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	request := &UnsubscribeRequest{}
-	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
-		err = errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)
-		return api.Failure(funcName, err), nil
+	request := UnsubscribeRequest{}
+
+	if _, ok := event.QueryStringParameters["email"]; ok {
+		request.Email = event.QueryStringParameters["email"]
+	} else {
+		if err := json.Unmarshal([]byte(event.Body), &request); err != nil {
+			err = errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)
+			return api.Failure(err), nil
+		}
 	}
 
 	if request.Email == "" {
-		return api.Success(funcName, nil), nil
+		return api.Success(nil), nil
 	}
 
 	client, err := getSheetsClient(ctx)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
-	call := getAppendCall(ctx, client, request)
+	call := getAppendCall(ctx, client, &request)
 	_, err = call.Do()
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to write to sheet", err)
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if err := os.Remove("/tmp/serviceAccountKey.json"); err != nil {
 		log.Errorf("Failed to rmeove JSON file: %v", err)
 	}
 
-	return api.Success(funcName, nil), nil
+	return api.Success(nil), nil
 }
 
 // Gets a client for Google Sheets.

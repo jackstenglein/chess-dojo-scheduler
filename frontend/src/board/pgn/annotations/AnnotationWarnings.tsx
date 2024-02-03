@@ -97,7 +97,7 @@ const AnnotationWarnings = () => {
             >
                 {`Your annotations have ${Object.keys(warnings).length} warning${
                     Object.keys(warnings).length > 1 ? 's' : ''
-                } (this message is visible only to you).`}
+                }.`}
             </Alert>
 
             <Dialog open={showDetails} onClose={() => setShowDetails(false)}>

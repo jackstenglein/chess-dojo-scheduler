@@ -25,6 +25,16 @@ export interface GameInfo {
     headers: PgnHeaders;
     isFeatured: string;
     featuredAt: string;
+    createdAt: string;
+
+    /** When the game was last updated. */
+    updatedAt?: string;
+
+    /** When the game was last changed from unlisted to public. */
+    publishedAt?: string;
+
+    /** Whether the game is unlisted or not. */
+    unlisted?: boolean;
 }
 
 export interface Comment {
@@ -42,6 +52,7 @@ export type Game = GameInfo & {
     pgn: string;
     comments: Comment[];
     orientation?: 'white' | 'black';
+    timelineId?: string;
 };
 
 export function isDefaultHeader(header: string): boolean {

@@ -13,47 +13,48 @@ import (
 
 var repository database.EventGetter = database.DynamoDB
 
-const funcName = "event-get-handler"
+func main() {
+	lambda.Start(handler)
+}
 
-func Handler(ctx context.Context, request api.Request) (api.Response, error) {
+func handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
 	log.Debugf("Request: %#v", request)
 
 	info := api.GetUserInfo(request)
 	if info.Username == "" {
 		err := errors.New(403, "Invalid request: not authenticated", "Username from Cognito token was empty")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	id, ok := request.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	event, err := repository.GetEvent(id)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if event.Type == database.EventType_Dojo {
-		return api.Success(funcName, &event), nil
+		return api.Success(&event), nil
 	}
 
 	if event.Owner == info.Username {
-		return api.Success(funcName, &event), nil
+		return api.Success(&event), nil
 	}
 
-	for _, p := range event.Participants {
-		if p.Username == info.Username {
-			return api.Success(funcName, &event), nil
-		}
+	p := event.Participants[info.Username]
+	if p == nil {
+		err = errors.New(403, "Invalid request: user is not a member of this meeting", "")
+		return api.Failure(err), nil
 	}
 
-	err = errors.New(403, "Invalid request: user is not a member of this meeting", "")
-	return api.Failure(funcName, err), nil
-}
-
-func main() {
-	lambda.Start(Handler)
+	if event.Type == database.EventType_Coaching && !p.HasPaid {
+		event.Location = "Location is hidden until payment is complete"
+		event.Messages = nil
+	}
+	return api.Success(&event), nil
 }

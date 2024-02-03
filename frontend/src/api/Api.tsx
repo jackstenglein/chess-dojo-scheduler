@@ -55,6 +55,7 @@ import {
 import {
     bookEvent,
     cancelEvent,
+    createMessage,
     deleteEvent,
     EventApiContextType,
     getEvent,
@@ -68,10 +69,12 @@ import {
     CourseApiContextType,
     listAllCourses,
     purchaseCourse,
+    setCourse,
 } from './courseApi';
 import {
     getLeaderboard,
     getOpenClassical,
+    listPreviousOpenClassicals,
     OpenClassicalPutPairingsRequest,
     OpenClassicalRegistrationRequest,
     OpenClassicalSubmitResultsRequest,
@@ -111,6 +114,7 @@ import {
     SubscriptionCheckoutRequest,
     subscriptionManage,
 } from './paymentApi';
+import { Course } from '../database/course';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -164,7 +168,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 requirementId: string,
                 incrementalCount: number,
                 incrementalMinutesSpent: number,
-                date: Date | null
+                date: Date | null,
+                notes: string
             ) =>
                 updateUserProgress(
                     idToken,
@@ -173,6 +178,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     incrementalCount,
                     incrementalMinutesSpent,
                     date,
+                    notes,
                     auth.updateUser
                 ),
             updateUserTimeline: (
@@ -211,6 +217,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getEvent: (id: string) => getEvent(idToken, id),
             listEvents: (startKey?: string) => listEvents(idToken, startKey),
             setEvent: (event: Event) => setEvent(idToken, event),
+            createMessage: (id: string, content: string) =>
+                createMessage(idToken, auth.user!, id, content),
 
             createGame: (req: CreateGameRequest) => createGame(idToken, req),
             getGame: (cohort: string, id: string) => getGame(idToken, cohort, id),
@@ -282,6 +290,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 purchaseOption?: string,
                 cancelUrl?: string
             ) => purchaseCourse(idToken, type, id, purchaseOption, cancelUrl),
+            setCourse: (course: Course) => setCourse(idToken, course),
 
             getLeaderboard: (
                 timePeriod: TimePeriod,
@@ -297,6 +306,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 submitResultsForOpenClassical(idToken, req),
             putOpenClassicalPairings: (req: OpenClassicalPutPairingsRequest) =>
                 putOpenClassicalPairings(idToken, req),
+            listPreviousOpenClassicals: (startKey?: string) =>
+                listPreviousOpenClassicals(startKey),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),
@@ -308,8 +319,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 skipLastFetch?: boolean,
                 startKey?: string
             ) => listNewsfeed(idToken, newsfeedIds, skipLastFetch, startKey),
-            createNewsfeedComment: (owner: string, id: string, content: string) =>
-                createNewsfeedComment(idToken, owner, id, content),
+            createNewsfeedComment: (
+                props: { owner: string; id: string },
+                content: string
+            ) => createNewsfeedComment(idToken, props, content),
             setNewsfeedReaction: (owner: string, id: string, types: string[]) =>
                 setNewsfeedReaction(idToken, owner, id, types),
 

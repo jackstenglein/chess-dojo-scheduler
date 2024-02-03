@@ -183,6 +183,10 @@ type Event struct {
 	// type is EventTypeAvailability.
 	PrivateDiscordEventId string `dynamodbav:"privateDiscordEventId" json:"privateDiscordEventId"`
 
+	// Whether to hide the event from the public Discord. This field is used only if type is
+	// EventType_Dojo.
+	HideFromPublicDiscord bool `dynamodbav:"hideFromPublicDiscord" json:"hideFromPublicDiscord"`
+
 	// The ID of the public Discord guild event for this event. This field is unused if
 	// type is EventTypeAvailability.
 	PublicDiscordEventId string `dynamodbav:"publicDiscordEventId" json:"publicDiscordEventId"`
@@ -192,6 +196,9 @@ type Event struct {
 
 	// The coaching information for this event. Only present for EventType_Coaching.
 	Coaching *Coaching `dynamodbav:"coaching,omitempty" json:"coaching,omitempty"`
+
+	// Messages sent on the event.
+	Messages []Comment `dynamodbav:"messages,omitempty" json:"messages,omitempty"`
 }
 
 type TimeControlType string
@@ -266,10 +273,14 @@ type EventLeaver interface {
 	// SetEvent inserts the provided Event into the database.
 	SetEvent(event *Event) error
 
+	// CancelEvent marks the provided Event as canceled.
+	CancelEvent(event *Event) (*Event, error)
+
 	// LeaveEvent leaves the event for the given participants. If participant is nil,
 	// then the person leaving is the owner. In that case, the first participant is made
-	// the new owner. The updated event is returned.
-	LeaveEvent(event *Event, participant *Participant) (*Event, error)
+	// the new owner. If requireNoPayment is true, then the participant must not have paid in order to be removed.
+	// The updated event is returned.
+	LeaveEvent(event *Event, participant *Participant, requireNoPayment bool) (*Event, error)
 
 	// RecordEventCancelation saves statistics on the canceled event.
 	RecordEventCancelation(event *Event) error
@@ -307,6 +318,13 @@ type EventLister interface {
 	// startKey is an optional parameter that can be used to perform pagination.
 	// The list of meetings and the next start key are returned.
 	ScanEvents(public bool, startKey string) ([]*Event, string, error)
+}
+
+type EventMessager interface {
+	// CreateEventMessage adds the given message to the event with the given id. The owner included in the
+	// message must be a participant of the event and must have completed payment, if the event is a coaching
+	// session.
+	CreateEventMessage(id string, message *Comment) (*Event, error)
 }
 
 // SetEvent inserts the provided Event into the database.
@@ -525,7 +543,7 @@ func (repo *dynamoRepository) MarkParticipantPaid(eventId, participant string, c
 // LeaveEvent leaves the event for the given participants. If participant is nil,
 // then the person leaving is the owner. In that case, the first participant is made
 // the new owner. The updated event is returned.
-func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant) (*Event, error) {
+func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant, requireNoPayment bool) (*Event, error) {
 	if event.Id == "STATISTICS" {
 		return nil, errors.New(403, "Invalid request: event statistics cannot be canceled", "")
 	}
@@ -568,8 +586,16 @@ func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant)
 	exprAttrNames["#p"] = aws.String("participants")
 	exprAttrNames["#u"] = aws.String(participant.Username)
 
+	conditionExpr := "attribute_exists(id) AND #owner = :originalOwner AND attribute_exists(#p.#u)"
+
+	if requireNoPayment {
+		conditionExpr += " AND #p.#u.#hasPaid <> :true"
+		exprAttrNames["#hasPaid"] = aws.String("hasPaid")
+		exprAttrValues[":true"] = &dynamodb.AttributeValue{BOOL: aws.Bool(true)}
+	}
+
 	input := &dynamodb.UpdateItemInput{
-		ConditionExpression:       aws.String("attribute_exists(id) AND #owner = :originalOwner AND attribute_exists(#p.#u)"),
+		ConditionExpression:       aws.String(conditionExpr),
 		ExpressionAttributeNames:  exprAttrNames,
 		ExpressionAttributeValues: exprAttrValues,
 		Key: map[string]*dynamodb.AttributeValue{
@@ -584,6 +610,47 @@ func (repo *dynamoRepository) LeaveEvent(event *Event, participant *Participant)
 	if err != nil {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
 			return nil, errors.Wrap(400, "Invalid request: event no longer exists or has changed. Please try again.", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+
+	e := Event{}
+	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &e); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
+	}
+	return &e, nil
+}
+
+// CancelEvent marks the provided Event as canceled.
+func (repo *dynamoRepository) CancelEvent(event *Event) (*Event, error) {
+	if event.Id == "STATISTICS" {
+		return nil, errors.New(403, "Invalid request: event statistics cannot be canceled", "")
+	}
+
+	updateExpr := "SET #status = :canceled"
+	exprAttrNames := map[string]*string{
+		"#status": aws.String("status"),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{
+		":canceled": {S: aws.String(string(SchedulingStatus_Canceled))},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression:       aws.String("attribute_exists(id)"),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(event.Id)},
+		},
+		UpdateExpression: aws.String(updateExpr),
+		ReturnValues:     aws.String("ALL_NEW"),
+		TableName:        aws.String(eventTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: event not found.", "DynamoDB conditional check failed", aerr)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
 	}
@@ -629,4 +696,53 @@ func (repo *dynamoRepository) ScanEvents(public bool, startKey string) ([]*Event
 		return nil, "", err
 	}
 	return events, lastKey, nil
+}
+
+// CreateEventMessage adds the given message to the event with the given id. The owner included in the
+// message must be a participant of the event and must have completed payment, if the event is a coaching
+// session.
+func (repo *dynamoRepository) CreateEventMessage(id string, message *Comment) (*Event, error) {
+	item, err := dynamodbattribute.MarshalMap(message)
+	if err != nil {
+		return nil, errors.Wrap(400, "Invalid request: message cannot be marshaled", "", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("#owner = :u OR (attribute_exists(#p.#u) AND (#type <> :coaching OR #p.#u.#paid = :true))"),
+		UpdateExpression:    aws.String("SET #m = list_append(if_not_exists(#m, :empty_list), :m)"),
+		ExpressionAttributeNames: map[string]*string{
+			"#p":     aws.String("participants"),
+			"#u":     aws.String(message.Owner),
+			"#owner": aws.String("owner"),
+			"#type":  aws.String("type"),
+			"#paid":  aws.String("hasPaid"),
+			"#m":     aws.String("messages"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":u":          {S: aws.String(message.Owner)},
+			":coaching":   {S: aws.String(string(EventType_Coaching))},
+			":true":       {BOOL: aws.Bool(true)},
+			":empty_list": {L: []*dynamodb.AttributeValue{}},
+			":m":          {L: []*dynamodb.AttributeValue{{M: item}}},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(id)},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(eventTable),
+	}
+
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: event does not exist or you do not have permission to create a message", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+
+	event := Event{}
+	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &event); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal CreateEventMessage result", err)
+	}
+	return &event, nil
 }

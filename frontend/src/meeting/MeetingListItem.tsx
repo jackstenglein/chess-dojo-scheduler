@@ -7,13 +7,24 @@ import {
     Typography,
     Link,
     Stack,
+    Chip,
 } from '@mui/material';
 
-import { Event, getDisplayString } from '../database/event';
+import { Event, EventStatus, getDisplayString } from '../database/event';
 import { useAuth } from '../auth/Auth';
 import React from 'react';
 import Avatar from '../profile/Avatar';
 import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
+
+function getTitle(event: Event): string {
+    if (event.coaching) {
+        return event.title;
+    }
+    if (event.maxParticipants > 1) {
+        return 'Group Meeting';
+    }
+    return getDisplayString(event.bookedType);
+}
 
 interface MeetingListItemProps {
     meeting: Event;
@@ -49,11 +60,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
         <Card variant='outlined' sx={{ width: 1 }}>
             <CardActionArea onClick={onClick}>
                 <CardHeader
-                    title={
-                        meeting.maxParticipants > 1
-                            ? 'Group Meeting'
-                            : getDisplayString(meeting.bookedType)
-                    }
+                    title={getTitle(meeting)}
                     subheader={`${toDojoDateString(
                         start,
                         user.timezoneOverride
@@ -65,6 +72,10 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
                     sx={{ pb: 0 }}
                 />
                 <CardContent sx={{ pt: 0, mt: 1 }}>
+                    {meeting.status === EventStatus.Canceled && (
+                        <Chip sx={{ mb: 1 }} color='error' label='Canceled' />
+                    )}
+
                     {meeting.maxParticipants > 1 ? (
                         <Typography variant='subtitle1' color='text.secondary'>
                             {Object.values(meeting.participants).length + 1} participants

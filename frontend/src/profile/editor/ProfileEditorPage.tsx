@@ -210,6 +210,7 @@ const ProfileEditorPage = () => {
         user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : ''
     );
     const [bio, setBio] = useState(user.bio);
+    const [coachBio, setCoachBio] = useState(user.coachBio || '');
     const [timezone, setTimezone] = useState(
         user.timezoneOverride === DefaultTimezone ? '' : user.timezoneOverride
     );
@@ -301,6 +302,7 @@ const ProfileEditorPage = () => {
             discordUsername: discordUsername.trim(),
             dojoCohort,
             bio,
+            coachBio,
             timezoneOverride: timezone === '' ? user.timezoneOverride : timezone,
             ratingSystem,
             ratings: getRatingsFromEditors(ratingEditors),
@@ -459,7 +461,7 @@ const ProfileEditorPage = () => {
                     </Card>
                 </Grid2>
 
-                <Grid2 xs={12} sm={true} md={true} lg='auto'>
+                <Grid2 xs={12} sm={true} md={true} lg={true}>
                     {user.dojoCohort !== 'NO_COHORT' &&
                         user.dojoCohort !== '' &&
                         !dojoCohorts.includes(user.dojoCohort) && (
@@ -588,6 +590,18 @@ const ProfileEditorPage = () => {
                                 error={!!errors.bio}
                                 helperText={errors.bio}
                             />
+
+                            {user.isCoach && (
+                                <TextField
+                                    label='Coach Bio'
+                                    multiline
+                                    minRows={3}
+                                    maxRows={6}
+                                    value={coachBio}
+                                    onChange={(event) => setCoachBio(event.target.value)}
+                                    helperText='An optional coaching-specific bio. If included, it will be displayed on the coaching page and on the coach tab on your profile. If not included, the coaching page will use your regular bio and the coach tab on your profile will not have an additional bio.'
+                                />
+                            )}
 
                             <TextField
                                 select

@@ -12,7 +12,7 @@ provider:
   runtime: provided.al2
   architecture: arm64
   region: us-east-1
-  logRetentionInDays: 30
+  logRetentionInDays: 14
   environment:
     stage: ${sls:stage}
     frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
@@ -92,6 +92,11 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
 
   delete:
     handler: delete/main.go
@@ -180,3 +185,19 @@ functions:
           parallelizationFactor: 2
           filterPatterns:
             - eventName: [REMOVE]
+
+  createMessage:
+    handler: message/create/main.go
+    events:
+      - httpApi:
+          path: /event/{id+}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:EventsTableArn}

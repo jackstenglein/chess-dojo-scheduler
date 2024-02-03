@@ -415,7 +415,7 @@ resources:
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         GlobalSecondaryIndexes:
-          - IndexName: OwnerIndex
+          - IndexName: OwnerIdx
             KeySchema:
               - AttributeName: owner
                 KeyType: HASH
@@ -427,8 +427,14 @@ resources:
                 - white
                 - black
                 - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - ownerDisplayName
+                - ownerPreviousCohort
                 - headers
-          - IndexName: WhiteIdx
+                - unlisted
+          - IndexName: WhiteIndex
             KeySchema:
               - AttributeName: white
                 KeyType: HASH
@@ -439,11 +445,15 @@ resources:
               NonKeyAttributes:
                 - black
                 - date
+                - createdAt
+                - updatedAt
+                - publishedAt
                 - owner
                 - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
-          - IndexName: BlackIdx
+                - unlisted
+          - IndexName: BlackIndex
             KeySchema:
               - AttributeName: black
                 KeyType: HASH
@@ -454,11 +464,15 @@ resources:
               NonKeyAttributes:
                 - white
                 - date
+                - createdAt
+                - updatedAt
+                - publishedAt
                 - owner
                 - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
-          - IndexName: FeaturedIdx
+                - unlisted
+          - IndexName: FeaturedIndex
             KeySchema:
               - AttributeName: isFeatured
                 KeyType: HASH
@@ -470,10 +484,14 @@ resources:
                 - white
                 - black
                 - date
+                - createdAt
+                - updatedAt
+                - publishedAt
                 - owner
                 - ownerDisplayName
                 - ownerPreviousCohort
                 - headers
+                - unlisted
 
     TournamentsTable:
       Type: AWS::DynamoDB::Table
@@ -484,6 +502,8 @@ resources:
           - AttributeName: type
             AttributeType: S
           - AttributeName: startsAt
+            AttributeType: S
+          - AttributeName: name
             AttributeType: S
         KeySchema:
           - AttributeName: type
@@ -504,6 +524,20 @@ resources:
           - ReadCapacityUnits: 1
             WriteCapacityUnits: 1
           - !Ref AWS::NoValue
+        GlobalSecondaryIndexes:
+          - IndexName: OpenClassicalIndex
+            KeySchema:
+              - AttributeName: type
+                KeyType: HASH
+              - AttributeName: name
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
+            ProvisionedThroughput: !If
+              - IsProd
+              - ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+              - !Ref AWS::NoValue
 
     NotificationsTable:
       Type: AWS::DynamoDB::Table

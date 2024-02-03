@@ -14,7 +14,7 @@ export type GameApiContextType = {
      */
     createGame: (
         req: CreateGameRequest
-    ) => Promise<AxiosResponse<Game | CreateGameResponse, any>>;
+    ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
 
     /**
      * getGame returns the requested game.
@@ -49,7 +49,7 @@ export type GameApiContextType = {
         cohort: string,
         id: string,
         req: CreateGameRequest
-    ) => Promise<AxiosResponse<Game, any>>;
+    ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
 
     /**
      * deleteGame removes the specified game from the database. The caller
@@ -145,21 +145,31 @@ export type GameApiContextType = {
     ) => Promise<AxiosResponse<Game, any>>;
 };
 
+export enum GameSubmissionType {
+    LichessChapter = 'lichessChapter',
+    LichessStudy = 'lichessStudy',
+    Manual = 'manual',
+    StartingPosition = 'startingPosition',
+}
+
 export interface CreateGameRequest {
-    type: 'lichessChapter' | 'lichessStudy' | 'manual';
+    type?: GameSubmissionType;
     url?: string;
     pgnText?: string;
     headers?: GameHeader[];
-    orientation: string;
+    orientation?: string;
+    unlisted?: boolean;
+    timelineId?: string;
 }
 
 export interface GameHeader {
     white: string;
     black: string;
     date: string;
+    result: string;
 }
 
-export interface CreateGameResponse {
+export interface EditGameResponse {
     headers: GameHeader[];
     count: number;
 }
@@ -175,7 +185,7 @@ export function isGame(obj: any): obj is Game {
  * @returns The newly created Game.
  */
 export function createGame(idToken: string, req: CreateGameRequest) {
-    return axios.post<Game | CreateGameResponse>(BASE_URL + '/game', req, {
+    return axios.post<Game | EditGameResponse>(BASE_URL + '/game2', req, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -244,9 +254,10 @@ export function updateGame(
     req: CreateGameRequest
 ) {
     cohort = encodeURIComponent(cohort);
-    id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
+    // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded
+    id = btoa(id);
 
-    return axios.put<Game>(BASE_URL + `/game/${cohort}/${id}`, req, {
+    return axios.put<Game | EditGameResponse>(BASE_URL + `/game2/${cohort}/${id}`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }

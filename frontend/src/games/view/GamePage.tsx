@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-    Box,
-    Button,
-    Container,
-    IconButton,
-    Stack,
-    TextField,
-    Typography,
-} from '@mui/material';
+import { useParams } from 'react-router-dom';
+import { Box, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -81,7 +73,6 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ cohort, id, onSuccess }) 
 const GamePage = () => {
     const api = useApi();
     const user = useAuth().user!;
-    const navigate = useNavigate();
     const request = useRequest<Game>();
     const featureRequest = useRequest();
     const { cohort, id } = useParams();
@@ -127,19 +118,22 @@ const GamePage = () => {
     }
 
     return (
-        <Container
-            maxWidth={false}
+        <Box
             sx={{
                 pt: 4,
                 pb: 4,
+                px: 0,
                 '--gap': '16px',
                 '--site-header-height': '80px',
                 '--site-header-margin': '60px',
                 '--player-header-height': '28px',
-                '--underboard-width': '400px',
+                '--underboard-width': '450px',
                 '--coach-width': '400px',
                 '--tools-height': '40px',
-                '--board-width': 'calc(100vw - var(--coach-width) - 60px)',
+                '--board-width': {
+                    xs: 'calc(100vw - var(--coach-width) - 60px)',
+                    xl: 'calc(100vw - var(--coach-width) - var(--underboard-width) - 60px)',
+                },
                 '--board-height':
                     'calc(100vh - var(--site-header-height) - var(--site-header-margin) - var(--tools-height) - 8px - 2 * var(--player-header-height))',
                 '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
@@ -170,51 +164,32 @@ const GamePage = () => {
                 {request.data?.pgn && (
                     <PgnErrorBoundary pgn={request.data.pgn} game={request.data}>
                         <PgnBoard
-                            game={request.data}
-                            pgn={request.data.pgn}
-                            startOrientation={request.data.orientation}
                             showTags
                             showEditor
-                            showAnnotationWarnings={request.data.owner === user.username}
+                            game={request.data}
+                            onSaveGame={request.onSuccess}
+                            pgn={request.data.pgn}
+                            startOrientation={request.data.orientation}
                         />
 
                         <Stack gridArea='extras' spacing={2}>
-                            <Stack direction='row' my={2} spacing={2} flexWrap='wrap'>
-                                {user.isAdmin && (
-                                    <Stack
-                                        direction='row'
-                                        alignSelf='start'
-                                        alignItems='center'
-                                        spacing={2}
-                                    >
-                                        <Typography>Feature Game?</Typography>
-                                        <IconButton onClick={onFeature}>
-                                            {request.data.isFeatured === 'true' ? (
-                                                <CheckBoxIcon color='primary' />
-                                            ) : (
-                                                <CheckBoxOutlineBlankIcon />
-                                            )}
-                                        </IconButton>
-                                    </Stack>
-                                )}
-
-                                {request.data.owner === user.username && (
-                                    <Stack
-                                        direction='row'
-                                        alignSelf='start'
-                                        alignItems='center'
-                                        spacing={2}
-                                        sx={{ mb: 2 }}
-                                    >
-                                        <Button
-                                            variant='contained'
-                                            onClick={() => navigate('edit')}
-                                        >
-                                            Import PGN
-                                        </Button>
-                                    </Stack>
-                                )}
-                            </Stack>
+                            {user.isAdmin && (
+                                <Stack
+                                    direction='row'
+                                    alignSelf='start'
+                                    alignItems='center'
+                                    spacing={2}
+                                >
+                                    <Typography>Feature Game?</Typography>
+                                    <IconButton onClick={onFeature}>
+                                        {request.data.isFeatured === 'true' ? (
+                                            <CheckBoxIcon color='primary' />
+                                        ) : (
+                                            <CheckBoxOutlineBlankIcon />
+                                        )}
+                                    </IconButton>
+                                </Stack>
+                            )}
 
                             <Typography id='comments' variant='h6'>
                                 Comments
@@ -229,7 +204,7 @@ const GamePage = () => {
                     </PgnErrorBoundary>
                 )}
             </Box>
-        </Container>
+        </Box>
     );
 };
 

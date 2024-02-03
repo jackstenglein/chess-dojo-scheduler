@@ -48,7 +48,7 @@ export type TournamentApiContextType = {
      */
     submitResultsForOpenClassical: (
         req: OpenClassicalSubmitResultsRequest
-    ) => Promise<AxiosResponse<void, any>>;
+    ) => Promise<AxiosResponse<OpenClassical, any>>;
 
     /**
      * Sets the pairings for the given round using the given PGN data. Only admins and tournament
@@ -59,6 +59,13 @@ export type TournamentApiContextType = {
     putOpenClassicalPairings: (
         req: OpenClassicalPutPairingsRequest
     ) => Promise<AxiosResponse<OpenClassical, any>>;
+
+    /**
+     * Returns a list of previous open classicals.
+     * @param startKey The optional start key to use when listing the open classicals.
+     * @returns A list of previous open classicals, in descending order by date.
+     */
+    listPreviousOpenClassicals: (startKey?: string) => Promise<OpenClassical[]>;
 };
 
 /** A request to register for the Open Classical. */
@@ -77,7 +84,6 @@ export interface OpenClassicalSubmitResultsRequest {
     email: string;
     region: string;
     section: string;
-    round: string;
     gameUrl: string;
     white: string;
     black: string;
@@ -168,7 +174,7 @@ export function submitResultsForOpenClassical(
     idToken: string,
     req: OpenClassicalSubmitResultsRequest
 ) {
-    return axios.post<void>(
+    return axios.post<OpenClassical>(
         `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/results`,
         req,
         {
@@ -194,4 +200,33 @@ export function putOpenClassicalPairings(
         req,
         { headers: { Authorization: 'Bearer ' + idToken } }
     );
+}
+
+interface ListPreviousOpenClassicalsResponse {
+    openClassicals: OpenClassical[];
+    lastEvaluatedKey: string;
+}
+
+/**
+ * Returns a list of previous open classicals.
+ * @param startKey The optional start key to use when listing the open classicals.
+ * @returns A list of previous open classicals, in descending order by date.
+ */
+export async function listPreviousOpenClassicals(startKey?: string) {
+    const result: OpenClassical[] = [];
+    const params = { startKey };
+
+    do {
+        const resp = await axios.get<ListPreviousOpenClassicalsResponse>(
+            `${BASE_URL}/public/tournaments/open-classical/previous`,
+            {
+                params,
+            }
+        );
+
+        result.push(...resp.data.openClassicals);
+        params.startKey = resp.data.lastEvaluatedKey;
+    } while (params.startKey);
+
+    return result;
 }

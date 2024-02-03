@@ -24,6 +24,8 @@ import DiscordChip from './info/DiscordChip';
 import CountChip from './info/CountChip';
 import { FollowerEntry } from '../database/follower';
 import UserInfo from './info/UserInfo';
+import CoachChip from './info/CoachChip';
+import CoachTab from './coach/CoachTab';
 
 export type ProfilePageProps = {
     username: string;
@@ -79,7 +81,7 @@ const ProfilePage = () => {
 
     const user = currentUserProfile ? currentUser : request.data;
 
-    if (!user && request.isLoading()) {
+    if (!user && (!request.isSent() || request.isLoading())) {
         return <LoadingPage />;
     } else if (!user) {
         return <NotFoundPage />;
@@ -172,6 +174,7 @@ const ProfilePage = () => {
                     rowGap={1}
                     columnGap={1.5}
                 >
+                    <CoachChip user={user} />
                     <InactiveChip user={user} />
                     <CreatedAtChip createdAt={user.createdAt} />
                     <TimezoneChip timezone={user.timezoneOverride} />
@@ -201,6 +204,9 @@ const ProfilePage = () => {
                                 variant='scrollable'
                             >
                                 <Tab label='Ratings' value='stats' id='test' />
+                                {user.isCoach && (
+                                    <Tab label='Coaching' value='coaching' />
+                                )}
                                 <Tab
                                     id='training-plan-tab'
                                     label='Training Plan'
@@ -213,13 +219,16 @@ const ProfilePage = () => {
                         <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
                             <StatsTab user={user} />
                         </TabPanel>
+                        <TabPanel value='coaching' sx={{ px: { xs: 0, sm: 3 } }}>
+                            <CoachTab user={user} />
+                        </TabPanel>
                         <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
                             <ProgressTab user={user} isCurrentUser={currentUserProfile} />
                         </TabPanel>
                         <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
                             <ActivityTab user={user} />
                         </TabPanel>
-                        <TabPanel value='games' sx={{ px: { xs: 0, sm: 3 } }}>
+                        <TabPanel value='games' sx={{ px: { xs: 0 } }}>
                             <GamesTab user={user} />
                         </TabPanel>
                     </TabContext>

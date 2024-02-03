@@ -1,7 +1,8 @@
 export interface CohortStatistics {
     activeParticipants: number;
     inactiveParticipants: number;
-    freeParticipants: number;
+    freeActiveParticipants: number;
+    freeInactiveParticipants: number;
 
     freeTierConversions: number;
     subscriptionCancelations: number;

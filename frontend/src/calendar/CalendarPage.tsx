@@ -12,32 +12,35 @@ import {
     CalendarFilters,
     DefaultTimezone,
     Filters,
+    getHours,
     useFilters,
 } from './filters/CalendarFilters';
 import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
 import { useEvents } from '../api/cache/Cache';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import { SubscriptionStatus, TimeFormat, User } from '../database/user';
-import { Event, EventType, AvailabilityStatus } from '../database/event';
+import { Event, EventType, EventStatus } from '../database/event';
 import CalendarTutorial from './CalendarTutorial';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import UpsellAlert from '../upsell/UpsellAlert';
+import { getTimeZonedDate } from './displayDate';
 
 function processAvailability(
-    user: User,
-    filters: Filters,
+    user: User | undefined,
+    filters: Filters | undefined,
     event: Event
 ): ProcessedEvent | null {
-    if (event.status === AvailabilityStatus.Canceled) {
+    if (event.status === EventStatus.Canceled) {
         return null;
     }
 
     // This user's joined meetings
     if (
+        user &&
         (event.owner === user.username || event.participants[user.username]) &&
         Object.values(event.participants).length > 0
     ) {
-        if (!filters.meetings) {
+        if (filters && !filters.meetings) {
             return null;
         }
 
@@ -66,8 +69,8 @@ function processAvailability(
     }
 
     // This user's created availabilities
-    if (event.owner === user.username) {
-        if (!filters.availabilities) {
+    if (event.owner === user?.username) {
+        if (filters && !filters.availabilities) {
             return null;
         }
 
@@ -87,19 +90,19 @@ function processAvailability(
     }
 
     // Other users' bookable availabilities
-    if (!user.isAdmin && event.status !== AvailabilityStatus.Scheduled) {
+    if (!user?.isAdmin && event.status !== EventStatus.Scheduled) {
         return null;
     }
 
-    if (!user.isAdmin && event.cohorts.every((c) => c !== user.dojoCohort)) {
+    if (user && !user.isAdmin && event.cohorts.every((c) => c !== user.dojoCohort)) {
         return null;
     }
 
-    if (!filters.allTypes && event.types?.every((t) => !filters.types[t])) {
+    if (filters && !filters.allTypes && event.types?.every((t) => !filters.types[t])) {
         return null;
     }
 
-    if (!filters.allCohorts && !filters.cohorts[event.ownerCohort]) {
+    if (filters && !filters.allCohorts && !filters.cohorts[event.ownerCohort]) {
         return null;
     }
 
@@ -123,15 +126,16 @@ function processAvailability(
 }
 
 function processDojoEvent(
-    user: User,
-    filters: Filters,
+    user: User | undefined,
+    filters: Filters | undefined,
     event: Event
 ): ProcessedEvent | null {
-    if (!filters.dojoEvents) {
+    if (filters && !filters.dojoEvents) {
         return null;
     }
 
     if (
+        user &&
         !user.isAdmin &&
         !user.isCalendarAdmin &&
         event.cohorts &&
@@ -147,26 +151,29 @@ function processDojoEvent(
         start: new Date(event.startTime),
         end: new Date(event.endTime),
         color: 'success.main',
-        editable: user.isAdmin || user.isCalendarAdmin,
-        deletable: user.isAdmin || user.isCalendarAdmin,
-        draggable: user.isAdmin || user.isCalendarAdmin,
+        editable: user?.isAdmin || user?.isCalendarAdmin,
+        deletable: user?.isAdmin || user?.isCalendarAdmin,
+        draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
     };
 }
 
 function processLigaTournament(
-    user: User,
-    filters: Filters,
+    user: User | undefined,
+    filters: Filters | undefined,
     event: Event
 ): ProcessedEvent | null {
-    if (!filters.dojoEvents) {
+    if (filters && !filters.dojoEvents) {
         return null;
     }
     if (!event.ligaTournament) {
         return null;
     }
-    if (!filters.tournamentTimeControls[event.ligaTournament.timeControlType]) {
+    if (
+        filters &&
+        !filters.tournamentTimeControls[event.ligaTournament.timeControlType]
+    ) {
         return null;
     }
 
@@ -176,23 +183,27 @@ function processLigaTournament(
         start: new Date(event.startTime),
         end: new Date(event.endTime),
         color: 'warning.main',
-        editable: user.isAdmin || user.isCalendarAdmin,
-        deletable: user.isAdmin || user.isCalendarAdmin,
-        draggable: user.isAdmin || user.isCalendarAdmin,
+        editable: user?.isAdmin || user?.isCalendarAdmin,
+        deletable: user?.isAdmin || user?.isCalendarAdmin,
+        draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
     };
 }
 
-function processCoachingEvent(
-    user: User,
-    filters: Filters,
+export function processCoachingEvent(
+    user: User | undefined,
+    filters: Filters | undefined,
     event: Event
 ): ProcessedEvent | null {
-    if (!filters.coaching) {
+    if (filters && !filters.coaching) {
         return null;
     }
+
+    const isOwner = event.owner === user?.username;
     if (
+        user &&
+        !isOwner &&
         !user.isAdmin &&
         !user.isCalendarAdmin &&
         event.cohorts &&
@@ -201,16 +212,16 @@ function processCoachingEvent(
     ) {
         return null;
     }
-    if (
-        user.subscriptionStatus === SubscriptionStatus.FreeTier &&
-        !event.coaching?.bookableByFreeUsers
-    ) {
+
+    const isFreeTier = !user || user.subscriptionStatus === SubscriptionStatus.FreeTier;
+    if (!isOwner && isFreeTier && !event.coaching?.bookableByFreeUsers) {
         return null;
     }
 
-    const isOwner = event.owner === user.username;
-    const editable =
-        isOwner && Object.values(event.participants).length < event.maxParticipants;
+    const isParticipant = user && Boolean(event.participants[user.username]);
+    if (event.status !== EventStatus.Scheduled && !isOwner && !isParticipant) {
+        return null;
+    }
 
     return {
         event_id: event.id,
@@ -218,23 +229,34 @@ function processCoachingEvent(
         start: new Date(event.startTime),
         end: new Date(event.endTime),
         color: 'coaching.main',
-        editable,
-        deletable: editable,
-        draggable: editable,
+        editable: isOwner,
+        deletable: isOwner && Object.values(event.participants).length === 0,
+        draggable: isOwner,
         isOwner,
         event,
     };
 }
 
-function getProcessedEvents(
-    user: User,
-    filters: Filters,
+export function getProcessedEvents(
+    user: User | undefined,
+    filters: Filters | undefined,
     events: Event[]
 ): ProcessedEvent[] {
     const result: ProcessedEvent[] = [];
 
     for (const event of events) {
         let processedEvent: ProcessedEvent | null = null;
+
+        const startHour = getTimeZonedDate(
+            new Date(event.startTime),
+            filters?.timezone
+        ).getHours();
+        if (
+            startHour < (filters?.minHour?.getHours() || 0) ||
+            startHour > (filters?.maxHour?.getHours() || 24)
+        ) {
+            continue;
+        }
 
         if (event.type === EventType.Availability) {
             processedEvent = processAvailability(user, filters, event);
@@ -399,6 +421,41 @@ export default function CalendarPage() {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
     }, [calendarRef, filters.timeFormat]);
 
+    const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
+
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(
+            {
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                weekStartOn: 0,
+                startHour: minHour,
+                endHour: maxHour,
+                navigation: true,
+            },
+            'month'
+        );
+        calendarRef.current?.scheduler.handleState(
+            {
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
+                weekStartOn: 0,
+                startHour: minHour,
+                endHour: maxHour,
+                step: 60,
+                navigation: true,
+            },
+            'week'
+        );
+        calendarRef.current?.scheduler.handleState(
+            {
+                startHour: minHour,
+                endHour: maxHour,
+                step: 60,
+                navigation: true,
+            },
+            'day'
+        );
+    }, [calendarRef, minHour, maxHour]);
+
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
             <RequestSnackbar request={request} />
@@ -431,21 +488,21 @@ export default function CalendarPage() {
                             month={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                                 weekStartOn: 0,
-                                startHour: 0,
-                                endHour: 24,
+                                startHour: minHour,
+                                endHour: maxHour,
                                 navigation: true,
                             }}
                             week={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                                 weekStartOn: 0,
-                                startHour: 0,
-                                endHour: 24,
+                                startHour: minHour,
+                                endHour: maxHour,
                                 step: 60,
                                 navigation: true,
                             }}
                             day={{
-                                startHour: 0,
-                                endHour: 24,
+                                startHour: minHour,
+                                endHour: maxHour,
                                 step: 60,
                                 navigation: true,
                             }}

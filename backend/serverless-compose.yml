@@ -19,6 +19,12 @@ services:
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
       AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
 
+  coach:
+    path: coach
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+
   scoreboard:
     path: scoreboard
     params:
@@ -111,9 +117,16 @@ services:
       TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
       GamesTableStreamArn: ${chess-dojo-scheduler.GamesTableStreamArn}
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
 
   emailService:
     path: email
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+
+  yearReviewService:
+    path: yearReviewService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}

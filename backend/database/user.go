@@ -149,6 +149,9 @@ type User struct {
 	// The user's subscription status
 	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
 
+	// Override subscription status to give full site access. Can only be set manually in DynamoDB
+	SubscriptionOverride bool `dynamodbav:"subscriptionOverride" json:"-"`
+
 	// The name of the user
 	Name string `dynamodbav:"name" json:"-"`
 
@@ -165,6 +168,9 @@ type User struct {
 
 	// The user's bio
 	Bio string `dynamodbav:"bio" json:"bio"`
+
+	// The user's coach bio. Only present if the user is a coach
+	CoachBio string `dynamodbav:"coachBio,omitempty" json:"coachBio,omitempty"`
 
 	// The user's preferred rating system
 	RatingSystem RatingSystem `dynamodbav:"ratingSystem" json:"ratingSystem"`
@@ -502,6 +508,9 @@ type UserUpdate struct {
 	// The user's bio
 	Bio *string `dynamodbav:"bio,omitempty" json:"bio,omitempty"`
 
+	// The user's coach bio. Only present if the user is a coach
+	CoachBio *string `dynamodbav:"coachBio,omitempty" json:"coachBio,omitempty"`
+
 	// The user's preferred rating system
 	RatingSystem *RatingSystem `dynamodbav:"ratingSystem,omitempty" json:"ratingSystem,omitempty"`
 
@@ -779,6 +788,7 @@ func (repo *dynamoRepository) UpdateUser(username string, update *UserUpdate) (*
 
 	encoder := dynamodbattribute.NewEncoder()
 	encoder.NullEmptyString = false
+	encoder.EnableEmptyCollections = true
 	av, err := encoder.Encode(update)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
@@ -945,7 +955,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, subscriptionStatus, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories"
+const ratingsProjection = "username, dojoCohort, subscriptionStatus, subscriptionOverride, paymentInfo, wixEmail, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories"
 
 // ListUserRatings returns a list of Users matching the provided cohort, up to 1MB of data.
 // Only the fields necessary for the rating/statistics update are returned.
@@ -1060,6 +1070,42 @@ func (repo *dynamoRepository) UpdateUserTimes(users []*User) error {
 	return errors.Wrap(500, "Temporary server error", "Failed BatchExecuteStatement", err)
 }
 
+func (repo *dynamoRepository) UpdateUserSubscriptionStatuses(users []*User) error {
+	if len(users) > 25 {
+		return errors.New(500, "Temporary server error", "UpdateUserSubscriptionStatuses has max limit of 25 users")
+	}
+
+	var sb strings.Builder
+	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
+	for _, user := range users {
+		params, err := dynamodbattribute.MarshalList([]interface{}{user.SubscriptionStatus})
+		if err != nil {
+			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.MinutesSpent", err)
+		}
+
+		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
+		sb.WriteString(" SET subscriptionStatus=?")
+		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
+
+		statement := &dynamodb.BatchStatementRequest{
+			Statement:  aws.String(sb.String()),
+			Parameters: params,
+		}
+		statements = append(statements, statement)
+
+		sb.Reset()
+	}
+
+	input := &dynamodb.BatchExecuteStatementInput{
+		Statements: statements,
+	}
+	log.Debugf("Batch execute statement input: %v", input)
+	output, err := repo.svc.BatchExecuteStatement(input)
+	log.Debugf("Batch execute statement output: %v", output)
+
+	return errors.Wrap(500, "Temporary server error", "Failed BatchExecuteStatement", err)
+}
+
 // RecordGameCreation updates the given user to increase their game creation stats.
 func (repo *dynamoRepository) RecordGameCreation(user *User, amount int) error {
 	if user.GamesCreated == nil {
@@ -1131,4 +1177,41 @@ func (repo *dynamoRepository) SearchUsers(query string, fields []string, startKe
 		return nil, "", err
 	}
 	return users, lastKey, nil
+}
+
+// BatchGetUsers returns a list of users with the provided usernames.
+func (repo *dynamoRepository) BatchGetUsers(usernames []string) ([]*User, error) {
+	if len(usernames) == 0 {
+		return []*User{}, nil
+	}
+	if len(usernames) > 100 {
+		return nil, errors.New(500, "Temporary server error", "More than 100 items in BatchGetUsers request")
+	}
+
+	input := &dynamodb.BatchGetItemInput{
+		RequestItems: map[string]*dynamodb.KeysAndAttributes{
+			userTable: {
+				Keys: []map[string]*dynamodb.AttributeValue{},
+			},
+		},
+	}
+
+	for _, u := range usernames {
+		key := map[string]*dynamodb.AttributeValue{
+			"username": {S: aws.String(u)},
+		}
+		input.RequestItems[userTable].Keys = append(input.RequestItems[userTable].Keys, key)
+	}
+
+	result, err := repo.svc.BatchGetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed call to BatchGetItem", err)
+	}
+	list := result.Responses[userTable]
+
+	var resultEntries []*User
+	if err := dynamodbattribute.UnmarshalListOfMaps(list, &resultEntries); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal BatchGetItem result", err)
+	}
+	return resultEntries, nil
 }

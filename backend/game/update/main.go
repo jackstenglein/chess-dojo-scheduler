@@ -24,32 +24,30 @@ type CreateGameRequest struct {
 
 var repository database.GameUpdater = database.DynamoDB
 
-const funcName = "game-update-handler"
-
 func featureGame(event api.Request) api.Response {
 	user, err := repository.GetUser(api.GetUserInfo(event).Username)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 	if !user.IsAdmin && !user.IsCalendarAdmin {
 		err := errors.New(403, "You do not have permission to perform this action", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	cohort, ok := event.PathParameters["cohort"]
 	if !ok {
 		err := errors.New(400, "Invalid request: cohort is required", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	id, ok := event.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 	if b, err := base64.StdEncoding.DecodeString(id); err != nil {
 		err = errors.Wrap(400, "Invalid request: id is not base64 encoded", "", err)
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	} else {
 		id = string(b)
 	}
@@ -57,7 +55,7 @@ func featureGame(event api.Request) api.Response {
 	isFeatured, ok := event.QueryStringParameters["featured"]
 	if !ok || (isFeatured != "true" && isFeatured != "false") {
 		err := errors.New(400, "Invalid request: featured must be `true` or `false`", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	featuredAt := "NOT_FEATURED"
@@ -72,10 +70,10 @@ func featureGame(event api.Request) api.Response {
 
 	game, err := repository.UpdateGame(cohort, id, "", update)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
-	return api.Success(funcName, game)
+	return api.Success(game)
 }
 
 func updatePgn(event api.Request) api.Response {
@@ -84,17 +82,17 @@ func updatePgn(event api.Request) api.Response {
 	cohort, ok := event.PathParameters["cohort"]
 	if !ok {
 		err := errors.New(400, "Invalid request: cohort is required", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	id, ok := event.PathParameters["id"]
 	if !ok {
 		err := errors.New(400, "Invalid request: id is required", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 	if b, err := base64.StdEncoding.DecodeString(id); err != nil {
 		err = errors.Wrap(400, "Invalid request: id is not base64 encoded", "", err)
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	} else {
 		id = string(b)
 	}
@@ -102,11 +100,11 @@ func updatePgn(event api.Request) api.Response {
 	req := CreateGameRequest{}
 	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
 		err = errors.Wrap(400, "Invalid request: body cannot be unmarshaled", "", err)
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 	if req.Orientation != "white" && req.Orientation != "black" {
 		err := errors.New(400, "Invalid request: orientation must be `white` or `black`", "")
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	var pgnText string
@@ -120,19 +118,19 @@ func updatePgn(event api.Request) api.Response {
 	}
 
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	update, err := game.GetGameUpdate(pgnText, req.Orientation)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
 
 	game, err := repository.UpdateGame(cohort, id, info.Username, update)
 	if err != nil {
-		return api.Failure(funcName, err)
+		return api.Failure(err)
 	}
-	return api.Success(funcName, game)
+	return api.Success(game)
 }
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {

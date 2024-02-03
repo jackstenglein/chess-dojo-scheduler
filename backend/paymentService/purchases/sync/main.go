@@ -14,8 +14,6 @@ import (
 	"github.com/stripe/stripe-go/v76"
 )
 
-const funcName = "purchases-sync-handler"
-
 var repository = database.DynamoDB
 
 func main() {
@@ -28,21 +26,21 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	var checkoutIds map[string]string
 	if err := json.Unmarshal([]byte(event.Body), &checkoutIds); err != nil {
-		return api.Failure(funcName, errors.Wrap(400, "Invalid request: body could not be unmarshalled", "", err)), nil
+		return api.Failure(errors.Wrap(400, "Invalid request: body could not be unmarshalled", "", err)), nil
 	}
 
 	if len(checkoutIds) == 0 {
-		return api.Failure(funcName, errors.New(400, "Invalid request: no checkout ids to sync", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: no checkout ids to sync", "")), nil
 	}
 
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
-		return api.Failure(funcName, errors.New(400, "Invalid request: username is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
 	user, err := repository.GetUser(info.Username)
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
 
 	if user.PurchasedCourses == nil {
@@ -52,10 +50,10 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	for _, checkoutId := range checkoutIds {
 		checkoutSession, err := payment.GetCheckoutSession(checkoutId)
 		if err != nil {
-			return api.Failure(funcName, err), nil
+			return api.Failure(err), nil
 		}
 		if checkoutSession.PaymentStatus != stripe.CheckoutSessionPaymentStatusPaid {
-			return api.Failure(funcName, errors.New(400, "Invalid request: only paid checkout sessions can be synced", "")), nil
+			return api.Failure(errors.New(400, "Invalid request: only paid checkout sessions can be synced", "")), nil
 		}
 
 		courseIds := strings.Split(checkoutSession.Metadata["courseIds"], ",")
@@ -68,7 +66,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		PurchasedCourses: &user.PurchasedCourses,
 	})
 	if err != nil {
-		return api.Failure(funcName, err), nil
+		return api.Failure(err), nil
 	}
-	return api.Success(funcName, user), nil
+	return api.Success(user), nil
 }

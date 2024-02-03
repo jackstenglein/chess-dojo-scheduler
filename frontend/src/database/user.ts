@@ -91,6 +91,7 @@ export interface User {
     discordUsername: string;
     dojoCohort: string;
     bio: string;
+    coachBio?: string;
 
     subscriptionStatus: string;
 
@@ -573,6 +574,12 @@ export function getRatingBoundary(
     return boundary;
 }
 
+/**
+ * Returns the minimum rating for the given cohort and rating system.
+ * @param cohort The cohort to get the minimum rating for.
+ * @param ratingSystem The rating system to get the minimum rating for.
+ * @returns The minimum rating for the given cohort and rating system.
+ */
 export function getMinRatingBoundary(cohort: string, ratingSystem: RatingSystem): number {
     const cohortIdx = dojoCohorts.findIndex((c) => c === cohort);
     if (cohortIdx <= 0) {
@@ -619,6 +626,9 @@ export function shouldPromptGraduation(user?: User): boolean {
     if (!user || !user.dojoCohort || !user.ratingSystem) {
         return false;
     }
+    if (user.ratingSystem === RatingSystem.Custom) {
+        return false;
+    }
     const cohortBoundaries = ratingBoundaries[user.dojoCohort];
     if (!cohortBoundaries) {
         return false;
@@ -630,6 +640,48 @@ export function shouldPromptGraduation(user?: User): boolean {
     }
 
     return getCurrentRating(user) >= ratingBoundary;
+}
+
+const THREE_MONTHS = 1000 * 60 * 60 * 24 * 90;
+
+/**
+ * Returns whether the user should be prompted to demote themselves. Demotion is currently prompted when
+ * they are 25 points or more below their current cohort for 90 days.
+ * @param user The user to potentially prompt for demotion.
+ * @returns True if the user should be prompted to demote.
+ */
+export function shouldPromptDemotion(user?: User): boolean {
+    if (!user || !user.dojoCohort || !user.ratingSystem) {
+        return false;
+    }
+    if (user.ratingSystem === RatingSystem.Custom) {
+        return false;
+    }
+    const minRating = getMinRatingBoundary(user.dojoCohort, user.ratingSystem) - 25;
+    if (getCurrentRating(user) >= minRating) {
+        return false;
+    }
+
+    const history = user.ratingHistories?.[user.ratingSystem];
+    if (!history) {
+        return false;
+    }
+
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setTime(new Date().getTime() - THREE_MONTHS);
+    const threeMonthsAgoStr = threeMonthsAgo.toISOString();
+
+    let haveFullHistory = false;
+    for (let i = history.length - 1; i >= 0; i--) {
+        if (history[i].date >= threeMonthsAgoStr && history[i].rating >= minRating) {
+            return false;
+        }
+        if (history[i].date < threeMonthsAgoStr) {
+            haveFullHistory = true;
+            break;
+        }
+    }
+    return haveFullHistory;
 }
 
 export function hasCreatedProfile(user: User): boolean {
