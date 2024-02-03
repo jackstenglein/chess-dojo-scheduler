@@ -84,7 +84,7 @@
         "@types/uuid": "^9.0.3",
         "cypress": "^13.6.4",
         "cypress-real-events": "^1.11.0",
-        "eslint-plugin-cypress": "^2.14.0"
+        "eslint-plugin-cypress": "^2.15.1"
     },
     "overrides": {
         "cypress-real-events": {
