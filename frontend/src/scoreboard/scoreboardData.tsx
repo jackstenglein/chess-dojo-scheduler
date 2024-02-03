@@ -3,7 +3,7 @@ import {
     GridColDef,
     GridRenderCellParams,
     GridValueGetterParams,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid-pro';
 
 import ScoreboardProgress from './ScoreboardProgress';
 import {
