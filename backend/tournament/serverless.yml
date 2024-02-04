@@ -156,6 +156,23 @@ functions:
               - - ${param:TournamentsTableArn}
                 - '/index/OpenClassicalIndex'
 
+  openClassicalAdminGetRegistrations:
+    handler: openClassical/admin/getRegistrations/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/registrations
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:TournamentsTableArn}
+          - ${param:UsersTableArn}
+
 resources:
   Resources:
     SnapshotTournamentLeaderboardTimeoutAlarm:

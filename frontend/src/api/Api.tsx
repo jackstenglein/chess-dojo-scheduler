@@ -72,6 +72,7 @@ import {
     setCourse,
 } from './courseApi';
 import {
+    adminGetRegistrations,
     getLeaderboard,
     getOpenClassical,
     listPreviousOpenClassicals,
@@ -308,6 +309,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 putOpenClassicalPairings(idToken, req),
             listPreviousOpenClassicals: (startKey?: string) =>
                 listPreviousOpenClassicals(startKey),
+            adminGetRegistrations: (region: string, section: string) =>
+                adminGetRegistrations(idToken, region, section),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),

@@ -21,6 +21,7 @@ import Editor from './Editor';
 import StandingsTable from './StandingsTable';
 import EntrantsTable from './EntrantsTable';
 import { OpenInNew, Warning } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 
 const DetailsPage = () => {
     const api = useApi();
@@ -95,11 +96,14 @@ interface DetailsProps {
 }
 
 const Details: React.FC<DetailsProps> = ({ openClassical }) => {
+    const user = useAuth().user;
     const [searchParams, setSearchParams] = useSearchParams({
         region: 'A',
         ratingRange: 'Open',
         view: 'standings',
     });
+    const api = useApi();
+    const downloadRequest = useRequest();
 
     const region = searchParams.get('region') || 'A';
     const ratingRange = searchParams.get('ratingRange') || 'Open';
@@ -123,6 +127,24 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
         const updatedParams = new URLSearchParams(searchParams.toString());
         updatedParams.set(key, value);
         setSearchParams(updatedParams);
+    };
+
+    const onDownloadRegistrations = () => {
+        downloadRequest.onStart();
+        api.adminGetRegistrations(region, ratingRange)
+            .then((resp) => {
+                console.log('adminGetRegistrations: ', resp);
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(resp.data);
+                link.download = `${region}_${ratingRange}_Registrations.csv`;
+                link.click();
+                downloadRequest.onSuccess();
+                link.remove();
+            })
+            .catch((err) => {
+                console.error('adminGetRegistrations: ', err);
+                downloadRequest.onFailure();
+            });
     };
 
     return (
@@ -207,12 +229,29 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                 )}
             </Stack>
 
+            {(user?.isAdmin || user?.isTournamentAdmin) && (
+                <>
+                    <RequestSnackbar request={downloadRequest} />
+
+                    <LoadingButton
+                        loading={downloadRequest.isLoading()}
+                        onClick={onDownloadRegistrations}
+                        variant='contained'
+                        sx={{ alignSelf: 'start' }}
+                    >
+                        Download Registrations
+                    </LoadingButton>
+                </>
+            )}
+
             {openClassical.acceptingRegistrations ? (
-                <EntrantsTable
-                    openClassical={openClassical}
-                    region={region}
-                    ratingRange={ratingRange}
-                />
+                <Stack spacing={3}>
+                    <EntrantsTable
+                        openClassical={openClassical}
+                        region={region}
+                        ratingRange={ratingRange}
+                    />
+                </Stack>
             ) : view === 'standings' ? (
                 <StandingsTable
                     openClassical={openClassical}

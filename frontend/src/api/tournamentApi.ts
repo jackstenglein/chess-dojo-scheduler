@@ -66,6 +66,17 @@ export type TournamentApiContextType = {
      * @returns A list of previous open classicals, in descending order by date.
      */
     listPreviousOpenClassicals: (startKey?: string) => Promise<OpenClassical[]>;
+
+    /**
+     * Returns a csv file containing the current open classical registrations for the given section.
+     * @param region The region to get.
+     * @param section The section to get.
+     * @returns A csv file containing the current open classical registrations.
+     */
+    adminGetRegistrations: (
+        region: string,
+        section: string
+    ) => Promise<AxiosResponse<any, any>>;
 };
 
 /** A request to register for the Open Classical. */
@@ -229,4 +240,12 @@ export async function listPreviousOpenClassicals(startKey?: string) {
     } while (params.startKey);
 
     return result;
+}
+
+export function adminGetRegistrations(idToken: string, region: string, section: string) {
+    return axios.get(`${BASE_URL}/tournaments/open-classical/admin/registrations`, {
+        params: { region, section },
+        headers: { Authorization: 'Bearer ' + idToken },
+        responseType: 'blob',
+    });
 }

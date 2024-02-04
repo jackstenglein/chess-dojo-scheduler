@@ -4,12 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
-	"time"
-
-	"google.golang.org/api/option"
-	sheets "google.golang.org/api/sheets/v4"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -19,14 +14,9 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/user/ratings"
 )
 
-var media = database.S3
-var stage = os.Getenv("stage")
 var repository = database.DynamoDB
 
-const (
-	maxByeLength = 7
-	sheetId      = "1P04-l4B0LeasPzCOgnVT_3NRbClEIwCwPmVyPz-OtWo"
-)
+const maxByeLength = 7
 
 var validTitles = []string{
 	"",
@@ -151,74 +141,4 @@ func checkRequest(req *RegisterRequest) error {
 
 	req.LichessRating = rating
 	return err
-}
-
-// Gets a client for Google Sheets.
-func getSheetsClient(ctx context.Context) (*sheets.Service, error) {
-	f, err := os.Create("/tmp/openClassicalServiceAccountKey.json")
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to create file for service account key", err)
-	}
-
-	if err = media.Download(fmt.Sprintf("chess-dojo-%s-secrets", stage), "openClassicalServiceAccountKey.json", f); err != nil {
-		return nil, err
-	}
-	if err = f.Close(); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to close file for service account key", err)
-	}
-
-	client, err := sheets.NewService(ctx, option.WithCredentialsFile("/tmp/openClassicalServiceAccountKey.json"))
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Sheets client", err)
-	}
-	return client, nil
-}
-
-// Returns the SpreadsheetValuesAppendCall that will append the values in the RegisterRequest
-// to the spreadsheet.
-func getAppendCall(ctx context.Context, client *sheets.Service, req *RegisterRequest) *sheets.SpreadsheetsValuesAppendCall {
-	byeRounds := make([]string, 0)
-	for i, v := range req.ByeRequests {
-		if v {
-			byeRounds = append(byeRounds, fmt.Sprintf("%d", i+1))
-		}
-	}
-
-	byeRequests := ""
-	if len(byeRounds) > 0 {
-		byeRequests = fmt.Sprintf("Bye requests for rounds %s", strings.Join(byeRounds, ", "))
-	}
-
-	valueRange := &sheets.ValueRange{
-		MajorDimension: "ROWS",
-		Values: [][]interface{}{
-			{
-				time.Now().Format(time.RFC3339), // submission_date
-				"=ROW()-1",                      // number
-				req.Title,                       // title
-				fmt.Sprintf("lichess:%s,discord:%s", req.LichessUsername, req.DiscordUsername), // name
-				req.LichessRating, // rating
-				"",                // club
-				"",                // birthdate
-				"",                // sex
-				"",                // federation
-				"",                // fide_id
-				"",                // local_id
-				req.LichessRating, // rating_classic
-				"",                //rating_rapid
-				"",                //rating_blitz
-				"",                //rating_local
-				"",                //labels
-				req.Email,         // contact_email
-				"",                // contact_phone
-				"",                // signedin
-				"ACCEPTED",        // status
-				"",                // payments
-				byeRequests,       // notes_admin
-				"",                // notes_public
-			},
-		},
-	}
-	sheetRange := fmt.Sprintf("%s_%s_Registrations", req.Region, req.Section)
-	return client.Spreadsheets.Values.Append(sheetId, sheetRange, valueRange).ValueInputOption("USER_ENTERED").Context(ctx)
 }
