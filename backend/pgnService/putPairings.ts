@@ -41,6 +41,7 @@ interface OpenClassicalPairing {
     white: OpenClassicalPlayer;
     black: OpenClassicalPlayer;
     result: string;
+    verified: boolean;
 }
 
 interface OpenClassicalRound {
@@ -113,6 +114,7 @@ function getPairing(chess: Chess): OpenClassicalPairing {
             rating: blackRating,
         },
         result: chess.header().Result || '',
+        verified: chess.header().Result !== '' && chess.header().Result !== '*',
     };
 }
 
