@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Move } from '@jackstenglein/chess';
-import { Card } from '@mui/material';
+import { Card, Stack } from '@mui/material';
+import { Resizable, ResizeCallbackData } from 'react-resizable';
 
 import Result from './Result';
 import Variation from './Variation';
@@ -40,6 +41,29 @@ const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
             <Variation handleScroll={handleScroll} onClickMove={onClickMove} />
             <Result />
         </Card>
+    );
+};
+
+export const ResizablePgnText: React.FC<PgnTextProps> = (props) => {
+    const [size, setSize] = useState({ width: 400, height: 751 });
+
+    const onResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
+        setSize({ width: data.size.width, height: data.size.height });
+    };
+
+    return (
+        <Resizable width={size.width} height={size.height} onResize={onResize}>
+            <Stack
+                sx={{
+                    overflowY: 'auto',
+                    mb: { xs: 1, md: 0 },
+                    width: `${size.width}px`,
+                    height: `${size.height}px`,
+                }}
+            >
+                <PgnText {...props} />
+            </Stack>
+        </Resizable>
     );
 };
 

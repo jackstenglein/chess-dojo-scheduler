@@ -1,4 +1,4 @@
-import {
+import React, {
     createContext,
     useCallback,
     useContext,
@@ -10,17 +10,19 @@ import {
 import { Chess, Move } from '@jackstenglein/chess';
 import { Box, Stack, SxProps, Theme } from '@mui/material';
 
-import Board, { BoardApi, PrimitiveMove, reconcile } from '../Board';
-import PgnText from './pgnText/PgnText';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+
+import { BoardApi, PrimitiveMove, reconcile } from '../Board';
+import { ResizablePgnText } from './pgnText/PgnText';
 import { Color } from 'chessground/types';
-import BoardButtons from './boardTools/boardButtons/BoardButtons';
 import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
 import { ClockTextFieldId, CommentTextFieldId } from './boardTools/underboard/Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { TagTextFieldId } from './boardTools/underboard/Tags';
-import PlayerHeader from './PlayerHeader';
 import Underboard from './boardTools/underboard/Underboard';
+import ResizableBoardArea from './ResizableBoardArea';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -184,123 +186,37 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             sx={
                 sx || {
                     gridArea: 'pgn',
-                    display: 'grid',
                     width: 1,
-                    gridTemplateRows: {
-                        xs: `${
-                            showPlayerHeaders ? 'auto auto' : ''
-                        } auto auto minmax(auto, calc(100vh - (100vw - 32px) - 30px ${
-                            showPlayerHeaders ? '- 56px' : ''
-                        } - 40px)) auto`,
-
-                        md: `${
-                            showPlayerHeaders ? 'var(--player-header-height)' : ''
-                        } var(--board-size) ${
-                            showPlayerHeaders ? 'var(--player-header-height)' : ''
-                        } auto auto`,
-
-                        xl: `${
-                            showPlayerHeaders ? 'var(--player-header-height)' : ''
-                        } var(--board-size) ${
-                            showPlayerHeaders ? 'var(--player-header-height)' : ''
-                        } 48px`,
-                    },
-                    gridTemplateColumns: {
-                        xs: '1fr',
-                        md: 'auto var(--board-size) var(--gap) var(--coach-width) auto',
-                        xl: `auto ${
-                            showUnderboard ? 'var(--underboard-width) var(--gap)' : ''
-                        }  var(--board-size) var(--gap) var(--coach-width) auto`,
-                    },
-                    gridTemplateAreas: {
-                        xs: `${showPlayerHeaders ? '"playerheader"' : ''}
-                             "board"
-                             ${showPlayerHeaders ? '"playerfooter"' : ''}
-                             "boardButtons"
-                             "coach"
-                             "underboard"`,
-
-                        md: `${showPlayerHeaders ? '". playerheader . coach ."' : ''}
-                             ". board . coach ." 
-                             ${showPlayerHeaders ? '". playerfooter . coach ."' : ''}
-                             ". boardButtons . . ." 
-                             ". underboard . . ."`,
-
-                        xl: `${
-                            showPlayerHeaders
-                                ? `". ${
-                                      showUnderboard ? 'underboard .' : ''
-                                  } playerheader . coach ."`
-                                : ''
-                        }
-                             ". ${showUnderboard ? 'underboard .' : ''} board . coach ." 
-                             ${
-                                 showPlayerHeaders
-                                     ? `". ${
-                                           showUnderboard ? 'underboard .' : ''
-                                       } playerfooter . coach ."`
-                                     : ''
-                             }
-                             ". ${
-                                 showUnderboard ? 'underboard .' : ''
-                             } boardButtons . coach ."`,
-                    },
                 }
             }
         >
-            <ChessContext.Provider value={chessContext}>
-                <Box
-                    gridArea='board'
-                    sx={{
-                        width: 1,
-                        aspectRatio: 1,
-                    }}
-                >
-                    <Board
-                        config={{
-                            pgn,
-                            fen,
-                            orientation: startOrientation,
-                        }}
-                        onInitialize={onInitialize}
-                        onMove={onMove}
-                    />
-                </Box>
-
-                {chess && showPlayerHeaders && (
-                    <>
-                        <PlayerHeader type='header' pgn={chess?.pgn} />
-                        <PlayerHeader type='footer' pgn={chess?.pgn} />
-                    </>
-                )}
-
-                {board && chess && (
-                    <>
-                        <BoardButtons
-                            onClickMove={onClickMove}
-                            game={game}
-                            showSave={showEditor && game?.owner === user?.username}
-                        />
-
+            <Stack direction='row' spacing={2} justifyContent='center' px={2}>
+                <ChessContext.Provider value={chessContext}>
+                    {showUnderboard && (
                         <Underboard
                             showExplorer={showExplorer}
                             game={game}
                             onSaveGame={onSaveGame}
                         />
+                    )}
 
-                        <Stack
-                            gridArea='coach'
-                            height={1}
-                            sx={{
-                                overflowY: 'auto',
-                                mb: { xs: 1, md: 0 },
-                            }}
-                        >
-                            <PgnText onClickMove={onClickMove} />
-                        </Stack>
-                    </>
-                )}
-            </ChessContext.Provider>
+                    <ResizableBoardArea
+                        {...{
+                            showPlayerHeaders,
+                            pgn,
+                            fen,
+                            startOrientation,
+                            game,
+                            showEditor,
+                            onInitialize,
+                            onMove,
+                            onClickMove,
+                        }}
+                    />
+
+                    <ResizablePgnText onClickMove={onClickMove} />
+                </ChessContext.Provider>
+            </Stack>
         </Box>
     );
 };

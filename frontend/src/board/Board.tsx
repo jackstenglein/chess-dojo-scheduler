@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Button, Dialog, DialogContent, Stack } from '@mui/material';
+import { Resizable, ResizeCallbackData } from 'react-resizable';
 
 import { Chessground } from 'chessground';
 import { Api as BoardApi } from 'chessground/api';
@@ -9,6 +10,7 @@ import { DrawShape } from 'chessground/draw';
 import { Chess, Move, SQUARES, Square } from '@jackstenglein/chess';
 
 import './board.css';
+import 'react-resizable/css/styles.css';
 
 export { Chess };
 export type { BoardApi };
@@ -311,4 +313,35 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     );
 };
 
-export default Board;
+interface MaybeResizableBoardProps extends BoardProps {
+    size?: number;
+    onResize?: (event: React.SyntheticEvent, data: ResizeCallbackData) => void;
+    minSize?: number;
+    maxSize?: number;
+}
+
+const MaybeResizableBoard: React.FC<MaybeResizableBoardProps> = (props) => {
+    const { size, onResize, minSize, maxSize, ...boardProps } = props;
+
+    if (size && onResize) {
+        return (
+            <Resizable
+                lockAspectRatio
+                width={size}
+                height={size}
+                onResize={onResize}
+                resizeHandles={['se']}
+                minConstraints={minSize ? [minSize, minSize] : undefined}
+                maxConstraints={maxSize ? [maxSize, maxSize] : undefined}
+            >
+                <div style={{ width: `${size}px`, height: `${size}px` }}>
+                    <Board {...boardProps} />
+                </div>
+            </Resizable>
+        );
+    }
+
+    return <Board {...boardProps} />;
+};
+
+export default MaybeResizableBoard;

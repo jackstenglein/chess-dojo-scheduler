@@ -14,7 +14,8 @@ import {
     Settings as SettingsIcon,
     Storage,
 } from '@mui/icons-material';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Resizable, ResizeCallbackData } from 'react-resizable';
 
 import { useLightMode } from '../../../../ThemeProvider';
 import Tags from './Tags';
@@ -35,6 +36,7 @@ interface UnderboardProps {
 const Underboard: React.FC<UnderboardProps> = ({ showExplorer, game, onSaveGame }) => {
     const user = useAuth().user;
     const chess = useChess().chess;
+    const [size, setSize] = useState({ width: 450, height: 751 });
 
     const showEditor = game && game.owner === user?.username;
     const [underboard, setUnderboard] = useState(
@@ -46,111 +48,124 @@ const Underboard: React.FC<UnderboardProps> = ({ showExplorer, game, onSaveGame 
         return null;
     }
 
+    const onResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
+        setSize({ width: data.size.width, height: data.size.height });
+    };
+
     return (
-        <Card
-            elevation={light ? undefined : 3}
-            sx={{
-                gridArea: 'underboard',
-                display: 'flex',
-                flexDirection: 'column',
-                boxShadow: 'none',
-                maxHeight: { xl: 1 },
-                mt: { xs: 1, xl: 0 },
-            }}
-            variant={light ? 'outlined' : 'elevation'}
+        <Resizable
+            width={size.width}
+            height={size.height}
+            onResize={onResize}
+            resizeHandles={['se']}
+            minConstraints={[250, 250]}
         >
-            {game && (
-                <Paper elevation={10} sx={{ boxShadow: 'none' }}>
-                    <ToggleButtonGroup
-                        size='small'
-                        exclusive
-                        value={underboard}
-                        onChange={(_, val) => setUnderboard(val)}
-                        fullWidth
-                    >
-                        <UnderboardButton
-                            tooltip='PGN Tags'
-                            value='tags'
-                            sx={{
-                                borderBottomLeftRadius: 0,
-                                borderTop: light ? 0 : undefined,
-                                borderLeft: light ? 0 : undefined,
-                            }}
+            <Card
+                elevation={light ? undefined : 3}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxShadow: 'none',
+                    maxHeight: { xl: 1 },
+                    mt: { xs: 1, xl: 0 },
+                    width: `${size.width}px`,
+                    height: `${size.height}px`,
+                }}
+                variant={light ? 'outlined' : 'elevation'}
+            >
+                {game && (
+                    <Paper elevation={10} sx={{ boxShadow: 'none' }}>
+                        <ToggleButtonGroup
+                            size='small'
+                            exclusive
+                            value={underboard}
+                            onChange={(_, val) => setUnderboard(val)}
+                            fullWidth
                         >
-                            <Sell />
-                        </UnderboardButton>
-
-                        {showEditor && (
                             <UnderboardButton
-                                tooltip='Edit PGN'
-                                value='editor'
+                                tooltip='PGN Tags'
+                                value='tags'
+                                sx={{
+                                    borderBottomLeftRadius: 0,
+                                    borderTop: light ? 0 : undefined,
+                                    borderLeft: light ? 0 : undefined,
+                                }}
+                            >
+                                <Sell />
+                            </UnderboardButton>
+
+                            {showEditor && (
+                                <UnderboardButton
+                                    tooltip='Edit PGN'
+                                    value='editor'
+                                    sx={{
+                                        borderTop: light ? 0 : undefined,
+                                    }}
+                                >
+                                    <Edit />
+                                </UnderboardButton>
+                            )}
+
+                            <UnderboardButton
+                                tooltip='Position Database'
+                                value='explorer'
                                 sx={{
                                     borderTop: light ? 0 : undefined,
                                 }}
                             >
-                                <Edit />
+                                <Storage />
                             </UnderboardButton>
-                        )}
 
-                        <UnderboardButton
-                            tooltip='Position Database'
-                            value='explorer'
-                            sx={{
-                                borderTop: light ? 0 : undefined,
-                            }}
-                        >
-                            <Storage />
-                        </UnderboardButton>
-
-                        <UnderboardButton
-                            tooltip='Clock Usage'
-                            value='clocks'
-                            sx={{
-                                borderBottomRightRadius: 0,
-                                borderTop: light ? 0 : undefined,
-                                borderRight: showEditor
-                                    ? undefined
-                                    : light
-                                    ? 0
-                                    : undefined,
-                            }}
-                        >
-                            <AccessAlarm />
-                        </UnderboardButton>
-
-                        {showEditor && (
                             <UnderboardButton
-                                tooltip='Settings'
-                                value='settings'
+                                tooltip='Clock Usage'
+                                value='clocks'
                                 sx={{
-                                    borderTop: light ? 0 : undefined,
-                                    borderRight: light ? 0 : undefined,
                                     borderBottomRightRadius: 0,
+                                    borderTop: light ? 0 : undefined,
+                                    borderRight: showEditor
+                                        ? undefined
+                                        : light
+                                        ? 0
+                                        : undefined,
                                 }}
                             >
-                                <SettingsIcon />
+                                <AccessAlarm />
                             </UnderboardButton>
-                        )}
-                    </ToggleButtonGroup>
-                </Paper>
-            )}
 
-            <Stack sx={{ overflowY: 'scroll', flexGrow: 1 }}>
-                {underboard === 'tags' && (
-                    <Tags
-                        tags={chess?.pgn.header.tags}
-                        game={game}
-                        allowEdits={showEditor}
-                    />
+                            {showEditor && (
+                                <UnderboardButton
+                                    tooltip='Settings'
+                                    value='settings'
+                                    sx={{
+                                        borderTop: light ? 0 : undefined,
+                                        borderRight: light ? 0 : undefined,
+                                        borderBottomRightRadius: 0,
+                                    }}
+                                >
+                                    <SettingsIcon />
+                                </UnderboardButton>
+                            )}
+                        </ToggleButtonGroup>
+                    </Paper>
                 )}
-                {underboard === 'editor' && <Editor />}
-                {underboard === 'explorer' && <Explorer />}
-                {underboard === 'settings' && game && (
-                    <Settings game={game} onSaveGame={onSaveGame} />
-                )}
-                {underboard === 'clocks' && <ClockUsage showEditor={showEditor} />}
-            </Stack>
-        </Card>
+
+                <Stack sx={{ overflowY: 'scroll', flexGrow: 1 }}>
+                    {underboard === 'tags' && (
+                        <Tags
+                            tags={chess?.pgn.header.tags}
+                            game={game}
+                            allowEdits={showEditor}
+                        />
+                    )}
+                    {underboard === 'editor' && <Editor />}
+                    {underboard === 'explorer' && <Explorer />}
+                    {underboard === 'settings' && game && (
+                        <Settings game={game} onSaveGame={onSaveGame} />
+                    )}
+                    {underboard === 'clocks' && <ClockUsage showEditor={showEditor} />}
+                </Stack>
+            </Card>
+        </Resizable>
     );
 };
 

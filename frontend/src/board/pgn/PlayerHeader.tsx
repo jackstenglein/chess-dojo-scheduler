@@ -7,7 +7,6 @@ import { useLightMode } from '../../ThemeProvider';
 
 interface PlayerHeaderProps {
     type: 'header' | 'footer';
-    pgn?: Pgn;
 }
 
 export function getInitialClock(pgn?: Pgn): string | undefined {
@@ -72,7 +71,7 @@ const rerenderHeaders = [
     TAGS.TimeControl,
 ];
 
-const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
+const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
     const { chess, board } = useChess();
     const [, setForceRender] = useState(0);
     const light = useLightMode();
@@ -109,6 +108,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type, pgn }) => {
         }
     }, [chess, setForceRender]);
 
+    const pgn = chess?.pgn;
     if (!pgn || !board) {
         return null;
     }
