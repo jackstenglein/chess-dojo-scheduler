@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/system';
-import { createTheme } from '@mui/material/styles';
-import { CssBaseline, PaletteMode } from '@mui/material';
+import { Breakpoint, createTheme, useTheme } from '@mui/material/styles';
+import { CssBaseline, PaletteMode, useMediaQuery } from '@mui/material';
 
 import { useAuth } from './auth/Auth';
 import { deepPurple } from '@mui/material/colors';
@@ -77,6 +77,36 @@ export function useLocalStorage<T>(
 
 export function useLightMode(): boolean {
     return useAuth().user?.enableLightMode || false;
+}
+
+export function useBreakpoint(): Breakpoint {
+    const theme = useTheme();
+    const xl = useMediaQuery(theme.breakpoints.up('xl'));
+    const lg = useMediaQuery(theme.breakpoints.up('lg'));
+    const md = useMediaQuery(theme.breakpoints.up('md'));
+    const sm = useMediaQuery(theme.breakpoints.up('sm'));
+
+    if (xl) {
+        return 'xl';
+    }
+    if (lg) {
+        return 'lg';
+    }
+    if (md) {
+        return 'md';
+    }
+    if (sm) {
+        return 'sm';
+    }
+    return 'xs';
+}
+
+export function useWindowSizeEffect(handler: () => void) {
+    useEffect(() => {
+        window.addEventListener('resize', handler);
+        // handler();
+        return () => window.removeEventListener('resize', handler);
+    }, [handler]);
 }
 
 const ThemeProvider = ({ children }: { children: ReactNode }) => {

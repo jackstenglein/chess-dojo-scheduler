@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Move } from '@jackstenglein/chess';
 import { ResizeCallbackData } from 'react-resizable';
 import { Color } from 'chessground/types';
@@ -9,6 +9,13 @@ import BoardButtons from './boardTools/boardButtons/BoardButtons';
 import { useAuth } from '../../auth/Auth';
 import Board, { BoardApi, Chess, PrimitiveMove } from '../Board';
 import { Game } from '../../database/game';
+import {
+    getBoardPercentages,
+    getBoardPixels,
+    getDefaultPercentages,
+    getDefaultWidth,
+} from './resize';
+import { useBreakpoint, useWindowSizeEffect } from '../../ThemeProvider';
 
 interface ResizableBoardAreaProps {
     pgn?: string;
@@ -34,9 +41,24 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
     onClickMove,
 }) => {
     const user = useAuth().user;
-    const [boardSize, setBoardSize] = useState(651);
+    const [boardPercentages, setBoardPercentage] = useState(
+        getDefaultPercentages('board')
+    );
+    const [boardSize, setBoardSize] = useState(getBoardPixels(boardPercentages));
+
+    // console.log('Board size: ', boardSize);
+
+    const onWindowResize = useCallback(() => {
+        const newBoardSize = getBoardPixels(boardPercentages);
+        console.log('New Board Size: ', newBoardSize);
+        setBoardSize(newBoardSize);
+    }, [setBoardSize, boardPercentages]);
+
+    useWindowSizeEffect(onWindowResize);
 
     const onResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
+        console.log('onResize called');
+        setBoardPercentage(getBoardPercentages(data.size.width));
         setBoardSize(data.size.width);
     };
 

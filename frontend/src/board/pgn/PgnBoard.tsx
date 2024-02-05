@@ -23,6 +23,7 @@ import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { TagTextFieldId } from './boardTools/underboard/Tags';
 import Underboard from './boardTools/underboard/Underboard';
 import ResizableBoardArea from './ResizableBoardArea';
+import { CONTAINER_ID } from './resize';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -190,7 +191,13 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 }
             }
         >
-            <Stack direction='row' spacing={2} justifyContent='center' px={2}>
+            <Stack
+                id={CONTAINER_ID}
+                direction='row'
+                spacing={2}
+                justifyContent='center'
+                px={2}
+            >
                 <ChessContext.Provider value={chessContext}>
                     {showUnderboard && (
                         <Underboard
