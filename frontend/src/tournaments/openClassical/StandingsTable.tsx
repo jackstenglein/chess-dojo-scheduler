@@ -177,22 +177,26 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
         section.rounds.forEach((round, idx) => {
             round.pairings.forEach((pairing) => {
                 const white = players[pairing.white.lichessUsername];
-                white.rounds[idx] = {
-                    opponent: pairing.result ? pairing.black.lichessUsername : '',
-                    result:
-                        pairing.black.lichessUsername === 'No Opponent'
-                            ? 'Bye'
-                            : getResult(pairing.result, 'w'),
-                };
+                if (white) {
+                    white.rounds[idx] = {
+                        opponent: pairing.result ? pairing.black.lichessUsername : '',
+                        result:
+                            pairing.black.lichessUsername === 'No Opponent'
+                                ? 'Bye'
+                                : getResult(pairing.result, 'w'),
+                    };
+                }
 
                 const black = players[pairing.black.lichessUsername];
-                black.rounds[idx] = {
-                    opponent: pairing.result ? pairing.white.lichessUsername : '',
-                    result:
-                        pairing.white.lichessUsername === 'No Opponent'
-                            ? 'Bye'
-                            : getResult(pairing.result, 'b'),
-                };
+                if (black) {
+                    black.rounds[idx] = {
+                        opponent: pairing.result ? pairing.white.lichessUsername : '',
+                        result:
+                            pairing.white.lichessUsername === 'No Opponent'
+                                ? 'Bye'
+                                : getResult(pairing.result, 'b'),
+                    };
+                }
             });
         });
 

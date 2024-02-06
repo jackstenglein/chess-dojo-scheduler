@@ -64,6 +64,9 @@ import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
 import EventBooker from './calendar/EventBooker';
 import CoachingPage from './coaching/customers/CoachingPage';
 import ListPage from './tournaments/openClassical/ListPage';
+import ListClubsPage from './clubs/ListClubsPage';
+import CreateClubPage from './clubs/CreateClubPage';
+import ClubDetailsPage from './clubs/ClubDetailsPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
@@ -115,6 +118,12 @@ const router = createBrowserRouter(
             <Route path='prices' element={<PricingPage />} />
 
             <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
+
+            <Route path='clubs'>
+                <Route index element={<ListClubsPage />} />
+                <Route path='create' element={<CreateClubPage />} />
+                <Route path=':id' element={<ClubDetailsPage />} />
+            </Route>
 
             <Route element={<RequireAuth />}>
                 <Route element={<SwitchCohortPrompt />}>

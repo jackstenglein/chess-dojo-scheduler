@@ -130,3 +130,9 @@ services:
     path: yearReviewService
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
+
+  clubService:
+    path: clubService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}

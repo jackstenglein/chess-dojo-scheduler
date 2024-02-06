@@ -38,6 +38,7 @@ var notificationTable = stage + "-notifications"
 var followersTable = stage + "-followers"
 var newsfeedTable = stage + "-newsfeed"
 var yearReviewTable = stage + "-yearReviews"
+var clubTable = stage + "-clubs"
 
 const gameTableOwnerIndex = "OwnerIdx"
 const gameTableWhiteIndex = "WhiteIndex"
@@ -191,4 +192,14 @@ func (repo *dynamoRepository) batchWrite(reqs []*dynamodb.WriteRequest, tableNam
 		return errors.New(500, "Temporary server error", "DynamoDB BatchWriteItem failed to process")
 	}
 	return nil
+}
+
+// handles sending a DynamoDB UpdateItem request using the provided input. The result is unmarshaled
+// into the provided output value, which must be a non-nil pointer.
+func (repo *dynamoRepository) updateItem(input *dynamodb.UpdateItemInput, out interface{}) error {
+	result, err := repo.svc.UpdateItem(input)
+	if err != nil {
+		return err
+	}
+	return dynamodbattribute.UnmarshalMap(result.Attributes, out)
 }

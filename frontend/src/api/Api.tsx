@@ -116,6 +116,8 @@ import {
     subscriptionManage,
 } from './paymentApi';
 import { Course } from '../database/course';
+import { ClubApiContextType, createClub, getClub, listClubs } from './clubApi';
+import { Club } from '../database/club';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -131,7 +133,8 @@ type ApiContextType = UserApiContextType &
     NewsfeedApiContextType &
     ScoreboardApiContextType &
     ExplorerApiContextType &
-    PaymentApiContextType;
+    PaymentApiContextType &
+    ClubApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -341,6 +344,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             createPaymentAccount: () => createPaymentAccount(idToken),
             getPaymentAccount: () => getPaymentAccount(idToken),
             paymentAccountLogin: () => paymentAccountLogin(idToken),
+
+            createClub: (club: Partial<Club>) => createClub(idToken, club),
+            listClubs: (startKey?: string) => listClubs(startKey),
+            getClub: (id: string) => getClub(id),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

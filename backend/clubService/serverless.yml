@@ -1,0 +1,89 @@
+# Deploys the club service.
+
+service: chess-dojo-club
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  create:
+    handler: create/main.go
+    events:
+      - httpApi:
+          path: /clubs
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt ClubsTable.Arn
+
+  list:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /public/clubs
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt ClubsTable.Arn
+
+  get:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /public/clubs/{id}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt ClubsTable.Arn
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
+  Resources:
+    ClubsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-clubs
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
