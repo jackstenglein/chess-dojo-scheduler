@@ -24,18 +24,25 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
+	if id := event.PathParameters["id"]; id == "" {
+		return createClub(event), nil
+	}
+	return saveClub(event), nil
+}
+
+func createClub(event api.Request) api.Response {
 	info := api.GetUserInfo(event)
 	if info.Username == "" {
-		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
+		return api.Failure(errors.New(400, "Invalid request: username is required", ""))
 	}
 
 	club := &database.Club{}
 	if err := json.Unmarshal([]byte(event.Body), club); err != nil {
-		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err)), nil
+		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err))
 	}
 
 	if err := checkClub(club); err != nil {
-		return api.Failure(err), nil
+		return api.Failure(err)
 	}
 
 	club.Id = uuid.NewString()
@@ -51,14 +58,33 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	if err := repository.CreateClub(club); err != nil {
-		return api.Failure(err), nil
+		return api.Failure(err)
 	}
-	return api.Success(club), nil
+	return api.Success(club)
+}
+
+func saveClub(event api.Request) api.Response {
+	info := api.GetUserInfo(event)
+	if info.Username == "" {
+		return api.Failure(errors.New(400, "Invalid request: username is required", ""))
+	}
+
+	clubUpdate := &database.ClubUpdate{}
+	if err := json.Unmarshal([]byte(event.Body), clubUpdate); err != nil {
+		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err))
+	}
+
+	club, err := repository.UpdateClub(event.PathParameters["id"], info.Username, clubUpdate)
+	if err != nil {
+		return api.Failure(err)
+	}
+	return api.Success(club)
 }
 
 func checkClub(club *database.Club) error {
 	club.Name = strings.TrimSpace(club.Name)
 	club.Description = strings.TrimSpace(club.Description)
+	club.ShortDescription = strings.TrimSpace(club.ShortDescription)
 	club.ExternalUrl = strings.TrimSpace(club.ExternalUrl)
 
 	if club.Name == "" {
@@ -66,6 +92,9 @@ func checkClub(club *database.Club) error {
 	}
 	if club.Description == "" {
 		return errors.New(400, "Invalid request: description is required", "")
+	}
+	if !club.Unlisted && club.ShortDescription == "" {
+		return errors.New(400, "Invalid request: shortDescription is required if the club is public", "")
 	}
 
 	return nil

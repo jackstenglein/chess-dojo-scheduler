@@ -17,11 +17,11 @@ type Club struct {
 	// The user-facing name of the club
 	Name string `dynamodbav:"name" json:"name"`
 
-	// A short description of the club, which appears on the list page
-	ShortDescription string `dynamodbav:"shortDescription,omitempty" json:"shortDescription,omitempty"`
-
 	// The full description of the club, which supports basic markdown
 	Description string `dynamodbav:"description" json:"description"`
+
+	// A short description of the club, which appears on the list page
+	ShortDescription string `dynamodbav:"shortDescription,omitempty" json:"shortDescription"`
 
 	// The username of the owner of the club
 	Owner string `dynamodbav:"owner" json:"owner"`
@@ -30,10 +30,10 @@ type Club struct {
 	PromoCode string `dynamodbav:"promoCode,omitempty" json:"promoCode,omitempty"`
 
 	// A link to the club's external webpage, if it has one
-	ExternalUrl string `dynamodbav:"externalUrl,omitempty" json:"externalUrl,omitempty"`
+	ExternalUrl string `dynamodbav:"externalUrl,omitempty" json:"externalUrl"`
 
 	// The physical location of the club, if it has one
-	Location ClubLocation `dynamodbav:"location,omitempty" json:"location,omitempty"`
+	Location ClubLocation `dynamodbav:"location,omitempty" json:"location"`
 
 	// The number of members in the club
 	MemberCount int `dynamodbav:"memberCount" json:"memberCount"`
@@ -59,13 +59,13 @@ type Club struct {
 
 type ClubLocation struct {
 	// The city the club is located in
-	City string `dynamodbav:"city" json:"city"`
+	City string `dynamodbav:"city,omitempty" json:"city"`
 
 	// The state the club is located in
-	State string `dynamodbav:"state" json:"state"`
+	State string `dynamodbav:"state,omitempty" json:"state"`
 
 	// The country the club is located in
-	Country string `dynamodbav:"country" json:"country"`
+	Country string `dynamodbav:"country,omitempty" json:"country"`
 }
 
 type ClubMember struct {
@@ -99,6 +99,9 @@ type ClubUpdate struct {
 
 	// The description of the club
 	Description *string `dynamodbav:"description,omitempty" json:"description,omitempty"`
+
+	// A short description of the club, which appears on the list page
+	ShortDescription *string `dynamodbav:"shortDescription,omitempty" json:"shortDescription,omitempty"`
 
 	// A link to the club's external webpage, if it has one
 	ExternalUrl *string `dynamodbav:"externalUrl,omitempty" json:"externalUrl,omitempty"`
@@ -135,7 +138,7 @@ func (repo *dynamoRepository) CreateClub(club *Club) error {
 }
 
 // Applies the given update to the given club. The club after the update is returned.
-func (repo *dynamoRepository) UpdateClub(id string, update *ClubUpdate) (*Club, error) {
+func (repo *dynamoRepository) UpdateClub(id string, caller string, update *ClubUpdate) (*Club, error) {
 	update.UpdatedAt = aws.String(time.Now().Format(time.RFC3339))
 
 	av, err := dynamodbattribute.Marshal(update)
@@ -153,14 +156,20 @@ func (repo *dynamoRepository) UpdateClub(id string, update *ClubUpdate) (*Club, 
 		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB expression building error", err)
 	}
 
+	exprAttrNames := expr.Names()
+	exprAttrNames["#owner"] = aws.String("owner")
+
+	exprAttrValues := expr.Values()
+	exprAttrValues[":caller"] = &dynamodb.AttributeValue{S: aws.String(caller)}
+
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {S: aws.String(id)},
 		},
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
 		UpdateExpression:          expr.Update(),
-		ConditionExpression:       aws.String("attribute_exists(id)"),
+		ConditionExpression:       aws.String("attribute_exists(id) AND #owner = :caller"),
 		TableName:                 aws.String(clubTable),
 		ReturnValues:              aws.String("ALL_NEW"),
 	}
@@ -178,7 +187,7 @@ func (repo *dynamoRepository) UpdateClub(id string, update *ClubUpdate) (*Club, 
 func (repo *dynamoRepository) ListClubs(startKey string) ([]Club, string, error) {
 	input := &dynamodb.ScanInput{
 		FilterExpression:     aws.String("#unlisted <> :true"),
-		ProjectionExpression: aws.String("id,#name,description,#owner,externalUrl,#location,memberCount,approvalRequired,createdAt,updatedAt"),
+		ProjectionExpression: aws.String("id,#name,description,shortDescription,#owner,externalUrl,#location,memberCount,approvalRequired,createdAt,updatedAt"),
 		ExpressionAttributeNames: map[string]*string{
 			"#unlisted": aws.String("unlisted"),
 			"#name":     aws.String("name"),

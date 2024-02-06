@@ -15,6 +15,17 @@ export type ClubApiContextType = {
     createClub: (club: Partial<Club>) => Promise<AxiosResponse<ClubDetails, any>>;
 
     /**
+     * Updates the club with the given id.
+     * @param id The id of the club to update.
+     * @param update The fields of the club to update.
+     * @returns An AxiosResponse containing the updated club.
+     */
+    updateClub: (
+        id: string,
+        update: Partial<Club>
+    ) => Promise<AxiosResponse<ClubDetails, any>>;
+
+    /**
      * Fetches the full list of clubs in the database.
      * @param startKey An optional start key to use when searching.
      * @returns A list of all clubs in the database.
@@ -37,6 +48,19 @@ export type ClubApiContextType = {
  */
 export function createClub(idToken: string, club: Partial<Club>) {
     return axios.post<ClubDetails>(`${BASE_URL}/clubs`, club, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
+}
+
+/**
+ * Updates the club with the given id.
+ * @param idToken The id token of the current signed-in user.
+ * @param id The id of the club to update.
+ * @param update The fields of the club to update.
+ * @returns An AxiosResponse containing the updated club.
+ */
+export function updateClub(idToken: string, id: string, update: Partial<Club>) {
+    return axios.put<ClubDetails>(`${BASE_URL}/clubs/${id}`, update, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }

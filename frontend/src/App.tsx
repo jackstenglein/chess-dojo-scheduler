@@ -122,7 +122,10 @@ const router = createBrowserRouter(
             <Route path='clubs'>
                 <Route index element={<ListClubsPage />} />
                 <Route path='create' element={<CreateClubPage />} />
-                <Route path=':id' element={<ClubDetailsPage />} />
+                <Route path=':id'>
+                    <Route index element={<ClubDetailsPage />} />
+                    <Route path='edit' element={<CreateClubPage />} />
+                </Route>
             </Route>
 
             <Route element={<RequireAuth />}>

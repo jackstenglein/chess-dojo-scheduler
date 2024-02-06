@@ -1,21 +1,25 @@
-import { Container, Link, Stack, Typography, useTheme } from '@mui/material';
+import { useEffect } from 'react';
+import { Button, Container, Link, Stack, Typography, useTheme } from '@mui/material';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { ClubDetails } from '../database/club';
-import { useParams } from 'react-router-dom';
-import React, { useEffect } from 'react';
 import LoadingPage from '../loading/LoadingPage';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { useAuth } from '../auth/Auth';
 
-type ClubDetailsParams = {
+export type ClubDetailsParams = {
     id: string;
 };
 
 const ClubDetailsPage = () => {
+    const viewer = useAuth().user;
     const api = useApi();
     const { id } = useParams<ClubDetailsParams>();
     const request = useRequest<ClubDetails>();
+    const navigate = useNavigate();
 
     const reset = request.reset;
     useEffect(() => {
@@ -51,7 +55,21 @@ const ClubDetailsPage = () => {
 
             {club && (
                 <Stack spacing={4}>
-                    <Typography variant='h4'>{club.name}</Typography>
+                    <Stack
+                        direction='row'
+                        justifyContent='space-between'
+                        alignItems='center'
+                    >
+                        <Typography variant='h4'>{club.name}</Typography>
+                        {viewer?.username === club.owner && (
+                            <Button
+                                variant='contained'
+                                onClick={() => navigate(`/clubs/${club.id}/edit`)}
+                            >
+                                Edit Settings
+                            </Button>
+                        )}
+                    </Stack>
                     <Description description={club.description} />
                 </Stack>
             )}

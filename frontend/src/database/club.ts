@@ -15,7 +15,7 @@ export interface Club {
     owner: string;
 
     /** The Stripe promo code associated with the club. */
-    promoCode: string;
+    promoCode?: string;
 
     /** A link to the club's external webpage, if it has one. */
     externalUrl: string;

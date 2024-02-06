@@ -116,7 +116,13 @@ import {
     subscriptionManage,
 } from './paymentApi';
 import { Course } from '../database/course';
-import { ClubApiContextType, createClub, getClub, listClubs } from './clubApi';
+import {
+    ClubApiContextType,
+    createClub,
+    getClub,
+    listClubs,
+    updateClub,
+} from './clubApi';
 import { Club } from '../database/club';
 
 /**
@@ -346,6 +352,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             paymentAccountLogin: () => paymentAccountLogin(idToken),
 
             createClub: (club: Partial<Club>) => createClub(idToken, club),
+            updateClub: (id: string, data: Partial<Club>) =>
+                updateClub(idToken, id, data),
             listClubs: (startKey?: string) => listClubs(startKey),
             getClub: (id: string) => getClub(id),
         };

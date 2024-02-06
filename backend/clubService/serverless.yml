@@ -26,8 +26,8 @@ custom:
     buildProvidedRuntimeAsBootstrap: true
 
 functions:
-  create:
-    handler: create/main.go
+  save:
+    handler: save/main.go
     events:
       - httpApi:
           path: /clubs
@@ -35,10 +35,17 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /clubs/{id}
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:UpdateItem
         Resource: !GetAtt ClubsTable.Arn
 
   list:

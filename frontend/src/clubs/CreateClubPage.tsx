@@ -8,16 +8,22 @@ import {
     Typography,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { AxiosResponse } from 'axios';
 
-import { useState } from 'react';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { ClubDetailsParams } from './ClubDetailsPage';
+import { ClubDetails } from '../database/club';
+import LoadingPage from '../loading/LoadingPage';
 
 const CreateClubPage = () => {
     const api = useApi();
-    const request = useRequest();
+    const getRequest = useRequest<ClubDetails>();
+    const saveRequest = useRequest();
     const navigate = useNavigate();
+    const { id } = useParams<ClubDetailsParams>();
 
     const [name, setName] = useState('');
     const [shortDescription, setShortDescription] = useState('');
@@ -30,7 +36,35 @@ const CreateClubPage = () => {
     const [approvalRequired, setApprovalRequired] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const onCreate = () => {
+    useEffect(() => {
+        if (id && !getRequest.isSent()) {
+            getRequest.onStart();
+            api.getClub(id)
+                .then((resp) => {
+                    console.log('getClub: ', resp);
+                    getRequest.onSuccess(resp.data);
+                    setName(resp.data.name);
+                    setShortDescription(resp.data.shortDescription);
+                    setDescription(resp.data.description);
+                    setExternalUrl(resp.data.externalUrl);
+                    setCity(resp.data.location.city);
+                    setState(resp.data.location.state);
+                    setCountry(resp.data.location.country);
+                    setUnlisted(resp.data.unlisted);
+                    setApprovalRequired(resp.data.approvalRequired);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    getRequest.onFailure(err);
+                });
+        }
+    }, [id, getRequest, api]);
+
+    if (id && (!getRequest.isSent() || getRequest.isLoading())) {
+        return <LoadingPage />;
+    }
+
+    const onSave = () => {
         const errors: Record<string, string> = {};
         if (name.trim().length === 0) {
             errors.name = 'This field is required';
@@ -50,8 +84,7 @@ const CreateClubPage = () => {
             return;
         }
 
-        request.onStart();
-        api.createClub({
+        const club = {
             name,
             shortDescription,
             description,
@@ -63,22 +96,32 @@ const CreateClubPage = () => {
             },
             unlisted,
             approvalRequired,
-        })
+        };
+
+        saveRequest.onStart();
+        let promise: Promise<AxiosResponse<ClubDetails>>;
+        if (id) {
+            promise = api.updateClub(id, club);
+        } else {
+            promise = api.createClub(club);
+        }
+
+        promise
             .then((resp) => {
                 console.log('createClub: ', resp);
                 navigate(`/clubs/${resp.data.id}`);
             })
             .catch((err) => {
                 console.error('createClub: ', err);
-                request.onFailure(err);
+                saveRequest.onFailure(err);
             });
     };
 
     return (
         <Container sx={{ py: 4 }}>
-            <RequestSnackbar request={request} />
+            <RequestSnackbar request={saveRequest} />
 
-            <Typography variant='h5'>Create New Club</Typography>
+            <Typography variant='h5'>{id ? 'Edit Club' : 'Create New Club'}</Typography>
 
             <Stack spacing={3} mt={5}>
                 <TextField
@@ -180,11 +223,11 @@ const CreateClubPage = () => {
 
                 <LoadingButton
                     variant='contained'
-                    onClick={onCreate}
-                    loading={request.isLoading()}
+                    onClick={onSave}
+                    loading={saveRequest.isLoading()}
                     sx={{ alignSelf: 'center' }}
                 >
-                    Create Club
+                    {id ? 'Save' : 'Create Club'}
                 </LoadingButton>
             </Stack>
         </Container>
