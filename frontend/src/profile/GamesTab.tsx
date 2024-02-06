@@ -1,10 +1,10 @@
 import { Button, Stack, Tooltip } from '@mui/material';
 import {
-    DataGrid,
+    DataGridPro,
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid-pro';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -106,7 +106,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
             )}
 
             {(!isFreeTier || currentUser.username === user.username) && (
-                <DataGrid
+                <DataGridPro
                     columns={columns}
                     rows={data}
                     rowCount={rowCount}
@@ -129,6 +129,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                             ],
                         },
                     }}
+                    pagination
                 />
             )}
         </Stack>

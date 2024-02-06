@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { MenuItem, Stack, TextField, Button } from '@mui/material';
-import { DataGrid, GridColDef, GridRowModel } from '@mui/x-data-grid';
+import { DataGridPro, GridColDef, GridRowModel } from '@mui/x-data-grid-pro';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -154,7 +154,7 @@ const LeaderboardTab = () => {
                 </Stack>
             </Stack>
 
-            <DataGrid
+            <DataGridPro
                 data-cy='leaderboard'
                 autoHeight
                 columns={columns}
@@ -170,6 +170,7 @@ const LeaderboardTab = () => {
                         paginationModel: { page: 0, pageSize: 10 },
                     },
                 }}
+                pagination
             />
         </Stack>
     );

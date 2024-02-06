@@ -1,9 +1,9 @@
 import { Stack, Typography } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import { GridRenderCellParams } from '@mui/x-data-grid-pro';
 
 import { GameResult } from '../../database/game';
-import { GridRenderCellParams } from '@mui/x-data-grid';
 
 export function RenderPlayers(params: GridRenderCellParams) {
     return (

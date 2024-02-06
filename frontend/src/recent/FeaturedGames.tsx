@@ -6,7 +6,7 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { GameInfo } from '../database/game';
 import LoadingPage from '../loading/LoadingPage';
-import { DataGrid, GridRowParams } from '@mui/x-data-grid';
+import { DataGridPro, GridRowParams } from '@mui/x-data-grid-pro';
 import { gameTableColumns } from '../games/list/ListGamesPage';
 
 const FeaturedGames = () => {
@@ -55,7 +55,7 @@ const FeaturedGames = () => {
                     <Typography>No featured games in the past month</Typography>
                 )
             ) : (
-                <DataGrid
+                <DataGridPro
                     data-cy='featured-games-table'
                     columns={gameTableColumns}
                     rows={games}
@@ -72,6 +72,7 @@ const FeaturedGames = () => {
                     rowHeight={70}
                     onRowClick={onClickRow}
                     sx={{ width: 1 }}
+                    pagination
                 />
             )}
         </Stack>

@@ -10,11 +10,11 @@ import {
     Typography,
 } from '@mui/material';
 import {
-    DataGrid,
+    DataGridPro,
     GridColDef,
     GridRenderCellParams,
     GridValueGetterParams,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid-pro';
 import { Link as RouterLink } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -295,7 +295,7 @@ const SearchPage = () => {
                 </Stack>
 
                 {request.data && (
-                    <DataGrid
+                    <DataGridPro
                         data-cy='search-results'
                         autoHeight
                         columns={columns}
@@ -310,6 +310,7 @@ const SearchPage = () => {
                             },
                         }}
                         getRowId={(row) => row.username}
+                        pagination
                     />
                 )}
             </Stack>

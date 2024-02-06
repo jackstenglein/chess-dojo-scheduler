@@ -16,12 +16,12 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { Graduation } from '../database/graduation';
 import LoadingPage from '../loading/LoadingPage';
 import {
-    DataGrid,
+    DataGridPro,
     GridColDef,
     GridRenderCellParams,
     GridValueFormatterParams,
     GridValueGetterParams,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid-pro';
 import Avatar from '../profile/Avatar';
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
@@ -249,7 +249,7 @@ const RecentGraduates = () => {
                     <Typography>No graduations in the selected timeframe</Typography>
                 )
             ) : (
-                <DataGrid
+                <DataGridPro
                     data-cy='recent-graduates-table'
                     columns={graduateTableColumns}
                     rows={graduations}
@@ -279,6 +279,7 @@ const RecentGraduates = () => {
                             sortModel: [{ field: 'newCohort', sort: 'asc' }],
                         },
                     }}
+                    pagination
                     autoHeight
                 />
             )}

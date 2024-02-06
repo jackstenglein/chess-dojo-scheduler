@@ -10,7 +10,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -259,7 +259,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     ratingRange={ratingRange}
                 />
             ) : (
-                <DataGrid
+                <DataGridPro
                     columns={pairingTableColumns}
                     rows={pairings}
                     getRowId={(pairing) =>

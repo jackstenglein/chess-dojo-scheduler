@@ -1,12 +1,12 @@
 import { Button, Container, Divider, Grid, Link, Stack, Typography } from '@mui/material';
 import {
-    DataGrid,
+    DataGridPro,
     GridColDef,
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
     GridValueFormatterParams,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid-pro';
 
 import { GameInfo } from '../../database/game';
 import { RenderPlayers, RenderResult } from './GameListItem';
@@ -198,7 +198,7 @@ const ListGamesPage = () => {
 
             <Grid container spacing={5} wrap='wrap-reverse'>
                 <Grid item xs={12} md={9} lg={8}>
-                    <DataGrid
+                    <DataGridPro
                         data-cy='games-table'
                         columns={columns}
                         rows={isFreeTier ? data.slice(0, 10) : data}
@@ -221,6 +221,7 @@ const ListGamesPage = () => {
                                 ],
                             },
                         }}
+                        pagination
                     />
                 </Grid>
 
