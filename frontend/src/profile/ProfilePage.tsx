@@ -203,7 +203,7 @@ const ProfilePage = () => {
                                 aria-label='profile tabs'
                                 variant='scrollable'
                             >
-                                <Tab label='Ratings' value='stats' id='test' />
+                                <Tab label='Ratings' value='stats' />
                                 {user.isCoach && (
                                     <Tab label='Coaching' value='coaching' />
                                 )}

@@ -9,13 +9,13 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { Club } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
-import { useNavigate } from 'react-router-dom';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 const ListClubsPage = () => {
     const api = useApi();

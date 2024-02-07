@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
 import { Club, ClubDetails } from '../database/club';
+import { ScoreboardSummary } from '../database/scoreboard';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -35,9 +36,13 @@ export type ClubApiContextType = {
     /**
      * Fetches the club with the given id.
      * @param id The id of the club to fetch.
+     * @param scoreboard If true, the club's scoreboard is included.
      * @returns An AxiosResponse containing the requested club.
      */
-    getClub: (id: string) => Promise<AxiosResponse<ClubDetails, any>>;
+    getClub: (
+        id: string,
+        scoreboard?: boolean
+    ) => Promise<AxiosResponse<GetClubResponse, any>>;
 };
 
 /**
@@ -91,11 +96,18 @@ export async function listClubs(startKey?: string) {
     return result;
 }
 
+export interface GetClubResponse {
+    club: ClubDetails;
+    scoreboard?: ScoreboardSummary[];
+}
+
 /**
  * Fetches the club with the given id.
  * @param id The id of the club to fetch.
  * @returns An AxiosResponse containing the requested club.
  */
-export function getClub(id: string) {
-    return axios.get<ClubDetails>(`${BASE_URL}/public/clubs/${id}`);
+export function getClub(id: string, scoreboard?: boolean) {
+    return axios.get<GetClubResponse>(`${BASE_URL}/public/clubs/${id}`, {
+        params: { scoreboard },
+    });
 }

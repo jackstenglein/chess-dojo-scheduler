@@ -42,16 +42,17 @@ const CreateClubPage = () => {
             api.getClub(id)
                 .then((resp) => {
                     console.log('getClub: ', resp);
-                    getRequest.onSuccess(resp.data);
-                    setName(resp.data.name);
-                    setShortDescription(resp.data.shortDescription);
-                    setDescription(resp.data.description);
-                    setExternalUrl(resp.data.externalUrl);
-                    setCity(resp.data.location.city);
-                    setState(resp.data.location.state);
-                    setCountry(resp.data.location.country);
-                    setUnlisted(resp.data.unlisted);
-                    setApprovalRequired(resp.data.approvalRequired);
+                    getRequest.onSuccess(resp.data.club);
+                    const club = resp.data.club;
+                    setName(club.name);
+                    setShortDescription(club.shortDescription);
+                    setDescription(club.description);
+                    setExternalUrl(club.externalUrl);
+                    setCity(club.location.city);
+                    setState(club.location.state);
+                    setCountry(club.location.country);
+                    setUnlisted(club.unlisted);
+                    setApprovalRequired(club.approvalRequired);
                 })
                 .catch((err) => {
                     console.error(err);

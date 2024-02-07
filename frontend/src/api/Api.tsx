@@ -355,7 +355,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             updateClub: (id: string, data: Partial<Club>) =>
                 updateClub(idToken, id, data),
             listClubs: (startKey?: string) => listClubs(startKey),
-            getClub: (id: string) => getClub(id),
+            getClub: (id: string, scoreboard?: boolean) => getClub(id, scoreboard),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

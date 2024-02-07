@@ -71,6 +71,10 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: !GetAtt ClubsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: ${param:UsersTableArn}
 
 resources:
   Conditions:

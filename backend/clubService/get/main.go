@@ -12,6 +12,11 @@ import (
 
 var repository = database.DynamoDB
 
+type GetClubResponse struct {
+	Club       *database.Club               `json:"club"`
+	Scoreboard []database.ScoreboardSummary `json:"scoreboard,omitempty"`
+}
+
 func main() {
 	lambda.Start(handler)
 }
@@ -29,5 +34,34 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if err != nil {
 		return api.Failure(err), nil
 	}
-	return api.Success(club), nil
+
+	if _, ok := event.QueryStringParameters["scoreboard"]; !ok {
+		return api.Success(GetClubResponse{Club: club}), nil
+	}
+
+	var scoreboard []database.ScoreboardSummary
+
+	var memberUsernames []string
+	for username := range club.Members {
+		memberUsernames = append(memberUsernames, username)
+
+		if len(memberUsernames) == 100 {
+			s, err := repository.GetScoreboardSummaries(memberUsernames)
+			if err != nil {
+				return api.Failure(err), nil
+			}
+			scoreboard = append(scoreboard, s...)
+			memberUsernames = nil
+		}
+	}
+
+	if len(memberUsernames) > 0 {
+		s, err := repository.GetScoreboardSummaries(memberUsernames)
+		if err != nil {
+			return api.Failure(err), nil
+		}
+		scoreboard = append(scoreboard, s...)
+	}
+
+	return api.Success(GetClubResponse{Club: club, Scoreboard: scoreboard}), nil
 }
