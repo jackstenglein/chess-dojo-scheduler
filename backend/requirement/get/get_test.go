@@ -33,7 +33,7 @@ var goldenRequirement = &database.Requirement{
 
 func getEvent(testName, id string) api.Request {
 	return api.Request{
-		RequestContext: events.APIGatewayProxyRequestContext{
+		RequestContext: events.APIGatewayV2HTTPRequestContext{
 			RequestID: testName,
 		},
 		PathParameters: map[string]string{

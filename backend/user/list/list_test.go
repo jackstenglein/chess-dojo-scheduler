@@ -49,7 +49,7 @@ var goldenUser2 = &database.User{
 
 func getEvent(testName, cohort, startKey string) api.Request {
 	return api.Request{
-		RequestContext: events.APIGatewayProxyRequestContext{
+		RequestContext: events.APIGatewayV2HTTPRequestContext{
 			RequestID: testName,
 		},
 		PathParameters: map[string]string{

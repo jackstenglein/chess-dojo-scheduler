@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-type Request events.APIGatewayProxyRequest
+type Request events.APIGatewayV2HTTPRequest
 type Response events.APIGatewayProxyResponse
 
 // UserInfo contains user information that is accessible from the Cognito id token claims.
@@ -28,13 +28,11 @@ func GetUserInfo(event Request) *UserInfo {
 	var username string
 	var email string
 
-	if jwt, ok := event.RequestContext.Authorizer["jwt"]; ok {
-		if jwtMap, ok := jwt.(map[string]interface{}); ok {
-			if claims, ok := jwtMap["claims"]; ok {
-				if claimsMap, ok := claims.(map[string]interface{}); ok {
-					username, ok = claimsMap["cognito:username"].(string)
-					email, ok = claimsMap["email"].(string)
-				}
+	if authorizer := event.RequestContext.Authorizer; authorizer != nil {
+		if jwt := authorizer.JWT; jwt != nil {
+			if claims := jwt.Claims; claims != nil {
+				username = claims["cognito:username"]
+				email = claims["email"]
 			}
 		}
 	}

@@ -35,11 +35,11 @@ func getEvent(testName string, username string, update *database.UserUpdate) api
 	body, _ := json.Marshal(update)
 
 	return api.Request{
-		RequestContext: events.APIGatewayProxyRequestContext{
+		RequestContext: events.APIGatewayV2HTTPRequestContext{
 			RequestID: testName,
-			Authorizer: map[string]interface{}{
-				"jwt": map[string]interface{}{
-					"claims": map[string]interface{}{
+			Authorizer: &events.APIGatewayV2HTTPRequestContextAuthorizerDescription{
+				JWT: &events.APIGatewayV2HTTPRequestContextAuthorizerJWTDescription{
+					Claims: map[string]string{
 						"cognito:username": username,
 					},
 				},
