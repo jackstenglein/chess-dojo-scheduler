@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { Club, ClubDetails } from '../database/club';
+import { Club, ClubDetails, ClubJoinRequestStatus } from '../database/club';
 import { ScoreboardSummary } from '../database/scoreboard';
 import { User } from '../database/user';
 
@@ -54,6 +54,19 @@ export type ClubApiContextType = {
     requestToJoinClub: (
         id: string,
         notes: string
+    ) => Promise<AxiosResponse<ClubDetails, any>>;
+
+    /**
+     * Applies the given status to the given club join request.
+     * @param clubId The id of the club containing the request.
+     * @param username The username of the join request.
+     * @param status The status to apply to the join request.
+     * @returns An AxiosResponse containing the club's updated details.
+     */
+    processJoinRequest: (
+        clubId: string,
+        username: string,
+        status: ClubJoinRequestStatus
     ) => Promise<AxiosResponse<ClubDetails, any>>;
 };
 
@@ -146,6 +159,27 @@ export function requestToJoinClub(
             cohort: user?.dojoCohort,
             notes,
         },
+        { headers: { Authorization: 'Bearer ' + idToken } }
+    );
+}
+
+/**
+ * Applies the given status to the given club join request.
+ * @param idToken The id token of the current signed-in user.
+ * @param clubId The id of the club containing the request.
+ * @param username The username of the join request.
+ * @param status The status to apply to the join request.
+ * @returns An AxiosResponse containing the club's updated details.
+ */
+export function processJoinRequest(
+    idToken: string,
+    clubId: string,
+    username: string,
+    status: ClubJoinRequestStatus
+) {
+    return axios.put<ClubDetails>(
+        `${BASE_URL}/clubs/${clubId}/requests/${username}`,
+        { status },
         { headers: { Authorization: 'Bearer ' + idToken } }
     );
 }

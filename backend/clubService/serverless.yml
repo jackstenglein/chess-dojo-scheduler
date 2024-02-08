@@ -97,6 +97,21 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt ClubsTable.Arn
 
+  processJoinRequest:
+    handler: processJoinRequest/main.go
+    events:
+      - httpApi:
+          path: /clubs/{id}/requests/{username}
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt ClubsTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

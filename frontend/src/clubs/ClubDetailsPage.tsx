@@ -4,6 +4,7 @@ import {
     Button,
     Container,
     Link,
+    Snackbar,
     Stack,
     Tab,
     Tabs,
@@ -37,6 +38,7 @@ const ClubDetailsPage = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams({ view: 'scoreboard' });
     const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
+    const [snackbarText, setSnackbarText] = useState('');
 
     const reset = request.reset;
     useEffect(() => {
@@ -85,9 +87,22 @@ const ClubDetailsPage = () => {
         setShowJoinRequestDialog(false);
     };
 
+    const onRequestRejected = (club: ClubDetails) => {
+        request.onSuccess({ ...request.data, club });
+        setSnackbarText('Join request rejected');
+    };
+
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
             <RequestSnackbar request={request} />
+
+            <Snackbar
+                open={Boolean(snackbarText)}
+                autoHideDuration={5000}
+                onClose={() => setSnackbarText('')}
+                message={snackbarText}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            />
 
             {club && (
                 <Stack alignItems='center' width={1}>
@@ -144,7 +159,10 @@ const ClubDetailsPage = () => {
                             </Stack>
 
                             <TabPanel value='joinRequests'>
-                                <JoinRequestsTab club={club} />
+                                <JoinRequestsTab
+                                    club={club}
+                                    onRejectRequest={onRequestRejected}
+                                />
                             </TabPanel>
                         </Container>
 

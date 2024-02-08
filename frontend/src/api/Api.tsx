@@ -121,10 +121,11 @@ import {
     createClub,
     getClub,
     listClubs,
+    processJoinRequest,
     requestToJoinClub,
     updateClub,
 } from './clubApi';
-import { Club } from '../database/club';
+import { Club, ClubJoinRequestStatus } from '../database/club';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -359,6 +360,11 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getClub: (id: string, scoreboard?: boolean) => getClub(id, scoreboard),
             requestToJoinClub: (id: string, notes: string) =>
                 requestToJoinClub(idToken, id, notes, auth.user),
+            processJoinRequest: (
+                clubId: string,
+                username: string,
+                status: ClubJoinRequestStatus
+            ) => processJoinRequest(idToken, clubId, username, status),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

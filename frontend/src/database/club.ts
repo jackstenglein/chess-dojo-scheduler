@@ -85,4 +85,11 @@ export interface ClubJoinRequest {
 
     /** The date and time the join request was created. */
     createdAt: string;
+
+    /** The status of the join request. */
+    status: ClubJoinRequestStatus;
+}
+
+export enum ClubJoinRequestStatus {
+    Rejected = 'REJECTED',
 }
