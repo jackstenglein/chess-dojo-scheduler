@@ -245,8 +245,10 @@ export function getGame(
                 {
                     white: chess.header().White,
                     black: chess.header().Black,
-                    date: chess.header().Date,
-                    result: chess.header().Result,
+                    date: isValidDate(chess.header().Date) ? chess.header().Date : '',
+                    result: isValidResult(chess.header().Result)
+                        ? chess.header().Result
+                        : '',
                 },
             ];
         }
