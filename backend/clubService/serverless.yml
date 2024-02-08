@@ -85,6 +85,12 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /clubs/{id}/requests
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Box,
     Button,
@@ -21,6 +21,9 @@ import LoadingPage from '../loading/LoadingPage';
 import { useAuth } from '../auth/Auth';
 import ScoreboardTab from './ScoreboardTab';
 import { GetClubResponse } from '../api/clubApi';
+import ClubJoinRequestDialog from './ClubJoinRequestDialog';
+import { ClubDetails } from '../database/club';
+import JoinRequestsTab from './JoinRequestsTab';
 
 export type ClubDetailsParams = {
     id: string;
@@ -33,6 +36,7 @@ const ClubDetailsPage = () => {
     const request = useRequest<GetClubResponse>();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams({ view: 'scoreboard' });
+    const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
 
     const reset = request.reset;
     useEffect(() => {
@@ -61,8 +65,25 @@ const ClubDetailsPage = () => {
     }
 
     const club = request.data?.club;
-
+    const isOwner = Boolean(viewer?.username && club?.owner === viewer.username);
     const isMember = Boolean(viewer?.username && club?.members[viewer.username]);
+    const hasSentJoinRequest = Boolean(
+        viewer?.username && club?.joinRequests[viewer.username]
+    );
+
+    const onJoinClub = () => {
+        if (!viewer) {
+            navigate('/signin');
+        }
+        if (club?.approvalRequired) {
+            setShowJoinRequestDialog(true);
+        }
+    };
+
+    const onSuccessfulJoinRequest = (club: ClubDetails) => {
+        request.onSuccess({ ...request.data, club });
+        setShowJoinRequestDialog(false);
+    };
 
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
@@ -79,7 +100,7 @@ const ClubDetailsPage = () => {
                                     alignItems='center'
                                 >
                                     <Typography variant='h4'>{club.name}</Typography>
-                                    {viewer?.username === club.owner ? (
+                                    {isOwner ? (
                                         <Button
                                             variant='contained'
                                             onClick={() =>
@@ -90,8 +111,16 @@ const ClubDetailsPage = () => {
                                         </Button>
                                     ) : isMember ? (
                                         <Button variant='contained'>Leave Club</Button>
+                                    ) : hasSentJoinRequest ? (
+                                        <Button variant='contained' disabled>
+                                            Join Request Pending
+                                        </Button>
                                     ) : (
-                                        <Button variant='contained'>Join Club</Button>
+                                        <Button variant='contained' onClick={onJoinClub}>
+                                            {club.approvalRequired
+                                                ? 'Request to Join Club'
+                                                : 'Join Club'}
+                                        </Button>
                                     )}
                                 </Stack>
                                 <Description description={club.description} />
@@ -104,9 +133,19 @@ const ClubDetailsPage = () => {
                                         variant='scrollable'
                                     >
                                         <Tab label='Scoreboard' value='scoreboard' />
+                                        {isOwner && club.approvalRequired && (
+                                            <Tab
+                                                label='Join Requests'
+                                                value='joinRequests'
+                                            />
+                                        )}
                                     </Tabs>
                                 </Box>
                             </Stack>
+
+                            <TabPanel value='joinRequests'>
+                                <JoinRequestsTab club={club} />
+                            </TabPanel>
                         </Container>
 
                         <TabPanel
@@ -116,6 +155,14 @@ const ClubDetailsPage = () => {
                             <ScoreboardTab data={request.data!.scoreboard} />
                         </TabPanel>
                     </TabContext>
+
+                    <ClubJoinRequestDialog
+                        clubId={club.id}
+                        clubName={club.name}
+                        open={showJoinRequestDialog}
+                        onSuccess={onSuccessfulJoinRequest}
+                        onClose={() => setShowJoinRequestDialog(false)}
+                    />
                 </Stack>
             )}
         </Container>

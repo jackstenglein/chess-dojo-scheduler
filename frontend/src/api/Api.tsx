@@ -121,6 +121,7 @@ import {
     createClub,
     getClub,
     listClubs,
+    requestToJoinClub,
     updateClub,
 } from './clubApi';
 import { Club } from '../database/club';
@@ -356,6 +357,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 updateClub(idToken, id, data),
             listClubs: (startKey?: string) => listClubs(startKey),
             getClub: (id: string, scoreboard?: boolean) => getClub(id, scoreboard),
+            requestToJoinClub: (id: string, notes: string) =>
+                requestToJoinClub(idToken, id, notes, auth.user),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

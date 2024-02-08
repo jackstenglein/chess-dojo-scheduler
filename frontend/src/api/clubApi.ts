@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import { getConfig } from '../config';
 import { Club, ClubDetails } from '../database/club';
 import { ScoreboardSummary } from '../database/scoreboard';
+import { User } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -43,6 +44,17 @@ export type ClubApiContextType = {
         id: string,
         scoreboard?: boolean
     ) => Promise<AxiosResponse<GetClubResponse, any>>;
+
+    /**
+     * Sends a request to join the given club.
+     * @param id The id of the club to request to join.
+     * @param notes The notes the user is including in the request.
+     * @returns An AxiosResponse containing the club's updated details.
+     */
+    requestToJoinClub: (
+        id: string,
+        notes: string
+    ) => Promise<AxiosResponse<ClubDetails, any>>;
 };
 
 /**
@@ -110,4 +122,30 @@ export function getClub(id: string, scoreboard?: boolean) {
     return axios.get<GetClubResponse>(`${BASE_URL}/public/clubs/${id}`, {
         params: { scoreboard },
     });
+}
+
+/**
+ * Requests to join the provided club.
+ * @param idToken The id token of the current signed-in user.
+ * @param id The id of the club.
+ * @param notes The notes to include in the join request.
+ * @param user The user requesting to join.
+ * @returns An AxiosResponse containing the updated club details.
+ */
+export function requestToJoinClub(
+    idToken: string,
+    id: string,
+    notes: string,
+    user?: User
+) {
+    return axios.put<ClubDetails>(
+        `${BASE_URL}/clubs/${id}/requests`,
+        {
+            username: user?.username,
+            displayName: user?.displayName,
+            cohort: user?.dojoCohort,
+            notes,
+        },
+        { headers: { Authorization: 'Bearer ' + idToken } }
+    );
 }
