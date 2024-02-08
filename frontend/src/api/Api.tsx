@@ -120,6 +120,7 @@ import {
     ClubApiContextType,
     createClub,
     getClub,
+    leaveClub,
     listClubs,
     processJoinRequest,
     requestToJoinClub,
@@ -365,6 +366,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 username: string,
                 status: ClubJoinRequestStatus
             ) => processJoinRequest(idToken, clubId, username, status),
+            leaveClub: (clubId: string) => leaveClub(idToken, clubId),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

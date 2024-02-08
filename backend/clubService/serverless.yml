@@ -112,6 +112,21 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt ClubsTable.Arn
 
+  leave:
+    handler: leave/main.go
+    events:
+      - httpApi:
+          path: /clubs/{id}/members
+          method: delete
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt ClubsTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

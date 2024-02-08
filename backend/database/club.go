@@ -410,7 +410,7 @@ func (repo *dynamoRepository) RemoveClubMember(id string, username string) (*Clu
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {S: aws.String(id)},
 		},
-		ConditionExpression: aws.String("attribute_exists(id) AND #owner <> :username"),
+		ConditionExpression: aws.String("attribute_exists(#members.#username) AND #owner <> :username"),
 		UpdateExpression:    aws.String("REMOVE #members.#username ADD #memberCount :q"),
 		ExpressionAttributeNames: map[string]*string{
 			"#owner":       aws.String("owner"),
@@ -429,7 +429,7 @@ func (repo *dynamoRepository) RemoveClubMember(id string, username string) (*Clu
 	club := &Club{}
 	if err := repo.updateItem(input, club); err != nil {
 		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return nil, errors.Wrap(404, "Invalid request: club not found or user cannot be removed", "DynamoDB conditional check failed", err)
+			return nil, errors.Wrap(404, "Invalid request: club or member not found", "DynamoDB conditional check failed", err)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
 	}

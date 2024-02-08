@@ -68,6 +68,13 @@ export type ClubApiContextType = {
         username: string,
         status: ClubJoinRequestStatus
     ) => Promise<AxiosResponse<ClubDetails, any>>;
+
+    /**
+     * Leaves the club with the given id.
+     * @param clubId The id of the club to leave.
+     * @returns An AxiosResponse containing the club's updated details.
+     */
+    leaveClub: (clubId: string) => Promise<AxiosResponse<ClubDetails, any>>;
 };
 
 /**
@@ -182,4 +189,16 @@ export function processJoinRequest(
         { status },
         { headers: { Authorization: 'Bearer ' + idToken } }
     );
+}
+
+/**
+ * Leaves the club with the given id.
+ * @param idToken The id token of the current signed-in user.
+ * @param clubId The id of the club to leave.
+ * @returns An AxiosResponse containing the club's updated details.
+ */
+export function leaveClub(idToken: string, clubId: string) {
+    return axios.delete<ClubDetails>(`${BASE_URL}/clubs/${clubId}/members`, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
 }

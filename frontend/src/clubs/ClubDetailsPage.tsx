@@ -19,25 +19,28 @@ import { TabContext, TabPanel } from '@mui/lab';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import LoadingPage from '../loading/LoadingPage';
-import { useAuth } from '../auth/Auth';
+import { AuthStatus, useAuth } from '../auth/Auth';
 import ScoreboardTab from './ScoreboardTab';
 import { GetClubResponse } from '../api/clubApi';
 import ClubJoinRequestDialog from './ClubJoinRequestDialog';
 import { ClubDetails } from '../database/club';
 import JoinRequestsTab from './JoinRequestsTab';
+import LeaveClubDialog from './LeaveClubDialog';
 
 export type ClubDetailsParams = {
     id: string;
 };
 
 const ClubDetailsPage = () => {
-    const viewer = useAuth().user;
+    const auth = useAuth();
+    const viewer = auth.user;
     const api = useApi();
     const { id } = useParams<ClubDetailsParams>();
     const request = useRequest<GetClubResponse>();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams({ view: 'scoreboard' });
     const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
+    const [showLeaveDialog, setShowLeaveDialog] = useState(false);
     const [snackbarText, setSnackbarText] = useState('');
 
     const reset = request.reset;
@@ -82,6 +85,22 @@ const ClubDetailsPage = () => {
         }
     };
 
+    const onLeaveClub = () => {
+        setShowLeaveDialog(true);
+    };
+
+    const onLeaveClubConfirm = (club: ClubDetails) => {
+        if (request.data) {
+            request.onSuccess({
+                club,
+                scoreboard: request.data.scoreboard?.filter(
+                    (s) => s.username !== viewer?.username
+                ),
+            });
+        }
+        setShowLeaveDialog(false);
+    };
+
     const onSuccessfulJoinRequest = (club: ClubDetails) => {
         request.onSuccess({ ...request.data, club });
         setShowJoinRequestDialog(false);
@@ -115,7 +134,8 @@ const ClubDetailsPage = () => {
                                     alignItems='center'
                                 >
                                     <Typography variant='h4'>{club.name}</Typography>
-                                    {isOwner ? (
+                                    {auth.status ===
+                                    AuthStatus.Loading ? null : isOwner ? (
                                         <Button
                                             variant='contained'
                                             onClick={() =>
@@ -125,7 +145,13 @@ const ClubDetailsPage = () => {
                                             Edit Settings
                                         </Button>
                                     ) : isMember ? (
-                                        <Button variant='contained'>Leave Club</Button>
+                                        <Button
+                                            variant='contained'
+                                            color='error'
+                                            onClick={onLeaveClub}
+                                        >
+                                            Leave Club
+                                        </Button>
                                     ) : hasSentJoinRequest ? (
                                         <Button variant='contained' disabled>
                                             Join Request Pending
@@ -180,6 +206,15 @@ const ClubDetailsPage = () => {
                         open={showJoinRequestDialog}
                         onSuccess={onSuccessfulJoinRequest}
                         onClose={() => setShowJoinRequestDialog(false)}
+                    />
+
+                    <LeaveClubDialog
+                        clubId={club.id}
+                        clubName={club.name}
+                        approvalRequired={club.approvalRequired}
+                        open={showLeaveDialog}
+                        onSuccess={onLeaveClubConfirm}
+                        onClose={() => setShowLeaveDialog(false)}
                     />
                 </Stack>
             )}
