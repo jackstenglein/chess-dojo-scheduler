@@ -26,6 +26,9 @@ import ClubJoinRequestDialog from './ClubJoinRequestDialog';
 import { ClubDetails } from '../database/club';
 import JoinRequestsTab from './JoinRequestsTab';
 import LeaveClubDialog from './LeaveClubDialog';
+import LocationChip from './LocationChip';
+import MemberCountChip from './MemberCountChip';
+import UrlChip from './UrlChip';
 
 export type ClubDetailsParams = {
     id: string;
@@ -128,42 +131,58 @@ const ClubDetailsPage = () => {
                     <TabContext value={searchParams.get('view') || 'scoreboard'}>
                         <Container>
                             <Stack spacing={4}>
-                                <Stack
-                                    direction='row'
-                                    justifyContent='space-between'
-                                    alignItems='center'
-                                >
-                                    <Typography variant='h4'>{club.name}</Typography>
-                                    {auth.status ===
-                                    AuthStatus.Loading ? null : isOwner ? (
-                                        <Button
-                                            variant='contained'
-                                            onClick={() =>
-                                                navigate(`/clubs/${club.id}/edit`)
-                                            }
-                                        >
-                                            Edit Settings
-                                        </Button>
-                                    ) : isMember ? (
-                                        <Button
-                                            variant='contained'
-                                            color='error'
-                                            onClick={onLeaveClub}
-                                        >
-                                            Leave Club
-                                        </Button>
-                                    ) : hasSentJoinRequest ? (
-                                        <Button variant='contained' disabled>
-                                            Join Request Pending
-                                        </Button>
-                                    ) : (
-                                        <Button variant='contained' onClick={onJoinClub}>
-                                            {club.approvalRequired
-                                                ? 'Request to Join Club'
-                                                : 'Join Club'}
-                                        </Button>
-                                    )}
+                                <Stack spacing={0.5}>
+                                    <Stack
+                                        direction='row'
+                                        justifyContent='space-between'
+                                        alignItems='center'
+                                    >
+                                        <Typography variant='h4'>{club.name}</Typography>
+                                        {auth.status ===
+                                        AuthStatus.Loading ? null : isOwner ? (
+                                            <Button
+                                                variant='contained'
+                                                onClick={() =>
+                                                    navigate(`/clubs/${club.id}/edit`)
+                                                }
+                                            >
+                                                Edit Settings
+                                            </Button>
+                                        ) : isMember ? (
+                                            <Button
+                                                variant='contained'
+                                                color='error'
+                                                onClick={onLeaveClub}
+                                            >
+                                                Leave Club
+                                            </Button>
+                                        ) : hasSentJoinRequest ? (
+                                            <Button variant='contained' disabled>
+                                                Join Request Pending
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                variant='contained'
+                                                onClick={onJoinClub}
+                                            >
+                                                {club.approvalRequired
+                                                    ? 'Request to Join Club'
+                                                    : 'Join Club'}
+                                            </Button>
+                                        )}
+                                    </Stack>
+
+                                    <Stack
+                                        direction='row'
+                                        spacing={1}
+                                        alignItems='center'
+                                    >
+                                        <MemberCountChip count={club.memberCount} />
+                                        <LocationChip location={club.location} />
+                                        <UrlChip url={club.externalUrl} />
+                                    </Stack>
                                 </Stack>
+
                                 <Description description={club.description} />
 
                                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

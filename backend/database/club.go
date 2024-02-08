@@ -117,8 +117,8 @@ type ClubUpdate struct {
 	// A link to the club's external webpage, if it has one
 	ExternalUrl *string `dynamodbav:"externalUrl,omitempty" json:"externalUrl,omitempty"`
 
-	// The club's city, if it has a physical location
-	City *string `dynamodbav:"city,omitempty" json:"city,omitempty"`
+	// The physical location of the club, if it has one
+	Location *ClubLocation `dynamodbav:"location,omitempty" json:"location,omitempty"`
 
 	// Whether the club requires approval to join
 	ApprovalRequired *bool `dynamodbav:"approvalRequired,omitempty" json:"approvalRequired,omitempty"`

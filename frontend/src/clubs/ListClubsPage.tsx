@@ -16,6 +16,8 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { Club } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
+import MemberCountChip from './MemberCountChip';
+import LocationChip from './LocationChip';
 
 const ListClubsPage = () => {
     const api = useApi();
@@ -67,8 +69,18 @@ const ListClubsPage = () => {
                     <Grid2 key={club.id} xs={12} sm={6} md={4}>
                         <Card variant='outlined'>
                             <CardActionArea onClick={() => navigate(`/clubs/${club.id}`)}>
-                                <CardHeader title={club.name} />
-                                <CardContent>
+                                <CardHeader sx={{ pb: 1 }} title={club.name} />
+                                <CardContent sx={{ pt: 0 }}>
+                                    <Stack
+                                        direction='row'
+                                        mb={2}
+                                        spacing={1}
+                                        flexWrap='wrap'
+                                        rowGap={1}
+                                    >
+                                        <MemberCountChip count={club.memberCount} />
+                                        <LocationChip location={club.location} />
+                                    </Stack>
                                     <Typography>{club.shortDescription}</Typography>
                                 </CardContent>
                             </CardActionArea>
