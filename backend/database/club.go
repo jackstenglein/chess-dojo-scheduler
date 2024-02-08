@@ -100,6 +100,7 @@ type ClubJoinRequestStatus string
 
 const (
 	ClubJoinRequestStatus_Pending  = "PENDING"
+	ClubJoinRequestStatus_Approved = "APPROVED"
 	ClubJoinRequestStatus_Rejected = "REJECTED"
 )
 

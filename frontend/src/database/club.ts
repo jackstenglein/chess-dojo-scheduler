@@ -91,5 +91,7 @@ export interface ClubJoinRequest {
 }
 
 export enum ClubJoinRequestStatus {
+    Pending = 'PENDING',
+    Approved = 'APPROVED',
     Rejected = 'REJECTED',
 }

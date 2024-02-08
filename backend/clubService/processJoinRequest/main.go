@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -11,6 +13,10 @@ import (
 )
 
 var repository = database.DynamoDB
+
+type ProcessJoinRequest struct {
+	Status database.ClubJoinRequestStatus `json:"status"`
+}
 
 func main() {
 	lambda.Start(handler)
@@ -35,7 +41,22 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(errors.New(400, "Invalid request: join request username is required", "")), nil
 	}
 
-	club, err := repository.RejectClubJoinRequest(id, username, info.Username)
+	request := &ProcessJoinRequest{}
+	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
+		return api.Failure(errors.New(400, "Invalid request: unable to unmarshal body", "")), nil
+	}
+
+	var club *database.Club
+	var err error
+
+	if request.Status == database.ClubJoinRequestStatus_Approved {
+		club, err = repository.ApproveClubJoinRequest(id, username, info.Username)
+	} else if request.Status == database.ClubJoinRequestStatus_Rejected {
+		club, err = repository.RejectClubJoinRequest(id, username, info.Username)
+	} else {
+		err = errors.New(400, fmt.Sprintf("Invalid request: status %q is not supported", request.Status), "")
+	}
+
 	if err != nil {
 		return api.Failure(err), nil
 	}

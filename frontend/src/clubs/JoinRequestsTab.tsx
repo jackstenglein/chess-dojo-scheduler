@@ -19,10 +19,10 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 
 interface JoinRequestsTabProps {
     club: ClubDetails;
-    onRejectRequest: (club: ClubDetails) => void;
+    onProcessRequest: (club: ClubDetails, snackbarText: string) => void;
 }
 
-const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({ club, onRejectRequest }) => {
+const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({ club, onProcessRequest }) => {
     const viewer = useAuth().user;
     if (viewer?.username !== club.owner) {
         return null;
@@ -46,7 +46,7 @@ const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({ club, onRejectRequest
                         clubId={club.id}
                         joinRequest={joinRequest}
                         divider={idx + 1 < pendingRequests.length}
-                        onRejectRequest={onRejectRequest}
+                        onProcessRequest={onProcessRequest}
                     />
                 ))}
                 {pendingRequests.length === 0 && (
@@ -62,7 +62,7 @@ const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({ club, onRejectRequest
                         clubId={club.id}
                         joinRequest={joinRequest}
                         divider={idx + 1 < rejectedRequests.length}
-                        onRejectRequest={onRejectRequest}
+                        onProcessRequest={onProcessRequest}
                     />
                 ))}
                 {rejectedRequests.length === 0 && (
@@ -77,14 +77,14 @@ interface JoinRequestProps {
     clubId: string;
     joinRequest: ClubJoinRequest;
     divider: boolean;
-    onRejectRequest: (club: ClubDetails) => void;
+    onProcessRequest: (club: ClubDetails, snackbarText: string) => void;
 }
 
 const JoinRequest: React.FC<JoinRequestProps> = ({
     clubId,
     joinRequest,
     divider,
-    onRejectRequest,
+    onProcessRequest,
 }) => {
     const viewer = useAuth().user;
     const api = useApi();
@@ -94,13 +94,18 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
     const dateStr = toDojoDateString(date, viewer?.timezoneOverride);
     const timeStr = toDojoTimeString(date, viewer?.timezoneOverride, viewer?.timeFormat);
 
-    const onProcessRequest = (status: ClubJoinRequestStatus) => {
+    const handleRequest = (status: ClubJoinRequestStatus) => {
         request.onStart();
         api.processJoinRequest(clubId, joinRequest.username, status)
             .then((resp) => {
                 console.log('processJoinRequest: ', resp);
-                if (status === ClubJoinRequestStatus.Rejected) {
-                    onRejectRequest(resp.data);
+                if (status === ClubJoinRequestStatus.Approved) {
+                    onProcessRequest(
+                        resp.data,
+                        `${joinRequest.displayName} added as a club member`
+                    );
+                } else if (status === ClubJoinRequestStatus.Rejected) {
+                    onProcessRequest(resp.data, 'Join request rejected');
                 }
             })
             .catch((err) => {
@@ -150,7 +155,12 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                         <>
                             <Tooltip title='Approve Request'>
                                 <IconButton>
-                                    <Check color='success' />
+                                    <Check
+                                        color='success'
+                                        onClick={() =>
+                                            handleRequest(ClubJoinRequestStatus.Approved)
+                                        }
+                                    />
                                 </IconButton>
                             </Tooltip>
 
@@ -160,7 +170,7 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                                         <Block
                                             color='error'
                                             onClick={() =>
-                                                onProcessRequest(
+                                                handleRequest(
                                                     ClubJoinRequestStatus.Rejected
                                                 )
                                             }

@@ -87,9 +87,9 @@ const ClubDetailsPage = () => {
         setShowJoinRequestDialog(false);
     };
 
-    const onRequestRejected = (club: ClubDetails) => {
+    const onProcessRequest = (club: ClubDetails, snackbarText: string) => {
         request.onSuccess({ ...request.data, club });
-        setSnackbarText('Join request rejected');
+        setSnackbarText(snackbarText);
     };
 
     return (
@@ -161,7 +161,7 @@ const ClubDetailsPage = () => {
                             <TabPanel value='joinRequests'>
                                 <JoinRequestsTab
                                     club={club}
-                                    onRejectRequest={onRequestRejected}
+                                    onProcessRequest={onProcessRequest}
                                 />
                             </TabPanel>
                         </Container>
