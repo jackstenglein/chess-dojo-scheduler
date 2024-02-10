@@ -6,7 +6,7 @@ import UpcomingSessions from './UpcomingSessions';
 import CoachesTab from './CoachesTab';
 
 const CoachingPage = () => {
-    const [searchParams, setSearchParams] = useSearchParams({ view: 'coaches' });
+    const [searchParams, setSearchParams] = useSearchParams({ view: 'sessions' });
 
     return (
         <Container>
