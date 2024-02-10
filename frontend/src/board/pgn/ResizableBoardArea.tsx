@@ -1,5 +1,4 @@
 import { Stack } from '@mui/material';
-import { useCallback, useState } from 'react';
 import { Move } from '@jackstenglein/chess';
 import { ResizeCallbackData } from 'react-resizable';
 import { Color } from 'chessground/types';
@@ -9,15 +8,10 @@ import BoardButtons from './boardTools/boardButtons/BoardButtons';
 import { useAuth } from '../../auth/Auth';
 import Board, { BoardApi, Chess, PrimitiveMove } from '../Board';
 import { Game } from '../../database/game';
-import {
-    getBoardPercentages,
-    getBoardPixels,
-    getDefaultPercentages,
-    getDefaultWidth,
-} from './resize';
-import { useBreakpoint, useWindowSizeEffect } from '../../ThemeProvider';
 
 interface ResizableBoardAreaProps {
+    width: number;
+    onResize: (width: number, height: number) => void;
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
@@ -30,6 +24,8 @@ interface ResizableBoardAreaProps {
 }
 
 const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
+    width,
+    onResize,
     showPlayerHeaders = true,
     pgn,
     fen,
@@ -41,29 +37,13 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
     onClickMove,
 }) => {
     const user = useAuth().user;
-    const [boardPercentages, setBoardPercentage] = useState(
-        getDefaultPercentages('board')
-    );
-    const [boardSize, setBoardSize] = useState(getBoardPixels(boardPercentages));
 
-    // console.log('Board size: ', boardSize);
-
-    const onWindowResize = useCallback(() => {
-        const newBoardSize = getBoardPixels(boardPercentages);
-        console.log('New Board Size: ', newBoardSize);
-        setBoardSize(newBoardSize);
-    }, [setBoardSize, boardPercentages]);
-
-    useWindowSizeEffect(onWindowResize);
-
-    const onResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
-        console.log('onResize called');
-        setBoardPercentage(getBoardPercentages(data.size.width));
-        setBoardSize(data.size.width);
+    const handlResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
+        onResize(data.size.width, data.size.height);
     };
 
     return (
-        <Stack width={`${boardSize}px`}>
+        <Stack width={`${width}px`}>
             {showPlayerHeaders && <PlayerHeader type='header' />}
 
             <Board
@@ -74,8 +54,8 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
                 }}
                 onInitialize={onInitialize}
                 onMove={onMove}
-                size={boardSize}
-                onResize={onResize}
+                size={width}
+                onResize={handlResize}
                 minSize={300}
             />
 

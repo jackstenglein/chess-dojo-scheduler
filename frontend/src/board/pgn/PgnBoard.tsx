@@ -8,22 +8,20 @@ import React, {
     useState,
 } from 'react';
 import { Chess, Move } from '@jackstenglein/chess';
-import { Box, Stack, SxProps, Theme } from '@mui/material';
+import { Box, SxProps, Theme } from '@mui/material';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
-import { ResizablePgnText } from './pgnText/PgnText';
 import { Color } from 'chessground/types';
 import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
 import { ClockTextFieldId, CommentTextFieldId } from './boardTools/underboard/Editor';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { TagTextFieldId } from './boardTools/underboard/Tags';
-import Underboard from './boardTools/underboard/Underboard';
-import ResizableBoardArea from './ResizableBoardArea';
 import { CONTAINER_ID } from './resize';
+import ResizableContainer from './ResizableContainer';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -184,46 +182,33 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
     return (
         <Box
+            id={CONTAINER_ID}
             sx={
                 sx || {
                     gridArea: 'pgn',
                     width: 1,
+                    maxWidth: 1,
+                    overflowX: 'clip',
                 }
             }
         >
-            <Stack
-                id={CONTAINER_ID}
-                direction='row'
-                spacing={2}
-                justifyContent='center'
-                px={2}
-            >
-                <ChessContext.Provider value={chessContext}>
-                    {showUnderboard && (
-                        <Underboard
-                            showExplorer={showExplorer}
-                            game={game}
-                            onSaveGame={onSaveGame}
-                        />
-                    )}
-
-                    <ResizableBoardArea
-                        {...{
-                            showPlayerHeaders,
-                            pgn,
-                            fen,
-                            startOrientation,
-                            game,
-                            showEditor,
-                            onInitialize,
-                            onMove,
-                            onClickMove,
-                        }}
-                    />
-
-                    <ResizablePgnText onClickMove={onClickMove} />
-                </ChessContext.Provider>
-            </Stack>
+            <ChessContext.Provider value={chessContext}>
+                <ResizableContainer
+                    {...{
+                        showUnderboard,
+                        showExplorer,
+                        showPlayerHeaders,
+                        pgn,
+                        fen,
+                        startOrientation,
+                        game,
+                        showEditor,
+                        onInitialize,
+                        onMove,
+                        onClickMove,
+                    }}
+                />
+            </ChessContext.Provider>
         </Box>
     );
 };

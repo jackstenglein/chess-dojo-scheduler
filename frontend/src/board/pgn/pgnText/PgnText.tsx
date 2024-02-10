@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Move } from '@jackstenglein/chess';
 import { Card, Stack } from '@mui/material';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
@@ -44,24 +44,30 @@ const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
     );
 };
 
-export const ResizablePgnText: React.FC<PgnTextProps> = (props) => {
-    const [size, setSize] = useState({ width: 400, height: 751 });
+interface ResizablePgnTextProps extends PgnTextProps {
+    width: number;
+    height: number;
+    onResize: (width: number, height: number) => void;
+}
 
-    const onResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
-        setSize({ width: data.size.width, height: data.size.height });
+export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
+    const { width, height, onResize, ...others } = props;
+
+    const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
+        onResize(data.size.width, data.size.height);
     };
 
     return (
-        <Resizable width={size.width} height={size.height} onResize={onResize}>
+        <Resizable width={width} height={height} onResize={handleResize}>
             <Stack
                 sx={{
                     overflowY: 'auto',
                     mb: { xs: 1, md: 0 },
-                    width: `${size.width}px`,
-                    height: `${size.height}px`,
+                    width: `${width}px`,
+                    maxHeight: `${height}px`,
                 }}
             >
-                <PgnText {...props} />
+                <PgnText {...others} />
             </Stack>
         </Resizable>
     );

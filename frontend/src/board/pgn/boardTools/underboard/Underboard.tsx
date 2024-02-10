@@ -26,17 +26,25 @@ import { Game } from '../../../../database/game';
 import Settings from './Settings';
 import { useAuth } from '../../../../auth/Auth';
 import ClockUsage from './ClockUsage';
+import { ResizableData } from '../../resize';
 
 interface UnderboardProps {
+    resizeData: ResizableData;
+    onResize: (width: number, height: number) => void;
     showExplorer?: boolean;
     game?: Game;
     onSaveGame?: (g: Game) => void;
 }
 
-const Underboard: React.FC<UnderboardProps> = ({ showExplorer, game, onSaveGame }) => {
+const Underboard: React.FC<UnderboardProps> = ({
+    resizeData,
+    onResize,
+    showExplorer,
+    game,
+    onSaveGame,
+}) => {
     const user = useAuth().user;
     const chess = useChess().chess;
-    const [size, setSize] = useState({ width: 450, height: 751 });
 
     const showEditor = game && game.owner === user?.username;
     const [underboard, setUnderboard] = useState(
@@ -48,15 +56,15 @@ const Underboard: React.FC<UnderboardProps> = ({ showExplorer, game, onSaveGame 
         return null;
     }
 
-    const onResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
-        setSize({ width: data.size.width, height: data.size.height });
+    const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
+        onResize(data.size.width, data.size.height);
     };
 
     return (
         <Resizable
-            width={size.width}
-            height={size.height}
-            onResize={onResize}
+            width={resizeData.width}
+            height={resizeData.height}
+            onResize={handleResize}
             resizeHandles={['se']}
             minConstraints={[250, 250]}
         >
@@ -68,8 +76,9 @@ const Underboard: React.FC<UnderboardProps> = ({ showExplorer, game, onSaveGame 
                     boxShadow: 'none',
                     maxHeight: { xl: 1 },
                     mt: { xs: 1, xl: 0 },
-                    width: `${size.width}px`,
-                    height: `${size.height}px`,
+                    width: `${resizeData.width}px`,
+                    height: `${resizeData.height}px`,
+                    order: resizeData.order,
                 }}
                 variant={light ? 'outlined' : 'elevation'}
             >
