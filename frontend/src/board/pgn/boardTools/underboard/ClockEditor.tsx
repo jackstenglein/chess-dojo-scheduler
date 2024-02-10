@@ -76,15 +76,10 @@ const ClockEditor = () => {
     const grid = [];
     for (let i = 0; i < moves.length; i += 2) {
         grid.push(
-            <Grid2 key={`${i}-move`} xs={1} textAlign='center'>
-                <Typography variant='caption'>{i / 2 + 1}</Typography>
-            </Grid2>
-        );
-        grid.push(
-            <Grid2 key={`${i}-white`} xs={5.5}>
+            <Grid2 key={`${i}-white`} xs={6}>
                 <TimeField
                     id={ClockTextFieldId}
-                    label='White'
+                    label={`${i / 2 + 1}. ${moves[i].san}`}
                     format='HH:mm:ss'
                     value={convertSecondsToDate(
                         convertClockToSeconds(moves[i].commentDiag?.clk)
@@ -96,10 +91,10 @@ const ClockEditor = () => {
         );
         if (moves[i + 1]) {
             grid.push(
-                <Grid2 key={`${i}-black`} xs={5.5}>
+                <Grid2 key={`${i}-black`} xs={6}>
                     <TimeField
                         id={ClockTextFieldId}
-                        label='Black'
+                        label={`${i / 2 + 1}... ${moves[i + 1].san}`}
                         format='HH:mm:ss'
                         value={convertSecondsToDate(
                             convertClockToSeconds(moves[i + 1].commentDiag?.clk)

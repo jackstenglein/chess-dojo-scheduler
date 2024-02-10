@@ -9,6 +9,7 @@ import ClockEditor from './ClockEditor';
 import { reconcile } from '../../../Board';
 
 interface Datum {
+    label?: string;
     moveNumber: number;
     seconds: number;
     move: Move | null;
@@ -48,6 +49,11 @@ const secondaryBarAxis: Array<AxisOptions<Datum>> = [
         position: 'bottom',
     },
 ];
+
+const totalTimePrimaryAxis: AxisOptions<Datum> = {
+    getValue: (datum) => datum.label,
+    position: 'left',
+};
 
 export function formatTime(value: number): string {
     let result = '';
@@ -96,7 +102,15 @@ export function getIncrement(pgn?: Pgn): number {
 
     const descriptor = timeControl.split(':')[0];
     const time = descriptor.split('/').slice(-1)[0];
-    const increment = parseInt(time?.split('+').slice(-1)[0]);
+    if (!time) {
+        return 0;
+    }
+
+    const tokens = time.split('+');
+    if (tokens.length < 2) {
+        return 0;
+    }
+    const increment = parseInt(tokens[1]);
     if (!increment || isNaN(increment) || increment <= 0) {
         return 0;
     }
@@ -151,10 +165,19 @@ function shouldRerender(chess: Chess, event: Event): boolean {
 }
 
 function getSeriesStyle(series: any) {
-    console.log('Series: %j', series);
     return {
         fill: series.label === 'White' ? 'rgb(250, 164, 58)' : 'rgb(15, 131, 171)',
         stroke: series.label === 'White' ? 'rgb(250, 164, 58)' : 'rgb(15, 131, 171)',
+    };
+}
+
+function getDatumStyle(datum: any) {
+    console.log('Datum: ', datum);
+    return {
+        fill:
+            datum.originalDatum.label === 'White'
+                ? 'rgb(250, 164, 58)'
+                : 'rgb(15, 131, 171)',
     };
 }
 
@@ -194,7 +217,11 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
 
     const data = useMemo(() => {
         if (!chess || forceRender < 0) {
-            return [];
+            return {
+                total: [],
+                remainingPerMove: [],
+                usedPerMove: [],
+            };
         }
 
         const whiteLineData: Datum[] = [
@@ -214,6 +241,9 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
 
         const whiteBarData: Datum[] = [];
         const blackBarData: Datum[] = [];
+
+        let whiteSecTotal = 0;
+        let blackSecTotal = 0;
 
         const moves = chess.history();
         for (let i = 0; i < moves.length; i += 2) {
@@ -253,18 +283,40 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     increment,
                 move: moves[i + 1] ? moves[i + 1] : moves[i],
             });
+
+            whiteSecTotal += whiteBarData[whiteBarData.length - 1].seconds;
+            blackSecTotal += blackBarData[blackBarData.length - 1].seconds;
         }
 
-        return [
-            [
+        return {
+            total: [
+                {
+                    label: 'Total Time',
+                    data: [
+                        {
+                            label: 'Black',
+                            seconds: blackSecTotal,
+                            move: null,
+                            moveNumber: 0,
+                        },
+                        {
+                            label: 'White',
+                            seconds: whiteSecTotal,
+                            move: null,
+                            moveNumber: 0,
+                        },
+                    ],
+                },
+            ],
+            remainingPerMove: [
                 { label: 'White', data: whiteLineData },
                 { label: 'Black', data: blackLineData },
             ],
-            [
+            usedPerMove: [
                 { label: 'White', data: whiteBarData.reverse() },
                 { label: 'Black', data: blackBarData.reverse() },
             ],
-        ];
+        };
     }, [chess, increment, initialClock, forceRender]);
 
     if (!chess) {
@@ -283,12 +335,29 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             <Stack height={1} spacing={4}>
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
+                        Total Time Used
+                    </Typography>
+                    <Box width={1} height={120}>
+                        <Chart
+                            options={{
+                                data: data.total,
+                                primaryAxis: totalTimePrimaryAxis,
+                                secondaryAxes: secondaryBarAxis,
+                                dark: !light,
+                                getDatumStyle,
+                            }}
+                        />
+                    </Box>
+                </Stack>
+
+                <Stack spacing={0.5} alignItems='center'>
+                    <Typography variant='caption' color='text.secondary'>
                         Remaining Clock Time by Move
                     </Typography>
                     <Box width={1} height={300}>
                         <Chart
                             options={{
-                                data: data[0],
+                                data: data.remainingPerMove,
                                 primaryAxis,
                                 secondaryAxes,
                                 dark: !light,
@@ -306,7 +375,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     <Box width={1} height={15 * Math.ceil(chess.plyCount() / 2) + 10}>
                         <Chart
                             options={{
-                                data: data[1],
+                                data: data.usedPerMove,
                                 primaryAxis: barAxis,
                                 secondaryAxes: secondaryBarAxis,
                                 dark: !light,
