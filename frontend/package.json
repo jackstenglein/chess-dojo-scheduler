@@ -31,6 +31,7 @@
         "copy-to-clipboard": "^3.3.3",
         "date-fns": "^2.30.0",
         "lodash.debounce": "^4.0.8",
+        "luxon": "^3.4.4",
         "react": "^18.2.0",
         "react-charts": "^3.0.0-beta.55",
         "react-copy-to-clipboard": "^5.1.0",
@@ -78,6 +79,7 @@
     },
     "devDependencies": {
         "@types/lodash.debounce": "^4.0.9",
+        "@types/luxon": "^3.4.2",
         "@types/react-copy-to-clipboard": "^5.0.7",
         "@types/react-resizable": "^3.0.7",
         "@types/uuid": "^9.0.8",

@@ -13,9 +13,11 @@ import {
     Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { DateTime } from 'luxon';
+
+import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
 import { getGameHeader } from './SubmitGamePreflight';
 import { useFreeTier } from '../../auth/Auth';
 
@@ -58,7 +60,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
     const [pgnText, setPgnText] = useState('');
     const [white, setWhite] = useState('');
     const [black, setBlack] = useState('');
-    const [date, setDate] = useState<Date | null>(null);
+    const [date, setDate] = useState<DateTime | null>(null);
     const [result, setResult] = useState('');
     const [visibility, setVisibility] = useState('public');
     const [orientation, setOrientation] = useState('white');
@@ -93,7 +95,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
             if (black.trim() === '') {
                 errors.black = 'This field is required';
             }
-            if (!date || isNaN(date.getTime())) {
+            if (!date || !date.isValid) {
                 errors.date = 'This field is required';
             }
             if (result.trim() === '') {
@@ -204,7 +206,10 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                 )}
 
                 {type === GameSubmissionType.StartingPosition && (
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider
+                        dateAdapter={AdapterLuxon}
+                        adapterLocale={navigator.languages?.[0]}
+                    >
                         <Stack
                             direction='row'
                             spacing={1}

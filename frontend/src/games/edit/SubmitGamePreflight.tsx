@@ -12,8 +12,9 @@ import {
     Typography,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DateTime } from 'luxon';
 
 import { GameHeader } from '../../api/gameApi';
 import { LoadingButton } from '@mui/lab';
@@ -22,15 +23,15 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 interface FormHeader {
     white: string;
     black: string;
-    date: Date | null;
+    date: DateTime | null;
     result: string;
 }
 
 function getFormHeader(h: GameHeader): FormHeader {
     let date = null;
     if (h.date !== '') {
-        date = new Date(h.date);
-        if (isNaN(date.getTime())) {
+        date = DateTime.fromISO(h.date, { zone: 'utc' });
+        if (!date.isValid) {
             date = null;
         }
     }
@@ -43,7 +44,7 @@ function getFormHeader(h: GameHeader): FormHeader {
 }
 
 export function getGameHeader(h: FormHeader): GameHeader {
-    let date = h.date!.toISOString();
+    let date = h.date!.toUTC().toISO()!;
     date = date.substring(0, date.indexOf('T'));
     date = date.replaceAll('-', '.');
     return {
@@ -85,7 +86,7 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
     const onChangeHeader = (
         i: number,
         key: keyof GameHeader,
-        value: string | Date | null
+        value: string | DateTime | null
     ) => {
         setHeaders([
             ...headers.slice(0, i),
@@ -113,7 +114,8 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                 error.result = 'This field is required';
                 errors[i] = error;
             }
-            if (h.date === null || isNaN(h.date.getTime())) {
+            console.log('h.date: ', h.date);
+            if (h.date === null || !h.date.isValid) {
                 error.date = 'This field is required';
                 errors[i] = error;
             }
@@ -138,7 +140,10 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                         : 'Your PGN is missing data. Please fill out the following fields to finish creating your game.'}
                 </DialogContentText>
 
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <LocalizationProvider
+                    dateAdapter={AdapterLuxon}
+                    adapterLocale={navigator.languages?.[0]}
+                >
                     <Stack spacing={3} mt={3}>
                         {headers.map((h, i) => (
                             <Grid2 key={i} container columnSpacing={1} rowSpacing={2}>
