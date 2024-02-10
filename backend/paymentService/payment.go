@@ -328,9 +328,10 @@ func CreateEventRefund(event *database.Event, participant *database.Participant,
 
 	amount := participant.CheckoutSession.AmountTotal * percentage / 100
 	params := &stripe.RefundParams{
-		PaymentIntent:   stripe.String(participant.CheckoutSession.PaymentIntent.ID),
-		Amount:          stripe.Int64(amount),
-		ReverseTransfer: stripe.Bool(true),
+		PaymentIntent:        stripe.String(participant.CheckoutSession.PaymentIntent.ID),
+		Amount:               stripe.Int64(amount),
+		ReverseTransfer:      stripe.Bool(true),
+		RefundApplicationFee: stripe.Bool(true),
 		Metadata: map[string]string{
 			"type":          string(CheckoutSessionType_Coaching),
 			"eventId":       event.Id,
