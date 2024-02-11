@@ -58,7 +58,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                         'Invalid request: pgnText is required when importing manual entry',
                 });
             }
-            pgnTexts = [request.pgnText];
+            pgnTexts = [cleanupChessbasePgn(request.pgnText)];
         } else if (request.type === GameImportType.StartingPosition) {
             pgnTexts = [''];
         } else {
@@ -168,6 +168,17 @@ function getRequest(event: APIGatewayProxyEventV2): CreateGameRequest {
     }
 
     return request;
+}
+
+export function cleanupChessbasePgn(pgn: string): string {
+    const startIndex = pgn.indexOf('{[%evp');
+    if (startIndex < 0) {
+        return pgn;
+    }
+    return (
+        pgn.substring(0, startIndex) +
+        pgn.substring(startIndex).replaceAll('\n', ' ').replaceAll('  ', '\n')
+    );
 }
 
 function getGames(

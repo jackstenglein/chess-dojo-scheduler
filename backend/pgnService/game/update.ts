@@ -25,6 +25,7 @@ import {
 } from './types';
 import { getLichessChapter } from './lichess';
 import {
+    cleanupChessbasePgn,
     createTimelineEntry,
     dynamo,
     gamesTable,
@@ -166,7 +167,7 @@ async function getGameUpdate(
                         'Invalid request: PGN is required when using manual import type',
                 });
             }
-            pgnText = request.pgnText;
+            pgnText = cleanupChessbasePgn(request.pgnText);
         } else if (request.type === GameImportType.StartingPosition) {
             pgnText = '';
         } else {
@@ -257,7 +258,7 @@ function getUpdateParams(params: { [key: string]: any }) {
             .slice(0, -2)}`,
         ExpressionAttributeNames: Object.keys(params).reduce(
             (acc, key) => ({ ...acc, [`#${key}`]: key }),
-            {}
+            {} as Record<string, string>
         ),
         ExpressionAttributeValues: marshall(
             Object.entries(params).reduce(
