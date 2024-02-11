@@ -113,11 +113,11 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                             key={idx}
                             title={c}
                             value={Math.round(
-                                getCategoryScore(user, user.dojoCohort, c, requirements)
+                                getCategoryScore(user, cohort, c, requirements)
                             )}
                             min={0}
                             max={Math.round(
-                                getTotalCategoryScore(user.dojoCohort, c, requirements)
+                                getTotalCategoryScore(cohort, c, requirements)
                             )}
                         />
                     ))}
