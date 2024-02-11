@@ -9,6 +9,7 @@ import { useAuth } from '../../auth/Auth';
 import NewsfeedItem from '../../newsfeed/detail/NewsfeedItem';
 import LoadMoreButton from '../../newsfeed/list/LoadMoreButton';
 import NewsfeedItemHeader from '../../newsfeed/detail/NewsfeedItemHeader';
+import { useState } from 'react';
 
 export function getTimeSpent(timelineItem: TimelineEntry): string {
     if (timelineItem.minutesSpent === 0) {
@@ -61,6 +62,7 @@ interface ActivityTimelineProps {
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) => {
     const viewer = useAuth().user;
     const { request, entries, hasMore, onLoadMore, onEdit } = timeline;
+    const [numShown, setNumShown] = useState(25);
 
     if (request.isLoading() && entries.length === 0) {
         return (
@@ -73,6 +75,14 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
         );
     }
 
+    const handleLoadMore = () => {
+        if (numShown < entries.length) {
+            setNumShown(numShown + 25);
+        } else {
+            onLoadMore();
+        }
+    };
+
     return (
         <Stack mt={2} spacing={2}>
             <Typography variant='h5' alignSelf='start'>
@@ -83,7 +93,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
                 <Typography>No events yet</Typography>
             ) : (
                 <Stack spacing={3}>
-                    {entries.map((entry, i) => (
+                    {entries.slice(0, numShown).map((entry, i) => (
                         <NewsfeedItem
                             key={entry.id}
                             entry={entry}
@@ -92,10 +102,10 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
                         />
                     ))}
 
-                    {hasMore && (
+                    {(hasMore || numShown < entries.length) && (
                         <LoadMoreButton
-                            onLoadMore={onLoadMore}
-                            hasMore={hasMore}
+                            onLoadMore={handleLoadMore}
+                            hasMore={hasMore || numShown < entries.length}
                             request={request}
                         />
                     )}
