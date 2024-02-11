@@ -7,7 +7,7 @@ import {
     LastPage,
 } from '@mui/icons-material';
 import { Stack, Tooltip, IconButton } from '@mui/material';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useChess } from '../../PgnBoard';
 import { ClockTextFieldId, CommentTextFieldId } from '../underboard/Editor';
@@ -19,7 +19,7 @@ interface ControlButtonsProps {
 }
 
 const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
-    const { chess, board } = useChess();
+    const { chess, toggleOrientation } = useChess();
 
     const onFirstMove = () => {
         onClickMove(null);
@@ -46,12 +46,6 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
         }
     };
 
-    const toggleOrientation = useCallback(() => {
-        if (board) {
-            board.toggleOrientation();
-        }
-    }, [board]);
-
     useEffect(() => {
         const onArrowKeys = (event: KeyboardEvent) => {
             if (
@@ -61,7 +55,7 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
                 document.activeElement?.id !== GameCommentTextFieldId &&
                 document.activeElement?.id !== TagTextFieldId
             ) {
-                toggleOrientation();
+                toggleOrientation?.();
             }
         };
         window.addEventListener('keyup', onArrowKeys);

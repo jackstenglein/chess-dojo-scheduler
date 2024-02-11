@@ -30,6 +30,7 @@ type ChessContextType = {
     chess?: Chess;
     board?: BoardApi;
     config?: ChessConfig;
+    toggleOrientation?: () => void;
 };
 
 export const ChessContext = createContext<ChessContextType>(null!);
@@ -66,8 +67,16 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
     const user = useAuth().user;
+    const [, setOrientation] = useState(startOrientation);
 
     const keydownMap = useRef({ shift: false });
+
+    const toggleOrientation = useCallback(() => {
+        if (board) {
+            board.toggleOrientation();
+            setOrientation(board.state.orientation);
+        }
+    }, [board, setOrientation]);
 
     const chessContext = useMemo(
         () => ({
@@ -76,8 +85,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             config: {
                 allowMoveDeletion: user && game?.owner === user.username,
             },
+            toggleOrientation,
         }),
-        [chess, board, game, user]
+        [chess, board, game, user, toggleOrientation]
     );
 
     const onKeyDown = useCallback(
@@ -160,12 +170,12 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         [chess, board]
     );
 
-    const orientation = game?.orientation || 'white';
+    const gameOrientation = game?.orientation || startOrientation || 'white';
     useEffect(() => {
-        if (board && board.state.orientation !== orientation) {
-            board.toggleOrientation();
+        if (gameOrientation !== board?.state.orientation) {
+            toggleOrientation();
         }
-    }, [board, orientation]);
+    }, [gameOrientation, board, toggleOrientation]);
 
     const showUnderboard = showTags || showEditor || showExplorer;
 
