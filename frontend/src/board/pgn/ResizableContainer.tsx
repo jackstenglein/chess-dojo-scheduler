@@ -52,7 +52,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
 
     useEffect(() => {
         setSizes(getSizes(parentWidth, showUnderboard, !showPlayerHeaders));
-    }, [parentWidth, setSizes, showUnderboard]);
+    }, [parentWidth, setSizes, showUnderboard, showPlayerHeaders]);
 
     const onWindowResize = useCallback(() => {
         const parentWidth =

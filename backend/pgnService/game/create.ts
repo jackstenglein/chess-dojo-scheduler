@@ -315,15 +315,15 @@ function isValidDate(date?: string): boolean {
         return false;
     }
 
-    if (isNaN(Date.parse(date.replaceAll('.', '-')))) {
+    const d = Date.parse(date.replaceAll('.', '-'));
+    if (isNaN(d)) {
         return false;
     }
 
     const now = new Date();
     now.setDate(now.getDate() + 2);
 
-    const d = new Date(date.replaceAll('.', '-'));
-    if (d > now) {
+    if (d > now.getTime()) {
         return false;
     }
 

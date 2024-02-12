@@ -30,7 +30,7 @@ interface FormHeader {
 function getFormHeader(h: GameHeader): FormHeader {
     let date = null;
     if (h.date !== '') {
-        date = DateTime.fromISO(h.date, { zone: 'utc' });
+        date = DateTime.fromISO(h.date.replaceAll('.', '-'));
         if (!date.isValid) {
             date = null;
         }

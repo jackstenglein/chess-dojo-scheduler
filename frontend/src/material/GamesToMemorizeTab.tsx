@@ -143,7 +143,7 @@ const GamesToMemorizeTab = () => {
                         },
                         gridTemplateColumns: {
                             xs: '1fr',
-                            xl: 'var(--coach-width) var(--gap) auto',
+                            xl: 'var(--coach-width) var(--gap) 1fr',
                         },
                         gridTemplateAreas: {
                             xs: '"extras" "pgn"',

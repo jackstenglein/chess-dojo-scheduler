@@ -8,7 +8,7 @@ import React, {
     useState,
 } from 'react';
 import { Chess, Move } from '@jackstenglein/chess';
-import { Box, SxProps, Theme } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
 import { Color } from 'chessground/types';
