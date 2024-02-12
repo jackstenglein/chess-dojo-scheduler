@@ -47,7 +47,6 @@ interface PgnBoardProps {
     game?: Game;
     onSaveGame?: (g: Game) => void;
     startOrientation?: Color;
-    sx?: SxProps<Theme>;
 }
 
 const PgnBoard: React.FC<PgnBoardProps> = ({
@@ -60,7 +59,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     onSaveGame,
     showPlayerHeaders = true,
     startOrientation = 'white',
-    sx,
 }) => {
     const [board, setBoard] = useState<BoardApi>();
     const [chess, setChess] = useState<Chess>();
@@ -180,14 +178,12 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     return (
         <Box
             id={CONTAINER_ID}
-            sx={
-                sx || {
-                    gridArea: 'pgn',
-                    width: 1,
-                    maxWidth: 1,
-                    overflowX: 'clip',
-                }
-            }
+            sx={{
+                gridArea: 'pgn',
+                width: 1,
+                maxWidth: 1,
+                overflowX: 'clip',
+            }}
         >
             <ChessContext.Provider value={chessContext}>
                 <ResizableContainer

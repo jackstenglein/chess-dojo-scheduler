@@ -46,31 +46,35 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
 }) => {
     const parentWidth =
         document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
-    const [sizes, setSizes] = useState(getSizes(parentWidth));
+    const [sizes, setSizes] = useState(
+        getSizes(parentWidth, showUnderboard, !showPlayerHeaders)
+    );
 
     useEffect(() => {
-        console.log('Use Effect: ', parentWidth);
-        setSizes(getSizes(parentWidth));
-    }, [parentWidth, setSizes]);
+        setSizes(getSizes(parentWidth, showUnderboard, !showPlayerHeaders));
+    }, [parentWidth, setSizes, showUnderboard]);
 
     const onWindowResize = useCallback(() => {
         const parentWidth =
             document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
-        setSizes(getSizes(parentWidth));
-    }, [setSizes]);
+        setSizes(getSizes(parentWidth, showUnderboard, !showPlayerHeaders));
+    }, [setSizes, showUnderboard, showPlayerHeaders]);
 
     useWindowSizeEffect(onWindowResize);
 
     const onResize = useCallback(
         (area: 'board' | 'underboard' | 'pgn') => (width: number, height: number) => {
             setSizes((sizes) =>
-                getNewSizes({
-                    ...sizes,
-                    [area]: { ...sizes[area], width, height },
-                })
+                getNewSizes(
+                    {
+                        ...sizes,
+                        [area]: { ...sizes[area], width, height },
+                    },
+                    !showPlayerHeaders
+                )
             );
         },
-        [setSizes]
+        [setSizes, showPlayerHeaders]
     );
 
     return (

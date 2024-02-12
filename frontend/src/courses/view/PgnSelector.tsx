@@ -10,6 +10,7 @@ import {
     Typography,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
 import { PgnHeaders } from '../../database/game';
 
 function getPgnName(header: Record<string, string> | PgnHeaders): string {
@@ -99,7 +100,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                 ))}
             </List>
 
-            {hiddenCount && (
+            {Boolean(hiddenCount) && (
                 <Stack
                     data-cy='upsell-message'
                     px={1}
@@ -109,7 +110,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                 >
                     <Typography textAlign='center'>
                         Unlock {hiddenCount} more game
-                        {hiddenCount > 1 ? 's' : ''} by upgrading to a full account
+                        {hiddenCount! > 1 ? 's' : ''} by upgrading to a full account
                     </Typography>
                     <Button variant='outlined' href='/prices'>
                         View Prices
