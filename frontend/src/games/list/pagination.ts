@@ -77,7 +77,8 @@ export function usePagination(
         }
 
         // We have already fetched this page of data and don't need to refetch
-        if (games.length > page * pageSize) {
+        if (games.length > (page + 1) * pageSize) {
+            console.log('games.length > page * pageSize: ', games.length, page, pageSize);
             return;
         }
 
@@ -109,21 +110,22 @@ export function usePagination(
     }, [page, pageSize, games, startKey, searchFunc, request]);
 
     let rowCount = games.length;
-    if (startKey !== undefined) {
-        rowCount += pageSize;
-    }
+    // if (startKey !== undefined) {
+    //     rowCount += pageSize;
+    // }
 
-    let data: GameInfo[] = [];
-    if (games.length > page * pageSize) {
-        data = games.slice(page * pageSize, page * pageSize + pageSize);
-    }
+    // let data: GameInfo[] = [];
+    // if (games.length > page * pageSize) {
+    //     data = games.slice(page * pageSize, page * pageSize + pageSize);
+    // }
 
     return {
         page,
         pageSize,
-        data,
+        data: games,
         request,
         rowCount,
+        hasMore: startKey !== undefined,
         setPage: onChangePage,
         setPageSize: onChangePageSize,
         onSearch,

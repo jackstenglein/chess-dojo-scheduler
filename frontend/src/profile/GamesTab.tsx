@@ -12,7 +12,7 @@ import { RequestSnackbar } from '../api/Request';
 
 import { GameInfo } from '../database/game';
 import { User } from '../database/user';
-import { gameTableColumns } from '../games/list/ListGamesPage';
+import { CustomPagination, gameTableColumns } from '../games/list/ListGamesPage';
 import { usePagination } from '../games/list/pagination';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import UpsellAlert from '../upsell/UpsellAlert';
@@ -61,7 +61,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         [api, user.username]
     );
 
-    const { request, data, rowCount, page, pageSize, setPage, setPageSize } =
+    const { request, data, rowCount, page, pageSize, hasMore, setPage, setPageSize } =
         usePagination(searchByOwner, 0, 10);
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
@@ -74,9 +74,6 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
-        if (model.page !== page) {
-            setPage(model.page);
-        }
         if (model.pageSize !== pageSize) {
             setPageSize(model.pageSize);
         }
@@ -113,7 +110,6 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                     pageSizeOptions={[5, 10, 25]}
                     paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
                     onPaginationModelChange={onPaginationModelChange}
-                    paginationMode='server'
                     loading={request.isLoading()}
                     autoHeight
                     rowHeight={70}
@@ -130,6 +126,18 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                         },
                     }}
                     pagination
+                    slots={{
+                        pagination: () => (
+                            <CustomPagination
+                                page={page}
+                                pageSize={pageSize}
+                                count={rowCount}
+                                hasMore={hasMore}
+                                onPrevPage={() => setPage(page - 1)}
+                                onNextPage={() => setPage(page + 1)}
+                            />
+                        ),
+                    }}
                 />
             )}
         </Stack>

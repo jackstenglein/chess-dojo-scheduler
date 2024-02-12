@@ -222,7 +222,7 @@ function Root() {
 
     return (
         <ApiProvider>
-            <ScrollRestoration />
+            <ScrollRestoration getKey={(location) => location.pathname} />
             <CacheProvider>
                 <TutorialProvider>
                     <Navbar />

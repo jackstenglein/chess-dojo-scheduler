@@ -1,7 +1,17 @@
-import { Button, Container, Divider, Grid, Link, Stack, Typography } from '@mui/material';
+import {
+    Button,
+    Container,
+    Divider,
+    Grid,
+    IconButton,
+    Link,
+    Stack,
+    Typography,
+} from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
+    GridPagination,
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
@@ -17,11 +27,12 @@ import SearchFilters from './SearchFilters';
 import { usePagination } from './pagination';
 import ListGamesTutorial from './ListGamesTutorial';
 import { useFreeTier } from '../../auth/Auth';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import UpsellPage from '../../upsell/UpsellPage';
 import Avatar from '../../profile/Avatar';
+import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
@@ -128,8 +139,17 @@ const ListGamesPage = () => {
         return gameTableColumns;
     }, [type]);
 
-    const { request, data, rowCount, page, pageSize, setPage, setPageSize, onSearch } =
-        usePagination(null, 0, 10);
+    const {
+        request,
+        data,
+        rowCount,
+        page,
+        pageSize,
+        hasMore,
+        setPage,
+        setPageSize,
+        onSearch,
+    } = usePagination(null, 0, 10);
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
         navigate(
@@ -141,9 +161,6 @@ const ListGamesPage = () => {
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
-        if (model.page !== page) {
-            setPage(model.page);
-        }
         if (model.pageSize !== pageSize) {
             setPageSize(model.pageSize);
         }
@@ -206,7 +223,6 @@ const ListGamesPage = () => {
                         pageSizeOptions={[5, 10, 25]}
                         paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
                         onPaginationModelChange={onPaginationModelChange}
-                        paginationMode='server'
                         loading={request.isLoading()}
                         autoHeight
                         rowHeight={70}
@@ -220,6 +236,18 @@ const ListGamesPage = () => {
                                     },
                                 ],
                             },
+                        }}
+                        slots={{
+                            pagination: () => (
+                                <CustomPagination
+                                    page={page}
+                                    pageSize={pageSize}
+                                    count={rowCount}
+                                    hasMore={hasMore}
+                                    onPrevPage={() => setPage(page - 1)}
+                                    onNextPage={() => setPage(page + 1)}
+                                />
+                            ),
                         }}
                         pagination
                     />
@@ -268,6 +296,60 @@ const ListGamesPage = () => {
 
             <ListGamesTutorial />
         </Container>
+    );
+};
+
+interface CustomPaginationProps {
+    page: number;
+    pageSize: number;
+    count: number;
+    hasMore: boolean;
+    onPrevPage: () => void;
+    onNextPage: () => void;
+}
+
+export const CustomPagination: React.FC<CustomPaginationProps> = ({
+    page,
+    pageSize,
+    count,
+    hasMore,
+    onPrevPage,
+    onNextPage,
+}) => {
+    return (
+        <GridPagination
+            labelDisplayedRows={({ from, to, count }) => {
+                return `${from}–${to} of ${count}${hasMore ? '+' : ''}`;
+            }}
+            slots={{
+                actions: {
+                    previousButton: () => {
+                        return (
+                            <IconButton
+                                aria-label='Go to previous page'
+                                title='Go to previous page'
+                                onClick={onPrevPage}
+                                disabled={page === 0}
+                            >
+                                <KeyboardArrowLeft />
+                            </IconButton>
+                        );
+                    },
+                    nextButton: () => {
+                        return (
+                            <IconButton
+                                aria-label='Go to next page'
+                                title='Go to next page'
+                                onClick={onNextPage}
+                                disabled={(page + 1) * pageSize >= count && !hasMore}
+                            >
+                                <KeyboardArrowRight />
+                            </IconButton>
+                        );
+                    },
+                },
+            }}
+        />
     );
 };
 
