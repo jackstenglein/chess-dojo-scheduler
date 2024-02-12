@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Move } from '@jackstenglein/chess';
 import { Card, Stack } from '@mui/material';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
@@ -7,6 +7,7 @@ import Result from './Result';
 import Variation from './Variation';
 import GameComment from './GameComment';
 import { useLightMode } from '../../../ThemeProvider';
+import { ResizableData } from '../resize';
 
 interface PgnTextProps {
     onClickMove: (m: Move) => void;
@@ -45,29 +46,36 @@ const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
 };
 
 interface ResizablePgnTextProps extends PgnTextProps {
-    width: number;
-    height: number;
+    resizeData: ResizableData;
     onResize: (width: number, height: number) => void;
 }
 
 export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
-    const { width, height, onResize, ...others } = props;
+    const { resizeData, onResize, onClickMove } = props;
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
         onResize(data.size.width, data.size.height);
     };
 
+    const Pgn = useMemo(() => <PgnText onClickMove={onClickMove} />, [onClickMove]);
+
     return (
-        <Resizable width={width} height={height} onResize={handleResize}>
+        <Resizable
+            width={resizeData.width}
+            height={resizeData.height}
+            minConstraints={[resizeData.minWidth, resizeData.minHeight]}
+            maxConstraints={[resizeData.maxWidth, resizeData.maxHeight]}
+            onResize={handleResize}
+        >
             <Stack
                 sx={{
                     overflowY: 'auto',
                     mb: { xs: 1, md: 0 },
-                    width: `${width}px`,
-                    maxHeight: `${height}px`,
+                    width: `${resizeData.width}px`,
+                    maxHeight: `${resizeData.height}px`,
                 }}
             >
-                <PgnText {...others} />
+                {Pgn}
             </Stack>
         </Resizable>
     );

@@ -9,6 +9,7 @@ import { Game } from '../../database/game';
 import { BoardApi, Chess, PrimitiveMove } from '../Board';
 import { useCallback, useEffect, useState } from 'react';
 import { getSizes } from './resize';
+import { useWindowSizeEffect } from '../../ThemeProvider';
 
 export const CONTAINER_ID = 'resize-container';
 
@@ -51,12 +52,25 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
         setSizes(getSizes(parentWidth));
     }, [parentWidth, setSizes]);
 
+    const onWindowResize = useCallback(() => {
+        const parentWidth =
+            document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
+        setSizes(getSizes(parentWidth));
+    }, [setSizes]);
+
+    useWindowSizeEffect(onWindowResize);
+
     const onResize = useCallback(
         (area: 'board' | 'underboard' | 'pgn') => (width: number, height: number) => {
-            setSizes((sizes) => ({ ...sizes, [area]: { width, height } }));
+            setSizes((sizes) => ({
+                ...sizes,
+                [area]: { ...sizes[area], width, height },
+            }));
         },
         [setSizes]
     );
+
+    console.log('Sizes: ', sizes);
 
     return (
         <Stack
@@ -68,7 +82,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
             px={{ xs: 0, sm: 0 }}
             flexWrap='wrap'
             rowGap={0.5}
-            columnGap={{ xs: 0.5, md: 2 }}
+            columnGap={{ xs: 0.5, md: 1, lg: 1 }}
         >
             {showUnderboard && (
                 <Underboard
@@ -82,8 +96,9 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
 
             <ResizableBoardArea
                 {...{
-                    width: sizes.board.width,
+                    resizeData: sizes.board,
                     onResize: onResize('board'),
+                    hideResize: sizes.breakpoint === 'xs',
                     showPlayerHeaders,
                     pgn,
                     fen,
@@ -97,8 +112,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
             />
 
             <ResizablePgnText
-                width={sizes.pgn.width}
-                height={sizes.pgn.height}
+                resizeData={sizes.pgn}
                 onResize={onResize('pgn')}
                 onClickMove={onClickMove}
             />

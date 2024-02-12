@@ -57,7 +57,8 @@ const Underboard: React.FC<UnderboardProps> = ({
     }
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
-        onResize(data.size.width, data.size.height);
+        console.log('Resizing underboard (currentSize, newSize): ', resizeData, data);
+        onResize(Math.floor(data.size.width), Math.floor(data.size.height));
     };
 
     return (
@@ -66,7 +67,8 @@ const Underboard: React.FC<UnderboardProps> = ({
             height={resizeData.height}
             onResize={handleResize}
             resizeHandles={['se']}
-            minConstraints={[250, 250]}
+            minConstraints={[resizeData.minWidth, resizeData.minHeight]}
+            maxConstraints={[resizeData.maxWidth, resizeData.maxHeight]}
         >
             <Card
                 elevation={light ? undefined : 3}

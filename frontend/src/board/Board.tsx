@@ -9,6 +9,8 @@ import { Key, Color } from 'chessground/types';
 import { DrawShape } from 'chessground/draw';
 import { Chess, Move, SQUARES, Square } from '@jackstenglein/chess';
 
+import { ResizableData } from './pgn/resize';
+
 import './board.css';
 import 'react-resizable/css/styles.css';
 
@@ -314,27 +316,31 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
 };
 
 interface MaybeResizableBoardProps extends BoardProps {
-    size?: number;
+    resizeData?: ResizableData;
     onResize?: (event: React.SyntheticEvent, data: ResizeCallbackData) => void;
-    minSize?: number;
-    maxSize?: number;
+    hideResize?: boolean;
 }
 
 const MaybeResizableBoard: React.FC<MaybeResizableBoardProps> = (props) => {
-    const { size, onResize, minSize, maxSize, ...boardProps } = props;
+    const { resizeData, onResize, hideResize, ...boardProps } = props;
 
-    if (size && onResize) {
+    if (resizeData && onResize) {
         return (
             <Resizable
                 lockAspectRatio
-                width={size}
-                height={size}
+                width={resizeData.width}
+                height={resizeData.height}
                 onResize={onResize}
-                resizeHandles={['se']}
-                minConstraints={minSize ? [minSize, minSize] : undefined}
-                maxConstraints={maxSize ? [maxSize, maxSize] : undefined}
+                resizeHandles={hideResize ? [] : ['se']}
+                minConstraints={[resizeData.minWidth, resizeData.minHeight]}
+                maxConstraints={[resizeData.maxWidth, resizeData.maxHeight]}
             >
-                <div style={{ width: `${size}px`, height: `${size}px` }}>
+                <div
+                    style={{
+                        width: `${resizeData.width}px`,
+                        height: `${resizeData.height}px`,
+                    }}
+                >
                     <Board {...boardProps} />
                 </div>
             </Resizable>

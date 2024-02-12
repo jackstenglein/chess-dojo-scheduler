@@ -206,6 +206,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                         onInitialize,
                         onMove,
                         onClickMove,
+                        onSaveGame,
                     }}
                 />
             </ChessContext.Provider>

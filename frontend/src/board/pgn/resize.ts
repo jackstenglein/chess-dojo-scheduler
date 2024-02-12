@@ -1,5 +1,3 @@
-import { Breakpoint } from '@mui/material';
-
 export const CONTAINER_ID = 'resize-container';
 
 const breakpoints = {
@@ -10,69 +8,82 @@ const breakpoints = {
     xl: 1536,
 };
 
-const defaultPercentageWidths = {
-    xs: {
-        board: 0.42,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-    sm: {
-        board: 0.42,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-    md: {
-        board: 0.42,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-    lg: {
-        board: 0.42,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-    xl: {
-        board: 0.42,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-};
+const minBoardSize = 275;
 
-const defaultPercentageHeights = {
-    xs: {
-        board: 1,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-    sm: {
-        board: 1,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-    md: {
-        board: 1,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-    lg: {
-        board: 1,
-        underboard: 0.29,
-        pgn: 0.29,
-    },
-    xl: {
-        board: 1,
-        underboard: 1,
-        pgn: 1,
-    },
-};
+const navbarHeight = 80;
+const playerHeaderHeight = 27.9833;
+const controlsHeight = 40;
+const controlsMargin = 8;
+const margin = 64;
+
+// const defaultPercentageWidths = {
+//     xs: {
+//         board: 0.42,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+//     sm: {
+//         board: 0.42,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+//     md: {
+//         board: 0.42,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+//     lg: {
+//         board: 0.42,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+//     xl: {
+//         board: 0.42,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+// };
+
+// const defaultPercentageHeights = {
+//     xs: {
+//         board: 1,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+//     sm: {
+//         board: 1,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+//     md: {
+//         board: 1,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+//     lg: {
+//         board: 1,
+//         underboard: 0.29,
+//         pgn: 0.29,
+//     },
+//     xl: {
+//         board: 1,
+//         underboard: 1,
+//         pgn: 1,
+//     },
+// };
 
 export interface ResizableData {
     width: number;
+    minWidth: number;
+    maxWidth: number;
     height: number;
+    minHeight: number;
+    maxHeight: number;
     order?: number;
 }
 
 export interface AreaSizes {
+    breakpoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     board: ResizableData;
     underboard: ResizableData;
     pgn: ResizableData;
@@ -85,26 +96,43 @@ export function getSizes(parentWidth: number): AreaSizes {
     if (parentWidth < breakpoints.md) {
         return smSizes(parentWidth);
     }
-    if (parentWidth < breakpoints.lg) {
-        return mdSizes(parentWidth);
-    }
-    return lgSizes(parentWidth);
+    return mdSizes(parentWidth);
 }
 
 function xsSizes(parentWidth: number): AreaSizes {
     const padding = 6;
+    const boardSize = parentWidth - padding;
     return {
+        breakpoint: 'xs',
         board: {
-            width: parentWidth - padding,
-            height: parentWidth - padding,
+            width: boardSize,
+            minWidth: boardSize,
+            maxWidth: boardSize,
+            height: boardSize,
+            minHeight: boardSize,
+            maxHeight: boardSize,
         },
         pgn: {
-            width: parentWidth - padding,
-            height: 200,
+            width: boardSize,
+            minWidth: boardSize,
+            maxWidth: boardSize,
+            height:
+                window.innerHeight -
+                boardSize -
+                controlsHeight -
+                controlsMargin -
+                2 * playerHeaderHeight -
+                16,
+            minHeight: 200,
+            maxHeight: Infinity,
         },
         underboard: {
-            width: parentWidth - padding,
-            height: 200,
+            width: boardSize,
+            minWidth: boardSize,
+            maxWidth: boardSize,
+            height: 512,
+            minHeight: 200,
+            maxHeight: Infinity,
             order: 1,
         },
     };
@@ -115,19 +143,33 @@ function smSizes(parentWidth: number): AreaSizes {
     const spacing = 4;
     const boardSize = ((parentWidth - padding - spacing) * 2) / 3;
     const pgnWidth = parentWidth - padding - spacing - boardSize;
+    const boardAreaHeight = getBoardAreaHeight(boardSize);
 
     return {
+        breakpoint: 'sm',
         board: {
             width: boardSize,
+            minWidth: minBoardSize,
+            maxWidth: boardSize,
             height: boardSize,
+            minHeight: minBoardSize,
+            maxHeight: boardSize,
         },
         pgn: {
             width: pgnWidth,
-            height: boardSize,
+            minWidth: 100,
+            maxWidth: pgnWidth,
+            height: boardAreaHeight,
+            minHeight: 100,
+            maxHeight: boardAreaHeight,
         },
         underboard: {
             width: parentWidth - padding,
-            height: 200,
+            minWidth: parentWidth - padding,
+            maxWidth: parentWidth - padding,
+            height: 512,
+            minHeight: 200,
+            maxHeight: Infinity,
             order: 1,
         },
     };
@@ -135,26 +177,42 @@ function smSizes(parentWidth: number): AreaSizes {
 
 function mdSizes(parentWidth: number): AreaSizes {
     const padding = 6;
-    const spacing = 16;
+    const spacing = 8;
 
-    const boardSize = (parentWidth - padding - 2 * spacing) * 0.5;
-    const pgnWidth = (parentWidth - padding - 2 * spacing - boardSize) / 2;
-    const underboardWidth = parentWidth - padding - 2 * spacing - boardSize - pgnWidth;
+    const availableWidth = parentWidth - padding - 2 * spacing;
+    const maxBoardWidth = availableWidth * 0.4;
+    const maxBoardHeight = getMaxBoardHeight();
+    const boardSize = Math.min(maxBoardWidth, maxBoardHeight);
 
-    const boardAreaHeight = getBoardAreaHeight(boardSize);
+    const pgnWidth = (availableWidth - boardSize) / 2;
+    const underboardWidth = (availableWidth - boardSize) / 2;
+    const maxBoardAreaHeight = getMaxBoardAreaHeight();
 
     return {
+        breakpoint: 'md',
         underboard: {
             width: underboardWidth,
-            height: boardAreaHeight,
+            height: maxBoardAreaHeight,
+            maxWidth: underboardWidth,
+            maxHeight: maxBoardAreaHeight,
+            minWidth: 100,
+            minHeight: 200,
         },
         board: {
             width: boardSize,
             height: boardSize,
+            maxWidth: boardSize,
+            maxHeight: boardSize,
+            minWidth: minBoardSize,
+            minHeight: minBoardSize,
         },
         pgn: {
             width: pgnWidth,
-            height: boardAreaHeight,
+            height: maxBoardAreaHeight,
+            maxWidth: pgnWidth,
+            maxHeight: maxBoardAreaHeight,
+            minWidth: 100,
+            minHeight: 200,
         },
     };
 }
@@ -172,38 +230,42 @@ function lgSizes(parentWidth: number): AreaSizes {
     const boardSize = Math.min(maxBoardWidth, maxBoardHeight);
     const underboardWidth = (availableWidth - boardSize) / 2;
     const pgnWidth = availableWidth - boardSize - underboardWidth;
-    const boardAreaHeight = getBoardAreaHeight(boardSize);
+    const maxBoardAreaHeight = getMaxBoardAreaHeight();
 
     return {
+        breakpoint: 'lg',
         underboard: {
             width: underboardWidth,
-            height: boardAreaHeight,
+            height: maxBoardAreaHeight,
+            maxWidth: underboardWidth,
+            maxHeight: maxBoardAreaHeight,
+            minWidth: 100,
+            minHeight: 200,
         },
         board: {
             width: boardSize,
             height: boardSize,
+            maxWidth: boardSize,
+            maxHeight: boardSize,
+            minWidth: minBoardSize,
+            minHeight: minBoardSize,
         },
         pgn: {
             width: pgnWidth,
-            height: boardAreaHeight,
+            height: maxBoardAreaHeight,
+            maxWidth: pgnWidth,
+            maxHeight: maxBoardAreaHeight,
+            minWidth: 100,
+            minHeight: 2000,
         },
     };
 }
 
 function getBoardAreaHeight(boardSize: number): number {
-    const playerHeaderHeight = 27.9833;
-    const controlsHeight = 40;
-    const controlsMargin = 8;
     return boardSize + 2 * playerHeaderHeight + controlsHeight + controlsMargin;
 }
 
 function getMaxBoardHeight(): number {
-    const navbarHeight = 80;
-    const playerHeaderHeight = 27.9833;
-    const controlsHeight = 40;
-    const controlsMargin = 8;
-    const margin = 64;
-
     return (
         window.innerHeight -
         navbarHeight -
@@ -214,86 +276,7 @@ function getMaxBoardHeight(): number {
     );
 }
 
-export function getDefaultPercentages(
-    area: 'board' | 'underboard' | 'pgn'
-): ResizableData {
-    const parentWidth =
-        document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
-
-    if (parentWidth > breakpoints.xl) {
-        return {
-            width: defaultPercentageWidths.xl[area],
-            height: defaultPercentageHeights.xl[area],
-        };
-    }
-    if (parentWidth > breakpoints.lg) {
-        return {
-            width: defaultPercentageWidths.lg[area],
-            height: defaultPercentageHeights.lg[area],
-        };
-    }
-    if (parentWidth > breakpoints.md) {
-        return {
-            width: defaultPercentageWidths.md[area],
-            height: defaultPercentageHeights.md[area],
-        };
-    }
-    if (parentWidth > breakpoints.sm) {
-        return {
-            width: defaultPercentageWidths.sm[area],
-            height: defaultPercentageHeights.sm[area],
-        };
-    }
-    return {
-        width: defaultPercentageWidths.xs[area],
-        height: defaultPercentageHeights.xs[area],
-    };
-}
-
-export function getBoardPixels(percentages: ResizableData): number {
-    const parentWidth =
-        document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
-    console.log('Percentages: ', percentages);
-    console.log('Parent Width: ', parentWidth);
-    console.log('Window Height: ', window.innerHeight);
-    if (!parentWidth) {
-        return 0;
-    }
-
-    const width = parentWidth * percentages.width;
-    const height = (window.innerHeight - 80 - 56 - 48 - 64) * percentages.height;
-    console.log('Width: ', width);
-    console.log('Height: ', height);
-
-    return Math.min(width, height);
-}
-
-export function getBoardPercentages(size: number): ResizableData {
-    const parentRect = document.getElementById(CONTAINER_ID)?.getBoundingClientRect();
-    if (!parentRect) {
-        return {
-            width: defaultPercentageWidths.xs.board,
-            height: defaultPercentageHeights.xs.board,
-        };
-    }
-
-    const availableHeight = window.innerHeight - 80 - 56 - 48 - 64;
-
-    return {
-        width: size / parentRect.width,
-        height: size / availableHeight,
-    };
-}
-
-export function getDefaultWidth(
-    breakpoint: Breakpoint,
-    area: 'board' | 'underboard' | 'pgn'
-): number {
-    const parentWidth =
-        document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
-
-    console.log('Parent Width: ', parentWidth);
-    const result = parentWidth * defaultPercentageWidths[breakpoint][area];
-    console.log('Default width: ', result);
-    return result;
+function getMaxBoardAreaHeight(): number {
+    console.log('window.innerHeight: ', window.innerHeight);
+    return window.innerHeight - navbarHeight - margin;
 }

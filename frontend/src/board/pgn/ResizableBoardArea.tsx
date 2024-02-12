@@ -8,10 +8,12 @@ import BoardButtons from './boardTools/boardButtons/BoardButtons';
 import { useAuth } from '../../auth/Auth';
 import Board, { BoardApi, Chess, PrimitiveMove } from '../Board';
 import { Game } from '../../database/game';
+import { ResizableData } from './resize';
 
 interface ResizableBoardAreaProps {
-    width: number;
+    resizeData: ResizableData;
     onResize: (width: number, height: number) => void;
+    hideResize?: boolean;
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
@@ -24,8 +26,9 @@ interface ResizableBoardAreaProps {
 }
 
 const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
-    width,
+    resizeData,
     onResize,
+    hideResize,
     showPlayerHeaders = true,
     pgn,
     fen,
@@ -43,7 +46,7 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
     };
 
     return (
-        <Stack width={`${width}px`}>
+        <Stack width={`${resizeData.width}px`}>
             {showPlayerHeaders && <PlayerHeader type='header' />}
 
             <Board
@@ -54,9 +57,9 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
                 }}
                 onInitialize={onInitialize}
                 onMove={onMove}
-                size={width}
+                resizeData={resizeData}
                 onResize={handlResize}
-                minSize={300}
+                hideResize={hideResize}
             />
 
             {showPlayerHeaders && <PlayerHeader type='footer' />}

@@ -43,7 +43,7 @@ export function getInitialClock(pgn?: Pgn): string | undefined {
 
 export const ClockTypeDescriptions: Record<string, string> = {
     emt: 'Elapsed Move Time. The time spent to play the current move. h:mm:ss',
-    clk: 'Clock Time. The time displayed on the clock after the current move was played. h:mm:ss',
+    clk: 'h:mm:ss. The time displayed on the clock after the current move was played.',
 };
 
 function getMoveClockText(
@@ -189,18 +189,15 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                     )}
                 </Stack>
 
-                <Typography variant='subtitle2' color='text.secondary'>
-                    {getMoveClockText(clockCommand, pgn, move)}
-                    <Tooltip title={ClockTypeDescriptions[clockCommand]}>
-                        <Typography
-                            variant='subtitle2'
-                            color='text.secondary'
-                            display='inline'
-                        >
-                            {` (${clockCommand.toUpperCase()})`}
-                        </Typography>
-                    </Tooltip>
-                </Typography>
+                <Tooltip title={ClockTypeDescriptions[clockCommand]}>
+                    <Typography
+                        variant='subtitle2'
+                        color='text.secondary'
+                        display='inline'
+                    >
+                        {getMoveClockText(clockCommand, pgn, move)}
+                    </Typography>
+                </Tooltip>
             </Stack>
         </Paper>
     );
