@@ -8,6 +8,7 @@ import Variation from './Variation';
 import GameComment from './GameComment';
 import { useLightMode } from '../../../ThemeProvider';
 import { ResizableData } from '../resize';
+import ResizeHandle from '../ResizeHandle';
 
 interface PgnTextProps {
     onClickMove: (m: Move) => void;
@@ -66,10 +67,10 @@ export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
             minConstraints={[resizeData.minWidth, resizeData.minHeight]}
             maxConstraints={[resizeData.maxWidth, resizeData.maxHeight]}
             onResize={handleResize}
+            handle={<ResizeHandle />}
         >
             <Stack
                 sx={{
-                    overflowY: 'auto',
                     mb: { xs: 1, md: 0 },
                     width: `${resizeData.width}px`,
                     maxHeight: `${resizeData.height}px`,

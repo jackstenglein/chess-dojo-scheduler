@@ -1,6 +1,7 @@
 import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
 import { Move } from '@jackstenglein/chess';
+import 'react-resizable/css/styles.css';
 
 import Underboard from './boardTools/underboard/Underboard';
 import ResizableBoardArea from './ResizableBoardArea';
@@ -71,8 +72,6 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
         },
         [setSizes]
     );
-
-    console.log('Sizes: ', sizes);
 
     return (
         <Stack

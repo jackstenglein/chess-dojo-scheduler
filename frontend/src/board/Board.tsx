@@ -12,7 +12,7 @@ import { Chess, Move, SQUARES, Square } from '@jackstenglein/chess';
 import { ResizableData } from './pgn/resize';
 
 import './board.css';
-import 'react-resizable/css/styles.css';
+import ResizeHandle from './pgn/ResizeHandle';
 
 export { Chess };
 export type { BoardApi };
@@ -334,6 +334,15 @@ const MaybeResizableBoard: React.FC<MaybeResizableBoardProps> = (props) => {
                 resizeHandles={hideResize ? [] : ['se']}
                 minConstraints={[resizeData.minWidth, resizeData.minHeight]}
                 maxConstraints={[resizeData.maxWidth, resizeData.maxHeight]}
+                handle={
+                    <ResizeHandle
+                        position='absolute'
+                        bottom={0}
+                        right={1}
+                        fontSize='1rem'
+                        dark
+                    />
+                }
             >
                 <div
                     style={{

@@ -10,9 +10,6 @@ import React, {
 import { Chess, Move } from '@jackstenglein/chess';
 import { Box, SxProps, Theme } from '@mui/material';
 
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
-
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
 import { Color } from 'chessground/types';
 import { Game } from '../../database/game';

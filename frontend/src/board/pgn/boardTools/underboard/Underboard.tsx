@@ -27,6 +27,7 @@ import Settings from './Settings';
 import { useAuth } from '../../../../auth/Auth';
 import ClockUsage from './ClockUsage';
 import { ResizableData } from '../../resize';
+import ResizeHandle from '../../ResizeHandle';
 
 interface UnderboardProps {
     resizeData: ResizableData;
@@ -66,9 +67,9 @@ const Underboard: React.FC<UnderboardProps> = ({
             width={resizeData.width}
             height={resizeData.height}
             onResize={handleResize}
-            resizeHandles={['se']}
             minConstraints={[resizeData.minWidth, resizeData.minHeight]}
             maxConstraints={[resizeData.maxWidth, resizeData.maxHeight]}
+            handle={<ResizeHandle />}
         >
             <Card
                 elevation={light ? undefined : 3}
