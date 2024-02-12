@@ -49,7 +49,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, onClickMove, handleScroll }
                                     xs: `calc(100% * ${
                                         move.ply % 2 ? '2 / 12' : '7 / 12'
                                     } + 5px)`,
-                                    md: `calc(var(--coach-width) * ${
+                                    md: `calc(100% * ${
                                         move.ply % 2 ? '2 / 12' : '7 / 12'
                                     } + 5px)`,
                                 },
