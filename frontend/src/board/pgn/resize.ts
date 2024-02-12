@@ -217,50 +217,6 @@ function mdSizes(parentWidth: number): AreaSizes {
     };
 }
 
-function lgSizes(parentWidth: number): AreaSizes {
-    const padding = 16;
-    const spacing = 16;
-    const minUnderboardWidth = 400;
-    const minPgnWidth = 400;
-
-    const availableWidth = parentWidth - padding - 2 * spacing;
-    const maxBoardWidth = availableWidth - minUnderboardWidth - minPgnWidth;
-    const maxBoardHeight = getMaxBoardHeight();
-
-    const boardSize = Math.min(maxBoardWidth, maxBoardHeight);
-    const underboardWidth = (availableWidth - boardSize) / 2;
-    const pgnWidth = availableWidth - boardSize - underboardWidth;
-    const maxBoardAreaHeight = getMaxBoardAreaHeight();
-
-    return {
-        breakpoint: 'lg',
-        underboard: {
-            width: underboardWidth,
-            height: maxBoardAreaHeight,
-            maxWidth: underboardWidth,
-            maxHeight: maxBoardAreaHeight,
-            minWidth: 100,
-            minHeight: 200,
-        },
-        board: {
-            width: boardSize,
-            height: boardSize,
-            maxWidth: boardSize,
-            maxHeight: boardSize,
-            minWidth: minBoardSize,
-            minHeight: minBoardSize,
-        },
-        pgn: {
-            width: pgnWidth,
-            height: maxBoardAreaHeight,
-            maxWidth: pgnWidth,
-            maxHeight: maxBoardAreaHeight,
-            minWidth: 100,
-            minHeight: 2000,
-        },
-    };
-}
-
 function getBoardAreaHeight(boardSize: number): number {
     return boardSize + 2 * playerHeaderHeight + controlsHeight + controlsMargin;
 }
