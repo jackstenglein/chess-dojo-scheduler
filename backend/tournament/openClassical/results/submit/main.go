@@ -201,6 +201,10 @@ func getLichessGame(request *SubmitResultsRequest) error {
 	if gameId == "" {
 		return nil
 	}
+	gameId, _, _ = strings.Cut(gameId, "#")
+	if gameId == "" {
+		return nil
+	}
 
 	log.Debugf("Fetching Lichess game with ID %q\n", gameId)
 	resp, err := http.Get(fmt.Sprintf("https://lichess.org/api/game/%s", gameId))

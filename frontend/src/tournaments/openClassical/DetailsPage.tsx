@@ -334,8 +334,9 @@ const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         headerAlign: 'center',
         renderCell: (params) => {
             if (
-                params.value.startsWith('https://lichess.org/') ||
-                params.value.startsWith('https://www.chess.com/')
+                params.value &&
+                (params.value.startsWith('https://lichess.org/') ||
+                    params.value.startsWith('https://www.chess.com/'))
             ) {
                 return (
                     <a target='_blank' rel='noopener noreferrer' href={params.value}>
