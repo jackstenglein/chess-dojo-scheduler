@@ -56,11 +56,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	var err error
 
 	if request.Status == database.ClubJoinRequestStatus_Approved {
-		club, err = repository.ApproveClubJoinRequest(id, username, info.Username)
-		if err != nil {
-			return api.Failure(err), nil
-		}
-		scoreboard, err = repository.GetScoreboardSummaries([]string{username})
+		club, scoreboard, err = approveJoinRequest(id, username, info.Username)
 	} else if request.Status == database.ClubJoinRequestStatus_Rejected {
 		club, err = repository.RejectClubJoinRequest(id, username, info.Username)
 	} else {
@@ -71,4 +67,24 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 	return api.Success(ProcessJoinRequestResponse{Club: club, Scoreboard: scoreboard}), nil
+}
+
+func approveJoinRequest(id, username, caller string) (*database.Club, []database.ScoreboardSummary, error) {
+	club, err := repository.ApproveClubJoinRequest(id, username, caller)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	scoreboard, err := repository.GetScoreboardSummaries([]string{username})
+	if err != nil {
+		// This didn't prevent the new member from being added, so just log the error and continue
+		log.Errorf("Failed to get new scoreboard summary: %v", err)
+	}
+
+	err = repository.PutNotification(database.ClubJoinRequestApprovedNotification(username, club))
+	if err != nil {
+		log.Errorf("Failed to save approval notification: %v", err)
+	}
+
+	return club, scoreboard, nil
 }

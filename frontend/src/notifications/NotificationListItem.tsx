@@ -8,9 +8,9 @@ import {
     Tooltip,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 
 import { Notification, NotificationType } from '../database/notification';
-import { useNavigate } from 'react-router-dom';
 import { useCache } from '../api/cache/Cache';
 import { useApi } from '../api/Api';
 import { Request, RequestSnackbar, useRequest } from '../api/Request';
@@ -76,6 +76,14 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
                 navigate(
                     `/games/${notification.explorerGameMetadata?.cohort}/${notification.explorerGameMetadata?.id}`
                 );
+                break;
+
+            case NotificationType.NewClubJoinRequest:
+                navigate(`/clubs/${notification.clubMetadata?.id}?view=joinRequests`);
+                break;
+
+            case NotificationType.ClubJoinRequestApproved:
+                navigate(`/clubs/${notification.clubMetadata?.id}`);
                 break;
         }
 

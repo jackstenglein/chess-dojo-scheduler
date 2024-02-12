@@ -95,7 +95,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: !GetAtt ClubsTable.Arn
+        Resource:
+          - !GetAtt ClubsTable.Arn
+          - ${param:NotificationsTableArn}
 
   processJoinRequest:
     handler: processJoinRequest/main.go
@@ -110,7 +112,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: !GetAtt ClubsTable.Arn
+        Resource:
+          - !GetAtt ClubsTable.Arn
+          - ${param:NotificationsTableArn}
       - Effect: Allow
         Action:
           - dynamodb:BatchGetItem

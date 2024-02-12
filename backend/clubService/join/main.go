@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
@@ -18,6 +19,9 @@ func main() {
 }
 
 func handler(ctx context.Context, event api.Request) (api.Response, error) {
+	log.SetRequestId(event.RequestContext.RequestID)
+	log.Debugf("Event: %#v", event)
+
 	if strings.Contains(event.RawPath, "requests") {
 		return handleJoinRequest(event), nil
 	}
@@ -52,6 +56,11 @@ func handleJoinRequest(event api.Request) api.Response {
 	if err != nil {
 		return api.Failure(err)
 	}
+
+	if err := repository.PutNotification(database.NewClubJoinRequestNotification(club)); err != nil {
+		log.Errorf("Failed to leave notification for club owner: %v", err)
+	}
+
 	return api.Success(club)
 }
 
