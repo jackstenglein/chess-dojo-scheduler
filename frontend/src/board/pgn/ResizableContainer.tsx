@@ -8,7 +8,7 @@ import { ResizablePgnText } from './pgnText/PgnText';
 import { Game } from '../../database/game';
 import { BoardApi, Chess, PrimitiveMove } from '../Board';
 import { useCallback, useEffect, useState } from 'react';
-import { getSizes } from './resize';
+import { getNewSizes, getSizes } from './resize';
 import { useWindowSizeEffect } from '../../ThemeProvider';
 
 export const CONTAINER_ID = 'resize-container';
@@ -62,10 +62,12 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
 
     const onResize = useCallback(
         (area: 'board' | 'underboard' | 'pgn') => (width: number, height: number) => {
-            setSizes((sizes) => ({
-                ...sizes,
-                [area]: { ...sizes[area], width, height },
-            }));
+            setSizes((sizes) =>
+                getNewSizes({
+                    ...sizes,
+                    [area]: { ...sizes[area], width, height },
+                })
+            );
         },
         [setSizes]
     );
