@@ -111,6 +111,10 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: !GetAtt ClubsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: ${param:UsersTableArn}
 
   leave:
     handler: leave/main.go

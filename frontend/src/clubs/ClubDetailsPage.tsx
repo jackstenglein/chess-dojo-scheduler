@@ -109,8 +109,11 @@ const ClubDetailsPage = () => {
         setShowJoinRequestDialog(false);
     };
 
-    const onProcessRequest = (club: ClubDetails, snackbarText: string) => {
-        request.onSuccess({ ...request.data, club });
+    const onProcessRequest = (data: GetClubResponse, snackbarText: string) => {
+        request.onSuccess({
+            club: data.club,
+            scoreboard: [...(request.data?.scoreboard || []), ...(data.scoreboard || [])],
+        });
         setSnackbarText(snackbarText);
     };
 

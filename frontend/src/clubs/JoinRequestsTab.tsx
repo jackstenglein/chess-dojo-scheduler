@@ -16,10 +16,11 @@ import Avatar from '../profile/Avatar';
 import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { GetClubResponse } from '../api/clubApi';
 
 interface JoinRequestsTabProps {
     club: ClubDetails;
-    onProcessRequest: (club: ClubDetails, snackbarText: string) => void;
+    onProcessRequest: (club: GetClubResponse, snackbarText: string) => void;
 }
 
 const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({ club, onProcessRequest }) => {
@@ -77,7 +78,7 @@ interface JoinRequestProps {
     clubId: string;
     joinRequest: ClubJoinRequest;
     divider: boolean;
-    onProcessRequest: (club: ClubDetails, snackbarText: string) => void;
+    onProcessRequest: (club: GetClubResponse, snackbarText: string) => void;
 }
 
 const JoinRequest: React.FC<JoinRequestProps> = ({

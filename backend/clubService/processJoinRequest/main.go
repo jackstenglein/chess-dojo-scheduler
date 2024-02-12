@@ -18,6 +18,11 @@ type ProcessJoinRequest struct {
 	Status database.ClubJoinRequestStatus `json:"status"`
 }
 
+type ProcessJoinRequestResponse struct {
+	Club       *database.Club               `json:"club"`
+	Scoreboard []database.ScoreboardSummary `json:"scoreboard,omitempty"`
+}
+
 func main() {
 	lambda.Start(handler)
 }
@@ -47,10 +52,15 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	var club *database.Club
+	var scoreboard []database.ScoreboardSummary
 	var err error
 
 	if request.Status == database.ClubJoinRequestStatus_Approved {
 		club, err = repository.ApproveClubJoinRequest(id, username, info.Username)
+		if err != nil {
+			return api.Failure(err), nil
+		}
+		scoreboard, err = repository.GetScoreboardSummaries([]string{username})
 	} else if request.Status == database.ClubJoinRequestStatus_Rejected {
 		club, err = repository.RejectClubJoinRequest(id, username, info.Username)
 	} else {
@@ -60,5 +70,5 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if err != nil {
 		return api.Failure(err), nil
 	}
-	return api.Success(club), nil
+	return api.Success(ProcessJoinRequestResponse{Club: club, Scoreboard: scoreboard}), nil
 }

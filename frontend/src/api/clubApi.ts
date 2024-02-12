@@ -67,7 +67,7 @@ export type ClubApiContextType = {
         clubId: string,
         username: string,
         status: ClubJoinRequestStatus
-    ) => Promise<AxiosResponse<ClubDetails, any>>;
+    ) => Promise<AxiosResponse<GetClubResponse, any>>;
 
     /**
      * Leaves the club with the given id.
@@ -184,7 +184,7 @@ export function processJoinRequest(
     username: string,
     status: ClubJoinRequestStatus
 ) {
-    return axios.put<ClubDetails>(
+    return axios.put<GetClubResponse>(
         `${BASE_URL}/clubs/${clubId}/requests/${username}`,
         { status },
         { headers: { Authorization: 'Bearer ' + idToken } }
