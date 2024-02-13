@@ -9,10 +9,12 @@ import Database from './Database';
 import Header from './Header';
 import { ExplorerPositionFollower } from '../../../database/explorer';
 
+const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
 const Explorer = () => {
     const [tab, setTab] = useState<'dojo' | 'lichess'>('dojo');
     const { chess } = useChess();
-    const [fen, setFen] = useState(chess?.fen() || '');
+    const [fen, setFen] = useState(chess?.fen() || startingPositionFen);
     const { position, request, putPosition } = usePosition(fen);
     const [minCohort, setMinCohort] = useState('');
     const [maxCohort, setMaxCohort] = useState('');
@@ -22,6 +24,7 @@ const Explorer = () => {
             const observer = {
                 types: [EventType.Initialized, EventType.LegalMove],
                 handler: (event: Event) => {
+                    console.log('Chess Event: ', event);
                     if (event.type === EventType.Initialized) {
                         setFen(chess.fen());
                     } else {
@@ -30,6 +33,7 @@ const Explorer = () => {
                 },
             };
 
+            setFen(chess.fen());
             chess.addObserver(observer);
             return () => chess.removeObserver(observer);
         }

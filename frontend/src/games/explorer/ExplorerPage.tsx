@@ -1,10 +1,13 @@
 import { Box, Container } from '@mui/material';
-import PgnBoard from '../../board/pgn/PgnBoard';
 import { useSearchParams } from 'react-router-dom';
+
+import PgnBoard from '../../board/pgn/PgnBoard';
+
+const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 const ExplorerPage = () => {
     const [searchParams] = useSearchParams({
-        fen: '',
+        fen: startingPositionFen,
     });
 
     return (
@@ -46,8 +49,7 @@ const ExplorerPage = () => {
                 }}
             >
                 <PgnBoard
-                    pgn={''}
-                    fen={searchParams.get('fen') || ''}
+                    fen={searchParams.get('fen') || startingPositionFen}
                     showExplorer
                     showPlayerHeaders={false}
                 />
