@@ -1,10 +1,16 @@
-import { useMemo } from 'react';
 import { Tooltip, Typography } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
+import { useMemo } from 'react';
 
-import { OpenClassical } from '../../database/tournament';
+import { OpenClassical, OpenClassicalPlayerStatus } from '../../database/tournament';
 
 const NUM_ROUNDS = 7;
+
+const Bye = (
+    <Tooltip title='Player receieved a bye for 0.5 points'>
+        <Typography>Bye</Typography>
+    </Tooltip>
+);
 
 function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
     const result: GridColDef<StandingsTableRow>[] = [];
@@ -27,12 +33,21 @@ function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
             },
             renderCell: (params) => {
                 const round = params.row.rounds[i];
-                if (!round || round.result === 'Bye') {
+                if (!round) {
+                    if (
+                        params.row.lastActiveRound === 0 ||
+                        params.row.lastActiveRound >= i + 1
+                    ) {
+                        return Bye;
+                    }
                     return (
-                        <Tooltip title='Player receieved a bye for 0.5 points'>
-                            <Typography>Bye</Typography>
+                        <Tooltip title='Player was withdrawn'>
+                            <Typography>-</Typography>
                         </Tooltip>
                     );
+                }
+                if (round.result === 'Bye') {
+                    return Bye;
                 }
                 if (round.result === '') {
                     return '';
@@ -115,6 +130,8 @@ interface StandingsTableRow {
             result: Result;
         }
     >;
+    status: OpenClassicalPlayerStatus;
+    lastActiveRound: number;
 }
 
 function getResult(result: string, color: 'w' | 'b'): Result {
@@ -171,6 +188,8 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
                 discordUsername: player.discordUsername,
                 total: 0,
                 rounds: {},
+                status: player.status,
+                lastActiveRound: player.lastActiveRound,
             };
         });
 
@@ -201,15 +220,20 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
         });
 
         const rows = Object.values(players).filter(
-            (v) => v.lichessUsername !== 'No Opponent'
+            (v) => v.lichessUsername !== 'No Opponent',
         );
 
         rows.forEach((player) => {
             for (let i = 0; i < section.rounds.length; i++) {
                 const round = player.rounds[i];
                 if (!round) {
-                    // Player received a bye
-                    player.total += 0.5;
+                    if (
+                        player.lastActiveRound === 0 ||
+                        player.lastActiveRound >= round + 1
+                    ) {
+                        // Player received a bye
+                        player.total += 0.5;
+                    }
                 } else {
                     player.total += getScore(round.result);
                 }

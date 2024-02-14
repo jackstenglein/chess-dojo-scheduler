@@ -94,7 +94,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
         () =>
             Object.values(
                 openClassical.sections[`${region}_${ratingRange}`]?.players || {},
-            ),
+            ).filter((player) => player.lichessUsername !== 'No Opponent'),
         [openClassical, region, ratingRange],
     );
 

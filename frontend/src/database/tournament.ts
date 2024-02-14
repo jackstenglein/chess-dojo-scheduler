@@ -34,6 +34,9 @@ export interface OpenClassicalPlayer {
 
     /** The player's status in the open classical. */
     status: OpenClassicalPlayerStatus;
+
+    /** The round the player was last active, if they are currently banned or withdrawn. */
+    lastActiveRound: number;
 }
 
 export enum OpenClassicalPlayerStatus {
