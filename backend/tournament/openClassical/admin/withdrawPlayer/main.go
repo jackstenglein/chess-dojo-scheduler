@@ -1,9 +1,7 @@
-// This package implements a Lambda handler which bans the provided player
-// from the Open Classical. If the player is present in the current open classical,
-// their info from their registration is copied to the banned players section.
-// If the player is not present, their info from the request is used.
+// This package implements a Lambda handler that withdraws a player from the current
+// open classical.
 //
-// The caller must be an admin or a tournament admin.
+// The caller must be an admin or tournament admin.
 package main
 
 import (
@@ -21,8 +19,8 @@ import (
 
 var repository = database.DynamoDB
 
-type BanPlayerRequest struct {
-	// The Lichess username of the player to ban
+type WithdrawPlayerRequest struct {
+	// The Lichess username of the player to withdraw
 	LichessUsername string `json:"lichessUsername"`
 
 	// The region the player is in
@@ -40,7 +38,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Debugf("Event: %#v", event)
 
-	request := BanPlayerRequest{}
+	request := WithdrawPlayerRequest{}
 	if err := json.Unmarshal([]byte(event.Body), &request); err != nil {
 		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err)), nil
 	}
@@ -96,10 +94,10 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}
 	}
 
-	player.Status = database.OpenClassicalPlayerStatus_Banned
+	player.Status = database.OpenClassicalPlayerStatus_Withdrawn
 	player.LastActiveRound = lastActiveRound
 
-	openClassical, err = repository.BanPlayer(&player)
+	openClassical, err = repository.SetPlayer(&player)
 	if err != nil {
 		return api.Failure(err), nil
 	}

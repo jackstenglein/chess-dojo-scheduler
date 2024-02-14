@@ -2,56 +2,32 @@ import { createContext, ReactNode, useContext, useMemo } from 'react';
 
 import { useAuth } from '../auth/Auth';
 
-import { User } from '../database/user';
 import { Event } from '../database/event';
 import { Requirement } from '../database/requirement';
 import { TimelineEntry } from '../database/timeline';
+import { User } from '../database/user';
 
+import { Club, ClubJoinRequestStatus } from '../database/club';
+import { Course } from '../database/course';
+import { TournamentType } from '../database/tournament';
 import {
-    UserApiContextType,
-    getUser,
-    getUserPublic,
-    listUsersByCohort,
-    searchUsers,
-    updateUser,
-    updateUserProgress,
-    graduate,
-    updateUserTimeline,
-    getUserStatistics,
-    checkUserAccess,
-    listUserTimeline,
-    editFollower,
-    getFollower,
-    listFollowers,
-    listFollowing,
-} from './userApi';
+    ClubApiContextType,
+    createClub,
+    getClub,
+    leaveClub,
+    listClubs,
+    processJoinRequest,
+    requestToJoinClub,
+    updateClub,
+} from './clubApi';
 import {
-    GameApiContextType,
-    CreateGameRequest,
-    createGame,
-    getGame,
-    listGamesByCohort,
-    listGamesByOwner,
-    listFeaturedGames,
-    createComment,
-    featureGame,
-    updateGame,
-    deleteGame,
-    listGamesByOpening,
-    listGamesByPosition,
-} from './gameApi';
-import {
-    RequirementApiContextType,
-    getRequirement,
-    listRequirements,
-    setRequirement,
-} from './requirementApi';
-import {
-    GraduationApiContextType,
-    listGraduationsByCohort,
-    listGraduationsByOwner,
-    listGraduationsByDate,
-} from './graduationApi';
+    CourseApiContextType,
+    getCourse,
+    listAllCourses,
+    listCourses,
+    purchaseCourse,
+    setCourse,
+} from './courseApi';
 import {
     bookEvent,
     cancelEvent,
@@ -64,17 +40,65 @@ import {
     setEvent,
 } from './eventApi';
 import {
-    getCourse,
-    listCourses,
-    CourseApiContextType,
-    listAllCourses,
-    purchaseCourse,
-    setCourse,
-} from './courseApi';
+    ExplorerApiContextType,
+    followPosition,
+    FollowPositionRequest,
+    getPosition,
+} from './explorerApi';
+import {
+    createComment,
+    createGame,
+    CreateGameRequest,
+    deleteGame,
+    featureGame,
+    GameApiContextType,
+    getGame,
+    listFeaturedGames,
+    listGamesByCohort,
+    listGamesByOpening,
+    listGamesByOwner,
+    listGamesByPosition,
+    updateGame,
+} from './gameApi';
+import {
+    GraduationApiContextType,
+    listGraduationsByCohort,
+    listGraduationsByDate,
+    listGraduationsByOwner,
+} from './graduationApi';
+import {
+    createNewsfeedComment,
+    getNewsfeedItem,
+    listNewsfeed,
+    NewsfeedApiContextType,
+    setNewsfeedReaction,
+} from './newsfeedApi';
+import {
+    deleteNotification,
+    listNotifications,
+    NotificationApiContextType,
+} from './notificationApi';
+import {
+    createPaymentAccount,
+    getPaymentAccount,
+    paymentAccountLogin,
+    PaymentApiContextType,
+    subscriptionCheckout,
+    SubscriptionCheckoutRequest,
+    subscriptionManage,
+} from './paymentApi';
+import {
+    getRequirement,
+    listRequirements,
+    RequirementApiContextType,
+    setRequirement,
+} from './requirementApi';
+import { getScoreboard, ScoreboardApiContextType } from './scoreboardApi';
 import {
     adminBanPlayer,
     adminGetRegistrations,
     adminUnbanPlayer,
+    adminWithdrawPlayer,
     getLeaderboard,
     getOpenClassical,
     listPreviousOpenClassicals,
@@ -88,47 +112,24 @@ import {
     TimePeriod,
     TournamentApiContextType,
 } from './tournamentApi';
-import { TournamentType } from '../database/tournament';
 import {
-    NotificationApiContextType,
-    listNotifications,
-    deleteNotification,
-} from './notificationApi';
-import {
-    createNewsfeedComment,
-    getNewsfeedItem,
-    listNewsfeed,
-    NewsfeedApiContextType,
-    setNewsfeedReaction,
-} from './newsfeedApi';
-import { getScoreboard, ScoreboardApiContextType } from './scoreboardApi';
-import {
-    ExplorerApiContextType,
-    followPosition,
-    FollowPositionRequest,
-    getPosition,
-} from './explorerApi';
-import {
-    createPaymentAccount,
-    getPaymentAccount,
-    paymentAccountLogin,
-    PaymentApiContextType,
-    subscriptionCheckout,
-    SubscriptionCheckoutRequest,
-    subscriptionManage,
-} from './paymentApi';
-import { Course } from '../database/course';
-import {
-    ClubApiContextType,
-    createClub,
-    getClub,
-    leaveClub,
-    listClubs,
-    processJoinRequest,
-    requestToJoinClub,
-    updateClub,
-} from './clubApi';
-import { Club, ClubJoinRequestStatus } from '../database/club';
+    checkUserAccess,
+    editFollower,
+    getFollower,
+    getUser,
+    getUserPublic,
+    getUserStatistics,
+    graduate,
+    listFollowers,
+    listFollowing,
+    listUsersByCohort,
+    listUserTimeline,
+    searchUsers,
+    updateUser,
+    updateUserProgress,
+    updateUserTimeline,
+    UserApiContextType,
+} from './userApi';
 
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
@@ -184,7 +185,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 incrementalCount: number,
                 incrementalMinutesSpent: number,
                 date: Date | null,
-                notes: string
+                notes: string,
             ) =>
                 updateUserProgress(
                     idToken,
@@ -194,7 +195,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     incrementalMinutesSpent,
                     date,
                     notes,
-                    auth.updateUser
+                    auth.updateUser,
                 ),
             updateUserTimeline: (
                 requirementId: string,
@@ -202,7 +203,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 updated: TimelineEntry[],
                 deleted: TimelineEntry[],
                 count: number,
-                minutesSpent: number
+                minutesSpent: number,
             ) =>
                 updateUserTimeline(
                     idToken,
@@ -212,7 +213,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     deleted,
                     count,
                     minutesSpent,
-                    auth.updateUser
+                    auth.updateUser,
                 ),
             graduate: (comments: string) => graduate(idToken, comments, auth.updateUser),
             getUserStatistics: () => getUserStatistics(),
@@ -246,7 +247,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 cohort: string,
                 startKey?: string,
                 startDate?: string,
-                endDate?: string
+                endDate?: string,
             ) => listGamesByCohort(idToken, cohort, startKey, startDate, endDate),
             listGamesByOwner: (
                 owner?: string,
@@ -254,7 +255,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 startDate?: string,
                 endDate?: string,
                 player?: string,
-                color?: string
+                color?: string,
             ) =>
                 listGamesByOwner(
                     idToken,
@@ -263,13 +264,13 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                     startDate,
                     endDate,
                     player,
-                    color
+                    color,
                 ),
             listGamesByOpening: (
                 eco: string,
                 startKey?: string,
                 startDate?: string,
-                endDate?: string
+                endDate?: string,
             ) => listGamesByOpening(idToken, eco, startKey, startDate, endDate),
             listGamesByPosition: (fen: string, startKey?: string) =>
                 listGamesByPosition(idToken, fen, startKey),
@@ -282,7 +283,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             listRequirements: (
                 cohort: string,
                 scoreboardOnly: boolean,
-                startKey?: string
+                startKey?: string,
             ) => listRequirements(idToken, cohort, scoreboardOnly, startKey),
             setRequirement: (requirement: Requirement) =>
                 setRequirement(idToken, requirement),
@@ -303,7 +304,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 type: string,
                 id: string,
                 purchaseOption?: string,
-                cancelUrl?: string
+                cancelUrl?: string,
             ) => purchaseCourse(idToken, type, id, purchaseOption, cancelUrl),
             setCourse: (course: Course) => setCourse(idToken, course),
 
@@ -311,7 +312,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 timePeriod: TimePeriod,
                 tournamentType: TournamentType,
                 timeControl: TimeControl,
-                date: string
+                date: string,
             ) => getLeaderboard(timePeriod, tournamentType, timeControl, date),
 
             getOpenClassical: (startsAt?: string) => getOpenClassical(startsAt),
@@ -328,6 +329,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             adminBanPlayer: (username: string, region: string, section: string) =>
                 adminBanPlayer(idToken, username, region, section),
             adminUnbanPlayer: (username: string) => adminUnbanPlayer(idToken, username),
+            adminWithdrawPlayer: (username: string, region: string, section: string) =>
+                adminWithdrawPlayer(idToken, username, region, section),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),
@@ -337,11 +340,11 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             listNewsfeed: (
                 newsfeedIds: string[],
                 skipLastFetch?: boolean,
-                startKey?: string
+                startKey?: string,
             ) => listNewsfeed(idToken, newsfeedIds, skipLastFetch, startKey),
             createNewsfeedComment: (
                 props: { owner: string; id: string },
-                content: string
+                content: string,
             ) => createNewsfeedComment(idToken, props, content),
             setNewsfeedReaction: (owner: string, id: string, types: string[]) =>
                 setNewsfeedReaction(idToken, owner, id, types),
@@ -369,7 +372,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             processJoinRequest: (
                 clubId: string,
                 username: string,
-                status: ClubJoinRequestStatus
+                status: ClubJoinRequestStatus,
             ) => processJoinRequest(idToken, clubId, username, status),
             leaveClub: (clubId: string) => leaveClub(idToken, clubId),
         };

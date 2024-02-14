@@ -237,6 +237,28 @@ functions:
           - dynamodb:GetItem
         Resource:
           - ${param:UsersTableArn}
+  
+  openClassicalAdminWithdrawPlayer:
+    handler: openClassical/admin/withdrawPlayer/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/withdraw-player
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
 
 resources:
   Resources:

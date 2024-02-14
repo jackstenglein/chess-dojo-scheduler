@@ -1,4 +1,4 @@
-import { Block } from '@mui/icons-material';
+import { Block, PersonRemove } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -22,7 +22,11 @@ import { useMemo, useState } from 'react';
 
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { OpenClassical, OpenClassicalPlayer } from '../../../database/tournament';
+import {
+    OpenClassical,
+    OpenClassicalPlayer,
+    OpenClassicalPlayerStatus,
+} from '../../../database/tournament';
 
 export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
     {
@@ -59,13 +63,13 @@ export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
         field: 'status',
         headerName: 'Status',
         valueFormatter(params: GridValueFormatterParams<string>) {
-            if (params.value === '') {
+            if (params.value === OpenClassicalPlayerStatus.Active) {
                 return 'Active';
             }
-            if (params.value === 'BANNED') {
+            if (params.value === OpenClassicalPlayerStatus.Banned) {
                 return 'Banned';
             }
-            if (params.value === 'WITHDRAWN') {
+            if (params.value === OpenClassicalPlayerStatus.Withdrawn) {
                 return 'Withdrawn';
             }
         },
@@ -80,10 +84,11 @@ interface PlayersTabProps {
 const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
     const [region, setRegion] = useState('A');
     const [ratingRange, setRatingRange] = useState('Open');
-    const [banPlayer, setBanPlayer] = useState('');
+    const [updatePlayer, setUpdatePlayer] = useState('');
+    const [updateType, setUpdateType] = useState<'' | 'ban' | 'withdraw'>('');
 
     const api = useApi();
-    const banRequest = useRequest();
+    const updateRequest = useRequest();
 
     const players = useMemo(
         () =>
@@ -99,29 +104,49 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
             type: 'actions',
             headerName: 'Actions',
             getActions: (params) => [
+                <Tooltip title='Withdraw Player'>
+                    <GridActionsCellItem
+                        disabled={params.row.status !== OpenClassicalPlayerStatus.Active}
+                        icon={<PersonRemove />}
+                        label='Withdraw Player'
+                        onClick={() => {
+                            setUpdatePlayer(params.row.lichessUsername);
+                            setUpdateType('withdraw');
+                        }}
+                    />
+                </Tooltip>,
                 <Tooltip title='Ban Player'>
                     <GridActionsCellItem
-                        icon={<Block color='error' />}
+                        disabled={params.row.status === OpenClassicalPlayerStatus.Banned}
+                        color='error'
+                        icon={<Block />}
                         label='Ban Player'
-                        onClick={() => setBanPlayer(params.row.lichessUsername)}
+                        onClick={() => {
+                            setUpdatePlayer(params.row.lichessUsername);
+                            setUpdateType('ban');
+                        }}
                     />
                 </Tooltip>,
             ],
         });
-    }, [setBanPlayer]);
+    }, [setUpdatePlayer]);
 
-    const onConfirmBan = () => {
-        banRequest.onStart();
-        api.adminBanPlayer(banPlayer, region, ratingRange)
+    const onConfirmUpdate = () => {
+        updateRequest.onStart();
+        const func = updateType === 'ban' ? api.adminBanPlayer : api.adminWithdrawPlayer;
+
+        func(updatePlayer, region, ratingRange)
             .then((resp) => {
-                console.log('adminBanPlayer: ', resp);
+                console.log('updatePlayer: ', resp);
                 onUpdate(resp.data);
-                setBanPlayer('');
-                banRequest.onSuccess(`${banPlayer} banned`);
+                setUpdatePlayer('');
+                updateRequest.onSuccess(
+                    `${updatePlayer} ${updateType === 'ban' ? 'banned' : 'withdrawn'}`,
+                );
             })
             .catch((err) => {
-                console.error('adminBanPlayer: ', err);
-                banRequest.onFailure(err);
+                console.error('updatePlayer: ', err);
+                updateRequest.onFailure(err);
             });
     };
 
@@ -169,35 +194,40 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
             />
 
             <Dialog
-                open={Boolean(banPlayer)}
-                onClose={banRequest.isLoading() ? undefined : () => setBanPlayer('')}
+                open={Boolean(updatePlayer)}
+                onClose={
+                    updateRequest.isLoading() ? undefined : () => setUpdatePlayer('')
+                }
                 maxWidth='sm'
                 fullWidth
             >
-                <DialogTitle>Ban {banPlayer}?</DialogTitle>
+                <DialogTitle>
+                    {updateType === 'ban' ? 'Ban' : 'Withdraw'} {updatePlayer}?
+                </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        This player will not be able to participate in future tournaments
-                        unless they are unbanned later.
+                        {updateType === 'ban'
+                            ? 'This player cannot be added back to this tournament and will not be able to participate in future tournaments unless they are unbanned later.'
+                            : 'This action cannot be undone.'}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        onClick={() => setBanPlayer('')}
-                        disabled={banRequest.isLoading()}
+                        onClick={() => setUpdatePlayer('')}
+                        disabled={updateRequest.isLoading()}
                     >
                         Cancel
                     </Button>
                     <LoadingButton
-                        loading={banRequest.isLoading()}
-                        onClick={onConfirmBan}
+                        loading={updateRequest.isLoading()}
+                        onClick={onConfirmUpdate}
                     >
-                        Ban Player
+                        {updateType === 'ban' ? 'Ban' : 'Withdraw'} Player
                     </LoadingButton>
                 </DialogActions>
             </Dialog>
 
-            <RequestSnackbar request={banRequest} showSuccess />
+            <RequestSnackbar request={updateRequest} showSuccess />
         </Stack>
     );
 };

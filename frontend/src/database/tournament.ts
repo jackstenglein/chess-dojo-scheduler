@@ -31,6 +31,15 @@ export interface OpenClassicalPlayer {
 
     /** The player's Lichess rating at the start of the Open Classical. */
     rating: number;
+
+    /** The player's status in the open classical. */
+    status: OpenClassicalPlayerStatus;
+}
+
+export enum OpenClassicalPlayerStatus {
+    Active = '',
+    Withdrawn = 'WITHDRAWN',
+    Banned = 'BANNED',
 }
 
 export interface OpenClassicalPairing {

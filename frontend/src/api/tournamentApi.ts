@@ -21,7 +21,7 @@ export type TournamentApiContextType = {
         timePeriod: TimePeriod,
         tournamentType: TournamentType,
         timeControl: TimeControl,
-        date: string
+        date: string,
     ) => Promise<AxiosResponse<Leaderboard>>;
 
     /**
@@ -38,7 +38,7 @@ export type TournamentApiContextType = {
      * @returns An empty AxiosResponse.
      */
     registerForOpenClassical: (
-        req: OpenClassicalRegistrationRequest
+        req: OpenClassicalRegistrationRequest,
     ) => Promise<AxiosResponse<void, any>>;
 
     /**
@@ -47,7 +47,7 @@ export type TournamentApiContextType = {
      * @returns An empty AxiosResponse.
      */
     submitResultsForOpenClassical: (
-        req: OpenClassicalSubmitResultsRequest
+        req: OpenClassicalSubmitResultsRequest,
     ) => Promise<AxiosResponse<OpenClassical, any>>;
 
     /**
@@ -57,7 +57,7 @@ export type TournamentApiContextType = {
      * @returns An AxiosResponse containing the updated open classical.
      */
     putOpenClassicalPairings: (
-        req: OpenClassicalPutPairingsRequest
+        req: OpenClassicalPutPairingsRequest,
     ) => Promise<AxiosResponse<OpenClassical, any>>;
 
     /**
@@ -75,7 +75,7 @@ export type TournamentApiContextType = {
      */
     adminGetRegistrations: (
         region: string,
-        section: string
+        section: string,
     ) => Promise<AxiosResponse<any, any>>;
 
     /**
@@ -88,7 +88,7 @@ export type TournamentApiContextType = {
     adminBanPlayer: (
         username: string,
         region: string,
-        section: string
+        section: string,
     ) => Promise<AxiosResponse<OpenClassical>>;
 
     /**
@@ -97,6 +97,19 @@ export type TournamentApiContextType = {
      * @returns An AxiosResponse containing the updated open classical.
      */
     adminUnbanPlayer: (username: string) => Promise<AxiosResponse<OpenClassical>>;
+
+    /**
+     * Withdraws the given player from the current open classical.
+     * @param username The Lichess username of the player to withdraw.
+     * @param region The region the player is in.
+     * @param section The section the player is in.
+     * @returns An AxiosResponse containing the updated open classical.
+     */
+    adminWithdrawPlayer: (
+        username: string,
+        region: string,
+        section: string,
+    ) => Promise<AxiosResponse<OpenClassical>>;
 };
 
 /** A request to register for the Open Classical. */
@@ -152,7 +165,7 @@ export function getLeaderboard(
     timePeriod: TimePeriod,
     tournamentType: TournamentType,
     timeControl: TimeControl,
-    date: string
+    date: string,
 ) {
     return axios.get<Leaderboard>(`${BASE_URL}/public/tournaments/leaderboard`, {
         params: {
@@ -184,14 +197,14 @@ export function getOpenClassical(startsAt?: string) {
  */
 export function registerForOpenClassical(
     idToken: string,
-    req: OpenClassicalRegistrationRequest
+    req: OpenClassicalRegistrationRequest,
 ) {
     return axios.post<void>(
         `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/register`,
         req,
         {
             headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
-        }
+        },
     );
 }
 
@@ -203,14 +216,14 @@ export function registerForOpenClassical(
  */
 export function submitResultsForOpenClassical(
     idToken: string,
-    req: OpenClassicalSubmitResultsRequest
+    req: OpenClassicalSubmitResultsRequest,
 ) {
     return axios.post<OpenClassical>(
         `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/results`,
         req,
         {
             headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
-        }
+        },
     );
 }
 
@@ -224,12 +237,12 @@ export function submitResultsForOpenClassical(
  */
 export function putOpenClassicalPairings(
     idToken: string,
-    req: OpenClassicalPutPairingsRequest
+    req: OpenClassicalPutPairingsRequest,
 ) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/pairings`,
         req,
-        { headers: { Authorization: 'Bearer ' + idToken } }
+        { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }
 
@@ -252,7 +265,7 @@ export async function listPreviousOpenClassicals(startKey?: string) {
             `${BASE_URL}/public/tournaments/open-classical/previous`,
             {
                 params,
-            }
+            },
         );
 
         result.push(...resp.data.openClassicals);
@@ -282,7 +295,7 @@ export function adminBanPlayer(
     idToken: string,
     lichessUsername: string,
     region: string,
-    section: string
+    section: string,
 ) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/ban-player`,
@@ -293,7 +306,7 @@ export function adminBanPlayer(
         },
         {
             headers: { Authorization: 'Bearer ' + idToken },
-        }
+        },
     );
 }
 
@@ -307,6 +320,26 @@ export function adminUnbanPlayer(idToken: string, lichessUsername: string) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/unban-player`,
         { lichessUsername },
-        { headers: { Authorization: 'Bearer ' + idToken } }
+        { headers: { Authorization: 'Bearer ' + idToken } },
+    );
+}
+
+/**
+ * Withdraws the given player from the open classical.
+ * @param idToken The id token of the current signed-in user.
+ * @param lichessUsername The Lichess username of the player to withdraw.
+ * @param region The region the player is in.
+ * @param section The section the player is in.
+ */
+export function adminWithdrawPlayer(
+    idToken: string,
+    lichessUsername: string,
+    region: string,
+    section: string,
+) {
+    return axios.put<OpenClassical>(
+        `${BASE_URL}/tournaments/open-classical/admin/withdraw-player`,
+        { lichessUsername, region, section },
+        { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }

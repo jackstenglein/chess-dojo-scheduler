@@ -517,3 +517,46 @@ func (repo *dynamoRepository) UnbanPlayer(username string) (*OpenClassical, erro
 	}
 	return result, nil
 }
+
+// Sets a player in the current open classical. The player must already exist in the given
+// region and section.
+func (repo *dynamoRepository) SetPlayer(player *OpenClassicalPlayer) (*OpenClassical, error) {
+	item, err := dynamodbattribute.MarshalMap(player)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to marshal player", err)
+	}
+
+	username := strings.ToLower(player.LichessUsername)
+	updateExpr := "SET #sections.#sectionName.#players.#username = :item"
+	exprAttrNames := map[string]*string{
+		"#sections":    aws.String("sections"),
+		"#sectionName": aws.String(fmt.Sprintf("%s_%s", player.Region, player.Section)),
+		"#players":     aws.String("players"),
+		"#username":    aws.String(username),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{
+		":item": {M: item},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
+			"startsAt": {S: aws.String(CurrentLeaderboard)},
+		},
+		ConditionExpression:       aws.String("attribute_exists(#sections.#sectionName.#players.#username)"),
+		UpdateExpression:          aws.String(updateExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		TableName:                 aws.String(tournamentTable),
+		ReturnValues:              aws.String("ALL_NEW"),
+	}
+
+	result := &OpenClassical{}
+	if err := repo.updateItem(input, result); err != nil {
+		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(404, "Invalid request: player does not exist", "DynamoDB conditional check failed", err)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+	return result, nil
+}
