@@ -1,5 +1,3 @@
-import React, { useCallback, useEffect } from 'react';
-import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import {
     Button,
     Container,
@@ -11,17 +9,18 @@ import {
     Typography,
 } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
+import React, { useCallback, useEffect } from 'react';
+import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { OpenClassical, OpenClassicalPairing } from '../../database/tournament';
-import LoadingPage from '../../loading/LoadingPage';
-import { useAuth } from '../../auth/Auth';
-import Editor from './Editor';
-import StandingsTable from './StandingsTable';
-import EntrantsTable from './EntrantsTable';
 import { OpenInNew, Warning } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
+import { OpenClassical, OpenClassicalPairing } from '../../database/tournament';
+import LoadingPage from '../../loading/LoadingPage';
+import EntrantsTable from './EntrantsTable';
+import StandingsTable from './StandingsTable';
 
 const DetailsPage = () => {
     const api = useApi();
@@ -29,13 +28,14 @@ const DetailsPage = () => {
     const user = useAuth().user;
     const [searchParams] = useSearchParams({ tournament: 'CURRENT' });
     const tournament = searchParams.get('tournament') || 'CURRENT';
+    const navigate = useNavigate();
 
     const onSuccess = request.onSuccess;
     const handleData = useCallback(
         (openClassical: OpenClassical) => {
             onSuccess(openClassical);
         },
-        [onSuccess]
+        [onSuccess],
     );
 
     const reset = request.reset;
@@ -81,8 +81,11 @@ const DetailsPage = () => {
                         Previous Tournaments
                     </Link>
                 </Stack>
+
                 {(user?.isAdmin || user?.isTournamentAdmin) && (
-                    <Editor openClassical={request.data} onSuccess={handleData} />
+                    <Button variant='contained' onClick={() => navigate('./admin')}>
+                        Admin Portal
+                    </Button>
                 )}
             </Stack>
 

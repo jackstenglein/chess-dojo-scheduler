@@ -154,6 +154,9 @@ type OpenClassicalSection struct {
 
 // OpenClassicalRound represents a single round in the Open Classical tournaments.
 type OpenClassicalRound struct {
+	// Whether emails for the pairings were sent
+	PairingEmailsSent bool `dynamodbav:"pairingEmailsSent" json:"pairingEmailsSent"`
+
 	// The list of pairings for the round
 	Pairings []OpenClassicalPairing `dynamodbav:"pairings" json:"pairings"`
 }
@@ -213,7 +216,20 @@ type OpenClassicalPlayer struct {
 
 	// The player's bye requests
 	ByeRequests []bool `dynamodbav:"byeRequests" json:"byeRequests"`
+
+	// The status of the player in this Open Classical
+	Status OpenClassicalPlayerStatus `dynamodbav:"status,omitempty" json:"status"`
+
+	// The last round the player was active in the tournament, if they are banned or withdrawn
+	LastActiveRound int `dynamodbav:"lastActiveRound,omitempty" json:"lastActiveRound"`
 }
+
+type OpenClassicalPlayerStatus string
+
+const (
+	OpenClassicalPlayerStatus_Banned    OpenClassicalPlayerStatus = "BANNED"
+	OpenClassicalPlayerStatus_Withdrawn OpenClassicalPlayerStatus = "WITHDRAWN"
+)
 
 type OpenClassicalPairingUpdate struct {
 	Region       string
@@ -398,4 +414,106 @@ func (repo *dynamoRepository) UpdateOpenClassicalResult(update *OpenClassicalPai
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
 	}
 	return &resultTnmt, nil
+}
+
+// Sets the pairing emails sent flag to true for all sections in the current open classical.
+func (repo *dynamoRepository) SetPairingEmailsSent(openClassical *OpenClassical, round int) (*OpenClassical, error) {
+	exprAttrNames := map[string]*string{
+		"#sections": aws.String("sections"),
+		"#rounds":   aws.String("rounds"),
+		"#emails":   aws.String("pairingEmailsSent"),
+	}
+
+	updateExpr := "SET "
+	for key, _ := range openClassical.Sections {
+		sectionName := fmt.Sprintf("#%s", key)
+		updateExpr += fmt.Sprintf("#sections.%s.#rounds[%d].#emails = :true, ", sectionName, round)
+		exprAttrNames[sectionName] = aws.String(key)
+	}
+	updateExpr = updateExpr[0 : len(updateExpr)-2]
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(openClassical.Type))},
+			"startsAt": {S: aws.String(openClassical.StartsAt)},
+		},
+		UpdateExpression:         aws.String(updateExpr),
+		ExpressionAttributeNames: exprAttrNames,
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":true": {BOOL: aws.Bool(true)},
+		},
+		TableName:    aws.String(tournamentTable),
+		ReturnValues: aws.String("ALL_NEW"),
+	}
+
+	result := &OpenClassical{}
+	if err := repo.updateItem(input, result); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+	}
+	return result, nil
+}
+
+// Bans the given player in the current open classical.
+func (repo *dynamoRepository) BanPlayer(player *OpenClassicalPlayer) (*OpenClassical, error) {
+	item, err := dynamodbattribute.MarshalMap(player)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to marshal player", err)
+	}
+
+	username := strings.ToLower(player.LichessUsername)
+	updateExpr := "SET #bannedPlayers.#username = :item, #sections.#sectionName.#players.#username = :item"
+	exprAttrNames := map[string]*string{
+		"#bannedPlayers": aws.String("bannedPlayers"),
+		"#username":      aws.String(username),
+		"#sections":      aws.String("sections"),
+		"#sectionName":   aws.String(fmt.Sprintf("%s_%s", player.Region, player.Section)),
+		"#players":       aws.String("players"),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{
+		":item": {M: item},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
+			"startsAt": {S: aws.String(CurrentLeaderboard)},
+		},
+		UpdateExpression:          aws.String(updateExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		TableName:                 aws.String(tournamentTable),
+		ReturnValues:              aws.String("ALL_NEW"),
+	}
+
+	result := &OpenClassical{}
+	if err := repo.updateItem(input, result); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+	return result, nil
+}
+
+// Unbans the given player in the current open classical.
+func (repo *dynamoRepository) UnbanPlayer(username string) (*OpenClassical, error) {
+	updateExpr := "REMOVE #bannedPlayers.#username"
+	exprAttrNames := map[string]*string{
+		"#bannedPlayers": aws.String("bannedPlayers"),
+		"#username":      aws.String(strings.ToLower(username)),
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
+			"startsAt": {S: aws.String(CurrentLeaderboard)},
+		},
+		UpdateExpression:         aws.String(updateExpr),
+		ExpressionAttributeNames: exprAttrNames,
+		TableName:                aws.String(tournamentTable),
+		ReturnValues:             aws.String("ALL_NEW"),
+	}
+
+	result := &OpenClassical{}
+	if err := repo.updateItem(input, result); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+	return result, nil
 }

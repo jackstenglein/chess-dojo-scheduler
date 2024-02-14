@@ -70,6 +70,9 @@ export interface OpenClassical {
 
     /** The sections in the tournament. */
     sections: Record<string, OpenClassicalSection>;
+
+    /** Players who are not in good standing and cannot register, mapped by their Lichess username. */
+    bannedPlayers: Record<string, OpenClassicalPlayer>;
 }
 
 export interface OpenClassicalSection {

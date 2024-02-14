@@ -72,7 +72,9 @@ import {
     setCourse,
 } from './courseApi';
 import {
+    adminBanPlayer,
     adminGetRegistrations,
+    adminUnbanPlayer,
     getLeaderboard,
     getOpenClassical,
     listPreviousOpenClassicals,
@@ -323,6 +325,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listPreviousOpenClassicals(startKey),
             adminGetRegistrations: (region: string, section: string) =>
                 adminGetRegistrations(idToken, region, section),
+            adminBanPlayer: (username: string, region: string, section: string) =>
+                adminBanPlayer(idToken, username, region, section),
+            adminUnbanPlayer: (username: string) => adminUnbanPlayer(idToken, username),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),

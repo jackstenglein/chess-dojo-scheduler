@@ -173,6 +173,71 @@ functions:
           - ${param:TournamentsTableArn}
           - ${param:UsersTableArn}
 
+  openClassicalAdminSendPairings:
+    handler: openClassical/admin/emailPairings/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/email-pairings
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+
+  openClassicalAdminBanPlayer:
+    handler: openClassical/admin/banPlayer/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/ban-player
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+
+  openClassicalAdminUnbanPlayer:
+    handler: openClassical/admin/unbanPlayer/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/unban-player
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+
 resources:
   Resources:
     SnapshotTournamentLeaderboardTimeoutAlarm:
