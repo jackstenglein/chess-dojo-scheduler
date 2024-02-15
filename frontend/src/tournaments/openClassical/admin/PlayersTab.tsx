@@ -21,6 +21,7 @@ import {
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
 
+import { useSearchParams } from 'react-router-dom';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
 import {
@@ -118,14 +119,24 @@ interface PlayersTabProps {
 }
 
 const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
-    const [region, setRegion] = useState('A');
-    const [ratingRange, setRatingRange] = useState('Open');
+    const [searchParams, setSearchParams] = useSearchParams({
+        region: 'A',
+        ratingRange: 'Open',
+    });
+    const updateSearchParams = (key: string, value: string) => {
+        const updatedParams = new URLSearchParams(searchParams.toString());
+        updatedParams.set(key, value);
+        setSearchParams(updatedParams);
+    };
+
     const [updatePlayer, setUpdatePlayer] = useState('');
     const [updateType, setUpdateType] = useState<'' | 'ban' | 'withdraw'>('');
 
     const api = useApi();
     const updateRequest = useRequest();
 
+    const region = searchParams.get('region') || 'A';
+    const ratingRange = searchParams.get('ratingRange') || 'Open';
     const players = useMemo(
         () =>
             Object.values(
@@ -193,7 +204,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                     label='Region'
                     select
                     value={region}
-                    onChange={(e) => setRegion(e.target.value)}
+                    onChange={(e) => updateSearchParams('region', e.target.value)}
                     sx={{
                         flexGrow: 1,
                     }}
@@ -207,7 +218,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                     label='Section'
                     select
                     value={ratingRange}
-                    onChange={(e) => setRatingRange(e.target.value)}
+                    onChange={(e) => updateSearchParams('ratingRange', e.target.value)}
                     sx={{
                         flexGrow: 1,
                     }}

@@ -5,20 +5,18 @@ import {
     MenuItem,
     Stack,
     TextField,
-    Tooltip,
     Typography,
 } from '@mui/material';
-import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import React, { useCallback, useEffect } from 'react';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 
-import { OpenInNew, Warning } from '@mui/icons-material';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
-import { OpenClassical, OpenClassicalPairing } from '../../database/tournament';
+import { OpenClassical } from '../../database/tournament';
 import LoadingPage from '../../loading/LoadingPage';
 import EntrantsTable from './EntrantsTable';
+import PairingsTable from './PairingsTable';
 import StandingsTable from './StandingsTable';
 
 const DetailsPage = () => {
@@ -104,20 +102,13 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
         view: 'standings',
     });
 
-    const region = searchParams.get('region') || 'A';
-    const ratingRange = searchParams.get('ratingRange') || 'Open';
-    const view = searchParams.get('view') || 'standings';
-
     if (!openClassical) {
         return null;
     }
 
-    const pairings =
-        view === 'standings'
-            ? []
-            : openClassical.sections[`${region}_${ratingRange}`]?.rounds[
-                  parseInt(view) - 1
-              ]?.pairings ?? [];
+    const region = searchParams.get('region') || 'A';
+    const ratingRange = searchParams.get('ratingRange') || 'Open';
+    const view = searchParams.get('view') || 'standings';
 
     const maxRound =
         openClassical.sections[`${region}_${ratingRange}`]?.rounds.length || 0;
@@ -211,13 +202,11 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
             </Stack>
 
             {openClassical.acceptingRegistrations ? (
-                <Stack spacing={3}>
-                    <EntrantsTable
-                        openClassical={openClassical}
-                        region={region}
-                        ratingRange={ratingRange}
-                    />
-                </Stack>
+                <EntrantsTable
+                    openClassical={openClassical}
+                    region={region}
+                    ratingRange={ratingRange}
+                />
             ) : view === 'standings' ? (
                 <StandingsTable
                     openClassical={openClassical}
@@ -225,94 +214,15 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     ratingRange={ratingRange}
                 />
             ) : (
-                <DataGridPro
-                    columns={pairingTableColumns}
-                    rows={pairings}
-                    getRowId={(pairing) =>
-                        `${pairing.white.lichessUsername}-${pairing.black.lichessUsername}`
-                    }
-                    autoHeight
+                <PairingsTable
+                    openClassical={openClassical}
+                    region={region}
+                    ratingRange={ratingRange}
+                    round={parseInt(view)}
                 />
             )}
         </Stack>
     );
 };
-
-const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
-    {
-        field: 'whiteLichess',
-        headerName: 'White (Lichess)',
-        valueGetter: (params) =>
-            `${params.row.white.lichessUsername}${
-                params.row.white.rating ? ` (${params.row.white.rating})` : ''
-            }`,
-        flex: 1,
-    },
-    {
-        field: 'whiteDiscord',
-        headerName: 'White (Discord)',
-        valueGetter: (params) => params.row.white.discordUsername,
-        flex: 1,
-    },
-    {
-        field: 'blackLichess',
-        headerName: 'Black (Lichess)',
-        valueGetter: (params) =>
-            `${params.row.black.lichessUsername}${
-                params.row.black.rating ? ` (${params.row.black.rating})` : ''
-            }`,
-        flex: 1,
-    },
-    {
-        field: 'blackDiscord',
-        headerName: 'Black (Discord)',
-        valueGetter: (params) => params.row.black.discordUsername,
-        flex: 1,
-    },
-    {
-        field: 'result',
-        headerName: 'Result',
-        flex: 0.5,
-        align: 'center',
-        headerAlign: 'center',
-        renderCell: (params) => {
-            if (params.value === '*') {
-                return params.value;
-            }
-            if (params.row.verified) {
-                return params.value;
-            }
-            return (
-                <Stack direction='row' alignItems='center' spacing={1}>
-                    <div>{params.value}</div>
-                    <Tooltip title='This result has not been verified and may be changed later by the TD'>
-                        <Warning color='warning' fontSize='small' />
-                    </Tooltip>
-                </Stack>
-            );
-        },
-    },
-    {
-        field: 'gameUrl',
-        headerName: 'Game',
-        width: 75,
-        align: 'center',
-        headerAlign: 'center',
-        renderCell: (params) => {
-            if (
-                params.value &&
-                (params.value.startsWith('https://lichess.org/') ||
-                    params.value.startsWith('https://www.chess.com/'))
-            ) {
-                return (
-                    <a target='_blank' rel='noopener noreferrer' href={params.value}>
-                        <OpenInNew color='primary' fontSize='small' />
-                    </a>
-                );
-            }
-            return null;
-        },
-    },
-];
 
 export default DetailsPage;

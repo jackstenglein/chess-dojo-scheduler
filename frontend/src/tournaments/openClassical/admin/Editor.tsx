@@ -1,22 +1,22 @@
-import { useState } from 'react';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Dialog,
     DialogActions,
     DialogContent,
+    DialogContentText,
     DialogTitle,
-    TextField,
     MenuItem,
     Stack,
-    DialogContentText,
+    TextField,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { useState } from 'react';
 
-import { OpenClassical } from '../../database/tournament';
-import { useAuth } from '../../auth/Auth';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useApi } from '../../api/Api';
-import { OpenClassicalPutPairingsRequest } from '../../api/tournamentApi';
+import { useApi } from '../../../api/Api';
+import { RequestSnackbar, useRequest } from '../../../api/Request';
+import { OpenClassicalPutPairingsRequest } from '../../../api/tournamentApi';
+import { useAuth } from '../../../auth/Auth';
+import { OpenClassical } from '../../../database/tournament';
 
 interface EditorProps {
     openClassical?: OpenClassical;
@@ -96,12 +96,8 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
     if (openClassical.acceptingRegistrations) {
         return (
             <>
-                <Button
-                    variant='contained'
-                    sx={{ mt: 1, mb: 3 }}
-                    onClick={() => setOpen(true)}
-                >
-                    Edit Tournament
+                <Button variant='contained' onClick={() => setOpen(true)}>
+                    Edit Pairings
                 </Button>
                 <Dialog open={open} onClose={handleClose} maxWidth='sm' fullWidth>
                     <DialogTitle>Edit Tournament</DialogTitle>
@@ -127,15 +123,11 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
 
     return (
         <>
-            <Button
-                variant='contained'
-                sx={{ mt: 1, mb: 3 }}
-                onClick={() => setOpen(true)}
-            >
-                Edit Tournament
+            <Button variant='contained' onClick={() => setOpen(true)}>
+                Edit Pairings
             </Button>
             <Dialog open={open} onClose={handleClose} maxWidth='sm' fullWidth>
-                <DialogTitle>Edit Tournament</DialogTitle>
+                <DialogTitle>Edit Pairings</DialogTitle>
                 <DialogContent>
                     <Stack pt={1} spacing={3}>
                         <TextField

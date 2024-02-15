@@ -9,6 +9,7 @@ import { AuthStatus, useAuth } from '../../../auth/Auth';
 import { OpenClassical } from '../../../database/tournament';
 import LoadingPage from '../../../loading/LoadingPage';
 import BannedPlayersTab from './BannedPlayersTab';
+import PairingsTab from './PairingsTab';
 import PlayersTab from './PlayersTab';
 
 const AdminPage = () => {
@@ -69,7 +70,12 @@ const AdminPage = () => {
                             onUpdate={request.onSuccess}
                         />
                     </TabPanel>
-                    <TabPanel value='pairings'>Pairings</TabPanel>
+                    <TabPanel value='pairings'>
+                        <PairingsTab
+                            openClassical={request.data}
+                            onUpdate={request.onSuccess}
+                        />
+                    </TabPanel>
                     <TabPanel value='bannedPlayers'>
                         <BannedPlayersTab
                             openClassical={request.data}
