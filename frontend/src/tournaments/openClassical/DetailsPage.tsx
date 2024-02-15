@@ -13,7 +13,6 @@ import React, { useCallback, useEffect } from 'react';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { OpenInNew, Warning } from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
@@ -99,14 +98,11 @@ interface DetailsProps {
 }
 
 const Details: React.FC<DetailsProps> = ({ openClassical }) => {
-    const user = useAuth().user;
     const [searchParams, setSearchParams] = useSearchParams({
         region: 'A',
         ratingRange: 'Open',
         view: 'standings',
     });
-    const api = useApi();
-    const downloadRequest = useRequest();
 
     const region = searchParams.get('region') || 'A';
     const ratingRange = searchParams.get('ratingRange') || 'Open';
@@ -130,24 +126,6 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
         const updatedParams = new URLSearchParams(searchParams.toString());
         updatedParams.set(key, value);
         setSearchParams(updatedParams);
-    };
-
-    const onDownloadRegistrations = () => {
-        downloadRequest.onStart();
-        api.adminGetRegistrations(region, ratingRange)
-            .then((resp) => {
-                console.log('adminGetRegistrations: ', resp);
-                const link = document.createElement('a');
-                link.href = window.URL.createObjectURL(resp.data);
-                link.download = `${region}_${ratingRange}_Registrations.csv`;
-                link.click();
-                downloadRequest.onSuccess();
-                link.remove();
-            })
-            .catch((err) => {
-                console.error('adminGetRegistrations: ', err);
-                downloadRequest.onFailure();
-            });
     };
 
     return (
@@ -231,21 +209,6 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     </TextField>
                 )}
             </Stack>
-
-            {(user?.isAdmin || user?.isTournamentAdmin) && (
-                <>
-                    <RequestSnackbar request={downloadRequest} />
-
-                    <LoadingButton
-                        loading={downloadRequest.isLoading()}
-                        onClick={onDownloadRegistrations}
-                        variant='contained'
-                        sx={{ alignSelf: 'start' }}
-                    >
-                        Download Registrations
-                    </LoadingButton>
-                </>
-            )}
 
             {openClassical.acceptingRegistrations ? (
                 <Stack spacing={3}>

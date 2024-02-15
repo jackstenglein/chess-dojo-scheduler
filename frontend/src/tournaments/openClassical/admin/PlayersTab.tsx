@@ -1,4 +1,4 @@
-import { Block, PersonRemove } from '@mui/icons-material';
+import { Block, PersonRemove, SaveAlt } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -16,6 +16,7 @@ import {
     DataGridPro,
     GridActionsCellItem,
     GridColDef,
+    GridToolbarContainer,
     GridValueFormatterParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
@@ -75,6 +76,41 @@ export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
         },
     },
 ];
+
+function CustomToolbar({ region, ratingRange }: { region: string; ratingRange: string }) {
+    const api = useApi();
+    const downloadRequest = useRequest();
+
+    const onDownloadRegistrations = () => {
+        downloadRequest.onStart();
+        api.adminGetRegistrations(region, ratingRange)
+            .then((resp) => {
+                console.log('adminGetRegistrations: ', resp);
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(resp.data);
+                link.download = `${region}_${ratingRange}_Registrations.csv`;
+                link.click();
+                downloadRequest.onSuccess();
+                link.remove();
+            })
+            .catch((err) => {
+                console.error('adminGetRegistrations: ', err);
+                downloadRequest.onFailure();
+            });
+    };
+
+    return (
+        <GridToolbarContainer>
+            <LoadingButton
+                startIcon={<SaveAlt />}
+                loading={downloadRequest.isLoading()}
+                onClick={onDownloadRegistrations}
+            >
+                Download Registrations
+            </LoadingButton>
+        </GridToolbarContainer>
+    );
+}
 
 interface PlayersTabProps {
     openClassical: OpenClassical;
@@ -189,6 +225,15 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                 initialState={{
                     sorting: {
                         sortModel: [{ field: 'lichessUsername', sort: 'asc' }],
+                    },
+                }}
+                slots={{
+                    toolbar: CustomToolbar,
+                }}
+                slotProps={{
+                    toolbar: {
+                        region,
+                        ratingRange,
                     },
                 }}
             />
