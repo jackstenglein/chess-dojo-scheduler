@@ -18,21 +18,21 @@ import {
     GridValueFormatterParams,
 } from '@mui/x-data-grid-pro';
 
+import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
+import { RequestSnackbar } from '../../api/Request';
 import { GameInfo } from '../../database/game';
 import { RenderPlayers, RenderResult } from './GameListItem';
-import { RequestSnackbar } from '../../api/Request';
-import { useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
 import SearchFilters from './SearchFilters';
 
-import { usePagination } from './pagination';
-import ListGamesTutorial from './ListGamesTutorial';
-import { useFreeTier } from '../../auth/Auth';
-import React, { useMemo, useState } from 'react';
-import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
-import UpsellAlert from '../../upsell/UpsellAlert';
-import UpsellPage from '../../upsell/UpsellPage';
-import Avatar from '../../profile/Avatar';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
+import React, { useMemo, useState } from 'react';
+import { useFreeTier } from '../../auth/Auth';
+import Avatar from '../../profile/Avatar';
+import UpsellAlert from '../../upsell/UpsellAlert';
+import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import UpsellPage from '../../upsell/UpsellPage';
+import ListGamesTutorial from './ListGamesTutorial';
+import { usePagination } from './pagination';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
@@ -133,11 +133,19 @@ const ListGamesPage = () => {
     const type = useSearchParams()[0].get('type') || '';
 
     const columns = useMemo(() => {
+        let columns = gameTableColumns;
         if (type === 'owner') {
-            return gameTableColumns.filter((c) => c.field !== 'owner');
+            columns = columns.filter((c) => c.field !== 'owner');
         }
-        return gameTableColumns;
-    }, [type]);
+        if (isFreeTier) {
+            columns = columns.map((col) => ({
+                ...col,
+                filterable: false,
+                sortable: false,
+            }));
+        }
+        return columns;
+    }, [type, isFreeTier]);
 
     const {
         request,
@@ -155,8 +163,8 @@ const ListGamesPage = () => {
         navigate(
             `${params.row.cohort.replaceAll('+', '%2B')}/${params.row.id.replaceAll(
                 '?',
-                '%3F'
-            )}`
+                '%3F',
+            )}`,
         );
     };
 
@@ -218,10 +226,14 @@ const ListGamesPage = () => {
                     <DataGridPro
                         data-cy='games-table'
                         columns={columns}
-                        rows={isFreeTier ? data.slice(0, 10) : data}
-                        rowCount={isFreeTier ? Math.min(rowCount, 10) : rowCount}
-                        pageSizeOptions={[5, 10, 25]}
-                        paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
+                        rows={data}
+                        rowCount={rowCount}
+                        pageSizeOptions={isFreeTier ? [10] : [5, 10, 25]}
+                        paginationModel={
+                            isFreeTier
+                                ? { page: 0, pageSize: 10 }
+                                : { page: data.length > 0 ? page : 0, pageSize }
+                        }
                         onPaginationModelChange={onPaginationModelChange}
                         loading={request.isLoading()}
                         autoHeight
@@ -316,6 +328,8 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
     onPrevPage,
     onNextPage,
 }) => {
+    const isFreeTier = useFreeTier();
+
     return (
         <GridPagination
             labelDisplayedRows={({ from, to, count }) => {
@@ -341,7 +355,10 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
                                 aria-label='Go to next page'
                                 title='Go to next page'
                                 onClick={onNextPage}
-                                disabled={(page + 1) * pageSize >= count && !hasMore}
+                                disabled={
+                                    isFreeTier ||
+                                    ((page + 1) * pageSize >= count && !hasMore)
+                                }
                             >
                                 <KeyboardArrowRight />
                             </IconButton>

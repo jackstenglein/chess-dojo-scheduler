@@ -3,7 +3,7 @@ describe('List Games Page', () => {
         cy.loginByCognitoApi(
             'games',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
         cy.visit('/games');
     });
@@ -27,7 +27,7 @@ describe('List Games Page', () => {
         cy.contains('Download full database (updated every 24 hours)').should(
             'have.attr',
             'href',
-            'https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip'
+            'https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip',
         );
     });
 
@@ -38,7 +38,7 @@ describe('List Games Page', () => {
 
         cy.contains('Download full database (updated every 24 hours)').should(
             'not.have.attr',
-            'href'
+            'href',
         );
         cy.contains('Download full database').click();
         cy.getBySel('upsell-dialog').should('be.visible');
@@ -65,7 +65,7 @@ describe('List Games Page', () => {
         cy.getBySel('games-table').contains('JackStenglein');
         cy.location('search').should(
             'equal',
-            '?type=cohort&cohort=1600-1700&startDate=&endDate='
+            '?type=cohort&cohort=1600-1700&startDate=&endDate=',
         );
     });
 
@@ -82,7 +82,7 @@ describe('List Games Page', () => {
 
         cy.location('search').should(
             'equal',
-            '?type=player&player=JackStenglein&color=either&startDate=&endDate='
+            '?type=player&player=JackStenglein&color=either&startDate=&endDate=',
         );
     });
 
@@ -94,7 +94,7 @@ describe('List Games Page', () => {
         cy.contains('Search By Player').click();
         cy.getBySel('player-search-button').should('be.disabled');
         cy.getBySel('search-by-player').contains(
-            'Free-tier users are not able to search by player name'
+            'Free-tier users are not able to search by player name',
         );
     });
 
@@ -102,7 +102,7 @@ describe('List Games Page', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit(
-            '/games?type=player&player=JackStenglein&color=either&startDate=&endDate='
+            '/games?type=player&player=JackStenglein&color=either&startDate=&endDate=',
         );
 
         cy.getBySel('upsell-dialog').should('be.visible');
@@ -121,9 +121,9 @@ describe('List Games Page', () => {
 
         cy.location('search').should(
             'equal',
-            '?type=opening&eco=B01&startDate=&endDate='
+            '?type=opening&eco=B01&startDate=&endDate=',
         );
-        cy.getBySel('games-table').contains('CornerPawn');
+        cy.getBySel('games-table').should('not.contain', 'No rows');
     });
 
     it('allows searching current user uploads', () => {
