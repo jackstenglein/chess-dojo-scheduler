@@ -54,7 +54,7 @@ const ClubsTab: React.FC<ClubsTabProps> = ({ user }) => {
     }
 
     return (
-        <Stack>
+        <Stack spacing={2}>
             <RequestSnackbar request={request} />
 
             {displayedClubs.map((club) => (
