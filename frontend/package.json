@@ -81,6 +81,8 @@
         ]
     },
     "devDependencies": {
+        "@aws-sdk/client-dynamodb": "^3.515.0",
+        "@aws-sdk/util-dynamodb": "^3.515.0",
         "@types/lodash.debounce": "^4.0.9",
         "@types/luxon": "^3.4.2",
         "@types/react-copy-to-clipboard": "^5.0.7",
