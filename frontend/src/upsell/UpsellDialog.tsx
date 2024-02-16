@@ -7,8 +7,8 @@ import {
     DialogTitle,
 } from '@mui/material';
 import { useEffect } from 'react';
-import { EventType, trackEvent } from '../analytics/events';
 import { useNavigate } from 'react-router-dom';
+import { EventType, trackEvent } from '../analytics/events';
 
 export enum RestrictedAction {
     AccessAllTasks = 'Access all training plan tasks for all cohorts (0-2500)',
@@ -21,6 +21,7 @@ export enum RestrictedAction {
     DownloadDatabase = 'Download the full Dojo Database',
     SearchDatabase = 'Search the Dojo Database by player',
     DatabaseExplorer = 'Search the Dojo Database by position',
+    CreateClubs = 'Create new clubs',
 }
 
 const defaultBulletPoints = [

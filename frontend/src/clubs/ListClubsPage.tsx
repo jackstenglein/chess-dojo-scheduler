@@ -1,12 +1,25 @@
 import { TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useFreeTier } from '../auth/Auth';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import AllClubsTab from './AllClubsTab';
 import MyClubsTab from './MyClubsTab';
 
 const ListClubsPage = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams({ view: 'all' });
+    const isFreeTier = useFreeTier();
+    const [upsellAction, setUpsellAction] = useState('');
+
+    const onCreateClub = () => {
+        if (isFreeTier) {
+            setUpsellAction(RestrictedAction.CreateClubs);
+        } else {
+            navigate('/clubs/create');
+        }
+    };
 
     return (
         <Container sx={{ py: 4 }}>
@@ -20,7 +33,7 @@ const ListClubsPage = () => {
             >
                 <Typography variant='h5'>Clubs</Typography>
 
-                <Button variant='contained' onClick={() => navigate('/clubs/create')}>
+                <Button variant='contained' onClick={onCreateClub}>
                     Create Club
                 </Button>
             </Stack>
@@ -44,6 +57,12 @@ const ListClubsPage = () => {
                     <MyClubsTab />
                 </TabPanel>
             </TabContext>
+
+            <UpsellDialog
+                open={Boolean(upsellAction)}
+                onClose={() => setUpsellAction('')}
+                currentAction={upsellAction}
+            />
         </Container>
     );
 };

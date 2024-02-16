@@ -36,6 +36,14 @@ func createClub(event api.Request) api.Response {
 		return api.Failure(errors.New(400, "Invalid request: username is required", ""))
 	}
 
+	user, err := repository.GetUser(info.Username)
+	if err != nil {
+		return api.Failure(err)
+	}
+	if user.SubscriptionStatus != database.SubscriptionStatus_Subscribed {
+		return api.Failure(errors.New(403, "Invalid request: free-tier users cannot create clubs", ""))
+	}
+
 	club := &database.Club{}
 	if err := json.Unmarshal([]byte(event.Body), club); err != nil {
 		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err))
