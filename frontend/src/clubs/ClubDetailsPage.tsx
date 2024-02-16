@@ -19,9 +19,10 @@ import remarkGfm from 'remark-gfm';
 import { useApi } from '../api/Api';
 import { GetClubResponse } from '../api/clubApi';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { AuthStatus, useAuth } from '../auth/Auth';
+import { AuthStatus, useAuth, useFreeTier } from '../auth/Auth';
 import { ClubDetails } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import ClubJoinRequestDialog from './ClubJoinRequestDialog';
 import JoinRequestsTab from './JoinRequestsTab';
 import LeaveClubDialog from './LeaveClubDialog';
@@ -46,6 +47,8 @@ const ClubDetailsPage = () => {
     const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
     const [showLeaveDialog, setShowLeaveDialog] = useState(false);
     const [snackbarText, setSnackbarText] = useState('');
+    const [upsellAction, setUpsellAction] = useState('');
+    const isFreeTier = useFreeTier();
 
     const reset = request.reset;
     useEffect(() => {
@@ -91,6 +94,8 @@ const ClubDetailsPage = () => {
     const onJoinClub = () => {
         if (!viewer) {
             navigate('/signin');
+        } else if (isFreeTier && !club?.allowFreeTier) {
+            setUpsellAction(RestrictedAction.JoinSubscriberClubs);
         } else if (club?.approvalRequired) {
             setShowJoinRequestDialog(true);
         } else {
@@ -132,6 +137,7 @@ const ClubDetailsPage = () => {
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
             <RequestSnackbar request={request} />
+            <RequestSnackbar request={joinRequest} />
 
             <Snackbar
                 open={Boolean(snackbarText)}
@@ -139,6 +145,12 @@ const ClubDetailsPage = () => {
                 onClose={() => setSnackbarText('')}
                 message={snackbarText}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            />
+
+            <UpsellDialog
+                open={Boolean(upsellAction)}
+                onClose={() => setUpsellAction('')}
+                currentAction={upsellAction}
             />
 
             {club && (

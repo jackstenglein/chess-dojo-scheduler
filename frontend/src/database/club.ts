@@ -32,6 +32,9 @@ export interface Club {
     /** Whether the club requires approval to join. */
     approvalRequired: boolean;
 
+    /** Whether the club allows free-tier users to join. */
+    allowFreeTier: boolean;
+
     /** The date and time the club was created. */
     createdAt: string;
 

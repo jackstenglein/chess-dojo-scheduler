@@ -8,15 +8,15 @@ import {
     Typography,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import { AxiosResponse } from 'axios';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { ClubDetailsParams } from './ClubDetailsPage';
 import { ClubDetails } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
+import { ClubDetailsParams } from './ClubDetailsPage';
 
 const CreateClubPage = () => {
     const api = useApi();
@@ -34,6 +34,7 @@ const CreateClubPage = () => {
     const [country, setCountry] = useState('');
     const [unlisted, setUnlisted] = useState(false);
     const [approvalRequired, setApprovalRequired] = useState(false);
+    const [allowFreeTier, setAllowFreeTier] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -97,6 +98,7 @@ const CreateClubPage = () => {
             },
             unlisted,
             approvalRequired,
+            allowFreeTier,
         };
 
         saveRequest.onStart();
@@ -202,6 +204,15 @@ const CreateClubPage = () => {
                 </Grid2>
 
                 <Stack spacing={1}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={!allowFreeTier}
+                                onChange={(_, checked) => setAllowFreeTier(!checked)}
+                            />
+                        }
+                        label='Limit access to subscribers? If checked, free-tier users will not be able to join.'
+                    />
                     <FormControlLabel
                         control={
                             <Checkbox

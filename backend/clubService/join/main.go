@@ -39,6 +39,11 @@ func handleJoinRequest(event api.Request) api.Response {
 		return api.Failure(errors.New(400, "Invalid request: username is required", ""))
 	}
 
+	user, err := repository.GetUser(info.Username)
+	if err != nil {
+		return api.Failure(err)
+	}
+
 	var request database.ClubJoinRequest
 	if err := json.Unmarshal([]byte(event.Body), &request); err != nil {
 		return api.Failure(errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err))
@@ -52,7 +57,7 @@ func handleJoinRequest(event api.Request) api.Response {
 	}
 
 	request.Username = info.Username
-	club, err := repository.RequestToJoinClub(id, &request)
+	club, err := repository.RequestToJoinClub(id, &request, user.SubscriptionStatus != database.SubscriptionStatus_Subscribed)
 	if err != nil {
 		return api.Failure(err)
 	}
@@ -80,7 +85,12 @@ func handleImmediateJoin(event api.Request) api.Response {
 		return api.Failure(errors.New(400, "Invalid request: username is required", ""))
 	}
 
-	club, err := repository.JoinClub(id, info.Username)
+	user, err := repository.GetUser(info.Username)
+	if err != nil {
+		return api.Failure(err)
+	}
+
+	club, err := repository.JoinClub(id, info.Username, user.SubscriptionStatus != database.SubscriptionStatus_Subscribed)
 	if err != nil {
 		return api.Failure(err)
 	}

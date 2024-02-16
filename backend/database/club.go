@@ -47,6 +47,9 @@ type Club struct {
 	// Whether the club requires approval to join
 	ApprovalRequired bool `dynamodbav:"approvalRequired" json:"approvalRequired"`
 
+	// Whether the club allows free-tier users to join
+	AllowFreeTier bool `dynamodbav:"allowFreeTier" json:"allowFreeTier"`
+
 	// The pending requests to join the club, mapped by their usernames
 	JoinRequests map[string]ClubJoinRequest `dynamodbav:"joinRequests" json:"joinRequests"`
 
@@ -122,6 +125,9 @@ type ClubUpdate struct {
 
 	// Whether the club requires approval to join
 	ApprovalRequired *bool `dynamodbav:"approvalRequired,omitempty" json:"approvalRequired,omitempty"`
+
+	// Whether the club allows free-tier users to join
+	AllowFreeTier *bool `dynamodbav:"allowFreeTier,omitempty" json:"allowFreeTier,omitempty"`
 
 	// The date and time the club was updated, in time.RFC3339 format
 	// Cannot be manually passed by the updater and is set automatically by the server
@@ -287,19 +293,26 @@ func (repo *dynamoRepository) BatchGetClubs(ids []string) ([]Club, error) {
 
 // Adds the given username as a member of the given club. The club must have ApprovalRequired set to false.
 // The club after updating is returned. Also adds the club id to the given user's clubs attributes.
-func (repo *dynamoRepository) JoinClub(id string, username string) (*Club, error) {
+func (repo *dynamoRepository) JoinClub(id string, username string, isFreeTier bool) (*Club, error) {
+	conditionExpr := "attribute_exists(id) AND #approvalRequired <> :true AND attribute_not_exists(#members.#username)"
+	exprAttrNames := map[string]*string{
+		"#approvalRequired": aws.String("approvalRequired"),
+		"#members":          aws.String("members"),
+		"#username":         aws.String(username),
+		"#memberCount":      aws.String("memberCount"),
+	}
+	if isFreeTier {
+		conditionExpr += " AND #free = :true"
+		exprAttrNames["#free"] = aws.String("allowFreeTier")
+	}
+
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {S: aws.String(id)},
 		},
-		ConditionExpression: aws.String("attribute_exists(id) AND #approvalRequired <> :true AND attribute_not_exists(#members.#username)"),
-		UpdateExpression:    aws.String("SET #members.#username = :member ADD #memberCount :q"),
-		ExpressionAttributeNames: map[string]*string{
-			"#approvalRequired": aws.String("approvalRequired"),
-			"#members":          aws.String("members"),
-			"#username":         aws.String(username),
-			"#memberCount":      aws.String("memberCount"),
-		},
+		ConditionExpression:      aws.String(conditionExpr),
+		UpdateExpression:         aws.String("SET #members.#username = :member ADD #memberCount :q"),
+		ExpressionAttributeNames: exprAttrNames,
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":true": {BOOL: aws.Bool(true)},
 			":member": {M: map[string]*dynamodb.AttributeValue{
@@ -315,7 +328,7 @@ func (repo *dynamoRepository) JoinClub(id string, username string) (*Club, error
 	club := &Club{}
 	if err := repo.updateItem(input, club); err != nil {
 		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return nil, errors.Wrap(404, "Invalid request: club not found, requires approval to join or you are already a member", "DynamoDB conditional check failed", err)
+			return nil, errors.Wrap(404, "Invalid request: club not found, you are already a member or you do not have permission to join", "DynamoDB conditional check failed", err)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to update club", err)
 	}
@@ -328,7 +341,7 @@ func (repo *dynamoRepository) JoinClub(id string, username string) (*Club, error
 }
 
 // Adds the given join request to the given club. The club after updating is returned.
-func (repo *dynamoRepository) RequestToJoinClub(id string, request *ClubJoinRequest) (*Club, error) {
+func (repo *dynamoRepository) RequestToJoinClub(id string, request *ClubJoinRequest, isFreeTier bool) (*Club, error) {
 	request.Status = ClubJoinRequestStatus_Pending
 	request.CreatedAt = time.Now().Format(time.RFC3339)
 
@@ -337,17 +350,24 @@ func (repo *dynamoRepository) RequestToJoinClub(id string, request *ClubJoinRequ
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to marshal join request", err)
 	}
 
+	conditionExpr := "attribute_exists(id) AND #approvalRequired = :true AND attribute_not_exists(#requests.#username)"
+	exprAttrNames := map[string]*string{
+		"#requests":         aws.String("joinRequests"),
+		"#username":         aws.String(request.Username),
+		"#approvalRequired": aws.String("approvalRequired"),
+	}
+	if isFreeTier {
+		conditionExpr += " AND #free = :true"
+		exprAttrNames["#free"] = aws.String("allowFreeTier")
+	}
+
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {S: aws.String(id)},
 		},
-		ConditionExpression: aws.String("attribute_exists(id) AND #approvalRequired = :true AND attribute_not_exists(#requests.#username)"),
-		UpdateExpression:    aws.String("SET #requests.#username = :request"),
-		ExpressionAttributeNames: map[string]*string{
-			"#requests":         aws.String("joinRequests"),
-			"#username":         aws.String(request.Username),
-			"#approvalRequired": aws.String("approvalRequired"),
-		},
+		ConditionExpression:      aws.String(conditionExpr),
+		UpdateExpression:         aws.String("SET #requests.#username = :request"),
+		ExpressionAttributeNames: exprAttrNames,
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":request": {M: item},
 			":true":    {BOOL: aws.Bool(true)},
@@ -359,7 +379,7 @@ func (repo *dynamoRepository) RequestToJoinClub(id string, request *ClubJoinRequ
 	club := &Club{}
 	if err := repo.updateItem(input, club); err != nil {
 		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return nil, errors.Wrap(404, "Invalid request: club does not exist, does not require approval to join or you have already requested to join", "DynamoDB conditional check failed", err)
+			return nil, errors.Wrap(404, "Invalid request: club does not exist, you have already requested to join or you do not have permission to request to join", "DynamoDB conditional check failed", err)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to update club", err)
 	}

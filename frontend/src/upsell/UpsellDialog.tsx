@@ -22,6 +22,7 @@ export enum RestrictedAction {
     SearchDatabase = 'Search the Dojo Database by player',
     DatabaseExplorer = 'Search the Dojo Database by position',
     CreateClubs = 'Create new clubs',
+    JoinSubscriberClubs = 'Join clubs restricted to subscribers',
 }
 
 const defaultBulletPoints = [
