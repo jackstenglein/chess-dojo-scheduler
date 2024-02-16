@@ -144,8 +144,14 @@ func (repo *dynamoRepository) CreateClub(club *Club) error {
 		Item:                item,
 		TableName:           aws.String(clubTable),
 	}
-	_, err = repo.svc.PutItem(input)
-	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+	if _, err := repo.svc.PutItem(input); err != nil {
+		return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+	}
+
+	if err := repo.AddClubToUser(club.Id, club.Owner); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Applies the given update to the given club. The club after the update is returned.
@@ -235,8 +241,52 @@ func (repo *dynamoRepository) GetClub(id string) (*Club, error) {
 	return &club, nil
 }
 
+// Returns a list of clubs with the provided ids. Up to 100 ids can be specified at a time.
+func (repo *dynamoRepository) BatchGetClubs(ids []string) ([]Club, error) {
+	if len(ids) == 0 {
+		return []Club{}, nil
+	}
+	if len(ids) > 100 {
+		return nil, errors.New(500, "Temporary server error", "More than 100 usernames passed to BatchGetClubs")
+	}
+
+	input := &dynamodb.BatchGetItemInput{
+		RequestItems: map[string]*dynamodb.KeysAndAttributes{
+			clubTable: {
+				Keys:                 []map[string]*dynamodb.AttributeValue{},
+				ProjectionExpression: aws.String("id,#name,shortDescription,description,#owner,promoCode,externalUrl,#location,memberCount,unlisted,approvalRequired,createdAt,updatedAt"),
+				ExpressionAttributeNames: map[string]*string{
+					"#name":     aws.String("name"),
+					"#owner":    aws.String("owner"),
+					"#location": aws.String("location"),
+				},
+			},
+		},
+	}
+
+	for _, id := range ids {
+		key := map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(id)},
+		}
+		input.RequestItems[clubTable].Keys = append(input.RequestItems[clubTable].Keys, key)
+	}
+
+	result, err := repo.svc.BatchGetItem(input)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed call to BatchGetItem", err)
+	}
+	list := result.Responses[clubTable]
+
+	var clubs []Club
+	if err := dynamodbattribute.UnmarshalListOfMaps(list, &clubs); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal BatchGetItem result", err)
+	}
+
+	return clubs, nil
+}
+
 // Adds the given username as a member of the given club. The club must have ApprovalRequired set to false.
-// The club after updating is returned.
+// The club after updating is returned. Also adds the club id to the given user's clubs attributes.
 func (repo *dynamoRepository) JoinClub(id string, username string) (*Club, error) {
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
@@ -267,8 +317,13 @@ func (repo *dynamoRepository) JoinClub(id string, username string) (*Club, error
 		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
 			return nil, errors.Wrap(404, "Invalid request: club not found, requires approval to join or you are already a member", "DynamoDB conditional check failed", err)
 		}
-		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to update club", err)
 	}
+
+	if err := repo.AddClubToUser(id, username); err != nil {
+		return nil, err
+	}
+
 	return club, nil
 }
 
@@ -346,6 +401,11 @@ func (repo *dynamoRepository) ApproveClubJoinRequest(id, username, caller string
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
 	}
+
+	if err := repo.AddClubToUser(id, username); err != nil {
+		return nil, err
+	}
+
 	return club, nil
 }
 
@@ -433,5 +493,39 @@ func (repo *dynamoRepository) RemoveClubMember(id string, username string) (*Clu
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
 	}
+
+	input = &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {S: aws.String(username)},
+		},
+		UpdateExpression: aws.String("DELETE clubs :id"),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":id": {SS: []*string{aws.String(id)}},
+		},
+		TableName:    aws.String(userTable),
+		ReturnValues: aws.String("NONE"),
+	}
+	if _, err := repo.svc.UpdateItem(input); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to update user", err)
+	}
+
 	return club, nil
+}
+
+// Adds the given club id to the given user's clubs attribute.
+func (repo *dynamoRepository) AddClubToUser(clubId string, username string) error {
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"username": {S: aws.String(username)},
+		},
+		UpdateExpression: aws.String("ADD clubs :id"),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":id": {SS: []*string{aws.String(clubId)}},
+		},
+		TableName:    aws.String(userTable),
+		ReturnValues: aws.String("NONE"),
+	}
+
+	_, err := repo.svc.UpdateItem(input)
+	return errors.Wrap(500, "Temporary server error", "Failed to update user", err)
 }

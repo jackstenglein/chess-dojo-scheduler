@@ -1,20 +1,21 @@
 import {
     createContext,
     ReactNode,
-    useContext,
-    useState,
     useCallback,
+    useContext,
     useEffect,
     useMemo,
+    useState,
 } from 'react';
 
-import { Request, useRequest } from '../Request';
-import { useApi } from '../Api';
 import { AuthStatus, useAuth } from '../../auth/Auth';
-import { Requirement } from '../../database/requirement';
+import { Club } from '../../database/club';
 import { Event } from '../../database/event';
 import { Notification } from '../../database/notification';
+import { Requirement } from '../../database/requirement';
+import { useApi } from '../Api';
 import { GetExplorerPositionResult } from '../explorerApi';
+import { Request, useRequest } from '../Request';
 
 interface IdentifiableCache<T> {
     get: (id: string) => T | undefined;
@@ -25,17 +26,19 @@ interface IdentifiableCache<T> {
     remove: (id: string) => void;
     isFetched: (id: string) => boolean;
     markFetched: (id: string) => void;
+    request: Request;
 }
 
 function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
     const [objects, setObjects] = useState<Record<string, T>>({});
     const [fetchedIds, setFetchedIds] = useState<Record<string, boolean>>({});
+    const request = useRequest();
 
     const get = useCallback(
         (id: string) => {
             return objects[id];
         },
-        [objects]
+        [objects],
     );
 
     const list = useCallback(() => Object.values(objects), [objects]);
@@ -44,7 +47,7 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
         (predicate: (obj: T) => boolean) => {
             return Object.values(objects).filter(predicate);
         },
-        [objects]
+        [objects],
     );
 
     const put = useCallback(
@@ -55,7 +58,7 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
                 [id]: obj,
             }));
         },
-        [setObjects, key]
+        [setObjects, key],
     );
 
     const putMany = useCallback(
@@ -70,7 +73,7 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
                 ...newMap,
             }));
         },
-        [setObjects, key]
+        [setObjects, key],
     );
 
     const remove = useCallback(
@@ -80,14 +83,14 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
                 return others;
             });
         },
-        [setObjects]
+        [setObjects],
     );
 
     const isFetched = useCallback(
         (id: string) => {
             return fetchedIds[id] || false;
         },
-        [fetchedIds]
+        [fetchedIds],
     );
 
     const markFetched = useCallback(
@@ -97,7 +100,7 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
                 [id]: true,
             }));
         },
-        [setFetchedIds]
+        [setFetchedIds],
     );
 
     return {
@@ -109,6 +112,7 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
         remove,
         isFetched,
         markFetched,
+        request,
     };
 }
 
@@ -123,6 +127,7 @@ type CacheContextType = {
     requirements: IdentifiableCache<Requirement>;
     notifications: IdentifiableCache<Notification>;
     positions: IdentifiableCache<GetExplorerPositionResult>;
+    clubs: IdentifiableCache<Club>;
 
     imageBypass: number;
     setImageBypass: (v: number) => void;
@@ -148,6 +153,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const requirements = useIdentifiableCache<Requirement>();
     const notifications = useIdentifiableCache<Notification>();
     const positions = useIdentifiableCache<GetExplorerPositionResult>('normalizedFen');
+    const clubs = useIdentifiableCache<Club>();
     const [imageBypass, setImageBypass] = useState(Date.now());
 
     const value = {
@@ -157,6 +163,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         requirements,
         notifications,
         positions,
+        clubs,
         imageBypass,
         setImageBypass,
     };
@@ -221,7 +228,7 @@ export function useNotifications(): UseNotificationsResponse {
 
     const notifications = useMemo(
         () => cache.notifications.list(),
-        [cache.notifications]
+        [cache.notifications],
     );
 
     useEffect(() => {

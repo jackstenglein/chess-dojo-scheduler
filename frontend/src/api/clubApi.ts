@@ -24,7 +24,7 @@ export type ClubApiContextType = {
      */
     updateClub: (
         id: string,
-        update: Partial<Club>
+        update: Partial<Club>,
     ) => Promise<AxiosResponse<ClubDetails, any>>;
 
     /**
@@ -42,8 +42,15 @@ export type ClubApiContextType = {
      */
     getClub: (
         id: string,
-        scoreboard?: boolean
+        scoreboard?: boolean,
     ) => Promise<AxiosResponse<GetClubResponse, any>>;
+
+    /**
+     * Fetches the clubs with the given ids.
+     * @param ids The ids of the clubs to fetch.
+     * @returns A list of the given clubs.
+     */
+    batchGetClubs: (ids: string[]) => Promise<AxiosResponse<Club[]>>;
 
     /**
      * Sends a request to join the given club.
@@ -53,7 +60,7 @@ export type ClubApiContextType = {
      */
     requestToJoinClub: (
         id: string,
-        notes: string
+        notes: string,
     ) => Promise<AxiosResponse<ClubDetails, any>>;
 
     /**
@@ -66,7 +73,7 @@ export type ClubApiContextType = {
     processJoinRequest: (
         clubId: string,
         username: string,
-        status: ClubJoinRequestStatus
+        status: ClubJoinRequestStatus,
     ) => Promise<AxiosResponse<GetClubResponse, any>>;
 
     /**
@@ -145,6 +152,17 @@ export function getClub(id: string, scoreboard?: boolean) {
 }
 
 /**
+ * Fetches the clubs with the given ids.
+ * @param ids The ids of the clubs to fetch.
+ * @returns A list of the given clubs.
+ */
+export function batchGetClubs(ids: string[]) {
+    return axios.get<Club[]>(`${BASE_URL}/public/clubs/batch`, {
+        params: { ids: ids.join(',') },
+    });
+}
+
+/**
  * Requests to join the provided club.
  * @param idToken The id token of the current signed-in user.
  * @param id The id of the club.
@@ -156,7 +174,7 @@ export function requestToJoinClub(
     idToken: string,
     id: string,
     notes: string,
-    user?: User
+    user?: User,
 ) {
     return axios.put<ClubDetails>(
         `${BASE_URL}/clubs/${id}/requests`,
@@ -166,7 +184,7 @@ export function requestToJoinClub(
             cohort: user?.dojoCohort,
             notes,
         },
-        { headers: { Authorization: 'Bearer ' + idToken } }
+        { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }
 
@@ -182,12 +200,12 @@ export function processJoinRequest(
     idToken: string,
     clubId: string,
     username: string,
-    status: ClubJoinRequestStatus
+    status: ClubJoinRequestStatus,
 ) {
     return axios.put<GetClubResponse>(
         `${BASE_URL}/clubs/${clubId}/requests/${username}`,
         { status },
-        { headers: { Authorization: 'Bearer ' + idToken } }
+        { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }
 

@@ -47,6 +47,10 @@ functions:
           - dynamodb:PutItem
           - dynamodb:UpdateItem
         Resource: !GetAtt ClubsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:UsersTableArn}
 
   list:
     handler: list/main.go
@@ -75,6 +79,18 @@ functions:
         Action:
           - dynamodb:BatchGetItem
         Resource: ${param:UsersTableArn}
+  
+  batchGet:
+    handler: batchGet/main.go
+    events:
+      - httpApi:
+          path: /public/clubs/batch
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: !GetAtt ClubsTable.Arn
 
   join:
     handler: join/main.go
@@ -97,6 +113,7 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - !GetAtt ClubsTable.Arn
+          - ${param:UsersTableArn}
           - ${param:NotificationsTableArn}
 
   processJoinRequest:
@@ -114,6 +131,7 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - !GetAtt ClubsTable.Arn
+          - ${param:UsersTableArn}
           - ${param:NotificationsTableArn}
       - Effect: Allow
         Action:
@@ -133,7 +151,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: !GetAtt ClubsTable.Arn
+        Resource: 
+          - !GetAtt ClubsTable.Arn
+          - ${param:UsersTableArn}
 
 resources:
   Conditions:

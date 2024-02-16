@@ -11,6 +11,7 @@ import { Club, ClubJoinRequestStatus } from '../database/club';
 import { Course } from '../database/course';
 import { TournamentType } from '../database/tournament';
 import {
+    batchGetClubs,
     ClubApiContextType,
     createClub,
     getClub,
@@ -367,6 +368,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 updateClub(idToken, id, data),
             listClubs: (startKey?: string) => listClubs(startKey),
             getClub: (id: string, scoreboard?: boolean) => getClub(id, scoreboard),
+            batchGetClubs: (ids: string[]) => batchGetClubs(ids),
             requestToJoinClub: (id: string, notes: string) =>
                 requestToJoinClub(idToken, id, notes, auth.user),
             processJoinRequest: (

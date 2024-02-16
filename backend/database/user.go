@@ -277,6 +277,9 @@ type User struct {
 
 	// The user's coach info
 	CoachInfo *CoachInfo `dynamodbav:"coachInfo,omitempty" json:"coachInfo,omitempty"`
+
+	// The set of club ids the user is in
+	Clubs []string `dynamodbav:"clubs,stringset,omitempty" json:"clubs,omitempty"`
 }
 
 type PaymentInfo struct {

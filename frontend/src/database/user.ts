@@ -145,6 +145,9 @@ export interface User {
     paymentInfo?: PaymentInfo;
 
     coachInfo?: CoachInfo;
+
+    /** The set of club ids the user is a member of. */
+    clubs?: string[];
 }
 
 export interface PaymentInfo {
@@ -209,7 +212,7 @@ export function getStartRating(user?: User | ScoreboardSummary): number {
 
 export function getSystemStartRating(
     user: User | ScoreboardSummary | undefined,
-    ratingSystem: RatingSystem
+    ratingSystem: RatingSystem,
 ): number {
     if (!user) {
         return 0;
@@ -227,7 +230,7 @@ export function getCurrentRating(user?: User | ScoreboardSummary): number {
 
 export function getSystemCurrentRating(
     user: User | ScoreboardSummary | undefined,
-    ratingSystem: RatingSystem
+    ratingSystem: RatingSystem,
 ): number {
     if (!user) {
         return 0;
@@ -238,7 +241,7 @@ export function getSystemCurrentRating(
 
 export function getRatingUsername(
     user: User | undefined,
-    ratingSystem: RatingSystem
+    ratingSystem: RatingSystem,
 ): string {
     if (!user) {
         return '';
@@ -249,7 +252,7 @@ export function getRatingUsername(
 
 export function hideRatingUsername(
     user: User | undefined,
-    ratingSystem: RatingSystem
+    ratingSystem: RatingSystem,
 ): boolean {
     if (!user) {
         return true;
@@ -303,12 +306,12 @@ export function compareCohorts(a: string, b: string): number {
  */
 export function getCohortRange(
     minCohort: string | undefined,
-    maxCohort: string | undefined
+    maxCohort: string | undefined,
 ): string[] {
     const min = Math.max(minCohort ? dojoCohorts.indexOf(minCohort) : 0, 0);
     const max = Math.min(
         maxCohort ? dojoCohorts.indexOf(maxCohort) + 1 : dojoCohorts.length,
-        dojoCohorts.length
+        dojoCohorts.length,
     );
     return dojoCohorts.slice(min, max);
 }
@@ -560,7 +563,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
 
 export function getRatingBoundary(
     cohort: string,
-    ratingSystem: RatingSystem
+    ratingSystem: RatingSystem,
 ): number | undefined {
     const cohortBoundaries = ratingBoundaries[cohort];
     if (!cohortBoundaries) {

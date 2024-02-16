@@ -1,31 +1,32 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
+import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
+import { FollowerEntry } from '../database/follower';
 import { User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
-import GamesTab from './GamesTab';
-import ProgressTab from './progress/ProgressTab';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import ActivityTab from './activity/ActivityTab';
+import ClubsTab from './clubs/ClubsTab';
+import CoachTab from './coach/CoachTab';
+import GamesTab from './GamesTab';
 import GraduationDialog from './GraduationDialog';
+import Bio from './info/Bio';
+import CoachChip from './info/CoachChip';
+import CountChip from './info/CountChip';
+import CreatedAtChip from './info/CreatedAtChip';
+import DiscordChip from './info/DiscordChip';
+import InactiveChip from './info/InactiveChip';
+import TimezoneChip from './info/TimezoneChip';
+import UserInfo from './info/UserInfo';
+import ProgressTab from './progress/ProgressTab';
 import StatsTab from './stats/StatsTab';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import Bio from './info/Bio';
-import InactiveChip from './info/InactiveChip';
-import CreatedAtChip from './info/CreatedAtChip';
-import TimezoneChip from './info/TimezoneChip';
-import DiscordChip from './info/DiscordChip';
-import CountChip from './info/CountChip';
-import { FollowerEntry } from '../database/follower';
-import UserInfo from './info/UserInfo';
-import CoachChip from './info/CoachChip';
-import CoachTab from './coach/CoachTab';
 
 export type ProfilePageProps = {
     username: string;
@@ -44,7 +45,7 @@ const ProfilePage = () => {
     const currentUserProfile = !username || username === currentUser.username;
 
     const [searchParams, setSearchParams] = useSearchParams(
-        currentUserProfile ? { view: 'progress' } : { view: 'stats' }
+        currentUserProfile ? { view: 'progress' } : { view: 'stats' },
     );
 
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
@@ -214,6 +215,7 @@ const ProfilePage = () => {
                                 />
                                 <Tab label='Activity' value='activity' />
                                 <Tab label='Games' value='games' />
+                                <Tab label='Clubs' value='clubs' />
                             </Tabs>
                         </Box>
                         <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
@@ -230,6 +232,9 @@ const ProfilePage = () => {
                         </TabPanel>
                         <TabPanel value='games' sx={{ px: { xs: 0 } }}>
                             <GamesTab user={user} />
+                        </TabPanel>
+                        <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>
+                            <ClubsTab user={user} />
                         </TabPanel>
                     </TabContext>
                 </Box>
