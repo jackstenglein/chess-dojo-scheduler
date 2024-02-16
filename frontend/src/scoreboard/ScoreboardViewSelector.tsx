@@ -1,7 +1,11 @@
 import { MenuItem, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
+import { useClubs } from '../api/cache/clubs';
+import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
+
+const NO_CLUBS: string[] = [];
 
 interface ScoreboardViewSelectorProps {
     /** The current value of the view. */
@@ -25,9 +29,11 @@ const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({
     onChange,
 }) => {
     const navigate = useNavigate();
+    const user = useAuth().user;
+    const { clubs } = useClubs(user?.clubs || NO_CLUBS);
 
     const defaultOnChange = (value: string) => {
-        navigate(`../${value}`);
+        navigate(`/scoreboard/${value}`);
     };
 
     return (
@@ -49,6 +55,11 @@ const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({
             <MenuItem value='stats'>Statistics</MenuItem>
             <MenuItem value='dojo'>Full Dojo</MenuItem>
             <MenuItem value='following'>People I Follow</MenuItem>
+            {clubs.map((club) => (
+                <MenuItem key={club.id} value={`clubs/${club.id}`}>
+                    {club.name}
+                </MenuItem>
+            ))}
             {dojoCohorts.map((option) => (
                 <MenuItem key={option} value={option}>
                     {option}

@@ -1,3 +1,6 @@
+import HelpIcon from '@mui/icons-material/Help';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import { Link, Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
     GridActionsCellItem,
@@ -8,14 +11,18 @@ import {
     GridRowModel,
     GridValueFormatterParams,
     GridValueGetterParams,
+    UncapitalizedGridProSlotsComponent,
 } from '@mui/x-data-grid-pro';
-import { Link, Stack, Tooltip } from '@mui/material';
-import HelpIcon from '@mui/icons-material/Help';
 import { Link as RouterLink } from 'react-router-dom';
-import PushPinIcon from '@mui/icons-material/PushPin';
 
+import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
+import { useMemo, useState } from 'react';
+import { useFreeTier } from '../auth/Auth';
+import { formatTime, Requirement, ScoreboardDisplay } from '../database/requirement';
+import { User } from '../database/user';
+import Avatar from '../profile/Avatar';
+import GraduationIcon from './GraduationIcon';
 import {
-    ScoreboardRow,
     formatPercentComplete,
     getCohortScore,
     getColumnDefinition,
@@ -26,14 +33,9 @@ import {
     getRatingChange,
     getRatingSystem,
     getStartRating,
+    ScoreboardRow,
 } from './scoreboardData';
-import Avatar from '../profile/Avatar';
-import GraduationIcon from './GraduationIcon';
 import ScoreboardProgress from './ScoreboardProgress';
-import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
-import { useMemo, useState } from 'react';
-import { useFreeTier } from '../auth/Auth';
-import { User } from '../database/user';
 
 interface ColumnGroupChild {
     field: string;
@@ -273,7 +275,7 @@ const summaryColumnGroups: GridColumnGroupingModel = [
  */
 function getActionColumns(
     pinnedRowIds: GridRowId[],
-    setPinnedRowIds: React.Dispatch<React.SetStateAction<GridRowId[]>>
+    setPinnedRowIds: React.Dispatch<React.SetStateAction<GridRowId[]>>,
 ): GridColDef<ScoreboardRow> {
     return {
         field: 'actions',
@@ -324,7 +326,7 @@ function getActionColumns(
  */
 function getTrainingPlanColumns(
     cohort?: string,
-    requirements?: Requirement[]
+    requirements?: Requirement[],
 ): GridColDef<ScoreboardRow>[] {
     if (cohort && requirements) {
         return [
@@ -390,7 +392,7 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
             valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
                 getMinutesSpent(
                     params,
-                    allCohorts ? 'ALL_COHORTS_LAST_7_DAYS' : 'LAST_7_DAYS'
+                    allCohorts ? 'ALL_COHORTS_LAST_7_DAYS' : 'LAST_7_DAYS',
                 ),
             valueFormatter: (params: GridValueFormatterParams<number>) =>
                 formatTime(params.value),
@@ -404,7 +406,7 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
             valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
                 getMinutesSpent(
                     params,
-                    allCohorts ? 'ALL_COHORTS_LAST_30_DAYS' : 'LAST_30_DAYS'
+                    allCohorts ? 'ALL_COHORTS_LAST_30_DAYS' : 'LAST_30_DAYS',
                 ),
             valueFormatter: (params: GridValueFormatterParams<number>) =>
                 formatTime(params.value),
@@ -418,7 +420,7 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
             valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
                 getMinutesSpent(
                     params,
-                    allCohorts ? 'ALL_COHORTS_LAST_90_DAYS' : 'LAST_90_DAYS'
+                    allCohorts ? 'ALL_COHORTS_LAST_90_DAYS' : 'LAST_90_DAYS',
                 ),
             valueFormatter: (params: GridValueFormatterParams<number>) =>
                 formatTime(params.value),
@@ -432,7 +434,7 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
             valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
                 getMinutesSpent(
                     params,
-                    allCohorts ? 'ALL_COHORTS_LAST_365_DAYS' : 'LAST_365_DAYS'
+                    allCohorts ? 'ALL_COHORTS_LAST_365_DAYS' : 'LAST_365_DAYS',
                 ),
             valueFormatter: (params: GridValueFormatterParams<number>) =>
                 formatTime(params.value),
@@ -462,6 +464,8 @@ interface ScoreboardProps {
     rows: ScoreboardRow[];
     loading: boolean;
     addUser?: boolean;
+    slots?: Partial<UncapitalizedGridProSlotsComponent>;
+    slotProps?: GridProSlotProps;
 }
 
 const Scoreboard: React.FC<ScoreboardProps> = ({
@@ -472,22 +476,24 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
     rows: initialRows,
     loading,
     addUser,
+    slots,
+    slotProps,
 }) => {
     const isSummary = cohort === undefined;
     const isFreeTier = useFreeTier();
 
     const [pinnedRowIds, setPinnedRowIds] = useState<GridRowId[]>(
-        user ? [user.username] : []
+        user ? [user.username] : [],
     );
 
     const actionColumn = useMemo(
         () => getActionColumns(pinnedRowIds, setPinnedRowIds),
-        [pinnedRowIds, setPinnedRowIds]
+        [pinnedRowIds, setPinnedRowIds],
     );
 
     const trainingPlanColumns = useMemo(
         () => getTrainingPlanColumns(cohort, requirements),
-        [cohort, requirements]
+        [cohort, requirements],
     );
 
     const timeSpentColumns = useMemo(() => getTimeSpentColumns(isSummary), [isSummary]);
@@ -500,7 +506,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                         r.category !== 'Welcome to the Dojo' &&
                         r.category !== 'Non-Dojo' &&
                         r.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
-                        (!isFreeTier || r.isFree)
+                        (!isFreeTier || r.isFree),
                 )
                 .map((r) => getColumnDefinition(r, cohort!)) ?? []
         );
@@ -528,7 +534,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                 ratingsColumns,
                 trainingPlanColumns,
                 timeSpentColumns,
-                requirementColumns
+                requirementColumns,
             ),
         [
             actionColumn,
@@ -536,15 +542,15 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             trainingPlanColumns,
             timeSpentColumns,
             requirementColumns,
-        ]
+        ],
     );
 
     const columnGroups = useMemo(
         () =>
             (isSummary ? summaryColumnGroups : defaultColumnGroups).concat(
-                requirementColumnGroups
+                requirementColumnGroups,
             ),
-        [isSummary, requirementColumnGroups]
+        [isSummary, requirementColumnGroups],
     );
 
     const [rows, pinnedRows] = useMemo(() => {
@@ -555,7 +561,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
         for (const row of rows) {
             if (pinnedRowIds.includes(row.username)) {
                 pinnedRows.push(
-                    Object.assign({}, row, { username: `${row.username}#pinned` })
+                    Object.assign({}, row, { username: `${row.username}#pinned` }),
                 );
             }
         }
@@ -585,6 +591,8 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                 },
             }}
             pagination
+            slots={slots}
+            slotProps={slotProps}
         />
     );
 };

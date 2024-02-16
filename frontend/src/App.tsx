@@ -1,76 +1,77 @@
+import { LicenseInfo } from '@mui/x-data-grid-pro';
+import { Amplify, Hub } from 'aws-amplify';
 import { useEffect } from 'react';
 import {
-    Route,
     createBrowserRouter,
     createRoutesFromElements,
-    RouterProvider,
     Outlet,
-    useNavigate,
+    Route,
+    RouterProvider,
     ScrollRestoration,
+    useNavigate,
 } from 'react-router-dom';
-import { Amplify, Hub } from 'aws-amplify';
-import { LicenseInfo } from '@mui/x-data-grid-pro';
 
-import { getConfig } from './config';
-import { AuthProvider, RequireAuth } from './auth/Auth';
-import LandingPage from './landing/LandingPage';
-import ProfilePage from './profile/ProfilePage';
-import ProfileEditorPage from './profile/editor/ProfileEditorPage';
 import { ApiProvider } from './api/Api';
-import CalendarPage from './calendar/CalendarPage';
-import MeetingPage from './meeting/MeetingPage';
-import ListMeetingsPage from './meeting/ListMeetingsPage';
-import Navbar from './navbar/Navbar';
+import { CacheProvider } from './api/cache/Cache';
+import { AuthProvider, RequireAuth } from './auth/Auth';
+import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import SigninPage from './auth/SigninPage';
 import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
-import ForgotPasswordPage from './auth/ForgotPasswordPage';
-import { CacheProvider } from './api/cache/Cache';
-import GroupMeetingPage from './meeting/GroupMeetingPage';
-import GamePage from './games/view/GamePage';
-import ListGamesPage from './games/list/ListGamesPage';
-import ScoreboardPage from './scoreboard/ScoreboardPage';
-import NotFoundPage from './NotFoundPage';
-import RequirementPage from './requirements/RequirementPage';
-import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
-import RecentPage from './recent/RecentPage';
-import HelpPage from './help/HelpPage';
-import EditGamePage from './games/edit/EditGamePage';
-import ThemeProvider from './ThemeProvider';
-import StatisticsPage from './scoreboard/statistics/StatisticsPage';
-import MaterialPage from './material/MaterialPage';
-import ErrorBoundary from './ErrorBoundary';
-import TournamentsPage from './tournaments/TournamentsPage';
-import RegistrationPage from './tournaments/openClassical/RegistrationPage';
-import { TutorialProvider } from './tutorial/TutorialContext';
-import SearchPage from './scoreboard/search/SeachPage';
-import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
-import NotificationPage from './notifications/NotificationPage';
-import FollowersPage from './profile/followers/FollowersPage';
-import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
-import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
-import DetailsPage from './tournaments/openClassical/DetailsPage';
-import UnsubscribePage from './dojoDigest/UnsubscribePage';
-import ExplorerPage from './games/explorer/ExplorerPage';
-import CoursePage from './courses/view/CoursePage';
-import InfoPage from './tournaments/openClassical/InfoPage';
-import ListCoursesPage from './courses/list/ListCoursesPage';
-import PricingPage from './upsell/PricingPage';
+import CalendarPage from './calendar/CalendarPage';
+import EventBooker from './calendar/EventBooker';
+import ClubDetailsPage from './clubs/ClubDetailsPage';
+import CreateClubPage from './clubs/CreateClubPage';
+import ListClubsPage from './clubs/ListClubsPage';
 import CoachPortalPage from './coaching/coaches/CoachPortalPage';
-import StripeCancelationPage from './meeting/StripeCancelationPage';
 import CourseEditorPage from './coaching/coaches/courseEditor/CourseEditorPage';
+import CoachingPage from './coaching/customers/CoachingPage';
+import { getConfig } from './config';
+import ListCoursesPage from './courses/list/ListCoursesPage';
+import CoursePage from './courses/view/CoursePage';
+import UnsubscribePage from './dojoDigest/UnsubscribePage';
+import ErrorBoundary from './ErrorBoundary';
+import EditGamePage from './games/edit/EditGamePage';
+import ExplorerPage from './games/explorer/ExplorerPage';
+import ListGamesPage from './games/list/ListGamesPage';
+import GamePage from './games/view/GamePage';
+import HelpPage from './help/HelpPage';
+import LandingPage from './landing/LandingPage';
+import MaterialPage from './material/MaterialPage';
+import GroupMeetingPage from './meeting/GroupMeetingPage';
+import ListMeetingsPage from './meeting/ListMeetingsPage';
+import MeetingPage from './meeting/MeetingPage';
+import StripeCancelationPage from './meeting/StripeCancelationPage';
+import Navbar from './navbar/Navbar';
+import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
+import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
+import NotFoundPage from './NotFoundPage';
+import NotificationPage from './notifications/NotificationPage';
+import ProfileEditorPage from './profile/editor/ProfileEditorPage';
+import FollowersPage from './profile/followers/FollowersPage';
+import ProfilePage from './profile/ProfilePage';
+import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import YearReviewPage from './profile/yearReview/YearReviewPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
-import EventBooker from './calendar/EventBooker';
-import CoachingPage from './coaching/customers/CoachingPage';
-import ListPage from './tournaments/openClassical/ListPage';
-import ListClubsPage from './clubs/ListClubsPage';
-import CreateClubPage from './clubs/CreateClubPage';
-import ClubDetailsPage from './clubs/ClubDetailsPage';
+import RecentPage from './recent/RecentPage';
+import RequirementPage from './requirements/RequirementPage';
+import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
+import ScoreboardPage from './scoreboard/ScoreboardPage';
+import SearchPage from './scoreboard/search/SeachPage';
+import StatisticsPage from './scoreboard/statistics/StatisticsPage';
+import ThemeProvider from './ThemeProvider';
 import AdminPage from './tournaments/openClassical/admin/AdminPage';
+import DetailsPage from './tournaments/openClassical/DetailsPage';
+import InfoPage from './tournaments/openClassical/InfoPage';
+import ListPage from './tournaments/openClassical/ListPage';
+import RegistrationPage from './tournaments/openClassical/RegistrationPage';
+import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
+import TournamentsPage from './tournaments/TournamentsPage';
+import { TutorialProvider } from './tutorial/TutorialContext';
+import PricingPage from './upsell/PricingPage';
 
 LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI='
+    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
 );
 
 const config = getConfig();
@@ -169,6 +170,7 @@ const router = createBrowserRouter(
                         <Route index element={<ScoreboardPage />} />
                         <Route path='stats' element={<StatisticsPage />} />
                         <Route path='search' element={<SearchPage />} />
+                        <Route path='clubs/:id' element={<ClubScoreboardPage />} />
                         <Route path=':type' element={<ScoreboardPage />} />
                     </Route>
 
@@ -194,8 +196,8 @@ const router = createBrowserRouter(
                 </Route>
             </Route>
             <Route path='*' element={<NotFoundPage />} />
-        </Route>
-    )
+        </Route>,
+    ),
 );
 
 function App() {

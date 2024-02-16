@@ -1,19 +1,19 @@
-import { useEffect } from 'react';
 import { Container, Stack, Typography } from '@mui/material';
-import { useParams, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
+import { useRequirements } from '../api/cache/requirements';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
-import LoadingPage from '../loading/LoadingPage';
-import { ScoreboardRow } from './scoreboardData';
-import { dojoCohorts, SubscriptionStatus } from '../database/user';
 import { Graduation } from '../database/graduation';
-import { useRequirements } from '../api/cache/requirements';
-import GraduationChips from './GraduationChips';
-import ScoreboardTutorial from './ScoreboardTutorial';
+import { dojoCohorts, SubscriptionStatus } from '../database/user';
+import LoadingPage from '../loading/LoadingPage';
 import UpsellAlert from '../upsell/UpsellAlert';
+import GraduationChips from './GraduationChips';
 import Scoreboard from './Scoreboard';
+import { ScoreboardRow } from './scoreboardData';
+import ScoreboardTutorial from './ScoreboardTutorial';
 import ScoreboardViewSelector from './ScoreboardViewSelector';
 
 type ScoreboardPageParams = {
@@ -32,7 +32,7 @@ const ScoreboardPage = () => {
 
     const { requirements, request: requirementRequest } = useRequirements(
         type || '',
-        false
+        false,
     );
 
     useEffect(() => {
@@ -65,7 +65,7 @@ const ScoreboardPage = () => {
     });
 
     const onChangeViewType = (type: string) => {
-        navigate(`../${type}`);
+        navigate(`/scoreboard/${type}`);
         dataRequest.reset();
         graduationsRequest.reset();
     };
