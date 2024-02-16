@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useClubs } from '../../api/cache/clubs';
 import { RequestSnackbar } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
-import { ListClubItem } from '../../clubs/ListClubsPage';
+import { ListClubItem } from '../../clubs/ClubGrid';
 import { User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 
