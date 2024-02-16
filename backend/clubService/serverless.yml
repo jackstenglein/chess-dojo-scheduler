@@ -115,6 +115,10 @@ functions:
           - !GetAtt ClubsTable.Arn
           - ${param:UsersTableArn}
           - ${param:NotificationsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: ${param:UsersTableArn}
 
   processJoinRequest:
     handler: processJoinRequest/main.go

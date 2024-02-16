@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import {
     Box,
     Button,
@@ -11,23 +11,23 @@ import {
     Typography,
     useTheme,
 } from '@mui/material';
+import { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { TabContext, TabPanel } from '@mui/lab';
+import remarkGfm from 'remark-gfm';
 
 import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import LoadingPage from '../loading/LoadingPage';
-import { AuthStatus, useAuth } from '../auth/Auth';
-import ScoreboardTab from './ScoreboardTab';
 import { GetClubResponse } from '../api/clubApi';
-import ClubJoinRequestDialog from './ClubJoinRequestDialog';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { AuthStatus, useAuth } from '../auth/Auth';
 import { ClubDetails } from '../database/club';
+import LoadingPage from '../loading/LoadingPage';
+import ClubJoinRequestDialog from './ClubJoinRequestDialog';
 import JoinRequestsTab from './JoinRequestsTab';
 import LeaveClubDialog from './LeaveClubDialog';
 import LocationChip from './LocationChip';
 import MemberCountChip from './MemberCountChip';
+import ScoreboardTab from './ScoreboardTab';
 import UrlChip from './UrlChip';
 
 export type ClubDetailsParams = {
@@ -40,6 +40,7 @@ const ClubDetailsPage = () => {
     const api = useApi();
     const { id } = useParams<ClubDetailsParams>();
     const request = useRequest<GetClubResponse>();
+    const joinRequest = useRequest();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams({ view: 'scoreboard' });
     const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
@@ -76,15 +77,34 @@ const ClubDetailsPage = () => {
     const isOwner = Boolean(viewer?.username && club?.owner === viewer.username);
     const isMember = Boolean(viewer?.username && club?.members[viewer.username]);
     const hasSentJoinRequest = Boolean(
-        viewer?.username && club?.joinRequests[viewer.username]
+        viewer?.username && club?.joinRequests[viewer.username],
     );
+
+    const onProcessRequest = (data: GetClubResponse, snackbarText: string) => {
+        request.onSuccess({
+            club: data.club,
+            scoreboard: [...(request.data?.scoreboard || []), ...(data.scoreboard || [])],
+        });
+        setSnackbarText(snackbarText);
+    };
 
     const onJoinClub = () => {
         if (!viewer) {
             navigate('/signin');
-        }
-        if (club?.approvalRequired) {
+        } else if (club?.approvalRequired) {
             setShowJoinRequestDialog(true);
+        } else {
+            joinRequest.onStart();
+            api.joinClub(id || '')
+                .then((resp) => {
+                    console.log('joinClub: ', resp);
+                    onProcessRequest(resp.data, 'Joined club');
+                    joinRequest.onSuccess();
+                })
+                .catch((err) => {
+                    console.error('joinClub: ', err);
+                    joinRequest.onFailure(err);
+                });
         }
     };
 
@@ -97,7 +117,7 @@ const ClubDetailsPage = () => {
             request.onSuccess({
                 club,
                 scoreboard: request.data.scoreboard?.filter(
-                    (s) => s.username !== viewer?.username
+                    (s) => s.username !== viewer?.username,
                 ),
             });
         }
@@ -107,14 +127,6 @@ const ClubDetailsPage = () => {
     const onSuccessfulJoinRequest = (club: ClubDetails) => {
         request.onSuccess({ ...request.data, club });
         setShowJoinRequestDialog(false);
-    };
-
-    const onProcessRequest = (data: GetClubResponse, snackbarText: string) => {
-        request.onSuccess({
-            club: data.club,
-            scoreboard: [...(request.data?.scoreboard || []), ...(data.scoreboard || [])],
-        });
-        setSnackbarText(snackbarText);
     };
 
     return (
@@ -164,14 +176,15 @@ const ClubDetailsPage = () => {
                                                 Join Request Pending
                                             </Button>
                                         ) : (
-                                            <Button
+                                            <LoadingButton
                                                 variant='contained'
                                                 onClick={onJoinClub}
+                                                loading={joinRequest.isLoading()}
                                             >
                                                 {club.approvalRequired
                                                     ? 'Request to Join Club'
                                                     : 'Join Club'}
-                                            </Button>
+                                            </LoadingButton>
                                         )}
                                     </Stack>
 

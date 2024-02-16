@@ -15,6 +15,7 @@ import {
     ClubApiContextType,
     createClub,
     getClub,
+    joinClub,
     leaveClub,
     listClubs,
     processJoinRequest,
@@ -369,6 +370,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             listClubs: (startKey?: string) => listClubs(startKey),
             getClub: (id: string, scoreboard?: boolean) => getClub(id, scoreboard),
             batchGetClubs: (ids: string[]) => batchGetClubs(ids),
+            joinClub: (id: string) => joinClub(idToken, id),
             requestToJoinClub: (id: string, notes: string) =>
                 requestToJoinClub(idToken, id, notes, auth.user),
             processJoinRequest: (

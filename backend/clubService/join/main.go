@@ -64,6 +64,11 @@ func handleJoinRequest(event api.Request) api.Response {
 	return api.Success(club)
 }
 
+type ImmediateJoinResponse struct {
+	Club       *database.Club               `json:"club"`
+	Scoreboard []database.ScoreboardSummary `json:"scoreboard,omitempty"`
+}
+
 func handleImmediateJoin(event api.Request) api.Response {
 	id := event.PathParameters["id"]
 	if id == "" {
@@ -79,5 +84,12 @@ func handleImmediateJoin(event api.Request) api.Response {
 	if err != nil {
 		return api.Failure(err)
 	}
-	return api.Success(club)
+
+	scoreboard, err := repository.GetScoreboardSummaries([]string{info.Username})
+	if err != nil {
+		// This didn't prevent the new member from being added, so just log the error and continue
+		log.Errorf("Failed to get new scoreboard summary: %v", err)
+	}
+
+	return api.Success(ImmediateJoinResponse{Club: club, Scoreboard: scoreboard})
 }

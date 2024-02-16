@@ -53,6 +53,15 @@ export type ClubApiContextType = {
     batchGetClubs: (ids: string[]) => Promise<AxiosResponse<Club[]>>;
 
     /**
+     * Adds the current user as a member of the given club. The club must have
+     * approvalsRequired set to false.
+     * @param id The club to join.
+     * @returns An AxiosResponse containing the club's updated details and
+     * additional scoreboard entries.
+     */
+    joinClub: (id: string) => Promise<AxiosResponse<GetClubResponse, any>>;
+
+    /**
      * Sends a request to join the given club.
      * @param id The id of the club to request to join.
      * @param notes The notes the user is including in the request.
@@ -160,6 +169,21 @@ export function batchGetClubs(ids: string[]) {
     return axios.get<Club[]>(`${BASE_URL}/public/clubs/batch`, {
         params: { ids: ids.join(',') },
     });
+}
+
+/**
+ * Adds the current user as a member of the given club. The club must have
+ * approvalsRequired set to false.
+ * @param idToken The id token of the current signed-in user.
+ * @param id The club to join.
+ * @returns An AxiosResponse containing the club's updated details.
+ */
+export function joinClub(idToken: string, id: string) {
+    return axios.put<GetClubResponse>(
+        `${BASE_URL}/clubs/${id}/members`,
+        {},
+        { headers: { Authorization: 'Bearer ' + idToken } },
+    );
 }
 
 /**

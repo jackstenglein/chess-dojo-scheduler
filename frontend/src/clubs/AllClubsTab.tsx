@@ -25,7 +25,7 @@ const AllClubsTab = () => {
                     request.onFailure(err);
                 });
         }
-    }, [request, api]);
+    }, [request, api, cache]);
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
