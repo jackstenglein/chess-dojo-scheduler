@@ -1,20 +1,23 @@
-import { useState } from 'react';
+import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { LoadingButton } from '@mui/lab';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
-import SellingPoint, { SellingPointStatus } from './SellingPoint';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
+import { AuthStatus, useAuth } from '../auth/Auth';
+import { SubscriptionStatus } from '../database/user';
+import LoadingPage from '../loading/LoadingPage';
+import SellingPoint, { SellingPointStatus } from './SellingPoint';
 
 interface PricingPageProps {
     onFreeTier?: () => void;
 }
 
 const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
-    const user = useAuth().user;
+    const auth = useAuth();
+    const user = auth.user;
     const navigate = useNavigate();
 
     const api = useApi();
@@ -22,6 +25,14 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     const [interval, setInterval] = useState('');
     const [searchParams] = useSearchParams();
     const redirect = searchParams.get('redirect') || '';
+
+    if (auth.status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+
+    if (user?.subscriptionStatus === SubscriptionStatus.Subscribed) {
+        return <Navigate to='/' replace />;
+    }
 
     const onSubscribe = (interval: 'month' | 'year') => {
         if (!user) {
