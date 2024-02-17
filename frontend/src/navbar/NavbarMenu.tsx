@@ -1,39 +1,39 @@
-import React, { useState } from 'react';
-import { NavigateFunction, useNavigate } from 'react-router-dom';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import TournamentsIcon from '@mui/icons-material/EmojiEvents';
+import FeedIcon from '@mui/icons-material/Feed';
+import HelpIcon from '@mui/icons-material/Help';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import Person2Icon from '@mui/icons-material/Person2';
+import ScoreboardIcon from '@mui/icons-material/Scoreboard';
+import MerchIcon from '@mui/icons-material/Sell';
 import {
+    Badge,
     Button,
+    Collapse,
     IconButton,
+    List,
     ListItemIcon,
     Menu,
     MenuItem,
     Stack,
+    Tooltip,
     Typography,
     useMediaQuery,
-    Badge,
-    Tooltip,
-    Collapse,
-    List,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import Person2Icon from '@mui/icons-material/Person2';
-import FeedIcon from '@mui/icons-material/Feed';
-import ScoreboardIcon from '@mui/icons-material/Scoreboard';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import HelpIcon from '@mui/icons-material/Help';
-import LogoutIcon from '@mui/icons-material/Logout';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import MerchIcon from '@mui/icons-material/Sell';
-import TournamentsIcon from '@mui/icons-material/EmojiEvents';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import ChecklistIcon from '@mui/icons-material/Checklist';
+import React, { useState } from 'react';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
 
+import { ChevronRight, ExpandLess, ExpandMore, Groups } from '@mui/icons-material';
+import { useNotifications } from '../api/cache/Cache';
 import { AuthStatus, useAuth } from '../auth/Auth';
-import PawnIcon from './PawnIcon';
 import { hasCreatedProfile } from '../database/user';
 import NotificationButton from '../notifications/NotificationButton';
-import { useNotifications } from '../api/cache/Cache';
+import PawnIcon from './PawnIcon';
 import ProfileButton from './ProfileButton';
-import { ChevronRight, ExpandLess, ExpandMore } from '@mui/icons-material';
 
 const Logo = () => {
     const navigate = useNavigate();
@@ -90,7 +90,7 @@ interface NavbarItem {
 
 function allStartItems(
     navigate: NavigateFunction,
-    toggleExpansion: (item: string) => void
+    toggleExpansion: (item: string) => void,
 ): NavbarItem[] {
     return [
         {
@@ -141,6 +141,11 @@ function allStartItems(
             onClick: () => navigate('/material'),
         },
         {
+            name: 'Clubs',
+            icon: <Groups />,
+            onClick: () => navigate('/clubs'),
+        },
+        {
             name: 'Shop',
             icon: <MerchIcon />,
             onClick: () => toggleExpansion('Shop'),
@@ -168,7 +173,7 @@ function allStartItems(
 
 function unauthenticatedStartItems(
     navigate: NavigateFunction,
-    toggleExpansion: (item: string) => void
+    toggleExpansion: (item: string) => void,
 ): NavbarItem[] {
     return [
         {
@@ -389,23 +394,25 @@ function HelpButton(navigate: NavigateFunction) {
 
 function useNavbarItems(
     meetingCount: number,
-    handleClick: (func: () => void) => () => void
+    handleClick: (func: () => void) => () => void,
 ) {
     const navigate = useNavigate();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+    const auth = useAuth();
 
-    const showAll = useMediaQuery('(min-width:1340px)');
-    const hide2 = useMediaQuery('(min-width:1177px)');
-    const hide3 = useMediaQuery('(min-width:1049px)');
-    const hide4 = useMediaQuery('(min-width:949px)');
-    const hide5 = useMediaQuery('(min-width:783px)');
+    const showAll = useMediaQuery('(min-width:1476px)');
+    const hide2 = useMediaQuery('(min-width:1316px)');
+    const hide3 = useMediaQuery('(min-width:1196px)');
+    const hide4 = useMediaQuery('(min-width:1067px)');
+    const hide5 = useMediaQuery('(min-width:970px)');
+    const hide6 = useMediaQuery('(min-width:788px)');
 
     const showHelp = useMediaQuery('(min-width:624px)');
     const showNotifications = useMediaQuery('(min-width:567px)');
     const showProfileDropdown = useMediaQuery('(min-width:542px)');
 
     const startItems = allStartItems(navigate, (item: string) =>
-        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) }))
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
     let startItemCount = 0;
@@ -419,8 +426,10 @@ function useNavbarItems(
         startItemCount = startItems.length - 4;
     } else if (hide5) {
         startItemCount = startItems.length - 5;
-    } else {
+    } else if (hide6) {
         startItemCount = startItems.length - 6;
+    } else {
+        startItemCount = startItems.length - 7;
     }
 
     const shownStartItems: JSX.Element[] = startItems
@@ -447,7 +456,7 @@ function useNavbarItems(
         endItems.push(<NotificationButton key='notifications' />);
     } else {
         menuItems.push(
-            <NotificationsMenuItem key='notifications' handleClick={handleClick} />
+            <NotificationsMenuItem key='notifications' handleClick={handleClick} />,
         );
     }
 
@@ -460,12 +469,23 @@ function useNavbarItems(
                 item={helpItem(navigate)}
                 openItems={openItems}
                 handleClick={handleClick}
-            />
+            />,
         );
     }
 
     if (showProfileDropdown) {
         endItems.push(<ProfileButton key='profileDropdown' />);
+    } else {
+        menuItems.push(
+            <MenuItem onClick={handleClick(auth.signout)}>
+                <ListItemIcon>
+                    <LogoutIcon color='error' />
+                </ListItemIcon>
+                <Typography textAlign='center' color='error'>
+                    Sign Out
+                </Typography>
+            </MenuItem>,
+        );
     }
 
     return {
@@ -568,7 +588,7 @@ const ExtraSmallMenuUnauthenticated = () => {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
     const startItems = unauthenticatedStartItems(navigate, (item: string) =>
-        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) }))
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -679,7 +699,7 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
     const startItems = allStartItems(navigate, (item: string) =>
-        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) }))
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
     if (auth.status === AuthStatus.Unauthenticated) {

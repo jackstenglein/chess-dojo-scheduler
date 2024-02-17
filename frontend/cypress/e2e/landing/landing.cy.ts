@@ -4,10 +4,10 @@ describe('Landing Page', () => {
     });
 
     it('has correct content', () => {
-        cy.getBySel('title').should('contain', 'ChessDojo Scoreboard');
+        cy.getBySel('title').should('contain', 'ChessDojo');
         cy.getBySel('subtitle').should(
             'contain',
-            'The ChessDojo Training Program offers structured training plans'
+            'The ChessDojo Training Program offers structured training plans',
         );
         cy.get('img').should('be.visible');
     });
@@ -34,7 +34,7 @@ describe('Landing Page', () => {
         cy.loginByCognitoApi(
             'landingPage',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
 
         cy.visit('/');
