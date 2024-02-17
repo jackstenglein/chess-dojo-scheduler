@@ -1,4 +1,11 @@
 import {
+    AccessAlarm,
+    Edit,
+    Sell,
+    Settings as SettingsIcon,
+    Storage,
+} from '@mui/icons-material';
+import {
     Card,
     Paper,
     Stack,
@@ -7,27 +14,20 @@ import {
     ToggleButtonProps,
     Tooltip,
 } from '@mui/material';
-import {
-    AccessAlarm,
-    Edit,
-    Sell,
-    Settings as SettingsIcon,
-    Storage,
-} from '@mui/icons-material';
 import React, { useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 
+import { useAuth } from '../../../../auth/Auth';
+import { Game } from '../../../../database/game';
 import { useLightMode } from '../../../../ThemeProvider';
-import Tags from './Tags';
-import Editor from './Editor';
 import Explorer from '../../explorer/Explorer';
 import { useChess } from '../../PgnBoard';
-import { Game } from '../../../../database/game';
-import Settings from './Settings';
-import { useAuth } from '../../../../auth/Auth';
-import ClockUsage from './ClockUsage';
 import { ResizableData } from '../../resize';
 import ResizeHandle from '../../ResizeHandle';
+import ClockUsage from './ClockUsage';
+import Editor from './Editor';
+import Settings from './settings/Settings';
+import Tags from './Tags';
 
 interface UnderboardProps {
     resizeData: ResizableData;
@@ -49,7 +49,7 @@ const Underboard: React.FC<UnderboardProps> = ({
 
     const showEditor = game && game.owner === user?.username;
     const [underboard, setUnderboard] = useState(
-        showEditor ? 'editor' : Boolean(game) ? 'tags' : showExplorer ? 'explorer' : ''
+        showEditor ? 'editor' : Boolean(game) ? 'tags' : showExplorer ? 'explorer' : '',
     );
     const light = useLightMode();
 
@@ -134,29 +134,22 @@ const Underboard: React.FC<UnderboardProps> = ({
                                 sx={{
                                     borderBottomRightRadius: 0,
                                     borderTop: light ? 0 : undefined,
-                                    borderRight: showEditor
-                                        ? undefined
-                                        : light
-                                        ? 0
-                                        : undefined,
                                 }}
                             >
                                 <AccessAlarm />
                             </UnderboardButton>
 
-                            {showEditor && (
-                                <UnderboardButton
-                                    tooltip='Settings'
-                                    value='settings'
-                                    sx={{
-                                        borderTop: light ? 0 : undefined,
-                                        borderRight: light ? 0 : undefined,
-                                        borderBottomRightRadius: 0,
-                                    }}
-                                >
-                                    <SettingsIcon />
-                                </UnderboardButton>
-                            )}
+                            <UnderboardButton
+                                tooltip='Settings'
+                                value='settings'
+                                sx={{
+                                    borderTop: light ? 0 : undefined,
+                                    borderRight: light ? 0 : undefined,
+                                    borderBottomRightRadius: 0,
+                                }}
+                            >
+                                <SettingsIcon />
+                            </UnderboardButton>
                         </ToggleButtonGroup>
                     </Paper>
                 )}
@@ -171,8 +164,12 @@ const Underboard: React.FC<UnderboardProps> = ({
                     )}
                     {underboard === 'editor' && <Editor />}
                     {underboard === 'explorer' && <Explorer />}
-                    {underboard === 'settings' && game && (
-                        <Settings game={game} onSaveGame={onSaveGame} />
+                    {underboard === 'settings' && (
+                        <Settings
+                            showEditor={showEditor}
+                            game={game}
+                            onSaveGame={onSaveGame}
+                        />
                     )}
                     {underboard === 'clocks' && <ClockUsage showEditor={showEditor} />}
                 </Stack>

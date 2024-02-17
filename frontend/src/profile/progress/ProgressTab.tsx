@@ -1,23 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
 import {
+    Button,
+    Checkbox,
+    FormControlLabel,
+    FormGroup,
+    MenuItem,
     Stack,
     TextField,
-    MenuItem,
-    Button,
-    FormGroup,
-    FormControlLabel,
-    Checkbox,
 } from '@mui/material';
-
+import { useEffect, useMemo, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
+import { useRequirements } from '../../api/cache/requirements';
 import { RequestSnackbar } from '../../api/Request';
 import { CustomTask, isComplete, Requirement } from '../../database/requirement';
 import { dojoCohorts, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import { useRequirements } from '../../api/cache/requirements';
-import CustomTaskEditor from './CustomTaskEditor';
 import DojoScoreCard from '../stats/DojoScoreCard';
+import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory from './ProgressCategory';
-import { useLocalStorage } from '../../ThemeProvider';
 
 function useHideCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('hideCompletedTasks', 'false');

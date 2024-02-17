@@ -3,15 +3,20 @@ import {
     ChevronLeft,
     ChevronRight,
     FirstPage,
-    WifiProtectedSetup as Flip,
     LastPage,
+    WifiProtectedSetup as Flip,
 } from '@mui/icons-material';
-import { Stack, Tooltip, IconButton } from '@mui/material';
+import { IconButton, Stack, Tooltip } from '@mui/material';
 import { useEffect } from 'react';
 
+import { useLocalStorage } from 'usehooks-ts';
+import { GameCommentTextFieldId } from '../../../../games/view/GamePage';
 import { useChess } from '../../PgnBoard';
 import { ClockTextFieldId, CommentTextFieldId } from '../underboard/Editor';
-import { GameCommentTextFieldId } from '../../../../games/view/GamePage';
+import {
+    GoToEndButtonBehavior,
+    GoToEndButtonBehaviorKey,
+} from '../underboard/settings/ViewerSettings';
 import { TagTextFieldId } from '../underboard/Tags';
 
 interface ControlButtonsProps {
@@ -19,6 +24,10 @@ interface ControlButtonsProps {
 }
 
 const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
+    const [goToEndBehavior] = useLocalStorage(
+        GoToEndButtonBehaviorKey,
+        GoToEndButtonBehavior.SingleClick,
+    );
     const { chess, toggleOrientation } = useChess();
 
     const onFirstMove = () => {
@@ -66,11 +75,25 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
 
     return (
         <Stack direction='row'>
-            <Tooltip title='First Move'>
-                <IconButton aria-label='first move' onClick={onFirstMove}>
-                    <FirstPage sx={{ color: 'text.secondary' }} />
-                </IconButton>
-            </Tooltip>
+            {goToEndBehavior !== GoToEndButtonBehavior.Hidden && (
+                <Tooltip title='First Move'>
+                    <IconButton
+                        aria-label='first move'
+                        onClick={
+                            goToEndBehavior === GoToEndButtonBehavior.SingleClick
+                                ? onFirstMove
+                                : undefined
+                        }
+                        onDoubleClick={
+                            goToEndBehavior === GoToEndButtonBehavior.DoubleClick
+                                ? onFirstMove
+                                : undefined
+                        }
+                    >
+                        <FirstPage sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Tooltip>
+            )}
 
             <Tooltip title='Previous Move'>
                 <IconButton aria-label='previous move' onClick={onPreviousMove}>
@@ -84,11 +107,25 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
                 </IconButton>
             </Tooltip>
 
-            <Tooltip title='Last Move'>
-                <IconButton aria-label='last move' onClick={onLastMove}>
-                    <LastPage sx={{ color: 'text.secondary' }} />
-                </IconButton>
-            </Tooltip>
+            {goToEndBehavior !== GoToEndButtonBehavior.Hidden && (
+                <Tooltip title='Last Move'>
+                    <IconButton
+                        aria-label='last move'
+                        onClick={
+                            goToEndBehavior === GoToEndButtonBehavior.SingleClick
+                                ? onLastMove
+                                : undefined
+                        }
+                        onDoubleClick={
+                            goToEndBehavior === GoToEndButtonBehavior.DoubleClick
+                                ? onLastMove
+                                : undefined
+                        }
+                    >
+                        <LastPage sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Tooltip>
+            )}
 
             <Tooltip title='Flip Board'>
                 <IconButton aria-label='flip board' onClick={toggleOrientation}>

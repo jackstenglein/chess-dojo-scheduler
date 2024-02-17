@@ -1,39 +1,39 @@
-import React, { useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import {
-    Stack,
-    Typography,
-    FormControlLabel,
-    Checkbox,
-    useMediaQuery,
-    Tooltip,
-    Link,
-    Button,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import {
+    Button,
+    Checkbox,
+    FormControlLabel,
+    Link,
+    Stack,
+    Tooltip,
+    Typography,
+    useMediaQuery,
+} from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary, {
     AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
-import MuiAccordionDetails from '@mui/material/AccordionDetails';
+import { styled } from '@mui/material/styles';
+import React, { useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
+import { DayHours } from '@aldabil/react-scheduler/types';
+import { useLocalStorage } from 'usehooks-ts';
+import { useEvents } from '../../api/cache/Cache';
+import { useAuth } from '../../auth/Auth';
 import {
     AvailabilityType,
+    displayTimeControlType,
+    Event,
+    EventStatus,
+    getDisplayString,
     PositionType,
     TimeControlType,
     TournamentType,
-    displayTimeControlType,
-    getDisplayString,
-    Event,
-    EventStatus,
 } from '../../database/event';
-import { TimeFormat, dojoCohorts } from '../../database/user';
-import { useAuth } from '../../auth/Auth';
+import { dojoCohorts, TimeFormat } from '../../database/user';
 import TimezoneFilter from './TimezoneFilter';
-import { useEvents } from '../../api/cache/Cache';
-import { useLocalStorage } from '../../ThemeProvider';
-import { DayHours } from '@aldabil/react-scheduler/types';
 
 export const DefaultTimezone = 'DEFAULT';
 
@@ -58,7 +58,7 @@ export const AccordionSummary = styled(
             }
             {...props}
         />
-    )
+    ),
 )(({ theme }) => ({
     paddingLeft: 0,
     border: 0,
@@ -80,33 +80,45 @@ export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     paddingLeft: theme.spacing(1),
 }));
 
-const initialFilterTypes = Object.values(AvailabilityType).reduce((map, type) => {
-    map[type] = false;
-    return map;
-}, {} as Record<AvailabilityType, boolean>);
+const initialFilterTypes = Object.values(AvailabilityType).reduce(
+    (map, type) => {
+        map[type] = false;
+        return map;
+    },
+    {} as Record<AvailabilityType, boolean>,
+);
 
-const initialFilterCohorts = dojoCohorts.reduce((map, cohort) => {
-    map[cohort] = false;
-    return map;
-}, {} as Record<string, boolean>);
+const initialFilterCohorts = dojoCohorts.reduce(
+    (map, cohort) => {
+        map[cohort] = false;
+        return map;
+    },
+    {} as Record<string, boolean>,
+);
 
-const initialFilterTournamentTypes = Object.values(TournamentType).reduce((map, type) => {
-    map[type] = true;
-    return map;
-}, {} as Record<TournamentType, boolean>);
+const initialFilterTournamentTypes = Object.values(TournamentType).reduce(
+    (map, type) => {
+        map[type] = true;
+        return map;
+    },
+    {} as Record<TournamentType, boolean>,
+);
 
 const initialFilterTournamentTimeControls = Object.values(TimeControlType).reduce(
     (map, type) => {
         map[type] = true;
         return map;
     },
-    {} as Record<TimeControlType, boolean>
+    {} as Record<TimeControlType, boolean>,
 );
 
-const initialFilterTournamentPositions = Object.values(PositionType).reduce((m, t) => {
-    m[t] = true;
-    return m;
-}, {} as Record<PositionType, boolean>);
+const initialFilterTournamentPositions = Object.values(PositionType).reduce(
+    (m, t) => {
+        m[t] = true;
+        return m;
+    },
+    {} as Record<PositionType, boolean>,
+);
 
 export interface Filters {
     timezone: string;
@@ -160,57 +172,57 @@ export function useFilters(): Filters {
 
     const [timezone, setTimezone] = useState(user?.timezoneOverride || DefaultTimezone);
     const [timeFormat, setTimeFormat] = useState<TimeFormat>(
-        user?.timeFormat || TimeFormat.TwelveHour
+        user?.timeFormat || TimeFormat.TwelveHour,
     );
     const [minHour, setMinHour] = useLocalStorage<Date | null>(
         'calendarFilters.minHour',
         new Date(new Date().setHours(0)),
-        (v) => new Date(JSON.parse(v))
+        { deserializer: (v) => new Date(JSON.parse(v)) },
     );
     const [maxHour, setMaxHour] = useLocalStorage<Date | null>(
         'calendarFilters.maxHour',
         new Date(new Date().setHours(23)),
-        (v) => new Date(JSON.parse(v))
+        { deserializer: (v) => new Date(JSON.parse(v)) },
     );
 
     const [availabilities, setAvailabilities] = useLocalStorage(
         'calendarFilters.availabilties',
-        true
+        true,
     );
     const [meetings, setMeetings] = useLocalStorage('calendarFilters.meetings', true);
     const [dojoEvents, setDojoEvents] = useLocalStorage(
         'calendarFilters.dojoEvents',
-        true
+        true,
     );
 
     const [allTypes, setAllTypes] = useLocalStorage('calendarFilters.allTypes', true);
     const [types, setTypes] = useLocalStorage(
         'calendarFilters.types',
-        initialFilterTypes
+        initialFilterTypes,
     );
 
     const [allCohorts, setAllCohorts] = useLocalStorage(
         'calendarFilters.allCohorts',
-        true
+        true,
     );
     const [cohorts, setCohorts] = useLocalStorage(
         'calendarFilters.cohorts',
-        initialFilterCohorts
+        initialFilterCohorts,
     );
 
     const [tournamentTypes, setTournamentTypes] = useLocalStorage(
         'calendarFilters.tournamentTypes',
-        initialFilterTournamentTypes
+        initialFilterTournamentTypes,
     );
 
     const [tournamentTimeControls, setTournamentTimeControls] = useLocalStorage(
         'calendarFilters.tournamentTimeControls',
-        initialFilterTournamentTimeControls
+        initialFilterTournamentTimeControls,
     );
 
     const [tournamentPositions, setTournamentPositions] = useLocalStorage(
         'calendarFilters.tournamentPositions',
-        initialFilterTournamentPositions
+        initialFilterTournamentPositions,
     );
 
     const [coaching, setCoaching] = useLocalStorage('calendarFilters.coaching', true);
@@ -279,7 +291,7 @@ export function useFilters(): Filters {
             setTournamentPositions,
             coaching,
             setCoaching,
-        ]
+        ],
     );
 
     return result;
@@ -294,7 +306,7 @@ export function useFilters(): Filters {
  */
 export function getHours(
     minDate: Date | null,
-    maxDate: Date | null
+    maxDate: Date | null,
 ): [DayHours, DayHours] {
     let minHour = minDate?.getHours() || 0;
     let maxHour = (maxDate?.getHours() || 23) + 1;
@@ -511,7 +523,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                             onChange={(event) =>
                                                 onChangeTournamentTimeControls(
                                                     type,
-                                                    event.target.checked
+                                                    event.target.checked,
                                                 )
                                             }
                                             disabled={!filters.dojoEvents}
