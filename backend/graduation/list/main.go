@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -12,6 +13,7 @@ import (
 )
 
 var repository database.GraduationLister = database.DynamoDB
+var stage = os.Getenv("stage")
 
 type ListGraduationsResponse struct {
 	Graduations      []*database.Graduation `json:"graduations"`
@@ -19,8 +21,8 @@ type ListGraduationsResponse struct {
 }
 
 func byCohortHandler(event api.Request) (api.Response, error) {
-	cohort, _ := event.PathParameters["cohort"]
-	startKey, _ := event.QueryStringParameters["startKey"]
+	cohort := event.PathParameters["cohort"]
+	startKey := event.QueryStringParameters["startKey"]
 	graduations, lastKey, err := repository.ListGraduationsByCohort(database.DojoCohort(cohort), startKey)
 	if err != nil {
 		return api.Failure(err), nil
@@ -33,8 +35,8 @@ func byCohortHandler(event api.Request) (api.Response, error) {
 }
 
 func byOwnerHandler(event api.Request) (api.Response, error) {
-	username, _ := event.PathParameters["username"]
-	startKey, _ := event.QueryStringParameters["startKey"]
+	username := event.PathParameters["username"]
+	startKey := event.QueryStringParameters["startKey"]
 	graduations, lastKey, err := repository.ListGraduationsByOwner(username, startKey)
 	if err != nil {
 		return api.Failure(err), nil
@@ -46,7 +48,7 @@ func byOwnerHandler(event api.Request) (api.Response, error) {
 }
 
 func byDateHandler(event api.Request) (api.Response, error) {
-	startKey, _ := event.QueryStringParameters["startKey"]
+	startKey := event.QueryStringParameters["startKey"]
 	monthAgo := time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)
 	graduations, lastKey, err := repository.ListGraduationsByDate(monthAgo, startKey)
 	if err != nil {
@@ -60,7 +62,7 @@ func byDateHandler(event api.Request) (api.Response, error) {
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	if _, ok := event.PathParameters["cohort"]; ok {
 		return byCohortHandler(event)
@@ -74,5 +76,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 }
 
 func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
 	lambda.Start(Handler)
 }

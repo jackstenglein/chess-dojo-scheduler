@@ -425,7 +425,7 @@ func (repo *dynamoRepository) SetPairingEmailsSent(openClassical *OpenClassical,
 	}
 
 	updateExpr := "SET "
-	for key, _ := range openClassical.Sections {
+	for key := range openClassical.Sections {
 		sectionName := fmt.Sprintf("#%s", key)
 		updateExpr += fmt.Sprintf("#sections.%s.#rounds[%d].#emails = :true, ", sectionName, round)
 		exprAttrNames[sectionName] = aws.String(key)

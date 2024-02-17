@@ -21,7 +21,7 @@ func main() {
 }
 
 func handler(ctx context.Context, event Event) (Event, error) {
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 	log.SetRequestId(event.ID)
 
 	var queuedUpdates []*database.User

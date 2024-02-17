@@ -22,7 +22,7 @@ func main() {
 
 func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	ids := strings.Split(event.QueryStringParameters["ids"], ",")
 	if len(ids) == 0 || (len(ids) == 1 && ids[0] == "") {

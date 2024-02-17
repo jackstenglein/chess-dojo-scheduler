@@ -20,7 +20,7 @@ type ListGamesResponse struct {
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	startKey, _ := event.QueryStringParameters["startKey"]
 	monthAgo := time.Now().Add(database.ONE_MONTH_AGO).Format(time.RFC3339)

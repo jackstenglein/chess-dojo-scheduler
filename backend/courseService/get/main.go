@@ -30,7 +30,7 @@ func main() {
 
 func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	courseType := event.PathParameters["type"]
 	id := event.PathParameters["id"]
@@ -77,7 +77,7 @@ func checkAnonymousAccess(event api.Request, course *database.Course) (api.Respo
 
 	checkoutSession, err := payment.GetCheckoutSession(checkoutId)
 	if err != nil {
-		log.Debug("GetCheckoutSession err: ", err)
+		log.Error("GetCheckoutSession err: ", err)
 		return accessDenied(course)
 	}
 

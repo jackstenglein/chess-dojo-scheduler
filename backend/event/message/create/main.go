@@ -22,7 +22,7 @@ func main() {
 
 func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	id := event.PathParameters["id"]
 	if id == "" {

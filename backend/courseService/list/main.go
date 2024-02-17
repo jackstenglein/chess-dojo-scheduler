@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -13,6 +14,7 @@ import (
 )
 
 var repository database.CourseLister = database.DynamoDB
+var stage = os.Getenv("stage")
 
 type ListCoursesResponse struct {
 	Courses          []database.Course `json:"courses"`
@@ -20,12 +22,15 @@ type ListCoursesResponse struct {
 }
 
 func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
 	lambda.Start(handler)
 }
 
 func handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	var courses []database.Course
 	var lastKey string

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -10,14 +11,18 @@ import (
 )
 
 var repository = database.DynamoDB
+var stage = os.Getenv("stage")
 
 func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
 	lambda.Start(handler)
 }
 
 func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	startsAt := event.QueryStringParameters["startsAt"]
 	if startsAt == "" {

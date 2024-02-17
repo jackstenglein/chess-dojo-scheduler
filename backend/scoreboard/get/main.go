@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -17,6 +18,7 @@ const (
 )
 
 var repository database.ScoreboardSummaryLister = database.DynamoDB
+var stage = os.Getenv("stage")
 
 type GetScoreboardResponse struct {
 	Data             any    `json:"data"`
@@ -24,12 +26,15 @@ type GetScoreboardResponse struct {
 }
 
 func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
 	lambda.Start(handler)
 }
 
 func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	startKey := event.QueryStringParameters["startKey"]
 	requestType := event.PathParameters["type"]

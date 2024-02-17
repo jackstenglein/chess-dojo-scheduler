@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 const limit = 25
 
 var repository = database.DynamoDB
+var stage = os.Getenv("stage")
 
 type ListNewsfeedResponse struct {
 	Entries   []database.TimelineEntry `json:"entries"`
@@ -26,12 +28,15 @@ type ListNewsfeedResponse struct {
 }
 
 func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
 	lambda.Start(handler)
 }
 
 func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	info := api.GetUserInfo(event)
 	lastFetch := getLastFetched(info.Username, event)

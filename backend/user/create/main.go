@@ -25,7 +25,7 @@ func handleError(event Event, err error) (Event, error) {
 }
 
 func Handler(ctx context.Context, event Event) (Event, error) {
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	if event.TriggerSource != triggerSource {
 		log.Debugf("Invalid trigger source: %s\n", event.TriggerSource)

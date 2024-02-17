@@ -92,8 +92,6 @@ export const handler: DynamoDBStreamHandler = async (event) => {
  */
 async function processRecord(record: DynamoDBRecord) {
     try {
-        console.log('record: %j', record);
-
         const oldGame = record.dynamodb?.OldImage
             ? (unmarshall(
                   record.dynamodb.OldImage as Record<string, AttributeValue>
@@ -120,9 +118,6 @@ async function processRecord(record: DynamoDBRecord) {
         const newExplorerPositions = extractPositions(newGame);
         const updates = getUpdates(oldExplorerPositions, newExplorerPositions);
 
-        console.log('Old positions: ', oldExplorerPositions);
-        console.log('New positions: ', newExplorerPositions);
-        console.log('Final updates: %j', updates);
         console.log('Length of updates: ', updates.length);
 
         const chess = new Chess();
@@ -131,7 +126,7 @@ async function processRecord(record: DynamoDBRecord) {
             promises.push(writeExplorerPosition(game, chess, update));
         }
         const results = await Promise.allSettled(promises);
-        console.log('Finished with results: ', results);
+        console.log('Finished with %d results', results.length);
     } catch (err) {
         console.error('ERROR: Failed to process record %j: ', record, err);
     }

@@ -32,7 +32,7 @@ func main() {
 
 func Handler(ctx context.Context, event Event) (Event, error) {
 	log.SetRequestId(event.ID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	requirements, err := fetchRequirements()
 	if err != nil {
@@ -49,7 +49,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 		log.Errorf("Failed to unmarshal request: %v", err)
 		return event, err
 	}
-	log.Debugf("Request: %+v", req)
+	log.Infof("Request: %+v", req)
 
 	var queuedUpdates []*database.User
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
@@ -11,6 +12,7 @@ import (
 )
 
 var repository database.RequirementLister = database.DynamoDB
+var stage = os.Getenv("stage")
 
 type ListRequirementsResponse struct {
 	Requirements     []*database.Requirement `json:"requirements"`
@@ -19,10 +21,10 @@ type ListRequirementsResponse struct {
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
-	startKey, _ := event.QueryStringParameters["startKey"]
-	cohort, _ := event.PathParameters["cohort"]
+	startKey := event.QueryStringParameters["startKey"]
+	cohort := event.PathParameters["cohort"]
 
 	if cohort == "" || cohort == string(database.AllCohorts) {
 		requirements, lastKey, err := repository.ScanRequirements("", startKey)
@@ -35,7 +37,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		}), nil
 	}
 
-	scoreboard, _ := event.QueryStringParameters["scoreboardOnly"]
+	scoreboard := event.QueryStringParameters["scoreboardOnly"]
 	scoreboardOnly := scoreboard == "true"
 
 	requirements, lastKey, err := repository.ListRequirements(database.DojoCohort(cohort), scoreboardOnly, startKey)
@@ -50,5 +52,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 }
 
 func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
 	lambda.Start(Handler)
 }

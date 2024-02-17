@@ -14,7 +14,7 @@ func main() {
 }
 
 func handler(ctx context.Context, event events.DynamoDBEvent) error {
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	for _, record := range event.Records {
 		if record.EventName != "REMOVE" {

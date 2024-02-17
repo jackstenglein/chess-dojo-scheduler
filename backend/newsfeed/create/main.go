@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -13,13 +14,17 @@ import (
 )
 
 var repository = database.DynamoDB
+var stage = os.Getenv("stage")
 
 func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
 	lambda.Start(handler)
 }
 
 func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEventResponse, error) {
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 	var submitted int
 	var err error
 
@@ -45,7 +50,7 @@ func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEv
 				ItemIdentifier: record.Change.SequenceNumber,
 			})
 		} else {
-			log.Debugf("Submitted %d newsfeed entries", submitted)
+			log.Infof("Submitted %d newsfeed entries", submitted)
 		}
 	}
 
@@ -62,7 +67,7 @@ func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 
 	for _, id := range database.NewsfeedBlockedRequirements {
 		if requirementId == id {
-			log.Debugf("Skipping record due to blocked requirement id: %s", requirementId)
+			log.Infof("Skipping record due to blocked requirement id: %s", requirementId)
 			return 0, nil
 		}
 	}
@@ -119,7 +124,7 @@ func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 	}
 
 	if success < attempted {
-		return success, fmt.Errorf("Success (%d) < Attempted (%d) for Record: %#v", success, attempted, record)
+		return success, fmt.Errorf("success (%d) < attempted (%d) for record: %#v", success, attempted, record)
 	}
 	return success, nil
 }

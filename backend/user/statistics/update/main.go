@@ -21,7 +21,7 @@ func main() {
 }
 
 func Handler(ctx context.Context, event Event) (Event, error) {
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 	log.SetRequestId(event.ID)
 
 	requirements, err := fetchRequirements()

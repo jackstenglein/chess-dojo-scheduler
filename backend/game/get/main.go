@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/base64"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -12,10 +13,18 @@ import (
 )
 
 var repository database.GameGetter = database.DynamoDB
+var stage = os.Getenv("stage")
+
+func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
+	lambda.Start(Handler)
+}
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	cohort, ok := event.PathParameters["cohort"]
 	if !ok {
@@ -41,8 +50,4 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	return api.Success(game), nil
-}
-
-func main() {
-	lambda.Start(Handler)
 }

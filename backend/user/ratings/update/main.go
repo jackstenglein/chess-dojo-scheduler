@@ -144,7 +144,7 @@ type RatingUpdateRequest struct {
 }
 
 func Handler(ctx context.Context, event Event) (Event, error) {
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 	log.SetRequestId(event.ID)
 
 	var req RatingUpdateRequest
@@ -153,7 +153,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 		log.Errorf("Failed to unmarshal request:%v ", err)
 		return event, err
 	}
-	log.Debugf("Request: %+v", req)
+	log.Infof("Request: %+v", req)
 
 	var startKey string
 	for _, cohort := range req.Cohorts {

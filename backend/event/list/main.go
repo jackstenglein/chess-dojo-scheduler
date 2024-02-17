@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 
@@ -11,15 +12,23 @@ import (
 )
 
 var repository database.EventLister = database.DynamoDB
+var stage = os.Getenv("stage")
 
 type ListEventsResponse struct {
 	Events           []*database.Event `json:"events"`
 	LastEvaluatedKey string            `json:"lastEvaluatedKey,omitempty"`
 }
 
+func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
+	lambda.Start(Handler)
+}
+
 func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
-	log.Debugf("Request: %#v", request)
+	log.Infof("Request: %#v", request)
 
 	info := api.GetUserInfo(request)
 	startKey, _ := request.QueryStringParameters["startKey"]
@@ -41,8 +50,4 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		Events:           events,
 		LastEvaluatedKey: lastKey,
 	}), nil
-}
-
-func main() {
-	lambda.Start(Handler)
 }

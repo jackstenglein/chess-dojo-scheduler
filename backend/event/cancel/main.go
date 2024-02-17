@@ -30,7 +30,7 @@ func main() {
 
 func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
-	log.Debugf("Request: %#v", request)
+	log.Infof("Request: %#v", request)
 
 	info := api.GetUserInfo(request)
 	if info.Username == "" {

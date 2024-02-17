@@ -23,7 +23,7 @@ func main() {
 
 func Handler(ctx context.Context, event events.CloudWatchEvent) (events.CloudWatchEvent, error) {
 	log.SetRequestId(event.ID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	now := time.Now()
 	month := now.Add(-24 * time.Hour).Format("2006-01")

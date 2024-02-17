@@ -426,7 +426,7 @@ func (u *User) CalculateScore(requirements []*Requirement) float32 {
 	}
 	var score float32 = 0
 	for _, requirement := range requirements {
-		p, _ := u.Progress[requirement.Id]
+		p := u.Progress[requirement.Id]
 		score += requirement.CalculateScore(u.DojoCohort, p)
 	}
 	return score
@@ -1115,7 +1115,7 @@ func (repo *dynamoRepository) RecordGameCreation(user *User, amount int) error {
 		user.GamesCreated = make(map[DojoCohort]int)
 	}
 
-	count, _ := user.GamesCreated[user.DojoCohort]
+	count := user.GamesCreated[user.DojoCohort]
 	user.GamesCreated[user.DojoCohort] = count + amount
 	return repo.SetUserConditional(user, nil)
 }

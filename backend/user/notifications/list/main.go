@@ -19,7 +19,7 @@ type ListNotificationsResponse struct {
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	username := api.GetUserInfo(event).Username
 	if username == "" {

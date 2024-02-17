@@ -17,7 +17,7 @@ func main() {
 }
 
 func handler(ctx context.Context, event events.DynamoDBEvent) (events.DynamoDBEventResponse, error) {
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 	var deleted int
 	var err error
 

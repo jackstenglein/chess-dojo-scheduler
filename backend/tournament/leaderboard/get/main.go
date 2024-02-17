@@ -20,7 +20,7 @@ func main() {
 
 func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
-	log.Debugf("Request: %#v", request)
+	log.Infof("Request: %#v", request)
 
 	timePeriod, _ := request.QueryStringParameters["timePeriod"]
 	tournamentType, _ := request.QueryStringParameters["tournamentType"]

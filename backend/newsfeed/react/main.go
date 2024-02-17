@@ -16,7 +16,7 @@ var repository database.TimelineReactor = database.DynamoDB
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	owner := event.PathParameters["owner"]
 	if owner == "" {

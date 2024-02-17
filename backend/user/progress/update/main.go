@@ -161,7 +161,7 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	info := api.GetUserInfo(event)
 	if info.Username == "" {

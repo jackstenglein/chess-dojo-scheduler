@@ -3,6 +3,7 @@ import {
     BatchWriteItemCommand,
     DynamoDBClient,
     QueryCommand,
+    QueryCommandOutput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
@@ -72,9 +73,6 @@ export const handler: DynamoDBStreamHandler = async (event) => {
  * @param record A single DynamoDB stream record to notify users about.
  */
 async function processRecord(record: DynamoDBRecord) {
-    console.log('record: %j', record);
-    console.log('record.dynamodb: %j', record.dynamodb);
-
     if (!record.dynamodb?.NewImage) {
         console.log('Skipping record as it has no NewImage');
         return;
@@ -101,7 +99,7 @@ async function processRecord(record: DynamoDBRecord) {
         do {
             console.log('Fetching followers for FEN: ', normalizedFen);
 
-            const queryOutput = await dynamo.send(
+            const queryOutput: QueryCommandOutput = await dynamo.send(
                 new QueryCommand({
                     KeyConditionExpression: `#fen = :fen AND begins_with ( #id, :id )`,
                     ExpressionAttributeNames: {
@@ -117,10 +115,10 @@ async function processRecord(record: DynamoDBRecord) {
                 })
             );
 
-            const followers: ExplorerPositionFollower[] = queryOutput.Items?.map(
+            const followers: ExplorerPositionFollower[] | undefined = queryOutput.Items?.map(
                 (item) => unmarshall(item) as ExplorerPositionFollower
             );
-            console.log('Processing followers: %j', followers);
+            console.log('Processing %d followers', followers?.length || 0);
 
             await processFollowers(game, followers);
             startKey = queryOutput.LastEvaluatedKey;
@@ -229,7 +227,6 @@ async function writeNotifications(notifications: ExplorerGameNotification[]) {
             ReturnConsumedCapacity: 'NONE',
         });
 
-        console.log('Saving notifications with input: %j', input);
         await dynamo.send(input);
     } catch (err) {
         console.error('Failed to batch write notifications: ', err);

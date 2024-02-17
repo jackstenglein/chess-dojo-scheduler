@@ -26,7 +26,7 @@ func main() {
 
 func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	username := event.PathParameters["username"]
 	if username == "" {

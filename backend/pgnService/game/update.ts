@@ -220,7 +220,6 @@ async function applyUpdate(
     });
 
     try {
-        console.log('Sending DDB UpdateItemCommand: %j', input);
         const response = await dynamo.send(input);
         if (response.Attributes) {
             return unmarshall(response.Attributes) as Game;

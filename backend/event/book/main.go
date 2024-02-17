@@ -77,7 +77,7 @@ func checkCohort(event *database.Event, cohort database.DojoCohort) error {
 // Handler implements the BookAvailability endpoint.
 func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
-	log.Debugf("Request: %#v", request)
+	log.Infof("Request: %#v", request)
 
 	info := api.GetUserInfo(request)
 	if info.Username == "" {

@@ -18,7 +18,7 @@ var repository database.GameCommenter = database.DynamoDB
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
-	log.Debugf("Event: %#v", event)
+	log.Infof("Event: %#v", event)
 
 	cohort, ok := event.PathParameters["cohort"]
 	if !ok {

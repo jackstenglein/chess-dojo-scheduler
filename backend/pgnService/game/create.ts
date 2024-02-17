@@ -31,7 +31,9 @@ export const gamesTable = process.env.stage + '-games';
 export const timelineTable = process.env.stage + '-timeline';
 
 export function success(value: any): APIGatewayProxyResultV2 {
-    console.log('Response: %j', value);
+    if (process.env.stage !== 'prod') {
+        console.log('Response: %j', value);
+    }
     return {
         statusCode: 200,
         body: JSON.stringify(value),
@@ -339,7 +341,6 @@ function isValidResult(result?: string): boolean {
 
 async function batchPutGames(games: Game[]): Promise<number> {
     const writeRequests = games.map((g) => {
-        console.log('Marshalling game: %j', g);
         return {
             PutRequest: {
                 Item: marshall(g),
