@@ -1,19 +1,19 @@
+import { LoadingButton } from '@mui/lab';
 import {
     CircularProgress,
     Container,
+    Divider,
+    Link,
     Stack,
     TextField,
     Typography,
-    Link,
-    Divider,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { Link as RouterLink, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import GoogleButton from 'react-google-button';
+import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
-import { AuthStatus, useAuth } from './Auth';
 import { useState } from 'react';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { AuthStatus, useAuth } from './Auth';
 
 const SignupPage = () => {
     const auth = useAuth();
@@ -90,7 +90,7 @@ const SignupPage = () => {
 
                 <Stack alignItems='center'>
                     <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Scoreboard
+                        ChessDojo Training Program
                     </Typography>
                     <Typography variant='h6' data-cy='subtitle'>
                         Create Account

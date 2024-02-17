@@ -5,7 +5,7 @@ describe('Forgot Password Page', () => {
     });
 
     it('has correct content', () => {
-        cy.getBySel('title').should('have.text', 'ChessDojo Scoreboard');
+        cy.getBySel('title').should('have.text', 'ChessDojo Training Program');
         cy.getBySel('subtitle').should('have.text', 'Forgot Password');
         cy.getBySel('description').should('contain', 'Enter your email');
     });
@@ -33,7 +33,7 @@ describe('Forgot Password Page', () => {
 
         cy.get('#email-helper-text').should(
             'have.text',
-            'Account with this email does not exist'
+            'Account with this email does not exist',
         );
     });
 
@@ -58,7 +58,7 @@ describe('Forgot Password Page', () => {
 
         cy.get('#password-helper-text').should(
             'have.text',
-            'Password must be at least 8 characters'
+            'Password must be at least 8 characters',
         );
     });
 
@@ -73,7 +73,7 @@ describe('Forgot Password Page', () => {
 
         cy.get('#password-confirm-helper-text').should(
             'have.text',
-            'Passwords do not match'
+            'Passwords do not match',
         );
     });
 
@@ -105,7 +105,7 @@ describe('Forgot Password Page', () => {
 
         cy.getBySel('description').should(
             'have.text',
-            'You can now sign in using your new password.'
+            'You can now sign in using your new password.',
         );
         cy.getBySel('signin-button').click();
         cy.location('pathname').should('equal', '/signin');

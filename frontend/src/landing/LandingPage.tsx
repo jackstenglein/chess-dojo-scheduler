@@ -29,7 +29,7 @@ const LandingPage = () => {
                     >
                         <Stack alignItems='center' spacing={2}>
                             <Typography variant='h2' textAlign='center' data-cy='title'>
-                                ChessDojo Scoreboard
+                                ChessDojo
                             </Typography>
                             <Typography
                                 variant='h5'

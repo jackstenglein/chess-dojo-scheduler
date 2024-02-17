@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
 import {
     Button,
     CircularProgress,
@@ -8,10 +6,12 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 
-import { AuthStatus, useAuth } from './Auth';
-import { RequestSnackbar, useRequest } from '../api/Request';
 import { LoadingButton } from '@mui/lab';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { AuthStatus, useAuth } from './Auth';
 
 const googleSigninMessage =
     'Your email is not verified. Note that if you previously signed in with Google, you must continue to use that option. You will not be able to reset your password in that case.';
@@ -83,7 +83,7 @@ const ForgotPasswordPage = () => {
 
                 <Stack alignItems='center'>
                     <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Scoreboard
+                        ChessDojo Training Program
                     </Typography>
                     <Typography variant='h6' data-cy='subtitle'>
                         Forgot Password

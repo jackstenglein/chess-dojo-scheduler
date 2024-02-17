@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { LoadingButton } from '@mui/lab';
 import {
     Alert,
     Button,
@@ -10,11 +9,12 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { useState } from 'react';
 import GoogleButton from 'react-google-button';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
-import { AuthStatus, useAuth } from './Auth';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { AuthStatus, useAuth } from './Auth';
 
 const SigninPage = () => {
     const auth = useAuth();
@@ -86,7 +86,7 @@ const SigninPage = () => {
                 <RequestSnackbar request={request} />
                 <Stack alignItems='center'>
                     <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Scoreboard
+                        ChessDojo Training Program
                     </Typography>
                     <Typography variant='h6' data-cy='subtitle'>
                         Sign In

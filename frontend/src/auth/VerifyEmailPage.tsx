@@ -1,10 +1,10 @@
+import LoadingButton from '@mui/lab/LoadingButton';
+import { CircularProgress, Container, Stack, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Typography, Stack, TextField, CircularProgress, Container } from '@mui/material';
-import LoadingButton from '@mui/lab/LoadingButton';
 
-import { AuthStatus, useAuth } from './Auth';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { AuthStatus, useAuth } from './Auth';
 
 const VerifyEmailPage = () => {
     const auth = useAuth();
@@ -100,7 +100,7 @@ const VerifyEmailPage = () => {
             <Stack justifyContent='center' alignItems='center' spacing={6}>
                 <Stack alignItems='center'>
                     <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Scoreboard
+                        ChessDojo Training Program
                     </Typography>
                     <Typography variant='h6' data-cy='subtitle'>
                         Verify Email
