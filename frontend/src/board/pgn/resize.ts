@@ -36,7 +36,7 @@ export interface AreaSizes {
 export function getSizes(
     parentWidth: number,
     showUnderboard?: boolean,
-    hidePlayerHeaders?: boolean
+    hidePlayerHeaders?: boolean,
 ): AreaSizes {
     if (parentWidth < breakpoints.sm) {
         return xsSizes(parentWidth, showUnderboard, hidePlayerHeaders);
@@ -50,7 +50,7 @@ export function getSizes(
 function xsSizes(
     parentWidth: number,
     showUnderboard?: boolean,
-    hidePlayerHeaders?: boolean
+    hidePlayerHeaders?: boolean,
 ): AreaSizes {
     const padding = 6;
     const boardSize = parentWidth - padding;
@@ -105,7 +105,7 @@ function xsSizes(
 function smSizes(
     parentWidth: number,
     showUnderboard?: boolean,
-    hidePlayerHeaders?: boolean
+    hidePlayerHeaders?: boolean,
 ): AreaSizes {
     const padding = 6;
     const spacing = 4;
@@ -157,9 +157,9 @@ function smSizes(
 function mdSizes(
     parentWidth: number,
     showUnderboard?: boolean,
-    hidePlayerHeaders?: boolean
+    hidePlayerHeaders?: boolean,
 ): AreaSizes {
-    const padding = 6;
+    const padding = 24;
     const spacing = 8;
 
     const availableWidth = parentWidth - padding - 2 * spacing;
@@ -220,7 +220,7 @@ function mdSizes(
 
 export function getNewSizes(
     currentSizes: AreaSizes,
-    hidePlayerHeaders?: boolean
+    hidePlayerHeaders?: boolean,
 ): AreaSizes {
     if (currentSizes.breakpoint === 'xs') {
         return currentSizes;
