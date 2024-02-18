@@ -17,8 +17,8 @@ type PlayerColor string
 
 const (
 	White  PlayerColor = "white"
-	Black              = "black"
-	Either             = "either"
+	Black  PlayerColor = "black"
+	Either PlayerColor = "either"
 )
 
 type byDate []*Game

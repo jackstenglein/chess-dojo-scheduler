@@ -164,7 +164,7 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 	if r.ExpirationDays > 0 {
 		expirationDate, err := time.Parse(time.RFC3339, progress.UpdatedAt)
 		if err != nil {
-			expirationDate.Add(time.Duration(r.ExpirationDays) * time.Hour * 24)
+			expirationDate = expirationDate.Add(time.Duration(r.ExpirationDays) * time.Hour * 24)
 			if time.Now().After(expirationDate) {
 				return 0
 			}
@@ -173,7 +173,7 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 
 	var count int
 	if r.NumberOfCohorts == 1 || r.NumberOfCohorts == 0 {
-		count, _ = progress.Counts[AllCohorts]
+		count = progress.Counts[AllCohorts]
 	} else if r.NumberOfCohorts > 1 && len(progress.Counts) >= r.NumberOfCohorts {
 		if c, ok := progress.Counts[cohort]; ok {
 			count = c
@@ -185,7 +185,7 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 			}
 		}
 	} else {
-		count, _ = progress.Counts[cohort]
+		count = progress.Counts[cohort]
 	}
 
 	if r.TotalScore > 0 {
