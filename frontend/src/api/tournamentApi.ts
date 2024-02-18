@@ -110,6 +110,17 @@ export type TournamentApiContextType = {
         region: string,
         section: string,
     ) => Promise<AxiosResponse<OpenClassical>>;
+
+    /**
+     * Emails the pairings for the current round of the open classical.
+     * The round parameter must be provided to ensure the caller understands which
+     * round they are sending emails for.
+     * @param round The round to send the emails for.
+     * @returns An AxiosResponse containing the updated open classical and the number of pairing emails sent.
+     */
+    adminEmailPairings: (
+        round: number,
+    ) => Promise<AxiosResponse<OpenClassicalEmailPairingsResponse>>;
 };
 
 /** A request to register for the Open Classical. */
@@ -340,6 +351,31 @@ export function adminWithdrawPlayer(
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/withdraw-player`,
         { lichessUsername, region, section },
+        { headers: { Authorization: 'Bearer ' + idToken } },
+    );
+}
+
+/** The response from an adminEmailPairings call. */
+export interface OpenClassicalEmailPairingsResponse {
+    /** The updated open classical. */
+    openClassical: OpenClassical;
+
+    /** The number of emails sent. */
+    emailsSent: number;
+}
+
+/**
+ * Emails the pairings for the current round of the open classical.
+ * The round parameter must be provided to ensure the caller understands which
+ * round they are sending emails for.
+ * @param idToken The id token of the current signed-in user.
+ * @param round The round to send the emails for.
+ * @returns An AxiosResponse containing the updated open classical and the number of pairing emails sent.
+ */
+export function adminEmailPairings(idToken: string, round: number) {
+    return axios.put<OpenClassicalEmailPairingsResponse>(
+        `${BASE_URL}/tournaments/open-classical/admin/email-pairings`,
+        { round },
         { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }

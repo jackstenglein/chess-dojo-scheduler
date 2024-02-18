@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { OpenClassical } from '../../../database/tournament';
 import PairingsTable from '../PairingsTable';
 import Editor from './Editor';
+import EmailPairingsButton from './EmailPairingsButton';
 
 interface PairingsTabProps {
     openClassical: OpenClassical;
@@ -25,12 +26,23 @@ const PairingsTab: React.FC<PairingsTabProps> = ({ openClassical, onUpdate }) =>
     const ratingRange = searchParams.get('ratingRange') || 'Open';
     const view = searchParams.get('view') || '1';
 
+    const round =
+        openClassical.sections[`${region}_${ratingRange}`]?.rounds[parseInt(view) - 1];
+
     const maxRound =
-        openClassical.sections[`${region}_${ratingRange}`]?.rounds.length || 1;
+        openClassical.sections[`${region}_${ratingRange}`]?.rounds.length ?? 1;
 
     return (
-        <Stack spacing={3} alignItems='start'>
-            <Editor openClassical={openClassical} onSuccess={onUpdate} />
+        <Stack spacing={3}>
+            <Stack direction='row' spacing={2}>
+                <Editor openClassical={openClassical} onSuccess={onUpdate} />
+                <EmailPairingsButton
+                    maxRound={maxRound}
+                    currentRound={parseInt(view)}
+                    emailsSent={round?.pairingEmailsSent}
+                    onSuccess={onUpdate}
+                />
+            </Stack>
 
             <Stack direction='row' width={1} spacing={2}>
                 <TextField

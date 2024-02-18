@@ -98,6 +98,7 @@ import {
 import { getScoreboard, ScoreboardApiContextType } from './scoreboardApi';
 import {
     adminBanPlayer,
+    adminEmailPairings,
     adminGetRegistrations,
     adminUnbanPlayer,
     adminWithdrawPlayer,
@@ -333,6 +334,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             adminUnbanPlayer: (username: string) => adminUnbanPlayer(idToken, username),
             adminWithdrawPlayer: (username: string, region: string, section: string) =>
                 adminWithdrawPlayer(idToken, username, region, section),
+            adminEmailPairings: (round: number) => adminEmailPairings(idToken, round),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),

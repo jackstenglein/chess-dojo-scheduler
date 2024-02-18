@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 type TournamentType string
@@ -417,6 +418,7 @@ func (repo *dynamoRepository) UpdateOpenClassicalResult(update *OpenClassicalPai
 }
 
 // Sets the pairing emails sent flag to true for all sections in the current open classical.
+// Round is a 1-based index.
 func (repo *dynamoRepository) SetPairingEmailsSent(openClassical *OpenClassical, round int) (*OpenClassical, error) {
 	exprAttrNames := map[string]*string{
 		"#sections": aws.String("sections"),
@@ -427,7 +429,7 @@ func (repo *dynamoRepository) SetPairingEmailsSent(openClassical *OpenClassical,
 	updateExpr := "SET "
 	for key := range openClassical.Sections {
 		sectionName := fmt.Sprintf("#%s", key)
-		updateExpr += fmt.Sprintf("#sections.%s.#rounds[%d].#emails = :true, ", sectionName, round)
+		updateExpr += fmt.Sprintf("#sections.%s.#rounds[%d].#emails = :true, ", sectionName, round-1)
 		exprAttrNames[sectionName] = aws.String(key)
 	}
 	updateExpr = updateExpr[0 : len(updateExpr)-2]
@@ -445,6 +447,7 @@ func (repo *dynamoRepository) SetPairingEmailsSent(openClassical *OpenClassical,
 		TableName:    aws.String(tournamentTable),
 		ReturnValues: aws.String("ALL_NEW"),
 	}
+	log.Debugf("Input: %#v", input)
 
 	result := &OpenClassical{}
 	if err := repo.updateItem(input, result); err != nil {

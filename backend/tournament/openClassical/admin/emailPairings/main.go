@@ -19,7 +19,7 @@ import (
 )
 
 type EmailPairingsRequest struct {
-	// The round to send pairing emails for.
+	// The round to send pairing emails for. 1-based index.
 	Round int `json:"round"`
 }
 
@@ -32,7 +32,6 @@ type EmailPairingsResponse struct {
 }
 
 var repository = database.DynamoDB
-
 var Ses = ses.New(session.Must(session.NewSession()))
 
 func main() {
@@ -70,8 +69,8 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	for name, section := range openClassical.Sections {
-		if len(section.Rounds) < request.Round {
-			err = errors.New(400, fmt.Sprintf("Invalid request: section %q does not have round %d. Send emails only after all sections have pairings.", name, request.Round), "")
+		if len(section.Rounds) != request.Round {
+			err = errors.New(400, fmt.Sprintf("Invalid request: section %q has latest round %d. Send emails only for the latest round after all sections have pairings.", name, len(section.Rounds)), "")
 			return api.Failure(err), nil
 		}
 	}
@@ -86,7 +85,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	for name, section := range openClassical.Sections {
 		round := section.Rounds[request.Round-1]
 		if round.PairingEmailsSent {
-			log.Debugf("Skipping section %s because PairingEmailsSent is true", name)
+			log.Infof("Skipping section %s because PairingEmailsSent is already true", name)
 			continue
 		}
 

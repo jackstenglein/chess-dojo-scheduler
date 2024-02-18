@@ -194,6 +194,12 @@ functions:
           - dynamodb:GetItem
         Resource:
           - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - ses:SendTemplatedEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/dojoscoreboard.com
+          - arn:aws:ses:${aws:region}:${aws:accountId}:template/openClassicalPairing
 
   openClassicalAdminBanPlayer:
     handler: openClassical/admin/banPlayer/main.go

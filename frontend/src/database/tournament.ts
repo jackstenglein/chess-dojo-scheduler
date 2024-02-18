@@ -65,6 +65,9 @@ export interface OpenClassicalPairing {
 export interface OpenClassicalRound {
     /** The list of pairings for the round. */
     pairings: OpenClassicalPairing[];
+
+    /** Whether pairing emails have already been sent for the round. */
+    pairingEmailsSent: boolean;
 }
 
 export interface OpenClassical {
