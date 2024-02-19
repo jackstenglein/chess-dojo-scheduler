@@ -1,19 +1,19 @@
+import { Chess, Move } from '@jackstenglein/chess';
+import { TextField, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { TextField, Typography } from '@mui/material';
-import { Move } from '@jackstenglein/chess';
 
-import { ClockTextFieldId } from './Editor';
+import { useChess } from '../../PgnBoard';
 import {
     convertClockToSeconds,
     formatTime,
     getIncrement,
     getInitialClock,
 } from './ClockUsage';
-import { useChess } from '../../PgnBoard';
+import { ClockTextFieldId } from './Editor';
 
-function convertSecondsToDate(seconds: number | undefined): Date | null {
+export function convertSecondsToDate(seconds: number | undefined): Date | null {
     if (!seconds) {
         return null;
     }
@@ -31,8 +31,35 @@ function convertDateToClock(date: Date | null): string {
         return '';
     }
     return formatTime(
-        date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds()
+        date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(),
     );
+}
+
+export function handleInitialClock(chess: Chess, increment: number, value: Date | null) {
+    const seconds = value
+        ? value.getHours() * 3600 + value.getMinutes() * 60 + value.getSeconds()
+        : 0;
+
+    let timeControl = `${seconds}`;
+    if (increment) {
+        timeControl += `+${increment}`;
+    }
+
+    chess.setHeader('TimeControl', timeControl);
+}
+
+export function handleIncrement(chess: Chess, initialClock: number, value: string) {
+    const increment = parseInt(value);
+    if (isNaN(increment)) {
+        chess.setHeader('TimeControl', `${initialClock}`);
+    } else {
+        chess.setHeader('TimeControl', `${initialClock}+${increment}`);
+    }
+}
+
+export function onChangeClock(chess: Chess, move: Move, value: Date | null) {
+    const clk = convertDateToClock(value);
+    chess.setCommand('clk', clk, move);
 }
 
 const ClockEditor = () => {
@@ -45,33 +72,6 @@ const ClockEditor = () => {
     const initialClock = getInitialClock(chess?.pgn);
     const increment = getIncrement(chess?.pgn);
 
-    const handleInitialClock = (value: Date | null) => {
-        const seconds = value
-            ? value.getHours() * 3600 + value.getMinutes() * 60 + value.getSeconds()
-            : 0;
-
-        let timeControl = `${seconds}`;
-        if (increment) {
-            timeControl += `+${increment}`;
-        }
-
-        chess.setHeader('TimeControl', timeControl);
-    };
-
-    const handleIncrement = (value: string) => {
-        const increment = parseInt(value);
-        if (isNaN(increment)) {
-            chess.setHeader('TimeControl', `${initialClock}`);
-        } else {
-            chess.setHeader('TimeControl', `${initialClock}+${increment}`);
-        }
-    };
-
-    const onChangeClock = (move: Move, value: Date | null) => {
-        const clk = convertDateToClock(value);
-        chess.setCommand('clk', clk, move);
-    };
-
     const moves = chess.history();
     const grid = [];
     for (let i = 0; i < moves.length; i += 2) {
@@ -82,12 +82,12 @@ const ClockEditor = () => {
                     label={`${i / 2 + 1}. ${moves[i].san}`}
                     format='HH:mm:ss'
                     value={convertSecondsToDate(
-                        convertClockToSeconds(moves[i].commentDiag?.clk)
+                        convertClockToSeconds(moves[i].commentDiag?.clk),
                     )}
-                    onChange={(value) => onChangeClock(moves[i], value)}
+                    onChange={(value) => onChangeClock(chess, moves[i], value)}
                     fullWidth
                 />
-            </Grid2>
+            </Grid2>,
         );
         if (moves[i + 1]) {
             grid.push(
@@ -97,12 +97,12 @@ const ClockEditor = () => {
                         label={`${i / 2 + 1}... ${moves[i + 1].san}`}
                         format='HH:mm:ss'
                         value={convertSecondsToDate(
-                            convertClockToSeconds(moves[i + 1].commentDiag?.clk)
+                            convertClockToSeconds(moves[i + 1].commentDiag?.clk),
                         )}
-                        onChange={(value) => onChangeClock(moves[i + 1], value)}
+                        onChange={(value) => onChangeClock(chess, moves[i + 1], value)}
                         fullWidth
                     />
-                </Grid2>
+                </Grid2>,
             );
         }
     }
@@ -116,7 +116,7 @@ const ClockEditor = () => {
                         label='Starting Time'
                         format='HH:mm:ss'
                         value={convertSecondsToDate(initialClock)}
-                        onChange={(value) => handleInitialClock(value)}
+                        onChange={(value) => handleInitialClock(chess, increment, value)}
                         fullWidth
                     />
                 </Grid2>
@@ -126,7 +126,9 @@ const ClockEditor = () => {
                         id={ClockTextFieldId}
                         label='Increment (Sec)'
                         value={`${increment}`}
-                        onChange={(e) => handleIncrement(e.target.value)}
+                        onChange={(e) =>
+                            handleIncrement(chess, initialClock, e.target.value)
+                        }
                         fullWidth
                     />
                 </Grid2>

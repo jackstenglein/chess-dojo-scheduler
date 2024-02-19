@@ -1,38 +1,41 @@
+import { Event, EventType, TAGS } from '@jackstenglein/chess';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CheckIcon from '@mui/icons-material/Check';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
+    Button,
     CardContent,
     Stack,
     TextField,
     ToggleButton,
     ToggleButtonGroup,
-    Typography,
     ToggleButtonProps,
     Tooltip,
-    Button,
-    FormLabel,
-    RadioGroup,
-    FormControlLabel,
-    Radio,
+    Typography,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CheckIcon from '@mui/icons-material/Check';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-
-import { useChess } from '../../PgnBoard';
-import { getInitialClock } from '../../PlayerHeader';
+import Grid2 from '@mui/material/Unstable_Grid2';
+import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React, { useEffect, useState } from 'react';
-import { Event, EventType } from '@jackstenglein/chess';
 import {
-    Nag,
     evalNags,
     getNagInSet,
     getNagsInSet,
     moveNags,
+    Nag,
     nags,
     positionalNags,
     setNagInSet,
     setNagsInSet,
 } from '../../Nag';
-import { FormControl } from '@mui/base';
+import { useChess } from '../../PgnBoard';
+import {
+    convertSecondsToDate,
+    handleIncrement,
+    handleInitialClock,
+    onChangeClock,
+} from './ClockEditor';
+import { convertClockToSeconds, getIncrement, getInitialClock } from './ClockUsage';
 
 export const CommentTextFieldId = 'commentTextField';
 export const ClockTextFieldId = 'clockTextField';
@@ -56,40 +59,6 @@ const NagButton: React.FC<NagButtonProps> = ({ text, description, ...props }) =>
     );
 };
 
-interface TimeSlots {
-    hours: number;
-    minutes: number;
-    seconds: number;
-}
-
-function getTimeSlotsFromClock(clock: string): TimeSlots {
-    const slots = clock.split(':');
-
-    let seconds = parseFloat(slots[slots.length - 1] || '0');
-    let minutes = parseInt(slots[slots.length - 2] || '0');
-    let hours = parseInt(slots[slots.length - 3] || '0');
-
-    return {
-        hours,
-        minutes,
-        seconds,
-    };
-}
-
-function getClockFromTimeSlots(slots: TimeSlots): string {
-    const seconds = slots.seconds % 60;
-    let minutes = slots.minutes + Math.floor(slots.seconds / 60);
-    let hours = slots.hours + Math.floor(minutes / 60);
-    minutes = minutes % 60;
-
-    return `${hours}:${minutes.toLocaleString('en-US', {
-        minimumIntegerDigits: 2,
-    })}:${seconds.toLocaleString('en-US', {
-        minimumIntegerDigits: 2,
-        maximumFractionDigits: 1,
-    })}`;
-}
-
 const Editor = () => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
@@ -103,11 +72,18 @@ const Editor = () => {
                     EventType.UpdateCommand,
                     EventType.UpdateComment,
                     EventType.UpdateNags,
+                    EventType.UpdateHeader,
                 ],
                 handler: (event: Event) => {
                     if (
                         event.type === EventType.UpdateCommand &&
                         event.commandName !== 'clk'
+                    ) {
+                        return;
+                    }
+                    if (
+                        event.type === EventType.UpdateHeader &&
+                        event.headerName !== TAGS.TimeControl
                     ) {
                         return;
                     }
@@ -120,119 +96,89 @@ const Editor = () => {
         }
     }, [chess, setForceRender]);
 
-    let clock = '';
-    let comment = '';
-    let clockCommand: 'emt' | 'clk' = 'clk';
-
-    const move = chess?.currentMove();
-    if (move) {
-        clockCommand = move.commentDiag?.emt ? 'emt' : 'clk';
-        clock = (move.commentDiag ? move.commentDiag[clockCommand] : '') || '';
-        comment = move.commentAfter || '';
-    } else {
-        clock = getInitialClock(chess?.pgn) || '';
-        comment = chess?.pgn.gameComment || '';
+    if (!chess) {
+        return null;
     }
-    const timeSlots = getTimeSlotsFromClock(clock);
 
-    const onChangeTime = (type: 'hours' | 'minutes' | 'seconds', value: string) => {
-        let numValue = type === 'seconds' ? parseFloat(value) : parseInt(value);
-        if (isNaN(numValue) || numValue < 0) {
-            numValue = 0;
-        }
+    const initialClock = getInitialClock(chess.pgn);
+    const increment = getIncrement(chess.pgn);
 
-        const newSlots: TimeSlots = {
-            ...timeSlots,
-            [type]: numValue,
-        };
-
-        chess?.setCommand(clockCommand, getClockFromTimeSlots(newSlots));
-    };
-
-    const onChangeClockCommand = (value: string) => {
-        chess?.setCommand(clockCommand, '');
-        chess?.setCommand(value, getClockFromTimeSlots(timeSlots));
-    };
+    const move = chess.currentMove();
+    const isMainline = chess.isInMainline(move);
+    const comment = move ? move.commentAfter || '' : chess.pgn.gameComment || '';
 
     const handleExclusiveNag = (nagSet: Nag[]) => (event: any, newNag: string | null) => {
         const newNags = setNagInSet(newNag, nagSet, move?.nags);
-        chess?.setNags(newNags);
+        chess.setNags(newNags);
     };
 
     const handleMultiNags = (nagSet: Nag[]) => (event: any, newNags: string[]) => {
-        chess?.setNags(setNagsInSet(newNags, nagSet, move?.nags));
+        chess.setNags(setNagsInSet(newNags, nagSet, move?.nags));
     };
 
     return (
         <CardContent>
-            <Stack spacing={3}>
-                <Stack spacing={1.5}>
-                    <FormControl disabled={!move}>
-                        <FormLabel>Clock</FormLabel>
-
-                        <RadioGroup
-                            value={clockCommand}
-                            onChange={(e) => onChangeClockCommand(e.target.value)}
-                        >
-                            <FormControlLabel
-                                value='clk'
-                                control={<Radio size='small' />}
-                                label='Time Left (%clk)'
-                                disabled={!move}
-                                slotProps={{ typography: { variant: 'body2' } }}
-                            />
-                            <FormControlLabel
-                                value='emt'
-                                control={<Radio size='small' />}
-                                label='Elapsed Move Time (%emt)'
-                                disabled={!move}
-                                slotProps={{ typography: { variant: 'body2' } }}
-                            />
-                        </RadioGroup>
-                    </FormControl>
-
-                    <Stack direction='row' spacing={1}>
-                        <TextField
-                            label='Hours'
+            <Stack spacing={3} mt={2}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    {move && isMainline ? (
+                        <TimeField
                             id={ClockTextFieldId}
-                            value={timeSlots.hours}
-                            disabled={!move}
-                            onChange={(event) =>
-                                onChangeTime('hours', event.target.value)
-                            }
+                            label='Clock (hh:mm:ss)'
+                            format='HH:mm:ss'
+                            value={convertSecondsToDate(
+                                convertClockToSeconds(move.commentDiag?.clk),
+                            )}
+                            onChange={(value) => onChangeClock(chess, move, value)}
                             fullWidth
                         />
+                    ) : (
+                        !move && (
+                            <Grid2
+                                container
+                                columnSpacing={1}
+                                rowGap={3}
+                                alignItems='center'
+                                pb={2}
+                            >
+                                <Grid2 xs={6}>
+                                    <TimeField
+                                        id={ClockTextFieldId}
+                                        label='Starting Time (hh:mm:ss)'
+                                        format='HH:mm:ss'
+                                        value={convertSecondsToDate(initialClock)}
+                                        onChange={(value) =>
+                                            handleInitialClock(chess, increment, value)
+                                        }
+                                        fullWidth
+                                    />
+                                </Grid2>
 
-                        <TextField
-                            label='Minutes'
-                            id={ClockTextFieldId}
-                            value={timeSlots.minutes}
-                            disabled={!move}
-                            onChange={(event) =>
-                                onChangeTime('minutes', event.target.value)
-                            }
-                            fullWidth
-                        />
-
-                        <TextField
-                            label='Seconds'
-                            id={ClockTextFieldId}
-                            value={timeSlots.seconds}
-                            disabled={!move}
-                            onChange={(event) =>
-                                onChangeTime('seconds', event.target.value)
-                            }
-                            fullWidth
-                        />
-                    </Stack>
-                </Stack>
+                                <Grid2 xs={6}>
+                                    <TextField
+                                        id={ClockTextFieldId}
+                                        label='Increment (Sec)'
+                                        value={`${increment}`}
+                                        onChange={(e) =>
+                                            handleIncrement(
+                                                chess,
+                                                initialClock,
+                                                e.target.value,
+                                            )
+                                        }
+                                        fullWidth
+                                    />
+                                </Grid2>
+                            </Grid2>
+                        )
+                    )}
+                </LocalizationProvider>
 
                 <TextField
                     label='Comments'
                     id={CommentTextFieldId}
                     multiline
-                    minRows={3}
-                    maxRows={9}
+                    minRows={Boolean(move) ? (isMainline ? 3 : 7) : 15}
+                    maxRows={Boolean(move) ? 9 : 15}
                     value={comment}
                     onChange={(event) => chess?.setComment(event.target.value)}
                     fullWidth
@@ -274,7 +220,7 @@ const Editor = () => {
                             <ToggleButtonGroup
                                 value={getNagsInSet(
                                     positionalNags,
-                                    chess?.currentMove()?.nags
+                                    chess?.currentMove()?.nags,
                                 )}
                                 onChange={handleMultiNags(positionalNags)}
                             >
