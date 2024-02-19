@@ -1,17 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import debounce from 'lodash.debounce';
-import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
-import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import { Event, EventType as ChessEventType } from '@jackstenglein/chess';
 import { CloudDone, CloudOff } from '@mui/icons-material';
+import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import debounce from 'lodash.debounce';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useApi } from '../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../api/Request';
-import { Game } from '../../../../database/game';
-import { useChess } from '../../PgnBoard';
 import { EventType, trackEvent } from '../../../../analytics/events';
+import { useApi } from '../../../../api/Api';
+import { GameSubmissionType } from '../../../../api/gameApi';
+import { RequestSnackbar, useRequest } from '../../../../api/Request';
 import { useAuth } from '../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../calendar/displayDate';
-import { GameSubmissionType } from '../../../../api/gameApi';
+import { Game } from '../../../../database/game';
+import { useChess } from '../../PgnBoard';
 
 const useDebounce = (callback: (...args: any) => void, delay: number = 3000) => {
     const ref = useRef<any>();
@@ -90,7 +90,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                         setInitialPgn(pgn);
                     } else {
                         const pgn = chess.renderPgn();
-                        setHasChanges(true);
+                        setHasChanges(pgn !== initialPgn);
                         debouncedOnSave(game.cohort, game.id, pgn);
                     }
                 },
@@ -99,7 +99,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
             chess.addObserver(observer);
             return () => chess.removeObserver(observer);
         }
-    }, [chess, game, setInitialPgn, debouncedOnSave, setHasChanges]);
+    }, [chess, game, initialPgn, setInitialPgn, debouncedOnSave, setHasChanges]);
 
     return (
         <Box
@@ -133,11 +133,11 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                         request.data || game.updatedAt
                             ? `Last saved at ${toDojoDateString(
                                   request.data || new Date(game.updatedAt!),
-                                  user?.timezoneOverride
+                                  user?.timezoneOverride,
                               )} ${toDojoTimeString(
                                   request.data || new Date(game.updatedAt!),
                                   user?.timezoneOverride,
-                                  user?.timeFormat
+                                  user?.timeFormat,
                               )}`
                             : `No changes made since opening.`
                     }

@@ -1,128 +1,127 @@
-import { useEffect, useState } from 'react';
+import { EventType, TAGS } from '@jackstenglein/chess';
+import { Box, Link, Stack, Typography } from '@mui/material';
 import {
-    IconButton,
-    Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableRow,
-    TextField,
-    Tooltip,
-    Typography,
-    Link,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Chess, EventType } from '@jackstenglein/chess';
+    DataGridPro,
+    GridColDef,
+    GridEditInputCell,
+    GridEditSingleSelectCell,
+    GridRenderCellParams,
+    GridRenderEditCellParams,
+} from '@mui/x-data-grid-pro';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
-import GraduationIcon from '../../../../scoreboard/GraduationIcon';
 import { Game } from '../../../../database/game';
-import { useChess } from '../../PgnBoard';
 import Avatar from '../../../../profile/Avatar';
+import GraduationIcon from '../../../../scoreboard/GraduationIcon';
+import { useChess } from '../../PgnBoard';
 
-export const TagTextFieldId = 'tagEditor';
+interface TagRow {
+    name: string;
+    value:
+        | string
+        | {
+              displayName: string;
+              username: string;
+              previousCohort: string;
+          };
+}
+
+const columns: GridColDef<TagRow>[] = [
+    { field: 'name', flex: 0.25 },
+    {
+        field: 'value',
+        flex: 0.75,
+        editable: true,
+        renderCell: (params: GridRenderCellParams<TagRow>) => {
+            if (
+                params.row.name === 'Uploaded By' &&
+                typeof params.row.value === 'object'
+            ) {
+                return (
+                    <Stack direction='row' spacing={1} alignItems='center'>
+                        <Avatar
+                            username={params.row.value.username}
+                            displayName={params.row.value.displayName}
+                            size={28}
+                        />
+                        <Link
+                            component={RouterLink}
+                            to={`/profile/${params.row.value.username}`}
+                        >
+                            <Typography variant='body2'>
+                                {params.row.value.displayName}
+                            </Typography>
+                        </Link>
+                        <GraduationIcon
+                            cohort={params.row.value.previousCohort}
+                            size={20}
+                        />
+                    </Stack>
+                );
+            }
+
+            if (params.row.name === 'Cohort' && typeof params.row.value === 'string') {
+                return (
+                    <Link
+                        component={RouterLink}
+                        to={`/games/?type=cohort&cohort=${encodeURIComponent(
+                            params.row.value,
+                        )}`}
+                    >
+                        {params.row.value}
+                    </Link>
+                );
+            }
+
+            return params.row.value.toString();
+        },
+        renderEditCell: (params) => <CustomEditComponent {...params} />,
+    },
+];
+
+function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
+    if (props.row.name === TAGS.Result) {
+        return (
+            <GridEditSingleSelectCell
+                {...props}
+                colDef={{
+                    ...props.colDef,
+                    type: 'singleSelect',
+                    valueOptions: ['1-0', '1/2-1/2', '0-1'],
+                    getOptionValue(value) {
+                        return value;
+                    },
+                    getOptionLabel(value) {
+                        return value.toString();
+                    },
+                }}
+            />
+        );
+    }
+
+    return <GridEditInputCell {...props} />;
+}
+
+const defaultTags = [
+    'White',
+    'WhiteElo',
+    'Black',
+    'BlackElo',
+    'Result',
+    'Date',
+    'Event',
+    'Section',
+    'Round',
+    'Board',
+];
+
+const uneditableTags = ['PlyCount', 'TimeControl'];
 
 interface TagsProps {
     tags?: Record<string, string>;
     game?: Game;
     allowEdits?: boolean;
 }
-
-interface TagProps {
-    chess?: Chess;
-    name: string;
-    value: string;
-    allowEdits?: boolean;
-}
-
-const Tag: React.FC<TagProps> = ({ chess, name, value, allowEdits }) => {
-    const handleChange = (newValue: string) => {
-        chess?.setHeader(name, newValue);
-    };
-
-    const deleteTag = () => {
-        chess?.setHeader(name);
-    };
-
-    return (
-        <TableRow>
-            <TableCell>{name}</TableCell>
-            <TableCell>
-                {allowEdits ? (
-                    <TextField
-                        id={TagTextFieldId}
-                        variant='standard'
-                        value={value}
-                        onChange={(e) => handleChange(e.target.value)}
-                    />
-                ) : (
-                    value
-                )}
-            </TableCell>
-
-            {allowEdits && (
-                <TableCell>
-                    <Tooltip title='Delete Tag'>
-                        <IconButton onClick={deleteTag}>
-                            <DeleteIcon />
-                        </IconButton>
-                    </Tooltip>
-                </TableCell>
-            )}
-        </TableRow>
-    );
-};
-
-const NewTag = () => {
-    const chess = useChess().chess;
-    const [name, setName] = useState('');
-    const [value, setValue] = useState('');
-
-    const normalizeValue = (value: string) => {
-        return value.trim().replaceAll('"', '');
-    };
-
-    const onAdd = () => {
-        if (name === '' || value === '') {
-            return;
-        }
-
-        chess?.setHeader(name, value);
-        setName('');
-        setValue('');
-    };
-
-    return (
-        <TableRow>
-            <TableCell>
-                <TextField
-                    id={TagTextFieldId}
-                    variant='standard'
-                    label='Tag Name'
-                    value={name}
-                    onChange={(e) => setName(normalizeValue(e.target.value))}
-                />
-            </TableCell>
-            <TableCell>
-                <TextField
-                    id={TagTextFieldId}
-                    variant='standard'
-                    label='Tag Value'
-                    value={value}
-                    onChange={(e) => setValue(normalizeValue(e.target.value))}
-                />
-            </TableCell>
-            <TableCell>
-                <Tooltip title='Add Tag'>
-                    <IconButton onClick={onAdd}>
-                        <AddCircleIcon />
-                    </IconButton>
-                </Tooltip>
-            </TableCell>
-        </TableRow>
-    );
-};
 
 const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
     const chess = useChess().chess;
@@ -147,67 +146,69 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
         return null;
     }
 
+    const rows: TagRow[] = [];
+    if (game) {
+        if (game.ownerDisplayName) {
+            rows.push({
+                name: 'Uploaded By',
+                value: {
+                    displayName: game.ownerDisplayName,
+                    username: game.owner,
+                    previousCohort: game.ownerPreviousCohort,
+                },
+            });
+        }
+        rows.push({ name: 'Cohort', value: game.cohort });
+    }
+
+    rows.push(...defaultTags.map((name) => ({ name, value: tags?.[name] || '' })));
+
+    for (const [tag, value] of Object.entries(tags || {})) {
+        if (!defaultTags.includes(tag) && !uneditableTags.includes(tag)) {
+            rows.push({ name: tag, value });
+        }
+    }
+
+    for (const tag of uneditableTags) {
+        rows.push({ name: tag, value: tags?.[tag] || '' });
+    }
+
     return (
-        <Table>
-            <TableBody>
-                {game && game.ownerDisplayName !== '' && (
-                    <TableRow>
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>Uploaded By</TableCell>
-                        <TableCell>
-                            <Stack direction='row' spacing={1} alignItems='center'>
-                                <Avatar
-                                    username={game.owner}
-                                    displayName={game.ownerDisplayName}
-                                    size={28}
-                                />
-                                <Link
-                                    component={RouterLink}
-                                    to={`/profile/${game.owner}`}
-                                >
-                                    <Typography variant='body2'>
-                                        {game.ownerDisplayName}
-                                    </Typography>
-                                </Link>
-                                <GraduationIcon
-                                    cohort={game.ownerPreviousCohort}
-                                    size={20}
-                                />
-                            </Stack>
-                        </TableCell>
-                        {allowEdits && <TableCell></TableCell>}
-                    </TableRow>
-                )}
+        <Box height={1}>
+            {allowEdits && (
+                <Typography variant='body2' color='text.secondary' ml={1} mt={1} mb={1}>
+                    Double click a cell to edit
+                </Typography>
+            )}
 
-                {game && game.cohort && (
-                    <TableRow>
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>Cohort</TableCell>
-                        <TableCell>
-                            <Link
-                                component={RouterLink}
-                                to={`/games/?type=cohort&cohort=${encodeURIComponent(
-                                    game.cohort
-                                )}`}
-                            >
-                                {game.cohort}
-                            </Link>
-                        </TableCell>
-                        {allowEdits && <TableCell></TableCell>}
-                    </TableRow>
-                )}
-
-                {Object.entries(tags).map(([key, value]) => (
-                    <Tag
-                        key={key}
-                        name={key}
-                        chess={chess}
-                        value={value}
-                        allowEdits={allowEdits}
-                    />
-                ))}
-
-                {allowEdits && <NewTag />}
-            </TableBody>
-        </Table>
+            <DataGridPro
+                autoHeight
+                sx={{ border: 0 }}
+                columns={columns}
+                rows={rows}
+                getRowId={(row) => row.name}
+                slots={{
+                    columnHeaders: () => null,
+                    footer: () => null,
+                }}
+                isCellEditable={(params) => {
+                    if (!allowEdits) {
+                        return false;
+                    }
+                    if (
+                        params.row.name === 'Uploaded By' ||
+                        params.row.name === 'Cohort'
+                    ) {
+                        return false;
+                    }
+                    return !uneditableTags.includes(params.row.name);
+                }}
+                processRowUpdate={(newRow) => {
+                    chess.setHeader(newRow.name, newRow.value as string);
+                    return newRow;
+                }}
+            />
+        </Box>
     );
 };
 

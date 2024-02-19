@@ -17,7 +17,6 @@ import {
     GoToEndButtonBehavior,
     GoToEndButtonBehaviorKey,
 } from '../underboard/settings/ViewerSettings';
-import { TagTextFieldId } from '../underboard/Tags';
 
 interface ControlButtonsProps {
     onClickMove: (move: Move | null) => void;
@@ -59,10 +58,10 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
         const onArrowKeys = (event: KeyboardEvent) => {
             if (
                 event.key === 'f' &&
+                document.activeElement?.tagName !== 'INPUT' &&
                 document.activeElement?.id !== ClockTextFieldId &&
                 document.activeElement?.id !== CommentTextFieldId &&
-                document.activeElement?.id !== GameCommentTextFieldId &&
-                document.activeElement?.id !== TagTextFieldId
+                document.activeElement?.id !== GameCommentTextFieldId
             ) {
                 toggleOrientation?.();
             }

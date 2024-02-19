@@ -1,3 +1,6 @@
+import { Chess, Move } from '@jackstenglein/chess';
+import { Box } from '@mui/material';
+import { Color } from 'chessground/types';
 import React, {
     createContext,
     useCallback,
@@ -7,18 +10,13 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { Chess, Move } from '@jackstenglein/chess';
-import { Box } from '@mui/material';
-
-import { BoardApi, PrimitiveMove, reconcile } from '../Board';
-import { Color } from 'chessground/types';
-import { Game } from '../../database/game';
 import { useAuth } from '../../auth/Auth';
-import { ClockTextFieldId, CommentTextFieldId } from './boardTools/underboard/Editor';
+import { Game } from '../../database/game';
 import { GameCommentTextFieldId } from '../../games/view/GamePage';
-import { TagTextFieldId } from './boardTools/underboard/Tags';
-import { CONTAINER_ID } from './resize';
+import { BoardApi, PrimitiveMove, reconcile } from '../Board';
+import { ClockTextFieldId, CommentTextFieldId } from './boardTools/underboard/Editor';
 import ResizableContainer from './ResizableContainer';
+import { CONTAINER_ID } from './resize';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -83,7 +81,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             },
             toggleOrientation,
         }),
-        [chess, board, game, user, toggleOrientation]
+        [chess, board, game, user, toggleOrientation],
     );
 
     const onKeyDown = useCallback(
@@ -92,11 +90,12 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 return;
             }
 
+            const activeElement = document.activeElement;
             if (
-                document.activeElement?.id === ClockTextFieldId ||
-                document.activeElement?.id === CommentTextFieldId ||
-                document.activeElement?.id === GameCommentTextFieldId ||
-                document.activeElement?.id === TagTextFieldId
+                activeElement?.tagName === 'INPUT' ||
+                activeElement?.id === ClockTextFieldId ||
+                activeElement?.id === CommentTextFieldId ||
+                activeElement?.id === GameCommentTextFieldId
             ) {
                 return;
             }
@@ -120,7 +119,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 reconcile(chess, board);
             }
         },
-        [board, chess]
+        [board, chess],
     );
 
     const onKeyUp = useCallback((event: KeyboardEvent) => {
@@ -147,7 +146,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             });
             reconcile(chess, board);
         },
-        []
+        [],
     );
 
     const onInitialize = useCallback(
@@ -155,7 +154,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             setBoard(board);
             setChess(chess);
         },
-        [setBoard, setChess]
+        [setBoard, setChess],
     );
 
     const onClickMove = useCallback(
@@ -163,7 +162,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             chess?.seek(move);
             reconcile(chess, board);
         },
-        [chess, board]
+        [chess, board],
     );
 
     const gameOrientation = game?.orientation || startOrientation || 'white';
