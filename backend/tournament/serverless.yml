@@ -265,6 +265,28 @@ functions:
           - dynamodb:GetItem
         Resource:
           - ${param:UsersTableArn}
+  
+  openClassicalAdminVerifyResult:
+    handler: openClassical/admin/verifyResult/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/verify-result
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
 
 resources:
   Resources:

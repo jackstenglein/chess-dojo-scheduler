@@ -239,11 +239,12 @@ const (
 )
 
 type OpenClassicalPairingUpdate struct {
-	Region       string
-	Section      string
-	Round        int
-	PairingIndex int
-	Pairing      *OpenClassicalPairing
+	Region            string
+	Section           string
+	Round             int
+	PairingIndex      int
+	OverwriteVerified bool
+	Pairing           *OpenClassicalPairing
 }
 
 // SetOpenClassical inserts the provided OpenClassical into the database.
@@ -382,17 +383,21 @@ func (repo *dynamoRepository) UpdateOpenClassicalResult(update *OpenClassicalPai
 	pairingPath := fmt.Sprintf("#sections.%s.#rounds[%d].#pairings[%d]", sectionName, update.Round, update.PairingIndex)
 
 	updateExpr := fmt.Sprintf("SET %s = :item", pairingPath)
-	conditionExpr := fmt.Sprintf("attribute_exists(%s) AND %s.#verified <> :true", pairingPath, pairingPath)
 	exprAttrNames := map[string]*string{
 		"#sections": aws.String("sections"),
 		sectionName: aws.String(fmt.Sprintf("%s_%s", update.Region, update.Section)),
 		"#rounds":   aws.String("rounds"),
 		"#pairings": aws.String("pairings"),
-		"#verified": aws.String("verified"),
 	}
 	exprAttrValues := map[string]*dynamodb.AttributeValue{
 		":item": {M: item},
-		":true": {BOOL: aws.Bool(true)},
+	}
+
+	conditionExpr := fmt.Sprintf("attribute_exists(%s)", pairingPath)
+	if !update.OverwriteVerified {
+		conditionExpr += fmt.Sprintf(" AND %s.#verified <> :true", pairingPath)
+		exprAttrNames["#verified"] = aws.String("verified")
+		exprAttrValues[":true"] = &dynamodb.AttributeValue{BOOL: aws.Bool(true)}
 	}
 
 	input := &dynamodb.UpdateItemInput{

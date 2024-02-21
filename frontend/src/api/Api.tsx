@@ -101,6 +101,7 @@ import {
     adminEmailPairings,
     adminGetRegistrations,
     adminUnbanPlayer,
+    adminVerifyResult,
     adminWithdrawPlayer,
     getLeaderboard,
     getOpenClassical,
@@ -108,6 +109,7 @@ import {
     OpenClassicalPutPairingsRequest,
     OpenClassicalRegistrationRequest,
     OpenClassicalSubmitResultsRequest,
+    OpenClassicalVerifyResultRequest,
     putOpenClassicalPairings,
     registerForOpenClassical,
     submitResultsForOpenClassical,
@@ -335,6 +337,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             adminWithdrawPlayer: (username: string, region: string, section: string) =>
                 adminWithdrawPlayer(idToken, username, region, section),
             adminEmailPairings: (round: number) => adminEmailPairings(idToken, round),
+            adminVerifyResult: (request: OpenClassicalVerifyResultRequest) =>
+                adminVerifyResult(idToken, request),
 
             listNotifications: (startKey?: string) =>
                 listNotifications(idToken, startKey),

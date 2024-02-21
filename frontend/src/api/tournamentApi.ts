@@ -121,6 +121,15 @@ export type TournamentApiContextType = {
     adminEmailPairings: (
         round: number,
     ) => Promise<AxiosResponse<OpenClassicalEmailPairingsResponse>>;
+
+    /**
+     * Sets the result of the given pairing in the current round of the open classical.
+     * @param request The request to update the open classical pairing.
+     * @returns An AxiosResponse containing the updated open classical.
+     */
+    adminVerifyResult: (
+        request: OpenClassicalVerifyResultRequest,
+    ) => Promise<AxiosResponse<OpenClassical>>;
 };
 
 /** A request to register for the Open Classical. */
@@ -162,6 +171,23 @@ export interface OpenClassicalPutPairingsRequest {
 
     /** The PGN to use when updating the pairings. */
     pgnData?: string;
+}
+
+export interface OpenClassicalVerifyResultRequest {
+    /** The region of the pairing to update. */
+    region: string;
+
+    /** The section of the pairing to update. */
+    section: string;
+
+    /** The Lichess username of the player with white. */
+    white: string;
+
+    /** The Lichess username of the player with black. */
+    black: string;
+
+    /** The result to set on the pairing. */
+    result: string;
 }
 
 /**
@@ -376,6 +402,23 @@ export function adminEmailPairings(idToken: string, round: number) {
     return axios.put<OpenClassicalEmailPairingsResponse>(
         `${BASE_URL}/tournaments/open-classical/admin/email-pairings`,
         { round },
+        { headers: { Authorization: 'Bearer ' + idToken } },
+    );
+}
+
+/**
+ * Sets the result of the given pairing in the current round of the open classical.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to update the open classical pairing.
+ * @returns An AxiosResponse containing the updated open classical.
+ */
+export function adminVerifyResult(
+    idToken: string,
+    request: OpenClassicalVerifyResultRequest,
+) {
+    return axios.put<OpenClassical>(
+        `${BASE_URL}/tournaments/open-classical/admin/verify-result`,
+        request,
         { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }

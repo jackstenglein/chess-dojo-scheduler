@@ -60,6 +60,12 @@ export interface OpenClassicalPairing {
 
     /** Whether the result is verified. */
     verified: boolean;
+
+    /** Whether to report the opponent for failure to schedule or show up */
+    reportOpponent: boolean;
+
+    /** The notes included by the submitter when submitting */
+    notes: string;
 }
 
 export interface OpenClassicalRound {
