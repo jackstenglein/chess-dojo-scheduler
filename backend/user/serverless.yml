@@ -237,70 +237,232 @@ functions:
       - schedule:
           rate: cron(0 0 * * ? *)
           input:
-            id: StatsUpdate0-800
+            id: StatsUpdate0-300
             detail-type: Scheduled Event
             source: Serverless
             region: ${aws:region}
             detail:
               cohorts:
                 - 0-300
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate300-400
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 300-400
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate400-500
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 400-500
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate500-600
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 500-600
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate600-700
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 600-700
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate700-800
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 700-800
       - schedule:
           rate: cron(0 0 * * ? *)
           input:
-            id: StatsUpdate800-1300
+            id: StatsUpdate800-900
             detail-type: Scheduled Event
             source: Serverless
             region: ${aws:region}
             detail:
               cohorts:
                 - 800-900
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate900-1000
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 900-1000
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate1000-1100
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1000-1100
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate1100-1200
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1100-1200
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate1200-1300
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1200-1300
       - schedule:
           rate: cron(0 0 * * ? *)
           input:
-            id: StatsUpdate1300-1500
+            id: StatsUpdate1300-1400
             detail-type: Scheduled Event
             source: Serverless
             region: ${aws:region}
             detail:
               cohorts:
                 - 1300-1400
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate1400-1500
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1400-1500
       - schedule:
           rate: cron(0 0 * * ? *)
           input:
-            id: StatsUpdate1500-1800
+            id: StatsUpdate1500-1600
             detail-type: Scheduled Event
             source: Serverless
             region: ${aws:region}
             detail:
               cohorts:
                 - 1500-1600
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate1600-1700
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1600-1700
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate1700-1800
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1700-1800
       - schedule:
           rate: cron(0 0 * * ? *)
           input:
-            id: StatsUpdate1800+
+            id: StatsUpdate1800-1900
             detail-type: Scheduled Event
             source: Serverless
             region: ${aws:region}
             detail:
               cohorts:
                 - 1800-1900
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate1900-2000
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 1900-2000
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate2000-2100
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 2000-2100
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate2100-2200
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 2100-2200
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate2200-2300
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 2200-2300
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate2300-2400
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 2300-2400
+      - schedule:
+          rate: cron(0 0 * * ? *)
+          input:
+            id: StatsUpdate2400+
+            detail-type: Scheduled Event
+            source: Serverless
+            region: ${aws:region}
+            detail:
+              cohorts:
                 - 2400+
     timeout: 900
     iamRoleStatements:

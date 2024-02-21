@@ -230,6 +230,8 @@ func updateMinutesSpent(minutesSpent map[string]int, t *database.TimelineEntry, 
 		key = database.Last90Days
 	} else if date >= yearAgo {
 		key = database.Last365Days
+	} else {
+		return true
 	}
 
 	if t.Cohort == cohort {
