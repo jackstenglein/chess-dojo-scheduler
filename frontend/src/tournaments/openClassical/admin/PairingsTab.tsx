@@ -1,7 +1,8 @@
 import { MenuItem, Stack, TextField } from '@mui/material';
+import { DataGridPro } from '@mui/x-data-grid-pro';
 import { useSearchParams } from 'react-router-dom';
 import { OpenClassical } from '../../../database/tournament';
-import PairingsTable from '../PairingsTable';
+import { PairingsTableProps, pairingTableColumns } from '../PairingsTable';
 import Editor from './Editor';
 import EmailPairingsButton from './EmailPairingsButton';
 
@@ -91,13 +92,62 @@ const PairingsTab: React.FC<PairingsTabProps> = ({ openClassical, onUpdate }) =>
                 </TextField>
             </Stack>
 
-            <PairingsTable
+            <AdminPairingsTable
                 openClassical={openClassical}
                 region={region}
                 ratingRange={ratingRange}
                 round={parseInt(view)}
             />
         </Stack>
+    );
+};
+
+const adminPairingTableColumns = [
+    ...pairingTableColumns,
+    {
+        field: 'reportOpponent',
+        headerName: 'Report Opponent',
+        type: 'boolean',
+        width: 125,
+    },
+    {
+        field: 'notes',
+        headerName: 'Notes',
+        flex: 1,
+    },
+];
+
+const AdminPairingsTable: React.FC<PairingsTableProps> = ({
+    openClassical,
+    region,
+    ratingRange,
+    round,
+}) => {
+    const pairings =
+        openClassical.sections[`${region}_${ratingRange}`]?.rounds[round - 1]?.pairings ??
+        [];
+
+    return (
+        <DataGridPro
+            columns={adminPairingTableColumns}
+            rows={pairings}
+            getRowId={(pairing) =>
+                `${pairing.white.lichessUsername}-${pairing.black.lichessUsername}`
+            }
+            getRowHeight={() => 'auto'}
+            sx={{
+                '&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell': {
+                    py: '8px',
+                },
+                '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': {
+                    py: '15px',
+                },
+                '&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell': {
+                    py: '22px',
+                },
+            }}
+            autoHeight
+        />
     );
 };
 

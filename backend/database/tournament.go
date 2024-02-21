@@ -179,6 +179,12 @@ type OpenClassicalPairing struct {
 
 	// Whether the result is verified
 	Verified bool `dynamodbav:"verified" json:"verified"`
+
+	// Whether to report the opponent for failure to schedule or show up
+	ReportOpponent bool `dynamodbav:"reportOpponent,omitempty" json:"reportOpponent"`
+
+	// The notes included by the submitter when submitting
+	Notes string `dynamodbav:"notes,omitempty" json:"notes"`
 }
 
 // OpenClassicalPlayerSummary represents the minimum information needed to schedule

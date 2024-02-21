@@ -80,7 +80,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
     },
 ];
 
-interface PairingsTableProps {
+export interface PairingsTableProps {
     openClassical: OpenClassical;
     region: string;
     ratingRange: string;

@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { LoadingButton } from '@mui/lab';
 import {
     Checkbox,
     Container,
@@ -10,12 +8,13 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-
+import axios from 'axios';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useApi } from '../../api/Api';
 
 function gamePlayed(result: string): boolean {
     return result !== '0-0' && result !== '1-0F' && result !== '0-1F';
@@ -52,12 +51,16 @@ const SubmitResultsPage = () => {
             });
             return;
         }
-        const gameId = gameUrl.replace('https://lichess.org/', '');
+        const gameId = gameUrl
+            .replace('https://lichess.org/', '')
+            .split('/')[0]
+            .split('#')[0];
 
         axios
             .get(`https://lichess.org/api/game/${gameId}`)
             .then((resp) => {
                 console.log('Lichess Game Resp: ', resp);
+                setErrors({ ...errors, gameUrl: '' });
                 setWhite(resp.data.players.white.userId);
                 setBlack(resp.data.players.black.userId);
                 const status = resp.data.status;
@@ -128,7 +131,7 @@ const SubmitResultsPage = () => {
                     resp.data.sections?.[`${region}_${section}`]?.rounds?.length ||
                     'standings';
                 navigate(
-                    `/tournaments/open-classical?region=${region}&ratingRange=${section}&view=${round}`
+                    `/tournaments/open-classical?region=${region}&ratingRange=${section}&view=${round}`,
                 );
             })
             .catch((err) => {

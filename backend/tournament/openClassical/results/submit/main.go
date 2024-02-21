@@ -167,11 +167,13 @@ func getPairingUpdate(openClassical *database.OpenClassical, request *SubmitResu
 				Round:        roundIdx,
 				PairingIndex: idx,
 				Pairing: &database.OpenClassicalPairing{
-					White:    pairing.White,
-					Black:    pairing.Black,
-					Result:   request.Result,
-					GameUrl:  request.GameUrl,
-					Verified: request.Verified,
+					White:          pairing.White,
+					Black:          pairing.Black,
+					Result:         request.Result,
+					GameUrl:        request.GameUrl,
+					Verified:       request.Verified,
+					ReportOpponent: request.ReportOppponent,
+					Notes:          request.Notes,
 				},
 			}, nil
 		}
@@ -223,10 +225,10 @@ func getLichessGame(request *SubmitResultsRequest) error {
 		return nil
 	}
 
-	if request.White != "" && strings.ToLower(request.White) != strings.ToLower(game.Players.White.Username) {
+	if request.White != "" && !strings.EqualFold(request.White, game.Players.White.Username) {
 		return errors.New(400, fmt.Sprintf("Invalid request: provided game has white %q but form specified white %q", game.Players.White.Username, request.White), "")
 	}
-	if request.Black != "" && strings.ToLower(request.Black) != strings.ToLower(game.Players.Black.Username) {
+	if request.Black != "" && !strings.EqualFold(request.Black, game.Players.Black.Username) {
 		return errors.New(400, fmt.Sprintf("Invalid request: provided game has black %q but form specified black %q", game.Players.Black.Username, request.Black), "")
 	}
 
