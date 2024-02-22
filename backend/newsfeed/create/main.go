@@ -83,17 +83,28 @@ func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 	var followers []database.FollowerEntry
 	var startKey string
 	var err error
-	var attempted int
 	var success int
+
+	user, err := repository.GetUser(poster)
+	if err != nil {
+		return success, err
+	}
+	for _, clubId := range user.Clubs {
+		entries = append(entries, database.NewsfeedEntry{
+			NewsfeedId: clubId,
+			SortKey:    sortKey,
+			CreatedAt:  createdAt,
+			Poster:     poster,
+			TimelineId: id,
+		})
+	}
 
 	for ok := true; ok; ok = startKey != "" {
 		followers, startKey, err = repository.ListFollowers(poster, startKey)
 		if err != nil {
 			return success, err
 		}
-		attempted += len(followers)
 
-		var submitted int
 		for _, f := range followers {
 			entries = append(entries, database.NewsfeedEntry{
 				NewsfeedId: f.Follower,
@@ -102,11 +113,6 @@ func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 				Poster:     poster,
 				TimelineId: id,
 			})
-			entries, submitted, err = submitIfNecessary(entries)
-			success += submitted
-			if err != nil {
-				return success, err
-			}
 		}
 	}
 
@@ -117,14 +123,13 @@ func processTimelineRecord(record events.DynamoDBEventRecord) (int, error) {
 		Poster:     poster,
 		TimelineId: id,
 	})
-	submitted, err := repository.PutNewsfeedEntries(entries)
-	success += submitted
+	success, err = repository.PutNewsfeedEntries(entries)
 	if err != nil {
 		return success, err
 	}
 
-	if success < attempted {
-		return success, fmt.Errorf("success (%d) < attempted (%d) for record: %#v", success, attempted, record)
+	if success < len(entries) {
+		return success, fmt.Errorf("success (%d) < attempted (%d) for record: %#v", success, len(entries), record)
 	}
 	return success, nil
 }
@@ -135,26 +140,33 @@ func processGraduationRecord(record events.DynamoDBEventRecord) (int, error) {
 	createdAt := time.Now().Format(time.RFC3339)
 	sortKey := fmt.Sprintf("%s_%s", createdAt, id)
 
-	entry := database.NewsfeedEntry{
+	entries := make([]database.NewsfeedEntry, 0, 25)
+	var success int
+
+	user, err := repository.GetUser(poster)
+	if err != nil {
+		return success, err
+	}
+	for _, clubId := range user.Clubs {
+		entries = append(entries, database.NewsfeedEntry{
+			NewsfeedId: clubId,
+			SortKey:    sortKey,
+			CreatedAt:  createdAt,
+			Poster:     poster,
+			TimelineId: id,
+		})
+	}
+
+	entries = append(entries, database.NewsfeedEntry{
 		NewsfeedId: database.NewsfeedIdGraduations,
 		SortKey:    sortKey,
 		CreatedAt:  createdAt,
 		Poster:     poster,
 		TimelineId: id,
-	}
+	})
 
-	submitted, err := repository.PutNewsfeedEntries([]database.NewsfeedEntry{entry})
+	submitted, err := repository.PutNewsfeedEntries(entries)
 	return submitted, err
-}
-
-func submitIfNecessary(entries []database.NewsfeedEntry) ([]database.NewsfeedEntry, int, error) {
-	var submitted int
-	var err error
-	if len(entries) == 25 {
-		submitted, err = repository.PutNewsfeedEntries(entries)
-		entries = entries[:0]
-	}
-	return entries, submitted, err
 }
 
 func processFollowersRecord(record events.DynamoDBEventRecord) (int, error) {

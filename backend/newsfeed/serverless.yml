@@ -61,6 +61,10 @@ functions:
         Resource:
           - ${param:FollowersTableArn}
           - ${param:TimelineTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
 
   deleteEntry:
     handler: delete/main.go

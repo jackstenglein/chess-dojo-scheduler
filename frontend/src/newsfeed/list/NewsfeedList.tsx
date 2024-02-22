@@ -2,17 +2,17 @@ import { Stack } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
 import { ListNewsfeedResponse } from '../../api/newsfeedApi';
-import LoadingPage from '../../loading/LoadingPage';
+import { useRequest } from '../../api/Request';
 import { TimelineEntry } from '../../database/timeline';
+import LoadingPage from '../../loading/LoadingPage';
 import NewsfeedItem from '../detail/NewsfeedItem';
 import LoadMoreButton from './LoadMoreButton';
 import MultipleSelectChip from './MultipleSelectChip';
 
 function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) => void] {
     let startingIds = initialNewsfeedIds.filter(
-        (id) => (localStorage.getItem(`newsfeedId_${id}`) || 'true') === 'true'
+        (id) => (localStorage.getItem(`newsfeedId_${id}`) || 'true') === 'true',
     );
     if (startingIds.length === 0) {
         startingIds = initialNewsfeedIds;
@@ -24,13 +24,10 @@ function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) 
         (newValue: string[]) => {
             setNewsfeedIds(newValue);
 
-            console.log('New value: ', newValue);
-
             const removedIds = initialNewsfeedIds.filter(
-                (id) => newValue.indexOf(id) === -1
+                (id) => newValue.indexOf(id) === -1,
             );
 
-            console.log('Removed Ids: ', removedIds);
             for (const id of removedIds) {
                 localStorage.setItem(`newsfeedId_${id}`, 'false');
             }
@@ -39,8 +36,19 @@ function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) 
                 localStorage.setItem(`newsfeedId_${id}`, 'true');
             }
         },
-        [setNewsfeedIds, initialNewsfeedIds]
+        [setNewsfeedIds, initialNewsfeedIds],
     );
+
+    useEffect(() => {
+        console.log('Setting initial newsfeed ids');
+        let startingIds = initialNewsfeedIds.filter(
+            (id) => (localStorage.getItem(`newsfeedId_${id}`) || 'true') === 'true',
+        );
+        if (startingIds.length === 0) {
+            startingIds = initialNewsfeedIds;
+        }
+        setNewsfeedIds(startingIds);
+    }, [initialNewsfeedIds]);
 
     return [newsfeedIds, onChange];
 }
@@ -70,8 +78,8 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
             const newEntries = (data?.entries || [])
                 .concat(
                     resp.entries.sort((lhs, rhs) =>
-                        rhs.createdAt.localeCompare(lhs.createdAt)
-                    )
+                        rhs.createdAt.localeCompare(lhs.createdAt),
+                    ),
                 )
                 .filter((e) => {
                     return seen.hasOwnProperty(e.id) ? false : (seen[e.id] = true);
@@ -83,7 +91,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
                 lastKeys: resp.lastKeys,
             });
         },
-        [setLastStartKey, data]
+        [setLastStartKey, data],
     );
 
     useEffect(() => {

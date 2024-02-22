@@ -93,46 +93,46 @@ Amplify.configure({
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path='/' element={<Root />}>
-            <Route index element={<LandingPage />} />
-            <Route path='signin' element={<SigninPage />} />
-            <Route path='signup' element={<SignupPage />} />
-            <Route path='verify-email' element={<VerifyEmailPage />} />
-            <Route path='forgot-password' element={<ForgotPasswordPage />} />
-            <Route path='help' element={<HelpPage />} />
-            <Route path='tournaments'>
-                <Route index element={<TournamentsPage />} />
-                <Route path='open-classical'>
-                    <Route index element={<DetailsPage />} />
-                    <Route path='info' element={<InfoPage />} />
-                    <Route path='register' element={<RegistrationPage />} />
-                    <Route path='submit-results' element={<SubmitResultsPage />} />
-                    <Route path='previous' element={<ListPage />} />
-                    <Route path='admin' element={<AdminPage />} />
+            <Route element={<SwitchCohortPrompt />}>
+                <Route index element={<LandingPage />} />
+                <Route path='signin' element={<SigninPage />} />
+                <Route path='signup' element={<SignupPage />} />
+                <Route path='verify-email' element={<VerifyEmailPage />} />
+                <Route path='forgot-password' element={<ForgotPasswordPage />} />
+                <Route path='help' element={<HelpPage />} />
+                <Route path='tournaments'>
+                    <Route index element={<TournamentsPage />} />
+                    <Route path='open-classical'>
+                        <Route index element={<DetailsPage />} />
+                        <Route path='info' element={<InfoPage />} />
+                        <Route path='register' element={<RegistrationPage />} />
+                        <Route path='submit-results' element={<SubmitResultsPage />} />
+                        <Route path='previous' element={<ListPage />} />
+                        <Route path='admin' element={<AdminPage />} />
+                    </Route>
                 </Route>
-            </Route>
-            <Route path='dojodigest/unsubscribe' element={<UnsubscribePage />} />
+                <Route path='dojodigest/unsubscribe' element={<UnsubscribePage />} />
 
-            <Route path='courses'>
-                <Route index element={<ListCoursesPage />} />
-                <Route path=':type/:id' element={<CoursePage />} />
-            </Route>
-            <Route path='coaching' element={<CoachingPage />} />
-
-            <Route path='prices' element={<PricingPage />} />
-
-            <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
-
-            <Route path='clubs'>
-                <Route index element={<ListClubsPage />} />
-                <Route path='create' element={<CreateClubPage />} />
-                <Route path=':id'>
-                    <Route index element={<ClubDetailsPage />} />
-                    <Route path='edit' element={<CreateClubPage />} />
+                <Route path='courses'>
+                    <Route index element={<ListCoursesPage />} />
+                    <Route path=':type/:id' element={<CoursePage />} />
                 </Route>
-            </Route>
+                <Route path='coaching' element={<CoachingPage />} />
 
-            <Route element={<RequireAuth />}>
-                <Route element={<SwitchCohortPrompt />}>
+                <Route path='prices' element={<PricingPage />} />
+
+                <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
+
+                <Route path='clubs'>
+                    <Route index element={<ListClubsPage />} />
+                    <Route path='create' element={<CreateClubPage />} />
+                    <Route path=':id'>
+                        <Route index element={<ClubDetailsPage />} />
+                        <Route path='edit' element={<CreateClubPage />} />
+                    </Route>
+                </Route>
+
+                <Route element={<RequireAuth />}>
                     <Route path='profile'>
                         <Route index element={<ProfilePage />} />
                         <Route path='edit' element={<ProfileEditorPage />} />

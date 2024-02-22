@@ -1,18 +1,37 @@
 import {
     Container,
     Divider,
-    Unstable_Grid2 as Grid,
     Link,
     Stack,
     Typography,
+    Unstable_Grid2 as Grid,
 } from '@mui/material';
+import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+import { useClubs } from '../../api/cache/clubs';
 import { useAuth } from '../../auth/Auth';
 import NewsfeedList from './NewsfeedList';
 
 const NewsfeedListPage = () => {
     const user = useAuth().user!;
+    const { clubs } = useClubs(user.clubs || []);
+
+    const [newsfeedIds, newsfeedIdLabels] = useMemo(() => {
+        let newsfeedIds = ['following', user.dojoCohort];
+        newsfeedIds = newsfeedIds.concat(clubs.map((c) => c.id));
+
+        const newsfeedIdLabels = clubs.reduce(
+            (map, club) => {
+                map[club.id] = club.name;
+                return map;
+            },
+            {} as Record<string, string>,
+        );
+        newsfeedIdLabels['following'] = 'People I Follow';
+        newsfeedIdLabels[user.dojoCohort] = 'My Cohort';
+
+        return [newsfeedIds, newsfeedIdLabels];
+    }, [clubs, user.dojoCohort]);
 
     return (
         <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
@@ -22,11 +41,8 @@ const NewsfeedListPage = () => {
                         <Typography variant='h6'>Newsfeed</Typography>
 
                         <NewsfeedList
-                            initialNewsfeedIds={['following', user.dojoCohort]}
-                            newsfeedIdLabels={{
-                                following: 'People I Follow',
-                                [user.dojoCohort]: 'My Cohort',
-                            }}
+                            initialNewsfeedIds={newsfeedIds}
+                            newsfeedIdLabels={newsfeedIdLabels}
                         />
                     </Stack>
                 </Grid>

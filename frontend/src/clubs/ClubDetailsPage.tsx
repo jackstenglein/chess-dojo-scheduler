@@ -22,6 +22,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth, useFreeTier } from '../auth/Auth';
 import { ClubDetails } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
+import NewsfeedList from '../newsfeed/list/NewsfeedList';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import ClubJoinRequestDialog from './ClubJoinRequestDialog';
 import JoinRequestsTab from './JoinRequestsTab';
@@ -221,6 +222,7 @@ const ClubDetailsPage = () => {
                                         variant='scrollable'
                                     >
                                         <Tab label='Scoreboard' value='scoreboard' />
+                                        <Tab label='Newsfeed' value='newsfeed' />
                                         {isOwner && club.approvalRequired && (
                                             <Tab
                                                 label='Join Requests'
@@ -230,6 +232,10 @@ const ClubDetailsPage = () => {
                                     </Tabs>
                                 </Box>
                             </Stack>
+
+                            <TabPanel value='newsfeed'>
+                                <NewsfeedList initialNewsfeedIds={[club.id]} />
+                            </TabPanel>
 
                             <TabPanel value='joinRequests'>
                                 <JoinRequestsTab
