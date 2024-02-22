@@ -56,7 +56,7 @@ const ListClubsPage = () => {
                     <AllClubsTab filters={filters} />
                 </TabPanel>
                 <TabPanel value='mine' sx={{ px: { xs: 0, sm: 3 } }}>
-                    <MyClubsTab />
+                    <MyClubsTab filters={filters} />
                 </TabPanel>
             </TabContext>
 

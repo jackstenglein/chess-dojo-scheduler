@@ -9,6 +9,7 @@ import {
     TextField,
 } from '@mui/material';
 import { useState } from 'react';
+import { Club } from '../database/club';
 
 export interface ClubFilters {
     search: string;
@@ -39,6 +40,34 @@ export function useClubFilters(): ClubFilters {
         sortDirection,
         setSortDirection,
     };
+}
+
+export function filterClubs(clubs: Club[] | undefined, filters: ClubFilters): Club[] {
+    let result = clubs || [];
+    const search = filters.search.trim().toLowerCase();
+    if (search) {
+        result = result.filter(
+            (club) =>
+                club.name.toLowerCase().includes(search) ||
+                club.shortDescription.toLowerCase().includes(search) ||
+                club.location.city.toLowerCase().includes(search) ||
+                club.location.state.toLowerCase().includes(search) ||
+                club.location.country.toLowerCase().includes(search),
+        );
+    }
+    return result.sort((lhs: Club, rhs: Club) => {
+        if (filters.sortMethod === ClubSortMethod.Alphabetical) {
+            if (filters.sortDirection === 'asc') {
+                return lhs.name.localeCompare(rhs.name);
+            }
+            return rhs.name.localeCompare(lhs.name);
+        }
+
+        if (filters.sortDirection === 'asc') {
+            return lhs.memberCount - rhs.memberCount;
+        }
+        return rhs.memberCount - lhs.memberCount;
+    });
 }
 
 interface ClubFilterEditorProps {

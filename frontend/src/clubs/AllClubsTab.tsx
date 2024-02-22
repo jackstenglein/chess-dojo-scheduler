@@ -5,7 +5,7 @@ import { useCache } from '../api/cache/Cache';
 import { useRequest } from '../api/Request';
 import { Club } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
-import { ClubFilterEditor, ClubFilters, ClubSortMethod } from './ClubFilters';
+import { ClubFilterEditor, ClubFilters, filterClubs } from './ClubFilters';
 import ClubGrid from './ClubGrid';
 
 interface AllClubsTabProps {
@@ -33,33 +33,10 @@ const AllClubsTab: React.FC<AllClubsTabProps> = ({ filters }) => {
         }
     }, [request, api, cache]);
 
-    const displayedClubs = useMemo(() => {
-        let result = request.data || [];
-        const search = filters.search.trim().toLowerCase();
-        if (search) {
-            result = result.filter(
-                (club) =>
-                    club.name.toLowerCase().includes(search) ||
-                    club.shortDescription.toLowerCase().includes(search) ||
-                    club.location.city.toLowerCase().includes(search) ||
-                    club.location.state.toLowerCase().includes(search) ||
-                    club.location.country.toLowerCase().includes(search),
-            );
-        }
-        return result.sort((lhs: Club, rhs: Club) => {
-            if (filters.sortMethod === ClubSortMethod.Alphabetical) {
-                if (filters.sortDirection === 'asc') {
-                    return lhs.name.localeCompare(rhs.name);
-                }
-                return rhs.name.localeCompare(lhs.name);
-            }
-
-            if (filters.sortDirection === 'asc') {
-                return lhs.memberCount - rhs.memberCount;
-            }
-            return rhs.memberCount - lhs.memberCount;
-        });
-    }, [request.data, filters]);
+    const displayedClubs = useMemo(
+        () => filterClubs(request.data, filters),
+        [request.data, filters],
+    );
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
