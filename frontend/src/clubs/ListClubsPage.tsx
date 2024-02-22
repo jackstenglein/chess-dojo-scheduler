@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useFreeTier } from '../auth/Auth';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import AllClubsTab from './AllClubsTab';
+import { useClubFilters } from './ClubFilters';
 import MyClubsTab from './MyClubsTab';
 
 const ListClubsPage = () => {
@@ -12,6 +13,7 @@ const ListClubsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'all' });
     const isFreeTier = useFreeTier();
     const [upsellAction, setUpsellAction] = useState('');
+    const filters = useClubFilters();
 
     const onCreateClub = () => {
         if (isFreeTier) {
@@ -51,7 +53,7 @@ const ListClubsPage = () => {
                 </Box>
 
                 <TabPanel value='all' sx={{ px: { xs: 0, sm: 3 } }}>
-                    <AllClubsTab />
+                    <AllClubsTab filters={filters} />
                 </TabPanel>
                 <TabPanel value='mine' sx={{ px: { xs: 0, sm: 3 } }}>
                     <MyClubsTab />

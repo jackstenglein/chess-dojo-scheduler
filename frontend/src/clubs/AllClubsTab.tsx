@@ -1,12 +1,18 @@
-import { useEffect } from 'react';
+import { Stack } from '@mui/material';
+import { useEffect, useMemo } from 'react';
 import { useApi } from '../api/Api';
 import { useCache } from '../api/cache/Cache';
 import { useRequest } from '../api/Request';
 import { Club } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
+import { ClubFilterEditor, ClubFilters, ClubSortMethod } from './ClubFilters';
 import ClubGrid from './ClubGrid';
 
-const AllClubsTab = () => {
+interface AllClubsTabProps {
+    filters: ClubFilters;
+}
+
+const AllClubsTab: React.FC<AllClubsTabProps> = ({ filters }) => {
     const api = useApi();
     const request = useRequest<Club[]>();
     const cache = useCache().clubs;
@@ -27,11 +33,34 @@ const AllClubsTab = () => {
         }
     }, [request, api, cache]);
 
+    const displayedClubs = useMemo(() => {
+        return (
+            request.data?.sort((lhs: Club, rhs: Club) => {
+                if (filters.sortMethod === ClubSortMethod.Alphabetical) {
+                    if (filters.sortDirection === 'asc') {
+                        return lhs.name.localeCompare(rhs.name);
+                    }
+                    return rhs.name.localeCompare(lhs.name);
+                }
+
+                if (filters.sortDirection === 'asc') {
+                    return lhs.memberCount - rhs.memberCount;
+                }
+                return rhs.memberCount - lhs.memberCount;
+            }) ?? []
+        );
+    }, [request.data, filters]);
+
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
     }
 
-    return <ClubGrid clubs={request.data} request={request} />;
+    return (
+        <Stack spacing={3}>
+            <ClubFilterEditor filters={filters} />
+            <ClubGrid clubs={displayedClubs} request={request} />
+        </Stack>
+    );
 };
 
 export default AllClubsTab;
