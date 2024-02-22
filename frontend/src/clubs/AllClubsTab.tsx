@@ -34,21 +34,31 @@ const AllClubsTab: React.FC<AllClubsTabProps> = ({ filters }) => {
     }, [request, api, cache]);
 
     const displayedClubs = useMemo(() => {
-        return (
-            request.data?.sort((lhs: Club, rhs: Club) => {
-                if (filters.sortMethod === ClubSortMethod.Alphabetical) {
-                    if (filters.sortDirection === 'asc') {
-                        return lhs.name.localeCompare(rhs.name);
-                    }
-                    return rhs.name.localeCompare(lhs.name);
-                }
-
+        let result = request.data || [];
+        const search = filters.search.trim().toLowerCase();
+        if (search) {
+            result = result.filter(
+                (club) =>
+                    club.name.toLowerCase().includes(search) ||
+                    club.shortDescription.toLowerCase().includes(search) ||
+                    club.location.city.toLowerCase().includes(search) ||
+                    club.location.state.toLowerCase().includes(search) ||
+                    club.location.country.toLowerCase().includes(search),
+            );
+        }
+        return result.sort((lhs: Club, rhs: Club) => {
+            if (filters.sortMethod === ClubSortMethod.Alphabetical) {
                 if (filters.sortDirection === 'asc') {
-                    return lhs.memberCount - rhs.memberCount;
+                    return lhs.name.localeCompare(rhs.name);
                 }
-                return rhs.memberCount - lhs.memberCount;
-            }) ?? []
-        );
+                return rhs.name.localeCompare(lhs.name);
+            }
+
+            if (filters.sortDirection === 'asc') {
+                return lhs.memberCount - rhs.memberCount;
+            }
+            return rhs.memberCount - lhs.memberCount;
+        });
     }, [request.data, filters]);
 
     if (!request.isSent() || request.isLoading()) {

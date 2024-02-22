@@ -11,6 +11,9 @@ import {
 import { useState } from 'react';
 
 export interface ClubFilters {
+    search: string;
+    setSearch: (search: string) => void;
+
     sortMethod: ClubSortMethod;
     setSortMethod: (sortMethod: ClubSortMethod) => void;
 
@@ -24,10 +27,13 @@ export enum ClubSortMethod {
 }
 
 export function useClubFilters(): ClubFilters {
+    const [search, setSearch] = useState('');
     const [sortMethod, setSortMethod] = useState(ClubSortMethod.Alphabetical);
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
     return {
+        search,
+        setSearch,
         sortMethod,
         setSortMethod,
         sortDirection,
@@ -41,7 +47,14 @@ interface ClubFilterEditorProps {
 
 export const ClubFilterEditor: React.FC<ClubFilterEditorProps> = ({ filters }) => {
     return (
-        <Stack>
+        <Stack direction='row' spacing={3} alignItems='center' flexWrap='wrap' rowGap={3}>
+            <TextField
+                label='Search...'
+                value={filters.search}
+                onChange={(e) => filters.setSearch(e.target.value)}
+                sx={{ flexGrow: 1 }}
+            />
+
             <Stack direction='row' spacing={2} alignItems='center'>
                 <TextField
                     select
