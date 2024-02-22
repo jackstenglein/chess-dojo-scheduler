@@ -58,6 +58,9 @@ type Club struct {
 
 	// The date and time the club info (not members) was last updated, in time.RFC3339 format
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+
+	// The base 64 encoded logo
+	LogoData string `dynamodbav:"-" json:"logoData,omitempty"`
 }
 
 type ClubLocation struct {
@@ -132,6 +135,9 @@ type ClubUpdate struct {
 	// The date and time the club was updated, in time.RFC3339 format
 	// Cannot be manually passed by the updater and is set automatically by the server
 	UpdatedAt *string `dynamodbav:"updatedAt,omitempty" json:"-"`
+
+	// The base 64 encoded logo
+	LogoData *string `dynamodbav:"-" json:"logoData,omitempty"`
 }
 
 // Creates the given club in the database. The club id must not already exist.

@@ -138,3 +138,4 @@ services:
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      PicturesBucket: ${chess-dojo-scheduler.PicturesBucket}

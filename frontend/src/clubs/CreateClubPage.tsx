@@ -1,8 +1,10 @@
 import { LoadingButton } from '@mui/lab';
 import {
+    Button,
     Checkbox,
     Container,
     FormControlLabel,
+    FormLabel,
     Stack,
     TextField,
     Typography,
@@ -12,10 +14,17 @@ import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { Delete, Upload } from '@mui/icons-material';
 import { useApi } from '../api/Api';
+import { useCache } from '../api/cache/Cache';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { ClubDetails } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
+import { ClubAvatar } from '../profile/Avatar';
+import {
+    encodeFileToBase64,
+    MAX_PROFILE_PICTURE_SIZE_MB,
+} from '../profile/editor/ProfileEditorPage';
 import { ClubDetailsParams } from './ClubDetailsPage';
 
 const CreateClubPage = () => {
@@ -24,6 +33,7 @@ const CreateClubPage = () => {
     const saveRequest = useRequest();
     const navigate = useNavigate();
     const { id } = useParams<ClubDetailsParams>();
+    const { setImageBypass } = useCache();
 
     const [name, setName] = useState('');
     const [shortDescription, setShortDescription] = useState('');
@@ -36,6 +46,9 @@ const CreateClubPage = () => {
     const [approvalRequired, setApprovalRequired] = useState(false);
     const [allowFreeTier, setAllowFreeTier] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const [logoUrl, setLogoUrl] = useState<string>();
+    const [logoData, setLogoData] = useState<string>();
 
     useEffect(() => {
         if (id && !getRequest.isSent()) {
@@ -65,6 +78,31 @@ const CreateClubPage = () => {
     if (id && (!getRequest.isSent() || getRequest.isLoading())) {
         return <LoadingPage />;
     }
+
+    const onChangePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files.length) {
+            if (files[0].size / 1024 / 1024 > MAX_PROFILE_PICTURE_SIZE_MB) {
+                saveRequest.onFailure({ message: 'Logo must be 9MB or smaller' });
+                return;
+            }
+
+            encodeFileToBase64(files[0])
+                .then((encoded) => {
+                    setLogoData(encoded);
+                    setLogoUrl(URL.createObjectURL(files[0]));
+                })
+                .catch((err) => {
+                    console.log(err);
+                    saveRequest.onFailure(err);
+                });
+        }
+    };
+
+    const onDeletePicture = () => {
+        setLogoUrl('');
+        setLogoData('');
+    };
 
     const onSave = () => {
         const errors: Record<string, string> = {};
@@ -99,6 +137,7 @@ const CreateClubPage = () => {
             unlisted,
             approvalRequired,
             allowFreeTier,
+            logoData,
         };
 
         saveRequest.onStart();
@@ -113,6 +152,9 @@ const CreateClubPage = () => {
             .then((resp) => {
                 console.log('createClub: ', resp);
                 navigate(`/clubs/${resp.data.id}`);
+                if (club.logoData !== undefined) {
+                    setImageBypass(Date.now());
+                }
             })
             .catch((err) => {
                 console.error('createClub: ', err);
@@ -127,6 +169,35 @@ const CreateClubPage = () => {
             <Typography variant='h5'>{id ? 'Edit Club' : 'Create New Club'}</Typography>
 
             <Stack spacing={3} mt={5}>
+                <Stack>
+                    <FormLabel sx={{ mb: 1 }}>Club Logo</FormLabel>
+                    <Stack direction='row' alignItems='center' spacing={3}>
+                        <ClubAvatar id={id} name={name} size={150} url={logoUrl} />
+                        <Stack spacing={2} alignItems='start'>
+                            <Button
+                                component='label'
+                                variant='outlined'
+                                startIcon={<Upload />}
+                            >
+                                Upload Photo
+                                <input
+                                    type='file'
+                                    accept='image/*'
+                                    hidden
+                                    onChange={onChangePicture}
+                                />
+                            </Button>
+                            <Button
+                                variant='outlined'
+                                startIcon={<Delete />}
+                                onClick={onDeletePicture}
+                            >
+                                Delete Photo
+                            </Button>
+                        </Stack>
+                    </Stack>
+                </Stack>
+
                 <TextField
                     label='Name'
                     required

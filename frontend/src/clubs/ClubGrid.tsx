@@ -54,7 +54,16 @@ export const ListClubItem: React.FC<ListClubItemProps> = ({ club, sx }) => {
 
     return (
         <Card variant='outlined' sx={sx}>
-            <CardActionArea onClick={() => navigate(`/clubs/${club.id}`)}>
+            <CardActionArea
+                sx={{
+                    height: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'start',
+                    justifyContent: 'start',
+                }}
+                onClick={() => navigate(`/clubs/${club.id}`)}
+            >
                 <CardHeader sx={{ pb: 1 }} title={club.name} />
                 <CardContent sx={{ pt: 0 }}>
                     <Stack direction='row' mb={2} spacing={1} flexWrap='wrap' rowGap={1}>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import UploadIcon from '@mui/icons-material/Upload';
+import { LoadingButton } from '@mui/lab';
 import {
     Alert,
     Button,
@@ -17,12 +18,15 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import UploadIcon from '@mui/icons-material/Upload';
-import DeleteIcon from '@mui/icons-material/Delete';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-
+import React, { useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
+import { useApi } from '../../api/Api';
+import { useCache } from '../../api/cache/Cache';
+import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
+import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 import {
     dojoCohorts,
     formatRatingSystem,
@@ -30,16 +34,11 @@ import {
     RatingSystem,
     User,
 } from '../../database/user';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
-import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
-import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
 import Avatar from '../Avatar';
-import { useCache } from '../../api/cache/Cache';
 import NotificationSettingsEditor from './NotificationSettingsEditor';
 import SubscriptionManager from './SubscriptionManager';
 
-const MAX_PROFILE_PICTURE_SIZE_MB = 9;
+export const MAX_PROFILE_PICTURE_SIZE_MB = 9;
 
 type UserUpdate = Partial<User & { profilePictureData: string }>;
 
@@ -95,16 +94,19 @@ interface RatingEditor {
 
 function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
     const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(
-        RatingSystem
-    ).reduce((m, rs) => {
-        m[rs] = {
-            username: ratings[rs]?.username || '',
-            hideUsername: ratings[rs]?.hideUsername || false,
-            startRating: `${ratings[rs]?.startRating || 0}`,
-            currentRating: `${ratings[rs]?.currentRating || 0}`,
-        };
-        return m;
-    }, {} as Record<RatingSystem, RatingEditor>);
+        RatingSystem,
+    ).reduce(
+        (m, rs) => {
+            m[rs] = {
+                username: ratings[rs]?.username || '',
+                hideUsername: ratings[rs]?.hideUsername || false,
+                startRating: `${ratings[rs]?.startRating || 0}`,
+                currentRating: `${ratings[rs]?.currentRating || 0}`,
+            };
+            return m;
+        },
+        {} as Record<RatingSystem, RatingEditor>,
+    );
     return ratingEditors;
 }
 
@@ -119,7 +121,7 @@ function getRatingsFromEditors(ratingEditors: Record<RatingSystem, RatingEditor>
             };
             return m;
         },
-        {} as Record<RatingSystem, Rating>
+        {} as Record<RatingSystem, Rating>,
     );
     return ratings;
 }
@@ -147,7 +149,7 @@ function parseRating(rating: string | undefined): number {
 function getUpdate(
     user: User,
     formFields: Partial<User>,
-    profilePictureData?: string
+    profilePictureData?: string,
 ): Partial<UserUpdate> | undefined {
     const update: Partial<UserUpdate> = {};
 
@@ -176,13 +178,13 @@ function getTimezoneOptions() {
         options.push(
             <MenuItem key={i} value={value}>
                 {displayLabel}
-            </MenuItem>
+            </MenuItem>,
         );
     }
     return options;
 }
 
-function encodeFileToBase64(file: File): Promise<string> {
+export function encodeFileToBase64(file: File): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         let reader = new FileReader();
         reader.onloadend = function () {
@@ -207,12 +209,12 @@ const ProfileEditorPage = () => {
     const [displayName, setDisplayName] = useState(user.displayName);
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [dojoCohort, setDojoCohort] = useState(
-        user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : ''
+        user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : '',
     );
     const [bio, setBio] = useState(user.bio);
     const [coachBio, setCoachBio] = useState(user.coachBio || '');
     const [timezone, setTimezone] = useState(
-        user.timezoneOverride === DefaultTimezone ? '' : user.timezoneOverride
+        user.timezoneOverride === DefaultTimezone ? '' : user.timezoneOverride,
     );
 
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
@@ -259,7 +261,7 @@ const ProfileEditorPage = () => {
     };
 
     const [notificationSettings, setNotificationSettings] = useState(
-        user.notificationSettings
+        user.notificationSettings,
     );
 
     const [enableLightMode, setEnableLightMode] = useState(user.enableLightMode);
@@ -311,7 +313,7 @@ const ProfileEditorPage = () => {
 
             enableLightMode,
         },
-        profilePictureData
+        profilePictureData,
     );
     const changesMade = update !== undefined;
 
@@ -334,11 +336,10 @@ const ProfileEditorPage = () => {
             ratingSystem !== RatingSystem.Custom &&
             !ratingEditors[ratingSystem]?.username.trim()
         ) {
-            newErrors[
-                `${ratingSystem}Username`
-            ] = `This field is required when using ${formatRatingSystem(
-                ratingSystem
-            )} rating system.`;
+            newErrors[`${ratingSystem}Username`] =
+                `This field is required when using ${formatRatingSystem(
+                    ratingSystem,
+                )} rating system.`;
         }
 
         for (const rs of Object.keys(ratingEditors)) {
@@ -738,7 +739,7 @@ const ProfileEditorPage = () => {
                                         onChange={(event) =>
                                             setCurrentRating(
                                                 RatingSystem.Custom,
-                                                event.target.value
+                                                event.target.value,
                                             )
                                         }
                                         error={!!errors.currentCustomRating}
@@ -761,7 +762,7 @@ const ProfileEditorPage = () => {
                                         onChange={(event) =>
                                             setStartRating(
                                                 RatingSystem.Custom,
-                                                event.target.value
+                                                event.target.value,
                                             )
                                         }
                                         error={!!errors.startCustomRating}

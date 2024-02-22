@@ -52,6 +52,15 @@ functions:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
         Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:DeleteObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:PicturesBucket}
+            - /clubs/*
 
   list:
     handler: list/main.go

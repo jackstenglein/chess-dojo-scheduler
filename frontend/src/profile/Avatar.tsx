@@ -1,9 +1,10 @@
 import { Avatar as MuiAvatar } from '@mui/material';
 
-import { User } from '../database/user';
-import { getConfig } from '../config';
-import { SxSize, avatarProps } from '../style/style';
 import { useCache } from '../api/cache/Cache';
+import { getConfig } from '../config';
+import { Club } from '../database/club';
+import { User } from '../database/user';
+import { avatarProps, SxSize } from '../style/style';
 
 const picturesBucket = getConfig().media.picturesBucket;
 
@@ -32,7 +33,7 @@ interface AvatarProps {
     fontSize?: SxSize;
 
     /**
-     * If provided, this overrides user and username to display this image URL instead.
+     * If provided, this overrides all other parameters to display this image URL instead.
      */
     url?: string;
 }
@@ -63,3 +64,40 @@ const Avatar: React.FC<AvatarProps> = ({
 };
 
 export default Avatar;
+
+interface ClubAvatarProps extends Pick<AvatarProps, 'size' | 'fontSize' | 'url'> {
+    /** The club to display an Avatar for. If provided, it overrides id and name. */
+    club?: Club;
+
+    /** The id of the the club to display an Avatar for. */
+    id?: string;
+
+    /**
+     * The name of the club. If provided, the Avatar will fallback to displaying its
+     * initials if the image cannot be loaded.
+     */
+    name?: string;
+}
+
+export const ClubAvatar: React.FC<ClubAvatarProps> = ({
+    club,
+    id,
+    name,
+    size,
+    fontSize,
+    url,
+}) => {
+    const { imageBypass } = useCache();
+    if (club) {
+        id = club.id;
+        name = club.name;
+    }
+
+    if (url === undefined) {
+        url = `${picturesBucket}/clubs/${id}`;
+        if (imageBypass) {
+            url += `?${imageBypass}`;
+        }
+    }
+    return <MuiAvatar src={url} {...avatarProps(name || '', size, fontSize)} />;
+};

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 )
 
 var repository = database.DynamoDB
+var mediaStore = database.S3
 
 func main() {
 	lambda.Start(handler)
@@ -65,6 +67,12 @@ func createClub(event api.Request) api.Response {
 		},
 	}
 
+	if club.LogoData != "" {
+		if err := mediaStore.UploadImage(fmt.Sprintf("/clubs/%s", club.Id), club.LogoData); err != nil {
+			return api.Failure(err)
+		}
+	}
+
 	if err := repository.CreateClub(club); err != nil {
 		return api.Failure(err)
 	}
@@ -80,6 +88,18 @@ func saveClub(event api.Request) api.Response {
 	clubUpdate := &database.ClubUpdate{}
 	if err := json.Unmarshal([]byte(event.Body), clubUpdate); err != nil {
 		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err))
+	}
+
+	if clubUpdate.LogoData != nil {
+		var err error
+		if *clubUpdate.LogoData == "" {
+			err = mediaStore.DeleteImage(fmt.Sprintf("/clubs/%s", event.PathParameters["id"]))
+		} else {
+			err = mediaStore.UploadImage(fmt.Sprintf("/clubs/%s", event.PathParameters["id"]), *clubUpdate.LogoData)
+		}
+		if err != nil {
+			return api.Failure(err)
+		}
 	}
 
 	club, err := repository.UpdateClub(event.PathParameters["id"], info.Username, clubUpdate)

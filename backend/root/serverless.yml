@@ -650,7 +650,7 @@ resources:
                 - ''
                 - - 'arn:aws:s3:::'
                   - !Ref PicturesBucket
-                  - /profile/*
+                  - /*
               Principal: '*'
 
     SecretsBucket:

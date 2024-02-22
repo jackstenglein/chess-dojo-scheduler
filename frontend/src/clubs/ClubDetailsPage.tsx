@@ -23,6 +23,7 @@ import { AuthStatus, useAuth, useFreeTier } from '../auth/Auth';
 import { ClubDetails } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
 import NewsfeedList from '../newsfeed/list/NewsfeedList';
+import { ClubAvatar } from '../profile/Avatar';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import ClubJoinRequestDialog from './ClubJoinRequestDialog';
 import JoinRequestsTab from './JoinRequestsTab';
@@ -159,13 +160,23 @@ const ClubDetailsPage = () => {
                     <TabContext value={searchParams.get('view') || 'scoreboard'}>
                         <Container>
                             <Stack spacing={4}>
-                                <Stack spacing={0.5}>
+                                <Stack spacing={2}>
                                     <Stack
                                         direction='row'
                                         justifyContent='space-between'
                                         alignItems='center'
                                     >
-                                        <Typography variant='h4'>{club.name}</Typography>
+                                        <Stack
+                                            direction='row'
+                                            alignItems='center'
+                                            spacing={2}
+                                        >
+                                            <ClubAvatar club={club} />
+                                            <Typography variant='h4'>
+                                                {club.name}
+                                            </Typography>
+                                        </Stack>
+
                                         {auth.status ===
                                         AuthStatus.Loading ? null : isOwner ? (
                                             <Button
