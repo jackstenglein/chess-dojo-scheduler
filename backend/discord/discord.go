@@ -16,6 +16,7 @@ var repository database.UserGetter = database.DynamoDB
 var frontendHost = os.Getenv("frontendHost")
 var authToken = os.Getenv("discordAuth")
 var findGameChannelId = os.Getenv("discordFindGameChannelId")
+var coachingChannelId = os.Getenv("discordCoachingChannelId")
 var publicGuildId = os.Getenv("discordPublicGuildId")
 var privateGuildId = os.Getenv("discordPrivateGuildId")
 

@@ -63,7 +63,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		log.Error("Failed RecordEventDeletion: ", err)
 	}
 
-	if err = discord.DeleteMessage(event.DiscordMessageId); err != nil {
+	if err = discord.DeleteEventNotification(event); err != nil {
 		log.Error("Failed discord.DeleteMessage: ", err)
 	}
 

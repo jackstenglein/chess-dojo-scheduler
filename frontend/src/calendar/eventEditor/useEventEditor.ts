@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { useAuth } from '../../auth/Auth';
 import { AvailabilityType, Event, EventType } from '../../database/event';
 import { dojoCohorts } from '../../database/user';
-import { useAuth } from '../../auth/Auth';
 
 const ONE_HOUR = 60 * 60 * 1000;
 
@@ -188,12 +188,12 @@ export interface UseEventEditorResponse {
 export default function useEventEditor(
     initialStart: Date,
     initialEnd: Date,
-    initialEvent?: Event
+    initialEvent?: Event,
 ): UseEventEditorResponse {
     const user = useAuth().user!;
 
     const [type, setType] = useState<EventType>(
-        initialEvent?.type ?? EventType.Availability
+        initialEvent?.type ?? EventType.Availability,
     );
     const [title, setTitle] = useState<string>(initialEvent?.title || '');
 
@@ -203,17 +203,20 @@ export default function useEventEditor(
     const [location, setLocation] = useState(initialEvent?.location || '');
     const [description, setDescription] = useState(initialEvent?.description || '');
     const [maxParticipants, setMaxParticipants] = useState(
-        `${initialEvent?.maxParticipants || ''}`
+        `${initialEvent?.maxParticipants || ''}`,
     );
 
     const [allAvailabilityTypes, setAllAvailabilityTypes] = useState(false);
     const [availabilityTypes, setAvailabilityTypes] = useState<
         Record<AvailabilityType, boolean>
     >(
-        Object.values(AvailabilityType).reduce((map, type) => {
-            map[type] = false;
-            return map;
-        }, {} as Record<AvailabilityType, boolean>)
+        Object.values(AvailabilityType).reduce(
+            (map, type) => {
+                map[type] = false;
+                return map;
+            },
+            {} as Record<AvailabilityType, boolean>,
+        ),
     );
     const setAvailabilityType = useCallback(
         (type: AvailabilityType, value: boolean) => {
@@ -222,16 +225,20 @@ export default function useEventEditor(
                 [type]: value,
             }));
         },
-        [setAvailabilityTypes]
+        [setAvailabilityTypes],
     );
 
     const userCohortIndex = dojoCohorts.findIndex((c) => c === user.dojoCohort);
     const [allCohorts, setAllCohorts] = useState(false);
     const [cohorts, setCohorts] = useState<Record<string, boolean>>(
-        dojoCohorts.reduce((map, cohort, index) => {
-            map[cohort] = userCohortIndex >= 0 && Math.abs(index - userCohortIndex) <= 1;
-            return map;
-        }, {} as Record<string, boolean>)
+        dojoCohorts.reduce(
+            (map, cohort, index) => {
+                map[cohort] =
+                    userCohortIndex >= 0 && Math.abs(index - userCohortIndex) <= 1;
+                return map;
+            },
+            {} as Record<string, boolean>,
+        ),
     );
     const setCohort = useCallback(
         (cohort: string, value: boolean) => {
@@ -240,35 +247,38 @@ export default function useEventEditor(
                 [cohort]: value,
             }));
         },
-        [setCohorts]
+        [setCohorts],
     );
 
     const [fullPrice, setFullPrice] = useState(
         initialEvent?.coaching?.fullPrice
             ? `${initialEvent.coaching.fullPrice / 100}`
-            : ''
+            : '',
     );
     const [currentPrice, setCurrentPrice] = useState(
-        initialEvent?.coaching?.currentPrice
-            ? `${initialEvent.coaching.currentPrice / 100}`
-            : ''
+        (initialEvent?.coaching?.currentPrice ?? 0) > 0
+            ? `${initialEvent?.coaching?.currentPrice ?? 0 / 100}`
+            : '',
     );
     const [bookableByFreeUsers, setBookableByFreeUsers] = useState(
-        initialEvent?.coaching?.bookableByFreeUsers || false
+        initialEvent?.coaching?.bookableByFreeUsers || false,
     );
 
     const [hideFromPublicDiscord, setHideFromPublicDiscord] = useState(
-        initialEvent?.hideFromPublicDiscord || false
+        initialEvent?.hideFromPublicDiscord || false,
     );
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const onChangeEventType = useCallback(
         (value: EventType) => {
-            const allFalseCohorts = dojoCohorts.reduce((map, cohort) => {
-                map[cohort] = false;
-                return map;
-            }, {} as Record<string, boolean>);
+            const allFalseCohorts = dojoCohorts.reduce(
+                (map, cohort) => {
+                    map[cohort] = false;
+                    return map;
+                },
+                {} as Record<string, boolean>,
+            );
 
             setType(value);
 
@@ -277,19 +287,25 @@ export default function useEventEditor(
                 setAllCohorts(false);
                 if (originalCohorts) {
                     setCohorts(() =>
-                        originalCohorts.reduce((map, cohort) => {
-                            map[cohort] = true;
-                            return map;
-                        }, Object.assign({}, allFalseCohorts))
+                        originalCohorts.reduce(
+                            (map, cohort) => {
+                                map[cohort] = true;
+                                return map;
+                            },
+                            Object.assign({}, allFalseCohorts),
+                        ),
                     );
                 } else {
                     setCohorts(
-                        dojoCohorts.reduce((map, cohort, index) => {
-                            map[cohort] =
-                                userCohortIndex >= 0 &&
-                                Math.abs(index - userCohortIndex) <= 1;
-                            return map;
-                        }, {} as Record<string, boolean>)
+                        dojoCohorts.reduce(
+                            (map, cohort, index) => {
+                                map[cohort] =
+                                    userCohortIndex >= 0 &&
+                                    Math.abs(index - userCohortIndex) <= 1;
+                                return map;
+                            },
+                            {} as Record<string, boolean>,
+                        ),
                     );
                 }
             } else {
@@ -297,31 +313,40 @@ export default function useEventEditor(
                 setCohorts(allFalseCohorts);
             }
         },
-        [setType, setAllCohorts, setCohorts, initialEvent, userCohortIndex]
+        [setType, setAllCohorts, setCohorts, initialEvent, userCohortIndex],
     );
 
     useEffect(() => {
         const originalTypes: AvailabilityType[] = initialEvent?.types || [];
         if (originalTypes.length > 0) {
             setAvailabilityTypes((t) =>
-                originalTypes.reduce((map, type) => {
-                    map[type] = true;
-                    return map;
-                }, Object.assign({}, t))
+                originalTypes.reduce(
+                    (map, type) => {
+                        map[type] = true;
+                        return map;
+                    },
+                    Object.assign({}, t),
+                ),
             );
         }
 
         const originalCohorts: string[] = initialEvent?.cohorts || [];
         if (originalCohorts.length > 0) {
-            const allFalseCohorts = dojoCohorts.reduce((map, cohort) => {
-                map[cohort] = false;
-                return map;
-            }, {} as Record<string, boolean>);
-            setCohorts(() =>
-                originalCohorts.reduce((map, cohort) => {
-                    map[cohort] = true;
+            const allFalseCohorts = dojoCohorts.reduce(
+                (map, cohort) => {
+                    map[cohort] = false;
                     return map;
-                }, Object.assign({}, allFalseCohorts))
+                },
+                {} as Record<string, boolean>,
+            );
+            setCohorts(() =>
+                originalCohorts.reduce(
+                    (map, cohort) => {
+                        map[cohort] = true;
+                        return map;
+                    },
+                    Object.assign({}, allFalseCohorts),
+                ),
             );
         }
     }, [initialEvent, setAvailabilityTypes, setCohorts]);

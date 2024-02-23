@@ -85,7 +85,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	id, _ := request.PathParameters["id"]
+	id := request.PathParameters["id"]
 	if id == "" {
 		err := errors.New(400, "Invalid request: id is required", "")
 		return api.Failure(err), nil
@@ -151,11 +151,11 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	if newEvent.Status == database.SchedulingStatus_Booked {
-		if err := discord.DeleteMessage(originalEvent.DiscordMessageId); err != nil {
+		if err := discord.DeleteEventNotification(originalEvent); err != nil {
 			log.Error("Failed to delete Discord message: ", err)
 		}
-	} else if _, err := discord.SendAvailabilityNotification(newEvent); err != nil {
-		log.Error("Failed SendAvailabilityNotification: ", err)
+	} else if _, err := discord.SendEventNotification(newEvent); err != nil {
+		log.Error("Failed SendEventNotification: ", err)
 	}
 
 	var checkoutUrl string

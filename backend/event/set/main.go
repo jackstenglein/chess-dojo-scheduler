@@ -262,6 +262,18 @@ func handleCoachingEvent(info *api.UserInfo, event *database.Event) api.Response
 		return api.Failure(err)
 	}
 
+	if msgId, err := discord.SendCoachingNotification(event); err != nil {
+		log.Error("Failed SendCoachingNotification: ", err)
+	} else if event.DiscordMessageId != msgId {
+		// We have to save the event a second time in order to avoid first
+		// sending the Discord notification and then failing to save the event.
+		// If this save fails, we just log the error and return success since it is non-critical.
+		event.DiscordMessageId = msgId
+		if err := repository.SetEvent(event); err != nil {
+			log.Error("Failed to set event.DiscordMessageId: ", err)
+		}
+	}
+
 	return api.Success(event)
 }
 

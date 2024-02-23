@@ -20,6 +20,7 @@ provider:
     discordFindGameChannelId: ${file(../config-${sls:stage}.yml):discordFindGameChannelId}
     discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
     discordPublicGuildId: ${file(../config-${sls:stage}.yml):discordPublicGuildId}
+    discordCoachingChannelId: ${file(../config-${sls:stage}.yml):discordCoachingChannelId}
   httpApi:
     id: ${param:httpApiId}
 
