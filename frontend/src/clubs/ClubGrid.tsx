@@ -12,6 +12,7 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import { useNavigate } from 'react-router-dom';
 import { Request, RequestSnackbar } from '../api/Request';
 import { Club } from '../database/club';
+import { ClubAvatar } from '../profile/Avatar';
 import LocationChip from './LocationChip';
 import MemberCountChip from './MemberCountChip';
 
@@ -64,7 +65,15 @@ export const ListClubItem: React.FC<ListClubItemProps> = ({ club, sx }) => {
                 }}
                 onClick={() => navigate(`/clubs/${club.id}`)}
             >
-                <CardHeader sx={{ pb: 1 }} title={club.name} />
+                <CardHeader
+                    sx={{ pb: 1 }}
+                    title={
+                        <Stack direction='row' spacing={1} alignItems='center'>
+                            <ClubAvatar club={club} size={40} />
+                            <Typography variant='h5'>{club.name}</Typography>
+                        </Stack>
+                    }
+                />
                 <CardContent sx={{ pt: 0 }}>
                     <Stack direction='row' mb={2} spacing={1} flexWrap='wrap' rowGap={1}>
                         <MemberCountChip count={club.memberCount} />
