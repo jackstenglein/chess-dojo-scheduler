@@ -37,6 +37,8 @@ type LichessResponse struct {
 			Rating int `json:"rating"`
 		} `json:"classical"`
 	} `json:"perfs"`
+
+	TosViolation bool `json:"tosViolation"`
 }
 
 type EcfResponse struct {
@@ -106,10 +108,10 @@ func FetchLichessRating(lichessUsername string) (int, error) {
 	return rating.Performances.Classical.Rating, nil
 }
 
-func FetchBulkLichessRatings(lichessUsernames []string) (map[string]int, error) {
+func FetchBulkLichessRatings(lichessUsernames []string) (map[string]LichessResponse, error) {
 	log.Debugf("Fetching bulk lichess usernames: %#v", lichessUsernames)
 	if len(lichessUsernames) == 0 {
-		return make(map[string]int, 0), nil
+		return make(map[string]LichessResponse, 0), nil
 	}
 
 	resp, err := http.Post("https://lichess.org/api/users", "text/plain", strings.NewReader(strings.Join(lichessUsernames, ",")))
@@ -124,9 +126,9 @@ func FetchBulkLichessRatings(lichessUsernames []string) (map[string]int, error) 
 		return nil, err
 	}
 
-	result := make(map[string]int, len(rs))
+	result := make(map[string]LichessResponse, len(rs))
 	for _, r := range rs {
-		result[r.Id] = r.Performances.Classical.Rating
+		result[r.Id] = *r
 	}
 	log.Debugf("Bulk Lichess result: %#v", result)
 	return result, nil
@@ -294,8 +296,6 @@ func FetchAcfRating(acfId string) (int, error) {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read ACF response", err)
 		return 0, err
 	}
-
-	log.Debugf("Got ACF body: %s", string(b))
 
 	rating, err := findRating(b, acfRegexp)
 	if err != nil {

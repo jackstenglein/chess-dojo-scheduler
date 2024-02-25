@@ -280,6 +280,10 @@ type User struct {
 
 	// The set of club ids the user is in
 	Clubs []string `dynamodbav:"clubs,stringset,omitempty" json:"clubs,omitempty"`
+
+	// The username of the user's Lichess account that was banned for ToS violation,
+	// if they have been banned on Lichess.
+	LichessBan string `dynamodbav:"lichessBan,omitempty" json:"-"`
 }
 
 type PaymentInfo struct {
@@ -958,7 +962,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, subscriptionStatus, subscriptionOverride, paymentInfo, wixEmail, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories"
+const ratingsProjection = "username, dojoCohort, subscriptionStatus, subscriptionOverride, paymentInfo, wixEmail, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories, lichessBan"
 
 // ListUserRatings returns a list of Users matching the provided cohort, up to 1MB of data.
 // Only the fields necessary for the rating/statistics update are returned.
@@ -993,14 +997,14 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		params, err := dynamodbattribute.MarshalList([]interface{}{user.Ratings, user.RatingHistories, user.Username})
+		params, err := dynamodbattribute.MarshalList([]interface{}{user.Ratings, user.RatingHistories, user.LichessBan, user.Username})
 		if err != nil {
 			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.Ratings", err)
 		}
 
 		statement := &dynamodb.BatchStatementRequest{
 			Statement: aws.String(fmt.Sprintf(
-				"UPDATE \"%s\" SET ratings=? SET ratingHistories=? WHERE username=?", userTable,
+				"UPDATE \"%s\" SET ratings=? SET ratingHistories=? SET lichessBan=? WHERE username=?", userTable,
 			)),
 			Parameters: params,
 		}

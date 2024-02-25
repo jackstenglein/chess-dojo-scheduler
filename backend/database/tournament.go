@@ -61,10 +61,10 @@ var TimeControls = []string{
 
 // LeaderboardPlayer represents a single player in the tournament leaderboards.
 type LeaderboardPlayer struct {
-	// The Lichess username of the player.
+	// The Lichess or Chess.com username of the player.
 	Username string `dynamodbav:"username" json:"username"`
 
-	// The Lichess rating of the player.
+	// The Lichess or Chess.com rating of the player.
 	Rating int `dynamodbav:"rating" json:"rating"`
 
 	// The score of the player in the given leaderboard.

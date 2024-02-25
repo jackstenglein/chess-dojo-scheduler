@@ -23,6 +23,8 @@ var now = time.Now()
 
 type ratingFetchFunc func(username string) (int, error)
 
+type isBannedFunc func(username string) bool
+
 func updateRating(rating *database.Rating, systemName string, fetcher ratingFetchFunc) bool {
 	rating.Username = strings.TrimSpace(rating.Username)
 	if rating.Username == "" {
@@ -50,31 +52,19 @@ func updateRating(rating *database.Rating, systemName string, fetcher ratingFetc
 	return shouldUpdate
 }
 
-func updateIfNecessary(user *database.User, queuedUpdates []*database.User, lichessRatings map[string]int) (*database.User, []*database.User) {
-	fetchLichessRating := func(username string) (int, error) {
-		if rating, ok := lichessRatings[strings.ToLower(username)]; !ok {
-			return 0, errors.New("No Lichess rating found in cache")
-		} else {
-			return rating, nil
-		}
-	}
-
-	ratingFetchFuncs := map[database.RatingSystem]ratingFetchFunc{
-		database.Chesscom: ratings.FetchChesscomRating,
-		database.Lichess:  fetchLichessRating,
-		database.Fide:     ratings.FetchFideRating,
-		database.Uscf:     ratings.FetchUscfRating,
-		database.Ecf:      ratings.FetchEcfRating,
-		database.Cfc:      ratings.FetchCfcRating,
-		database.Dwz:      ratings.FetchDwzRating,
-		database.Acf:      ratings.FetchAcfRating,
-	}
-
+func updateIfNecessary(user *database.User, queuedUpdates []*database.User, ratingFetchFuncs map[database.RatingSystem]ratingFetchFunc, isBannedLichess isBannedFunc) (*database.User, []*database.User) {
 	shouldUpdate := false
 
 	for system, rating := range user.Ratings {
 		if system != database.Custom {
 			shouldUpdate = updateRating(rating, string(system), ratingFetchFuncs[system]) || shouldUpdate
+		}
+
+		if system == database.Lichess && isBannedLichess(rating.Username) {
+			if user.LichessBan == "" {
+				user.LichessBan = rating.Username
+				shouldUpdate = true
+			}
 		}
 
 		if now.Weekday() == time.Monday {
@@ -114,7 +104,7 @@ func updateUsers(users []*database.User) {
 
 	lichessUsernames := make([]string, 0, len(users))
 	for _, user := range users {
-		if lichess, _ := user.Ratings[database.Lichess]; lichess != nil {
+		if lichess := user.Ratings[database.Lichess]; lichess != nil {
 			if lichessUsername := strings.TrimSpace(lichess.Username); lichessUsername != "" {
 				lichessUsernames = append(lichessUsernames, lichessUsername)
 			}
@@ -125,9 +115,36 @@ func updateUsers(users []*database.User) {
 		log.Error(err)
 	}
 
+	fetchLichessRating := func(username string) (int, error) {
+		if rating, ok := lichessRatings[strings.ToLower(username)]; !ok {
+			return 0, errors.New("no Lichess rating found in cache")
+		} else {
+			return rating.Performances.Classical.Rating, nil
+		}
+	}
+
+	isBannedLichess := func(username string) bool {
+		if result, ok := lichessRatings[strings.ToLower(username)]; !ok {
+			return false
+		} else {
+			return result.TosViolation
+		}
+	}
+
+	ratingFetchFuncs := map[database.RatingSystem]ratingFetchFunc{
+		database.Chesscom: ratings.FetchChesscomRating,
+		database.Lichess:  fetchLichessRating,
+		database.Fide:     ratings.FetchFideRating,
+		database.Uscf:     ratings.FetchUscfRating,
+		database.Ecf:      ratings.FetchEcfRating,
+		database.Cfc:      ratings.FetchCfcRating,
+		database.Dwz:      ratings.FetchDwzRating,
+		database.Acf:      ratings.FetchAcfRating,
+	}
+
 	var queuedUpdates []*database.User
 	for _, user := range users {
-		user, queuedUpdates = updateIfNecessary(user, queuedUpdates, lichessRatings)
+		_, queuedUpdates = updateIfNecessary(user, queuedUpdates, ratingFetchFuncs, isBannedLichess)
 	}
 
 	if len(queuedUpdates) > 0 {
