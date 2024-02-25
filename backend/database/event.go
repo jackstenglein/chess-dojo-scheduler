@@ -213,7 +213,10 @@ type LigaTournament struct {
 	// The type of the tournament (IE: Swiss or Arena)
 	Type TournamentType `dynamodbav:"type" json:"type"`
 
-	// The Lichess id of the tournament
+	// The site of the tournament (IE: Lichess or Chess.com)
+	Site TournamentSite `dynamodbav:"site" json:"site"`
+
+	// The Lichess or Chess.com id of the tournament
 	Id string `dynamodbav:"id" json:"id"`
 
 	// Whether the tournament is rated or not

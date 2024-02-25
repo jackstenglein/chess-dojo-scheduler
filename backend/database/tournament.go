@@ -18,13 +18,32 @@ const (
 	TournamentType_Arena TournamentType = "ARENA"
 )
 
+type TournamentSite string
+
+const (
+	TournamentSite_Lichess  TournamentSite = "LICHESS"
+	TournamentSite_Chesscom TournamentSite = "CHESSCOM"
+)
+
 type LeaderboardType string
 
 const (
 	LeaderboardType_OpenClassical LeaderboardType = "OPEN_CLASSICAL"
 )
 
+type LeaderboardSite string
+
+const (
+	LeaderboardSite_Lichess  LeaderboardSite = "lichess.org"
+	LeaderboardSite_Chesscom LeaderboardSite = "chess.com"
+)
+
 const CurrentLeaderboard = "CURRENT"
+
+var LeaderboardSites = []LeaderboardSite{
+	LeaderboardSite_Lichess,
+	LeaderboardSite_Chesscom,
+}
 
 var LeaderboardNames = []LeaderboardType{
 	"ARENA",
@@ -54,12 +73,15 @@ type LeaderboardPlayer struct {
 
 type Leaderboard struct {
 	// The type of the leaderboard and the hash key of the table. Follows this format:
-	// LEADERBOARD_(MONTHLY|YEARLY)_(ARENA|SWISS|GRAND_PRIX|MIDDLEGAME_SPARRING|ENDGAME_SPARRING)_(BLITZ|RAPID|CLASSICAL)
+	// LEADERBOARD(_CHESSCOM)_(MONTHLY|YEARLY)_(ARENA|SWISS|GRAND_PRIX|MIDDLEGAME_SPARRING|ENDGAME_SPARRING)_(BLITZ|RAPID|CLASSICAL)
 	Type LeaderboardType `dynamodbav:"type" json:"type"`
 
 	// The start of the period the leaderboard applies to and the range key of the table.
 	// For the current leaderboard, this is set to the value of CurrentLeaderboard.
 	StartsAt string `dynamodbav:"startsAt" json:"startsAt"`
+
+	// The site that the leaderboard applies to
+	Site LeaderboardSite `dynamodbav:"site" json:"site"`
 
 	// The time control of the leaderboard. Valid values are blitz, rapid and classical.
 	TimeControl string `dynamodbav:"timeControl" json:"timeControl"`
@@ -84,12 +106,17 @@ func (repo *dynamoRepository) SetLeaderboard(leaderboard Leaderboard) error {
 }
 
 // GetLeaderboard fetches the leaderboard with the provided values.
-func (repo *dynamoRepository) GetLeaderboard(timePeriod, tournamentType, timeControl, startsAt string) (*Leaderboard, error) {
+func (repo *dynamoRepository) GetLeaderboard(site LeaderboardSite, timePeriod, tournamentType, timeControl, startsAt string) (*Leaderboard, error) {
+	var sitePrefix string
+	if site == LeaderboardSite_Chesscom {
+		sitePrefix = "_CHESSCOM"
+	}
+
 	timePeriod = strings.ToUpper(timePeriod)
 	tournamentType = strings.ToUpper(tournamentType)
 	timeControl = strings.ToUpper(timeControl)
 
-	leaderboardType := fmt.Sprintf("LEADERBOARD_%s_%s_%s", timePeriod, tournamentType, timeControl)
+	leaderboardType := fmt.Sprintf("LEADERBOARD%s_%s_%s_%s", sitePrefix, timePeriod, tournamentType, timeControl)
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"type": {
@@ -105,6 +132,7 @@ func (repo *dynamoRepository) GetLeaderboard(timePeriod, tournamentType, timeCon
 	leaderboard := Leaderboard{
 		Type:        LeaderboardType(leaderboardType),
 		StartsAt:    startsAt,
+		Site:        site,
 		TimeControl: timeControl,
 	}
 	err := repo.getItem(input, &leaderboard)

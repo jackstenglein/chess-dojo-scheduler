@@ -29,19 +29,21 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (events.CloudWat
 	month := now.Add(-24 * time.Hour).Format("2006-01")
 	year := now.Add(-24 * time.Hour).Format("2006")
 
-	for _, name := range database.LeaderboardNames {
-		for _, timeControl := range database.TimeControls {
-			log.Debugf("Snapshotting monthly leaderboard (month, name, tc): (%s, %s, %s)", month, name, timeControl)
-			if err := snapshotLeaderboard("MONTHLY", month, name, timeControl); err != nil {
-				log.Errorf("Failed to snapshot monthly leaderboard: %v", err)
-				return event, err
-			}
-
-			if now.YearDay() == 1 {
-				log.Debugf("Snapshotting yearly leaderboard (year, name, tc): (%s, %s, %s)", year, name, timeControl)
-				if err := snapshotLeaderboard("YEARLY", year, name, timeControl); err != nil {
-					log.Errorf("Failed to snapshot yearly leaderboard: %v", err)
+	for _, site := range database.LeaderboardSites {
+		for _, name := range database.LeaderboardNames {
+			for _, timeControl := range database.TimeControls {
+				log.Debugf("Snapshotting monthly leaderboard (site, month, name, tc): (%s, %s, %s, %s)", site, month, name, timeControl)
+				if err := snapshotLeaderboard(site, "MONTHLY", month, name, timeControl); err != nil {
+					log.Errorf("Failed to snapshot monthly leaderboard: %v", err)
 					return event, err
+				}
+
+				if now.YearDay() == 1 {
+					log.Debugf("Snapshotting yearly leaderboard (site, year, name, tc): (%s, %s, %s, %s)", site, year, name, timeControl)
+					if err := snapshotLeaderboard(site, "YEARLY", year, name, timeControl); err != nil {
+						log.Errorf("Failed to snapshot yearly leaderboard: %v", err)
+						return event, err
+					}
 				}
 			}
 		}
@@ -57,13 +59,13 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (events.CloudWat
 
 // snapshotLeaderboard saves a snapshot of the leaderboard with the provided parameters and then resets
 // the current leaderboard players.
-func snapshotLeaderboard(timeframe, startsAt string, name database.LeaderboardType, timeControl string) error {
-	snapshot, err := repository.GetLeaderboard(timeframe, string(name), timeControl, startsAt)
+func snapshotLeaderboard(site database.LeaderboardSite, timeframe, startsAt string, name database.LeaderboardType, timeControl string) error {
+	_, err := repository.GetLeaderboard(site, timeframe, string(name), timeControl, startsAt)
 	if err == nil {
 		return errors.New(500, "Leaderboard snapshot already exists, will not overwrite it", "")
 	}
 
-	leaderboard, err := repository.GetLeaderboard(timeframe, string(name), timeControl, database.CurrentLeaderboard)
+	leaderboard, err := repository.GetLeaderboard(site, timeframe, string(name), timeControl, database.CurrentLeaderboard)
 	if err != nil {
 		if lerr, ok := err.(*errors.Error); ok && lerr.Code == 404 {
 			// The leaderboard doesn't exist, so there is nothing to snapshot
@@ -72,9 +74,10 @@ func snapshotLeaderboard(timeframe, startsAt string, name database.LeaderboardTy
 		return err
 	}
 
-	snapshot = &database.Leaderboard{
+	snapshot := &database.Leaderboard{
 		Type:        leaderboard.Type,
 		StartsAt:    startsAt,
+		Site:        leaderboard.Site,
 		TimeControl: leaderboard.TimeControl,
 		Players:     leaderboard.Players,
 	}
@@ -129,6 +132,14 @@ func resetMongo(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Debugf("Successfully updated collection: %#v", result)
+	log.Debugf("Successfully updated Lichess collection: %#v", result)
+
+	collection = client.Database("Lisebot-database").Collection("chesscom-players")
+	result, err = collection.UpdateMany(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	log.Debugf("Successfully updated Chesscom collection: %#v", result)
+
 	return nil
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -22,11 +23,16 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
 	log.Infof("Request: %#v", request)
 
-	timePeriod, _ := request.QueryStringParameters["timePeriod"]
-	tournamentType, _ := request.QueryStringParameters["tournamentType"]
-	timeControl, _ := request.QueryStringParameters["timeControl"]
-	date, _ := request.QueryStringParameters["date"]
+	site := database.LeaderboardSite(request.QueryStringParameters["site"])
+	timePeriod := request.QueryStringParameters["timePeriod"]
+	tournamentType := request.QueryStringParameters["tournamentType"]
+	timeControl := request.QueryStringParameters["timeControl"]
+	date := request.QueryStringParameters["date"]
 
+	if site != "" && site != database.LeaderboardSite_Lichess && site != database.LeaderboardSite_Chesscom {
+		err := errors.New(400, fmt.Sprintf("Invalid request: invalid site value %q", site), "")
+		return api.Failure(err), nil
+	}
 	if timePeriod != "monthly" && timePeriod != "yearly" {
 		err := errors.New(400, "Invalid request: timePeriod must be `monthly` or `yearly`", "")
 		return api.Failure(err), nil
@@ -65,7 +71,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		}
 	}
 
-	leaderboard, err := repository.GetLeaderboard(timePeriod, tournamentType, timeControl, startsAt)
+	leaderboard, err := repository.GetLeaderboard(site, timePeriod, tournamentType, timeControl, startsAt)
 	if err != nil {
 		return api.Failure(err), nil
 	}

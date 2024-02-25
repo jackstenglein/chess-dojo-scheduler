@@ -26,7 +26,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	log.SetRequestId(request.RequestContext.RequestID)
 	log.Infof("Request: %#v", request)
 
-	auth, _ := request.Headers["authorization"]
+	auth := request.Headers["authorization"]
 	if auth != fmt.Sprintf("Basic %s", botAccessToken) {
 		err := errors.New(401, "Authorization header is invalid", "")
 		return api.Failure(err), nil
@@ -43,7 +43,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	currentMonthly, err := repository.GetLeaderboard("monthly", tournamentType, leaderboardReq.TimeControl, database.CurrentLeaderboard)
+	currentMonthly, err := repository.GetLeaderboard(leaderboardReq.Site, "monthly", tournamentType, leaderboardReq.TimeControl, database.CurrentLeaderboard)
 	if err != nil {
 		if lerr, ok := err.(*errors.Error); !ok || lerr.Code != 404 {
 			return api.Failure(err), nil
@@ -51,7 +51,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		// If we get here, the leaderboard doesn't exist yet and the error was a 404, which is fine
 	}
 
-	currentYearly, err := repository.GetLeaderboard("yearly", tournamentType, leaderboardReq.TimeControl, database.CurrentLeaderboard)
+	currentYearly, err := repository.GetLeaderboard(leaderboardReq.Site, "yearly", tournamentType, leaderboardReq.TimeControl, database.CurrentLeaderboard)
 	if err != nil {
 		if lerr, ok := err.(*errors.Error); !ok || lerr.Code != 404 {
 			return api.Failure(err), nil
@@ -70,7 +70,7 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	for _, player := range leaderboardReq.Players {
-		currentScore, _ := currentMonthlyScores[player.Username]
+		currentScore := currentMonthlyScores[player.Username]
 		if currentPlayer, ok := yearlyPlayers[player.Username]; !ok {
 			yearlyPlayers[player.Username] = player
 		} else {

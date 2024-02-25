@@ -6,16 +6,42 @@ export enum TournamentType {
     EndgameSparring = 'ENDGAME_SPARRING',
 }
 
+export enum LeaderboardSite {
+    Lichess = 'lichess.org',
+    Chesscom = 'chess.com',
+}
+
 export interface LeaderboardPlayer {
+    /** The Lichess or Chess.com username of the player. */
     username: string;
+
+    /** The Lichess or Chess.com rating of the player. */
     rating: number;
+
+    /** The score of the player in the leaderboard. */
     score: number;
 }
 
 export interface Leaderboard {
+    /**
+     * The type of the leaderboard. Follows this format:
+     * LEADERBOARD(_CHESSCOM)_(MONTHLY|YEARLY)_(ARENA|SWISS|GRAND_PRIX|MIDDLEGAME_SPARRING|ENDGAME_SPARRING)_(BLITZ|RAPID|CLASSICAL)
+     */
     type: string;
+
+    /**
+     * The start of the period the leaderboard applies to. For the current leaderboard,
+     * it is the special value CURRENT.
+     */
     startsAt: string;
+
+    /** The site that the leaderboard applies to. */
+    site: LeaderboardSite;
+
+    /** The time control of the leaderboard. */
     timeControl: 'blitz' | 'rapid' | 'classical';
+
+    /** The players in the leaderboard. */
     players?: LeaderboardPlayer[];
 }
 

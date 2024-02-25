@@ -9,7 +9,7 @@ import { User } from '../database/user';
 
 import { Club, ClubJoinRequestStatus } from '../database/club';
 import { Course } from '../database/course';
-import { TournamentType } from '../database/tournament';
+import { LeaderboardSite, TournamentType } from '../database/tournament';
 import {
     batchGetClubs,
     ClubApiContextType,
@@ -314,11 +314,12 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             setCourse: (course: Course) => setCourse(idToken, course),
 
             getLeaderboard: (
+                site: LeaderboardSite,
                 timePeriod: TimePeriod,
                 tournamentType: TournamentType,
                 timeControl: TimeControl,
                 date: string,
-            ) => getLeaderboard(timePeriod, tournamentType, timeControl, date),
+            ) => getLeaderboard(site, timePeriod, tournamentType, timeControl, date),
 
             getOpenClassical: (startsAt?: string) => getOpenClassical(startsAt),
             registerForOpenClassical: (req: OpenClassicalRegistrationRequest) =>

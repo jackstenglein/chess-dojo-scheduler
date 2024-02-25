@@ -1,14 +1,19 @@
-import { useEffect, useState } from 'react';
-import { MenuItem, Stack, TextField, Button } from '@mui/material';
+import { Button, MenuItem, Stack, TextField } from '@mui/material';
 import { DataGridPro, GridColDef, GridRowModel } from '@mui/x-data-grid-pro';
+import { useEffect, useState } from 'react';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { Leaderboard, LeaderboardPlayer, TournamentType } from '../database/tournament';
+import { TimeControl, TimePeriod } from '../api/tournamentApi';
+import {
+    Leaderboard,
+    LeaderboardPlayer,
+    LeaderboardSite,
+    TournamentType,
+} from '../database/tournament';
 import LoadingPage from '../loading/LoadingPage';
 import MonthDateButton from './MonthDateButton';
 import YearDateButton from './YearDateButton';
-import { TimeControl, TimePeriod } from '../api/tournamentApi';
 
 const columns: GridColDef<LeaderboardPlayer>[] = [
     {
@@ -39,6 +44,7 @@ const LeaderboardTab = () => {
     const api = useApi();
     const request = useRequest<Leaderboard>();
 
+    const [site, setSite] = useState<LeaderboardSite>(LeaderboardSite.Lichess);
     const [tournamentType, setTournamentType] = useState(TournamentType.Arena);
     const [timeControl, setTimeControl] = useState<TimeControl>('blitz');
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -48,10 +54,11 @@ const LeaderboardTab = () => {
         if (!request.isSent()) {
             request.onStart();
             api.getLeaderboard(
+                site,
                 timePeriod,
                 tournamentType,
                 timeControl,
-                selectedDate.toISOString()
+                selectedDate.toISOString(),
             )
                 .then((resp) => {
                     resp.data.players =
@@ -67,12 +74,12 @@ const LeaderboardTab = () => {
                     request.onFailure(err);
                 });
         }
-    }, [request, api, timePeriod, tournamentType, timeControl, selectedDate]);
+    }, [request, api, site, timePeriod, tournamentType, timeControl, selectedDate]);
 
     const reset = request.reset;
     useEffect(() => {
         reset();
-    }, [reset, tournamentType, timeControl, timePeriod, selectedDate]);
+    }, [reset, site, tournamentType, timeControl, timePeriod, selectedDate]);
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
@@ -90,6 +97,17 @@ const LeaderboardTab = () => {
                 justifyContent='space-between'
             >
                 <Stack direction='row' spacing={2}>
+                    <TextField
+                        data-cy='site-control-selector'
+                        select
+                        label='Site'
+                        value={site}
+                        onChange={(e) => setSite(e.target.value as LeaderboardSite)}
+                    >
+                        <MenuItem value={LeaderboardSite.Lichess}>Lichess</MenuItem>
+                        <MenuItem value={LeaderboardSite.Chesscom}>Chess.com</MenuItem>
+                    </TextField>
+
                     <TextField
                         data-cy='time-control-selector'
                         sx={{ minWidth: 130 }}

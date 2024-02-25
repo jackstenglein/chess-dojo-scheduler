@@ -1,7 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { Leaderboard, OpenClassical, TournamentType } from '../database/tournament';
+import {
+    Leaderboard,
+    LeaderboardSite,
+    OpenClassical,
+    TournamentType,
+} from '../database/tournament';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -11,6 +16,7 @@ export type TimeControl = 'blitz' | 'rapid' | 'classical';
 export type TournamentApiContextType = {
     /**
      * getLeaderboard returns the requested leaderboard.
+     * @param site The site the leaderboard is for.
      * @param timePeriod The time period the leaderboard covers. Either monthly or yearly.
      * @param tournamentType The type of the leaderboard. Valid values are arena, swiss and grand_prix.
      * @param timeControl The time control of the leaderboard. Valid values are blitz, rapid and classical.
@@ -18,6 +24,7 @@ export type TournamentApiContextType = {
      * @returns An AxiosResponse containing the requested leaderboard.
      */
     getLeaderboard: (
+        site: LeaderboardSite,
         timePeriod: TimePeriod,
         tournamentType: TournamentType,
         timeControl: TimeControl,
@@ -192,6 +199,7 @@ export interface OpenClassicalVerifyResultRequest {
 
 /**
  * getLeaderboard returns the requested leaderboard.
+ * @param site The site the leaderboard is for.
  * @param timePeriod The time period the leaderboard covers. Either monthly or yearly.
  * @param tournamentType The type of the leaderboard. Valid values are arena, swiss and grand_prix.
  * @param timeControl The time control of the leaderboard. Valid values are blitz, rapid and classical.
@@ -199,6 +207,7 @@ export interface OpenClassicalVerifyResultRequest {
  * @returns An AxiosResponse containing the requested leaderboard.
  */
 export function getLeaderboard(
+    site: LeaderboardSite,
     timePeriod: TimePeriod,
     tournamentType: TournamentType,
     timeControl: TimeControl,
@@ -206,6 +215,7 @@ export function getLeaderboard(
 ) {
     return axios.get<Leaderboard>(`${BASE_URL}/public/tournaments/leaderboard`, {
         params: {
+            site,
             timePeriod,
             tournamentType,
             timeControl,
