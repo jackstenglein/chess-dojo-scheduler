@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { LoadingButton } from '@mui/lab';
 import {
+    Alert,
     Button,
     Dialog,
     DialogActions,
@@ -10,9 +10,12 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { RequestSnackbar, useRequest } from '../api/Request';
+import { useState } from 'react';
+import { EventType, setUserCohort, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
-import { EventType, trackEvent, setUserCohort } from '../analytics/events';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { useAuth } from '../auth/Auth';
+import { RatingSystem, shouldPromptGraduation } from '../database/user';
 
 interface GraduationDialogProps {
     open: boolean;
@@ -21,9 +24,12 @@ interface GraduationDialogProps {
 }
 
 const GraduationDialog: React.FC<GraduationDialogProps> = ({ open, onClose, cohort }) => {
+    const user = useAuth().user!;
     const [comments, setComments] = useState('');
     const request = useRequest();
     const api = useApi();
+
+    const shouldGraduate = shouldPromptGraduation(user);
 
     const onGraduate = () => {
         request.onStart();
@@ -51,6 +57,14 @@ const GraduationDialog: React.FC<GraduationDialogProps> = ({ open, onClose, coho
             <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
                 <DialogTitle>Graduate from {cohort}?</DialogTitle>
                 <DialogContent>
+                    {!shouldGraduate && user.ratingSystem !== RatingSystem.Custom && (
+                        <Alert variant='filled' severity='error' sx={{ mb: 2 }}>
+                            Your rating is lower than the graduation cutoff. If you just
+                            want to view tasks for another cohort, use the dropdown on the
+                            Training Plan tab instead.
+                        </Alert>
+                    )}
+
                     <Stack spacing={2}>
                         <DialogContentText>
                             Optionally add comments on what was most helpful about the
