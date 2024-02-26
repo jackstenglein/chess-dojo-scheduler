@@ -1,10 +1,10 @@
 import { Container } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { To, useNavigate } from 'react-router-dom';
 
 import UpsellDialog, { UpsellDialogProps } from './UpsellDialog';
 
 interface UpsellPageProps extends Omit<UpsellDialogProps, 'open' | 'onClose'> {
-    redirectTo: string;
+    redirectTo: To;
 }
 
 const UpsellPage: React.FC<UpsellPageProps> = ({ redirectTo, ...props }) => {
