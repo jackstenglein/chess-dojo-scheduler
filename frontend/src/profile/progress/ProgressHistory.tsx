@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     DialogActions,
@@ -10,24 +11,23 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LoadingButton } from '@mui/lab';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { EventType, trackEvent } from '../../analytics/events';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
 import {
     CustomTask,
+    isRequirement,
     Requirement,
     ScoreboardDisplay,
-    isRequirement,
 } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
-import { useAuth } from '../../auth/Auth';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useApi } from '../../api/Api';
-import { useTimeline } from '../activity/useTimeline';
 import LoadingPage from '../../loading/LoadingPage';
-import { EventType, trackEvent } from '../../analytics/events';
+import { useTimeline } from '../activity/useTimeline';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -62,6 +62,10 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
     if (deleted) {
         return null;
     }
+
+    const isTimeOnly =
+        entry.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
+        entry.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
     const onChangeDate = (value: Date | null) => {
         updateItem({
@@ -135,7 +139,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                     />
                 </LocalizationProvider>
 
-                {entry.scoreboardDisplay !== ScoreboardDisplay.NonDojo && (
+                {!isTimeOnly && (
                     <TextField
                         label='Count'
                         value={count}
@@ -204,24 +208,29 @@ function getTimelineUpdate(items: HistoryItem[]): {
         if (item.date === null) {
             itemErrors.date = 'This field is required';
         }
+
         if (
             item.entry.scoreboardDisplay !== ScoreboardDisplay.NonDojo &&
+            item.entry.scoreboardDisplay !== ScoreboardDisplay.Minutes &&
             (isNaN(parseInt(item.count)) || parseInt(item.count) < 0)
         ) {
             itemErrors.count = 'This field must be a non-negative integer';
         }
+
         if (
             item.hours !== '' &&
             (!NUMBER_REGEX.test(item.hours) || isNaN(parseInt(item.hours)))
         ) {
             itemErrors.hours = 'This field must be an integer';
         }
+
         if (
             item.minutes !== '' &&
             (!NUMBER_REGEX.test(item.minutes) || isNaN(parseInt(item.minutes)))
         ) {
             itemErrors.minutes = 'This field must be an integer';
         }
+
         if (Object.values(itemErrors).length > 0) {
             errors[idx] = itemErrors;
         }
@@ -245,11 +254,16 @@ function getTimelineUpdate(items: HistoryItem[]): {
             continue;
         }
 
-        const previousCount =
-            updated.length === 0 ? 0 : updated[updated.length - 1].newCount;
-        const newCount = previousCount + parseInt(item.count);
         const minutesSpent =
             60 * parseInt(item.hours || '0') + parseInt(item.minutes || '0');
+
+        const previousCount =
+            updated.length === 0 ? 0 : updated[updated.length - 1].newCount;
+        const newCount =
+            item.entry.scoreboardDisplay === ScoreboardDisplay.Minutes
+                ? previousCount + minutesSpent
+                : previousCount + parseInt(item.count);
+
         totalMinutesSpent += minutesSpent;
 
         updated.push({
@@ -287,8 +301,11 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     const request = useRequest();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
-
     const { entries, request: timelineRequest } = useTimeline(user.username);
+
+    const isTimeOnly =
+        requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
+        requirement.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
     const initialItems: HistoryItem[] = useMemo(() => {
         return entries
@@ -344,7 +361,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     const getUpdateItem = useCallback(
         (idx: number) => (item: HistoryItem) =>
             setItems((items) => [...items.slice(0, idx), item, ...items.slice(idx + 1)]),
-        [setItems]
+        [setItems],
     );
 
     const getDeleteItem = useCallback(
@@ -357,7 +374,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                 },
                 ...items.slice(idx + 1),
             ]),
-        [setItems]
+        [setItems],
     );
 
     const onSubmit = () => {
@@ -375,8 +392,10 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
             cohort,
             update.updated,
             update.deleted,
-            totalCount,
-            totalTime
+            requirement.scoreboardDisplay === ScoreboardDisplay.Minutes
+                ? totalTime
+                : totalCount,
+            totalTime,
         )
             .then((response) => {
                 console.log('updateUserTimeline: ', response);
@@ -385,7 +404,10 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                     requirement_name: requirement.name,
                     is_custom_requirement: !isRequirement(requirement),
                     dojo_cohort: cohort,
-                    total_count: totalCount,
+                    total_count:
+                        requirement.scoreboardDisplay === ScoreboardDisplay.Minutes
+                            ? totalTime
+                            : totalCount,
                     total_minutes: totalTime,
                 });
                 onClose();
@@ -428,8 +450,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                         ))}
 
                         <Stack>
-                            {requirement.scoreboardDisplay !==
-                                ScoreboardDisplay.NonDojo && (
+                            {!isTimeOnly && (
                                 <Typography color='text.secondary'>
                                     Total Count: {totalCount}
                                 </Typography>

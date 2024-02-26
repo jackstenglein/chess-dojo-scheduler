@@ -1,16 +1,16 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 
-import { ScoreboardDisplay, formatTime } from '../../database/requirement';
+import { useApi } from '../../api/Api';
+import { formatTime, ScoreboardDisplay } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import CommentEditor from './CommentEditor';
 import CommentList from './CommentList';
-import ReactionList from './ReactionList';
-import NewsfeedItemHeader from './NewsfeedItemHeader';
-import GraduationNewsfeedItem from './GraduationNewsfeedItem';
 import GameNewsfeedItem from './GameNewsfeedItem';
-import { useApi } from '../../api/Api';
+import GraduationNewsfeedItem from './GraduationNewsfeedItem';
+import NewsfeedItemHeader from './NewsfeedItemHeader';
+import ReactionList from './ReactionList';
 
 interface NewsfeedItemProps {
     entry: TimelineEntry;
@@ -64,6 +64,7 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
     const isComplete = entry.newCount >= entry.totalCount;
     const isSlider =
         entry.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
+        entry.scoreboardDisplay === ScoreboardDisplay.Minutes ||
         entry.scoreboardDisplay === ScoreboardDisplay.Unspecified;
 
     return (

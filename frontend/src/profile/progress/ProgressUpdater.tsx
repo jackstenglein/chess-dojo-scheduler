@@ -1,39 +1,39 @@
-import { useState } from 'react';
+import { LoadingButton } from '@mui/lab';
 import {
+    Alert,
+    Button,
+    Checkbox,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    FormControlLabel,
+    Grid,
     Stack,
     TextField,
-    DialogContentText,
-    Grid,
-    DialogContent,
-    DialogActions,
-    Button,
-    FormControlLabel,
-    Checkbox,
-    Alert,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { useState } from 'react';
 
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { EventType, trackEvent } from '../../analytics/events';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import {
     CustomTask,
+    getCurrentCount,
+    isRequirement,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
-    getCurrentCount,
-    isRequirement,
 } from '../../database/requirement';
 import InputSlider from './InputSlider';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useApi } from '../../api/Api';
-import { EventType, trackEvent } from '../../analytics/events';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
 const TIME_WARNING_THRESHOLD_MINS = 60 * 5; // 5 hours
 
-function getContentText(isNonDojo: boolean): string {
-    if (isNonDojo) {
+function getContentText(isNonDojo: boolean, isMinutes: boolean): string {
+    if (isNonDojo || isMinutes) {
         return 'This time will be added to any time you have previously entered for this activity.';
     }
 
@@ -47,7 +47,7 @@ function getIncrementalCount(
     markComplete: boolean,
     value: number,
     currentCount: number,
-    totalCount: number
+    totalCount: number,
 ): number {
     if (isNonDojo) {
         return 0;
@@ -105,12 +105,11 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     const isCheckbox =
         requirement.scoreboardDisplay === ScoreboardDisplay.Hidden ||
         requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox;
-
     const isSlider =
         requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
         requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
-
     const isNonDojo = requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo;
+    const isMinutes = requirement.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
     let hoursInt = parseInt(hours) || 0;
     let minutesInt = parseInt(minutes) || 0;
@@ -135,15 +134,17 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             return;
         }
 
-        const incrementalCount = getIncrementalCount(
-            isComplete,
-            isSlider,
-            isNonDojo,
-            markComplete,
-            value,
-            currentCount,
-            totalCount
-        );
+        const incrementalCount = isMinutes
+            ? addedTime
+            : getIncrementalCount(
+                  isComplete,
+                  isSlider,
+                  isNonDojo,
+                  markComplete,
+                  value,
+                  currentCount,
+                  totalCount,
+              );
 
         request.onStart();
         api.updateUserProgress(
@@ -152,7 +153,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             incrementalCount,
             hoursInt * 60 + minutesInt,
             date,
-            notes
+            notes,
         )
             .then((response) => {
                 console.log('updateUserProgress: ', response);
@@ -178,7 +179,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     return (
         <>
             <DialogContent>
-                <Stack spacing={3}>
+                <Stack spacing={3} sx={{ mt: isMinutes ? 1 : undefined }}>
                     {isSlider && isRequirement(requirement) && (
                         <InputSlider
                             value={value}
@@ -213,7 +214,9 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     />
 
                     <Stack spacing={2}>
-                        <DialogContentText>{getContentText(isNonDojo)}</DialogContentText>
+                        <DialogContentText>
+                            {getContentText(isNonDojo, isMinutes)}
+                        </DialogContentText>
 
                         <Grid container width={1}>
                             <Grid item xs={12} sm>

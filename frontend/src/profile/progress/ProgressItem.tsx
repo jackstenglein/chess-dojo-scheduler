@@ -1,16 +1,17 @@
-import { useState } from 'react';
-import {
-    Typography,
-    Stack,
-    Checkbox,
-    Divider,
-    IconButton,
-    Grid,
-    Chip,
-    Tooltip,
-} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import {
+    Checkbox,
+    Chip,
+    Divider,
+    Grid,
+    IconButton,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import { useState } from 'react';
 
+import { useFreeTier } from '../../auth/Auth';
 import {
     CustomTask,
     formatTime,
@@ -22,11 +23,10 @@ import {
     RequirementProgress,
     ScoreboardDisplay,
 } from '../../database/requirement';
-import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
-import ProgressDialog from './ProgressDialog';
 import RequirementModal from '../../requirements/RequirementModal';
+import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import CustomTaskProgressItem from './CustomTaskProgressItem';
-import { useFreeTier } from '../../auth/Auth';
+import ProgressDialog from './ProgressDialog';
 
 interface ProgressItemProps {
     progress?: RequirementProgress;
@@ -78,6 +78,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             break;
 
         case ScoreboardDisplay.ProgressBar:
+        case ScoreboardDisplay.Minutes:
         case ScoreboardDisplay.Unspecified:
             DescriptionElement = (
                 <ScoreboardProgress
@@ -85,6 +86,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                     max={totalCount}
                     min={requirement.startCount}
                     suffix={requirement.progressBarSuffix}
+                    isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
                 />
             );
             UpdateElement =

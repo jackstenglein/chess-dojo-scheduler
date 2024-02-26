@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
 import {
     GridColDef,
     GridRenderCellParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
+import React, { useState } from 'react';
 
-import ScoreboardProgress from './ScoreboardProgress';
+import { Graduation, isGraduation } from '../database/graduation';
 import {
     getCurrentCount,
     getCurrentScore,
@@ -13,7 +13,7 @@ import {
     Requirement,
     ScoreboardDisplay,
 } from '../database/requirement';
-import ScoreboardCheck from './ScoreboardCheck';
+import { isScoreboardSummary, ScoreboardSummary } from '../database/scoreboard';
 import {
     formatRatingSystem,
     getCurrentRating as getUserCurrentRating,
@@ -22,9 +22,9 @@ import {
     normalizeToFide,
     User,
 } from '../database/user';
-import { Graduation, isGraduation } from '../database/graduation';
 import RequirementModal from '../requirements/RequirementModal';
-import { isScoreboardSummary, ScoreboardSummary } from '../database/scoreboard';
+import ScoreboardCheck from './ScoreboardCheck';
+import ScoreboardProgress from './ScoreboardProgress';
 
 export type ScoreboardRow = User | Graduation | ScoreboardSummary;
 
@@ -69,7 +69,7 @@ function getProgress(row: ScoreboardRow) {
 
 export function getColumnDefinition(
     requirement: Requirement,
-    cohort: string
+    cohort: string,
 ): GridColDef<ScoreboardRow> {
     const totalCount = requirement.counts[cohort] || 0;
 
@@ -77,7 +77,7 @@ export function getColumnDefinition(
         return getCurrentCount(
             cohort,
             requirement,
-            getProgress(params.row)[requirement.id]
+            getProgress(params.row)[requirement.id],
         );
     };
 
@@ -85,7 +85,7 @@ export function getColumnDefinition(
         const score = getCurrentCount(
             cohort,
             requirement,
-            getProgress(params.row)[requirement.id]
+            getProgress(params.row)[requirement.id],
         );
         switch (requirement.scoreboardDisplay) {
             case ScoreboardDisplay.Checkbox:
@@ -101,6 +101,7 @@ export function getColumnDefinition(
 
             case ScoreboardDisplay.Unspecified:
             case ScoreboardDisplay.ProgressBar:
+            case ScoreboardDisplay.Minutes:
             default:
                 return (
                     <ScoreboardProgress
@@ -112,6 +113,9 @@ export function getColumnDefinition(
                         cohort={cohort}
                         requirement={requirement}
                         suffix={requirement.progressBarSuffix}
+                        isTime={
+                            requirement.scoreboardDisplay === ScoreboardDisplay.Minutes
+                        }
                     />
                 );
         }
@@ -136,7 +140,7 @@ export function getColumnDefinition(
 export function getCohortScore(
     params: GridValueGetterParams<ScoreboardRow>,
     cohort: string | undefined,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): number {
     if (!cohort) {
         return 0;
@@ -154,7 +158,7 @@ export function getTotalTime(
     params: GridValueGetterParams<ScoreboardRow>,
     cohort: string | undefined,
     nonDojoOnly: boolean,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): number {
     if (!cohort) {
         return 0;
@@ -163,7 +167,7 @@ export function getTotalTime(
     const requirementIds = new Set(
         requirements
             .filter((r) => (r.category === 'Non-Dojo') === nonDojoOnly)
-            .map((r) => r.id)
+            .map((r) => r.id),
     );
 
     let result = 0;
@@ -183,7 +187,7 @@ export function getCategoryScore(
     params: GridValueGetterParams<ScoreboardRow>,
     cohort: string | undefined,
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): number {
     if (!cohort) {
         return 0;
@@ -202,7 +206,7 @@ export function getCategoryScore(
 export function getPercentComplete(
     params: GridValueGetterParams<ScoreboardRow>,
     cohort: string | undefined,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): number {
     if (!cohort) {
         return 0;
@@ -244,14 +248,14 @@ export function getRatingChange(params: GridValueGetterParams<ScoreboardRow>) {
 }
 
 export function getNormalizedRating(
-    params: GridValueGetterParams<ScoreboardRow>
+    params: GridValueGetterParams<ScoreboardRow>,
 ): number {
     return normalizeToFide(getCurrentRating(params), params.row.ratingSystem);
 }
 
 export function getMinutesSpent(
     params: GridValueGetterParams<ScoreboardRow>,
-    key: MinutesSpentKey
+    key: MinutesSpentKey,
 ): number {
     if (isGraduation(params.row)) {
         return 0;

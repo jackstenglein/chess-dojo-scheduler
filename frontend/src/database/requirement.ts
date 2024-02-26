@@ -10,6 +10,7 @@ export enum ScoreboardDisplay {
     Hidden = 'HIDDEN',
     Checkbox = 'CHECKBOX',
     ProgressBar = 'PROGRESS_BAR',
+    Minutes = 'MINUTES',
     NonDojo = 'NON_DOJO',
 }
 
@@ -88,12 +89,12 @@ function clampCount(
     cohort: string,
     requirement: Requirement,
     count: number,
-    clamp?: boolean
+    clamp?: boolean,
 ): number {
     if (clamp) {
         return Math.max(
             Math.min(count, requirement.counts[cohort] || 0),
-            requirement.startCount || 0
+            requirement.startCount || 0,
         );
     }
     return count;
@@ -103,7 +104,7 @@ export function getCurrentCount(
     cohort: string,
     requirement: Requirement | CustomTask,
     progress?: RequirementProgress,
-    clamp?: boolean
+    clamp?: boolean,
 ): number {
     if (!progress) {
         return 0;
@@ -135,7 +136,7 @@ export function getCurrentCount(
             cohort,
             requirement,
             Math.max(...Object.values(progress.counts)),
-            clamp
+            clamp,
         );
     }
 
@@ -159,7 +160,7 @@ export function getTotalTime(cohort: string, progress?: RequirementProgress): nu
 export function formatTime(value: number): string {
     const hours = Math.floor(value / 60);
     const minutes = Math.round(value % 60);
-    if (minutes === 0 && hours > 0) {
+    if (minutes === 0) {
         return `${hours}h`;
     }
     return `${hours}h ${minutes}m`;
@@ -168,7 +169,7 @@ export function formatTime(value: number): string {
 export function isComplete(
     cohort: string,
     requirement: Requirement,
-    progress?: RequirementProgress
+    progress?: RequirementProgress,
 ): boolean {
     return (
         getCurrentCount(cohort, requirement, progress) >=
@@ -178,7 +179,7 @@ export function isComplete(
 
 export function isExpired(
     requirement: Requirement,
-    progress?: RequirementProgress
+    progress?: RequirementProgress,
 ): boolean {
     if (!progress) {
         return false;
@@ -198,7 +199,7 @@ export function isExpired(
 export function getCurrentScore(
     cohort: string,
     requirement: Requirement,
-    progress?: RequirementProgress
+    progress?: RequirementProgress,
 ) {
     if (!progress) {
         return 0;
@@ -239,7 +240,7 @@ export function getTotalScore(cohort: string | undefined, requirements: Requirem
 export function getCohortScore(
     user: User,
     cohort: string | undefined,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): number {
     if (!cohort) {
         return 0;
@@ -256,7 +257,7 @@ export function getCategoryScore(
     user: User,
     cohort: string | undefined,
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): number {
     if (!cohort) {
         return 0;
@@ -274,7 +275,7 @@ export function getCategoryScore(
 export function getTotalCategoryScore(
     cohort: string | undefined,
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ) {
     if (!cohort) {
         return 0;
@@ -282,7 +283,7 @@ export function getTotalCategoryScore(
 
     return getTotalScore(
         cohort,
-        requirements.filter((r) => r.category === category)
+        requirements.filter((r) => r.category === category),
     );
 }
 

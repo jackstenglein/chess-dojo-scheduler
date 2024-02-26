@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { Box, LinearProgress, LinearProgressProps, Typography } from '@mui/material';
+import { useState } from 'react';
 
-import { Requirement } from '../database/requirement';
 import { useAuth } from '../auth/Auth';
+import { formatTime, Requirement } from '../database/requirement';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ScoreboardProgressProps {
@@ -15,6 +15,7 @@ interface ScoreboardProgressProps {
     requirement?: Requirement;
     fullHeight?: boolean;
     suffix?: string;
+    isTime?: boolean;
 }
 
 const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps> = ({
@@ -27,6 +28,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     requirement,
     fullHeight,
     suffix,
+    isTime,
     ...rest
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
@@ -58,7 +60,11 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 </Box>
                 <Box>
                     <Typography variant='body2' color='text.secondary'>
-                        {label ? label : `${Math.max(value, min)}/${max}${suffix || ''}`}
+                        {label
+                            ? label
+                            : isTime
+                              ? `${formatTime(value)} / ${formatTime(max)}`
+                              : `${Math.max(value, min)}/${max}${suffix || ''}`}
                     </Typography>
                 </Box>
             </Box>

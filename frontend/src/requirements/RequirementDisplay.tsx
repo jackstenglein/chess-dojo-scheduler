@@ -1,22 +1,23 @@
-import React, { useMemo, useState } from 'react';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import { Stack, Typography, Chip, Button, Box, Grid, Tooltip } from '@mui/material';
+import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import CheckIcon from '@mui/icons-material/Check';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
-import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
+import { Box, Button, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import { useAuth, useFreeTier } from '../auth/Auth';
 
+import { Loop } from '@mui/icons-material';
 import {
     CustomTask,
-    Requirement,
-    ScoreboardDisplay,
     getTotalCount,
     getUnitScore,
     isRequirement,
+    Requirement,
+    ScoreboardDisplay,
 } from '../database/requirement';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import ProgressDialog from '../profile/progress/ProgressDialog';
-import Position from './Position';
 import CustomTaskDisplay from './CustomTaskDisplay';
+import Position from './Position';
 
 function dojoPointDescription(requirement: Requirement, cohort: string) {
     if (requirement.totalScore) {
@@ -55,9 +56,14 @@ const DojoPointChip: React.FC<{ requirement: Requirement; cohort: string }> = ({
     cohort,
 }) => {
     const description = dojoPointDescription(requirement, cohort);
+    let unitScore = getUnitScore(cohort, requirement);
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Minutes) {
+        unitScore *= 60;
+    }
+
     const score = requirement.totalScore
         ? requirement.totalScore
-        : Math.round(100 * getUnitScore(cohort, requirement)) / 100;
+        : Math.round(100 * unitScore) / 100;
 
     return (
         <Tooltip title={description}>
@@ -71,6 +77,10 @@ const DojoPointChip: React.FC<{ requirement: Requirement; cohort: string }> = ({
 };
 
 const ExpirationChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => {
+    if (requirement.expirationDays < 0) {
+        return null;
+    }
+
     const expirationYears = requirement.expirationDays / 365;
     if (!expirationYears) {
         return null;
@@ -92,6 +102,28 @@ const ExpirationChip: React.FC<{ requirement: Requirement }> = ({ requirement })
                     value !== 1 ? 's' : ''
                 }`}
             />
+        </Tooltip>
+    );
+};
+
+const RepeatChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => {
+    let title = '';
+    let label = '';
+
+    if (requirement.numberOfCohorts === -1) {
+        title = 'Progress on this task resets across each cohort';
+        label = 'Progress Resets';
+    } else if (requirement.numberOfCohorts === 1 || requirement.numberOfCohorts === 0) {
+        title = 'Progress on this task carries over to other cohorts';
+        label = 'Progress Carries Over';
+    } else {
+        title = `This task must be completed in ${requirement.numberOfCohorts} cohorts`;
+        label = `${requirement.numberOfCohorts} Cohorts`;
+    }
+
+    return (
+        <Tooltip title={title}>
+            <Chip color='secondary' icon={<Loop />} label={label} />
         </Tooltip>
     );
 };
@@ -175,6 +207,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                 <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
                     <DojoPointChip requirement={requirement} cohort={cohort} />
                     <ExpirationChip requirement={requirement} />
+                    <RepeatChip requirement={requirement} />
                 </Stack>
 
                 <Typography
