@@ -1,4 +1,7 @@
-import { Typography } from '@mui/material';
+import { Link, Typography } from '@mui/material';
+import Markdown from 'react-markdown';
+
+const allowedElements = ['p', 'a'];
 
 interface BioProps {
     bio?: string;
@@ -10,9 +13,24 @@ const Bio: React.FC<BioProps> = ({ bio }) => {
     }
 
     return (
-        <Typography variant='body1' sx={{ whiteSpace: 'pre-line' }}>
+        <Markdown
+            skipHtml
+            allowedElements={allowedElements}
+            components={{
+                p: (props) => (
+                    <Typography sx={{ whiteSpace: 'pre-line' }}>
+                        {props.children}
+                    </Typography>
+                ),
+                a: (props) => (
+                    <Link href={props.href} target='_blank' rel='noreferrer'>
+                        {props.children}
+                    </Link>
+                ),
+            }}
+        >
             {bio}
-        </Typography>
+        </Markdown>
     );
 };
 

@@ -589,7 +589,10 @@ const ProfileEditorPage = () => {
                                 value={bio}
                                 onChange={(event) => setBio(event.target.value)}
                                 error={!!errors.bio}
-                                helperText={errors.bio}
+                                helperText={
+                                    errors.bio ||
+                                    'Supports Markdown-style links like [click here](https://google.com)'
+                                }
                             />
 
                             {user.isCoach && (
