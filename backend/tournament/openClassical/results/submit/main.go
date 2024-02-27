@@ -256,6 +256,7 @@ func getLichessGame(request *SubmitResultsRequest) error {
 
 func getChesscomGame(request *SubmitResultsRequest) error {
 	gameId := strings.TrimPrefix(request.GameUrl, "https://www.chess.com/game/live/")
+	gameId = strings.TrimPrefix(gameId, "https://www.chess.com/live/game/")
 	if gameId == "" {
 		return nil
 	}
