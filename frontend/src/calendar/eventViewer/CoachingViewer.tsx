@@ -1,16 +1,17 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Alert, Button, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { Alert, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-import { Event, EventStatus } from '../../database/event';
-import OwnerField from './OwnerField';
-import Field from './Field';
-import { dojoCohorts } from '../../database/user';
+import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { EventType, trackEvent } from '../../analytics/events';
 import { useAuth } from '../../auth/Auth';
+import { Event, EventStatus } from '../../database/event';
+import { dojoCohorts } from '../../database/user';
+import Field from './Field';
+import OwnerField from './OwnerField';
+import ParticipantsList from './ParticipantsList';
 import PriceField from './PriceField';
 
 interface CoachingViewerProps {
@@ -71,13 +72,6 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
             <Field title='Description' body={event.description} />
 
             <Field
-                title='Number of Participants'
-                body={`${Object.values(event.participants).length} / ${
-                    event.maxParticipants
-                }`}
-            />
-
-            <Field
                 title='Cohorts'
                 body={
                     dojoCohorts.length === event.cohorts.length ||
@@ -88,6 +82,27 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
             />
 
             <PriceField event={event} />
+
+            <Stack spacing={0.5}>
+                <Field
+                    showEmptyBody
+                    title={`Participants (${Object.values(event.participants).length} / ${
+                        event.maxParticipants
+                    })`}
+                    body={
+                        Object.values(event.participants).length === 0
+                            ? 'No Participants Yet'
+                            : event.coaching.hideParticipants &&
+                                !isParticipant &&
+                                !isOwner
+                              ? 'Participants hidden until after booking'
+                              : undefined
+                    }
+                />
+                {(!event.coaching.hideParticipants || isParticipant || isOwner) && (
+                    <ParticipantsList hideOwner event={event} />
+                )}
+            </Stack>
 
             {isOwner || isParticipant ? (
                 <Button

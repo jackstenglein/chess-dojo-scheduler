@@ -253,6 +253,9 @@ type Coaching struct {
 
 	// Whether the coaching session is bookable by free users.
 	BookableByFreeUsers bool `dynamodbav:"bookableByFreeUsers" json:"bookableByFreeUsers"`
+
+	// Whether to hide the participant list until the session is booked.
+	HideParticipants bool `dynamodbav:"hideParticipants" json:"hideParticipants"`
 }
 
 type EventSetter interface {

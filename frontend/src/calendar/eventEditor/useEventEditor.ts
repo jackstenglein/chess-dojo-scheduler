@@ -159,6 +159,15 @@ export interface UseEventEditorResponse {
      */
     setBookableByFreeUsers: (value: boolean) => void;
 
+    /** Whether to hide the participant list until the session is booked. */
+    hideParticipants: boolean;
+
+    /**
+     * Sets whether to hide the participant list until the session is booked.
+     * @param value Whether to hide the participant list.
+     */
+    setHideParticipants: (value: boolean) => void;
+
     /** Whether the Event is hidden from the public Discord server. */
     hideFromPublicDiscord: boolean;
 
@@ -262,6 +271,9 @@ export default function useEventEditor(
     );
     const [bookableByFreeUsers, setBookableByFreeUsers] = useState(
         initialEvent?.coaching?.bookableByFreeUsers || false,
+    );
+    const [hideParticipants, setHideParticipants] = useState(
+        initialEvent?.coaching?.hideParticipants || false,
     );
 
     const [hideFromPublicDiscord, setHideFromPublicDiscord] = useState(
@@ -389,6 +401,8 @@ export default function useEventEditor(
         setCurrentPrice,
         bookableByFreeUsers,
         setBookableByFreeUsers,
+        hideParticipants,
+        setHideParticipants,
 
         hideFromPublicDiscord,
         setHideFromPublicDiscord,

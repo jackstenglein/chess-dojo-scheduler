@@ -3,10 +3,11 @@ import { Stack, Typography } from '@mui/material';
 interface FieldProps {
     title?: string;
     body?: string;
+    showEmptyBody?: boolean;
 }
 
-const Field: React.FC<FieldProps> = ({ title, body }) => {
-    if (!title || !body) {
+const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody }) => {
+    if (!title || (!showEmptyBody && !body)) {
         return null;
     }
 

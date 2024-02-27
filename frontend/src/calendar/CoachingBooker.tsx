@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { LoadingButton } from '@mui/lab';
 import {
     AppBar,
     Button,
@@ -8,19 +8,20 @@ import {
     Toolbar,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { useNavigate } from 'react-router-dom';
 
-import { Event } from '../database/event';
-import { Transition } from './AvailabilityBooker';
+import { EventType, trackEvent } from '../analytics/events';
+import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import OwnerField from './eventViewer/OwnerField';
-import Field from './eventViewer/Field';
-import { TimeFormat, dojoCohorts } from '../database/user';
 import { useAuth } from '../auth/Auth';
 import { displayPrice } from '../courses/list/CourseListItem';
-import { useApi } from '../api/Api';
-import { EventType, trackEvent } from '../analytics/events';
+import { Event } from '../database/event';
+import { dojoCohorts, TimeFormat } from '../database/user';
+import { Transition } from './AvailabilityBooker';
 import { toDojoDateString, toDojoTimeString } from './displayDate';
+import Field from './eventViewer/Field';
+import OwnerField from './eventViewer/OwnerField';
+import ParticipantsList from './eventViewer/ParticipantsList';
 
 interface CoachingBookerProps {
     event: Event;
@@ -164,12 +165,6 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     <OwnerField title='Coach' event={event} />
                     <Field title='Description' body={event.description} />
                     <Field
-                        title='Number of Participants'
-                        body={`${Object.values(event.participants).length} / ${
-                            event.maxParticipants
-                        }`}
-                    />
-                    <Field
                         title='Cohorts'
                         body={
                             dojoCohorts.length === event.cohorts.length ||
@@ -178,6 +173,24 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                                 : event.cohorts.join(', ')
                         }
                     />
+                    <Stack spacing={0.5}>
+                        <Field
+                            showEmptyBody
+                            title={`Participants (${Object.values(event.participants).length} / ${
+                                event.maxParticipants
+                            })`}
+                            body={
+                                Object.values(event.participants).length === 0
+                                    ? 'No Participants Yet'
+                                    : event.coaching.hideParticipants && !isParticipant
+                                      ? 'Participants hidden until after booking'
+                                      : undefined
+                            }
+                        />
+                        {(!event.coaching.hideParticipants || isParticipant) && (
+                            <ParticipantsList hideOwner event={event} />
+                        )}
+                    </Stack>
                 </Stack>
 
                 <RequestSnackbar request={request} />

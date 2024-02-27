@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import {
     Alert,
@@ -10,18 +9,19 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '../../auth/Auth';
+import { Event, EventStatus } from '../../database/event';
+import { dojoCohorts, User } from '../../database/user';
+import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
 import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
 import TimesFormSection from './form/TimesFormSection';
 import TitleFormSection from './form/TitleFormSection';
-import { UseEventEditorResponse, isValidDate } from './useEventEditor';
-import { User, dojoCohorts } from '../../database/user';
-import { getTimeZonedDate } from '../displayDate';
-import { EventStatus, Event } from '../../database/event';
-import { useAuth } from '../../auth/Auth';
+import { isValidDate, UseEventEditorResponse } from './useEventEditor';
 
 function validatePrice(priceStr: string): [number, string] {
     const price = 100 * parseFloat(priceStr.trim());
@@ -40,7 +40,7 @@ function validatePrice(priceStr: string): [number, string] {
 export function validateCoachingEditor(
     user: User,
     originalEvent: ProcessedEvent | undefined,
-    editor: UseEventEditorResponse
+    editor: UseEventEditorResponse,
 ): [Event | null, Record<string, string>] {
     const errors: Record<string, string> = {};
 
@@ -117,12 +117,12 @@ export function validateCoachingEditor(
     const startTime = getTimeZonedDate(
         editor.start!,
         user.timezoneOverride,
-        'forward'
+        'forward',
     ).toISOString();
     const endTime = getTimeZonedDate(
         editor.end!,
         user.timezoneOverride,
-        'forward'
+        'forward',
     ).toISOString();
 
     return [
@@ -147,6 +147,7 @@ export function validateCoachingEditor(
                 fullPrice,
                 currentPrice,
                 bookableByFreeUsers: editor.bookableByFreeUsers,
+                hideParticipants: editor.hideParticipants,
             },
         },
         errors,
@@ -206,11 +207,14 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
         setCurrentPrice,
         bookableByFreeUsers,
         setBookableByFreeUsers,
+        hideParticipants,
+        setHideParticipants,
         errors,
     } = editor;
 
     const percentOff = Math.round(
-        ((parseFloat(fullPrice) - parseFloat(currentPrice)) / parseFloat(fullPrice)) * 100
+        ((parseFloat(fullPrice) - parseFloat(currentPrice)) / parseFloat(fullPrice)) *
+            100,
     );
 
     return (
@@ -249,6 +253,19 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                 subtitle='The maximum number of students that can book your coaching session.'
                 error={errors.maxParticipants}
             />
+
+            <Stack>
+                <Typography variant='h6'>Hide Participants when Booking?</Typography>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={hideParticipants}
+                            onChange={(e) => setHideParticipants(e.target.checked)}
+                        />
+                    }
+                    label='Hide participant list when booking? If checked, users will only see other participants after they have booked.'
+                />
+            </Stack>
 
             <CohortsFormSection
                 description='Choose the cohorts that can see and book this event. If no cohorts are selected, all cohorts will be able to book the event.'

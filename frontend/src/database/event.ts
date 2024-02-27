@@ -108,6 +108,9 @@ export interface Coaching {
 
     /** Whether the coaching session is bookable by free users. */
     bookableByFreeUsers: boolean;
+
+    /** Whether to hide the participant list until the session is booked. */
+    hideParticipants: boolean;
 }
 
 export interface Participant {
