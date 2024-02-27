@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Stack } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Event } from '../../database/event';
+import { useApi } from '../../api/Api';
+import { Request, RequestSnackbar, useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
+import { getProcessedEvents } from '../../calendar/CalendarPage';
+import EventEditor from '../../calendar/eventEditor/EventEditor';
+import ProcessedEventViewer from '../../calendar/eventViewer/ProcessedEventViewer';
 import {
     DefaultTimezone,
     getHours,
     useFilters,
 } from '../../calendar/filters/CalendarFilters';
-import { getProcessedEvents } from '../../calendar/CalendarPage';
-import { useAuth } from '../../auth/Auth';
-import { Request, RequestSnackbar, useRequest } from '../../api/Request';
-import EventEditor from '../../calendar/eventEditor/EventEditor';
-import ProcessedEventViewer from '../../calendar/eventViewer/ProcessedEventViewer';
-import { TimeFormat } from '../../database/user';
-import { useApi } from '../../api/Api';
 import TimezoneFilter from '../../calendar/filters/TimezoneFilter';
+import { Event } from '../../database/event';
+import { TimeFormat } from '../../database/user';
 
 interface CoachingCalendarProps {
     events: Event[];
@@ -67,7 +67,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                 deleteRequest.onFailure(err);
             }
         },
-        [api, removeEvent, deleteRequest]
+        [api, removeEvent, deleteRequest],
     );
 
     const downHandler = useCallback(
@@ -76,7 +76,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                 setShiftHeld(true);
             }
         },
-        [setShiftHeld]
+        [setShiftHeld],
     );
 
     const upHandler = useCallback(
@@ -85,7 +85,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                 setShiftHeld(false);
             }
         },
-        [setShiftHeld]
+        [setShiftHeld],
     );
 
     useEffect(() => {
@@ -102,7 +102,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
         async (
             startDate: Date,
             newEvent: ProcessedEvent,
-            originalEvent: ProcessedEvent
+            originalEvent: ProcessedEvent,
         ) => {
             try {
                 let startIso = newEvent.start.toISOString();
@@ -154,7 +154,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                 copyRequest.onFailure(err);
             }
         },
-        [copyRequest, api, shiftHeld, view, putEvent]
+        [copyRequest, api, shiftHeld, view, putEvent],
     );
 
     const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
@@ -173,16 +173,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                     }}
                     spacing={{ xs: 3, sm: 4 }}
                 >
-                    <TimezoneFilter
-                        timezone={filters.timezone}
-                        setTimezone={filters.setTimezone}
-                        timeFormat={filters.timeFormat}
-                        setTimeFormat={filters.setTimeFormat}
-                        minHour={filters.minHour}
-                        setMinHour={filters.setMinHour}
-                        maxHour={filters.maxHour}
-                        setMaxHour={filters.setMaxHour}
-                    />
+                    <TimezoneFilter filters={filters} />
                 </Stack>
             </Grid2>
             <Grid2 xs={12} md={9.5}>

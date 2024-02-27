@@ -19,6 +19,7 @@ import React, { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
 import { DayHours } from '@aldabil/react-scheduler/types';
+import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { useLocalStorage } from 'usehooks-ts';
 import { useEvents } from '../../api/cache/Cache';
 import { useAuth } from '../../auth/Auth';
@@ -127,6 +128,9 @@ export interface Filters {
     timeFormat: TimeFormat;
     setTimeFormat: (format: TimeFormat) => void;
 
+    weekStartOn: WeekDays;
+    setWeekStartOn: (v: WeekDays) => void;
+
     minHour: Date | null;
     setMinHour: (d: Date | null) => void;
 
@@ -173,6 +177,10 @@ export function useFilters(): Filters {
     const [timezone, setTimezone] = useState(user?.timezoneOverride || DefaultTimezone);
     const [timeFormat, setTimeFormat] = useState<TimeFormat>(
         user?.timeFormat || TimeFormat.TwelveHour,
+    );
+    const [weekStartOn, setWeekStartOn] = useLocalStorage<WeekDays>(
+        'calendarFilters.weekStartOn',
+        0,
     );
     const [minHour, setMinHour] = useLocalStorage<Date | null>(
         'calendarFilters.minHour',
@@ -233,6 +241,8 @@ export function useFilters(): Filters {
             setTimezone,
             timeFormat,
             setTimeFormat,
+            weekStartOn,
+            setWeekStartOn,
             minHour,
             setMinHour,
             maxHour,
@@ -265,6 +275,8 @@ export function useFilters(): Filters {
             setTimezone,
             timeFormat,
             setTimeFormat,
+            weekStartOn,
+            setWeekStartOn,
             minHour,
             setMinHour,
             maxHour,
@@ -396,16 +408,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
             sx={{ pt: 0.5, pb: 2 }}
             spacing={{ xs: 3, sm: 4 }}
         >
-            <TimezoneFilter
-                timezone={filters.timezone}
-                setTimezone={filters.setTimezone}
-                timeFormat={filters.timeFormat}
-                setTimeFormat={filters.setTimeFormat}
-                minHour={filters.minHour}
-                setMinHour={filters.setMinHour}
-                maxHour={filters.maxHour}
-                setMaxHour={filters.setMaxHour}
-            />
+            <TimezoneFilter filters={filters} />
 
             {meetingCount > 0 && (
                 <Link component={RouterLink} to='/meeting'>

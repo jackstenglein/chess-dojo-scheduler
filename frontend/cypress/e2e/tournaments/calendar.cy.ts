@@ -6,7 +6,7 @@ describe('Calendar Tab', () => {
         cy.loginByCognitoApi(
             'tournaments',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
         cy.clock(tournamentsClock);
 
@@ -111,7 +111,7 @@ describe('Calendar Tab', () => {
 
         cy.get('.MuiPopover-root').contains('Description');
         cy.get('.MuiPopover-root').contains(
-            'DojoLiga Endgame Series Pos. 9 from Petrosian-Ivkov 1982'
+            'DojoLiga Endgame Series Pos. 9 from Petrosian-Ivkov 1982',
         );
 
         cy.get('.MuiPopover-root').contains('Time Control');
@@ -123,13 +123,13 @@ describe('Calendar Tab', () => {
     });
 
     it('allows switching between month, week and day views', () => {
-        cy.contains('Month').click();
+        cy.get('[data-testid="rs-wrapper"]').contains('Month').click();
         cy.get('.rs__cell').should('have.length', 6 * 7);
 
-        cy.contains('Week').click();
+        cy.get('[data-testid="rs-wrapper"]').contains('Week').click();
         cy.get('.rs__cell').should('have.length', 25 * 8);
 
-        cy.contains('Day').click();
+        cy.get('[data-testid="rs-wrapper"]').contains('Day').click();
         cy.get('.rs__cell').should('have.length', 25 * 2);
     });
 });

@@ -1,13 +1,22 @@
-import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { Container, Grid, Snackbar, Stack } from '@mui/material';
 import { Scheduler } from '@aldabil/react-scheduler';
 import type { SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { Container, Grid, Snackbar, Stack } from '@mui/material';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
-import EventEditor from './eventEditor/EventEditor';
+import { useEvents } from '../api/cache/Cache';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { useAuth, useFreeTier } from '../auth/Auth';
+import { Event, EventStatus, EventType } from '../database/event';
+import { SubscriptionStatus, TimeFormat, User } from '../database/user';
+import UpsellAlert from '../upsell/UpsellAlert';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
+import CalendarTutorial from './CalendarTutorial';
+import { getTimeZonedDate } from './displayDate';
+import EventEditor from './eventEditor/EventEditor';
+import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
 import {
     CalendarFilters,
     DefaultTimezone,
@@ -15,20 +24,11 @@ import {
     getHours,
     useFilters,
 } from './filters/CalendarFilters';
-import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
-import { useEvents } from '../api/cache/Cache';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import { SubscriptionStatus, TimeFormat, User } from '../database/user';
-import { Event, EventType, EventStatus } from '../database/event';
-import CalendarTutorial from './CalendarTutorial';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import UpsellAlert from '../upsell/UpsellAlert';
-import { getTimeZonedDate } from './displayDate';
 
 function processAvailability(
     user: User | undefined,
     filters: Filters | undefined,
-    event: Event
+    event: Event,
 ): ProcessedEvent | null {
     if (event.status === EventStatus.Canceled) {
         return null;
@@ -128,7 +128,7 @@ function processAvailability(
 function processDojoEvent(
     user: User | undefined,
     filters: Filters | undefined,
-    event: Event
+    event: Event,
 ): ProcessedEvent | null {
     if (filters && !filters.dojoEvents) {
         return null;
@@ -162,7 +162,7 @@ function processDojoEvent(
 function processLigaTournament(
     user: User | undefined,
     filters: Filters | undefined,
-    event: Event
+    event: Event,
 ): ProcessedEvent | null {
     if (filters && !filters.dojoEvents) {
         return null;
@@ -194,7 +194,7 @@ function processLigaTournament(
 export function processCoachingEvent(
     user: User | undefined,
     filters: Filters | undefined,
-    event: Event
+    event: Event,
 ): ProcessedEvent | null {
     if (filters && !filters.coaching) {
         return null;
@@ -240,7 +240,7 @@ export function processCoachingEvent(
 export function getProcessedEvents(
     user: User | undefined,
     filters: Filters | undefined,
-    events: Event[]
+    events: Event[],
 ): ProcessedEvent[] {
     const result: ProcessedEvent[] = [];
 
@@ -249,7 +249,7 @@ export function getProcessedEvents(
 
         const startHour = getTimeZonedDate(
             new Date(event.startTime),
-            filters?.timezone
+            filters?.timezone,
         ).getHours();
         if (
             startHour < (filters?.minHour?.getHours() || 0) ||
@@ -281,7 +281,7 @@ export default function CalendarPage() {
     const api = useApi();
     const isFreeTier = useFreeTier();
     const [canceled, setCanceled] = useState(
-        Boolean(useLocation().state?.canceled) || false
+        Boolean(useLocation().state?.canceled) || false,
     );
 
     const { events, putEvent, removeEvent, request } = useEvents();
@@ -302,7 +302,7 @@ export default function CalendarPage() {
                 setShiftHeld(true);
             }
         },
-        [setShiftHeld]
+        [setShiftHeld],
     );
 
     const upHandler = useCallback(
@@ -311,7 +311,7 @@ export default function CalendarPage() {
                 setShiftHeld(false);
             }
         },
-        [setShiftHeld]
+        [setShiftHeld],
     );
 
     useEffect(() => {
@@ -340,14 +340,14 @@ export default function CalendarPage() {
                 deleteRequest.onFailure(err);
             }
         },
-        [api, removeEvent, deleteRequest]
+        [api, removeEvent, deleteRequest],
     );
 
     const copyAvailability = useCallback(
         async (
             startDate: Date,
             newEvent: ProcessedEvent,
-            originalEvent: ProcessedEvent
+            originalEvent: ProcessedEvent,
         ) => {
             try {
                 let startIso = newEvent.start.toISOString();
@@ -399,7 +399,7 @@ export default function CalendarPage() {
                 copyRequest.onFailure(err);
             }
         },
-        [copyRequest, api, shiftHeld, view, putEvent]
+        [copyRequest, api, shiftHeld, view, putEvent],
     );
 
     const processedEvents = useMemo(() => {
@@ -421,29 +421,30 @@ export default function CalendarPage() {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
     }, [calendarRef, filters.timeFormat]);
 
+    const weekStartOn = filters.weekStartOn;
     const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
 
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(
             {
                 weekDays: [0, 1, 2, 3, 4, 5, 6],
-                weekStartOn: 0,
+                weekStartOn: weekStartOn,
                 startHour: minHour,
                 endHour: maxHour,
                 navigation: true,
             },
-            'month'
+            'month',
         );
         calendarRef.current?.scheduler.handleState(
             {
                 weekDays: [0, 1, 2, 3, 4, 5, 6],
-                weekStartOn: 0,
+                weekStartOn: weekStartOn,
                 startHour: minHour,
                 endHour: maxHour,
                 step: 60,
                 navigation: true,
             },
-            'week'
+            'week',
         );
         calendarRef.current?.scheduler.handleState(
             {
@@ -452,9 +453,9 @@ export default function CalendarPage() {
                 step: 60,
                 navigation: true,
             },
-            'day'
+            'day',
         );
-    }, [calendarRef, minHour, maxHour]);
+    }, [calendarRef, weekStartOn, minHour, maxHour]);
 
     return (
         <Container sx={{ py: 3 }} maxWidth='xl'>
@@ -487,14 +488,14 @@ export default function CalendarPage() {
                             ref={calendarRef}
                             month={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
-                                weekStartOn: 0,
+                                weekStartOn: weekStartOn,
                                 startHour: minHour,
                                 endHour: maxHour,
                                 navigation: true,
                             }}
                             week={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
-                                weekStartOn: 0,
+                                weekStartOn: weekStartOn,
                                 startHour: minHour,
                                 endHour: maxHour,
                                 step: 60,

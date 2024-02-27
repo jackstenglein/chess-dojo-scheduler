@@ -5,17 +5,17 @@ import {
     MenuItem,
     Radio,
     RadioGroup,
-    Select,
     Stack,
-    Typography,
+    TextField,
 } from '@mui/material';
 
-import { useApi } from '../../api/Api';
-import { useAuth } from '../../auth/Auth';
-import { DefaultTimezone } from './CalendarFilters';
-import { TimeFormat } from '../../database/user';
+import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { useApi } from '../../api/Api';
+import { useAuth } from '../../auth/Auth';
+import { TimeFormat } from '../../database/user';
+import { DefaultTimezone, Filters } from './CalendarFilters';
 
 function getTimezoneOptions() {
     const options = [];
@@ -25,38 +25,32 @@ function getTimezoneOptions() {
         options.push(
             <MenuItem key={i} value={value}>
                 {displayLabel}
-            </MenuItem>
+            </MenuItem>,
         );
     }
     return options;
 }
 
 interface TimezoneFilterProps {
-    timezone: string;
-    setTimezone: (tz: string) => void;
-
-    timeFormat: string;
-    setTimeFormat: (format: TimeFormat) => void;
-
-    minHour: Date | null;
-    setMinHour: (d: Date | null) => void;
-
-    maxHour: Date | null;
-    setMaxHour: (d: Date | null) => void;
+    filters: Filters;
 }
 
-const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
-    timezone,
-    setTimezone,
-    timeFormat,
-    setTimeFormat,
-    minHour,
-    setMinHour,
-    maxHour,
-    setMaxHour,
-}) => {
+const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
     const api = useApi();
     const auth = useAuth();
+
+    const {
+        timezone,
+        setTimezone,
+        timeFormat,
+        setTimeFormat,
+        weekStartOn,
+        setWeekStartOn,
+        minHour,
+        setMinHour,
+        maxHour,
+        setMaxHour,
+    } = filters;
 
     const onChangeTimezone = (tz: string) => {
         setTimezone(tz);
@@ -80,27 +74,9 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
     let maxHourNum = (maxHour?.getHours() || 23) + 1;
 
     return (
-        <Stack spacing={2}>
-            <Stack id='current-timezone'>
-                <Typography variant='h6' color='text.secondary' ml={1}>
-                    Timezone
-                </Typography>
-                <FormControl size='small'>
-                    <Select
-                        data-cy='timezone-selector'
-                        value={timezone}
-                        onChange={(e) => onChangeTimezone(e.target.value)}
-                    >
-                        <MenuItem value={DefaultTimezone}>
-                            Browser Default ({browserDefaultLabel})
-                        </MenuItem>
-                        {getTimezoneOptions()}
-                    </Select>
-                </FormControl>
-            </Stack>
-
+        <Stack spacing={2.5}>
             <FormControl data-cy='time-format'>
-                <FormLabel>Time Format</FormLabel>
+                <FormLabel sx={{ fontSize: '0.85rem' }}>Time Format</FormLabel>
                 <RadioGroup
                     row
                     value={timeFormat}
@@ -108,16 +84,56 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                 >
                     <FormControlLabel
                         value={TimeFormat.TwelveHour}
-                        control={<Radio />}
+                        control={<Radio sx={{ py: 0.25 }} size='small' />}
                         label='12 Hour'
+                        slotProps={{
+                            typography: {
+                                fontSize: '0.9rem',
+                            },
+                        }}
                     />
                     <FormControlLabel
                         value={TimeFormat.TwentyFourHour}
-                        control={<Radio />}
+                        control={<Radio sx={{ py: 0.25 }} size='small' />}
                         label='24 Hour'
+                        slotProps={{
+                            typography: {
+                                fontSize: '0.9rem',
+                            },
+                        }}
                     />
                 </RadioGroup>
             </FormControl>
+
+            <TextField
+                label='Timezone'
+                select
+                data-cy='timezone-selector'
+                value={timezone}
+                onChange={(e) => onChangeTimezone(e.target.value)}
+                size='small'
+            >
+                <MenuItem value={DefaultTimezone}>
+                    Browser Default ({browserDefaultLabel})
+                </MenuItem>
+                {getTimezoneOptions()}
+            </TextField>
+
+            <TextField
+                label='Week Start'
+                select
+                value={weekStartOn}
+                onChange={(e) => setWeekStartOn(parseInt(e.target.value) as WeekDays)}
+                size='small'
+            >
+                <MenuItem value={0}>Sunday</MenuItem>
+                <MenuItem value={1}>Monday</MenuItem>
+                <MenuItem value={2}>Tuesday</MenuItem>
+                <MenuItem value={3}>Wednesday</MenuItem>
+                <MenuItem value={4}>Thursday</MenuItem>
+                <MenuItem value={5}>Friday</MenuItem>
+                <MenuItem value={6}>Saturday</MenuItem>
+            </TextField>
 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <TimePicker
@@ -129,6 +145,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                     maxTime={maxHour}
                     slotProps={{
                         textField: {
+                            size: 'small',
                             helperText:
                                 minHourNum >= maxHourNum
                                     ? 'Min hour cannot be greater than max hour'
@@ -145,6 +162,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({
                     minTime={minHour}
                     slotProps={{
                         textField: {
+                            size: 'small',
                             helperText:
                                 maxHourNum <= minHourNum
                                     ? 'Max hour cannot be less than min hour'

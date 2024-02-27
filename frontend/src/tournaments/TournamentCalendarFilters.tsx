@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
     Checkbox,
     FormControlLabel,
@@ -6,21 +5,22 @@ import {
     Typography,
     useMediaQuery,
 } from '@mui/material';
+import { useState } from 'react';
 
 import {
-    Filters,
     Accordion,
     AccordionDetails,
     AccordionSummary,
+    Filters,
 } from '../calendar/filters/CalendarFilters';
+import TimezoneFilter from '../calendar/filters/TimezoneFilter';
 import {
+    displayTimeControlType,
+    displayTournamentType,
     PositionType,
     TimeControlType,
     TournamentType,
-    displayTimeControlType,
-    displayTournamentType,
 } from '../database/event';
-import TimezoneFilter from '../calendar/filters/TimezoneFilter';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
@@ -86,16 +86,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             sx={{ pt: 0.5, pb: 2, position: { md: 'sticky' }, top: { md: '88px' } }}
             spacing={{ xs: 3, sm: 4 }}
         >
-            <TimezoneFilter
-                timezone={filters.timezone}
-                setTimezone={filters.setTimezone}
-                timeFormat={filters.timeFormat}
-                setTimeFormat={filters.setTimeFormat}
-                minHour={filters.minHour}
-                setMinHour={filters.setMinHour}
-                maxHour={filters.maxHour}
-                setMaxHour={filters.setMaxHour}
-            />
+            <TimezoneFilter filters={filters} />
 
             <Accordion
                 expanded={forceExpansion || expanded === 'tournamentTypes'}
@@ -117,7 +108,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                         onChange={(event) =>
                                             onChangeTournamentType(
                                                 type,
-                                                event.target.checked
+                                                event.target.checked,
                                             )
                                         }
                                     />
@@ -149,7 +140,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                         onChange={(event) =>
                                             onChangeTournamentTimeControl(
                                                 type,
-                                                event.target.checked
+                                                event.target.checked,
                                             )
                                         }
                                         color={getColor(type)}
@@ -182,7 +173,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                         onChange={(event) =>
                                             onChangeTournamentPositions(
                                                 type,
-                                                event.target.checked
+                                                event.target.checked,
                                             )
                                         }
                                     />
