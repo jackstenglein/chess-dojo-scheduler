@@ -13,7 +13,7 @@ import { toDojoDateString, toDojoTimeString } from '../../../../calendar/display
 import { Game } from '../../../../database/game';
 import { useChess } from '../../PgnBoard';
 
-const useDebounce = (callback: (...args: any) => void, delay: number = 3000) => {
+const useDebounce = (callback: (...args: any) => void, delay: number = 6000) => {
     const ref = useRef<any>();
 
     useEffect(() => {
