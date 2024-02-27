@@ -394,6 +394,7 @@ export async function createTimelineEntry(game: Game) {
                         headers: game.headers,
                     },
                     dojoPoints: 1,
+                    reactions: {},
                 }),
                 TableName: timelineTable,
             })

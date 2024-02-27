@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../../api/Api';
-import { TimelineEntry } from '../../database/timeline';
 import { Request, useRequest } from '../../api/Request';
+import { TimelineEntry } from '../../database/timeline';
 
 export interface UseTimelineResponse {
     request: Request;
@@ -27,12 +27,11 @@ export function useTimeline(owner: string): UseTimelineResponse {
                     setEntries(
                         entries
                             .concat(res.entries)
-                            .filter((e) => e.requirementId !== 'GameSubmission')
                             .sort((a, b) =>
                                 (b.date || b.createdAt).localeCompare(
-                                    a.date || a.createdAt
-                                )
-                            )
+                                    a.date || a.createdAt,
+                                ),
+                            ),
                     );
                     setStartKey(res.lastEvaluatedKey);
                 })
@@ -52,7 +51,7 @@ export function useTimeline(owner: string): UseTimelineResponse {
         (i: number, entry: TimelineEntry) => {
             setEntries((e) => [...e.slice(0, i), entry, ...e.slice(i + 1)]);
         },
-        [setEntries]
+        [setEntries],
     );
 
     return {
