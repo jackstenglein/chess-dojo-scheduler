@@ -4,6 +4,17 @@ import { useMemo } from 'react';
 
 import { OpenClassical, OpenClassicalPlayerStatus } from '../../database/tournament';
 
+enum Result {
+    Win = 'W',
+    ForfeitWin = 'Wf',
+    Loss = 'L',
+    ForfeitLoss = 'Lf',
+    Draw = 'D',
+    DidNotPlay = 'X',
+    Bye = 'Bye',
+    Unknown = '',
+}
+
 const NUM_ROUNDS = 7;
 
 const Bye = (
@@ -23,8 +34,8 @@ function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
             headerAlign: 'center',
             valueGetter: (params) => {
                 const round = params.row.rounds[i];
-                if (!round || round.result === 'Bye') {
-                    return 'Bye';
+                if (!round || round.result === Result.Bye) {
+                    return Result.Bye;
                 }
 
                 const result = round.result;
@@ -46,10 +57,10 @@ function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
                         </Tooltip>
                     );
                 }
-                if (round.result === 'Bye') {
+                if (round.result === Result.Bye) {
                     return Bye;
                 }
-                if (round.result === '') {
+                if (round.result === Result.Unknown) {
                     return '';
                 }
 
@@ -72,19 +83,31 @@ function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
 }
 
 function getResultDescription(result: Result, opponent: number): string {
-    if (result === 'W') {
-        return `Win against player ${opponent}`;
+    switch (result) {
+        case Result.Win:
+            return `Win against player ${opponent}`;
+
+        case Result.ForfeitWin:
+            return `Win by forfeit against ${opponent}`;
+
+        case Result.Loss:
+            return `Loss against player ${opponent}`;
+
+        case Result.ForfeitLoss:
+            return `Loss by forfeit against ${opponent}`;
+
+        case Result.Draw:
+            return `Draw against player ${opponent}`;
+
+        case Result.Bye:
+            return 'Player received a bye for 0.5 points';
+
+        case Result.DidNotPlay:
+            return `Game against player ${opponent} was not played and counts as a draw`;
+
+        case Result.Unknown:
+            return '';
     }
-    if (result === 'L') {
-        return `Loss against player ${opponent}`;
-    }
-    if (result === 'D') {
-        return `Draw against player ${opponent}`;
-    }
-    if (result === 'X') {
-        return `Game against player ${opponent} was not played`;
-    }
-    return '';
 }
 
 const standingsTableColumns: GridColDef<StandingsTableRow>[] = [
@@ -117,8 +140,6 @@ const standingsTableColumns: GridColDef<StandingsTableRow>[] = [
     ...getRoundColumns(NUM_ROUNDS),
 ];
 
-type Result = 'W' | 'L' | 'D' | 'X' | 'Bye' | '';
-
 interface StandingsTableRow {
     lichessUsername: string;
     discordUsername: string;
@@ -136,28 +157,42 @@ interface StandingsTableRow {
 
 function getResult(result: string, color: 'w' | 'b'): Result {
     if (result === '' || result === '*') {
-        return '';
+        return Result.Unknown;
     }
     if (result === '1-0') {
-        return color === 'w' ? 'W' : 'L';
+        return color === 'w' ? Result.Win : Result.Loss;
     }
     if (result === '0-1') {
-        return color === 'w' ? 'L' : 'W';
+        return color === 'w' ? Result.Loss : Result.Win;
     }
     if (result === '1/2-1/2') {
-        return 'D';
+        return Result.Draw;
     }
-    return 'X';
+    if (result === '1-0F') {
+        return color === 'w' ? Result.ForfeitWin : Result.ForfeitLoss;
+    }
+    if (result === '0-1F') {
+        return color === 'w' ? Result.ForfeitLoss : Result.ForfeitWin;
+    }
+    return Result.DidNotPlay;
 }
 
 function getScore(result: Result): number {
-    if (result === 'W') {
-        return 1;
+    switch (result) {
+        case Result.Win:
+        case Result.ForfeitWin:
+            return 1;
+
+        case Result.Draw:
+        case Result.Bye:
+        case Result.DidNotPlay:
+            return 0.5;
+
+        case Result.Unknown:
+        case Result.Loss:
+        case Result.ForfeitLoss:
+            return 0;
     }
-    if (result === 'D' || result === 'Bye') {
-        return 0.5;
-    }
-    return 0;
 }
 
 interface StandingsTableProps {
@@ -201,7 +236,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
                         opponent: pairing.result ? pairing.black.lichessUsername : '',
                         result:
                             pairing.black.lichessUsername === 'No Opponent'
-                                ? 'Bye'
+                                ? Result.Bye
                                 : getResult(pairing.result, 'w'),
                     };
                 }
@@ -212,7 +247,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
                         opponent: pairing.result ? pairing.white.lichessUsername : '',
                         result:
                             pairing.white.lichessUsername === 'No Opponent'
-                                ? 'Bye'
+                                ? Result.Bye
                                 : getResult(pairing.result, 'b'),
                     };
                 }
@@ -240,7 +275,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
             }
 
             for (let i = section.rounds.length; i < NUM_ROUNDS; i++) {
-                player.rounds[i] = { opponent: '', result: '' };
+                player.rounds[i] = { opponent: '', result: Result.Unknown };
             }
         });
 
