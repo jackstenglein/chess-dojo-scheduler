@@ -25,6 +25,18 @@ export interface ClubFilters {
 export enum ClubSortMethod {
     Alphabetical = 'ALPHABETICAL',
     MemberCount = 'MEMBER_COUNT',
+    CreationDate = 'CREATION_DATE',
+}
+
+function displayClubSortMethod(sortMethod: ClubSortMethod): string {
+    switch (sortMethod) {
+        case ClubSortMethod.Alphabetical:
+            return 'Alphabetical';
+        case ClubSortMethod.MemberCount:
+            return 'Member Count';
+        case ClubSortMethod.CreationDate:
+            return 'Creation Date';
+    }
 }
 
 export function useClubFilters(): ClubFilters {
@@ -56,17 +68,25 @@ export function filterClubs(clubs: Club[] | undefined, filters: ClubFilters): Cl
         );
     }
     return result.sort((lhs: Club, rhs: Club) => {
-        if (filters.sortMethod === ClubSortMethod.Alphabetical) {
-            if (filters.sortDirection === 'asc') {
-                return lhs.name.localeCompare(rhs.name);
-            }
-            return rhs.name.localeCompare(lhs.name);
-        }
+        switch (filters.sortMethod) {
+            case ClubSortMethod.Alphabetical:
+                if (filters.sortDirection === 'asc') {
+                    return lhs.name.localeCompare(rhs.name);
+                }
+                return rhs.name.localeCompare(lhs.name);
 
-        if (filters.sortDirection === 'asc') {
-            return lhs.memberCount - rhs.memberCount;
+            case ClubSortMethod.MemberCount:
+                if (filters.sortDirection === 'asc') {
+                    return lhs.memberCount - rhs.memberCount;
+                }
+                return rhs.memberCount - lhs.memberCount;
+
+            case ClubSortMethod.CreationDate:
+                if (filters.sortDirection === 'asc') {
+                    return lhs.createdAt.localeCompare(rhs.createdAt);
+                }
+                return rhs.createdAt.localeCompare(lhs.createdAt);
         }
-        return rhs.memberCount - lhs.memberCount;
     });
 }
 
@@ -93,8 +113,11 @@ export const ClubFilterEditor: React.FC<ClubFilterEditorProps> = ({ filters }) =
                         filters.setSortMethod(e.target.value as ClubSortMethod)
                     }
                 >
-                    <MenuItem value={ClubSortMethod.Alphabetical}>Alphabetical</MenuItem>
-                    <MenuItem value={ClubSortMethod.MemberCount}>Member Count</MenuItem>
+                    {Object.values(ClubSortMethod).map((method) => (
+                        <MenuItem key={method} value={method}>
+                            {displayClubSortMethod(method)}
+                        </MenuItem>
+                    ))}
                 </TextField>
 
                 <FormControl>
