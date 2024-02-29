@@ -58,7 +58,7 @@ export type TournamentApiContextType = {
     ) => Promise<AxiosResponse<OpenClassical, any>>;
 
     /**
-     * Sets the pairings for the given round using the given PGN data. Only admins and tournament
+     * Sets the pairings using the given request. Only admins and tournament
      * admins can call this function.
      * @param req The Open Classical put pairings request.
      * @returns An AxiosResponse containing the updated open classical.
@@ -176,8 +176,8 @@ export interface OpenClassicalPutPairingsRequest {
     /** The round to update pairings for. */
     round?: number;
 
-    /** The PGN to use when updating the pairings. */
-    pgnData?: string;
+    /** The CSV to use when updating the pairings. */
+    csvData?: string;
 }
 
 export interface OpenClassicalVerifyResultRequest {
@@ -275,19 +275,18 @@ export function submitResultsForOpenClassical(
 }
 
 /**
- * Sets the pairings for the given round using the given PGN data. Only admins and tournament
+ * Sets the pairings for the open classical using the given request. Only admins and tournament
  * admins can call this function.
  * @param idToken The id
- * @param round The round to set.
- * @param pgnData The PGN data containing the pairings.
+ * @param req The request to use when updating pairings.
  * @returns An AxiosResponse containing the updated open classical.
  */
 export function putOpenClassicalPairings(
     idToken: string,
     req: OpenClassicalPutPairingsRequest,
 ) {
-    return axios.put<OpenClassical>(
-        `${BASE_URL}/tournaments/open-classical/pairings`,
+    return axios.post<OpenClassical>(
+        `${BASE_URL}/tournaments/open-classical/admin/pairings`,
         req,
         { headers: { Authorization: 'Bearer ' + idToken } },
     );

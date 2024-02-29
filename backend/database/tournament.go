@@ -602,3 +602,66 @@ func (repo *dynamoRepository) SetPlayer(player *OpenClassicalPlayer) (*OpenClass
 	}
 	return result, nil
 }
+
+// Closes registrations for the current open classical.
+func (repo *dynamoRepository) OpenClassicalCloseRegistrations() (*OpenClassical, error) {
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
+			"startsAt": {S: aws.String(CurrentLeaderboard)},
+		},
+		UpdateExpression: aws.String("SET #acceptingRegistrations = :false"),
+		ExpressionAttributeNames: map[string]*string{
+			"#acceptingRegistrations": aws.String("acceptingRegistrations"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":false": {BOOL: aws.Bool(false)},
+		},
+		TableName:    aws.String(tournamentTable),
+		ReturnValues: aws.String("ALL_NEW"),
+	}
+
+	result := &OpenClassical{}
+	if err := repo.updateItem(input, result); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+	return result, nil
+}
+
+// Adds a new round to the given region and section of the current open classical, using the
+// provided pairings.
+func (repo *dynamoRepository) OpenClassicalAddRound(region, section string, pairings []OpenClassicalPairing) (*OpenClassical, error) {
+	round := OpenClassicalRound{
+		PairingEmailsSent: false,
+		Pairings:          pairings,
+	}
+	item, err := dynamodbattribute.MarshalMap(round)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to marshal round", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
+			"startsAt": {S: aws.String(CurrentLeaderboard)},
+		},
+		UpdateExpression: aws.String("SET #sections.#s.#rounds = list_append(if_not_exists(#sections.#s.#rounds, :empty_list), :r)"),
+		ExpressionAttributeNames: map[string]*string{
+			"#sections": aws.String("sections"),
+			"#s":        aws.String(fmt.Sprintf("%s_%s", region, section)),
+			"#rounds":   aws.String("rounds"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":empty_list": {L: []*dynamodb.AttributeValue{}},
+			":r":          {L: []*dynamodb.AttributeValue{{M: item}}},
+		},
+		TableName:    aws.String(tournamentTable),
+		ReturnValues: aws.String("ALL_NEW"),
+	}
+
+	result := &OpenClassical{}
+	if err := repo.updateItem(input, result); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+	return result, nil
+}

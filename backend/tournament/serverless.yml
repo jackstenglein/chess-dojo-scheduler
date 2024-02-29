@@ -173,6 +173,28 @@ functions:
           - ${param:TournamentsTableArn}
           - ${param:UsersTableArn}
 
+  openClassicalAdminSetPairings:
+    handler: openClassical/admin/setPairings/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/pairings
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+
   openClassicalAdminSendPairings:
     handler: openClassical/admin/emailPairings/main.go
     events:

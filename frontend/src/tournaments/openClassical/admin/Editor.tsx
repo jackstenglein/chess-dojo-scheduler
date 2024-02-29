@@ -33,7 +33,7 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
     const [region, setRegion] = useState('');
     const [section, setSection] = useState('');
     const [round, setRound] = useState(maxRound);
-    const [pgnData, setPgnData] = useState('');
+    const [csvData, setCsvData] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const request = useRequest();
@@ -58,7 +58,7 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
             req.region = region;
             req.section = section;
             req.round = round;
-            req.pgnData = pgnData;
+            req.csvData = csvData;
 
             if (!region) {
                 newErrors.region = 'This field is required';
@@ -69,8 +69,8 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
             if (!round) {
                 newErrors.round = 'This field is required';
             }
-            if (!pgnData.trim()) {
-                newErrors.pgnData = 'This field is required';
+            if (!csvData.trim()) {
+                newErrors.csvData = 'This field is required';
             }
         }
 
@@ -179,14 +179,14 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
                         </TextField>
 
                         <TextField
-                            label='PGN'
+                            label='CSV'
                             multiline
                             minRows={3}
                             maxRows={15}
-                            value={pgnData}
-                            onChange={(e) => setPgnData(e.target.value)}
-                            error={!!errors.pgnData}
-                            helperText={errors.pgnData}
+                            value={csvData}
+                            onChange={(e) => setCsvData(e.target.value)}
+                            error={!!errors.csvData}
+                            helperText={errors.csvData}
                         />
                     </Stack>
                 </DialogContent>

@@ -41,7 +41,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         align: 'center',
         headerAlign: 'center',
         renderCell: (params) => {
-            if (params.value === '*') {
+            if (params.value === '*' || params.value === '') {
                 return params.value;
             }
             if (params.row.verified) {
