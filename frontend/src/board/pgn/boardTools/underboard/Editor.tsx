@@ -105,7 +105,7 @@ const Editor = () => {
 
     const move = chess.currentMove();
     const isMainline = chess.isInMainline(move);
-    const comment = move ? move.commentAfter || '' : chess.pgn.gameComment || '';
+    const comment = move ? move.commentAfter || '' : chess.pgn.gameComment.comment || '';
 
     const handleExclusiveNag = (nagSet: Nag[]) => (event: any, newNag: string | null) => {
         const newNags = setNagInSet(newNag, nagSet, move?.nags);

@@ -114,7 +114,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                         {displayNags}
                     </div>
 
-                    <Typography variant='caption' color='info.main'>
+                    <Typography
+                        variant='caption'
+                        color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
+                    >
                         {time}
                     </Typography>
                 </Stack>
