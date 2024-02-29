@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { EventType, Event } from '@jackstenglein/chess';
+import { Event, EventType } from '@jackstenglein/chess';
 import { Divider, Paper, Stack } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 import { useChess } from '../PgnBoard';
 import Markdown from './Markdown';
@@ -25,14 +25,18 @@ const GameComment = () => {
         }
     }, [chess, setForceRender]);
 
-    if (!chess?.pgn.gameComment || chess.pgn.gameComment.trim() === '[#]') {
+    if (
+        !chess?.pgn.gameComment ||
+        !chess.pgn.gameComment.comment ||
+        chess.pgn.gameComment.comment.trim() === '[#]'
+    ) {
         return null;
     }
 
     return (
         <Paper elevation={3} sx={{ boxShadow: 'none', color: 'text.secondary' }}>
             <Stack>
-                <Markdown text={chess?.pgn.gameComment.trim()} />
+                <Markdown text={chess.pgn.gameComment.comment.trim()} />
                 <Divider sx={{ width: 1 }} />
             </Stack>
         </Paper>

@@ -1,4 +1,7 @@
-import React, { useEffect, useRef, useState, forwardRef } from 'react';
+import { Chess, Event, EventType, Move } from '@jackstenglein/chess';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CheckIcon from '@mui/icons-material/Check';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
     Button as MuiButton,
     Grid,
@@ -7,17 +10,23 @@ import {
     Menu,
     MenuItem,
     MenuList,
+    Stack,
     Tooltip,
     Typography,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CheckIcon from '@mui/icons-material/Check';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { Event, EventType, Move } from '@jackstenglein/chess';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
-import { useChess } from '../PgnBoard';
-import { compareNags, getStandardNag, nags } from '../Nag';
+import { useLocalStorage } from 'usehooks-ts';
 import { reconcile } from '../../Board';
+import {
+    convertClockToSeconds,
+    formatTime,
+    getIncrement,
+    getInitialClock,
+} from '../boardTools/underboard/ClockUsage';
+import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
+import { compareNags, getStandardNag, nags } from '../Nag';
+import { useChess } from '../PgnBoard';
 
 function getTextColor(move: Move, inline?: boolean): string {
     for (const nag of move.nags || []) {
@@ -39,10 +48,29 @@ interface ButtonProps {
     onClickMove: (m: Move) => void;
     onRightClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
     text: string;
+    time?: string;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-    const { isCurrentMove, inline, move, onClickMove, onRightClick, text } = props;
+    const { isCurrentMove, inline, move, onClickMove, onRightClick, text, time } = props;
+    const displayNags = move.nags?.sort(compareNags).map((nag) => {
+        const n = nags[getStandardNag(nag)];
+        if (!n) return null;
+
+        return (
+            <Tooltip key={n.label} title={n.description}>
+                <Typography
+                    display='inline'
+                    fontSize='inherit'
+                    lineHeight='inherit'
+                    fontWeight='inherit'
+                >
+                    {n.label}
+                </Typography>
+            </Tooltip>
+        );
+    });
+
     return (
         <MuiButton
             data-cy='pgn-text-move-button'
@@ -54,6 +82,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                 fontWeight: isCurrentMove ? 'bold' : 'inherit',
                 color: isCurrentMove ? undefined : getTextColor(move, inline),
                 backgroundColor: isCurrentMove ? 'primary' : 'initial',
+                paddingRight: inline ? undefined : 2,
 
                 // non-inline only props
                 width: inline ? undefined : 1,
@@ -73,24 +102,28 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             onClick={() => onClickMove(move)}
             onContextMenu={onRightClick}
         >
-            {text}
-            {move.nags?.sort(compareNags).map((nag) => {
-                const n = nags[getStandardNag(nag)];
-                if (!n) return null;
+            {time ? (
+                <Stack
+                    direction='row'
+                    alignItems='center'
+                    justifyContent='space-between'
+                    width={1}
+                >
+                    <div>
+                        {text}
+                        {displayNags}
+                    </div>
 
-                return (
-                    <Tooltip key={n.label} title={n.description}>
-                        <Typography
-                            display='inline'
-                            fontSize='inherit'
-                            lineHeight='inherit'
-                            fontWeight='inherit'
-                        >
-                            {n.label}
-                        </Typography>
-                    </Tooltip>
-                );
-            })}
+                    <Typography variant='caption' color='info.main'>
+                        {time}
+                    </Typography>
+                </Stack>
+            ) : (
+                <>
+                    {text}
+                    {displayNags}
+                </>
+            )}
         </MuiButton>
     );
 });
@@ -172,6 +205,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
     const [, setForceRender] = useState(0);
+    const [showMoveTimes] = useLocalStorage(ShowMoveTimesInPgnKey, false);
 
     useEffect(() => {
         if (chess) {
@@ -264,6 +298,8 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         );
     }
 
+    const moveTime = showMoveTimes ? getMoveTime(chess, move) : undefined;
+
     return (
         <Grid key={'move-' + move.ply} item xs={5}>
             <Button
@@ -274,6 +310,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 onClickMove={onClickMove}
                 onRightClick={onRightClick}
                 text={moveText}
+                time={moveTime}
             />
             <MoveMenu
                 anchor={menuAnchorEl}
@@ -284,5 +321,30 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         </Grid>
     );
 };
+
+function getMoveTime(chess: Chess | undefined, move: Move): string {
+    const seconds = convertClockToSeconds(move.commentDiag?.clk);
+    if (!seconds) {
+        return '0';
+    }
+
+    let prev: Move | null | undefined = move;
+    let prevSeconds = undefined;
+    do {
+        prev = prev.previous?.previous;
+        prevSeconds = convertClockToSeconds(prev?.commentDiag?.clk);
+    } while (prev && prevSeconds === undefined);
+
+    if (prevSeconds === undefined) {
+        prevSeconds = getInitialClock(chess?.pgn);
+    }
+    if (prevSeconds === 0) {
+        return '0';
+    }
+
+    const increment = getIncrement(chess?.pgn);
+    const elapsedSeconds = prevSeconds - seconds + increment;
+    return formatTime(elapsedSeconds);
+}
 
 export default MoveButton;

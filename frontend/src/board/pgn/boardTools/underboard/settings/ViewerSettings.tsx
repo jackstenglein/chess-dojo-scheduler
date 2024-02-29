@@ -1,7 +1,16 @@
-import { MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+    Checkbox,
+    FormControlLabel,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
+export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
+export const ShowCapturedMaterialKey = 'showCapturedMaterial';
 
 export enum GoToEndButtonBehavior {
     SingleClick = 'SINGLE_CLICK',
@@ -17,6 +26,14 @@ const ViewerSettings: React.FC<ViewerSettingsProps> = ({ showTitle }) => {
     const [goToEndBehavior, setGoToEndBehavior] = useLocalStorage<string>(
         GoToEndButtonBehaviorKey,
         GoToEndButtonBehavior.SingleClick,
+    );
+    const [showMoveTimes, setShowMoveTimes] = useLocalStorage(
+        ShowMoveTimesInPgnKey,
+        false,
+    );
+    const [showCapturedMaterial, setShowCapturedMaterial] = useLocalStorage(
+        ShowCapturedMaterialKey,
+        false,
     );
 
     return (
@@ -37,6 +54,28 @@ const ViewerSettings: React.FC<ViewerSettingsProps> = ({ showTitle }) => {
                 </MenuItem>
                 <MenuItem value={GoToEndButtonBehavior.Hidden}>Hidden</MenuItem>
             </TextField>
+
+            <Stack>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={showMoveTimes}
+                            onChange={(e) => setShowMoveTimes(e.target.checked)}
+                        />
+                    }
+                    label='Show elapsed time next to move'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={showCapturedMaterial}
+                            onChange={(e) => setShowCapturedMaterial(e.target.checked)}
+                        />
+                    }
+                    label='Show captured material next to player names'
+                />
+            </Stack>
         </Stack>
     );
 };

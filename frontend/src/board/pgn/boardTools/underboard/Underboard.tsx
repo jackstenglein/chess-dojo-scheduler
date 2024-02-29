@@ -58,7 +58,6 @@ const Underboard: React.FC<UnderboardProps> = ({
     }
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
-        console.log('Resizing underboard (currentSize, newSize): ', resizeData, data);
         onResize(Math.floor(data.size.width), Math.floor(data.size.height));
     };
 

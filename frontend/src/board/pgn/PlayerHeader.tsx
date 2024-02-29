@@ -1,9 +1,11 @@
 import { Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
 import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
-
-import { useChess } from './PgnBoard';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import { useLightMode } from '../../ThemeProvider';
+import { ShowCapturedMaterialKey } from './boardTools/underboard/settings/ViewerSettings';
+import { useChess } from './PgnBoard';
+import PieceIcon from './pieceIcons/PieceIcon';
 
 interface PlayerHeaderProps {
     type: 'header' | 'footer';
@@ -49,7 +51,7 @@ export const ClockTypeDescriptions: Record<string, string> = {
 function getMoveClockText(
     clockCommand: 'emt' | 'clk',
     pgn?: Pgn,
-    move?: Move | null
+    move?: Move | null,
 ): string | undefined {
     let currentMove: Move | null | undefined = move;
     while (currentMove) {
@@ -60,6 +62,28 @@ function getMoveClockText(
     }
 
     return getInitialClock(pgn);
+}
+
+function getCapturedPieceCounts(fen: string) {
+    const pieces = fen.split(' ')[0];
+    const capturedPieces: Record<string, number> = {
+        p: 8,
+        n: 2,
+        b: 2,
+        r: 2,
+        q: 1,
+        P: 8,
+        N: 2,
+        B: 2,
+        R: 2,
+        Q: 1,
+    };
+    for (const piece of pieces) {
+        if (capturedPieces[piece]) {
+            capturedPieces[piece] -= 1;
+        }
+    }
+    return capturedPieces;
 }
 
 const rerenderHeaders = [
@@ -120,6 +144,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
     let playerResult = '';
     let move: Move | null | undefined = currentMove;
     let clockCommand: 'emt' | 'clk' = move?.commentDiag?.emt ? 'emt' : 'clk';
+    let color: 'w' | 'b' = 'w';
 
     if (
         (type === 'header' && board.state.orientation === 'white') ||
@@ -134,6 +159,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
         if (currentMove?.color !== 'b') {
             move = currentMove?.previous || null;
         }
+        color = 'b';
     } else {
         playerName = pgn.header.tags.White;
         playerElo = pgn.header.tags.WhiteElo;
@@ -187,6 +213,8 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                             ({playerElo})
                         </Typography>
                     )}
+
+                    <CapturedMaterial move={currentMove} color={color} />
                 </Stack>
 
                 <Tooltip title={ClockTypeDescriptions[clockCommand]}>
@@ -200,6 +228,50 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                 </Tooltip>
             </Stack>
         </Paper>
+    );
+};
+
+const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
+    move,
+    color,
+}) => {
+    const [showCapturedMaterial] = useLocalStorage(ShowCapturedMaterialKey, false);
+
+    if (!move || !showCapturedMaterial) {
+        return null;
+    }
+
+    let materialDifference = move.materialDifference;
+    let displayedMaterialDiff = '';
+    if (color === 'w' && materialDifference > 0) {
+        displayedMaterialDiff = `+${materialDifference}`;
+    } else if (color === 'b' && materialDifference < 0) {
+        displayedMaterialDiff = `+${Math.abs(materialDifference)}`;
+    }
+
+    const pieceTypes =
+        color === 'w' ? ['p', 'n', 'b', 'r', 'q'] : ['P', 'N', 'B', 'R', 'Q'];
+    const capturedPieces = getCapturedPieceCounts(move.after);
+
+    return (
+        <Stack direction='row' alignItems='center'>
+            {pieceTypes.map((type) => (
+                <React.Fragment key={type}>
+                    {Array.from(Array(capturedPieces[type])).map((_, i) => (
+                        <PieceIcon key={i} piece={type} />
+                    ))}
+                </React.Fragment>
+            ))}
+            {displayedMaterialDiff && (
+                <Typography
+                    variant='body2'
+                    color='text.secondary'
+                    sx={{ mt: '2px', ml: '2px' }}
+                >
+                    {displayedMaterialDiff}
+                </Typography>
+            )}
+        </Stack>
     );
 };
 

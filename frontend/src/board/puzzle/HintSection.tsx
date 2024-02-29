@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { Stack, Typography, Button } from '@mui/material';
 import { Move } from '@jackstenglein/chess';
+import { Button, Stack, Typography } from '@mui/material';
+import React, { useCallback, useEffect, useRef } from 'react';
 
-import { BoardApi, toColor, Chess, reconcile } from '../Board';
-import ChatBubble from './ChatBubble';
-import { Status } from './PuzzleBoard';
-import Coach from './Coach';
-import PgnText from '../pgn/pgnText/PgnText';
+import { BoardApi, Chess, reconcile, toColor } from '../Board';
 import BoardButtons from '../pgn/boardTools/boardButtons/BoardButtons';
+import PgnText from '../pgn/pgnText/PgnText';
+import ChatBubble from './ChatBubble';
+import Coach from './Coach';
+import { Status } from './PuzzleBoard';
 
 interface HintSectionProps {
     status: Status;
@@ -48,7 +48,7 @@ const WaitingForMoveHint: React.FC<HintSectionProps> = ({
     coachUrl,
     playBothSides = false,
 }) => {
-    let comment = move ? move.commentAfter : chess.pgn.gameComment;
+    let comment = move ? move.commentAfter : chess.pgn.gameComment.comment;
     if (!comment || comment.includes('[#]')) {
         comment = playBothSides
             ? `What did ${toColor(chess)} play in this position?`
@@ -81,7 +81,7 @@ const IncorrectMoveHint: React.FC<HintSectionProps> = ({
                 onRetry(board, chess);
             }
         },
-        [onRetry, board, chess]
+        [onRetry, board, chess],
     );
 
     useEffect(() => {
@@ -129,7 +129,7 @@ const CorrectMoveHint: React.FC<HintSectionProps> = ({
                 onNext(board, chess);
             }
         },
-        [onNext, board, chess, playBothSides]
+        [onNext, board, chess, playBothSides],
     );
 
     useEffect(() => {
@@ -185,7 +185,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
             chess.seek(move);
             reconcile(chess, board);
         },
-        [board, chess]
+        [board, chess],
     );
 
     const onKeyDown = useCallback(
@@ -207,7 +207,7 @@ const CompleteHint: React.FC<HintSectionProps> = ({
                 onMove(prevMove);
             }
         },
-        [chess, onMove]
+        [chess, onMove],
     );
 
     const onKeyUp = useCallback((event: KeyboardEvent) => {
