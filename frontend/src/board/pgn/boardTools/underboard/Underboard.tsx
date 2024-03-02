@@ -14,18 +14,25 @@ import {
     ToggleButtonProps,
     Tooltip,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 
+import { useLocalStorage } from 'usehooks-ts';
 import { useAuth } from '../../../../auth/Auth';
 import { Game } from '../../../../database/game';
 import { useLightMode } from '../../../../ThemeProvider';
 import Explorer from '../../explorer/Explorer';
-import { useChess } from '../../PgnBoard';
+import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import { ResizableData } from '../../resize';
 import ResizeHandle from '../../ResizeHandle';
 import ClockUsage from './ClockUsage';
 import Editor from './Editor';
+import {
+    BoardKeyBindingsKey,
+    defaultKeyBindings,
+    matchAction,
+    ShortcutAction,
+} from './settings/KeyboardShortcuts';
 import Settings from './settings/Settings';
 import Tags from './Tags';
 
@@ -40,22 +47,50 @@ interface UnderboardProps {
 const Underboard: React.FC<UnderboardProps> = ({
     resizeData,
     onResize,
-    showExplorer,
     game,
     onSaveGame,
 }) => {
     const user = useAuth().user;
-    const chess = useChess().chess;
+    const { chess, keydownMap } = useChess();
+    const [keyBindings] = useLocalStorage(BoardKeyBindingsKey, defaultKeyBindings);
 
     const showEditor = game && game.owner === user?.username;
     const [underboard, setUnderboard] = useState(
-        showEditor ? 'editor' : Boolean(game) ? 'tags' : showExplorer ? 'explorer' : '',
+        showEditor ? 'editor' : Boolean(game) ? 'tags' : 'explorer',
     );
     const light = useLightMode();
 
-    if (!showExplorer && !game) {
-        return null;
-    }
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            const activeElement = document.activeElement;
+            if (
+                activeElement?.tagName === 'INPUT' ||
+                activeElement?.id === BlockBoardKeyboardShortcuts ||
+                activeElement?.classList.contains(BlockBoardKeyboardShortcuts)
+            ) {
+                return;
+            }
+
+            const matchedAction = matchAction(
+                keyBindings,
+                event.key,
+                keydownMap?.current || {},
+            );
+            if (matchedAction === ShortcutAction.OpenTags) {
+                setUnderboard('tags');
+            } else if (matchedAction === ShortcutAction.OpenEditor && showEditor) {
+                setUnderboard('editor');
+            } else if (matchedAction === ShortcutAction.OpenDatabase) {
+                setUnderboard('explorer');
+            } else if (matchedAction === ShortcutAction.OpenClocks) {
+                setUnderboard('clocks');
+            } else if (matchedAction === ShortcutAction.OpenSettings) {
+                setUnderboard('settings');
+            }
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [keyBindings, keydownMap, setUnderboard, showEditor]);
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
         onResize(Math.floor(data.size.width), Math.floor(data.size.height));

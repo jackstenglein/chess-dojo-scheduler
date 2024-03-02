@@ -28,7 +28,7 @@ import {
     setNagInSet,
     setNagsInSet,
 } from '../../Nag';
-import { useChess } from '../../PgnBoard';
+import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import {
     convertSecondsToDate,
     handleIncrement,
@@ -36,9 +36,6 @@ import {
     onChangeClock,
 } from './ClockEditor';
 import { convertClockToSeconds, getIncrement, getInitialClock } from './ClockUsage';
-
-export const CommentTextFieldId = 'commentTextField';
-export const ClockTextFieldId = 'clockTextField';
 
 interface NagButtonProps extends ToggleButtonProps {
     text: string;
@@ -122,7 +119,7 @@ const Editor = () => {
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     {move && isMainline ? (
                         <TimeField
-                            id={ClockTextFieldId}
+                            id={BlockBoardKeyboardShortcuts}
                             label='Clock (hh:mm:ss)'
                             format='HH:mm:ss'
                             value={convertSecondsToDate(
@@ -142,7 +139,7 @@ const Editor = () => {
                             >
                                 <Grid2 xs={6}>
                                     <TimeField
-                                        id={ClockTextFieldId}
+                                        id={BlockBoardKeyboardShortcuts}
                                         label='Starting Time (hh:mm:ss)'
                                         format='HH:mm:ss'
                                         value={convertSecondsToDate(initialClock)}
@@ -155,7 +152,7 @@ const Editor = () => {
 
                                 <Grid2 xs={6}>
                                     <TextField
-                                        id={ClockTextFieldId}
+                                        id={BlockBoardKeyboardShortcuts}
                                         label='Increment (Sec)'
                                         value={`${increment}`}
                                         onChange={(e) =>
@@ -175,7 +172,7 @@ const Editor = () => {
 
                 <TextField
                     label='Comments'
-                    id={CommentTextFieldId}
+                    id={BlockBoardKeyboardShortcuts}
                     multiline
                     minRows={Boolean(move) ? (isMainline ? 3 : 7) : 15}
                     maxRows={Boolean(move) ? 9 : 15}

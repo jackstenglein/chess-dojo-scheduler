@@ -4,14 +4,13 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-import { useChess } from '../../PgnBoard';
+import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import {
     convertClockToSeconds,
     formatTime,
     getIncrement,
     getInitialClock,
 } from './ClockUsage';
-import { ClockTextFieldId } from './Editor';
 
 export function convertSecondsToDate(seconds: number | undefined): Date | null {
     if (!seconds) {
@@ -78,7 +77,7 @@ const ClockEditor = () => {
         grid.push(
             <Grid2 key={`${i}-white`} xs={6}>
                 <TimeField
-                    id={ClockTextFieldId}
+                    id={BlockBoardKeyboardShortcuts}
                     label={`${i / 2 + 1}. ${moves[i].san}`}
                     format='HH:mm:ss'
                     value={convertSecondsToDate(
@@ -93,7 +92,7 @@ const ClockEditor = () => {
             grid.push(
                 <Grid2 key={`${i}-black`} xs={6}>
                     <TimeField
-                        id={ClockTextFieldId}
+                        id={BlockBoardKeyboardShortcuts}
                         label={`${i / 2 + 1}... ${moves[i + 1].san}`}
                         format='HH:mm:ss'
                         value={convertSecondsToDate(
@@ -112,7 +111,7 @@ const ClockEditor = () => {
             <Grid2 container columnSpacing={1} rowGap={3} alignItems='center' pb={2}>
                 <Grid2 xs={6}>
                     <TimeField
-                        id={ClockTextFieldId}
+                        id={BlockBoardKeyboardShortcuts}
                         label='Starting Time'
                         format='HH:mm:ss'
                         value={convertSecondsToDate(initialClock)}
@@ -123,7 +122,7 @@ const ClockEditor = () => {
 
                 <Grid2 xs={6}>
                     <TextField
-                        id={ClockTextFieldId}
+                        id={BlockBoardKeyboardShortcuts}
                         label='Increment (Sec)'
                         value={`${increment}`}
                         onChange={(e) =>

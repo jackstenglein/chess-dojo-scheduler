@@ -1,20 +1,17 @@
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import { LoadingButton } from '@mui/lab';
+import { Box, IconButton, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, IconButton, Stack, TextField, Typography } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Game } from '../../database/game';
-import CommentList from './CommentList';
 import { useAuth } from '../../auth/Auth';
-import PgnErrorBoundary from './PgnErrorBoundary';
-import PgnBoard from '../../board/pgn/PgnBoard';
+import PgnBoard, { BlockBoardKeyboardShortcuts } from '../../board/pgn/PgnBoard';
+import { Game } from '../../database/game';
 import LoadingPage from '../../loading/LoadingPage';
-
-export const GameCommentTextFieldId = 'gameCommentTextField';
+import CommentList from './CommentList';
+import PgnErrorBoundary from './PgnErrorBoundary';
 
 interface CommentEditorProps {
     cohort?: string;
@@ -50,7 +47,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ cohort, id, onSuccess }) 
     return (
         <Stack spacing={1} alignItems='flex-end'>
             <TextField
-                id={GameCommentTextFieldId}
+                id={BlockBoardKeyboardShortcuts}
                 label='Add a Comment'
                 fullWidth
                 multiline
@@ -101,7 +98,7 @@ const GamePage = () => {
         api.featureGame(
             game.cohort,
             game.id,
-            game.isFeatured === 'true' ? 'false' : 'true'
+            game.isFeatured === 'true' ? 'false' : 'true',
         )
             .then((response) => {
                 featureRequest.onSuccess('Game featured');

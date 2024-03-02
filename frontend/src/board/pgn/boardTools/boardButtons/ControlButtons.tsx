@@ -7,12 +7,9 @@ import {
     WifiProtectedSetup as Flip,
 } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip } from '@mui/material';
-import { useEffect } from 'react';
 
 import { useLocalStorage } from 'usehooks-ts';
-import { GameCommentTextFieldId } from '../../../../games/view/GamePage';
 import { useChess } from '../../PgnBoard';
-import { ClockTextFieldId, CommentTextFieldId } from '../underboard/Editor';
 import {
     GoToEndButtonBehavior,
     GoToEndButtonBehaviorKey,
@@ -53,24 +50,6 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
             onClickMove(chess.lastMove());
         }
     };
-
-    useEffect(() => {
-        const onArrowKeys = (event: KeyboardEvent) => {
-            if (
-                event.key === 'f' &&
-                document.activeElement?.tagName !== 'INPUT' &&
-                document.activeElement?.id !== ClockTextFieldId &&
-                document.activeElement?.id !== CommentTextFieldId &&
-                document.activeElement?.id !== GameCommentTextFieldId
-            ) {
-                toggleOrientation?.();
-            }
-        };
-        window.addEventListener('keyup', onArrowKeys);
-        return () => {
-            window.removeEventListener('keyup', onArrowKeys);
-        };
-    }, [toggleOrientation]);
 
     return (
         <Stack direction='row'>

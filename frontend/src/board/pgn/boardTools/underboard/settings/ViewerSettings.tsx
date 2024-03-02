@@ -7,6 +7,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
+import KeyboardShortcuts from './KeyboardShortcuts';
 
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
@@ -76,6 +77,8 @@ const ViewerSettings: React.FC<ViewerSettingsProps> = ({ showTitle }) => {
                     label='Show captured material next to player names'
                 />
             </Stack>
+
+            <KeyboardShortcuts />
         </Stack>
     );
 };

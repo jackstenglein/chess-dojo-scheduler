@@ -10,13 +10,21 @@ import React, {
     useRef,
     useState,
 } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import { useAuth } from '../../auth/Auth';
 import { Game } from '../../database/game';
-import { GameCommentTextFieldId } from '../../games/view/GamePage';
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
-import { ClockTextFieldId, CommentTextFieldId } from './boardTools/underboard/Editor';
+import {
+    BoardKeyBindingsKey,
+    defaultKeyBindings,
+    keyboardShortcutHandlers,
+    matchAction,
+    modifierKeys,
+} from './boardTools/underboard/settings/KeyboardShortcuts';
 import ResizableContainer from './ResizableContainer';
 import { CONTAINER_ID } from './resize';
+
+export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
 
 interface ChessConfig {
     allowMoveDeletion?: boolean;
@@ -27,6 +35,7 @@ type ChessContextType = {
     board?: BoardApi;
     config?: ChessConfig;
     toggleOrientation?: () => void;
+    keydownMap?: React.MutableRefObject<Record<string, boolean>>;
 };
 
 export const ChessContext = createContext<ChessContextType>(null!);
@@ -62,8 +71,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     const [chess, setChess] = useState<Chess>();
     const user = useAuth().user;
     const [, setOrientation] = useState(startOrientation);
+    const [keyBindings] = useLocalStorage(BoardKeyBindingsKey, defaultKeyBindings);
 
-    const keydownMap = useRef({ shift: false });
+    const keydownMap = useRef<Record<string, boolean>>({});
 
     const toggleOrientation = useCallback(() => {
         if (board) {
@@ -80,8 +90,9 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 allowMoveDeletion: user && game?.owner === user.username,
             },
             toggleOrientation,
+            keydownMap,
         }),
-        [chess, board, game, user, toggleOrientation],
+        [chess, board, game, user, toggleOrientation, keydownMap],
     );
 
     const onKeyDown = useCallback(
@@ -93,38 +104,31 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             const activeElement = document.activeElement;
             if (
                 activeElement?.tagName === 'INPUT' ||
-                activeElement?.id === ClockTextFieldId ||
-                activeElement?.id === CommentTextFieldId ||
-                activeElement?.id === GameCommentTextFieldId
+                activeElement?.id === BlockBoardKeyboardShortcuts ||
+                activeElement?.classList.contains(BlockBoardKeyboardShortcuts)
             ) {
                 return;
             }
 
             event.preventDefault();
             event.stopPropagation();
-            if (event.key === 'Shift') {
-                keydownMap.current.shift = true;
-            } else if (event.key === 'ArrowRight') {
-                let nextMove = chess.nextMove();
-                if (keydownMap.current.shift && nextMove?.variations.length) {
-                    nextMove = nextMove.variations[0][0];
-                }
 
-                if (nextMove) {
-                    chess.seek(nextMove);
-                    reconcile(chess, board);
-                }
-            } else if (event.key === 'ArrowLeft') {
-                chess.seek(chess.previousMove());
-                reconcile(chess, board);
+            if (modifierKeys.includes(event.key)) {
+                keydownMap.current[event.key] = true;
+            }
+
+            const matchedAction = matchAction(keyBindings, event.key, keydownMap.current);
+            if (matchedAction) {
+                keyboardShortcutHandlers[matchedAction]?.(chess, board);
+                setOrientation(board.state.orientation);
             }
         },
-        [board, chess],
+        [board, chess, keyBindings, setOrientation],
     );
 
     const onKeyUp = useCallback((event: KeyboardEvent) => {
-        if (event.key === 'Shift') {
-            keydownMap.current.shift = false;
+        if (modifierKeys.includes(event.key)) {
+            keydownMap.current[event.key] = false;
         }
     }, []);
 
