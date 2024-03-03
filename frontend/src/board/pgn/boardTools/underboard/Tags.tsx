@@ -84,6 +84,7 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
         return (
             <GridEditSingleSelectCell
                 {...props}
+                variant='outlined'
                 colDef={{
                     ...props.colDef,
                     type: 'singleSelect',
