@@ -14,7 +14,7 @@
         "@fortawesome/free-solid-svg-icons": "^6.5.1",
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@jackstenglein/chess": "^1.0.58",
-        "@mui/base": "^5.0.0-beta.11",
+        "@mui/base": "^5.0.0-beta.37",
         "@mui/icons-material": "^5.15.11",
         "@mui/lab": "^5.0.0-alpha.166",
         "@mui/material": "^5.15.11",
