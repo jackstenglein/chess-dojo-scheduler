@@ -28,7 +28,7 @@
         "@types/react-dom": "^18.2.18",
         "@widgetbot/react-embed": "^1.9.0",
         "aws-amplify": "^5.3.10",
-        "chessground": "^9.0.2",
+        "chessground": "^9.0.4",
         "copy-to-clipboard": "^3.3.3",
         "date-fns": "^2.30.0",
         "lodash.debounce": "^4.0.8",
