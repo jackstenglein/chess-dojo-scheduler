@@ -67,6 +67,7 @@ const CreateClubPage = () => {
                     setCountry(club.location.country);
                     setUnlisted(club.unlisted);
                     setApprovalRequired(club.approvalRequired);
+                    setAllowFreeTier(club.allowFreeTier);
                 })
                 .catch((err) => {
                     console.error(err);
