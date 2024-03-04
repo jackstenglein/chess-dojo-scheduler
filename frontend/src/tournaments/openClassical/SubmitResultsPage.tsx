@@ -17,7 +17,7 @@ import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
 
 function gamePlayed(result: string): boolean {
-    return result !== '0-0' && result !== '1-0F' && result !== '0-1F';
+    return result !== '1/2-1/2F' && result !== '1-0F' && result !== '0-1F';
 }
 
 const SubmitResultsPage = () => {
@@ -246,7 +246,7 @@ const SubmitResultsPage = () => {
                     <MenuItem value='1-0'>White Wins (1-0)</MenuItem>
                     <MenuItem value='0-1'>Black Wins (0-1)</MenuItem>
                     <MenuItem value='1/2-1/2'>Draw (1/2-1/2)</MenuItem>
-                    <MenuItem value='0-0'>Did Not Play (1/2-1/2)</MenuItem>
+                    <MenuItem value='1/2-1/2F'>Did Not Play (1/2-1/2F)</MenuItem>
                     <MenuItem value='0-1F'>White Forfeits (0-1F)</MenuItem>
                     <MenuItem value='1-0F'>Black Forfeits (1-0F)</MenuItem>
                 </TextField>
