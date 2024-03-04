@@ -10,17 +10,10 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
 import { useAuth } from '../../auth/Auth';
 import { Game } from '../../database/game';
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
-import {
-    BoardKeyBindingsKey,
-    defaultKeyBindings,
-    keyboardShortcutHandlers,
-    matchAction,
-    modifierKeys,
-} from './boardTools/underboard/settings/KeyboardShortcuts';
+import KeyboardHandler from './KeyboardHandler';
 import ResizableContainer from './ResizableContainer';
 import { CONTAINER_ID } from './resize';
 
@@ -71,8 +64,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     const [chess, setChess] = useState<Chess>();
     const user = useAuth().user;
     const [, setOrientation] = useState(startOrientation);
-    const [keyBindings] = useLocalStorage(BoardKeyBindingsKey, defaultKeyBindings);
-
     const keydownMap = useRef<Record<string, boolean>>({});
 
     const toggleOrientation = useCallback(() => {
@@ -94,52 +85,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
         }),
         [chess, board, game, user, toggleOrientation, keydownMap],
     );
-
-    const onKeyDown = useCallback(
-        (event: KeyboardEvent) => {
-            if (!chess || !board) {
-                return;
-            }
-
-            const activeElement = document.activeElement;
-            if (
-                activeElement?.tagName === 'INPUT' ||
-                activeElement?.id === BlockBoardKeyboardShortcuts ||
-                activeElement?.classList.contains(BlockBoardKeyboardShortcuts)
-            ) {
-                return;
-            }
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            if (modifierKeys.includes(event.key)) {
-                keydownMap.current[event.key] = true;
-            }
-
-            const matchedAction = matchAction(keyBindings, event.key, keydownMap.current);
-            if (matchedAction) {
-                keyboardShortcutHandlers[matchedAction]?.(chess, board);
-                setOrientation(board.state.orientation);
-            }
-        },
-        [board, chess, keyBindings, setOrientation],
-    );
-
-    const onKeyUp = useCallback((event: KeyboardEvent) => {
-        if (modifierKeys.includes(event.key)) {
-            keydownMap.current[event.key] = false;
-        }
-    }, []);
-
-    useEffect(() => {
-        window.addEventListener('keydown', onKeyDown);
-        window.addEventListener('keyup', onKeyUp);
-        return () => {
-            window.removeEventListener('keydown', onKeyDown);
-            window.removeEventListener('keyup', onKeyUp);
-        };
-    }, [onKeyDown, onKeyUp]);
 
     const onMove = useCallback(
         (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
@@ -189,6 +134,8 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
             }}
         >
             <ChessContext.Provider value={chessContext}>
+                <KeyboardHandler />
+
                 <ResizableContainer
                     {...{
                         showUnderboard,

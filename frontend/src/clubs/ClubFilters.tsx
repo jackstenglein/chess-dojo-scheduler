@@ -87,6 +87,8 @@ export function filterClubs(clubs: Club[] | undefined, filters: ClubFilters): Cl
                 }
                 return rhs.createdAt.localeCompare(lhs.createdAt);
         }
+        // Unreachable but satisfies a webpack compiler warning
+        return 0;
     });
 }
 

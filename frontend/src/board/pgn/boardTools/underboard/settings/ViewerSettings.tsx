@@ -10,6 +10,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import KeyboardShortcuts from './KeyboardShortcuts';
 
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
+export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
 export const ShowCapturedMaterialKey = 'showCapturedMaterial';
 
@@ -17,6 +18,11 @@ export enum GoToEndButtonBehavior {
     SingleClick = 'SINGLE_CLICK',
     DoubleClick = 'DOUBLE_CLICK',
     Hidden = 'HIDDEN',
+}
+
+export enum VariationBehavior {
+    None = 'NONE',
+    Dialog = 'DIALOG',
 }
 
 interface ViewerSettingsProps {
@@ -27,6 +33,10 @@ const ViewerSettings: React.FC<ViewerSettingsProps> = ({ showTitle }) => {
     const [goToEndBehavior, setGoToEndBehavior] = useLocalStorage<string>(
         GoToEndButtonBehaviorKey,
         GoToEndButtonBehavior.SingleClick,
+    );
+    const [variationBehavior, setVariationBehavior] = useLocalStorage<string>(
+        VariationBehaviorKey,
+        VariationBehavior.None,
     );
     const [showMoveTimes, setShowMoveTimes] = useLocalStorage(
         ShowMoveTimesInPgnKey,
@@ -54,6 +64,16 @@ const ViewerSettings: React.FC<ViewerSettingsProps> = ({ showTitle }) => {
                     Double Click
                 </MenuItem>
                 <MenuItem value={GoToEndButtonBehavior.Hidden}>Hidden</MenuItem>
+            </TextField>
+
+            <TextField
+                select
+                label='Variation Behavior'
+                value={variationBehavior}
+                onChange={(e) => setVariationBehavior(e.target.value)}
+            >
+                <MenuItem value={VariationBehavior.None}>None</MenuItem>
+                <MenuItem value={VariationBehavior.Dialog}>Prompt in Dialog</MenuItem>
             </TextField>
 
             <Stack>

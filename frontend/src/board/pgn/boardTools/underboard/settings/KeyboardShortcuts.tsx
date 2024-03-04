@@ -1,4 +1,4 @@
-import { Chess } from '@jackstenglein/chess';
+import { Chess, Move } from '@jackstenglein/chess';
 import { Help } from '@mui/icons-material';
 import {
     Button,
@@ -176,8 +176,22 @@ export const defaultKeyBindings: Record<ShortcutAction, KeyBinding> = {
 /** The valid modifier keys. */
 export const modifierKeys = ['Shift', 'Control', 'Alt'];
 
+/** Options passed to ShortcutHandler functions. Not all handlers use all options. */
+interface ShortcutHandlerOptions {
+    /**
+     * A function to set the move for the variation dialog. If passed to handleNextMove
+     * and the next move has variations, this function will be called with the move
+     * instead of going to that move.
+     */
+    setVariationDialogMove?: (move: Move) => void;
+}
+
 /** A function which handles a keyboard shortcut, using the provided Chess and Board instances. */
-type ShortcutHandler = (chess: Chess | undefined, board: BoardApi | undefined) => void;
+type ShortcutHandler = (
+    chess: Chess | undefined,
+    board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) => void;
 
 /**
  * Goes to the first move in the given Chess instance.
@@ -200,13 +214,29 @@ function handlePreviousMove(chess: Chess | undefined, board: BoardApi | undefine
 }
 
 /**
- * Goes to the next move, if one exists, in the given Chess instance.
+ * Goes to the next move, if one exists, in the given Chess instance or set the variation
+ * dialog move if opts.setVariationDialog move is provided.
  * @param chess The Chess instance to update.
  * @param board The Board instance to update.
+ * @param opts The options to use.
  */
-function handleNextMove(chess: Chess | undefined, board: BoardApi | undefined) {
+function handleNextMove(
+    chess: Chess | undefined,
+    board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
     const nextMove = chess?.nextMove();
-    if (nextMove) {
+    if (!nextMove) {
+        return;
+    }
+
+    if (
+        opts?.setVariationDialogMove &&
+        nextMove.variations &&
+        nextMove.variations.length > 0
+    ) {
+        opts.setVariationDialogMove(nextMove);
+    } else {
         chess?.seek(nextMove);
         reconcile(chess, board);
     }
@@ -220,15 +250,6 @@ function handleNextMove(chess: Chess | undefined, board: BoardApi | undefined) {
 function handleLastMove(chess: Chess | undefined, board: BoardApi | undefined) {
     chess?.seek(chess.lastMove());
     reconcile(chess, board);
-}
-
-/**
- * Flips the orientation of the provided Board instance.
- * @param chess Unused. Included to match KeyboardShortcutFunction call signature.
- * @param board The Board instance to update.
- */
-function handleToggleOrientation(chess: Chess | undefined, board: BoardApi | undefined) {
-    board?.toggleOrientation();
 }
 
 /**
@@ -282,7 +303,6 @@ export const keyboardShortcutHandlers: Partial<Record<ShortcutAction, ShortcutHa
         [ShortcutAction.PreviousMove]: handlePreviousMove,
         [ShortcutAction.NextMove]: handleNextMove,
         [ShortcutAction.LastMove]: handleLastMove,
-        [ShortcutAction.ToggleOrientation]: handleToggleOrientation,
         [ShortcutAction.FirstVariation]: handleFirstVariation,
         [ShortcutAction.FirstMoveVariation]: handleFirstMoveVariation,
         [ShortcutAction.LastMoveVariation]: handleLastMoveVariation,

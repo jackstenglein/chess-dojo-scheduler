@@ -28,7 +28,7 @@ import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerS
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
 
-function getTextColor(move: Move, inline?: boolean): string {
+export function getTextColor(move: Move, inline?: boolean): string {
     for (const nag of move.nags || []) {
         const color = nags[getStandardNag(nag)]?.color;
         if (color) {
