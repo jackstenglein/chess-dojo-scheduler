@@ -22,26 +22,6 @@ provider:
     id: ${param:httpApiId}
 
 functions:
-  putOpenClassicalPairings:
-    handler: putPairings.handler
-    events:
-      - httpApi:
-          path: /tournaments/open-classical/pairings
-          method: put
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:PutItem
-        Resource: ${param:TournamentsTableArn}
-
   processGame:
     handler: explorer/processGame.handler
     timeout: 30

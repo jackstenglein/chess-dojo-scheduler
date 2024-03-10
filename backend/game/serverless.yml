@@ -26,54 +26,6 @@ custom:
     buildProvidedRuntimeAsBootstrap: true
 
 functions:
-  create:
-    timeout: 28
-    handler: create/main.go
-    events:
-      - httpApi:
-          path: /game
-          method: post
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:PutItem
-        Resource:
-          - ${param:UsersTableArn}
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:BatchWriteItem
-        Resource:
-          - ${param:GamesTableArn}
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-        Resource:
-          - ${param:TimelineTableArn}
-
-  update:
-    handler: update/main.go
-    events:
-      - httpApi:
-          path: /game/{cohort}/{id+}
-          method: put
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:UpdateItem
-        Resource: ${param:GamesTableArn}
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
-
   delete:
     handler: delete/main.go
     events:

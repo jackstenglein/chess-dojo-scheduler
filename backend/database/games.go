@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
@@ -19,6 +18,17 @@ const (
 	White  PlayerColor = "white"
 	Black  PlayerColor = "black"
 	Either PlayerColor = "either"
+)
+
+type GameReviewStatus string
+
+const (
+	// Games that are currently waiting for review.
+	GameReviewStatus_Pending GameReviewStatus = "PENDING"
+
+	// Games that are not currently waiting for review.
+	// This value is an empty string to take advantage of sparse Dynamo indices.
+	GameReviewStatus_None GameReviewStatus = ""
 )
 
 type byDate []*Game
@@ -123,29 +133,14 @@ type Game struct {
 
 	// The ID of the timeline entry associated with this game's publishing
 	TimelineId string `dynamodbav:"timelineId" json:"timelineId"`
-}
 
-type GameUpdate struct {
-	// The player with the white pieces
-	White *string `dynamodbav:"white,omitempty" json:"white"`
+	// The review status of the game. Omitted from the database if empty to take advantage of sparse
+	// DynamoDB indices.
+	ReviewStatus GameReviewStatus `dynamodbav:"reviewStatus,omitempty" json:"reviewStatus,omitempty"`
 
-	// The player with the black pieces
-	Black *string `dynamodbav:"black,omitempty" json:"black"`
-
-	// The PGN headers of the game
-	Headers map[string]string `dynamodbav:"headers,omitempty" json:"headers"`
-
-	// The PGN text of the game
-	Pgn *string `dynamodbav:"pgn,omitempty" json:"pgn,omitempty"`
-
-	// Whether the game has been featured by the sensei
-	IsFeatured *string `dynamodbav:"isFeatured,omitempty" json:"isFeatured"`
-
-	// The date the game was marked as featured
-	FeaturedAt *string `dynamodbav:"featuredAt,omitempty" json:"featuredAt"`
-
-	// The default board orientation for the game
-	Orientation *string `dynamodbav:"orientation,omitempty" json:"orientation"`
+	// The date the user requested a review for this game in time.RFC3339 format. Omitted from the
+	// database if empty to take advantage of sparse DynamoDB indices.
+	ReviewRequestedAt string `dynamodbav:"reviewRequestedAt,omitempty" json:"reviewRequestedAt,omitempty"`
 }
 
 type GamePutter interface {
@@ -157,13 +152,6 @@ type GamePutter interface {
 
 	// RecordGameCreation updates the given user to increase their game creation stats.
 	RecordGameCreation(user *User, amount int) error
-}
-
-type GameUpdater interface {
-	UserGetter
-
-	// UpdateGame applies the specified update to the specified game.
-	UpdateGame(cohort, id, owner string, update *GameUpdate) (*Game, error)
 }
 
 type GameDeleter interface {
@@ -208,66 +196,6 @@ type GameCommenter interface {
 	NotificationPutter
 }
 
-// BatchPutGames inserts the provided list of games into the database. The number of successfully
-// updated games is returned.
-func (repo *dynamoRepository) BatchPutGames(games []*Game) (int, error) {
-	var writeRequests []*dynamodb.WriteRequest
-	updated := 0
-	for _, g := range games {
-		item, err := dynamodbattribute.MarshalMap(g)
-		if err != nil {
-			return updated, errors.Wrap(500, "Temporary server error", "Failed to marshal game", err)
-		}
-
-		// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
-		if len(g.Comments) == 0 {
-			emptyList := make([]*dynamodb.AttributeValue, 0)
-			item["comments"] = &dynamodb.AttributeValue{L: emptyList}
-		}
-
-		req := &dynamodb.WriteRequest{
-			PutRequest: &dynamodb.PutRequest{
-				Item: item,
-			},
-		}
-		writeRequests = append(writeRequests, req)
-
-		if len(writeRequests) == 25 {
-			if err := repo.sendBatchPutGames(writeRequests); err != nil {
-				return updated, err
-			}
-			updated += 25
-			writeRequests = nil
-		}
-	}
-
-	if len(writeRequests) > 0 {
-		if err := repo.sendBatchPutGames(writeRequests); err != nil {
-			return updated, err
-		}
-		updated += len(writeRequests)
-	}
-	return updated, nil
-}
-
-func (repo *dynamoRepository) sendBatchPutGames(writeRequests []*dynamodb.WriteRequest) error {
-	input := &dynamodb.BatchWriteItemInput{
-		RequestItems: map[string][]*dynamodb.WriteRequest{
-			gameTable: writeRequests,
-		},
-		ReturnConsumedCapacity: aws.String("NONE"),
-	}
-
-	output, err := repo.svc.BatchWriteItem(input)
-	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Failed DynamoDB BatchWriteItem", err)
-	}
-	if len(output.UnprocessedItems) > 0 {
-		return errors.New(500, "Temporary server error", "DynamoDB BatchWriteItem failed to process")
-	}
-	return nil
-}
-
 // GetGame returns the game object with the provided cohort and id.
 func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 	input := &dynamodb.GetItemInput{
@@ -285,61 +213,6 @@ func (repo *dynamoRepository) GetGame(cohort, id string) (*Game, error) {
 	game := Game{}
 	if err := repo.getItem(input, &game); err != nil {
 		return nil, err
-	}
-	return &game, nil
-}
-
-// UpdateGame applies the specified update to the specified game.
-func (repo *dynamoRepository) UpdateGame(cohort, id, owner string, update *GameUpdate) (*Game, error) {
-	av, err := dynamodbattribute.MarshalMap(update)
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
-	}
-
-	builder := expression.UpdateBuilder{}
-	for k, v := range av {
-		builder = builder.Set(expression.Name(k), expression.Value(v))
-	}
-
-	expr, err := expression.NewBuilder().WithUpdate(builder).Build()
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB expression building error", err)
-	}
-
-	input := &dynamodb.UpdateItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"cohort": {
-				S: aws.String(cohort),
-			},
-			"id": {
-				S: aws.String(id),
-			},
-		},
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		UpdateExpression:          expr.Update(),
-		ConditionExpression:       aws.String("attribute_exists(id)"),
-		TableName:                 aws.String(gameTable),
-		ReturnValues:              aws.String("ALL_NEW"),
-	}
-
-	if owner != "" {
-		input.SetConditionExpression("attribute_exists(id) AND #owner = :owner")
-		input.ExpressionAttributeNames["#owner"] = aws.String("owner")
-		input.ExpressionAttributeValues[":owner"] = &dynamodb.AttributeValue{S: aws.String(owner)}
-	}
-
-	result, err := repo.svc.UpdateItem(input)
-	if err != nil {
-		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return nil, errors.Wrap(400, "Invalid request: game not found or you do not have permission to update it", "DynamoDB conditional check failed", aerr)
-		}
-		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
-	}
-
-	game := Game{}
-	if err := dynamodbattribute.UnmarshalMap(result.Attributes, &game); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal UpdateItem result", err)
 	}
 	return &game, nil
 }
