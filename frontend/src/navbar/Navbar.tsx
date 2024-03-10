@@ -6,7 +6,6 @@ import {
     useMediaQuery,
     useScrollTrigger,
 } from '@mui/material';
-
 import { useEvents } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
 import { Event, EventStatus } from '../database/event';
@@ -53,7 +52,7 @@ const Navbar = () => {
                 position='sticky'
                 sx={{ zIndex: 1300, height: 'var(--navbar-height)' }}
             >
-                <Container maxWidth='xl' sx={{ height: 1 }}>
+                <Container maxWidth={false} sx={{ height: 1 }}>
                     <Toolbar disableGutters sx={{ height: 1 }}>
                         <NavbarMenu meetingCount={meetingCount} />
                     </Toolbar>

@@ -7,22 +7,24 @@ const navbarStartItems = [
     'Calendar',
     'Material',
     'Clubs',
+    'Chat',
     'Shop',
 ];
 
 const navbarEndItems = ['Help', 'Notifications', 'navbar-profile-button'];
 
 const viewPortWidths = [
-    { width: 1476, hidden: 0, endHidden: 0 },
-    { width: 1316, hidden: 2, endHidden: 0 },
-    { width: 1196, hidden: 3, endHidden: 0 },
-    { width: 1067, hidden: 4, endHidden: 0 },
-    { width: 970, hidden: 5, endHidden: 0 },
-    { width: 788, hidden: 6, endHidden: 0 },
-    { width: 624, hidden: 7, endHidden: 0 },
-    { width: 567, hidden: 7, endHidden: 1 },
-    { width: 542, hidden: 7, endHidden: 2 },
-    { width: 449, hidden: 9, endHidden: 3 },
+    { width: 1560, hidden: 0, endHidden: 0 },
+    { width: 1416, hidden: 2, endHidden: 0 },
+    { width: 1315, hidden: 3, endHidden: 0 },
+    { width: 1196, hidden: 4, endHidden: 0 },
+    { width: 1066, hidden: 5, endHidden: 0 },
+    { width: 963, hidden: 6, endHidden: 0 },
+    { width: 772, hidden: 7, endHidden: 0 },
+    { width: 624, hidden: 8, endHidden: 0 },
+    { width: 567, hidden: 8, endHidden: 1 },
+    { width: 542, hidden: 8, endHidden: 2 },
+    { width: 449, hidden: 10, endHidden: 3 },
 ];
 
 describe('Navbar', () => {

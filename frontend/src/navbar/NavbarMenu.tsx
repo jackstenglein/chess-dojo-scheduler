@@ -1,15 +1,22 @@
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import ChecklistIcon from '@mui/icons-material/Checklist';
-import TournamentsIcon from '@mui/icons-material/EmojiEvents';
-import FeedIcon from '@mui/icons-material/Feed';
-import HelpIcon from '@mui/icons-material/Help';
-import LogoutIcon from '@mui/icons-material/Logout';
-import MenuIcon from '@mui/icons-material/Menu';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import Person2Icon from '@mui/icons-material/Person2';
-import ScoreboardIcon from '@mui/icons-material/Scoreboard';
-import MerchIcon from '@mui/icons-material/Sell';
+import {
+    CalendarToday,
+    Checklist,
+    ChevronRight,
+    EmojiEvents as Tournaments,
+    ExpandLess,
+    ExpandMore,
+    Feed,
+    Forum,
+    Groups,
+    Help,
+    Logout,
+    Menu as MenuIcon,
+    MenuBook,
+    Notifications,
+    Person2 as Person2Icon,
+    Scoreboard,
+    Sell,
+} from '@mui/icons-material';
 import {
     Badge,
     Button,
@@ -26,8 +33,6 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
-
-import { ChevronRight, ExpandLess, ExpandMore, Groups } from '@mui/icons-material';
 import { useNotifications } from '../api/cache/Cache';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { hasCreatedProfile } from '../database/user';
@@ -95,22 +100,22 @@ function allStartItems(
     return [
         {
             name: 'Newsfeed',
-            icon: <FeedIcon />,
+            icon: <Feed />,
             onClick: () => navigate('/newsfeed'),
         },
         {
             name: 'Training Plan',
-            icon: <ChecklistIcon />,
+            icon: <Checklist />,
             onClick: () => navigate('/profile?view=progress'),
         },
         {
             name: 'Scoreboard',
-            icon: <ScoreboardIcon />,
+            icon: <Scoreboard />,
             onClick: () => navigate('/scoreboard'),
         },
         {
             name: 'Tournaments',
-            icon: <TournamentsIcon />,
+            icon: <Tournaments />,
             onClick: () => toggleExpansion('Tournaments'),
             children: [
                 {
@@ -132,12 +137,12 @@ function allStartItems(
         },
         {
             name: 'Calendar',
-            icon: <CalendarTodayIcon />,
+            icon: <CalendarToday />,
             onClick: () => navigate('/calendar'),
         },
         {
             name: 'Material',
-            icon: <MenuBookIcon />,
+            icon: <MenuBook />,
             onClick: () => navigate('/material'),
         },
         {
@@ -146,8 +151,13 @@ function allStartItems(
             onClick: () => navigate('/clubs'),
         },
         {
+            name: 'Chat',
+            icon: <Forum />,
+            onClick: () => navigate('/chat'),
+        },
+        {
             name: 'Shop',
-            icon: <MerchIcon />,
+            icon: <Sell />,
             onClick: () => toggleExpansion('Shop'),
             children: [
                 {
@@ -178,7 +188,7 @@ function unauthenticatedStartItems(
     return [
         {
             name: 'Tournaments',
-            icon: <TournamentsIcon />,
+            icon: <Tournaments />,
             onClick: () => toggleExpansion('Tournaments'),
             children: [
                 {
@@ -195,7 +205,7 @@ function unauthenticatedStartItems(
         },
         {
             name: 'Shop',
-            icon: <MerchIcon />,
+            icon: <Sell />,
             onClick: () => toggleExpansion('Shop'),
             children: [
                 {
@@ -222,7 +232,7 @@ function unauthenticatedStartItems(
 function helpItem(navigate: NavigateFunction): NavbarItem {
     return {
         name: 'Help',
-        icon: <HelpIcon />,
+        icon: <Help />,
         onClick: () => navigate('/help'),
     };
 }
@@ -243,7 +253,7 @@ function NotificationsMenuItem({
                     color='secondary'
                     overlap='circular'
                 >
-                    <NotificationsIcon />
+                    <Notifications />
                 </Badge>
             </ListItemIcon>
             <Typography textAlign='center'>Notifications</Typography>
@@ -386,7 +396,7 @@ function HelpButton(navigate: NavigateFunction) {
                 sx={{ color: 'white' }}
                 onClick={() => navigate('/help')}
             >
-                <HelpIcon />
+                <Help />
             </IconButton>
         </Tooltip>
     );
@@ -400,12 +410,13 @@ function useNavbarItems(
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
 
-    const showAll = useMediaQuery('(min-width:1476px)');
-    const hide2 = useMediaQuery('(min-width:1316px)');
-    const hide3 = useMediaQuery('(min-width:1196px)');
-    const hide4 = useMediaQuery('(min-width:1067px)');
-    const hide5 = useMediaQuery('(min-width:970px)');
-    const hide6 = useMediaQuery('(min-width:788px)');
+    const showAll = useMediaQuery('(min-width:1560px)');
+    const hide2 = useMediaQuery('(min-width:1416px)');
+    const hide3 = useMediaQuery('(min-width:1315px)');
+    const hide4 = useMediaQuery('(min-width:1196px)');
+    const hide5 = useMediaQuery('(min-width:1066px)');
+    const hide6 = useMediaQuery('(min-width:963px)');
+    const hide7 = useMediaQuery('(min-width:772px)');
 
     const showHelp = useMediaQuery('(min-width:624px)');
     const showNotifications = useMediaQuery('(min-width:567px)');
@@ -428,8 +439,10 @@ function useNavbarItems(
         startItemCount = startItems.length - 5;
     } else if (hide6) {
         startItemCount = startItems.length - 6;
-    } else {
+    } else if (hide7) {
         startItemCount = startItems.length - 7;
+    } else {
+        startItemCount = startItems.length - 8;
     }
 
     const shownStartItems: JSX.Element[] = startItems
@@ -479,7 +492,7 @@ function useNavbarItems(
         menuItems.push(
             <MenuItem onClick={handleClick(auth.signout)}>
                 <ListItemIcon>
-                    <LogoutIcon color='error' />
+                    <Logout color='error' />
                 </ListItemIcon>
                 <Typography textAlign='center' color='error'>
                     Sign Out
@@ -821,7 +834,7 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
                             color='secondary'
                             overlap='circular'
                         >
-                            <NotificationsIcon />
+                            <Notifications />
                         </Badge>
                     </ListItemIcon>
                     <Typography textAlign='center'>Notifications</Typography>
@@ -829,14 +842,14 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
 
                 <MenuItem onClick={handleClick(() => navigate('/help'))}>
                     <ListItemIcon>
-                        <HelpIcon />
+                        <Help />
                     </ListItemIcon>
                     <Typography textAlign='center'>Help</Typography>
                 </MenuItem>
 
                 <MenuItem onClick={handleClick(auth.signout)}>
                     <ListItemIcon>
-                        <LogoutIcon color='error' />
+                        <Logout color='error' />
                     </ListItemIcon>
                     <Typography textAlign='center' color='error'>
                         Sign Out
