@@ -41,7 +41,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: ${param:EventsTableArn}
+        Resource: 
+          - ${param:EventsTableArn}
+          - ${param:GamesTableArn}
       - Effect: Allow
         Action:
           - secretsmanager:GetSecretValue

@@ -9,6 +9,7 @@ import { User } from '../database/user';
 
 import { Club, ClubJoinRequestStatus } from '../database/club';
 import { Course } from '../database/course';
+import { GameReviewType } from '../database/game';
 import { LeaderboardSite, TournamentType } from '../database/tournament';
 import {
     batchGetClubs,
@@ -60,6 +61,7 @@ import {
     listGamesByOpening,
     listGamesByOwner,
     listGamesByPosition,
+    requestReview,
     updateGame,
 } from './gameApi';
 import {
@@ -283,6 +285,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listFeaturedGames(idToken, startKey),
             createComment: (cohort: string, id: string, content: string) =>
                 createComment(idToken, auth.user!, cohort, id, content),
+            requestReview: (cohort: string, id: string, reviewType: GameReviewType) =>
+                requestReview(idToken, cohort, id, reviewType),
 
             getRequirement: (id: string) => getRequirement(idToken, id),
             listRequirements: (

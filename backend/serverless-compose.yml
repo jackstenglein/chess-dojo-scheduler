@@ -107,6 +107,7 @@ services:
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
 
   pgnService:
     path: pgnService

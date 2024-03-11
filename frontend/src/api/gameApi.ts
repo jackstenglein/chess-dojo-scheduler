@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { Game, GameInfo } from '../database/game';
+import { Game, GameInfo, GameReviewType } from '../database/game';
 import { User } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
@@ -13,7 +13,7 @@ export type GameApiContextType = {
      * @returns The newly created Game.
      */
     createGame: (
-        req: CreateGameRequest
+        req: CreateGameRequest,
     ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
 
     /**
@@ -34,7 +34,7 @@ export type GameApiContextType = {
     featureGame: (
         cohort: string,
         id: string,
-        featured: string
+        featured: string,
     ) => Promise<AxiosResponse<Game, any>>;
 
     /**
@@ -48,7 +48,7 @@ export type GameApiContextType = {
     updateGame: (
         cohort: string,
         id: string,
-        req: CreateGameRequest
+        req: CreateGameRequest,
     ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
 
     /**
@@ -73,7 +73,7 @@ export type GameApiContextType = {
         cohort: string,
         startKey?: string,
         startDate?: string,
-        endDate?: string
+        endDate?: string,
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 
     /**
@@ -94,7 +94,7 @@ export type GameApiContextType = {
         startDate?: string,
         endDate?: string,
         player?: string,
-        color?: string
+        color?: string,
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 
     /**
@@ -110,7 +110,7 @@ export type GameApiContextType = {
         eco: string,
         startKey?: string,
         startDate?: string,
-        endDate?: string
+        endDate?: string,
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 
     /**
@@ -122,7 +122,7 @@ export type GameApiContextType = {
      */
     listGamesByPosition: (
         fen: string,
-        startKey?: string
+        startKey?: string,
     ) => Promise<AxiosResponse<ListGamesResponse, any>>;
 
     /**
@@ -141,8 +141,21 @@ export type GameApiContextType = {
     createComment: (
         cohort: string,
         id: string,
-        content: string
+        content: string,
     ) => Promise<AxiosResponse<Game, any>>;
+
+    /**
+     * Requests a Sensei review for the provided game.
+     * @param cohort The cohort the game is in.
+     * @param id The id of the game.
+     * @param reviewType The requested review type.
+     * @returns An AxiosResponse containing the Stripe checkout session URL.
+     */
+    requestReview: (
+        cohort: string,
+        id: string,
+        reviewType: GameReviewType,
+    ) => Promise<AxiosResponse<RequestReviewResponse>>;
 };
 
 export enum GameSubmissionType {
@@ -222,7 +235,7 @@ export function featureGame(
     idToken: string,
     cohort: string,
     id: string,
-    featured: string
+    featured: string,
 ) {
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
@@ -235,7 +248,7 @@ export function featureGame(
                 featured,
             },
             headers: { Authorization: 'Bearer ' + idToken },
-        }
+        },
     );
 }
 
@@ -251,7 +264,7 @@ export function updateGame(
     idToken: string,
     cohort: string,
     id: string,
-    req: CreateGameRequest
+    req: CreateGameRequest,
 ) {
     cohort = encodeURIComponent(cohort);
     // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded
@@ -299,7 +312,7 @@ export function listGamesByCohort(
     cohort: string,
     startKey?: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
 ) {
     let params = { startDate, endDate, startKey };
     cohort = encodeURIComponent(cohort);
@@ -329,7 +342,7 @@ export function listGamesByOwner(
     startDate?: string,
     endDate?: string,
     player?: string,
-    color?: string
+    color?: string,
 ) {
     let params = { owner, startKey, startDate, endDate, player, color };
     return axios.get<ListGamesResponse>(BASE_URL + '/game', {
@@ -355,7 +368,7 @@ export function listGamesByOpening(
     eco: string,
     startKey?: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
 ) {
     let params = { eco, startKey, startDate, endDate };
     return axios.get<ListGamesResponse>(BASE_URL + '/game/opening', {
@@ -421,7 +434,7 @@ export function createComment(
     commenter: User,
     cohort: string,
     id: string,
-    content: string
+    content: string,
 ) {
     const comment = {
         owner: commenter.username,
@@ -438,4 +451,38 @@ export function createComment(
             Authorization: 'Bearer ' + idToken,
         },
     });
+}
+
+interface RequestReviewResponse {
+    /** The URL of the Stripe checkout session. */
+    url: string;
+}
+
+/**
+ * Requests a Sensei review for the given game.
+ * @param idToken The id token of the current signed-in user.
+ * @param cohort The cohort the game is in.
+ * @param id The id of the game.
+ * @param reviewType The requested review type.
+ * @returns An AxiosResponse containing the Stripe checkout URL.
+ */
+export function requestReview(
+    idToken: string,
+    cohort: string,
+    id: string,
+    reviewType: GameReviewType,
+) {
+    return axios.put<RequestReviewResponse>(
+        `${BASE_URL}/game/review/request`,
+        {
+            cohort,
+            id,
+            type: reviewType,
+        },
+        {
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
+        },
+    );
 }

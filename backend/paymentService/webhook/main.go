@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -95,6 +96,8 @@ func handleCheckoutSessionCompleted(event *stripe.Event) api.Response {
 		return handleSubscriptionPurchase(&checkoutSession)
 	case string(payment.CheckoutSessionType_Coaching):
 		return handleCoachingPurchase(&checkoutSession)
+	case string(payment.CheckoutSessionType_GameReview):
+		return handleGameReviewPurchase(&checkoutSession)
 	}
 
 	return api.Success(nil)
@@ -163,6 +166,31 @@ func handleCoachingPurchase(checkoutSession *stripe.CheckoutSession) api.Respons
 	}
 
 	if _, err := repository.MarkParticipantPaid(eventId, username, checkoutSession); err != nil {
+		return api.Failure(err)
+	}
+	return api.Success(nil)
+}
+
+// Handles a successful game review purchase by setting the game's review data.
+func handleGameReviewPurchase(checkoutSession *stripe.CheckoutSession) api.Response {
+	cohort := checkoutSession.Metadata["cohort"]
+	id := checkoutSession.Metadata["id"]
+	reviewType := database.GameReviewType(checkoutSession.Metadata["reviewType"])
+
+	if cohort == "" || id == "" || reviewType == "" {
+		return api.Failure(errors.New(400, "Invalid request: missing metadata", ""))
+	}
+
+	status := database.GameReviewStatus_Pending
+	update := database.GameUpdate{
+		ReviewStatus:      &status,
+		ReviewRequestedAt: stripe.String(time.Now().Format(time.RFC3339)),
+		Review: &database.GameReview{
+			Type:     reviewType,
+			StripeId: checkoutSession.ID,
+		},
+	}
+	if _, err := repository.UpdateGame(cohort, id, &update); err != nil {
 		return api.Failure(err)
 	}
 	return api.Success(nil)

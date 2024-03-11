@@ -180,6 +180,32 @@ functions:
           - - 'arn:aws:s3:::'
             - ${param:GameDatabaseBucket}
             - /dojo_database.zip
+  
+  requestReview:
+    handler: review/request/main.go
+    events:
+      - httpApi:
+          path: /game/review/request
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      quickGameReviewPriceId: ${file(../config-${sls:stage}.yml):quickGameReviewPriceId}
+      deepGameReviewPriceId: ${file(../config-${sls:stage}.yml):deepGameReviewPriceId}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:GamesTableArn}
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
 
 resources:
   Resources:

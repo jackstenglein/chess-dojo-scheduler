@@ -4,6 +4,16 @@ export enum GameResult {
     Draw = '1/2-1/2',
 }
 
+export enum GameReviewStatus {
+    Pending = 'PENDING',
+    None = '',
+}
+
+export enum GameReviewType {
+    Quick = 'QUICK',
+    Deep = 'DEEP',
+}
+
 export interface PgnHeaders {
     White: string;
     WhiteElo?: string;
@@ -53,7 +63,48 @@ export type Game = GameInfo & {
     comments: Comment[];
     orientation?: 'white' | 'black';
     timelineId?: string;
+
+    /**
+     * The review status of the game. Omitted if the game
+     * is not submitted for review.
+     */
+    reviewStatus?: GameReviewStatus;
+
+    /**
+     * The date the user requested a review for this game in ISO
+     * format. Omitted if the game was not submitted for review.
+     */
+    reviewRequestedAt?: string;
+
+    /**
+     * The game review metadata. Omitted if the game was not submitted
+     * for review.
+     */
+    review?: GameReview;
 };
+
+export interface GameReview {
+    /** The type of review requested. */
+    type: GameReviewType;
+
+    /**
+     * The date the game was reviewed in ISO format. Omitted if the game
+     * was not reviewed yet.
+     */
+    reviewedAt?: string;
+
+    /** The reviewer of the game. */
+    reviewer?: {
+        /** The username of the reviewer. */
+        username: string;
+
+        /** The display name of the reviewer. */
+        displayName: string;
+
+        /** The cohort of the reviewer. */
+        cohort: string;
+    };
+}
 
 export function isDefaultHeader(header: string): boolean {
     return (

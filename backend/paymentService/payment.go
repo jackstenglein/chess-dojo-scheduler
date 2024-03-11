@@ -22,6 +22,8 @@ import (
 var frontendHost = os.Getenv("frontendHost")
 var monthlyPriceId = os.Getenv("monthlyPriceId")
 var yearlyPriceId = os.Getenv("yearlyPriceId")
+var quickGameReviewPriceId = os.Getenv("quickGameReviewPriceId")
+var deepGameReviewPriceId = os.Getenv("deepGameReviewPriceId")
 
 type CheckoutSessionType string
 
@@ -29,6 +31,7 @@ const (
 	CheckoutSessionType_Course       CheckoutSessionType = "COURSE"
 	CheckoutSessionType_Subscription CheckoutSessionType = "SUBSCRIPTION"
 	CheckoutSessionType_Coaching     CheckoutSessionType = "COACHING"
+	CheckoutSessionType_GameReview   CheckoutSessionType = "GAME_REVIEW"
 )
 
 func init() {
@@ -236,6 +239,47 @@ func CoachingCheckoutSession(user *database.User, event *database.Event) (*strip
 	checkoutSession, err := session.New(params)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe checkout session", err)
+	}
+	return checkoutSession, nil
+}
+
+func GameReviewCheckoutSession(user *database.User, cohort, id string, reviewType database.GameReviewType) (*stripe.CheckoutSession, error) {
+	var priceId string
+	if reviewType == database.GameReviewType_Quick {
+		priceId = quickGameReviewPriceId
+	} else if reviewType == database.GameReviewType_DeepDive {
+		priceId = deepGameReviewPriceId
+	} else {
+		return nil, errors.New(400, fmt.Sprintf("Invalid review type %q", reviewType), "")
+	}
+
+	params := &stripe.CheckoutSessionParams{
+		ClientReferenceID: stripe.String(user.Username),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				Price:    stripe.String(priceId),
+				Quantity: stripe.Int64(1),
+			},
+		},
+		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
+		SuccessURL: stripe.String(fmt.Sprintf("%s/games/%s/%s", frontendHost, cohort, id)),
+		CancelURL:  stripe.String(fmt.Sprintf("%s/games/%s/%s", frontendHost, cohort, id)),
+		Metadata: map[string]string{
+			"type":       string(CheckoutSessionType_GameReview),
+			"reviewType": string(reviewType),
+			"cohort":     cohort,
+			"id":         id,
+			"username":   user.Username,
+		},
+	}
+
+	if user.PaymentInfo.GetCustomerId() != "" {
+		params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
+	}
+
+	checkoutSession, err := session.New(params)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to create checkout session", err)
 	}
 	return checkoutSession, nil
 }

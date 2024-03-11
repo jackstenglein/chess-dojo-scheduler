@@ -21,6 +21,7 @@ import { useFreeTier } from '../../../../../auth/Auth';
 import { Game } from '../../../../../database/game';
 import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
+import RequestReviewDialog from './RequestReviewDialog';
 
 interface EditorSettingsProps {
     game: Game;
@@ -34,6 +35,7 @@ const EditorSettings: React.FC<EditorSettingsProps> = ({ game, onSaveGame }) => 
     const navigate = useNavigate();
     const request = useRequest();
     const api = useApi();
+    const [showReviewDialog, setShowReviewDialog] = useState(false);
 
     const saveDisabled =
         (visibility === 'unlisted') === game.unlisted && orientation === game.orientation;
@@ -126,11 +128,21 @@ const EditorSettings: React.FC<EditorSettingsProps> = ({ game, onSaveGame }) => 
                 >
                     Save Changes
                 </LoadingButton>
+
+                <Button variant='contained' onClick={() => setShowReviewDialog(true)}>
+                    {game.review ? 'Sensei Review Pending' : 'Request Sensei Review'}
+                </Button>
                 <Button variant='outlined' onClick={() => navigate('edit')}>
                     Replace PGN
                 </Button>
                 <DeleteGameButton variant='contained' game={game} />
             </Stack>
+
+            <RequestReviewDialog
+                open={showReviewDialog}
+                onClose={() => setShowReviewDialog(false)}
+                game={game}
+            />
         </Stack>
     );
 };

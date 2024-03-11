@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
 
@@ -29,6 +30,16 @@ const (
 	// Games that are not currently waiting for review.
 	// This value is an empty string to take advantage of sparse Dynamo indices.
 	GameReviewStatus_None GameReviewStatus = ""
+)
+
+type GameReviewType string
+
+const (
+	// A quick, 15-20 min game review
+	GameReviewType_Quick GameReviewType = "QUICK"
+
+	// A deep dive, 30-45 min game review
+	GameReviewType_DeepDive GameReviewType = "DEEP"
 )
 
 type byDate []*Game
@@ -141,6 +152,47 @@ type Game struct {
 	// The date the user requested a review for this game in time.RFC3339 format. Omitted from the
 	// database if empty to take advantage of sparse DynamoDB indices.
 	ReviewRequestedAt string `dynamodbav:"reviewRequestedAt,omitempty" json:"reviewRequestedAt,omitempty"`
+
+	// The game review metadata
+	Review *GameReview `dynamodbav:"review,omitempty" json:"review,omitempty"`
+}
+
+type Reviewer struct {
+	// The username of the reviewer.
+	Username string `dynamodbav:"username" json:"username"`
+
+	// The display name of the reviewer.
+	DisplayName string `dynamodbav:"displayName" json:"displayName"`
+
+	// The cohort of the reviewer.
+	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
+}
+
+type GameReview struct {
+	// The type of review requested.
+	Type GameReviewType `dynamodbav:"type" json:"type"`
+
+	// The Stripe id of the checkout session associated with this review.
+	StripeId string `dynamodbav:"stripeId" json:"-"`
+
+	// The date the game was reviewed in time.RFC3339 format.
+	ReviewedAt string `dynamodbav:"reviewedAt,omitempty" json:"reviewedAt,omitempty"`
+
+	// The reviewer of the game.
+	Reviewer *Reviewer `dynamodbav:"reviewer,omitempty" json:"reviewer,omitempty"`
+}
+
+type GameUpdate struct {
+	// The review status of the game. Omitted from the database if empty to take advantage of sparse
+	// DynamoDB indices.
+	ReviewStatus *GameReviewStatus `dynamodbav:"reviewStatus,omitempty"`
+
+	// The date the user requested a review for this game in time.RFC3339 format. Omitted from the
+	// database if empty to take advantage of sparse DynamoDB indices.
+	ReviewRequestedAt *string `dynamodbav:"reviewRequestedAt,omitempty"`
+
+	// The game review metadata
+	Review *GameReview `dynamodbav:"review,omitempty"`
 }
 
 type GamePutter interface {
@@ -584,6 +636,51 @@ func (repo *dynamoRepository) CreateComment(cohort, id string, comment *Comment)
 	game := Game{}
 	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &game); err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal CreateComment result", err)
+	}
+	return &game, nil
+}
+
+// UpdateGame applies the specified update to the specified game.
+func (repo *dynamoRepository) UpdateGame(cohort, id string, update *GameUpdate) (*Game, error) {
+	av, err := dynamodbattribute.MarshalMap(update)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal user update", err)
+	}
+
+	builder := expression.UpdateBuilder{}
+	for k, v := range av {
+		builder = builder.Set(expression.Name(k), expression.Value(v))
+	}
+
+	expr, err := expression.NewBuilder().WithUpdate(builder).Build()
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB expression building error", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"cohort": {
+				S: aws.String(cohort),
+			},
+			"id": {
+				S: aws.String(id),
+			},
+		},
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
+		ConditionExpression:       aws.String("attribute_exists(id)"),
+		TableName:                 aws.String(gameTable),
+		ReturnValues:              aws.String("ALL_NEW"),
+	}
+
+	game := Game{}
+	err = repo.updateItem(input, &game)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: game not found or you do not have permission to update it", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 	}
 	return &game, nil
 }
