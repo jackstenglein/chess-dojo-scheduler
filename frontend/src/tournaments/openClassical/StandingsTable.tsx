@@ -11,6 +11,7 @@ enum Result {
     ForfeitLoss = 'Lf',
     Draw = 'D',
     DidNotPlay = 'X',
+    DidNotSubmit = 'F',
     Bye = 'Bye',
     Unknown = '',
 }
@@ -105,6 +106,9 @@ function getResultDescription(result: Result, opponent: number): string {
         case Result.DidNotPlay:
             return `Game against player ${opponent} was not played and counts as a draw`;
 
+        case Result.DidNotSubmit:
+            return `Result for game against player ${opponent} was not submitted and counts as a 0-0 forfeit`;
+
         case Result.Unknown:
             return '';
     }
@@ -174,7 +178,13 @@ function getResult(result: string, color: 'w' | 'b'): Result {
     if (result === '0-1F') {
         return color === 'w' ? Result.ForfeitLoss : Result.ForfeitWin;
     }
-    return Result.DidNotPlay;
+    if (result === '1/2-1/2F') {
+        return Result.DidNotPlay;
+    }
+    if (result === '0-0') {
+        return Result.DidNotSubmit;
+    }
+    return Result.Unknown;
 }
 
 function getScore(result: Result): number {
@@ -191,6 +201,7 @@ function getScore(result: Result): number {
         case Result.Unknown:
         case Result.Loss:
         case Result.ForfeitLoss:
+        case Result.DidNotSubmit:
             return 0;
     }
 }

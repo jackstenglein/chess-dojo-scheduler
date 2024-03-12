@@ -46,7 +46,13 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
         return null;
     }
 
-    const handleClose = () => setOpen(false);
+    const handleClose = () => {
+        setOpen(false);
+        setRegion('');
+        setSection('');
+        setRound(maxRound);
+        setCsvData('');
+    };
 
     const onSave = () => {
         const newErrors: Record<string, string> = {};
