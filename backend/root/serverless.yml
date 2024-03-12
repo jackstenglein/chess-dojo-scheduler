@@ -401,6 +401,10 @@ resources:
             AttributeType: S
           - AttributeName: featuredAt
             AttributeType: S
+          - AttributeName: reviewStatus
+            AttributeType: S
+          - AttributeName: reviewRequestedAt
+            AttributeType: S
         KeySchema:
           - AttributeName: cohort
             KeyType: HASH
@@ -477,6 +481,26 @@ resources:
               - AttributeName: isFeatured
                 KeyType: HASH
               - AttributeName: featuredAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
+          - IndexName: ReviewIndex
+            KeySchema:
+              - AttributeName: reviewStatus
+                KeyType: HASH
+              - AttributeName: reviewRequestedAt
                 KeyType: RANGE
             Projection:
               ProjectionType: INCLUDE
