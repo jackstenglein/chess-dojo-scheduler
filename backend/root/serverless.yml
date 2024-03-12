@@ -516,6 +516,7 @@ resources:
                 - ownerPreviousCohort
                 - headers
                 - unlisted
+                - review
 
     TournamentsTable:
       Type: AWS::DynamoDB::Table

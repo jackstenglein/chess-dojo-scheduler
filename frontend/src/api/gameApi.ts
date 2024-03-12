@@ -133,6 +133,15 @@ export type GameApiContextType = {
     listFeaturedGames: (startKey?: string) => Promise<GameInfo[]>;
 
     /**
+     * Returns a list of games submitted for review by the senseis.
+     * @param startKey The optional startKey to use when searching.
+     * @returns A list of games that are submitted for review.
+     */
+    listGamesForReview: (
+        startKey?: string,
+    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+
+    /**
      * createComment adds the given content as a comment on the given game.
      * @param cohort The cohort the game is in.
      * @param id The id of the game.
@@ -420,6 +429,19 @@ export async function listFeaturedGames(idToken: string, startKey?: string) {
     } while (params.startKey);
 
     return result;
+}
+
+/**
+ * Returns a list of games submitted for review by the senseis.
+ * @param idToken The id token of the current signed-in user.
+ * @param startKey The optional start key to use when searching.
+ * @returns A list of games submitted for review.
+ */
+export function listGamesForReview(idToken: string, startKey?: string) {
+    return axios.get<ListGamesResponse>(`${BASE_URL}/game/review`, {
+        params: { startKey },
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
 }
 
 /**

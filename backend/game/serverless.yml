@@ -160,6 +160,25 @@ functions:
               - ''
               - - ${param:GamesTableArn}
                 - '/index/FeaturedIndex'
+  
+  listByReview:
+    handler: list/review/main.go
+    events:
+      - httpApi:
+          path: /game/review
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/ReviewIndex'
 
   updateStatistics:
     handler: statistics/update/main.go

@@ -35,6 +35,7 @@ import ErrorBoundary from './ErrorBoundary';
 import EditGamePage from './games/edit/EditGamePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
 import ListGamesPage from './games/list/ListGamesPage';
+import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
 import HelpPage from './help/HelpPage';
 import LandingPage from './landing/LandingPage';
@@ -167,6 +168,7 @@ const router = createBrowserRouter(
                             <Route index element={<GamePage />} />
                             <Route path='edit' element={<EditGamePage />} />
                         </Route>
+                        <Route path='review-queue' element={<ReviewQueuePage />} />
                     </Route>
 
                     <Route path='scoreboard'>

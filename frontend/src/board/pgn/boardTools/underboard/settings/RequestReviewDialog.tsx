@@ -1,6 +1,8 @@
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Checkbox,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -16,12 +18,21 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { AxiosResponse } from 'axios';
+import { useEffect, useState } from 'react';
 import { useApi } from '../../../../../api/Api';
+import { ListGamesResponse } from '../../../../../api/gameApi';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { useAuth } from '../../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
-import { Game, GameReviewType } from '../../../../../database/game';
+import {
+    displayGameReviewType,
+    Game,
+    GameReviewType,
+} from '../../../../../database/game';
+import { ONE_WEEK } from '../../../../../games/review/ReviewQueuePage';
+
+const estimatedReviewDate = new Date(new Date().getTime() + ONE_WEEK);
 
 interface RequestReviewDialogProps {
     /** The game to request a review for. */
@@ -41,19 +52,67 @@ const RequestReviewDialog: React.FC<RequestReviewDialogProps> = ({
 }) => {
     const user = useAuth().user;
     const [reviewType, setReviewType] = useState<GameReviewType>();
+    const [isConfirmed, setIsConfirmed] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
+    const queueRequest = useRequest<{ length: number; index: number }>();
     const api = useApi();
 
+    const cohort = game.cohort;
+    const id = game.id;
+
+    useEffect(() => {
+        async function getQueueLength() {
+            try {
+                let startKey = undefined;
+                let length = 0;
+                let index = -1;
+
+                do {
+                    const response: AxiosResponse<ListGamesResponse> =
+                        await api.listGamesForReview(startKey);
+
+                    if (index < 0) {
+                        const i = response.data.games.findIndex(
+                            (g) => g.cohort === cohort && g.id === id,
+                        );
+                        if (i >= 0) {
+                            index = length + i + 1;
+                        }
+                    }
+                    length += response.data.games.length;
+                    startKey = response.data.lastEvaluatedKey;
+                } while (startKey);
+
+                queueRequest.onSuccess({ length, index });
+            } catch (err) {
+                console.error('listGamesForReview: ', err);
+                queueRequest.onFailure(err);
+            }
+        }
+
+        if (!queueRequest.isSent()) {
+            queueRequest.onStart();
+            getQueueLength();
+        }
+    }, [queueRequest, api, cohort, id]);
+
     const onPurchase = () => {
+        const newErrors: Record<string, string> = {};
         if (!reviewType) {
-            setErrors({ reviewType: 'This field is required' });
+            newErrors.reviewType = 'This field is required';
+        }
+        if (!isConfirmed) {
+            newErrors.isConfirmed = 'This field is required';
+        }
+
+        setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
             return;
         }
 
-        setErrors({});
         request.onStart();
-        api.requestReview(game.cohort, game.id, reviewType)
+        api.requestReview(game.cohort, game.id, reviewType!)
             .then((resp) => {
                 console.log('requestReview: ', resp);
                 window.location.href = resp.data.url;
@@ -117,15 +176,55 @@ const RequestReviewDialog: React.FC<RequestReviewDialogProps> = ({
                             <FormControlLabel
                                 value={GameReviewType.Deep}
                                 control={<Radio />}
-                                label='Deep Dive - $120 (~60 min, recommended for 1600+)'
+                                label='Deep Dive - $100 (~30-45 min, recommended for 1600+)'
                             />
                         </RadioGroup>
                         <FormHelperText>{errors.reviewType}</FormHelperText>
                     </FormControl>
 
-                    <Stack mt={3}>
-                        <Typography>Current Queue Length: 13</Typography>
-                        <Typography>Estimated Review Date: March 13</Typography>
+                    <FormControl error={Boolean(errors.isConfirmed)}>
+                        <FormControlLabel
+                            sx={{ mt: 3 }}
+                            control={
+                                <Checkbox
+                                    checked={isConfirmed}
+                                    onChange={(e) => setIsConfirmed(e.target.checked)}
+                                    sx={{
+                                        color:
+                                            errors.isConfirmed && !isConfirmed
+                                                ? 'error.dark'
+                                                : undefined,
+                                    }}
+                                />
+                            }
+                            slotProps={{
+                                typography: {
+                                    color:
+                                        errors.isConfirmed && !isConfirmed
+                                            ? 'error'
+                                            : undefined,
+                                },
+                            }}
+                            label='I confirm that this game is annotated and that the senseis will skip reviewing unannotated games'
+                        />
+                    </FormControl>
+
+                    <Stack mt={5}>
+                        <Typography>
+                            Current Queue Length:{' '}
+                            {queueRequest.isLoading() ? (
+                                <CircularProgress size={16} sx={{ ml: 0.5 }} />
+                            ) : (
+                                queueRequest.data?.length
+                            )}
+                        </Typography>
+                        <Typography>
+                            Estimated Review Date: by{' '}
+                            {toDojoDateString(
+                                estimatedReviewDate,
+                                user?.timezoneOverride,
+                            )}
+                        </Typography>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
@@ -145,6 +244,10 @@ const RequestReviewDialog: React.FC<RequestReviewDialogProps> = ({
     const date = new Date(game.reviewRequestedAt || '');
     const dateStr = toDojoDateString(date, user?.timezoneOverride);
     const timeStr = toDojoTimeString(date, user?.timezoneOverride, user?.timeFormat);
+    const reviewDeadline = toDojoDateString(
+        new Date(date.getTime() + ONE_WEEK),
+        user?.timezoneOverride,
+    );
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth>
@@ -183,8 +286,18 @@ const RequestReviewDialog: React.FC<RequestReviewDialogProps> = ({
                     <Typography>
                         Review Requested: {dateStr} • {timeStr}
                     </Typography>
-                    <Typography>Current Position in Queue: 13</Typography>
-                    <Typography>Estimated Review Date: March 13</Typography>
+                    <Typography>
+                        Review Type: {displayGameReviewType(game.review.type)}
+                    </Typography>
+                    <Typography>
+                        Current Position in Queue:{' '}
+                        {queueRequest.isLoading() ? (
+                            <CircularProgress size={16} sx={{ ml: 0.5 }} />
+                        ) : (
+                            queueRequest.data?.index
+                        )}
+                    </Typography>
+                    <Typography>Estimated Review Date: by {reviewDeadline}</Typography>
                 </Stack>
             </DialogContent>
         </Dialog>

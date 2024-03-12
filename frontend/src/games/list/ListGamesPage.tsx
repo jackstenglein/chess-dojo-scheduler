@@ -283,25 +283,33 @@ const ListGamesPage = () => {
                             onSearch={onSearch}
                         />
 
-                        <Typography
-                            data-cy='download-database-button'
-                            id='download-full-database'
-                            variant='caption'
-                            alignSelf='end'
-                        >
-                            <Link
-                                href={
-                                    isFreeTier
-                                        ? undefined
-                                        : 'https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip'
-                                }
-                                target='_blank'
-                                rel='noreferrer'
-                                onClick={isFreeTier ? onDownloadDatabase : undefined}
+                        <Stack spacing={0.5}>
+                            <Typography variant='caption' alignSelf='end'>
+                                <Link component={RouterLink} to='/games/review-queue'>
+                                    Sensei Game Review Queue
+                                </Link>
+                            </Typography>
+
+                            <Typography
+                                data-cy='download-database-button'
+                                id='download-full-database'
+                                variant='caption'
+                                alignSelf='end'
                             >
-                                Download full database (updated every 24 hours)
-                            </Link>
-                        </Typography>
+                                <Link
+                                    href={
+                                        isFreeTier
+                                            ? undefined
+                                            : 'https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip'
+                                    }
+                                    target='_blank'
+                                    rel='noreferrer'
+                                    onClick={isFreeTier ? onDownloadDatabase : undefined}
+                                >
+                                    Download full database (updated every 24 hours)
+                                </Link>
+                            </Typography>
+                        </Stack>
                     </Stack>
                 </Grid>
             </Grid>

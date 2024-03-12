@@ -45,24 +45,6 @@ export interface GameInfo {
 
     /** Whether the game is unlisted or not. */
     unlisted?: boolean;
-}
-
-export interface Comment {
-    owner: string;
-    ownerDisplayName: string;
-    ownerCohort: string;
-    ownerPreviousCohort: string;
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    content: string;
-}
-
-export type Game = GameInfo & {
-    pgn: string;
-    comments: Comment[];
-    orientation?: 'white' | 'black';
-    timelineId?: string;
 
     /**
      * The review status of the game. Omitted if the game
@@ -81,6 +63,24 @@ export type Game = GameInfo & {
      * for review.
      */
     review?: GameReview;
+}
+
+export interface Comment {
+    owner: string;
+    ownerDisplayName: string;
+    ownerCohort: string;
+    ownerPreviousCohort: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    content: string;
+}
+
+export type Game = GameInfo & {
+    pgn: string;
+    comments: Comment[];
+    orientation?: 'white' | 'black';
+    timelineId?: string;
 };
 
 export interface GameReview {
@@ -117,4 +117,13 @@ export function isDefaultHeader(header: string): boolean {
         header === 'Result' ||
         header === 'EventDate'
     );
+}
+
+export function displayGameReviewType(t: GameReviewType): string {
+    switch (t) {
+        case GameReviewType.Quick:
+            return 'Quick';
+        case GameReviewType.Deep:
+            return 'Deep Dive';
+    }
 }

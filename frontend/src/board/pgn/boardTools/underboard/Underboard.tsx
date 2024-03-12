@@ -125,7 +125,7 @@ const Underboard: React.FC<UnderboardProps> = ({
                             size='small'
                             exclusive
                             value={underboard}
-                            onChange={(_, val) => setUnderboard(val)}
+                            onChange={(_, val) => val && setUnderboard(val)}
                             fullWidth
                         >
                             <UnderboardButton

@@ -61,6 +61,7 @@ import {
     listGamesByOpening,
     listGamesByOwner,
     listGamesByPosition,
+    listGamesForReview,
     requestReview,
     updateGame,
 } from './gameApi';
@@ -283,6 +284,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listGamesByPosition(idToken, fen, startKey),
             listFeaturedGames: (startKey?: string) =>
                 listFeaturedGames(idToken, startKey),
+            listGamesForReview: (startKey?: string) =>
+                listGamesForReview(idToken, startKey),
             createComment: (cohort: string, id: string, content: string) =>
                 createComment(idToken, auth.user!, cohort, id, content),
             requestReview: (cohort: string, id: string, reviewType: GameReviewType) =>

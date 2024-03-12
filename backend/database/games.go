@@ -579,6 +579,29 @@ func (repo *dynamoRepository) ListGamesByEco(eco, startDate, endDate, startKey s
 	return games, lastKey, nil
 }
 
+// ListGamesForReview returns a list of games that have been submitted for review by
+// the senseis.
+func (repo *dynamoRepository) ListGamesForReview(startKey string) ([]Game, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#rs = :rs"),
+		ExpressionAttributeNames: map[string]*string{
+			"#rs": aws.String("reviewStatus"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":rs": {S: aws.String(string(GameReviewStatus_Pending))},
+		},
+		IndexName: aws.String(gameTableReviewIndex),
+		TableName: aws.String(gameTable),
+	}
+
+	var games []Game
+	lastKey, err := repo.query(input, startKey, &games)
+	if err != nil {
+		return nil, "", err
+	}
+	return games, lastKey, nil
+}
+
 // ScanGames returns a list of all Games in the database.
 func (repo *dynamoRepository) ScanGames(startKey string) ([]*Game, string, error) {
 	input := &dynamodb.ScanInput{

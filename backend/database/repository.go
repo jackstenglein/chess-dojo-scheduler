@@ -43,6 +43,7 @@ const gameTableOwnerIndex = "OwnerIdx"
 const gameTableWhiteIndex = "WhiteIndex"
 const gameTableBlackIndex = "BlackIndex"
 const gameTableFeaturedIndex = "FeaturedIndex"
+const gameTableReviewIndex = "ReviewIndex"
 
 const tournamentTableOpenClassicalIndex = "OpenClassicalIndex"
 
