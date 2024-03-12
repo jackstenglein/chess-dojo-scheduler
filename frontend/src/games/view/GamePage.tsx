@@ -74,6 +74,13 @@ const GamePage = () => {
     const featureRequest = useRequest();
     const { cohort, id } = useParams();
 
+    const reset = request.reset;
+    useEffect(() => {
+        if (cohort && id) {
+            reset();
+        }
+    }, [cohort, id, reset]);
+
     useEffect(() => {
         if (!request.isSent() && cohort && id) {
             request.onStart();
