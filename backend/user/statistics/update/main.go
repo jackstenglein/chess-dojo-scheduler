@@ -64,7 +64,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 	}
 
 	log.Debugf("Processing graduations")
-	var graduations []*database.Graduation
+	var graduations []database.Graduation
 	var startKey = ""
 	for ok := true; ok; ok = startKey != "" {
 		graduations, startKey, err = repository.ScanGraduations(startKey)
@@ -75,7 +75,7 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 
 		log.Infof("Processing %d graduations", len(graduations))
 		for _, g := range graduations {
-			updateGradStats(stats, g, requirements)
+			updateGradStats(stats, &g, requirements)
 		}
 	}
 
@@ -136,8 +136,8 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 
 	var minutes int
 	for _, progress := range user.Progress {
-		if isRequirement, _ := requirementsMap[progress.RequirementId]; isRequirement {
-			m, _ := progress.MinutesSpent[user.DojoCohort]
+		if isRequirement := requirementsMap[progress.RequirementId]; isRequirement {
+			m := progress.MinutesSpent[user.DojoCohort]
 			minutes += m
 		}
 	}
@@ -180,8 +180,8 @@ func updateGradStats(stats *database.UserStatistics, graduation *database.Gradua
 
 	var minutes int
 	for _, progress := range graduation.Progress {
-		if isRequirement, _ := requirementsMap[progress.RequirementId]; isRequirement {
-			m, _ := progress.MinutesSpent[graduation.PreviousCohort]
+		if isRequirement := requirementsMap[progress.RequirementId]; isRequirement {
+			m := progress.MinutesSpent[graduation.PreviousCohort]
 			minutes += m
 		}
 	}

@@ -75,13 +75,13 @@ type GraduationCreator interface {
 
 type GraduationLister interface {
 	// ListGraduationsByCohort returns a list of graduations matching the provided cohort.
-	ListGraduationsByCohort(cohort DojoCohort, startKey string) ([]*Graduation, string, error)
+	ListGraduationsByCohort(cohort DojoCohort, startKey string) ([]Graduation, string, error)
 
 	// ListGraduationsByOwner returns a list of graduations matching the provided username.
-	ListGraduationsByOwner(username, startKey string) ([]*Graduation, string, error)
+	ListGraduationsByOwner(username, startKey string) ([]Graduation, string, error)
 
 	// ListGraduationsByDate returns a list of graduations more recent than the provided date.
-	ListGraduationsByDate(date, startKey string) ([]*Graduation, string, error)
+	ListGraduationsByDate(date, startKey string) ([]Graduation, string, error)
 }
 
 // PutGraduation saves the provided Graduation in the database.
@@ -105,20 +105,21 @@ func (repo *dynamoRepository) PutGraduation(graduation *Graduation) error {
 }
 
 // ListGraduationsByCohort returns a list of graduations matching the provided cohort.
-func (repo *dynamoRepository) ListGraduationsByCohort(cohort DojoCohort, startKey string) ([]*Graduation, string, error) {
-	input := &dynamodb.ScanInput{
-		FilterExpression: aws.String("#previousCohort = :cohort"),
+func (repo *dynamoRepository) ListGraduationsByCohort(cohort DojoCohort, startKey string) ([]Graduation, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#previousCohort = :cohort"),
 		ExpressionAttributeNames: map[string]*string{
 			"#previousCohort": aws.String("previousCohort"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":cohort": {S: aws.String(string(cohort))},
 		},
+		IndexName: aws.String(graduationTableCohortIndex),
 		TableName: aws.String(graduationTable),
 	}
 
-	var graduations []*Graduation
-	lastKey, err := repo.scan(input, startKey, &graduations)
+	var graduations []Graduation
+	lastKey, err := repo.query(input, startKey, &graduations)
 	if err != nil {
 		return nil, "", err
 	}
@@ -126,7 +127,7 @@ func (repo *dynamoRepository) ListGraduationsByCohort(cohort DojoCohort, startKe
 }
 
 // ListGraduationsByOwner returns a list of graduations matching the provided username.
-func (repo *dynamoRepository) ListGraduationsByOwner(username, startKey string) ([]*Graduation, string, error) {
+func (repo *dynamoRepository) ListGraduationsByOwner(username, startKey string) ([]Graduation, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#username = :username"),
 		ExpressionAttributeNames: map[string]*string{
@@ -138,7 +139,7 @@ func (repo *dynamoRepository) ListGraduationsByOwner(username, startKey string) 
 		TableName: aws.String(graduationTable),
 	}
 
-	var graduations []*Graduation
+	var graduations []Graduation
 	lastKey, err := repo.query(input, startKey, &graduations)
 	if err != nil {
 		return nil, "", err
@@ -147,7 +148,7 @@ func (repo *dynamoRepository) ListGraduationsByOwner(username, startKey string) 
 }
 
 // ListGraduationsByDate returns a list of graduations more recent than the provided date.
-func (repo *dynamoRepository) ListGraduationsByDate(date, startKey string) ([]*Graduation, string, error) {
+func (repo *dynamoRepository) ListGraduationsByDate(date, startKey string) ([]Graduation, string, error) {
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#type = :type AND #date >= :date"),
 		ExpressionAttributeNames: map[string]*string{
@@ -162,7 +163,7 @@ func (repo *dynamoRepository) ListGraduationsByDate(date, startKey string) ([]*G
 		TableName: aws.String(graduationTable),
 	}
 
-	var graduations []*Graduation
+	var graduations []Graduation
 	lastKey, err := repo.query(input, startKey, &graduations)
 	if err != nil {
 		return nil, "", err
@@ -171,12 +172,12 @@ func (repo *dynamoRepository) ListGraduationsByDate(date, startKey string) ([]*G
 }
 
 // ScanGraduations returns a list of all graduations in the table, paginated by the startKey.
-func (repo *dynamoRepository) ScanGraduations(startKey string) ([]*Graduation, string, error) {
+func (repo *dynamoRepository) ScanGraduations(startKey string) ([]Graduation, string, error) {
 	input := &dynamodb.ScanInput{
 		TableName: aws.String(graduationTable),
 	}
 
-	var graduations []*Graduation
+	var graduations []Graduation
 	lastKey, err := repo.scan(input, startKey, &graduations)
 	if err != nil {
 		return nil, "", err

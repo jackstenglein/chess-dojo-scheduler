@@ -16,8 +16,8 @@ var repository database.GraduationLister = database.DynamoDB
 var stage = os.Getenv("stage")
 
 type ListGraduationsResponse struct {
-	Graduations      []*database.Graduation `json:"graduations"`
-	LastEvaluatedKey string                 `json:"lastEvaluatedKey,omitempty"`
+	Graduations      []database.Graduation `json:"graduations"`
+	LastEvaluatedKey string                `json:"lastEvaluatedKey,omitempty"`
 }
 
 func byCohortHandler(event api.Request) (api.Response, error) {

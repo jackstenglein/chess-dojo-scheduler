@@ -55,7 +55,7 @@ func main() {
 
 		log.Infof("Processing %d users", len(users))
 		for _, u := range users {
-			review, err := processUser(u, requirements, dojoRequirements)
+			review, err := processUser(u, dojoRequirements)
 			if err != nil {
 				log.Errorf("Failed to process user %s: %v", u.Username, err)
 			} else if review != nil {
@@ -96,7 +96,7 @@ func fetchRequirements() ([]*database.Requirement, error) {
 	return requirements, nil
 }
 
-func processUser(user *database.User, requirements []*database.Requirement, dojoRequirements map[string]*database.Requirement) (*database.YearReview, error) {
+func processUser(user *database.User, dojoRequirements map[string]*database.Requirement) (*database.YearReview, error) {
 	if !user.HasCreatedProfile || user.Ratings == nil || !user.DojoCohort.IsValid() {
 		log.Debugf("Skipping user %s because they have not created profile", user.Username)
 		return nil, nil
@@ -213,7 +213,7 @@ func processRatings(user *database.User, review *database.YearReview) {
 }
 
 func processGraduations(user *database.User, review *database.YearReview) error {
-	var graduations []*database.Graduation
+	var graduations []database.Graduation
 	var startKey = ""
 	var err error
 
