@@ -165,6 +165,14 @@ export type GameApiContextType = {
         id: string,
         reviewType: GameReviewType,
     ) => Promise<AxiosResponse<RequestReviewResponse>>;
+
+    /**
+     * Marks the provided game as reviewed by the caller. The caller must be an admin.
+     * @param cohort The cohort the game is in.
+     * @param id The id of the game.
+     * @returns An AxiosResponse containing the updated game.
+     */
+    markReviewed: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
 };
 
 export enum GameSubmissionType {
@@ -506,5 +514,20 @@ export function requestReview(
                 Authorization: 'Bearer ' + idToken,
             },
         },
+    );
+}
+
+/**
+ * Marks the provided game as reviewed by the caller. The caller must be an admin.
+ * @param idToken The id token of the current signed-in user.
+ * @param cohort The cohort the game is in.
+ * @param id The id of the game.
+ * @returns An AxiosResponse containing the updated game.
+ */
+export function markReviewed(idToken: string, cohort: string, id: string) {
+    return axios.put<Game>(
+        `${BASE_URL}/game/review/admin`,
+        { cohort, id, reviewed: true },
+        { headers: { Authorization: `Bearer ${idToken}` } },
     );
 }

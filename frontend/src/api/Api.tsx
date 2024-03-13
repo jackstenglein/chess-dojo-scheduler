@@ -62,6 +62,7 @@ import {
     listGamesByOwner,
     listGamesByPosition,
     listGamesForReview,
+    markReviewed,
     requestReview,
     updateGame,
 } from './gameApi';
@@ -290,6 +291,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 createComment(idToken, auth.user!, cohort, id, content),
             requestReview: (cohort: string, id: string, reviewType: GameReviewType) =>
                 requestReview(idToken, cohort, id, reviewType),
+            markReviewed: (cohort: string, id: string) =>
+                markReviewed(idToken, cohort, id),
 
             getRequirement: (id: string) => getRequirement(idToken, id),
             listRequirements: (

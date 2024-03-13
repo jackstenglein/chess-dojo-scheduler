@@ -185,7 +185,7 @@ type GameReview struct {
 type GameUpdate struct {
 	// The review status of the game. Omitted from the database if empty to take advantage of sparse
 	// DynamoDB indices.
-	ReviewStatus *GameReviewStatus `dynamodbav:"reviewStatus,omitempty"`
+	ReviewStatus *GameReviewStatus `dynamodbav:"reviewStatus"`
 
 	// The date the user requested a review for this game in time.RFC3339 format. Omitted from the
 	// database if empty to take advantage of sparse DynamoDB indices.
@@ -702,6 +702,46 @@ func (repo *dynamoRepository) UpdateGame(cohort, id string, update *GameUpdate) 
 	if err != nil {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
 			return nil, errors.Wrap(400, "Invalid request: game not found or you do not have permission to update it", "DynamoDB conditional check failed", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+	return &game, nil
+}
+
+// Sets the provided game review on the provided game.
+func (repo *dynamoRepository) SetGameReview(cohort, id string, review *GameReview) (*Game, error) {
+	item, err := dynamodbattribute.MarshalMap(review)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to marshal reviewer", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"cohort": {
+				S: aws.String(cohort),
+			},
+			"id": {
+				S: aws.String(id),
+			},
+		},
+		ConditionExpression: aws.String("attribute_exists(id)"),
+		UpdateExpression:    aws.String("REMOVE #reviewStatus SET #review = :r"),
+		ExpressionAttributeNames: map[string]*string{
+			"#reviewStatus": aws.String("reviewStatus"),
+			"#review":       aws.String("review"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":r": {M: item},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(gameTable),
+	}
+
+	game := Game{}
+	err = repo.updateItem(input, &game)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: game not found", "DynamoDB conditional check failed", aerr)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 	}

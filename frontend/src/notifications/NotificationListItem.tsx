@@ -1,3 +1,4 @@
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
     Button,
     CircularProgress,
@@ -7,13 +8,12 @@ import {
     Stack,
     Tooltip,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 
-import { Notification, NotificationType } from '../database/notification';
-import { useCache } from '../api/cache/Cache';
 import { useApi } from '../api/Api';
+import { useCache } from '../api/cache/Cache';
 import { Request, RequestSnackbar, useRequest } from '../api/Request';
+import { Notification, NotificationType } from '../database/notification';
 import NotificationDescription from './NotificationDescription';
 
 interface NotificationListItemProps {
@@ -57,7 +57,12 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
         switch (notification.type) {
             case NotificationType.GameComment:
                 navigate(
-                    `/games/${notification.gameCommentMetadata?.cohort}/${notification.gameCommentMetadata?.id}`
+                    `/games/${notification.gameCommentMetadata?.cohort}/${notification.gameCommentMetadata?.id}`,
+                );
+                break;
+            case NotificationType.GameReviewComplete:
+                navigate(
+                    `/games/${notification.gameReviewMetadata?.cohort}/${notification.gameReviewMetadata?.id}`,
                 );
                 break;
 
@@ -68,13 +73,13 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
             case NotificationType.TimelineComment:
             case NotificationType.TimelineReaction:
                 navigate(
-                    `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`
+                    `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`,
                 );
                 break;
 
             case NotificationType.ExplorerGame:
                 navigate(
-                    `/games/${notification.explorerGameMetadata?.cohort}/${notification.explorerGameMetadata?.id}`
+                    `/games/${notification.explorerGameMetadata?.cohort}/${notification.explorerGameMetadata?.id}`,
                 );
                 break;
 

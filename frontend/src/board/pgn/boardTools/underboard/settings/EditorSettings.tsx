@@ -35,7 +35,6 @@ const EditorSettings: React.FC<EditorSettingsProps> = ({ game, onSaveGame }) => 
     const navigate = useNavigate();
     const request = useRequest();
     const api = useApi();
-    const [showReviewDialog, setShowReviewDialog] = useState(false);
 
     const saveDisabled =
         (visibility === 'unlisted') === game.unlisted && orientation === game.orientation;
@@ -129,20 +128,13 @@ const EditorSettings: React.FC<EditorSettingsProps> = ({ game, onSaveGame }) => 
                     Save Changes
                 </LoadingButton>
 
-                <Button variant='contained' onClick={() => setShowReviewDialog(true)}>
-                    {game.review ? 'Sensei Review Pending' : 'Request Sensei Review'}
-                </Button>
+                <RequestReviewDialog game={game} />
+
                 <Button variant='outlined' onClick={() => navigate('edit')}>
                     Replace PGN
                 </Button>
                 <DeleteGameButton variant='contained' game={game} />
             </Stack>
-
-            <RequestReviewDialog
-                open={showReviewDialog}
-                onClose={() => setShowReviewDialog(false)}
-                game={game}
-            />
         </Stack>
     );
 };

@@ -225,6 +225,27 @@ functions:
           - secretsmanager:GetSecretValue
         Resource:
           - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+  
+  adminUpdateReview:
+    handler: review/update/main.go
+    events:
+      - httpApi:
+          path: /game/review/admin
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: 
+          - ${param:GamesTableArn}
+          - ${param:NotificationsTableArn}
 
 resources:
   Resources:
