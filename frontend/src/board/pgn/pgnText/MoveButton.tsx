@@ -220,10 +220,15 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     EventType.UpdateCommand,
                 ],
                 handler: (event: Event) => {
-                    if (event.move === move) {
-                        setIsCurrentMove(true);
-                    } else if (event.previousMove === move) {
-                        setIsCurrentMove(false);
+                    if (
+                        event.type === EventType.LegalMove ||
+                        event.type === EventType.NewVariation
+                    ) {
+                        if (event.move === move) {
+                            setIsCurrentMove(true);
+                        } else if (event.previousMove === move) {
+                            setIsCurrentMove(false);
+                        }
                     }
 
                     if (
