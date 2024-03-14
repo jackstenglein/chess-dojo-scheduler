@@ -3,6 +3,7 @@ import { useAuth } from '../../../../../auth/Auth';
 import { Game } from '../../../../../database/game';
 import AdminSettings from './AdminSettings';
 import EditorSettings from './EditorSettings';
+import GameSettings from './GameSettings';
 import ViewerSettings from './ViewerSettings';
 
 interface SettingsProps {
@@ -18,14 +19,13 @@ const Settings: React.FC<SettingsProps> = ({ showEditor, game, onSaveGame }) => 
         <CardContent>
             <Stack spacing={6}>
                 {showEditor && game && (
-                    <EditorSettings game={game} onSaveGame={onSaveGame} />
+                    <GameSettings game={game} onSaveGame={onSaveGame} />
                 )}
                 {viewer?.isAdmin && game && (
                     <AdminSettings game={game} onSaveGame={onSaveGame} />
                 )}
-                <ViewerSettings
-                    showTitle={Boolean(game && (showEditor || viewer?.isAdmin))}
-                />
+                <EditorSettings />
+                <ViewerSettings />
             </Stack>
         </CardContent>
     );

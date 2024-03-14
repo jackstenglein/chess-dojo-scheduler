@@ -171,7 +171,6 @@ function getSeriesStyle(series: any) {
 }
 
 function getDatumStyle(datum: any) {
-    console.log('Datum: ', datum);
     return {
         fill:
             datum.originalDatum.label === 'White'

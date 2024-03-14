@@ -29,13 +29,9 @@ import {
     setNagsInSet,
 } from '../../Nag';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
-import {
-    convertSecondsToDate,
-    handleIncrement,
-    handleInitialClock,
-    onChangeClock,
-} from './ClockEditor';
-import { convertClockToSeconds, getIncrement, getInitialClock } from './ClockUsage';
+import { convertSecondsToDate, handleIncrement, handleInitialClock } from './ClockEditor';
+import ClockTextField from './ClockTextField';
+import { getIncrement, getInitialClock } from './ClockUsage';
 
 interface NagButtonProps extends ToggleButtonProps {
     text: string;
@@ -118,16 +114,7 @@ const Editor = () => {
             <Stack spacing={3} mt={2}>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     {move && isMainline ? (
-                        <TimeField
-                            id={BlockBoardKeyboardShortcuts}
-                            label='Clock (hh:mm:ss)'
-                            format='HH:mm:ss'
-                            value={convertSecondsToDate(
-                                convertClockToSeconds(move.commentDiag?.clk),
-                            )}
-                            onChange={(value) => onChangeClock(chess, move, value)}
-                            fullWidth
-                        />
+                        <ClockTextField label='Clock (hh:mm:ss)' move={move} />
                     ) : (
                         !move && (
                             <Grid2

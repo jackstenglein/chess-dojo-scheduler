@@ -217,12 +217,22 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     EventType.LegalMove,
                     EventType.NewVariation,
                     EventType.UpdateNags,
+                    EventType.UpdateCommand,
                 ],
                 handler: (event: Event) => {
                     if (event.move === move) {
                         setIsCurrentMove(true);
                     } else if (event.previousMove === move) {
                         setIsCurrentMove(false);
+                    }
+
+                    if (
+                        event.type === EventType.UpdateCommand &&
+                        event.commandName === 'clk' &&
+                        event.move === move &&
+                        showMoveTimes
+                    ) {
+                        setForceRender((v) => v + 1);
                     }
 
                     if (event.type === EventType.UpdateNags && event.move === move) {
@@ -238,7 +248,15 @@ const MoveButton: React.FC<MoveButtonProps> = ({
             chess.addObserver(observer);
             return () => chess.removeObserver(observer);
         }
-    }, [chess, move, firstMove, handleScroll, setIsCurrentMove, setForceRender]);
+    }, [
+        chess,
+        move,
+        firstMove,
+        handleScroll,
+        setIsCurrentMove,
+        setForceRender,
+        showMoveTimes,
+    ]);
 
     useEffect(() => {
         setIsCurrentMove(chess?.currentMove() === move);

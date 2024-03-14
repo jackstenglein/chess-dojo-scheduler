@@ -25,11 +25,7 @@ export enum VariationBehavior {
     Dialog = 'DIALOG',
 }
 
-interface ViewerSettingsProps {
-    showTitle?: boolean;
-}
-
-const ViewerSettings: React.FC<ViewerSettingsProps> = ({ showTitle }) => {
+const ViewerSettings = () => {
     const [goToEndBehavior, setGoToEndBehavior] = useLocalStorage<string>(
         GoToEndButtonBehaviorKey,
         GoToEndButtonBehavior.SingleClick,
@@ -48,8 +44,8 @@ const ViewerSettings: React.FC<ViewerSettingsProps> = ({ showTitle }) => {
     );
 
     return (
-        <Stack spacing={3} pt={showTitle ? undefined : 1}>
-            {showTitle && <Typography variant='h5'>Viewer Settings</Typography>}
+        <Stack spacing={3}>
+            <Typography variant='h5'>Viewer Settings</Typography>
 
             <TextField
                 select

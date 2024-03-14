@@ -5,12 +5,8 @@ import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
-import {
-    convertClockToSeconds,
-    formatTime,
-    getIncrement,
-    getInitialClock,
-} from './ClockUsage';
+import ClockTextField from './ClockTextField';
+import { formatTime, getIncrement, getInitialClock } from './ClockUsage';
 
 export function convertSecondsToDate(seconds: number | undefined): Date | null {
     if (!seconds) {
@@ -76,30 +72,20 @@ const ClockEditor = () => {
     for (let i = 0; i < moves.length; i += 2) {
         grid.push(
             <Grid2 key={`${i}-white`} xs={6}>
-                <TimeField
-                    id={BlockBoardKeyboardShortcuts}
+                <ClockTextField
                     label={`${i / 2 + 1}. ${moves[i].san}`}
-                    format='HH:mm:ss'
-                    value={convertSecondsToDate(
-                        convertClockToSeconds(moves[i].commentDiag?.clk),
-                    )}
-                    onChange={(value) => onChangeClock(chess, moves[i], value)}
-                    fullWidth
+                    move={moves[i]}
+                    forceSingleField
                 />
             </Grid2>,
         );
         if (moves[i + 1]) {
             grid.push(
                 <Grid2 key={`${i}-black`} xs={6}>
-                    <TimeField
-                        id={BlockBoardKeyboardShortcuts}
+                    <ClockTextField
                         label={`${i / 2 + 1}... ${moves[i + 1].san}`}
-                        format='HH:mm:ss'
-                        value={convertSecondsToDate(
-                            convertClockToSeconds(moves[i + 1].commentDiag?.clk),
-                        )}
-                        onChange={(value) => onChangeClock(chess, moves[i + 1], value)}
-                        fullWidth
+                        move={moves[i + 1]}
+                        forceSingleField
                     />
                 </Grid2>,
             );
