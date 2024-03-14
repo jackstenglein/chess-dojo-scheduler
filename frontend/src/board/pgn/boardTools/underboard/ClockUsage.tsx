@@ -1,12 +1,11 @@
+import { Chess, Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
 import { Box, CardContent, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { EventType, Pgn, TAGS, Event, Chess, Move } from '@jackstenglein/chess';
 import { AxisOptions, Chart, Datum as ChartDatum } from 'react-charts';
-
-import { useChess } from '../../PgnBoard';
 import { useLightMode } from '../../../../ThemeProvider';
-import ClockEditor from './ClockEditor';
 import { reconcile } from '../../../Board';
+import { useChess } from '../../PgnBoard';
+import ClockEditor from './ClockEditor';
 
 interface Datum {
     label?: string;
