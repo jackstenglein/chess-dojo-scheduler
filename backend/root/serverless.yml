@@ -548,20 +548,12 @@ resources:
             KeyType: HASH
           - AttributeName: startsAt
             KeyType: RANGE
-        BillingMode: !If
-          - IsProd
-          - PROVISIONED
-          - PAY_PER_REQUEST
+        BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: !If
             - IsProd
             - true
             - false
-        ProvisionedThroughput: !If
-          - IsProd
-          - ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
-          - !Ref AWS::NoValue
         GlobalSecondaryIndexes:
           - IndexName: OpenClassicalIndex
             KeySchema:
@@ -571,11 +563,6 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: KEYS_ONLY
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
 
     NotificationsTable:
       Type: AWS::DynamoDB::Table
