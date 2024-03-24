@@ -84,6 +84,50 @@ type Comment struct {
 	Content string `dynamodbav:"content" json:"content"`
 }
 
+type CommentOwner struct {
+	// The Cognito username of the comment owner
+	Username string `dynamdbav:"username" json:"username"`
+
+	// The display name of the comment owner
+	DisplayName string `dynamodbav:"displayName" json:"displayName"`
+
+	// The current cohort of the comment owner, at the time of creating the comment
+	Cohort string `dynamodbav:"cohort" json:"cohort"`
+
+	// The cohort the comment owner most recently graduated from,
+	// at the time of creating the comment
+	PreviousCohort string `dynamodbav:"previousCohort,omitempty" json:"previousCohort,omitempty"`
+}
+
+type PositionComment struct {
+	// A v4 UUID identifying the comment.
+	Id string `dnymodbav:"id" json:"id"`
+
+	// The normalized FEN of the position the comment was added to.
+	Fen string `dynamodbav:"fen" json:"fen"`
+
+	// The ply of the position the comment was added to.
+	Ply int `dynamodbav:"ply,omitempty" json:"ply"`
+
+	// The SAN of the position the comment was added to, or an empty string
+	// if the comment was added to the beginning of the game.
+	San string `dynamodbav:"san,omitempty" json:"san,omitempty"`
+
+	// The poster of the comment
+	Owner CommentOwner `dynamodbav:"owner" json:"owner"`
+
+	// The time the comment was created
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+
+	// The time the comment was last updated
+	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+
+	// The text content of the comment, which may contain mention markup.
+	Content string `dynamodbav:"content" json:"content"`
+
+	// TODO: figure out how to support suggesting variations
+}
+
 type Game struct {
 	// The Dojo cohort for the game
 	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
@@ -155,6 +199,9 @@ type Game struct {
 
 	// The game review metadata
 	Review *GameReview `dynamodbav:"review,omitempty" json:"review,omitempty"`
+
+	// A map from the normalized FEN of a position to a map from the id of a comment to the comment.
+	PositionComments map[string]map[string]PositionComment `dynamodbav:"positionComments" json:"positionComments"`
 }
 
 type Reviewer struct {
