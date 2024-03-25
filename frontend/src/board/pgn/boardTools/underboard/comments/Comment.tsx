@@ -3,6 +3,11 @@ import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Collapse,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
     Divider,
     IconButton,
     Link,
@@ -118,8 +123,10 @@ const BaseComment: React.FC<BaseCommentProps> = ({
 
 const EditableComment: React.FC<CommentProps> = ({ comment }) => {
     const [editValue, setEditValue] = useState<string>();
+    const [showDelete, setShowDelete] = useState(false);
     const api = useApi();
     const request = useRequest();
+    const deleteRequest = useRequest();
     const { game, onUpdateGame } = useGame();
 
     const onSave = () => {
@@ -146,6 +153,25 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             .catch((err) => {
                 console.error('updateComment: ', err);
                 request.onFailure(err);
+            });
+    };
+
+    const onDelete = () => {
+        deleteRequest.onStart();
+        api.deleteComment({
+            cohort: game?.cohort || '',
+            gameId: game?.id || '',
+            id: comment.id,
+            fen: comment.fen,
+        })
+            .then((resp) => {
+                console.log('deleteComment: ', resp);
+                onUpdateGame?.(resp.data);
+                setShowDelete(false);
+            })
+            .catch((err) => {
+                console.error('deleteComment: ', err);
+                deleteRequest.onFailure(err);
             });
     };
 
@@ -201,6 +227,13 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
                             >
                                 edit
                             </Button>
+                            <Button
+                                size='small'
+                                sx={{ textTransform: 'none', minWidth: 0 }}
+                                onClick={() => setShowDelete(true)}
+                            >
+                                delete
+                            </Button>
                         </Stack>
                     ) : (
                         <></>
@@ -208,42 +241,35 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
                 }
             />
 
-            {/* <Stack direction='row' justifyContent='space-between' alignItems='start'>
-                <CommentInfo comment={comment} />
-                {editValue === undefined && (
-                    <Tooltip title='Edit Comment'>
-                        <IconButton
-                            size='small'
-                            onClick={() => setEditValue(comment.content)}
+            <Dialog
+                open={showDelete}
+                onClose={
+                    deleteRequest.isLoading() ? undefined : () => setShowDelete(false)
+                }
+            >
+                <DialogTitle>Delete Comment?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this comment? Any replies will
+                        also be deleted.
+                    </DialogContentText>
+                    <DialogActions>
+                        <Button
+                            disabled={deleteRequest.isLoading()}
+                            onClick={() => setShowDelete(false)}
                         >
-                            <Edit sx={{ color: 'text.secondary' }} fontSize='inherit' />
-                        </IconButton>
-                    </Tooltip>
-                )}
-            </Stack>
-
-            {editValue !== undefined ? (
-                
-            ) : (
-                <Stack direction='row'>
-                    <Stack
-                        alignItems='center'
-                        sx={{
-                            width: '28px',
-                            cursor: 'pointer',
-
-                            ':hover .MuiDivider-root': {
-                                borderColor: 'primary.main',
-                            },
-                        }}
-                    >
-                        <Divider orientation='vertical' />
-                    </Stack>
-                    <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
-                        {comment.content}
-                    </Typography>
-                </Stack>
-            )} */}
+                            Cancel
+                        </Button>
+                        <LoadingButton
+                            loading={deleteRequest.isLoading()}
+                            color='error'
+                            onClick={onDelete}
+                        >
+                            Delete
+                        </LoadingButton>
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
 
             <RequestSnackbar request={request} />
         </>
