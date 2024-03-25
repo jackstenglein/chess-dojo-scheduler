@@ -71,7 +71,9 @@ export function toDojoTimeString(
     date = getTimeZonedDate(date, timezone, timezoneDirection);
     timeFormat = timeFormat || TimeFormat.TwelveHour;
     return date.toLocaleTimeString(undefined, {
-        ...options,
         hour12: timeFormat === TimeFormat.TwelveHour,
+        hour: 'numeric',
+        minute: 'numeric',
+        ...options,
     });
 }

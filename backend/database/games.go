@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -86,7 +87,7 @@ type Comment struct {
 
 type CommentOwner struct {
 	// The Cognito username of the comment owner
-	Username string `dynamdbav:"username" json:"username"`
+	Username string `dynamodbav:"username" json:"username"`
 
 	// The display name of the comment owner
 	DisplayName string `dynamodbav:"displayName" json:"displayName"`
@@ -101,7 +102,7 @@ type CommentOwner struct {
 
 type PositionComment struct {
 	// A v4 UUID identifying the comment.
-	Id string `dnymodbav:"id" json:"id"`
+	Id string `dynamodbav:"id" json:"id"`
 
 	// The normalized FEN of the position the comment was added to.
 	Fen string `dynamodbav:"fen" json:"fen"`
@@ -126,6 +127,23 @@ type PositionComment struct {
 	Content string `dynamodbav:"content" json:"content"`
 
 	// TODO: figure out how to support suggesting variations
+}
+
+type PositionCommentUpdate struct {
+	// The cohort of the game containing the comment
+	Cohort DojoCohort `json:"cohort"`
+
+	// The id of the game containing the comment
+	GameId string `json:"gameId"`
+
+	// The id of the comment to update.
+	Id string `json:"id"`
+
+	// The normalized FEN of the comment to update.
+	Fen string `json:"fen"`
+
+	// The new text content of the comment, which may contain mention markup.
+	Content string `json:"content"`
 }
 
 type Game struct {
@@ -745,6 +763,48 @@ func (repo *dynamoRepository) PutComment(cohort, id string, comment *PositionCom
 	if err != nil {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
 			return nil, errors.Wrap(400, "Invalid request: game does not exist", "DynamoDB UpdateItem failure", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+	return &game, nil
+}
+
+// UpdateComment applies the given position comment update to the database. The game after update is returned.
+func (repo *dynamoRepository) UpdateComment(owner string, update *PositionCommentUpdate) (*Game, error) {
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("#p.#fen.#id.#owner.#username = :owner"),
+		UpdateExpression:    aws.String("SET #p.#fen.#id.#content = :c, #p.#fen.#id.#updated = :u"),
+		ExpressionAttributeNames: map[string]*string{
+			"#p":        aws.String("positionComments"),
+			"#fen":      aws.String(update.Fen),
+			"#id":       aws.String(update.Id),
+			"#owner":    aws.String("owner"),
+			"#username": aws.String("username"),
+			"#content":  aws.String("content"),
+			"#updated":  aws.String("updatedAt"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":owner": {S: aws.String(owner)},
+			":c":     {S: aws.String(update.Content)},
+			":u":     {S: aws.String(time.Now().Format(time.RFC3339))},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"cohort": {
+				S: aws.String(string(update.Cohort)),
+			},
+			"id": {
+				S: aws.String(update.GameId),
+			},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(gameTable),
+	}
+
+	game := Game{}
+	err := repo.updateItem(input, &game)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: comment does not exist or you do not have permission to edit it", "DynamoDB UpdateItem failure", aerr)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 	}

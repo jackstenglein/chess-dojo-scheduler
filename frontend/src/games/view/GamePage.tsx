@@ -1,7 +1,7 @@
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
-import { useEffect } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -10,6 +10,17 @@ import PgnBoard from '../../board/pgn/PgnBoard';
 import { Game } from '../../database/game';
 import LoadingPage from '../../loading/LoadingPage';
 import PgnErrorBoundary from './PgnErrorBoundary';
+
+type GameContextType = {
+    game?: Game;
+    onUpdateGame?: (g: Game) => void;
+};
+
+const GameContext = createContext<GameContextType>({});
+
+export function useGame() {
+    return useContext(GameContext);
+}
 
 const GamePage = () => {
     const api = useApi();
@@ -111,39 +122,46 @@ const GamePage = () => {
 
                 {request.data?.pgn && (
                     <PgnErrorBoundary pgn={request.data.pgn} game={request.data}>
-                        <PgnBoard
-                            showTags
-                            showEditor
-                            game={request.data}
-                            onSaveGame={request.onSuccess}
-                            pgn={request.data.pgn}
-                            startOrientation={request.data.orientation}
-                        />
+                        <GameContext.Provider
+                            value={{
+                                game: request.data,
+                                onUpdateGame: request.onSuccess,
+                            }}
+                        >
+                            <PgnBoard
+                                showTags
+                                showEditor
+                                game={request.data}
+                                onSaveGame={request.onSuccess}
+                                pgn={request.data.pgn}
+                                startOrientation={request.data.orientation}
+                            />
 
-                        <Stack gridArea='extras' spacing={2}>
-                            {user.isAdmin && (
-                                <Stack
-                                    direction='row'
-                                    alignSelf='start'
-                                    alignItems='center'
-                                    spacing={2}
-                                >
-                                    <Typography>Feature Game?</Typography>
-                                    <IconButton onClick={onFeature}>
-                                        {request.data.isFeatured === 'true' ? (
-                                            <CheckBoxIcon color='primary' />
-                                        ) : (
-                                            <CheckBoxOutlineBlankIcon />
-                                        )}
-                                    </IconButton>
-                                </Stack>
-                            )}
+                            <Stack gridArea='extras' spacing={2}>
+                                {user.isAdmin && (
+                                    <Stack
+                                        direction='row'
+                                        alignSelf='start'
+                                        alignItems='center'
+                                        spacing={2}
+                                    >
+                                        <Typography>Feature Game?</Typography>
+                                        <IconButton onClick={onFeature}>
+                                            {request.data.isFeatured === 'true' ? (
+                                                <CheckBoxIcon color='primary' />
+                                            ) : (
+                                                <CheckBoxOutlineBlankIcon />
+                                            )}
+                                        </IconButton>
+                                    </Stack>
+                                )}
 
-                            <Typography>
-                                Looking for comments? They've moved to the comments tab in
-                                the board tools.
-                            </Typography>
-                        </Stack>
+                                <Typography>
+                                    Looking for comments? They've moved to the comments
+                                    tab in the board tools.
+                                </Typography>
+                            </Stack>
+                        </GameContext.Provider>
                     </PgnErrorBoundary>
                 )}
             </Box>

@@ -155,6 +155,13 @@ export type GameApiContextType = {
     ) => Promise<AxiosResponse<Game, any>>;
 
     /**
+     * Updates a comment on a game. The full updated game is returned.
+     * @param update The update to apply.
+     * @returns An AxiosResponse containing the updated game.
+     */
+    updateComment: (update: UpdateCommentRequest) => Promise<AxiosResponse<Game>>;
+
+    /**
      * Requests a Sensei review for the provided game.
      * @param cohort The cohort the game is in.
      * @param id The id of the game.
@@ -476,6 +483,35 @@ export function createComment(
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+    });
+}
+
+export interface UpdateCommentRequest {
+    /** The cohort of the game containing the comment. */
+    cohort: string;
+
+    /** The id of the game containing the comment. */
+    gameId: string;
+
+    /** The id of the comment to update. */
+    id: string;
+
+    /** The normalized FEN of the comment to update. */
+    fen: string;
+
+    /** The new text content of the comment, which may contain mention markup. */
+    content: string;
+}
+
+/**
+ * Updates a comment on a game. The full updated game is returned.
+ * @param idToken The id token of the current signed in user.
+ * @param update The update to apply.
+ * @returns The updated game.
+ */
+export function updateComment(idToken: string, update: UpdateCommentRequest) {
+    return axios.put<Game>(`${BASE_URL}/game/comment`, update, {
+        headers: { Authorization: `Bearer ${idToken}` },
     });
 }
 

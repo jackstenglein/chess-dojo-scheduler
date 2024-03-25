@@ -1,29 +1,19 @@
 import { Chess, EventType, Move } from '@jackstenglein/chess';
-import { Send } from '@mui/icons-material';
 import {
     Button,
     CardContent,
-    CircularProgress,
     Divider,
-    IconButton,
-    Link,
     MenuItem,
     Stack,
     TextField,
-    Tooltip,
     Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { useApi } from '../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../api/Request';
-import { useAuth } from '../../../../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../../../../calendar/displayDate';
-import { Game, PositionComment } from '../../../../database/game';
-import Avatar from '../../../../profile/Avatar';
-import GraduationIcon from '../../../../scoreboard/GraduationIcon';
-import { reconcile } from '../../../Board';
-import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
+import { Game, PositionComment } from '../../../../../database/game';
+import { reconcile } from '../../../../Board';
+import { useChess } from '../../../PgnBoard';
+import Comment from './Comment';
+import CommentEditor from './CommentEditor';
 
 enum View {
     FullGame = 'FULL_GAME',
@@ -73,7 +63,7 @@ const Comments: React.FC<CommentsProps> = ({ game, onSaveGame }) => {
         return null;
     }
 
-    const fenSections = getFenSections(game, chess, view);
+    const fenSections = getFenSections(game, chess, view, sortBy);
 
     return (
         <CardContent sx={{ height: 1, p: 0 }}>
@@ -122,7 +112,7 @@ const Comments: React.FC<CommentsProps> = ({ game, onSaveGame }) => {
 
 export default Comments;
 
-function getFenSections(game: Game, chess: Chess, view: View) {
+function getFenSections(game: Game, chess: Chess, view: View, sort: SortBy) {
     if (!game.positionComments || Object.values(game.positionComments).length === 0) {
         return [];
     }
@@ -134,12 +124,13 @@ function getFenSections(game: Game, chess: Chess, view: View) {
             game,
             chess.normalizedFen(),
             chess.currentMove(),
+            sort,
         );
         fenSections.push({ move: chess.currentMove(), comments });
         return fenSections;
     }
 
-    const startingComments = getCommentsForFen(game, chess.setUpFen(), null);
+    const startingComments = getCommentsForFen(game, chess.setUpFen(), null, sort);
     if (startingComments.length > 0) {
         fenSections.push({ move: null, comments: startingComments });
     }
@@ -148,16 +139,7 @@ function getFenSections(game: Game, chess: Chess, view: View) {
     let move: Move | undefined;
     while ((move = stack.pop()) !== undefined) {
         const fen = chess.normalizedFen(move);
-
-        const fenComments = game.positionComments[fen] || {};
-        const selectedComments: PositionComment[] = [];
-
-        for (const comment of Object.values(fenComments)) {
-            if (comment.ply === move.ply && comment.san === move.san) {
-                selectedComments.push(comment);
-            }
-        }
-
+        const selectedComments = getCommentsForFen(game, fen, move, sort);
         if (selectedComments.length > 0) {
             fenSections.push({ move, comments: selectedComments });
         }
@@ -177,6 +159,7 @@ function getCommentsForFen(
     game: Game,
     fen: string,
     move: Move | null,
+    sort: SortBy,
 ): PositionComment[] {
     const fenComments = game.positionComments[fen] || {};
     const selectedComments: PositionComment[] = [];
@@ -186,6 +169,13 @@ function getCommentsForFen(
             selectedComments.push(comment);
         }
     }
+
+    selectedComments.sort((lhs, rhs) => {
+        if (sort === SortBy.Newest) {
+            return rhs.createdAt.localeCompare(lhs.createdAt);
+        }
+        return lhs.createdAt.localeCompare(rhs.createdAt);
+    });
 
     return selectedComments;
 }
@@ -217,141 +207,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ section }) => {
                 <Comment key={c.id} comment={c} />
             ))}
             {section.comments.length === 0 && <Typography>No comments</Typography>}
-        </Stack>
-    );
-};
-
-interface CommentProps {
-    comment: PositionComment;
-}
-
-const Comment: React.FC<CommentProps> = ({ comment }) => {
-    const viewer = useAuth().user;
-    const createdAt = new Date(comment.createdAt);
-
-    const createdAtDate = toDojoDateString(createdAt, viewer?.timezoneOverride);
-    const createdAtTime = toDojoTimeString(
-        createdAt,
-        viewer?.timezoneOverride,
-        viewer?.timeFormat,
-    );
-
-    return (
-        <Stack spacing={0.5}>
-            <Stack direction='row' spacing={1.5}>
-                <Avatar
-                    username={comment.owner.username}
-                    displayName={comment.owner.displayName}
-                    size={48}
-                />
-                <Stack>
-                    <Stack direction='row' spacing={1} alignItems='center'>
-                        <Link
-                            component={RouterLink}
-                            to={`/profile/${comment.owner.username}`}
-                        >
-                            <Typography variant='subtitle1' color='text.secondary'>
-                                {comment.owner.displayName} ({comment.owner.cohort})
-                            </Typography>
-                        </Link>
-                        <GraduationIcon cohort={comment.owner.previousCohort} size={20} />
-                    </Stack>
-                    <Typography variant='subtitle2' color='text.secondary'>
-                        {createdAtDate} • {createdAtTime}
-                    </Typography>
-                </Stack>
-            </Stack>
-            <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
-                {comment.content}
-            </Typography>
-        </Stack>
-    );
-};
-
-interface CommentEditorProps {
-    game: Game;
-    onSuccess: (game: Game) => void;
-}
-
-const CommentEditor: React.FC<CommentEditorProps> = ({ game, onSuccess }) => {
-    const user = useAuth().user!;
-    const api = useApi();
-    const [comment, setComment] = useState('');
-    const request = useRequest();
-    const { chess } = useChess();
-
-    const onSubmit = () => {
-        const content = comment.trim();
-        if (content.length === 0) {
-            return;
-        }
-
-        const positionComment: PositionComment = {
-            id: '',
-            fen: chess?.normalizedFen() || '',
-            ply: chess?.currentMove()?.ply || 0,
-            san: chess?.currentMove()?.san,
-            owner: {
-                username: user.username,
-                displayName: user.displayName,
-                cohort: user.dojoCohort,
-                previousCohort: user.previousCohort,
-            },
-            createdAt: '',
-            updatedAt: '',
-            content,
-        };
-        const existingComments = Boolean(game.positionComments?.[positionComment.fen]);
-
-        request.onStart();
-        api.createComment(game.cohort, game.id, positionComment, existingComments)
-            .then((resp) => {
-                console.log('createComment: ', resp);
-                setComment('');
-                request.onSuccess();
-                onSuccess(resp.data);
-            })
-            .catch((err) => {
-                console.error('createComment: ', err);
-                request.onFailure(err);
-            });
-    };
-
-    const move = chess?.currentMove();
-
-    return (
-        <Stack spacing={1} direction='row' alignItems='end' px={2}>
-            <TextField
-                id={BlockBoardKeyboardShortcuts}
-                placeholder={`Comment on ${
-                    move
-                        ? `${move.ply % 2 ? `${Math.floor(move.ply / 2) + 1}.` : `${move.ply / 2}...`} ${move.san}`
-                        : 'Starting Position'
-                }`}
-                fullWidth
-                multiline
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                disabled={request.isLoading()}
-                maxRows={8}
-            />
-            {request.isLoading() ? (
-                <CircularProgress size={40} />
-            ) : (
-                <Tooltip title='Post Comment'>
-                    <div>
-                        <IconButton
-                            disabled={comment.trim().length === 0}
-                            color='primary'
-                            onClick={onSubmit}
-                        >
-                            <Send />
-                        </IconButton>
-                    </div>
-                </Tooltip>
-            )}
-
-            <RequestSnackbar request={request} />
         </Stack>
     );
 };
