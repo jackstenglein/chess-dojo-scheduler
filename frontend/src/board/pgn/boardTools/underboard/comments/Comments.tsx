@@ -194,7 +194,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ section }) => {
     };
 
     return (
-        <Stack width={1} spacing={3}>
+        <Stack width={1} spacing={2}>
             <Stack width={1} alignItems='start'>
                 <Button sx={{ textTransform: 'none', pb: 0 }} onClick={onClick}>
                     {move
