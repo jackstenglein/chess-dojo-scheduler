@@ -78,6 +78,22 @@ functions:
           - dynamodb:GetItem
         Resource:
           - ${param:UsersTableArn}
+  
+  editComment:
+    handler: comment/edit/main.go
+    events:
+      - httpApi:
+          path: /game/comment
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:GamesTableArn}
 
   listByCohort:
     handler: list/cohort/main.go

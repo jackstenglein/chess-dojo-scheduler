@@ -64,6 +64,8 @@ import {
     listGamesForReview,
     markReviewed,
     requestReview,
+    updateComment,
+    UpdateCommentRequest,
     updateGame,
 } from './gameApi';
 import {
@@ -293,6 +295,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 comment: PositionComment,
                 existingComments: boolean,
             ) => createComment(idToken, cohort, id, comment, existingComments),
+            updateComment: (update: UpdateCommentRequest) =>
+                updateComment(idToken, update),
             requestReview: (cohort: string, id: string, reviewType: GameReviewType) =>
                 requestReview(idToken, cohort, id, reviewType),
             markReviewed: (cohort: string, id: string) =>

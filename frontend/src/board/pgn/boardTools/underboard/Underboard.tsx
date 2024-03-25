@@ -27,7 +27,7 @@ import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import { ResizableData } from '../../resize';
 import ResizeHandle from '../../ResizeHandle';
 import ClockUsage from './ClockUsage';
-import Comments from './Comments';
+import Comments from './comments/Comments';
 import Editor from './Editor';
 import {
     BoardKeyBindingsKey,
