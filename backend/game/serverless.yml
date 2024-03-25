@@ -94,6 +94,22 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - ${param:GamesTableArn}
+  
+  deleteComment:
+    handler: comment/delete/main.go
+    events:
+      - httpApi:
+          path: /game/comment/delete
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:GamesTableArn}
 
   listByCohort:
     handler: list/cohort/main.go

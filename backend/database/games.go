@@ -811,6 +811,45 @@ func (repo *dynamoRepository) UpdateComment(owner string, update *PositionCommen
 	return &game, nil
 }
 
+// DeleteComment deletes the position comment indicated by the given update, including
+// any replies to the comment. The updated game is returned.
+func (repo *dynamoRepository) DeleteComment(owner string, update *PositionCommentUpdate) (*Game, error) {
+	input := &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("#p.#fen.#id.#owner.#username = :owner"),
+		UpdateExpression:    aws.String("REMOVE #p.#fen.#id"),
+		ExpressionAttributeNames: map[string]*string{
+			"#p":        aws.String("positionComments"),
+			"#fen":      aws.String(update.Fen),
+			"#id":       aws.String(update.Id),
+			"#owner":    aws.String("owner"),
+			"#username": aws.String("username"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":owner": {S: aws.String(owner)},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"cohort": {
+				S: aws.String(string(update.Cohort)),
+			},
+			"id": {
+				S: aws.String(update.GameId),
+			},
+		},
+		ReturnValues: aws.String("ALL_NEW"),
+		TableName:    aws.String(gameTable),
+	}
+
+	game := Game{}
+	err := repo.updateItem(input, &game)
+	if err != nil {
+		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return nil, errors.Wrap(400, "Invalid request: comment does not exist or you do not have permission to delete it", "DynamoDB UpdateItem failure", aerr)
+		}
+		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+	}
+	return &game, nil
+}
+
 // UpdateGame applies the specified update to the specified game.
 func (repo *dynamoRepository) UpdateGame(cohort, id string, update *GameUpdate) (*Game, error) {
 	av, err := dynamodbattribute.MarshalMap(update)

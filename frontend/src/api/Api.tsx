@@ -52,6 +52,8 @@ import {
     createComment,
     createGame,
     CreateGameRequest,
+    deleteComment,
+    DeleteCommentRequest,
     deleteGame,
     featureGame,
     GameApiContextType,
@@ -297,6 +299,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             ) => createComment(idToken, cohort, id, comment, existingComments),
             updateComment: (update: UpdateCommentRequest) =>
                 updateComment(idToken, update),
+            deleteComment: (request: DeleteCommentRequest) =>
+                deleteComment(idToken, request),
             requestReview: (cohort: string, id: string, reviewType: GameReviewType) =>
                 requestReview(idToken, cohort, id, reviewType),
             markReviewed: (cohort: string, id: string) =>

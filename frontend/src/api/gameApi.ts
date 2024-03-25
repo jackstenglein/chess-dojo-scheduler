@@ -162,6 +162,13 @@ export type GameApiContextType = {
     updateComment: (update: UpdateCommentRequest) => Promise<AxiosResponse<Game>>;
 
     /**
+     * Deletes a comment on a game. The full updated game is returned.
+     * @param request The deletion request.
+     * @returns An AxiosResponse containing the updated game.
+     */
+    deleteComment: (request: DeleteCommentRequest) => Promise<AxiosResponse<Game>>;
+
+    /**
      * Requests a Sensei review for the provided game.
      * @param cohort The cohort the game is in.
      * @param id The id of the game.
@@ -511,6 +518,20 @@ export interface UpdateCommentRequest {
  */
 export function updateComment(idToken: string, update: UpdateCommentRequest) {
     return axios.put<Game>(`${BASE_URL}/game/comment`, update, {
+        headers: { Authorization: `Bearer ${idToken}` },
+    });
+}
+
+export interface DeleteCommentRequest extends Omit<UpdateCommentRequest, 'content'> {}
+
+/**
+ * Deletes a comment on a game. The full updated game is returned.
+ * @param idToken The id token of the current signed in user.
+ * @param request The deletion request.
+ * @returns An AxiosResponse containing the updated game.
+ */
+export function deleteComment(idToken: string, request: DeleteCommentRequest) {
+    return axios.put<Game>(`${BASE_URL}/game/comment/delete`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
     });
 }

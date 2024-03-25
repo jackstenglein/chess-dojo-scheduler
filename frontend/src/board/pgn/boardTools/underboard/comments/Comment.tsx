@@ -1,7 +1,9 @@
-import { Edit } from '@mui/icons-material';
+import { Edit, ExpandMore } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Collapse,
+    Divider,
     IconButton,
     Link,
     Stack,
@@ -37,13 +39,79 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
 
 export default Comment;
 
-const BaseComment: React.FC<CommentProps> = ({ comment }) => {
+interface BaseCommentProps {
+    comment: PositionComment;
+    renderContent?: JSX.Element;
+    renderControls?: JSX.Element;
+}
+
+const BaseComment: React.FC<BaseCommentProps> = ({
+    comment,
+    renderContent,
+    renderControls,
+}) => {
+    const [expanded, setExpanded] = useState(true);
+
     return (
         <Stack spacing={0.5}>
-            <CommentInfo comment={comment} />
-            <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
-                {comment.content}
-            </Typography>
+            <Stack direction='row' spacing={0.5}>
+                {!expanded && (
+                    <Tooltip title='Expand Comment'>
+                        <IconButton onClick={() => setExpanded(true)} size='small'>
+                            <ExpandMore
+                                fontSize='small'
+                                sx={{ color: 'text.secondary' }}
+                            />
+                        </IconButton>
+                    </Tooltip>
+                )}
+                <CommentInfo comment={comment} />
+            </Stack>
+            <Collapse in={expanded}>
+                <Stack direction='row'>
+                    <Tooltip title='Collapse Comment'>
+                        <Stack
+                            alignItems='center'
+                            sx={{
+                                width: '28px',
+                                cursor: 'pointer',
+
+                                ':hover .MuiDivider-root': {
+                                    borderColor: 'primary.main',
+                                },
+                            }}
+                            onClick={() => setExpanded(false)}
+                        >
+                            <Divider orientation='vertical' />
+                        </Stack>
+                    </Tooltip>
+                    <Stack flexGrow={1} spacing={0.5}>
+                        {renderContent ? (
+                            renderContent
+                        ) : (
+                            <Typography
+                                variant='body1'
+                                style={{ whiteSpace: 'pre-line' }}
+                            >
+                                {comment.content}
+                            </Typography>
+                        )}
+
+                        {renderControls ? (
+                            renderControls
+                        ) : (
+                            <Stack direction='row'>
+                                <Button
+                                    size='small'
+                                    sx={{ textTransform: 'none', minWidth: 0 }}
+                                >
+                                    reply
+                                </Button>
+                            </Stack>
+                        )}
+                    </Stack>
+                </Stack>
+            </Collapse>
         </Stack>
     );
 };
@@ -82,8 +150,65 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
     };
 
     return (
-        <Stack spacing={0.5}>
-            <Stack direction='row' justifyContent='space-between' alignItems='start'>
+        <>
+            <BaseComment
+                comment={comment}
+                renderContent={
+                    editValue === undefined ? undefined : (
+                        <Stack width={1}>
+                            <TextField
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                size='small'
+                                sx={{ pt: 0.5 }}
+                                multiline
+                            />
+                            <Stack direction='row'>
+                                <Button
+                                    size='small'
+                                    sx={{ textTransform: 'none' }}
+                                    onClick={() => setEditValue(undefined)}
+                                    disabled={request.isLoading()}
+                                >
+                                    cancel
+                                </Button>
+                                <LoadingButton
+                                    disabled={editValue.trim().length === 0}
+                                    loading={request.isLoading()}
+                                    size='small'
+                                    sx={{ textTransform: 'none' }}
+                                    onClick={onSave}
+                                >
+                                    save
+                                </LoadingButton>
+                            </Stack>
+                        </Stack>
+                    )
+                }
+                renderControls={
+                    editValue === undefined ? (
+                        <Stack direction='row' spacing={1}>
+                            <Button
+                                size='small'
+                                sx={{ textTransform: 'none', minWidth: 0 }}
+                            >
+                                reply
+                            </Button>
+                            <Button
+                                size='small'
+                                sx={{ textTransform: 'none', minWidth: 0 }}
+                                onClick={() => setEditValue(comment.content)}
+                            >
+                                edit
+                            </Button>
+                        </Stack>
+                    ) : (
+                        <></>
+                    )
+                }
+            />
+
+            {/* <Stack direction='row' justifyContent='space-between' alignItems='start'>
                 <CommentInfo comment={comment} />
                 {editValue === undefined && (
                     <Tooltip title='Edit Comment'>
@@ -98,41 +223,30 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             </Stack>
 
             {editValue !== undefined ? (
-                <Stack>
-                    <TextField
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        size='small'
-                        sx={{ pt: 0.5 }}
-                    />
-                    <Stack direction='row'>
-                        <Button
-                            size='small'
-                            sx={{ textTransform: 'none' }}
-                            onClick={() => setEditValue(undefined)}
-                            disabled={request.isLoading()}
-                        >
-                            Cancel
-                        </Button>
-                        <LoadingButton
-                            disabled={editValue.trim().length === 0}
-                            loading={request.isLoading()}
-                            size='small'
-                            sx={{ textTransform: 'none' }}
-                            onClick={onSave}
-                        >
-                            Save
-                        </LoadingButton>
-                    </Stack>
-                </Stack>
+                
             ) : (
-                <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
-                    {comment.content}
-                </Typography>
-            )}
+                <Stack direction='row'>
+                    <Stack
+                        alignItems='center'
+                        sx={{
+                            width: '28px',
+                            cursor: 'pointer',
+
+                            ':hover .MuiDivider-root': {
+                                borderColor: 'primary.main',
+                            },
+                        }}
+                    >
+                        <Divider orientation='vertical' />
+                    </Stack>
+                    <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
+                        {comment.content}
+                    </Typography>
+                </Stack>
+            )} */}
 
             <RequestSnackbar request={request} />
-        </Stack>
+        </>
     );
 };
 
@@ -166,31 +280,27 @@ const CommentInfo: React.FC<CommentProps> = ({ comment }) => {
             <Avatar
                 username={comment.owner.username}
                 displayName={comment.owner.displayName}
-                size={48}
+                size={28}
             />
-            <Stack>
-                <Stack direction='row' spacing={1} alignItems='center'>
-                    <Link
-                        component={RouterLink}
-                        to={`/profile/${comment.owner.username}`}
-                        sx={{ textDecoration: 'none' }}
-                    >
-                        <Typography variant='subtitle1' color='text.secondary'>
-                            {comment.owner.displayName} ({comment.owner.cohort})
-                        </Typography>
-                    </Link>
-                    <GraduationIcon cohort={comment.owner.previousCohort} size={20} />
-                </Stack>
-                <Stack direction='row' spacing={1} alignItems='baseline'>
-                    <Typography variant='subtitle2' color='text.secondary'>
-                        {createdAtDate} • {createdAtTime}
+            <Stack direction='row' spacing={1} alignItems='center'>
+                <Link
+                    component={RouterLink}
+                    to={`/profile/${comment.owner.username}`}
+                    sx={{ textDecoration: 'none' }}
+                >
+                    <Typography variant='subtitle1' sx={{ color: 'text.primary' }}>
+                        {comment.owner.displayName} ({comment.owner.cohort})
                     </Typography>
-                    {updatedAtDate && (
-                        <Tooltip title={`Updated at ${updatedAtDate} • ${updatedAtTime}`}>
-                            <Edit sx={{ color: 'text.secondary', fontSize: '0.8rem' }} />
-                        </Tooltip>
-                    )}
-                </Stack>
+                </Link>
+                <GraduationIcon cohort={comment.owner.previousCohort} size={20} />
+                <Typography variant='caption' color='text.secondary'>
+                    • {createdAtDate} {createdAtTime}
+                </Typography>
+                {updatedAtDate && (
+                    <Tooltip title={`Updated at ${updatedAtDate} • ${updatedAtTime}`}>
+                        <Edit sx={{ color: 'text.secondary', fontSize: '0.8rem' }} />
+                    </Tooltip>
+                )}
             </Stack>
         </Stack>
     );
