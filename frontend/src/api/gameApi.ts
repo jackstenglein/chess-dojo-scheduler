@@ -1,8 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { Game, GameInfo, GameReviewType } from '../database/game';
-import { User } from '../database/user';
+import { Game, GameInfo, GameReviewType, PositionComment } from '../database/game';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -145,12 +144,14 @@ export type GameApiContextType = {
      * createComment adds the given content as a comment on the given game.
      * @param cohort The cohort the game is in.
      * @param id The id of the game.
-     * @param content The text content of the game.
+     * @param comment The comment to add.
+     * @param existingComments Whether the position has existing comments.
      */
     createComment: (
         cohort: string,
         id: string,
-        content: string,
+        comment: PositionComment,
+        existingComments: boolean,
     ) => Promise<AxiosResponse<Game, any>>;
 
     /**
@@ -457,26 +458,21 @@ export function listGamesForReview(idToken: string, startKey?: string) {
  * @param commenter The user posting the comment.
  * @param cohort The cohort the game is in.
  * @param id The id of the game.
- * @param content The text content of the game.
+ * @param comment The comment to add.
+ * @param existingComments Whether the position has existing comments.
  */
 export function createComment(
     idToken: string,
-    commenter: User,
     cohort: string,
     id: string,
-    content: string,
+    comment: PositionComment,
+    existingComments: boolean,
 ) {
-    const comment = {
-        owner: commenter.username,
-        ownerDisplayName: commenter.displayName,
-        ownerCohort: commenter.dojoCohort,
-        ownerPreviousCohort: commenter.previousCohort,
-        content: content,
-    };
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
     return axios.post<Game>(BASE_URL + `/game/${cohort}/${id}`, comment, {
+        params: { existingComments },
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

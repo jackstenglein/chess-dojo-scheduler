@@ -1,71 +1,15 @@
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import { LoadingButton } from '@mui/lab';
-import { Box, IconButton, Stack, TextField, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { Box, IconButton, Stack, Typography } from '@mui/material';
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
-import PgnBoard, { BlockBoardKeyboardShortcuts } from '../../board/pgn/PgnBoard';
+import PgnBoard from '../../board/pgn/PgnBoard';
 import { Game } from '../../database/game';
 import LoadingPage from '../../loading/LoadingPage';
-import CommentList from './CommentList';
 import PgnErrorBoundary from './PgnErrorBoundary';
-
-interface CommentEditorProps {
-    cohort?: string;
-    id?: string;
-    onSuccess: (game: Game) => void;
-}
-
-const CommentEditor: React.FC<CommentEditorProps> = ({ cohort, id, onSuccess }) => {
-    const [comment, setComment] = useState('');
-    const commentRequest = useRequest();
-    const api = useApi();
-
-    const onSubmitComment = () => {
-        const content = comment.trim();
-        if (content.length === 0) {
-            return;
-        }
-
-        commentRequest.onStart();
-        api.createComment(cohort ?? '', id ?? '', content)
-            .then((response) => {
-                console.log(response);
-                setComment('');
-                commentRequest.onSuccess('Comment created');
-                onSuccess(response.data);
-            })
-            .catch((err) => {
-                console.error('Failed to create comment: ', err);
-                commentRequest.onFailure(err);
-            });
-    };
-
-    return (
-        <Stack spacing={1} alignItems='flex-end'>
-            <TextField
-                id={BlockBoardKeyboardShortcuts}
-                label='Add a Comment'
-                fullWidth
-                multiline
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-            />
-            <LoadingButton
-                variant='contained'
-                disabled={comment.trim().length === 0}
-                loading={commentRequest.isLoading()}
-                onClick={onSubmitComment}
-            >
-                Submit
-            </LoadingButton>
-            <RequestSnackbar request={commentRequest} showSuccess />
-        </Stack>
-    );
-};
 
 const GamePage = () => {
     const api = useApi();
@@ -195,15 +139,10 @@ const GamePage = () => {
                                 </Stack>
                             )}
 
-                            <Typography id='comments' variant='h6'>
-                                Comments
+                            <Typography>
+                                Looking for comments? They've moved to the comments tab in
+                                the board tools.
                             </Typography>
-                            <CommentEditor
-                                cohort={cohort}
-                                id={id}
-                                onSuccess={request.onSuccess}
-                            />
-                            <CommentList comments={request.data.comments} />
                         </Stack>
                     </PgnErrorBoundary>
                 )}

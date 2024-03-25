@@ -76,11 +76,52 @@ export interface Comment {
     content: string;
 }
 
+export interface CommentOwner {
+    /** The username of the comment owner. */
+    username: string;
+
+    /** The display name of the comment owner. */
+    displayName: string;
+
+    /** The current cohort of the comment owner, at the time of creating the comment. */
+    cohort: string;
+
+    /** The cohort the comment owner most recently graduated from, at the time of creating the comment. */
+    previousCohort: string;
+}
+
+export interface PositionComment {
+    /** A v4 UUID identifying the comment. */
+    id: string;
+
+    /** The normalized FEN of the position the comment was added to. */
+    fen: string;
+
+    /** The ply of the position the comment was added to. */
+    ply?: number;
+
+    /** The san of the position the comment was added to. */
+    san?: string;
+
+    /** The poster of the comment. */
+    owner: CommentOwner;
+
+    /** The time the comment was created. */
+    createdAt: string;
+
+    /** The time the comment was last updated. */
+    updatedAt: string;
+
+    /** The text content of the comment, which may contain mention markup. */
+    content: string;
+}
+
 export type Game = GameInfo & {
     pgn: string;
     comments: Comment[];
     orientation?: 'white' | 'black';
     timelineId?: string;
+    positionComments: Record<string, Record<string, PositionComment>>;
 };
 
 export interface GameReview {

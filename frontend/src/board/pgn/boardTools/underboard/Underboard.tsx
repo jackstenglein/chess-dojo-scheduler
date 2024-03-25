@@ -1,5 +1,6 @@
 import {
     AccessAlarm,
+    Chat,
     Edit,
     Sell,
     Settings as SettingsIcon,
@@ -26,6 +27,7 @@ import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import { ResizableData } from '../../resize';
 import ResizeHandle from '../../ResizeHandle';
 import ClockUsage from './ClockUsage';
+import Comments from './Comments';
 import Editor from './Editor';
 import {
     BoardKeyBindingsKey,
@@ -153,6 +155,14 @@ const Underboard: React.FC<UnderboardProps> = ({
                             )}
 
                             <UnderboardButton
+                                tooltip='Comments'
+                                value='comments'
+                                sx={{ borderTop: light ? 0 : undefined }}
+                            >
+                                <Chat />
+                            </UnderboardButton>
+
+                            <UnderboardButton
                                 tooltip='Position Database'
                                 value='explorer'
                                 sx={{
@@ -188,7 +198,7 @@ const Underboard: React.FC<UnderboardProps> = ({
                     </Paper>
                 )}
 
-                <Stack sx={{ overflowY: 'scroll', flexGrow: 1 }}>
+                <Stack sx={{ overflowY: 'auto', flexGrow: 1 }}>
                     {underboard === 'tags' && (
                         <Tags
                             tags={chess?.pgn.header.tags}
@@ -206,6 +216,9 @@ const Underboard: React.FC<UnderboardProps> = ({
                         />
                     )}
                     {underboard === 'clocks' && <ClockUsage showEditor={showEditor} />}
+                    {underboard === 'comments' && (
+                        <Comments game={game} onSaveGame={onSaveGame} />
+                    )}
                 </Stack>
             </Card>
         </Resizable>
