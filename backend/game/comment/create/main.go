@@ -16,7 +16,11 @@ import (
 
 var repository database.GameCommenter = database.DynamoDB
 
-func Handler(ctx context.Context, event api.Request) (api.Response, error) {
+func main() {
+	lambda.Start(handler)
+}
+
+func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
 	log.Infof("Event: %#v", event)
 
@@ -38,42 +42,18 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		id = string(b)
 	}
 
-	comment := database.Comment{}
-	if err := json.Unmarshal([]byte(event.Body), &comment); err != nil {
-		err = errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
-		return api.Failure(err), nil
-	}
-
-	if comment.Owner != api.GetUserInfo(event).Username {
-		err := errors.New(400, "Invalid request: owner does not match caller", "")
-		return api.Failure(err), nil
-	}
-
-	if comment.OwnerDisplayName == "" {
-		err := errors.New(400, "Invalid request: ownerDisplayName must not be empty", "")
-		return api.Failure(err), nil
-	}
-
-	if string(comment.OwnerCohort) == "" {
-		err := errors.New(400, "Invalid request: ownerCohort must not be empty", "")
-		return api.Failure(err), nil
-	}
-
-	if comment.Content == "" {
-		err := errors.New(400, "Invalid request: content must not be empty", "")
-		return api.Failure(err), nil
-	}
-
-	comment.Id = uuid.NewString()
-	comment.CreatedAt = time.Now().Format(time.RFC3339)
-	comment.UpdatedAt = comment.CreatedAt
-
-	game, err := repository.CreateComment(cohort, id, &comment)
+	comment, err := getComment(event)
 	if err != nil {
 		return api.Failure(err), nil
 	}
 
-	if comment.Owner != game.Owner {
+	existingComments := event.QueryStringParameters["existing"] == "true"
+	game, err := repository.PutComment(cohort, id, &comment, existingComments)
+	if err != nil {
+		return api.Failure(err), nil
+	}
+
+	if comment.Owner.Username != game.Owner {
 		notification := database.GameCommentNotification(game)
 		if err := repository.PutNotification(notification); err != nil {
 			log.Error("Failed to create game comment notification:", err)
@@ -83,6 +63,39 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	return api.Success(game), nil
 }
 
-func main() {
-	lambda.Start(Handler)
+func getComment(event api.Request) (database.PositionComment, error) {
+	comment := database.PositionComment{}
+	if err := json.Unmarshal([]byte(event.Body), &comment); err != nil {
+		return comment, errors.Wrap(400, "Invalid request: unable to unmarshal body", "", err)
+	}
+
+	if comment.Owner.Username != api.GetUserInfo(event).Username {
+		return comment, errors.New(400, "Invalid request: owner does not match caller", "")
+	}
+
+	if comment.Owner.DisplayName == "" {
+		return comment, errors.New(400, "Invalid request: owner displayName must not be empty", "")
+	}
+
+	if !database.IsValidCohort(database.DojoCohort(comment.Owner.Cohort)) {
+		return comment, errors.New(400, "Invalid request: owner cohort is invalid", "")
+	}
+
+	if comment.Fen == "" {
+		return comment, errors.New(400, "Invalid request: fen is required", "")
+	}
+
+	if comment.Ply < 0 {
+		return comment, errors.New(400, "Invalid request: ply must be non-negative", "")
+	}
+
+	if comment.Content == "" {
+		return comment, errors.New(400, "Invalid request: content must not be empty", "")
+	}
+
+	comment.Id = uuid.NewString()
+	comment.CreatedAt = time.Now().Format(time.RFC3339)
+	comment.UpdatedAt = comment.CreatedAt
+
+	return comment, nil
 }

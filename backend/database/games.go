@@ -289,8 +289,8 @@ type GameLister interface {
 }
 
 type GameCommenter interface {
-	// CreateComment appends the provided comment to the provided Game's comment list.
-	CreateComment(cohort, id string, comment *Comment) (*Game, error)
+	// PutComment puts the provided comment in the provided Game's position comments.
+	PutComment(cohort, id string, comment *PositionComment, skipMapCreation bool) (*Game, error)
 
 	NotificationPutter
 }
@@ -663,15 +663,71 @@ func (repo *dynamoRepository) ScanGames(startKey string) ([]*Game, string, error
 	return games, lastKey, nil
 }
 
-// CreateComment appends the provided comment to the provided Game's comment list.
-func (repo *dynamoRepository) CreateComment(cohort, id string, comment *Comment) (*Game, error) {
+// PutComment puts the provided comment in the provided Game's position comments.
+// If skipMapCreation is true, then the first conditional request to create the initial
+// comment map for a position is skipped.
+func (repo *dynamoRepository) PutComment(cohort, id string, comment *PositionComment, skipMapCreation bool) (*Game, error) {
 	item, err := dynamodbattribute.MarshalMap(comment)
 	if err != nil {
 		return nil, errors.Wrap(400, "Invalid request: comment cannot be marshaled", "", err)
 	}
 
-	input := &dynamodb.UpdateItemInput{
-		ConditionExpression: aws.String("attribute_exists(cohort)"),
+	var input *dynamodb.UpdateItemInput
+
+	if !skipMapCreation {
+		input = &dynamodb.UpdateItemInput{
+			ConditionExpression: aws.String("attribute_exists(cohort) AND attribute_not_exists(#p.#fen)"),
+			UpdateExpression:    aws.String("SET #p.#fen = :p"),
+			ExpressionAttributeNames: map[string]*string{
+				"#p":   aws.String("positionComments"),
+				"#fen": aws.String(comment.Fen),
+			},
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":p": {
+					M: map[string]*dynamodb.AttributeValue{
+						comment.Id: {
+							M: item,
+						},
+					},
+				},
+			},
+			Key: map[string]*dynamodb.AttributeValue{
+				"cohort": {
+					S: aws.String(cohort),
+				},
+				"id": {
+					S: aws.String(id),
+				},
+			},
+			ReturnValues: aws.String("ALL_NEW"),
+			TableName:    aws.String(gameTable),
+		}
+
+		game := Game{}
+		err = repo.updateItem(input, &game)
+		if err == nil {
+			return &game, nil
+		}
+
+		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); !ok {
+			return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
+		}
+	}
+
+	// If we made it here, then the game already has a comments map for this fen, and
+	// we need to add the new comment to the existing map
+
+	input = &dynamodb.UpdateItemInput{
+		ConditionExpression: aws.String("attribute_exists(cohort) AND attribute_exists(#p.#fen)"),
+		UpdateExpression:    aws.String("SET #p.#fen.#id = :c"),
+		ExpressionAttributeNames: map[string]*string{
+			"#p":   aws.String("positionComments"),
+			"#fen": aws.String(comment.Fen),
+			"#id":  aws.String(comment.Id),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":c": {M: item},
+		},
 		Key: map[string]*dynamodb.AttributeValue{
 			"cohort": {
 				S: aws.String(cohort),
@@ -680,32 +736,17 @@ func (repo *dynamoRepository) CreateComment(cohort, id string, comment *Comment)
 				S: aws.String(id),
 			},
 		},
-		UpdateExpression: aws.String("SET #c = list_append(#c, :c)"),
-		ExpressionAttributeNames: map[string]*string{
-			"#c": aws.String("comments"),
-		},
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":c": {
-				L: []*dynamodb.AttributeValue{
-					{M: item},
-				},
-			},
-		},
 		ReturnValues: aws.String("ALL_NEW"),
 		TableName:    aws.String(gameTable),
 	}
 
-	result, err := repo.svc.UpdateItem(input)
+	game := Game{}
+	err = repo.updateItem(input, &game)
 	if err != nil {
 		if aerr, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return nil, errors.Wrap(400, "Invalid request: game not found", "DynamoDB conditional check failed", aerr)
+			return nil, errors.Wrap(400, "Invalid request: game does not exist", "DynamoDB UpdateItem failure", aerr)
 		}
 		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
-	}
-
-	game := Game{}
-	if err = dynamodbattribute.UnmarshalMap(result.Attributes, &game); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal CreateComment result", err)
 	}
 	return &game, nil
 }
