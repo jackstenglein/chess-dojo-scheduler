@@ -1,14 +1,15 @@
-import React, { useMemo, useRef } from 'react';
 import { Move } from '@jackstenglein/chess';
 import { Card, Stack } from '@mui/material';
+import React, { useMemo, useRef } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 
-import Result from './Result';
-import Variation from './Variation';
-import GameComment from './GameComment';
 import { useLightMode } from '../../../ThemeProvider';
+import { useChess } from '../PgnBoard';
 import { ResizableData } from '../resize';
 import ResizeHandle from '../ResizeHandle';
+import GameComment from './GameComment';
+import Result from './Result';
+import Variation from './Variation';
 
 interface PgnTextProps {
     onClickMove: (m: Move) => void;
@@ -53,6 +54,7 @@ interface ResizablePgnTextProps extends PgnTextProps {
 
 export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
     const { resizeData, onResize, onClickMove } = props;
+    const { chess } = useChess();
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
         onResize(data.size.width, data.size.height);
@@ -74,6 +76,7 @@ export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
                     mb: { xs: 1, md: 0 },
                     width: `${resizeData.width}px`,
                     maxHeight: `${resizeData.height}px`,
+                    visibility: chess ? undefined : 'hidden',
                 }}
             >
                 {Pgn}

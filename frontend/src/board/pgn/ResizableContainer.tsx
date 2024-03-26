@@ -1,24 +1,21 @@
+import { Move } from '@jackstenglein/chess';
 import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
-import { Move } from '@jackstenglein/chess';
 import 'react-resizable/css/styles.css';
 
-import Underboard from './boardTools/underboard/Underboard';
-import ResizableBoardArea from './ResizableBoardArea';
-import { ResizablePgnText } from './pgnText/PgnText';
-import { Game } from '../../database/game';
-import { BoardApi, Chess, PrimitiveMove } from '../Board';
 import { useCallback, useEffect, useState } from 'react';
-import { getNewSizes, getSizes } from './resize';
 import { useWindowSizeEffect } from '../../ThemeProvider';
+import { BoardApi, Chess, PrimitiveMove } from '../Board';
+import Underboard from './boardTools/underboard/Underboard';
+import { ResizablePgnText } from './pgnText/PgnText';
+import ResizableBoardArea from './ResizableBoardArea';
+import { getNewSizes, getSizes } from './resize';
 
 export const CONTAINER_ID = 'resize-container';
 
 interface ResizableContainerProps {
     showUnderboard?: boolean;
     showExplorer?: boolean;
-    game?: Game;
-    onSaveGame?: (g: Game) => void;
 
     pgn?: string;
     fen?: string;
@@ -33,8 +30,6 @@ interface ResizableContainerProps {
 const ResizableContainer: React.FC<ResizableContainerProps> = ({
     showUnderboard,
     showExplorer,
-    game,
-    onSaveGame,
     showPlayerHeaders,
     pgn,
     fen,
@@ -47,7 +42,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
     const parentWidth =
         document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
     const [sizes, setSizes] = useState(
-        getSizes(parentWidth, showUnderboard, !showPlayerHeaders)
+        getSizes(parentWidth, showUnderboard, !showPlayerHeaders),
     );
 
     useEffect(() => {
@@ -70,11 +65,11 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
                         ...sizes,
                         [area]: { ...sizes[area], width, height },
                     },
-                    !showPlayerHeaders
-                )
+                    !showPlayerHeaders,
+                ),
             );
         },
-        [setSizes, showPlayerHeaders]
+        [setSizes, showPlayerHeaders],
     );
 
     return (
@@ -92,8 +87,6 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
             {showUnderboard && (
                 <Underboard
                     showExplorer={showExplorer}
-                    game={game}
-                    onSaveGame={onSaveGame}
                     resizeData={sizes.underboard}
                     onResize={onResize('underboard')}
                 />
@@ -108,7 +101,6 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
                     pgn,
                     fen,
                     startOrientation,
-                    game,
                     showEditor,
                     onInitialize,
                     onMove,

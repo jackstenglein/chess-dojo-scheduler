@@ -9,14 +9,20 @@ interface ResizeHandleProps {
     right?: number;
     bottom?: number;
     fontSize?: string;
+    visibility?: 'hidden';
 }
 
 const ResizeHandle = forwardRef<any, ResizeHandleProps>((props, ref) => {
-    const { dark, position, right, bottom, fontSize, ...others } = props;
+    const { dark, position, right, bottom, fontSize, visibility, ...others } = props;
     return (
         <span
             ref={ref}
-            style={{ position: position || 'relative', cursor: 'nwse-resize', right: 0 }}
+            style={{
+                position: position || 'relative',
+                cursor: 'nwse-resize',
+                right: 0,
+                visibility,
+            }}
             {...others}
         >
             <Tooltip title='Resize'>

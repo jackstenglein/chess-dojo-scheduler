@@ -20,7 +20,7 @@ import { Resizable, ResizeCallbackData } from 'react-resizable';
 
 import { useLocalStorage } from 'usehooks-ts';
 import { useAuth } from '../../../../auth/Auth';
-import { Game } from '../../../../database/game';
+import { useGame } from '../../../../games/view/GamePage';
 import { useLightMode } from '../../../../ThemeProvider';
 import Explorer from '../../explorer/Explorer';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
@@ -42,23 +42,17 @@ interface UnderboardProps {
     resizeData: ResizableData;
     onResize: (width: number, height: number) => void;
     showExplorer?: boolean;
-    game?: Game;
-    onSaveGame?: (g: Game) => void;
 }
 
-const Underboard: React.FC<UnderboardProps> = ({
-    resizeData,
-    onResize,
-    game,
-    onSaveGame,
-}) => {
+const Underboard: React.FC<UnderboardProps> = ({ resizeData, onResize }) => {
     const user = useAuth().user;
     const { chess, keydownMap } = useChess();
     const [keyBindings] = useLocalStorage(BoardKeyBindingsKey, defaultKeyBindings);
+    const { game } = useGame();
 
     const showEditor = game && game.owner === user?.username;
     const [underboard, setUnderboard] = useState(
-        showEditor ? 'editor' : Boolean(game) ? 'tags' : 'explorer',
+        showEditor ? 'editor' : Boolean(game) ? 'comments' : 'explorer',
     );
     const light = useLightMode();
 
@@ -118,6 +112,7 @@ const Underboard: React.FC<UnderboardProps> = ({
                     width: `${resizeData.width}px`,
                     height: `${resizeData.height}px`,
                     order: resizeData.order,
+                    visibility: chess ? undefined : 'hidden',
                 }}
                 variant={light ? 'outlined' : 'elevation'}
             >
@@ -208,17 +203,9 @@ const Underboard: React.FC<UnderboardProps> = ({
                     )}
                     {underboard === 'editor' && <Editor />}
                     {underboard === 'explorer' && <Explorer />}
-                    {underboard === 'settings' && (
-                        <Settings
-                            showEditor={showEditor}
-                            game={game}
-                            onSaveGame={onSaveGame}
-                        />
-                    )}
+                    {underboard === 'settings' && <Settings showEditor={showEditor} />}
                     {underboard === 'clocks' && <ClockUsage showEditor={showEditor} />}
-                    {underboard === 'comments' && (
-                        <Comments game={game} onSaveGame={onSaveGame} />
-                    )}
+                    {underboard === 'comments' && <Comments />}
                 </Stack>
             </Card>
         </Resizable>

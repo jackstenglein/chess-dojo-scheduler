@@ -11,7 +11,8 @@ import React, {
     useState,
 } from 'react';
 import { useAuth } from '../../auth/Auth';
-import { Game } from '../../database/game';
+import { useGame } from '../../games/view/GamePage';
+import LoadingPage from '../../loading/LoadingPage';
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
 import KeyboardHandler from './KeyboardHandler';
 import ResizableContainer from './ResizableContainer';
@@ -44,8 +45,6 @@ interface PgnBoardProps {
     showTags?: boolean;
     showEditor?: boolean;
     showExplorer?: boolean;
-    game?: Game;
-    onSaveGame?: (g: Game) => void;
     startOrientation?: Color;
 }
 
@@ -55,8 +54,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     showTags,
     showEditor,
     showExplorer,
-    game,
-    onSaveGame,
     showPlayerHeaders = true,
     startOrientation = 'white',
 }) => {
@@ -65,6 +62,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
     const user = useAuth().user;
     const [, setOrientation] = useState(startOrientation);
     const keydownMap = useRef<Record<string, boolean>>({});
+    const { game } = useGame();
 
     const toggleOrientation = useCallback(() => {
         if (board) {
@@ -100,6 +98,7 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
     const onInitialize = useCallback(
         (board: BoardApi, chess: Chess) => {
+            console.log('Initialized');
             setBoard(board);
             setChess(chess);
         },
@@ -131,28 +130,33 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
                 width: 1,
                 maxWidth: 1,
                 overflowX: 'clip',
+                overflowY: chess ? undefined : 'hidden',
             }}
         >
-            <ChessContext.Provider value={chessContext}>
-                <KeyboardHandler />
+            {(!chess || (!pgn && !fen)) && (
+                <LoadingPage disableShrink sx={{ position: 'absolute', width: 1 }} />
+            )}
 
-                <ResizableContainer
-                    {...{
-                        showUnderboard,
-                        showExplorer,
-                        showPlayerHeaders,
-                        pgn,
-                        fen,
-                        startOrientation,
-                        game,
-                        showEditor,
-                        onInitialize,
-                        onMove,
-                        onClickMove,
-                        onSaveGame,
-                    }}
-                />
-            </ChessContext.Provider>
+            {(pgn || fen) && (
+                <ChessContext.Provider value={chessContext}>
+                    <KeyboardHandler />
+
+                    <ResizableContainer
+                        {...{
+                            showUnderboard,
+                            showExplorer,
+                            showPlayerHeaders,
+                            pgn,
+                            fen,
+                            startOrientation,
+                            showEditor,
+                            onInitialize,
+                            onMove,
+                            onClickMove,
+                        }}
+                    />
+                </ChessContext.Provider>
+            )}
         </Box>
     );
 };
