@@ -1,13 +1,11 @@
-import { Stack } from '@mui/material';
 import { Move } from '@jackstenglein/chess';
-import { ResizeCallbackData } from 'react-resizable';
+import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
+import { ResizeCallbackData } from 'react-resizable';
 
-import PlayerHeader from './PlayerHeader';
-import BoardButtons from './boardTools/boardButtons/BoardButtons';
-import { useAuth } from '../../auth/Auth';
 import Board, { BoardApi, Chess, PrimitiveMove } from '../Board';
-import { Game } from '../../database/game';
+import BoardButtons from './boardTools/boardButtons/BoardButtons';
+import PlayerHeader from './PlayerHeader';
 import { ResizableData } from './resize';
 
 interface ResizableBoardAreaProps {
@@ -18,7 +16,6 @@ interface ResizableBoardAreaProps {
     fen?: string;
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
-    game?: Game;
     showEditor?: boolean;
     onInitialize: (board: BoardApi, chess: Chess) => void;
     onMove: (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => void;
@@ -33,14 +30,11 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
     pgn,
     fen,
     startOrientation = 'white',
-    game,
     showEditor,
     onInitialize,
     onMove,
     onClickMove,
 }) => {
-    const user = useAuth().user;
-
     const handlResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
         onResize(data.size.width, data.size.height);
     };
@@ -64,11 +58,7 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
 
             {showPlayerHeaders && <PlayerHeader type='footer' />}
 
-            <BoardButtons
-                onClickMove={onClickMove}
-                game={game}
-                showSave={showEditor && game?.owner === user?.username}
-            />
+            <BoardButtons onClickMove={onClickMove} showSave={showEditor} />
         </Stack>
     );
 };

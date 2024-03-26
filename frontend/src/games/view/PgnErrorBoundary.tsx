@@ -3,14 +3,14 @@
 import { Button, Container, Stack, Typography } from '@mui/material';
 import React, { Component } from 'react';
 
-import { Game } from '../../database/game';
 import { useNavigate } from 'react-router-dom';
-import DeleteGameButton from './DeleteGameButton';
-import { useAuth } from '../../auth/Auth';
 import { EventType, trackEvent } from '../../analytics/events';
+import { useAuth } from '../../auth/Auth';
+import { Game } from '../../database/game';
+import DeleteGameButton from './DeleteGameButton';
 
 interface PgnErrorBoundaryProps {
-    pgn: string;
+    pgn?: string;
     game?: Game;
 }
 

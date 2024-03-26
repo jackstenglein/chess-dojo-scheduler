@@ -1,17 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Button, Dialog, DialogContent, Stack } from '@mui/material';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 
+import { Chess, Move, Square, SQUARES } from '@jackstenglein/chess';
 import { Chessground } from 'chessground';
 import { Api as BoardApi } from 'chessground/api';
 import { Config } from 'chessground/config';
-import { Key, Color } from 'chessground/types';
 import { DrawShape } from 'chessground/draw';
-import { Chess, Move, SQUARES, Square } from '@jackstenglein/chess';
+import { Color, Key } from 'chessground/types';
 
 import { ResizableData } from './pgn/resize';
 
 import './board.css';
+import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
 
 export { Chess };
@@ -34,7 +35,7 @@ export function toDests(chess?: Chess): Map<Key, Key[]> {
         if (moves) {
             dests.set(
                 s,
-                moves.map((m) => (m as Move).to)
+                moves.map((m) => (m as Move).to),
             );
         }
     });
@@ -51,7 +52,7 @@ const boardColors: Record<string, string> = {
 };
 
 const chessColors = Object.fromEntries(
-    Object.entries(boardColors).map(([k, v]) => [v, k])
+    Object.entries(boardColors).map(([k, v]) => [v, k]),
 );
 
 export function toShapes(chess?: Chess): DrawShape[] {
@@ -139,7 +140,7 @@ export function checkPromotion(
     orig: Key,
     dest: Key,
     onPromotion: (move: PrePromotionMove) => void,
-    onMove: onMoveFunc
+    onMove: onMoveFunc,
 ) {
     if (chess.get(orig as Square)?.type === 'p' && (dest[1] === '1' || dest[1] === '8')) {
         onPromotion({ orig, dest, color: toColor(chess) });
@@ -185,7 +186,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         (move: PrePromotionMove) => {
             setPromotion(move);
         },
-        [setPromotion]
+        [setPromotion],
     );
 
     const onFinishPromotion = useCallback(
@@ -200,7 +201,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             }
             setPromotion(null);
         },
-        [board, chess, promotion, onMove, setPromotion]
+        [board, chess, promotion, onMove, setPromotion],
     );
 
     const onCancelPromotion = useCallback(() => {
@@ -237,7 +238,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                                 orig,
                                 dest,
                                 onStartPromotion,
-                                onMove ? onMove : defaultOnMove
+                                onMove ? onMove : defaultOnMove,
                             ),
                     },
                 },
@@ -277,7 +278,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                                 orig,
                                 dest,
                                 onStartPromotion,
-                                onMove ? onMove : defaultOnMove
+                                onMove ? onMove : defaultOnMove,
                             ),
                     },
                 },
@@ -323,6 +324,7 @@ interface MaybeResizableBoardProps extends BoardProps {
 
 const MaybeResizableBoard: React.FC<MaybeResizableBoardProps> = (props) => {
     const { resizeData, onResize, hideResize, ...boardProps } = props;
+    const { chess } = useChess();
 
     if (resizeData && onResize) {
         return (
@@ -341,6 +343,7 @@ const MaybeResizableBoard: React.FC<MaybeResizableBoardProps> = (props) => {
                         right={1}
                         fontSize='1rem'
                         dark
+                        visibility={chess ? undefined : 'hidden'}
                     />
                 }
             >
@@ -348,6 +351,7 @@ const MaybeResizableBoard: React.FC<MaybeResizableBoardProps> = (props) => {
                     style={{
                         width: `${resizeData.width}px`,
                         height: `${resizeData.height}px`,
+                        visibility: chess ? undefined : 'hidden',
                     }}
                 >
                     <Board {...boardProps} />

@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Game, PositionComment } from '../../../../../database/game';
+import { useGame } from '../../../../../games/view/GamePage';
 import { reconcile } from '../../../../Board';
 import { useChess } from '../../../PgnBoard';
 import Comment from './Comment';
@@ -30,16 +31,12 @@ interface PositionCommentSection {
     comments: PositionComment[];
 }
 
-interface CommentsProps {
-    game?: Game;
-    onSaveGame?: (g: Game) => void;
-}
-
-const Comments: React.FC<CommentsProps> = ({ game, onSaveGame }) => {
+const Comments = () => {
     const [view, setView] = useState(View.FullGame);
     const [sortBy, setSortBy] = useState(SortBy.Newest);
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
+    const { game } = useGame();
 
     useEffect(() => {
         if (chess) {
@@ -59,7 +56,7 @@ const Comments: React.FC<CommentsProps> = ({ game, onSaveGame }) => {
         }
     }, [chess, setForceRender]);
 
-    if (!game || !onSaveGame || !chess) {
+    if (!game || !chess) {
         return null;
     }
 
@@ -104,7 +101,7 @@ const Comments: React.FC<CommentsProps> = ({ game, onSaveGame }) => {
                     </Stack>
                 </Stack>
 
-                <CommentEditor game={game} onSuccess={onSaveGame} />
+                <CommentEditor />
             </Stack>
         </CardContent>
     );

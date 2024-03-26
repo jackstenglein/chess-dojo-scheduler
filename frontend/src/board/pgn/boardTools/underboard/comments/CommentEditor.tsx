@@ -4,20 +4,21 @@ import { useState } from 'react';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { useAuth } from '../../../../../auth/Auth';
-import { Game, PositionComment } from '../../../../../database/game';
+import { PositionComment } from '../../../../../database/game';
+import { useGame } from '../../../../../games/view/GamePage';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../../PgnBoard';
 
-interface CommentEditorProps {
-    game: Game;
-    onSuccess: (game: Game) => void;
-}
-
-const CommentEditor: React.FC<CommentEditorProps> = ({ game, onSuccess }) => {
+const CommentEditor = () => {
     const user = useAuth().user!;
     const api = useApi();
     const [comment, setComment] = useState('');
     const request = useRequest();
     const { chess } = useChess();
+    const { game, onUpdateGame } = useGame();
+
+    if (!game || !onUpdateGame) {
+        return null;
+    }
 
     const onSubmit = () => {
         const content = comment.trim();
@@ -48,7 +49,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ game, onSuccess }) => {
                 console.log('createComment: ', resp);
                 setComment('');
                 request.onSuccess();
-                onSuccess(resp.data);
+                onUpdateGame(resp.data);
             })
             .catch((err) => {
                 console.error('createComment: ', err);
