@@ -13,6 +13,7 @@ import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-d
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
+import { toDojoDateString } from '../../calendar/displayDate';
 import { OpenClassical } from '../../database/tournament';
 import LoadingPage from '../../loading/LoadingPage';
 import EntrantsTable from './EntrantsTable';
@@ -101,6 +102,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
         ratingRange: 'Open',
         view: 'standings',
     });
+    const viewer = useAuth().user;
 
     if (!openClassical) {
         return null;
@@ -119,14 +121,23 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
         setSearchParams(updatedParams);
     };
 
+    const registrationCloseDate = openClassical.registrationClose
+        ? toDojoDateString(
+              new Date(openClassical.registrationClose),
+              viewer?.timezoneOverride,
+              undefined,
+              { month: 'long', day: 'numeric' },
+          )
+        : null;
+
     return (
         <Stack mt={4} spacing={3}>
             {openClassical.acceptingRegistrations ? (
                 <Stack mt={4} pb={5} spacing={2} alignItems='start'>
                     <Typography>
-                        The tournament is still accepting registrations. Round one begins
-                        Monday February 5th. Register beforehand if you would like to
-                        play.
+                        The tournament is still accepting registrations. Round one begins{' '}
+                        {registrationCloseDate || 'soon'}. Register beforehand if you
+                        would like to play.
                     </Typography>
 
                     <Button

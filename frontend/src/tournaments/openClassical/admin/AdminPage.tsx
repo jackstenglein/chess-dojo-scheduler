@@ -1,5 +1,5 @@
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Container, Tab, Typography } from '@mui/material';
+import { Container, Stack, Tab, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ import { AuthStatus, useAuth } from '../../../auth/Auth';
 import { OpenClassical } from '../../../database/tournament';
 import LoadingPage from '../../../loading/LoadingPage';
 import BannedPlayersTab from './BannedPlayersTab';
+import CompleteTournament from './CompleteTournament';
 import PairingsTab from './PairingsTab';
 import PlayersTab from './PlayersTab';
 
@@ -48,9 +49,15 @@ const AdminPage = () => {
 
     return (
         <Container sx={{ py: 5 }}>
-            <Typography variant='h4' mb={2}>
-                Open Classical Admin
-            </Typography>
+            <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                <Typography variant='h4' mb={2}>
+                    Open Classical Admin
+                </Typography>
+                <CompleteTournament
+                    openClassical={request.data}
+                    onSuccess={request.onSuccess}
+                />
+            </Stack>
 
             <RequestSnackbar request={request} />
 

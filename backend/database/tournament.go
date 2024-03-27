@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -151,7 +152,7 @@ type OpenClassical struct {
 
 	// The name of a completed tournament. This attribute is only present on completed
 	// open classicals.
-	Name string `dynamodbav:"name" json:"name"`
+	Name string `dynamodbav:"name,omitempty" json:"name"`
 
 	// Whether the open classical is accepting registrations or not.
 	AcceptingRegistrations bool `dynamodbav:"acceptingRegistrations" json:"acceptingRegistrations"`
@@ -161,6 +162,13 @@ type OpenClassical struct {
 
 	// Players who are not in good standing and cannot register, mapped by their Lichess username.
 	BannedPlayers map[string]OpenClassicalPlayer `dynamodbav:"bannedPlayers" json:"bannedPlayers"`
+
+	// The month that the tournament started, in ISO format. Empty for tournaments still
+	// accepting registrations.
+	StartMonth string `dynamodbav:"startMonth" json:"-"`
+
+	// The date that registrations will close. Empty for tournaments that are already closed.
+	RegistrationClose string `dynamodbav:"registrationClose,omitempty" json:"registrationClose"`
 }
 
 // A section in the Open Classical tournament. Generally consists of both a region and a rating range.
@@ -277,15 +285,17 @@ type OpenClassicalPairingUpdate struct {
 
 // SetOpenClassical inserts the provided OpenClassical into the database.
 func (repo *dynamoRepository) SetOpenClassical(openClassical *OpenClassical) error {
-	openClassical.Type = LeaderboardType_OpenClassical
+	encoder := dynamodbattribute.NewEncoder()
+	encoder.EnableEmptyCollections = true
 
-	item, err := dynamodbattribute.MarshalMap(openClassical)
+	openClassical.Type = LeaderboardType_OpenClassical
+	item, err := encoder.Encode(openClassical)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Unable to marshall open classical", err)
 	}
 
 	input := &dynamodb.PutItemInput{
-		Item:      item,
+		Item:      item.M,
 		TableName: aws.String(tournamentTable),
 	}
 	_, err = repo.svc.PutItem(input)
@@ -610,12 +620,15 @@ func (repo *dynamoRepository) OpenClassicalCloseRegistrations() (*OpenClassical,
 			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
 			"startsAt": {S: aws.String(CurrentLeaderboard)},
 		},
-		UpdateExpression: aws.String("SET #acceptingRegistrations = :false"),
+		UpdateExpression: aws.String("SET #acceptingRegistrations = :false, #startMonth = :startMonth REMOVE #registrationClose"),
 		ExpressionAttributeNames: map[string]*string{
 			"#acceptingRegistrations": aws.String("acceptingRegistrations"),
+			"#startMonth":             aws.String("startMonth"),
+			"#registrationClose":      aws.String("registrationClose"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":false": {BOOL: aws.Bool(false)},
+			":false":      {BOOL: aws.Bool(false)},
+			":startMonth": {S: aws.String(time.Now().Format("2006-01"))},
 		},
 		TableName:    aws.String(tournamentTable),
 		ReturnValues: aws.String("ALL_NEW"),

@@ -120,6 +120,9 @@ export interface OpenClassical {
 
     /** Players who are not in good standing and cannot register, mapped by their Lichess username. */
     bannedPlayers: Record<string, OpenClassicalPlayer>;
+
+    /** The date that registrations will close. */
+    registrationClose: string;
 }
 
 export interface OpenClassicalSection {

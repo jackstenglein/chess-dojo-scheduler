@@ -309,6 +309,28 @@ functions:
           - dynamodb:GetItem
         Resource:
           - ${param:UsersTableArn}
+  
+  openClassicalAdminCompleteTournament:
+    handler: openClassical/admin/completeTournament/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/complete
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
 
 resources:
   Resources:

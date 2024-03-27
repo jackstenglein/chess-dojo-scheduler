@@ -137,6 +137,15 @@ export type TournamentApiContextType = {
     adminVerifyResult: (
         request: OpenClassicalVerifyResultRequest,
     ) => Promise<AxiosResponse<OpenClassical>>;
+
+    /**
+     * Completes the current open classical and creates a new one that is accepting registrations.
+     * @param nextStartDate The start date of the new open classical.
+     * @returns An AxiosResponse containing the new open classical.
+     */
+    adminCompleteTournament: (
+        nextStartDate: string,
+    ) => Promise<AxiosResponse<OpenClassical>>;
 };
 
 /** A request to register for the Open Classical. */
@@ -429,5 +438,19 @@ export function adminVerifyResult(
         `${BASE_URL}/tournaments/open-classical/admin/verify-result`,
         request,
         { headers: { Authorization: 'Bearer ' + idToken } },
+    );
+}
+
+/**
+ * Completes the current open classical and creates a new one that is accepting registrations.
+ * @param idToken The id token of the current signed-in user.
+ * @param nextStartDate The start date of the new open classical.
+ * @returns An AxiosResponse containing the new open classical.
+ */
+export function adminCompleteTournament(idToken: string, nextStartDate: string) {
+    return axios.put<OpenClassical>(
+        `${BASE_URL}/tournaments/open-classical/admin/complete`,
+        { nextStartDate },
+        { headers: { Authorization: `Bearer ${idToken}` } },
     );
 }
