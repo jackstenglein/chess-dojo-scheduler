@@ -33,7 +33,7 @@ const timezoneOffsets: Record<string, number> = {
 export function getTimeZonedDate(
     date: Date,
     timezone?: string,
-    direction: 'forward' | 'backward' = 'backward'
+    direction: 'forward' | 'backward' = 'backward',
 ) {
     if (!timezone || !timezoneOffsets[timezone]) {
         return date;
@@ -43,19 +43,10 @@ export function getTimeZonedDate(
     const localOffset = date.getTimezoneOffset();
     const diff = localOffset - desiredOffset;
 
-    // console.log('Desired Offset: ', desiredOffset);
-    // console.log('Local Offset: ', localOffset);
-    // console.log('Diff: ', diff);
-
     const result =
         direction === 'forward'
             ? new Date(date.getTime() - diff * 60000)
             : new Date(date.getTime() + diff * 60000);
-    // console.log('date.getTime(): ', date.getTime());
-    // console.log('result.getTime(): ', result.getTime());
-
-    // console.log('Date: ', date);
-    // console.log('Result: ', result);
 
     return result;
 }
@@ -64,7 +55,7 @@ export function toDojoDateString(
     date: Date,
     timezone: string | undefined,
     timezoneDirection: 'forward' | 'backward' = 'backward',
-    options?: Intl.DateTimeFormatOptions
+    options?: Intl.DateTimeFormatOptions,
 ): string {
     date = getTimeZonedDate(date, timezone, timezoneDirection);
     return date.toLocaleDateString(undefined, options);
@@ -75,7 +66,7 @@ export function toDojoTimeString(
     timezone: string | undefined,
     timeFormat: TimeFormat | undefined,
     timezoneDirection: 'forward' | 'backward' = 'backward',
-    options?: Intl.DateTimeFormatOptions
+    options?: Intl.DateTimeFormatOptions,
 ): string {
     date = getTimeZonedDate(date, timezone, timezoneDirection);
     timeFormat = timeFormat || TimeFormat.TwelveHour;

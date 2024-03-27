@@ -1,23 +1,29 @@
-import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { LoadingButton } from '@mui/lab';
 import {
+    Button,
     Checkbox,
     Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     FormControl,
     FormControlLabel,
     FormHelperText,
     FormLabel,
+    Link,
     MenuItem,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useApi } from '../../api/Api';
 
 const RegistrationPage = () => {
     const auth = useAuth();
@@ -27,7 +33,7 @@ const RegistrationPage = () => {
 
     const [email, setEmail] = useState('');
     const [lichessUsername, setLichessUsername] = useState(
-        user?.ratings?.LICHESS?.username || ''
+        user?.ratings?.LICHESS?.username || '',
     );
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [title, setTitle] = useState('');
@@ -103,9 +109,7 @@ const RegistrationPage = () => {
         })
             .then((resp) => {
                 console.log('registerForOpenClassical: ', resp);
-                navigate(
-                    `/tournaments/open-classical?region=${region}&ratingRange=${section}`
-                );
+                request.onSuccess();
             })
             .catch((err) => {
                 console.error(err);
@@ -233,6 +237,59 @@ const RegistrationPage = () => {
                     Register
                 </LoadingButton>
             </Stack>
+
+            <Dialog
+                open={request.status === RequestStatus.Success}
+                maxWidth='sm'
+                fullWidth
+            >
+                <DialogTitle>Registration Complete</DialogTitle>
+                <DialogContent>
+                    You've successfully registered for the Open Classical. Make sure to
+                    follow these steps so that your opponents can contact you:
+                    <ol>
+                        <li>
+                            Join the{' '}
+                            <Link target='_blank' href='https://discord.gg/FGGrGVZKGG'>
+                                ChessDojo Discord Server
+                            </Link>
+                        </li>
+                        <li>
+                            Give yourself the{' '}
+                            <Link
+                                rel='noreferrer'
+                                target='_blank'
+                                href='https://discord.com/channels/419042970558398469/830193432260640848/1097541886039834684'
+                            >
+                                Open Classical badge
+                            </Link>
+                        </li>
+                        <li>
+                            Make sure you are able to receive messages from people you
+                            share a server with (
+                            <Link
+                                rel='noreferrer'
+                                target='_blank'
+                                href='https://medium.com/@ZombieInu/discord-enable-disable-allowing-dms-from-server-members-f84881d896c6'
+                            >
+                                instructions
+                            </Link>
+                            )
+                        </li>
+                    </ol>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() =>
+                            navigate(
+                                `/tournaments/open-classical?region=${region}&ratingRange=${section}`,
+                            )
+                        }
+                    >
+                        Done
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 };
