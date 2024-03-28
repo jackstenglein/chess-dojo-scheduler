@@ -1,20 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import {
-    Stack,
-    Typography,
     Divider,
     FormControl,
+    Link,
     MenuItem,
     Select,
-    Link,
+    Stack,
+    Typography,
 } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
-import GraduationIcon from '../scoreboard/GraduationIcon';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { Graduation } from '../database/graduation';
-import LoadingPage from '../loading/LoadingPage';
 import {
     DataGridPro,
     GridColDef,
@@ -22,13 +17,18 @@ import {
     GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
+import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { Graduation } from '../database/graduation';
+import LoadingPage from '../loading/LoadingPage';
 import Avatar from '../profile/Avatar';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];
 }
 
-const graduationDayOfWeek = 4; // Thursday
+const graduationDayOfWeek = 3; // Wednesday
 const numberOfOptions = 4;
 const lastWeek = new Date();
 lastWeek.setDate(lastWeek.getDate() - 7);
@@ -48,7 +48,7 @@ function getTimeframeOptions() {
     currGraduation.setUTCHours(17, 30, 0, 0);
     currGraduation.setUTCDate(
         currGraduation.getUTCDate() +
-            ((graduationDayOfWeek + 7 - currGraduation.getUTCDay()) % 7)
+            ((graduationDayOfWeek + 7 - currGraduation.getUTCDay()) % 7),
     );
 
     const options: TimeframeOption[] = [];
@@ -110,7 +110,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
             if (graduationCohorts && graduationCohorts.length > 0) {
                 if (graduationCohorts.length > 3) {
                     graduationCohorts = graduationCohorts.slice(
-                        graduationCohorts.length - 3
+                        graduationCohorts.length - 3,
                     );
                 }
                 return (
@@ -199,8 +199,9 @@ const RecentGraduates = () => {
 
         return getUniqueGraduations(
             gs.filter(
-                (g) => g.createdAt >= timeframe.minDate && g.createdAt < timeframe.maxDate
-            )
+                (g) =>
+                    g.createdAt >= timeframe.minDate && g.createdAt < timeframe.maxDate,
+            ),
         );
     }, [request.data, timeframe]);
 
