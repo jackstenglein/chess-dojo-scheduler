@@ -1,15 +1,28 @@
-import { Stack, Typography } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import { Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
-
 import { GameResult } from '../../database/game';
+import { useLightMode } from '../../ThemeProvider';
 
 export function RenderPlayers(params: GridRenderCellParams) {
+    const light = useLightMode();
+
     return (
         <Stack>
             <Stack direction='row' spacing={1} alignItems='center'>
-                <CircleOutlinedIcon sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }} />
+                {light ? (
+                    <CircleOutlinedIcon
+                        sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }}
+                    />
+                ) : (
+                    <CircleIcon
+                        sx={{
+                            fontSize: { xs: '0.75rem', sm: 'initial' },
+                            color: 'white',
+                        }}
+                    />
+                )}
                 <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
                     {params.value.white}
                 </Typography>
@@ -17,8 +30,10 @@ export function RenderPlayers(params: GridRenderCellParams) {
 
             <Stack direction='row' spacing={1} alignItems='center'>
                 <CircleIcon
-                    htmlColor='black'
-                    sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }}
+                    sx={{
+                        fontSize: { xs: '0.75rem', sm: 'initial' },
+                        color: 'grey.800',
+                    }}
                 />
                 <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
                     {params.value.black}
