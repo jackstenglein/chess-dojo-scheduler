@@ -20,6 +20,7 @@ import {
     getStartRating as getUserStartRating,
     MinutesSpentKey,
     normalizeToFide,
+    RatingSystem,
     User,
 } from '../database/user';
 import RequirementModal from '../requirements/RequirementModal';
@@ -222,6 +223,13 @@ export function formatPercentComplete(value: number) {
 }
 
 export function getRatingSystem(params: GridValueGetterParams<ScoreboardRow>) {
+    if (
+        params.row.ratingSystem === RatingSystem.Custom &&
+        !isGraduation(params.row) &&
+        params.row.ratings[RatingSystem.Custom]?.name
+    ) {
+        return `Custom (${params.row.ratings[RatingSystem.Custom]?.name})`;
+    }
     return formatRatingSystem(params.row.ratingSystem);
 }
 

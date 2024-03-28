@@ -1,12 +1,12 @@
 import { Stack } from '@mui/material';
 
 import {
-    RatingSystem,
-    User,
     getRatingUsername,
     getSystemCurrentRating,
     getSystemStartRating,
     hideRatingUsername,
+    RatingSystem,
+    User,
 } from '../../database/user';
 import RatingCard from './RatingCard';
 
@@ -34,6 +34,7 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
                         ? user.ratingHistories[preferredSystem]
                         : undefined
                 }
+                name={user.ratings[preferredSystem]?.name}
             />
 
             {Object.values(RatingSystem).map((rs) => {
@@ -61,6 +62,7 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
                         ratingHistory={
                             user.ratingHistories ? user.ratingHistories[rs] : undefined
                         }
+                        name={user.ratings[rs]?.name}
                     />
                 );
             })}

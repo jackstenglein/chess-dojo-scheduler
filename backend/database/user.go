@@ -126,6 +126,9 @@ type Rating struct {
 
 	// The user's current rating
 	CurrentRating int `dynamodbav:"currentRating" json:"currentRating"`
+
+	// The name of the rating system. Only present if this is a custom rating.
+	Name string `dynamodbav:"name,omitempty" json:"name,omitempty"`
 }
 
 type RatingHistory struct {

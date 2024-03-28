@@ -1,28 +1,29 @@
-import {
-    Card,
-    CardContent,
-    Typography,
-    Stack,
-    Tooltip,
-    Chip,
-    Grid,
-    Box,
-} from '@mui/material';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import HelpIcon from '@mui/icons-material/Help';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-
 import {
-    RatingHistory,
-    RatingSystem,
-    formatRatingSystem,
-    getRatingBoundary,
-    normalizeToFide,
-} from '../../database/user';
+    Box,
+    Card,
+    CardContent,
+    Chip,
+    Grid,
+    Link,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';
+import {
+    formatRatingSystem,
+    getRatingBoundary,
+    normalizeToFide,
+    RatingHistory,
+    RatingSystem,
+} from '../../database/user';
 
 export function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     switch (ratingSystem) {
@@ -67,7 +68,7 @@ function datesAreSameDay(first: Date, second: Date) {
 
 export function getChartData(
     ratingHistory: RatingHistory[] | undefined,
-    currentRating: number
+    currentRating: number,
 ) {
     if (!ratingHistory || ratingHistory.length === 0) {
         return [];
@@ -113,6 +114,34 @@ export function getChartData(
     return [{ label: 'Rating', data }];
 }
 
+function RatingProfileLink({
+    usernameHidden,
+    username,
+    system,
+}: {
+    usernameHidden: boolean;
+    username: string;
+    system: RatingSystem;
+}) {
+    if (usernameHidden || system === RatingSystem.Custom) {
+        return <Box sx={{ mb: 2 }} />;
+    }
+    return (
+        <Stack direction='row' alignItems='end' sx={{ mb: 2 }}>
+            <Typography variant='subtitle1' color='text.secondary'>
+                {username}
+            </Typography>
+            <Link
+                target='_blank'
+                rel='noopener noreferrer'
+                href={getMemberLink(system, username)}
+            >
+                <OpenInNewIcon sx={{ fontSize: '1rem', ml: '3px' }} />
+            </Link>
+        </Stack>
+    );
+}
+
 interface Datum {
     date: Date;
     rating: number;
@@ -140,6 +169,7 @@ interface RatingCardProps {
     usernameHidden: boolean;
     currentRating: number;
     startRating: number;
+    name?: string;
     isPreferred?: boolean;
     ratingHistory?: RatingHistory[];
 }
@@ -151,6 +181,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
     usernameHidden,
     currentRating,
     startRating,
+    name,
     isPreferred,
     ratingHistory,
 }) => {
@@ -167,29 +198,15 @@ const RatingCard: React.FC<RatingCardProps> = ({
             <CardContent>
                 <Stack direction='row' justifyContent='space-between'>
                     <Stack>
-                        <Typography variant='h6'>{formatRatingSystem(system)}</Typography>
-                        <Stack direction='row' alignItems='center' sx={{ mb: 2 }}>
-                            {!usernameHidden && (
-                                <>
-                                    <Typography
-                                        variant='subtitle1'
-                                        color='text.secondary'
-                                    >
-                                        {username}
-                                    </Typography>
-                                    <a
-                                        target='_blank'
-                                        rel='noopener noreferrer'
-                                        href={getMemberLink(system, username)}
-                                    >
-                                        <OpenInNewIcon
-                                            color='primary'
-                                            sx={{ fontSize: '1rem', ml: '3px' }}
-                                        />
-                                    </a>
-                                </>
-                            )}
-                        </Stack>
+                        <Typography variant='h6'>
+                            {formatRatingSystem(system)}
+                            {system === RatingSystem.Custom && name && ` (${name})`}
+                        </Typography>
+                        <RatingProfileLink
+                            usernameHidden={usernameHidden}
+                            username={username}
+                            system={system}
+                        />
                     </Stack>
 
                     {isPreferred && (
@@ -314,7 +331,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                         }}
                                     >
                                         {Math.round(
-                                            normalizeToFide(currentRating, system)
+                                            normalizeToFide(currentRating, system),
                                         )}
                                     </Typography>
                                 </Stack>

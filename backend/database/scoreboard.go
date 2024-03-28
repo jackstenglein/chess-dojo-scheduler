@@ -63,14 +63,16 @@ func (repo *dynamoRepository) ListScoreboardSummaries(startKey string) ([]Scoreb
 
 	input := &dynamodb.QueryInput{
 		KeyConditionExpression: aws.String("#status = :subscribed"),
-		FilterExpression:       aws.String("#u >= :u"),
+		FilterExpression:       aws.String("#u >= :u AND #cohort <> :none"),
 		ExpressionAttributeNames: map[string]*string{
 			"#status": aws.String("subscriptionStatus"),
 			"#u":      aws.String("updatedAt"),
+			"#cohort": aws.String("dojoCohort"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":subscribed": {S: aws.String(SubscriptionStatus_Subscribed)},
 			":u":          {S: aws.String(monthAgo)},
+			":none":       {S: aws.String(string(NoCohort))},
 		},
 		IndexName: aws.String("ScoreboardSummaryIdx"),
 		TableName: aws.String(userTable),

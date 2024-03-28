@@ -90,6 +90,7 @@ interface RatingEditor {
     hideUsername: boolean;
     startRating: string;
     currentRating: string;
+    name: string;
 }
 
 function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
@@ -102,6 +103,7 @@ function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
                 hideUsername: ratings[rs]?.hideUsername || false,
                 startRating: `${ratings[rs]?.startRating || 0}`,
                 currentRating: `${ratings[rs]?.currentRating || 0}`,
+                name: ratings[rs]?.name || '',
             };
             return m;
         },
@@ -118,6 +120,7 @@ function getRatingsFromEditors(ratingEditors: Record<RatingSystem, RatingEditor>
                 hideUsername: ratingEditors[rs].hideUsername || false,
                 startRating: parseRating(ratingEditors[rs].startRating),
                 currentRating: parseRating(ratingEditors[rs].currentRating),
+                name: ratingEditors[rs].name || undefined,
             };
             return m;
         },
@@ -256,6 +259,16 @@ const ProfileEditorPage = () => {
             [ratingSystem]: {
                 ...ratingEditors[ratingSystem],
                 hideUsername: value,
+            },
+        });
+    };
+
+    const setRatingName = (ratingSystem: RatingSystem, value: string) => {
+        setRatingEditors({
+            ...ratingEditors,
+            [ratingSystem]: {
+                ...ratingEditors[ratingSystem],
+                name: value,
             },
         });
     };
@@ -667,7 +680,7 @@ const ProfileEditorPage = () => {
                                     key={rs.label}
                                     container
                                     columnGap={2}
-                                    alignItems='center'
+                                    alignItems='start'
                                 >
                                     <Grid item xs>
                                         <TextField
@@ -730,7 +743,7 @@ const ProfileEditorPage = () => {
                                 </Grid>
                             ))}
 
-                            <Grid container columnGap={2} alignItems='center'>
+                            <Grid container columnGap={2} alignItems='start'>
                                 <Grid item xs>
                                     <TextField
                                         required={ratingSystem === RatingSystem.Custom}
@@ -774,6 +787,21 @@ const ProfileEditorPage = () => {
                                             'Your rating when you first joined the Dojo'
                                         }
                                         sx={{ width: 1 }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs>
+                                    <TextField
+                                        label='Custom Rating Name'
+                                        value={ratingEditors[RatingSystem.Custom]?.name}
+                                        onChange={(event) =>
+                                            setRatingName(
+                                                RatingSystem.Custom,
+                                                event.target.value,
+                                            )
+                                        }
+                                        sx={{ width: 1 }}
+                                        helperText=' '
                                     />
                                 </Grid>
                             </Grid>

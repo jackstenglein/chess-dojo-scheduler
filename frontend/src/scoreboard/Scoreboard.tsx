@@ -18,6 +18,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
 import { useFreeTier } from '../auth/Auth';
+import { isGraduation } from '../database/graduation';
 import { formatTime, Requirement, ScoreboardDisplay } from '../database/requirement';
 import { User } from '../database/user';
 import Avatar from '../profile/Avatar';
@@ -100,6 +101,18 @@ const cohortColumn: GridColDef<ScoreboardRow> = {
     headerName: 'Cohort',
     align: 'center',
     headerAlign: 'center',
+    valueGetter(params: GridValueGetterParams<ScoreboardRow>) {
+        if (isGraduation(params.row)) {
+            return '';
+        }
+        return parseInt(params.row.dojoCohort);
+    },
+    renderCell(params) {
+        if (isGraduation(params.row)) {
+            return '';
+        }
+        return params.row.dojoCohort;
+    },
 };
 
 const graduatedColumn: GridColDef<ScoreboardRow> = {

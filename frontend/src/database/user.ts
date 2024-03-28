@@ -65,6 +65,7 @@ export interface Rating {
     hideUsername: boolean;
     startRating: number;
     currentRating: number;
+    name?: string;
 }
 
 export interface RatingHistory {
