@@ -114,6 +114,12 @@ export interface PositionComment {
 
     /** The text content of the comment, which may contain mention markup. */
     content: string;
+
+    /** A comma-separated list of the parent comment ids. Empty for a top-level comment. */
+    parentIds: string;
+
+    /** Replies to this comment, mapped by their IDs. */
+    replies: Record<string, PositionComment>;
 }
 
 export type Game = GameInfo & {

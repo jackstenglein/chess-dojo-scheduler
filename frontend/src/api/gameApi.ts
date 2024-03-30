@@ -508,6 +508,9 @@ export interface UpdateCommentRequest {
 
     /** The new text content of the comment, which may contain mention markup. */
     content: string;
+
+    /** A comma-separated list of the parent comment ids. Empty for a top-level comment. */
+    parentIds: string;
 }
 
 /**

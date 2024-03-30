@@ -126,6 +126,12 @@ type PositionComment struct {
 	// The text content of the comment, which may contain mention markup.
 	Content string `dynamodbav:"content" json:"content"`
 
+	// A comma-separated list of the parent comment ids. Empty for a top-level comment.
+	ParentIds string `dynamodbav:"parentIds,omitempty" json:"parentIds"`
+
+	// Replies to this comment, mapped by their IDs
+	Replies map[string]PositionComment `dynamodbav:"replies" json:"replies"`
+
 	// TODO: figure out how to support suggesting variations
 }
 
@@ -144,6 +150,9 @@ type PositionCommentUpdate struct {
 
 	// The new text content of the comment, which may contain mention markup.
 	Content string `json:"content"`
+
+	// A comma-separated list of the parent comment ids. Empty for a top-level comment.
+	ParentIds string `json:"parentIds"`
 }
 
 type Game struct {
@@ -690,6 +699,11 @@ func (repo *dynamoRepository) PutComment(cohort, id string, comment *PositionCom
 		return nil, errors.Wrap(400, "Invalid request: comment cannot be marshaled", "", err)
 	}
 
+	if len(comment.Replies) == 0 {
+		// Hack to work around https://github.com/aws/aws-sdk-go/issues/682
+		item["replies"] = &dynamodb.AttributeValue{M: make(map[string]*dynamodb.AttributeValue)}
+	}
+
 	var input *dynamodb.UpdateItemInput
 
 	if !skipMapCreation {
@@ -735,14 +749,17 @@ func (repo *dynamoRepository) PutComment(cohort, id string, comment *PositionCom
 	// If we made it here, then the game already has a comments map for this fen, and
 	// we need to add the new comment to the existing map
 
+	exprAttrNames := map[string]*string{
+		"#p":   aws.String("positionComments"),
+		"#fen": aws.String(comment.Fen),
+		"#id":  aws.String(comment.Id),
+	}
+	parentPath := getCommentPath(comment.ParentIds, exprAttrNames)
+
 	input = &dynamodb.UpdateItemInput{
-		ConditionExpression: aws.String("attribute_exists(cohort) AND attribute_exists(#p.#fen)"),
-		UpdateExpression:    aws.String("SET #p.#fen.#id = :c"),
-		ExpressionAttributeNames: map[string]*string{
-			"#p":   aws.String("positionComments"),
-			"#fen": aws.String(comment.Fen),
-			"#id":  aws.String(comment.Id),
-		},
+		ConditionExpression:      aws.String("attribute_exists(cohort) AND attribute_exists(#p.#fen)"),
+		UpdateExpression:         aws.String(fmt.Sprintf("SET #p.#fen.%s#id = :c", parentPath)),
+		ExpressionAttributeNames: exprAttrNames,
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":c": {M: item},
 		},
@@ -771,18 +788,22 @@ func (repo *dynamoRepository) PutComment(cohort, id string, comment *PositionCom
 
 // UpdateComment applies the given position comment update to the database. The game after update is returned.
 func (repo *dynamoRepository) UpdateComment(owner string, update *PositionCommentUpdate) (*Game, error) {
+	exprAttrNames := map[string]*string{
+		"#p":        aws.String("positionComments"),
+		"#fen":      aws.String(update.Fen),
+		"#id":       aws.String(update.Id),
+		"#owner":    aws.String("owner"),
+		"#username": aws.String("username"),
+		"#content":  aws.String("content"),
+		"#updated":  aws.String("updatedAt"),
+	}
+	parentPath := getCommentPath(update.ParentIds, exprAttrNames)
+	updateExpr := fmt.Sprintf("SET #p.#fen.%s#id.#content = :c, #p.#fen.%s#id.#updated = :u", parentPath, parentPath)
+
 	input := &dynamodb.UpdateItemInput{
-		ConditionExpression: aws.String("#p.#fen.#id.#owner.#username = :owner"),
-		UpdateExpression:    aws.String("SET #p.#fen.#id.#content = :c, #p.#fen.#id.#updated = :u"),
-		ExpressionAttributeNames: map[string]*string{
-			"#p":        aws.String("positionComments"),
-			"#fen":      aws.String(update.Fen),
-			"#id":       aws.String(update.Id),
-			"#owner":    aws.String("owner"),
-			"#username": aws.String("username"),
-			"#content":  aws.String("content"),
-			"#updated":  aws.String("updatedAt"),
-		},
+		ConditionExpression:      aws.String(fmt.Sprintf("#p.#fen.%s#id.#owner.#username = :owner", parentPath)),
+		UpdateExpression:         aws.String(updateExpr),
+		ExpressionAttributeNames: exprAttrNames,
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":owner": {S: aws.String(owner)},
 			":c":     {S: aws.String(update.Content)},
@@ -814,16 +835,19 @@ func (repo *dynamoRepository) UpdateComment(owner string, update *PositionCommen
 // DeleteComment deletes the position comment indicated by the given update, including
 // any replies to the comment. The updated game is returned.
 func (repo *dynamoRepository) DeleteComment(owner string, update *PositionCommentUpdate) (*Game, error) {
+	exprAttrNames := map[string]*string{
+		"#p":        aws.String("positionComments"),
+		"#fen":      aws.String(update.Fen),
+		"#id":       aws.String(update.Id),
+		"#owner":    aws.String("owner"),
+		"#username": aws.String("username"),
+	}
+	parentPath := getCommentPath(update.ParentIds, exprAttrNames)
+
 	input := &dynamodb.UpdateItemInput{
-		ConditionExpression: aws.String("#p.#fen.#id.#owner.#username = :owner"),
-		UpdateExpression:    aws.String("REMOVE #p.#fen.#id"),
-		ExpressionAttributeNames: map[string]*string{
-			"#p":        aws.String("positionComments"),
-			"#fen":      aws.String(update.Fen),
-			"#id":       aws.String(update.Id),
-			"#owner":    aws.String("owner"),
-			"#username": aws.String("username"),
-		},
+		ConditionExpression:      aws.String(fmt.Sprintf("#p.#fen.%s#id.#owner.#username = :owner", parentPath)),
+		UpdateExpression:         aws.String(fmt.Sprintf("REMOVE #p.#fen.%s#id", parentPath)),
+		ExpressionAttributeNames: exprAttrNames,
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":owner": {S: aws.String(owner)},
 		},
@@ -933,4 +957,17 @@ func (repo *dynamoRepository) SetGameReview(cohort, id string, review *GameRevie
 		return nil, errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 	}
 	return &game, nil
+}
+
+func getCommentPath(parentIds string, exprAttrNames map[string]*string) string {
+	var parentPath strings.Builder
+	parentIdList := strings.Split(parentIds, ",")
+	for i, id := range parentIdList {
+		parentPath.WriteString(fmt.Sprintf("#parent%d.#replies.", i))
+		exprAttrNames[fmt.Sprintf("#parent%d", i)] = aws.String(id)
+	}
+	if len(parentIdList) > 0 {
+		exprAttrNames["#replies"] = aws.String("replies")
+	}
+	return parentPath.String()
 }

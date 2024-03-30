@@ -48,6 +48,10 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	existingComments := event.QueryStringParameters["existing"] == "true"
+	if comment.ParentIds != "" {
+		existingComments = true
+	}
+
 	game, err := repository.PutComment(cohort, id, &comment, existingComments)
 	if err != nil {
 		return api.Failure(err), nil

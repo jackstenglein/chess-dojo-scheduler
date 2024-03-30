@@ -40,6 +40,8 @@ const CommentEditor = () => {
             createdAt: '',
             updatedAt: '',
             content,
+            parentIds: '',
+            replies: {},
         };
         const existingComments = Boolean(game.positionComments?.[positionComment.fen]);
 

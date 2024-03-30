@@ -8,7 +8,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Game, PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import { reconcile } from '../../../../Board';
@@ -21,9 +21,21 @@ enum View {
     CurrentMove = 'CURRENT_MOVE',
 }
 
-enum SortBy {
+export enum SortBy {
     Newest = 'NEWEST',
     Oldest = 'OLDEST',
+}
+
+type PositionCommentSortContextType = {
+    sortBy: SortBy;
+};
+
+const PositionCommentSortContext = createContext<PositionCommentSortContextType>({
+    sortBy: SortBy.Newest,
+});
+
+export function usePositionCommentSort() {
+    return useContext(PositionCommentSortContext);
 }
 
 interface PositionCommentSection {
@@ -95,9 +107,14 @@ const Comments = () => {
                     </Stack>
 
                     <Stack spacing={4} mt={3} flexGrow={1}>
-                        {fenSections.map((s) => (
-                            <CommentSection key={s.move?.fen || 'start'} section={s} />
-                        ))}
+                        <PositionCommentSortContext.Provider value={{ sortBy }}>
+                            {fenSections.map((s) => (
+                                <CommentSection
+                                    key={s.move?.fen || 'start'}
+                                    section={s}
+                                />
+                            ))}
+                        </PositionCommentSortContext.Provider>
                     </Stack>
                 </Stack>
 

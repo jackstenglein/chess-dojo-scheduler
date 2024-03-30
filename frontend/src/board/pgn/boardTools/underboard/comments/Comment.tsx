@@ -27,6 +27,9 @@ import { PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import Avatar from '../../../../../profile/Avatar';
 import GraduationIcon from '../../../../../scoreboard/GraduationIcon';
+import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
+import Replies from './Replies';
+import ReplyEditor from './ReplyEditor';
 
 interface CommentProps {
     comment: PositionComment;
@@ -48,14 +51,17 @@ interface BaseCommentProps {
     comment: PositionComment;
     renderContent?: JSX.Element;
     renderControls?: JSX.Element;
+    hideControls?: boolean;
 }
 
 const BaseComment: React.FC<BaseCommentProps> = ({
     comment,
     renderContent,
     renderControls,
+    hideControls,
 }) => {
     const [expanded, setExpanded] = useState(true);
+    const [isReplying, setIsReplying] = useState(false);
 
     return (
         <Stack spacing={0.5}>
@@ -78,7 +84,7 @@ const BaseComment: React.FC<BaseCommentProps> = ({
                         <Stack
                             alignItems='center'
                             sx={{
-                                width: '28px',
+                                width: '20px',
                                 cursor: 'pointer',
 
                                 ':hover .MuiDivider-root': {
@@ -102,18 +108,27 @@ const BaseComment: React.FC<BaseCommentProps> = ({
                             </Typography>
                         )}
 
-                        {renderControls ? (
-                            renderControls
+                        {isReplying ? (
+                            <ReplyEditor
+                                parent={comment}
+                                onCancel={() => setIsReplying(false)}
+                            />
                         ) : (
-                            <Stack direction='row'>
-                                <Button
-                                    size='small'
-                                    sx={{ textTransform: 'none', minWidth: 0 }}
-                                >
-                                    reply
-                                </Button>
-                            </Stack>
+                            !hideControls && (
+                                <Stack direction='row' spacing={1}>
+                                    <Button
+                                        size='small'
+                                        sx={{ textTransform: 'none', minWidth: 0 }}
+                                        onClick={() => setIsReplying(true)}
+                                    >
+                                        reply
+                                    </Button>
+                                    {renderControls}
+                                </Stack>
+                            )
                         )}
+
+                        <Replies comment={comment} />
                     </Stack>
                 </Stack>
             </Collapse>
@@ -141,6 +156,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             id: comment.id,
             fen: comment.fen,
             content: editValue?.trim() || '',
+            parentIds: comment.parentIds,
         };
         request.onStart();
         api.updateComment(update)
@@ -163,6 +179,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             gameId: game?.id || '',
             id: comment.id,
             fen: comment.fen,
+            parentIds: comment.parentIds,
         })
             .then((resp) => {
                 console.log('deleteComment: ', resp);
@@ -183,6 +200,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
                     editValue === undefined ? undefined : (
                         <Stack width={1}>
                             <TextField
+                                id={BlockBoardKeyboardShortcuts}
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
                                 size='small'
@@ -213,13 +231,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
                 }
                 renderControls={
                     editValue === undefined ? (
-                        <Stack direction='row' spacing={1}>
-                            <Button
-                                size='small'
-                                sx={{ textTransform: 'none', minWidth: 0 }}
-                            >
-                                reply
-                            </Button>
+                        <>
                             <Button
                                 size='small'
                                 sx={{ textTransform: 'none', minWidth: 0 }}
@@ -234,11 +246,10 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
                             >
                                 delete
                             </Button>
-                        </Stack>
-                    ) : (
-                        <></>
-                    )
+                        </>
+                    ) : undefined
                 }
+                hideControls={editValue !== undefined}
             />
 
             <Dialog
@@ -302,11 +313,11 @@ const CommentInfo: React.FC<CommentProps> = ({ comment }) => {
     }
 
     return (
-        <Stack direction='row' spacing={1.5}>
+        <Stack direction='row' spacing={1.5} alignItems='center'>
             <Avatar
                 username={comment.owner.username}
                 displayName={comment.owner.displayName}
-                size={28}
+                size={20}
             />
             <Stack direction='row' spacing={1} alignItems='center'>
                 <Link
