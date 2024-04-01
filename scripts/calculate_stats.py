@@ -236,37 +236,35 @@ def processUser(user, requirements):
     if progress == None:
         return row
     
-    categoryTimes = {}
-    categoryScores = {}
-    
     for requirementId, requirementProgress in progress.items():
         requirement = requirements.get(requirementId, None)
         if requirement == None:
             continue
 
+        requirement_name = requirement['name']
+        total_minutes = 0
         for minutes in requirementProgress.get('minutesSpent', {}).values():
-            sum = categoryTimes.get(requirement['category'], 0)
-            categoryTimes[requirement['category']] = sum + minutes
+            total_minutes += minutes
 
         points = getDojoPoints(user['dojoCohort'], requirementProgress, requirement)
-        sum = categoryScores.get(requirement['category'], 0)
-        categoryScores[requirement['category']] = sum + points
-        
-
-    for category in categories:
-        row[f'{category} Minutes'] = categoryTimes.get(category, 0)
-        row[f'{category} Points'] = categoryScores.get(category, 0)
+        row[f'{requirement_name} Points'] = points
+        row[f'{requirement_name} Minutes'] = minutes
 
     return row
 
-def getFieldNames():
+def getFieldNames(requirements):
     fieldnames = ['username', 'cohort', 'preferredRatingSystem']
     for ratingSystem in ratingSystems:
         fieldnames.append(f'{ratingSystem}_startRating')
         fieldnames.append(f'{ratingSystem}_currentRating')
-    for category in categories:
-        fieldnames.append(f'{category} Minutes')
-        fieldnames.append(f'{category} Points')
+
+    requirements = list(requirements.values())
+    requirements.sort(key=lambda r: r['sortPriority'])
+    for requirement in requirements:
+        requirement_name = requirement['name']
+        fieldnames.append(f'{requirement_name} Minutes')
+        fieldnames.append(f'{requirement_name} Points')
+
     return fieldnames
 
 def main():
@@ -285,7 +283,7 @@ def main():
                     rows.append(row)
 
     with open('result.csv', 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=getFieldNames())
+        writer = csv.DictWriter(csvfile, fieldnames=getFieldNames(requirements))
         writer.writeheader()
         writer.writerows(rows)
 
