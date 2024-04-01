@@ -21,7 +21,7 @@
         "@mui/x-data-grid-pro": "^6.19.6",
         "@mui/x-date-pickers": "^6.19.3",
         "@testing-library/jest-dom": "^6.4.2",
-        "@testing-library/react": "^14.2.1",
+        "@testing-library/react": "^14.2.2",
         "@testing-library/user-event": "^14.4.3",
         "@types/node": "^20.11.24",
         "@types/react": "^18.2.61",
