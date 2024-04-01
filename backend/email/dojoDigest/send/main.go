@@ -80,7 +80,7 @@ func main() {
 		msg := gomail.NewMessage()
 		msg.SetHeader("From", "ChessDojo Digest <digest@mail.dojoscoreboard.com>")
 		msg.SetHeader("To", email)
-		msg.SetHeader("Subject", "Training Program News - Dojo Digest Vol. 6")
+		msg.SetHeader("Subject", "Training Program News - Dojo Digest Vol. 7")
 		msg.SetHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
 		msg.SetHeader("List-Unsubscribe", fmt.Sprintf("<https://g4shdaq6ug.execute-api.us-east-1.amazonaws.com/public/dojodigest/unsubscribe?email=%s>", email))
 		msg.SetBody("text/html", content)
