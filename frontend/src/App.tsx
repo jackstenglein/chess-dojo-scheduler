@@ -24,6 +24,13 @@ import ChatPage from './chat/ChatPage';
 import ClubDetailsPage from './clubs/ClubDetailsPage';
 import CreateClubPage from './clubs/CreateClubPage';
 import ListClubsPage from './clubs/ListClubsPage';
+import BookPage from './book/BookPage';
+import BookNewOpening from './book/BookNewOpening';
+import BookNewEndgame from './book/BookNewEndgame';
+import BookEdit from './book/BookEdit';
+import BookAddLine from './book/BookAddLine';
+import TrainingPage from './book/training/TrainingPage';
+import NewTrainingPage from './book/training/NewTrainingPage';
 import CoachPortalPage from './coaching/coaches/CoachPortalPage';
 import CourseEditorPage from './coaching/coaches/courseEditor/CourseEditorPage';
 import CoachingPage from './coaching/customers/CoachingPage';
@@ -111,6 +118,23 @@ const router = createBrowserRouter(
                         <Route path='submit-results' element={<SubmitResultsPage />} />
                         <Route path='previous' element={<ListPage />} />
                         <Route path='admin' element={<AdminPage />} />
+                    </Route>
+                </Route>
+                <Route path='book'>
+                    <Route index element={<BookPage />} />
+                    <Route path="add-line" element={<BookAddLine />} />
+                    <Route path='books'>
+                        <Route path="new-opening" element={<BookNewOpening />} />
+                        <Route path="new-endgame" element={<BookNewEndgame />} />
+                        <Route path=':bookId'>
+                            <Route index element={<BookEdit />} />
+                        </Route>
+                    </Route>
+                    <Route path='training'>
+                        <Route path="new" element={<NewTrainingPage />} />
+                        <Route path=':trainingId'>
+                            <Route index element={<TrainingPage />} />
+                        </Route>
                     </Route>
                 </Route>
                 <Route path='dojodigest/unsubscribe' element={<UnsubscribePage />} />

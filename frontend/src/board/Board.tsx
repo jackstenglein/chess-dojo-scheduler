@@ -41,7 +41,7 @@ export function toDests(chess?: Chess): Map<Key, Key[]> {
     return dests;
 }
 
-const boardColors: Record<string, string> = {
+export const boardColors: Record<string, string> = {
     Y: 'yellow',
     R: 'red',
     B: 'blue',
