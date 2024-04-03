@@ -185,9 +185,6 @@ func updateGradStats(stats *database.UserStatistics, graduation *database.Gradua
 			minutes += m
 		}
 	}
-	if minutes == 0 {
-		return
-	}
 
 	cohortStats := stats.Cohorts[graduation.PreviousCohort]
 	cohortStats.NumGraduations += 1
