@@ -1,6 +1,5 @@
 import { LoadingButton } from '@mui/lab';
 import {
-    Alert,
     Button,
     Dialog,
     DialogActions,
@@ -9,27 +8,36 @@ import {
     DialogTitle,
     Stack,
     TextField,
+    Tooltip,
 } from '@mui/material';
 import { useState } from 'react';
 import { EventType, setUserCohort, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import { RatingSystem, shouldPromptGraduation } from '../database/user';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 
-interface GraduationDialogProps {
-    open: boolean;
-    onClose: () => void;
-    cohort: string;
-}
-
-const GraduationDialog: React.FC<GraduationDialogProps> = ({ open, onClose, cohort }) => {
-    const user = useAuth().user!;
+const GraduationDialog = () => {
     const [comments, setComments] = useState('');
     const request = useRequest();
     const api = useApi();
+    const user = useAuth().user!;
+    const isFreeTier = useFreeTier();
+    const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
+    const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     const shouldGraduate = shouldPromptGraduation(user);
+    const disableGraduation =
+        !shouldGraduate && user.ratingSystem !== RatingSystem.Custom;
+
+    const onOpen = () => {
+        if (isFreeTier) {
+            setUpsellDialogOpen(true);
+        } else {
+            setShowGraduationDialog(true);
+        }
+    };
 
     const onGraduate = () => {
         request.onStart();
@@ -43,7 +51,7 @@ const GraduationDialog: React.FC<GraduationDialogProps> = ({ open, onClose, coho
                     dojo_score: response.data.graduation.score,
                 });
                 setUserCohort(response.data.userUpdate.dojoCohort);
-                onClose();
+                setShowGraduationDialog(false);
             })
             .catch((err) => {
                 console.error('graduate: ', err);
@@ -53,23 +61,48 @@ const GraduationDialog: React.FC<GraduationDialogProps> = ({ open, onClose, coho
 
     return (
         <>
-            <RequestSnackbar request={request} showSuccess />
-            <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
-                <DialogTitle>Graduate from {cohort}?</DialogTitle>
-                <DialogContent>
-                    {!shouldGraduate && user.ratingSystem !== RatingSystem.Custom && (
-                        <Alert variant='filled' severity='error' sx={{ mb: 2 }}>
-                            Your rating is lower than the graduation cutoff. If you just
-                            want to view tasks for another cohort, use the dropdown on the
-                            Training Plan tab instead.
-                        </Alert>
-                    )}
+            <Tooltip
+                title={
+                    disableGraduation
+                        ? 'Your current preferred rating is too low to graduate (note: ratings are updated every 24 hours). If you still want to switch cohorts, you can do so without graduating by editing your profile.'
+                        : ''
+                }
+            >
+                <div>
+                    <Button
+                        id='graduate-button'
+                        variant='contained'
+                        color='success'
+                        onClick={onOpen}
+                        disabled={disableGraduation}
+                    >
+                        Graduate
+                    </Button>
+                </div>
+            </Tooltip>
 
+            <RequestSnackbar request={request} showSuccess />
+            <Dialog
+                open={showGraduationDialog}
+                onClose={
+                    request.isLoading() ? undefined : () => setShowGraduationDialog(false)
+                }
+                fullWidth
+            >
+                <DialogTitle>Graduate from {user.dojoCohort}?</DialogTitle>
+                <DialogContent>
                     <Stack spacing={2}>
+                        <DialogContentText>
+                            This will move you to the next cohort and add a belt to your
+                            profile. You will also be added to the list of recent
+                            graduates, and Jesse will review your profile in the next grad
+                            show on Twitch. If you just want to look at tasks from other
+                            cohorts, use the dropdown in the training plan instead.
+                        </DialogContentText>
                         <DialogContentText>
                             Optionally add comments on what was most helpful about the
                             program, what could be improved, etc. This will be visible to
-                            the sensei and other members of the dojo.
+                            all other members of the dojo.
                         </DialogContentText>
                         <TextField
                             label='Comments'
@@ -83,7 +116,10 @@ const GraduationDialog: React.FC<GraduationDialogProps> = ({ open, onClose, coho
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose} disabled={request.isLoading()}>
+                    <Button
+                        onClick={() => setShowGraduationDialog(false)}
+                        disabled={request.isLoading()}
+                    >
                         Cancel
                     </Button>
                     <LoadingButton loading={request.isLoading()} onClick={onGraduate}>
@@ -91,6 +127,11 @@ const GraduationDialog: React.FC<GraduationDialogProps> = ({ open, onClose, coho
                     </LoadingButton>
                 </DialogActions>
             </Dialog>
+            <UpsellDialog
+                open={upsellDialogOpen}
+                onClose={setUpsellDialogOpen}
+                currentAction={RestrictedAction.Graduate}
+            />
         </>
     );
 };

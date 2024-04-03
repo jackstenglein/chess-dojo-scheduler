@@ -1,16 +1,15 @@
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth, useFreeTier } from '../auth/Auth';
+import { useAuth } from '../auth/Auth';
 import { FollowerEntry } from '../database/follower';
 import { User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import ActivityTab from './activity/ActivityTab';
 import ClubsTab from './clubs/ClubsTab';
 import CoachTab from './coach/CoachTab';
@@ -39,7 +38,6 @@ const ProfilePage = () => {
     const auth = useAuth();
     const currentUser = auth.user!;
     const request = useRequest<User>();
-    const isFreeTier = useFreeTier();
     const followRequest = useRequest<FollowerEntry>();
 
     const currentUserProfile = !username || username === currentUser.username;
@@ -47,9 +45,6 @@ const ProfilePage = () => {
     const [searchParams, setSearchParams] = useSearchParams(
         currentUserProfile ? { view: 'progress' } : { view: 'stats' },
     );
-
-    const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
-    const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     useEffect(() => {
         if (!currentUserProfile && !request.isSent()) {
@@ -87,14 +82,6 @@ const ProfilePage = () => {
     } else if (!user) {
         return <NotFoundPage />;
     }
-
-    const onGraduate = () => {
-        if (isFreeTier) {
-            setUpsellDialogOpen(true);
-        } else {
-            setShowGraduationDialog(true);
-        }
-    };
 
     const onFollow = () => {
         if (currentUserProfile) {
@@ -139,14 +126,7 @@ const ProfilePage = () => {
 
                     {currentUserProfile ? (
                         <Stack direction='row' spacing={2}>
-                            <Button
-                                id='graduate-button'
-                                variant='contained'
-                                color='success'
-                                onClick={onGraduate}
-                            >
-                                Graduate
-                            </Button>
+                            <GraduationDialog />
                             <Button
                                 id='edit-profile-button'
                                 variant='contained'
@@ -242,16 +222,6 @@ const ProfilePage = () => {
 
             {currentUserProfile && (
                 <>
-                    <GraduationDialog
-                        open={showGraduationDialog}
-                        onClose={() => setShowGraduationDialog(false)}
-                        cohort={user.dojoCohort}
-                    />
-                    <UpsellDialog
-                        open={upsellDialogOpen}
-                        onClose={setUpsellDialogOpen}
-                        currentAction={RestrictedAction.Graduate}
-                    />
                     <ProfilePageTutorial />
                 </>
             )}
