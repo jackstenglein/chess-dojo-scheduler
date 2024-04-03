@@ -52,9 +52,9 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
                     }
                     return 0;
                 });
-            } else if (event.key === 'Enter') {
+            } else if (event.key === 'ArrowRight' || event.key === 'Enter') {
                 selectMove(selected === 0 ? move : move.variations[selected - 1][0]);
-            } else if (event.key === 'Escape') {
+            } else if (event.key === 'ArrowLeft' || event.key === 'Escape') {
                 setMove(null);
             } else if (event.key >= '0' && event.key <= '9') {
                 let index = parseInt(event.key);
@@ -88,8 +88,8 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
             <DialogTitle>Choose Variation</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Use arrow keys/enter, numbers or click to select a move. Use escape to
-                    cancel.
+                    Use arrow keys/enter, numbers or click to select a move. Use left
+                    arrow or escape to cancel.
                 </DialogContentText>
                 <List>
                     <ListItemButton
