@@ -287,6 +287,7 @@ export function getGame(
                 pgn: chess.renderPgn(),
                 orientation,
                 comments: [],
+                positionComments: {},
                 unlisted: Boolean(unlisted),
                 timelineId,
             },

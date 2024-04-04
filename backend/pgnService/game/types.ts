@@ -51,6 +51,9 @@ export interface Game {
     /** The comments left on the game. */
     comments: any[];
 
+    /** A map from the normalized FEN of a position to the comments on that position. */
+    positionComments: Record<string, any>;
+
     /** Whether the game is unlisted. */
     unlisted: boolean;
 

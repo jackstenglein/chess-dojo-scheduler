@@ -11,6 +11,10 @@ def process_game(batch, game):
     comments = game.get('comments', [])
     if comments is None:
         comments = []
+    
+    existing_position_comments = game.get('positionComments', None)
+    if existing_position_comments is not None:
+        return 0
 
     for c in comments:
         new_comment = {
@@ -33,6 +37,7 @@ def process_game(batch, game):
 
     game['positionComments'] = position_comments
     batch.put_item(Item=game)
+    return 1
 
 
 def main():
@@ -46,8 +51,7 @@ def main():
 
         with table.batch_writer() as batch:
             for item in items:
-                process_game(batch, item)
-                updated += 1
+                updated += process_game(batch, item)
 
             while lastKey != None:
                 print(lastKey)
@@ -56,8 +60,7 @@ def main():
                 lastKey = res.get('LastEvaluatedKey', None)
                 items = res.get('Items', [])
                 for item in items:
-                    process_game(batch, item)
-                    updated += 1
+                    updated += process_game(batch, item)
 
     except Exception as e:
         print(e)
