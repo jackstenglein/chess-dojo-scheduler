@@ -29,7 +29,8 @@ def process_game(batch, game):
             },
             'createdAt': c['createdAt'],
             'updatedAt': c['updatedAt'],
-            'content': c['content']
+            'content': c['content'],
+            'replies': {}
         }
         position = position_comments.get(STARTING_FEN, {})
         position[new_comment['id']] = new_comment

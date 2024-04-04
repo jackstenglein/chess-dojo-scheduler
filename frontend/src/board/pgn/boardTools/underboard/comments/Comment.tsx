@@ -85,6 +85,8 @@ const BaseComment: React.FC<BaseCommentProps> = ({
                             alignItems='center'
                             sx={{
                                 width: '20px',
+                                minWidth: '20px',
+                                maxWidth: '20px',
                                 cursor: 'pointer',
 
                                 ':hover .MuiDivider-root': {

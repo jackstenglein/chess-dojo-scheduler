@@ -960,6 +960,10 @@ func (repo *dynamoRepository) SetGameReview(cohort, id string, review *GameRevie
 }
 
 func getCommentPath(parentIds string, exprAttrNames map[string]*string) string {
+	if parentIds == "" {
+		return ""
+	}
+
 	var parentPath strings.Builder
 	parentIdList := strings.Split(parentIds, ",")
 	for i, id := range parentIdList {
