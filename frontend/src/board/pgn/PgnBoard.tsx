@@ -31,7 +31,7 @@ type ChessContextType = {
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
 };
 
-export const ChessContext = createContext<ChessContextType>(null!);
+export const ChessContext = createContext<ChessContextType>({});
 
 export function useChess() {
     return useContext(ChessContext);
