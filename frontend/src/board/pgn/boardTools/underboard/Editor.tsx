@@ -97,7 +97,6 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
 
     useEffect(() => {
         if (focusEditor && textFieldRef.current) {
-            console.log('Focusing: ', textFieldRef.current);
             textFieldRef.current.focus();
             textFieldRef.current.selectionStart = textFieldRef.current.value.length;
             textFieldRef.current.selectionEnd = textFieldRef.current.selectionStart;

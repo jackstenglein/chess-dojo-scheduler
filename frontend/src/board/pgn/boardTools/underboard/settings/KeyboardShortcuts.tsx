@@ -73,6 +73,9 @@ export enum ShortcutAction {
 
     /** Opens the comments tab and focuses the text field. */
     FocusCommentTextField = 'FOCUS_COMMENT_TEXTFIELD',
+
+    /** Unfocuses any currently-focused text field. */
+    UnfocusTextField = 'UNFOCUS_TEXTFIELD',
 }
 
 /**
@@ -114,6 +117,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Focus Main Text Field';
         case ShortcutAction.FocusCommentTextField:
             return 'Focus Comment Text Field';
+        case ShortcutAction.UnfocusTextField:
+            return 'Unfocus Text Fields';
     }
 }
 
@@ -155,7 +160,9 @@ function shortcutActionDescription(action: ShortcutAction): string {
         case ShortcutAction.FocusMainTextField:
             return 'Open the Editor tab, if present, and focus the text field. If the Editor tab is not present, open the Comments tab and focus the text field.';
         case ShortcutAction.FocusCommentTextField:
-            return 'Open the Comments tab and focus the text field';
+            return 'Open the Comments tab and focus the text field.';
+        case ShortcutAction.UnfocusTextField:
+            return 'Unfocuses all text fields, allowing the usage of keyboard shortcuts and board controls.';
     }
 }
 
@@ -199,6 +206,7 @@ export const defaultKeyBindings: Record<ShortcutAction, KeyBinding> = {
     [ShortcutAction.OpenSettings]: { modifier: '', key: '' },
     [ShortcutAction.FocusMainTextField]: { modifier: '', key: '' },
     [ShortcutAction.FocusCommentTextField]: { modifier: '', key: '' },
+    [ShortcutAction.UnfocusTextField]: { modifier: '', key: '' },
 };
 
 /** The valid modifier keys. */
@@ -222,6 +230,11 @@ interface ShortcutHandlerOptions {
      * Whether to allow showing the editor tab in the underboard.
      */
     showEditor?: boolean;
+
+    /**
+     * A function which toggles the orientation of the board.
+     */
+    toggleOrientation?: () => void;
 }
 
 /** A function which handles a keyboard shortcut, using the provided Chess and Board instances. */
@@ -288,6 +301,21 @@ function handleNextMove(
 function handleLastMove(chess: Chess | undefined, board: BoardApi | undefined) {
     chess?.seek(chess.lastMove());
     reconcile(chess, board);
+}
+
+/**
+ * Handles toggling the orientation of the board. This function is a no-op if opts
+ * does not contain a valid toggleOrientation function.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleToggleOrientation(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    opts?.toggleOrientation?.();
 }
 
 /**
@@ -457,26 +485,37 @@ function handleFocusCommentTextField(
 }
 
 /**
+ * Handles unfocusing the currently-active text field.
+ */
+function handleUnfocusTextField() {
+    const activeElement = document.activeElement;
+    if (typeof (activeElement as any).blur === 'function') {
+        (activeElement as any).blur();
+    }
+}
+
+/**
  * Maps ShortcutActions to their handler functions. Not all ShortcutActions are included.
  */
-export const keyboardShortcutHandlers: Partial<Record<ShortcutAction, ShortcutHandler>> =
-    {
-        [ShortcutAction.FirstMove]: handleFirstMove,
-        [ShortcutAction.PreviousMove]: handlePreviousMove,
-        [ShortcutAction.NextMove]: handleNextMove,
-        [ShortcutAction.LastMove]: handleLastMove,
-        [ShortcutAction.FirstVariation]: handleFirstVariation,
-        [ShortcutAction.FirstMoveVariation]: handleFirstMoveVariation,
-        [ShortcutAction.LastMoveVariation]: handleLastMoveVariation,
-        [ShortcutAction.OpenTags]: handleOpenTags,
-        [ShortcutAction.OpenEditor]: handleOpenEditor,
-        [ShortcutAction.OpenComments]: handleOpenComments,
-        [ShortcutAction.OpenDatabase]: handleOpenDatabase,
-        [ShortcutAction.OpenClocks]: handleOpenClocks,
-        [ShortcutAction.OpenSettings]: handleOpenSettings,
-        [ShortcutAction.FocusMainTextField]: handleFocusMainTextField,
-        [ShortcutAction.FocusCommentTextField]: handleFocusCommentTextField,
-    };
+export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> = {
+    [ShortcutAction.FirstMove]: handleFirstMove,
+    [ShortcutAction.PreviousMove]: handlePreviousMove,
+    [ShortcutAction.NextMove]: handleNextMove,
+    [ShortcutAction.LastMove]: handleLastMove,
+    [ShortcutAction.ToggleOrientation]: handleToggleOrientation,
+    [ShortcutAction.FirstVariation]: handleFirstVariation,
+    [ShortcutAction.FirstMoveVariation]: handleFirstMoveVariation,
+    [ShortcutAction.LastMoveVariation]: handleLastMoveVariation,
+    [ShortcutAction.OpenTags]: handleOpenTags,
+    [ShortcutAction.OpenEditor]: handleOpenEditor,
+    [ShortcutAction.OpenComments]: handleOpenComments,
+    [ShortcutAction.OpenDatabase]: handleOpenDatabase,
+    [ShortcutAction.OpenClocks]: handleOpenClocks,
+    [ShortcutAction.OpenSettings]: handleOpenSettings,
+    [ShortcutAction.FocusMainTextField]: handleFocusMainTextField,
+    [ShortcutAction.FocusCommentTextField]: handleFocusCommentTextField,
+    [ShortcutAction.UnfocusTextField]: handleUnfocusTextField,
+};
 
 /**
  * Matches an event key and modifiers to keyBindings, returning the matched action.
@@ -492,11 +531,12 @@ export function matchAction(
 ): ShortcutAction | undefined {
     let matchedAction: ShortcutAction | undefined = undefined;
     const noModifiers = Object.values(modifiers).every((v) => !v);
+    key = key.toLowerCase();
 
     for (const action of Object.values(ShortcutAction)) {
         const binding = keyBindings[action] || defaultKeyBindings[action];
 
-        if (binding.key.toLowerCase() === key.toLowerCase()) {
+        if (binding.key.toLowerCase() === key) {
             if (
                 (!binding.modifier && noModifiers) ||
                 (binding.modifier && modifiers[binding.modifier])
@@ -545,7 +585,7 @@ const KeyboardShortcuts = () => {
             if (modifierKeys.includes(event.key)) {
                 return;
             }
-            setEditKey(event.key);
+            setEditKey(event.code.replace('Key', ''));
         },
         [editAction, setEditKey],
     );

@@ -36,39 +36,39 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                 return;
             }
 
-            const activeElement = document.activeElement;
-            if (
-                activeElement?.tagName === 'INPUT' ||
-                activeElement?.id === BlockBoardKeyboardShortcuts ||
-                activeElement?.classList.contains(BlockBoardKeyboardShortcuts)
-            ) {
-                return;
-            }
-
-            event.preventDefault();
-            event.stopPropagation();
-
             if (modifierKeys.includes(event.key) && keydownMap) {
                 keydownMap.current[event.key] = true;
             }
 
             const matchedAction = matchAction(
                 keyBindings,
-                event.key,
+                event.code.replace('Key', ''),
                 keydownMap?.current || {},
             );
+
+            const activeElement = document.activeElement;
+            if (
+                activeElement?.tagName === 'INPUT' ||
+                activeElement?.id === BlockBoardKeyboardShortcuts ||
+                activeElement?.classList.contains(BlockBoardKeyboardShortcuts)
+            ) {
+                if (matchedAction !== ShortcutAction.UnfocusTextField) {
+                    return;
+                }
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+
             if (matchedAction) {
                 keyboardShortcutHandlers[matchedAction]?.(chess, board, {
                     underboardApi: underboardRef.current,
+                    toggleOrientation,
                     setVariationDialogMove:
                         variationBehavior === VariationBehavior.Dialog
                             ? setVariationDialogMove
                             : undefined,
                 });
-
-                if (matchedAction === ShortcutAction.ToggleOrientation) {
-                    toggleOrientation?.();
-                }
             }
         },
         [
