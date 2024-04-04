@@ -111,9 +111,6 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
                             return null;
                         }
 
-                        const color = getTextColor(variation[0]);
-                        console.log('Color: ', color);
-
                         return (
                             <ListItemButton
                                 key={variation[0].san}

@@ -14,7 +14,7 @@ import { useGame } from '../../../../../games/view/GamePage';
 import { reconcile } from '../../../../Board';
 import { useChess } from '../../../PgnBoard';
 import Comment from './Comment';
-import CommentEditor from './CommentEditor';
+import CommentEditor, { CommentEditorProps } from './CommentEditor';
 
 enum View {
     FullGame = 'FULL_GAME',
@@ -43,7 +43,7 @@ interface PositionCommentSection {
     comments: PositionComment[];
 }
 
-const Comments = () => {
+const Comments: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEditor }) => {
     const [view, setView] = useState(View.FullGame);
     const [sortBy, setSortBy] = useState(SortBy.Newest);
     const { chess } = useChess();
@@ -118,7 +118,10 @@ const Comments = () => {
                     </Stack>
                 </Stack>
 
-                <CommentEditor />
+                <CommentEditor
+                    focusEditor={focusEditor}
+                    setFocusEditor={setFocusEditor}
+                />
             </Stack>
         </CardContent>
     );

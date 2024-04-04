@@ -1,6 +1,6 @@
 import { Send } from '@mui/icons-material';
 import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { useAuth } from '../../../../../auth/Auth';
@@ -8,13 +8,28 @@ import { PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../../PgnBoard';
 
-const CommentEditor = () => {
+export interface CommentEditorProps {
+    focusEditor: boolean;
+    setFocusEditor: (v: boolean) => void;
+}
+
+const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEditor }) => {
     const user = useAuth().user!;
     const api = useApi();
     const [comment, setComment] = useState('');
     const request = useRequest();
     const { chess } = useChess();
     const { game, onUpdateGame } = useGame();
+    const textFieldRef = useRef<HTMLTextAreaElement>();
+
+    useEffect(() => {
+        if (focusEditor && textFieldRef.current) {
+            textFieldRef.current.focus();
+            textFieldRef.current.selectionStart = textFieldRef.current.value.length;
+            textFieldRef.current.selectionEnd = textFieldRef.current.selectionStart;
+            setFocusEditor(false);
+        }
+    }, [focusEditor, setFocusEditor]);
 
     if (!game || !onUpdateGame) {
         return null;
@@ -64,6 +79,7 @@ const CommentEditor = () => {
     return (
         <Stack spacing={1} direction='row' alignItems='end' px={2}>
             <TextField
+                inputRef={textFieldRef}
                 id={BlockBoardKeyboardShortcuts}
                 placeholder={`Comment on ${
                     move

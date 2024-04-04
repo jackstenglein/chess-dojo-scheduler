@@ -14,7 +14,6 @@ import { useAuth } from '../../auth/Auth';
 import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
-import KeyboardHandler from './KeyboardHandler';
 import ResizableContainer from './ResizableContainer';
 import { CONTAINER_ID } from './resize';
 
@@ -139,8 +138,6 @@ const PgnBoard: React.FC<PgnBoardProps> = ({
 
             {(pgn || fen) && (
                 <ChessContext.Provider value={chessContext}>
-                    <KeyboardHandler />
-
                     <ResizableContainer
                         {...{
                             showUnderboard,

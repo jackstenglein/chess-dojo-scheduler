@@ -13,10 +13,15 @@ import {
     VariationBehavior,
     VariationBehaviorKey,
 } from './boardTools/underboard/settings/ViewerSettings';
+import { UnderboardApi } from './boardTools/underboard/Underboard';
 import { BlockBoardKeyboardShortcuts, useChess } from './PgnBoard';
 import VariationDialog from './VariationDialog';
 
-const KeyboardHandler = () => {
+interface KeyboardHandlerProps {
+    underboardRef: React.RefObject<UnderboardApi>;
+}
+
+const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
     const { chess, board, keydownMap, toggleOrientation } = useChess();
     const [variationBehavior] = useLocalStorage(
         VariationBehaviorKey,
@@ -54,6 +59,7 @@ const KeyboardHandler = () => {
             );
             if (matchedAction) {
                 keyboardShortcutHandlers[matchedAction]?.(chess, board, {
+                    underboardApi: underboardRef.current,
                     setVariationDialogMove:
                         variationBehavior === VariationBehavior.Dialog
                             ? setVariationDialogMove

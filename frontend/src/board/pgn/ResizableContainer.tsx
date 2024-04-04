@@ -1,12 +1,12 @@
 import { Move } from '@jackstenglein/chess';
 import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-resizable/css/styles.css';
-
-import { useCallback, useEffect, useState } from 'react';
 import { useWindowSizeEffect } from '../../ThemeProvider';
 import { BoardApi, Chess, PrimitiveMove } from '../Board';
-import Underboard from './boardTools/underboard/Underboard';
+import Underboard, { UnderboardApi } from './boardTools/underboard/Underboard';
+import KeyboardHandler from './KeyboardHandler';
 import { ResizablePgnText } from './pgnText/PgnText';
 import ResizableBoardArea from './ResizableBoardArea';
 import { getNewSizes, getSizes } from './resize';
@@ -39,6 +39,8 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
     onMove,
     onClickMove,
 }) => {
+    const underboardRef = useRef<UnderboardApi>(null);
+
     const parentWidth =
         document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
     const [sizes, setSizes] = useState(
@@ -84,8 +86,11 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
             rowGap={0.5}
             columnGap={{ xs: 0.5, md: 1, lg: 1 }}
         >
+            <KeyboardHandler underboardRef={underboardRef} />
+
             {showUnderboard && (
                 <Underboard
+                    ref={underboardRef}
                     showExplorer={showExplorer}
                     resizeData={sizes.underboard}
                     onResize={onResize('underboard')}

@@ -18,6 +18,7 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { BoardApi, reconcile } from '../../../../Board';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
+import { UnderboardApi, UnderboardTab } from '../Underboard';
 
 export const BoardKeyBindingsKey = 'boardKeyBindings';
 
@@ -49,8 +50,11 @@ export enum ShortcutAction {
     /** Open the PGN tags tab. */
     OpenTags = 'OPEN_TAGS',
 
-    /** Open the PGN editor tab. */
+    /** Open the PGN editor tab, if present. */
     OpenEditor = 'OPEN_EDITOR',
+
+    /** Open the comments tab. */
+    OpenComments = 'OPEN_COMMENTS',
 
     /** Open the database explorer tab. */
     OpenDatabase = 'OPEN_DATABASE',
@@ -60,6 +64,15 @@ export enum ShortcutAction {
 
     /** Open the settings tab. */
     OpenSettings = 'OPEN_SETTINGS',
+
+    /**
+     * Opens the editor tab and focuses the editor text field. If the editor tab is not present,
+     * the comment tab textfield is focused.
+     */
+    FocusMainTextField = 'FOCUS_MAIN_TEXTFIELD',
+
+    /** Opens the comments tab and focuses the text field. */
+    FocusCommentTextField = 'FOCUS_COMMENT_TEXTFIELD',
 }
 
 /**
@@ -89,12 +102,18 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Open Tags';
         case ShortcutAction.OpenEditor:
             return 'Open Editor';
+        case ShortcutAction.OpenComments:
+            return 'Open Comments';
         case ShortcutAction.OpenDatabase:
             return 'Open Position Database';
         case ShortcutAction.OpenClocks:
             return 'Open Clock Usage';
         case ShortcutAction.OpenSettings:
             return 'Open Settings';
+        case ShortcutAction.FocusMainTextField:
+            return 'Focus Main Text Field';
+        case ShortcutAction.FocusCommentTextField:
+            return 'Focus Comment Text Field';
     }
 }
 
@@ -124,13 +143,19 @@ function shortcutActionDescription(action: ShortcutAction): string {
         case ShortcutAction.OpenTags:
             return 'Open the Tags tab.';
         case ShortcutAction.OpenEditor:
-            return 'Open the Editor tab.';
+            return 'Open the Editor tab, if present.';
+        case ShortcutAction.OpenComments:
+            return 'Open the Comments tab.';
         case ShortcutAction.OpenDatabase:
             return 'Open the Position Database tab.';
         case ShortcutAction.OpenClocks:
             return 'Open the Clock Usage tab.';
         case ShortcutAction.OpenSettings:
             return 'Open the Settings tab.';
+        case ShortcutAction.FocusMainTextField:
+            return 'Open the Editor tab, if present, and focus the text field. If the Editor tab is not present, open the Comments tab and focus the text field.';
+        case ShortcutAction.FocusCommentTextField:
+            return 'Open the Comments tab and focus the text field';
     }
 }
 
@@ -168,9 +193,12 @@ export const defaultKeyBindings: Record<ShortcutAction, KeyBinding> = {
     [ShortcutAction.LastMoveVariation]: { modifier: '', key: '' },
     [ShortcutAction.OpenTags]: { modifier: '', key: '' },
     [ShortcutAction.OpenEditor]: { modifier: '', key: '' },
+    [ShortcutAction.OpenComments]: { modifier: '', key: '' },
     [ShortcutAction.OpenDatabase]: { modifier: '', key: '' },
     [ShortcutAction.OpenClocks]: { modifier: '', key: '' },
     [ShortcutAction.OpenSettings]: { modifier: '', key: '' },
+    [ShortcutAction.FocusMainTextField]: { modifier: '', key: '' },
+    [ShortcutAction.FocusCommentTextField]: { modifier: '', key: '' },
 };
 
 /** The valid modifier keys. */
@@ -184,6 +212,16 @@ interface ShortcutHandlerOptions {
      * instead of going to that move.
      */
     setVariationDialogMove?: (move: Move) => void;
+
+    /**
+     * The API for imperatively interacting with the underboard.
+     */
+    underboardApi?: UnderboardApi | null;
+
+    /**
+     * Whether to allow showing the editor tab in the underboard.
+     */
+    showEditor?: boolean;
 }
 
 /** A function which handles a keyboard shortcut, using the provided Chess and Board instances. */
@@ -295,6 +333,130 @@ function handleLastMoveVariation(chess: Chess | undefined, board: BoardApi | und
 }
 
 /**
+ * Handles opening the Tags tab in the underboard. This function is a no-op if opts
+ * does not contain a valid underboardApi object.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleOpenTags(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    opts?.underboardApi?.switchTab(UnderboardTab.Tags);
+}
+
+/**
+ * Handles opening the Editor tab in the underboard. This function is a no-op if opts
+ * does not contain a valid underboardApi object or if opts.showEditor is falsy.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleOpenEditor(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    if (opts?.showEditor) {
+        opts?.underboardApi?.switchTab(UnderboardTab.Editor);
+    }
+}
+
+/**
+ * Handles opening the Comments tab in the underboard. This function is a no-op if opts
+ * does not contain a valid underboardApi object.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleOpenComments(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    opts?.underboardApi?.switchTab(UnderboardTab.Comments);
+}
+
+/**
+ * Handles opening the Database Explorer tab in the underboard. This function is a no-op if opts
+ * does not contain a valid underboardApi object.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleOpenDatabase(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    opts?.underboardApi?.switchTab(UnderboardTab.Explorer);
+}
+
+/**
+ * Handles opening the Clock Usage tab in the underboard. This function is a no-op if opts
+ * does not contain a valid underboardApi object.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleOpenClocks(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    opts?.underboardApi?.switchTab(UnderboardTab.Clocks);
+}
+
+/**
+ * Handles opening the Settings tab in the underboard. This function is a no-op if opts
+ * does not contain a valid underboardApi object.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleOpenSettings(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    opts?.underboardApi?.switchTab(UnderboardTab.Settings);
+}
+
+/**
+ * Handles focusing the main text field in the underboard. The main text field is
+ * the Editor tab text field if the current user owns the current game and the
+ * Comment tab text field otherwise. This function is a no-op if opts
+ * does not contain a valid underboardApi object.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleFocusMainTextField(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    opts?.underboardApi?.focusEditor();
+}
+
+/**
+ * Handles focusing the comment tab text field in the underboard. This function is a
+ * no-op if opts does not contain a valid underboardApi object.
+ * @param _chess The current Chess instance. Unused.
+ * @param _board The current Board instance. Unused.
+ * @param opts The options to use.
+ */
+function handleFocusCommentTextField(
+    _chess: Chess | undefined,
+    _board: BoardApi | undefined,
+    opts?: ShortcutHandlerOptions,
+) {
+    opts?.underboardApi?.focusCommenter();
+}
+
+/**
  * Maps ShortcutActions to their handler functions. Not all ShortcutActions are included.
  */
 export const keyboardShortcutHandlers: Partial<Record<ShortcutAction, ShortcutHandler>> =
@@ -306,6 +468,14 @@ export const keyboardShortcutHandlers: Partial<Record<ShortcutAction, ShortcutHa
         [ShortcutAction.FirstVariation]: handleFirstVariation,
         [ShortcutAction.FirstMoveVariation]: handleFirstMoveVariation,
         [ShortcutAction.LastMoveVariation]: handleLastMoveVariation,
+        [ShortcutAction.OpenTags]: handleOpenTags,
+        [ShortcutAction.OpenEditor]: handleOpenEditor,
+        [ShortcutAction.OpenComments]: handleOpenComments,
+        [ShortcutAction.OpenDatabase]: handleOpenDatabase,
+        [ShortcutAction.OpenClocks]: handleOpenClocks,
+        [ShortcutAction.OpenSettings]: handleOpenSettings,
+        [ShortcutAction.FocusMainTextField]: handleFocusMainTextField,
+        [ShortcutAction.FocusCommentTextField]: handleFocusCommentTextField,
     };
 
 /**

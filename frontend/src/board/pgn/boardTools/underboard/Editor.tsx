@@ -16,7 +16,7 @@ import {
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     evalNags,
     getNagInSet,
@@ -52,9 +52,15 @@ const NagButton: React.FC<NagButtonProps> = ({ text, description, ...props }) =>
     );
 };
 
-const Editor = () => {
+interface EditorProps {
+    focusEditor: boolean;
+    setFocusEditor: (v: boolean) => void;
+}
+
+const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
+    const textFieldRef = useRef<HTMLTextAreaElement>();
 
     useEffect(() => {
         if (chess) {
@@ -88,6 +94,16 @@ const Editor = () => {
             return () => chess.removeObserver(observer);
         }
     }, [chess, setForceRender]);
+
+    useEffect(() => {
+        if (focusEditor && textFieldRef.current) {
+            console.log('Focusing: ', textFieldRef.current);
+            textFieldRef.current.focus();
+            textFieldRef.current.selectionStart = textFieldRef.current.value.length;
+            textFieldRef.current.selectionEnd = textFieldRef.current.selectionStart;
+            setFocusEditor(false);
+        }
+    }, [focusEditor, setFocusEditor]);
 
     if (!chess) {
         return null;
@@ -158,6 +174,7 @@ const Editor = () => {
                 </LocalizationProvider>
 
                 <TextField
+                    inputRef={textFieldRef}
                     label='Comments'
                     id={BlockBoardKeyboardShortcuts}
                     multiline
