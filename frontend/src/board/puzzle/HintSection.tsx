@@ -12,13 +12,13 @@ import { Status } from './PuzzleBoard';
 interface HintSectionProps {
     status: Status;
     move: Move | null;
-    board: BoardApi;
+    board?: BoardApi;
     chess: Chess;
     coachUrl?: string;
     playBothSides?: boolean;
-    onRestart: (board: BoardApi, chess: Chess) => void;
-    onNext: (board: BoardApi, chess: Chess) => void;
-    onRetry: (board: BoardApi, chess: Chess) => void;
+    onRestart: (board: BoardApi | undefined, chess: Chess) => void;
+    onNext: (board: BoardApi | undefined, chess: Chess) => void;
+    onRetry: (board: BoardApi | undefined, chess: Chess) => void;
     onNextPuzzle?: () => void;
 }
 

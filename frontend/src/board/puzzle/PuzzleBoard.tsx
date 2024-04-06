@@ -1,8 +1,7 @@
-import { useCallback, useState } from 'react';
-import { Box, Stack, SxProps, Theme, Typography } from '@mui/material';
 import { Chess, Move } from '@jackstenglein/chess';
+import { Box, Stack, SxProps, Theme, Typography } from '@mui/material';
+import { useCallback, useState } from 'react';
 
-import HintSection from './HintSection';
 import Board, {
     BoardApi,
     PrimitiveMove,
@@ -12,6 +11,7 @@ import Board, {
     toShapes,
 } from '../Board';
 import { ChessContext } from '../pgn/PgnBoard';
+import HintSection from './HintSection';
 
 export enum Status {
     WaitingForMove,
@@ -40,15 +40,15 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     onNextPuzzle,
 }) => {
     const [board, setBoard] = useState<BoardApi>();
-    const [chess, setChess] = useState<Chess>();
+    const [chess, setChess] = useState<Chess>(new Chess());
     const [status, setStatus] = useState(Status.WaitingForMove);
     const [move, setMove] = useState<Move | null>(null);
     const [lastCorrectMove, setLastCorrectMove] = useState<Move | null>(null);
 
-    const onRestart = (board: BoardApi, chess: Chess) => {
+    const onRestart = (board: BoardApi | undefined, chess: Chess) => {
         chess.loadPgn(pgn);
         chess.seek(null);
-        board.set({
+        board?.set({
             fen: chess.fen(),
             turnColor: toColor(chess),
             orientation: toColor(chess),
@@ -66,15 +66,14 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             },
         });
         setBoard(board);
-        setChess(chess);
         setStatus(Status.WaitingForMove);
         setMove(null);
         setLastCorrectMove(null);
     };
 
     const onComplete = useCallback(
-        (board: BoardApi, chess: Chess) => {
-            board.set({
+        (board: BoardApi | undefined, chess: Chess) => {
+            board?.set({
                 fen: chess.fen(),
                 movable: {
                     color: toColor(chess),
@@ -88,7 +87,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             setMove(chess.currentMove());
             onCompletePuzzle();
         },
-        [onCompletePuzzle, setStatus, setMove]
+        [onCompletePuzzle, setStatus, setMove],
     );
 
     const onMove = useCallback(
@@ -136,10 +135,10 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
 
             setMove(chess.currentMove());
         },
-        [onComplete, playBothSides, status, setStatus, setMove, setLastCorrectMove]
+        [onComplete, playBothSides, status, setStatus, setMove, setLastCorrectMove],
     );
 
-    const onNext = (board: BoardApi, chess: Chess) => {
+    const onNext = (board: BoardApi | undefined, chess: Chess) => {
         const nextMove = chess.nextMove();
         if (!nextMove) {
             return onComplete(board, chess);
@@ -149,8 +148,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             return onComplete(board, chess);
         }
 
-        board.move(nextMove.from, nextMove.to);
-        board.set({
+        board?.move(nextMove.from, nextMove.to);
+        board?.set({
             fen: chess.fen(),
             turnColor: toColor(chess),
             movable: {
@@ -167,9 +166,9 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
         setLastCorrectMove(nextMove);
     };
 
-    const onRetry = (board: BoardApi, chess: Chess) => {
+    const onRetry = (board: BoardApi | undefined, chess: Chess) => {
         chess.seek(lastCorrectMove);
-        board.set({
+        board?.set({
             fen: chess.fen(),
             turnColor: toColor(chess),
             lastMove: lastCorrectMove ? [lastCorrectMove.from, lastCorrectMove.to] : [],
@@ -213,38 +212,37 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     {chess.pgn.header.tags.White} vs {chess.pgn.header.tags.Black}
                 </Typography>
             )}
-            <Box
-                gridArea='board'
-                sx={{
-                    aspectRatio: 1,
-                    width: 1,
-                }}
-            >
-                <Board onInitialize={onRestart} onMove={onMove} />
-            </Box>
-            {board && chess && (
+
+            <ChessContext.Provider value={{ chess }}>
+                <Box
+                    gridArea='board'
+                    sx={{
+                        aspectRatio: 1,
+                        width: 1,
+                    }}
+                >
+                    <Board onInitialize={onRestart} onMove={onMove} />
+                </Box>
                 <Stack
                     gridArea='coach'
                     height={1}
                     justifyContent={{ xs: 'start', sm: 'flex-end' }}
                     spacing={2}
                 >
-                    <ChessContext.Provider value={{ chess }}>
-                        <HintSection
-                            status={status}
-                            move={move}
-                            board={board}
-                            chess={chess}
-                            coachUrl={coachUrl}
-                            playBothSides={playBothSides}
-                            onNext={onNext}
-                            onRetry={onRetry}
-                            onRestart={onRestart}
-                            onNextPuzzle={onNextPuzzle}
-                        />
-                    </ChessContext.Provider>
+                    <HintSection
+                        status={status}
+                        move={move}
+                        board={board}
+                        chess={chess}
+                        coachUrl={coachUrl}
+                        playBothSides={playBothSides}
+                        onNext={onNext}
+                        onRetry={onRetry}
+                        onRestart={onRestart}
+                        onNextPuzzle={onNextPuzzle}
+                    />
                 </Stack>
-            )}
+            </ChessContext.Provider>
         </Box>
     );
 };

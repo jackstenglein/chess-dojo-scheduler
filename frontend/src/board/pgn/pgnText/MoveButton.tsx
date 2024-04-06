@@ -3,6 +3,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
+    Box,
     Button as MuiButton,
     Grid,
     ListItemIcon,
@@ -16,7 +17,10 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
+import { Cancel, CheckCircle, RemoveCircle } from '@mui/icons-material';
 import { useLocalStorage } from 'usehooks-ts';
+import { useGame } from '../../../games/view/GamePage';
+import { getMoveDescription } from '../../../tactics/tactics';
 import { reconcile } from '../../Board';
 import {
     convertClockToSeconds,
@@ -53,6 +57,8 @@ interface ButtonProps {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     const { isCurrentMove, inline, move, onClickMove, onRightClick, text, time } = props;
+    const { score, found, extra } = move.userData || {};
+
     const displayNags = move.nags?.sort(compareNags).map((nag) => {
         const n = nags[getStandardNag(nag)];
         if (!n) return null;
@@ -102,7 +108,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             onClick={() => onClickMove(move)}
             onContextMenu={onRightClick}
         >
-            {time ? (
+            {time || score !== undefined || found || extra ? (
                 <Stack
                     direction='row'
                     alignItems='center'
@@ -114,12 +120,63 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                         {displayNags}
                     </div>
 
-                    <Typography
-                        variant='caption'
-                        color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
-                    >
-                        {time}
-                    </Typography>
+                    {time && (
+                        <Typography
+                            variant='caption'
+                            color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
+                        >
+                            {time}
+                        </Typography>
+                    )}
+
+                    {extra && (
+                        <Tooltip title='This move was not present in the solution. You neither gained nor lost points for it.'>
+                            <RemoveCircle
+                                fontSize={'inherit'}
+                                sx={{ ml: 0.5 }}
+                                color='disabled'
+                            />
+                        </Tooltip>
+                    )}
+
+                    {(score !== undefined || found) && (
+                        <Tooltip title={getMoveDescription(found, score)}>
+                            {score ? (
+                                <Box
+                                    sx={{
+                                        backgroundColor: found
+                                            ? 'success.main'
+                                            : 'error.main',
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '10px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        marginRight: '2px',
+                                    }}
+                                >
+                                    <Typography
+                                        variant='body2'
+                                        fontWeight='600'
+                                        sx={{
+                                            pt: '2px',
+                                            color: found
+                                                ? 'success.contrastText'
+                                                : 'background.paper',
+                                        }}
+                                    >
+                                        {found ? '+' : '-'}
+                                        {score}
+                                    </Typography>
+                                </Box>
+                            ) : found ? (
+                                <CheckCircle color='success' />
+                            ) : (
+                                <Cancel color='error' />
+                            )}
+                        </Tooltip>
+                    )}
                 </Stack>
             ) : (
                 <>
@@ -203,6 +260,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     onClickMove,
     handleScroll,
 }) => {
+    const { game } = useGame();
     const { chess, board, config } = useChess();
     const ref = useRef<HTMLButtonElement>(null);
     const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
@@ -324,7 +382,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         );
     }
 
-    const moveTime = showMoveTimes ? getMoveTime(chess, move) : undefined;
+    const moveTime = showMoveTimes && game ? getMoveTime(chess, move) : undefined;
 
     return (
         <Grid key={'move-' + move.ply} item xs={5}>
