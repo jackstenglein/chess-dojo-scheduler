@@ -135,7 +135,8 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             () => {
                 return {
                     getPgn() {
-                        return chess?.renderPgn() || '';
+                        console.log('History: ', chess.history());
+                        return chess.renderPgn() || '';
                     },
                 };
             },

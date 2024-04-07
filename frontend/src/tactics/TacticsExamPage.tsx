@@ -7,7 +7,7 @@ import { addExtraVariation, getSolutionScore, scoreVariation } from './tactics';
 
 const startingPositionFen = 'r1r3nk/p1q4p/4pppP/2B5/1pQ1P3/8/PPPR1PP1/2KR4 w q - 0 1';
 
-const solutionPgn = `[Event "Tactics Test #1: From scratch #22"]
+const testPgn = `[Event "Tactics Test #1: From scratch #22"]
 [Site "https://lichess.org/study/IIXmZsLb/wAhrGVAi"]
 [Result "*"]
 [Variant "Standard"]
@@ -31,7 +31,7 @@ const getTimeSeconds = (time: number) =>
     `0${(time % hourSeconds) % minuteSeconds | 0}`.slice(-2);
 const getTimeMinutes = (time: number) => ((time % hourSeconds) / minuteSeconds) | 0;
 
-const TacticsTestPage = () => {
+const TacticsExamPage = () => {
     const pgnApi = useRef<PgnBoardApi>(null);
     const [completedPgn, setCompletedPgn] = useState('');
 
@@ -41,7 +41,7 @@ const TacticsTestPage = () => {
     };
 
     if (completedPgn) {
-        return <CompletedTacticsTest pgn={completedPgn} />;
+        return <CompletedTacticsTest userPgn={completedPgn} solutionPgn={testPgn} />;
     }
 
     return (
@@ -75,21 +75,32 @@ const TacticsTestPage = () => {
     );
 };
 
-export default TacticsTestPage;
+export default TacticsExamPage;
 
 interface CompletedTacticsTestProps {
-    pgn: string;
+    userPgn: string;
+    solutionPgn: string;
+    orientation?: 'white' | 'black';
 }
 
-const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({ pgn }) => {
+export const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({
+    userPgn,
+    solutionPgn,
+    orientation,
+}) => {
     const onInitialize = (_board: BoardApi, chess: Chess) => {
-        const totalScore = getSolutionScore(chess.history());
+        console.log('User PGN: ', userPgn);
+        console.log('Solution PGN: ', solutionPgn);
+        console.log('Solution history: ', chess.history());
 
-        const answerChess = new Chess({ pgn });
+        const totalScore = getSolutionScore(chess.history());
+        console.log('Total Score: ', totalScore);
+
+        const answerChess = new Chess({ pgn: userPgn });
         answerChess.seek(null);
 
+        console.log('Scoring answer');
         const answerScore = scoreVariation(chess.history(), null, answerChess);
-        console.log('Total Score: ', totalScore);
         console.log('Answer Score: ', answerScore);
         console.log('Final Solution History: ', chess.history());
 
@@ -97,12 +108,11 @@ const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({ pgn }) => {
     };
 
     return (
-        <Container maxWidth={false} sx={{ pt: 4, pb: 4 }}>
-            <PgnBoard
-                onInitialize={onInitialize}
-                pgn={solutionPgn}
-                showPlayerHeaders={false}
-            />
-        </Container>
+        <PgnBoard
+            onInitialize={onInitialize}
+            pgn={solutionPgn}
+            showPlayerHeaders={false}
+            startOrientation={orientation}
+        />
     );
 };

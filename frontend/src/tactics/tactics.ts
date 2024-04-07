@@ -2,6 +2,28 @@ import { Chess, Move } from '@jackstenglein/chess';
 
 const scoreRegex = /^\[(\d+)\]/;
 
+export const sampleProblem: {
+    fen: string;
+    orientation: 'white' | 'black';
+    solution: string;
+} = {
+    fen: 'r5k1/pp2bppp/2p1pn2/3rN2q/5QP1/2BP4/PP2PP1P/R4RK1 b - - 0 1',
+    orientation: 'black',
+    solution: `[Event "Sample Test Position: sample"]
+[Site "https://lichess.org/study/6lpXkW1X/gvIssoz9"]
+[Result "*"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[Annotator "https://lichess.org/@/jessekraai"]
+[FEN "r5k1/pp2bppp/2p1pn2/3rN2q/5QP1/2BP4/PP2PP1P/R4RK1 b - - 0 1"]
+[SetUp "1"]
+[UTCDate "2024.04.07"]
+[UTCTime "15:06:32"]
+
+1... Nxg4! { [1] } 2. Nxg4 (2. Qxg4 Rxe5 { [1] }) 2... Bd6! 3. Qf3 Rg5 { [1] } 4. h3 f5 $19 { black is winning } *`,
+};
+
 export function getMoveDescription(found?: boolean, score?: number): string {
     if (found) {
         if (score) {

@@ -61,7 +61,8 @@ import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
-import TacticsTestPage from './tactics/TacticsTestPage';
+import TacticsExamPage from './tactics/TacticsExamPage';
+import TacticsInstructionsPage from './tactics/TacticsInstructionsPage';
 import ThemeProvider from './ThemeProvider';
 import AdminPage from './tournaments/openClassical/admin/AdminPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
@@ -147,7 +148,13 @@ const router = createBrowserRouter(
                         </Route>
                     </Route>
 
-                    <Route path='tactics' element={<TacticsTestPage />} />
+                    <Route path='tactics'>
+                        <Route
+                            path='instructions'
+                            element={<TacticsInstructionsPage />}
+                        />
+                        <Route path='test' element={<TacticsExamPage />} />
+                    </Route>
 
                     <Route path='chat' element={<ChatPage />} />
 
