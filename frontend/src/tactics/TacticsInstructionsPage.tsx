@@ -1,7 +1,6 @@
 import { Button, Container, Stack, Typography } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
 import PgnBoard, { PgnBoardApi } from '../board/pgn/PgnBoard';
 import { sampleProblem } from './tactics';
 import { CompletedTacticsTest } from './TacticsExamPage';
@@ -97,6 +96,7 @@ const TacticsInstructionsPage = () => {
                         userPgn={completedPgn}
                         solutionPgn={sampleProblem.solution}
                         orientation={sampleProblem.orientation}
+                        underboardTabs={[]}
                     />
                 ) : (
                     <PgnBoard
@@ -104,7 +104,7 @@ const TacticsInstructionsPage = () => {
                         fen={sampleProblem.fen}
                         showPlayerHeaders={false}
                         startOrientation={sampleProblem.orientation}
-                        underboardTabs={[DefaultUnderboardTab.Editor]}
+                        underboardTabs={[]}
                     />
                 )}
 

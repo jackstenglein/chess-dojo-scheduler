@@ -46,6 +46,7 @@ export interface PgnBoardApi {
 
 interface PgnBoardProps {
     underboardTabs: UnderboardTab[];
+    initialUnderboardTab?: string;
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
@@ -57,6 +58,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
     (
         {
             underboardTabs,
+            initialUnderboardTab,
             pgn,
             fen,
             showPlayerHeaders = true,
@@ -132,7 +134,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             () => {
                 return {
                     getPgn() {
-                        console.log('History: ', chess.history());
                         return chess.renderPgn() || '';
                     },
                 };
@@ -160,6 +161,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                         <ResizableContainer
                             {...{
                                 underboardTabs,
+                                initialUnderboardTab,
                                 showPlayerHeaders,
                                 pgn,
                                 fen,

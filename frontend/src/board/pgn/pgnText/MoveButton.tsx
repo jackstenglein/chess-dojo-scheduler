@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
-import { Cancel, CheckCircle, RemoveCircle } from '@mui/icons-material';
+import { RemoveCircle } from '@mui/icons-material';
 import { useLocalStorage } from 'usehooks-ts';
 import { useGame } from '../../../games/view/GamePage';
 import { getMoveDescription } from '../../../tactics/tactics';
@@ -139,42 +139,41 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                         </Tooltip>
                     )}
 
-                    {(score !== undefined || found) && (
+                    {score > 0 && (
                         <Tooltip title={getMoveDescription(found, score)}>
-                            {score ? (
-                                <Box
+                            <Box
+                                sx={{
+                                    backgroundColor: found
+                                        ? 'success.main'
+                                        : 'error.main',
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '10px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginRight: '2px',
+                                    ...(inline
+                                        ? {
+                                              ml: 0.5,
+                                          }
+                                        : undefined),
+                                }}
+                            >
+                                <Typography
+                                    variant={inline ? 'body2' : 'caption'}
+                                    fontWeight='600'
                                     sx={{
-                                        backgroundColor: found
-                                            ? 'success.main'
-                                            : 'error.main',
-                                        width: '20px',
-                                        height: '20px',
-                                        borderRadius: '10px',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        marginRight: '2px',
+                                        pt: '2px',
+                                        color: found
+                                            ? 'success.contrastText'
+                                            : 'background.paper',
                                     }}
                                 >
-                                    <Typography
-                                        variant='body2'
-                                        fontWeight='600'
-                                        sx={{
-                                            pt: '2px',
-                                            color: found
-                                                ? 'success.contrastText'
-                                                : 'background.paper',
-                                        }}
-                                    >
-                                        {found ? '+' : '-'}
-                                        {score}
-                                    </Typography>
-                                </Box>
-                            ) : found ? (
-                                <CheckCircle color='success' />
-                            ) : (
-                                <Cancel color='error' />
-                            )}
+                                    {found ? '+' : '-'}
+                                    {score}
+                                </Typography>
+                            </Box>
                         </Tooltip>
                     )}
                 </Stack>

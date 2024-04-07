@@ -1,82 +1,181 @@
-import { Button, Container, Stack } from '@mui/material';
-import React, { useRef, useState } from 'react';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import { Quiz } from '@mui/icons-material';
+import {
+    Button,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+} from '@mui/material';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useCountdown } from 'react-countdown-circle-timer';
 import { BoardApi, Chess } from '../board/Board';
-import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
-import PgnBoard, { PgnBoardApi } from '../board/pgn/PgnBoard';
-import { addExtraVariation, getSolutionScore, scoreVariation } from './tactics';
+import {
+    DefaultUnderboardTab,
+    UnderboardTab,
+} from '../board/pgn/boardTools/underboard/Underboard';
+import PgnBoard, {
+    BlockBoardKeyboardShortcuts,
+    PgnBoardApi,
+} from '../board/pgn/PgnBoard';
+import {
+    addExtraVariation,
+    firstTest,
+    getSolutionScore,
+    scoreVariation,
+} from './tactics';
+import TacticsExamPgnSelector from './TacticsExamPgnSelector';
 
-const startingPositionFen = 'r1r3nk/p1q4p/4pppP/2B5/1pQ1P3/8/PPPR1PP1/2KR4 w q - 0 1';
-
-const testPgn = `[Event "Tactics Test #1: From scratch #22"]
-[Site "https://lichess.org/study/IIXmZsLb/wAhrGVAi"]
-[Result "*"]
-[Variant "Standard"]
-[ECO "?"]
-[Opening "?"]
-[Annotator "https://lichess.org/@/jessekraai"]
-[FEN "r1r3nk/p1q4p/4pppP/2B5/1pQ1P3/8/PPPR1PP1/2KR4 w q - 0 1"]
-[SetUp "1"]
-[UTCDate "2024.04.01"]
-[UTCTime "15:08:39"]
-
-1. Bf8! Qxc4 2. Bg7# { [1] } *
-
-
-`;
-
-const minuteSeconds = 60;
-const hourSeconds = 3600;
-
-const getTimeSeconds = (time: number) =>
-    `0${(time % hourSeconds) % minuteSeconds | 0}`.slice(-2);
-const getTimeMinutes = (time: number) => ((time % hourSeconds) / minuteSeconds) | 0;
+export interface Scores {
+    total: {
+        user: number;
+        solution: number;
+    };
+    problems: {
+        user: number;
+        solution: number;
+    }[];
+}
 
 const TacticsExamPage = () => {
     const pgnApi = useRef<PgnBoardApi>(null);
-    const [completedPgn, setCompletedPgn] = useState('');
+    const [selectedProblem, setSelectedProblem] = useState(0);
+    const answerPgns = useRef<string[]>(firstTest.map(() => ''));
+    const [isTimeOver, setIsTimeOver] = useState(false);
+    const [isComplete, setIsComplete] = useState(false);
 
-    const onFinish = () => {
-        console.log('Current PGN: ', pgnApi.current?.getPgn());
-        setCompletedPgn(pgnApi.current?.getPgn() || '');
+    const onCountdownComplete = useCallback(() => {
+        setIsTimeOver(true);
+    }, [setIsTimeOver]);
+
+    const countdown = useCountdown({
+        isPlaying: true,
+        size: 80,
+        strokeWidth: 6,
+        duration: 3600,
+        colors: ['#66bb6a', '#29b6f6', '#ce93d8', '#ffa726', '#f44336'],
+        colorsTime: [3600, 2700, 1800, 900, 0],
+        trailColor: 'rgba(0,0,0,0)',
+        onComplete: onCountdownComplete,
+    });
+
+    const scores: Scores | undefined = useMemo(() => {
+        if (!isComplete) {
+            return undefined;
+        }
+
+        const scores: Scores = {
+            total: { user: 0, solution: 0 },
+            problems: [],
+        };
+
+        for (let i = 0; i < firstTest.length; i++) {
+            const solutionChess = new Chess({ pgn: firstTest[i].solution });
+            const userChess = new Chess({ pgn: answerPgns.current[i] });
+            const solutionScore = getSolutionScore(solutionChess.history());
+            const userScore = scoreVariation(solutionChess.history(), null, userChess);
+
+            scores.total.solution += solutionScore;
+            scores.total.user += userScore;
+            scores.problems.push({
+                user: userScore,
+                solution: solutionScore,
+            });
+        }
+
+        return scores;
+    }, [isComplete, answerPgns]);
+
+    const onChangeProblem = (index: number) => {
+        if (!isComplete) {
+            answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
+        }
+        setSelectedProblem(index);
     };
 
-    if (completedPgn) {
-        return <CompletedTacticsTest userPgn={completedPgn} solutionPgn={testPgn} />;
+    if (isComplete) {
+        return (
+            <Container maxWidth={false} sx={{ py: 4 }}>
+                <CompletedTacticsTest
+                    key={firstTest[selectedProblem].fen}
+                    userPgn={answerPgns.current[selectedProblem]}
+                    solutionPgn={firstTest[selectedProblem].solution}
+                    orientation={firstTest[selectedProblem].orientation}
+                    underboardTabs={[
+                        {
+                            name: 'testInfo',
+                            tooltip: 'Test Info',
+                            icon: <Quiz />,
+                            element: (
+                                <TacticsExamPgnSelector
+                                    count={firstTest.length}
+                                    selected={selectedProblem}
+                                    onSelect={onChangeProblem}
+                                    scores={scores}
+                                />
+                            ),
+                        },
+                    ]}
+                    initialUnderboardTab='testInfo'
+                />
+            </Container>
+        );
     }
 
-    return (
-        <Container maxWidth={false} sx={{ pt: 4, pb: 4 }}>
-            <Stack direction='row' alignItems='center'>
-                <CountdownCircleTimer
-                    isPlaying
-                    size={120}
-                    strokeWidth={6}
-                    duration={3600}
-                    colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-                    colorsTime={[7, 5, 2, 0]}
-                    trailColor='rgba(0, 0, 0, 0)'
-                >
-                    {({ remainingTime, color }) => (
-                        <span style={{ color }}>
-                            <div>
-                                {getTimeMinutes(remainingTime)}:
-                                {getTimeSeconds(remainingTime)}
-                            </div>
-                        </span>
-                    )}
-                </CountdownCircleTimer>
+    const onComplete = () => {
+        answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
+        setIsComplete(true);
+        setSelectedProblem(0);
+    };
 
-                <Button variant='contained' onClick={onFinish}>
-                    Finish Early
-                </Button>
-            </Stack>
+    return (
+        <Container maxWidth={false} sx={{ py: 4 }}>
             <PgnBoard
                 ref={pgnApi}
-                fen={startingPositionFen}
+                key={firstTest[selectedProblem].fen}
+                fen={firstTest[selectedProblem].fen}
+                pgn={answerPgns.current[selectedProblem]}
+                startOrientation={firstTest[selectedProblem].orientation}
                 showPlayerHeaders={false}
-                underboardTabs={[DefaultUnderboardTab.Editor]}
+                underboardTabs={[
+                    {
+                        name: 'testInfo',
+                        tooltip: 'Test Info',
+                        icon: <Quiz />,
+                        element: (
+                            <TacticsExamPgnSelector
+                                count={firstTest.length}
+                                selected={selectedProblem}
+                                onSelect={onChangeProblem}
+                                countdown={countdown}
+                                onComplete={onComplete}
+                            />
+                        ),
+                    },
+                    DefaultUnderboardTab.Editor,
+                ]}
+                initialUnderboardTab='testInfo'
             />
+
+            <Dialog
+                open={isTimeOver}
+                classes={{
+                    container: BlockBoardKeyboardShortcuts,
+                }}
+                fullWidth
+            >
+                <DialogTitle>Test Complete</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Your time has run out, and the test is over. Let's see how you
+                        did!
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={onComplete}>Continue</Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 };
@@ -86,32 +185,28 @@ export default TacticsExamPage;
 interface CompletedTacticsTestProps {
     userPgn: string;
     solutionPgn: string;
+    underboardTabs: UnderboardTab[];
+    initialUnderboardTab?: string;
     orientation?: 'white' | 'black';
 }
 
 export const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({
     userPgn,
     solutionPgn,
+    underboardTabs,
+    initialUnderboardTab,
     orientation,
 }) => {
-    const onInitialize = (_board: BoardApi, chess: Chess) => {
-        console.log('User PGN: ', userPgn);
-        console.log('Solution PGN: ', solutionPgn);
-        console.log('Solution history: ', chess.history());
-
-        const totalScore = getSolutionScore(chess.history());
-        console.log('Total Score: ', totalScore);
-
-        const answerChess = new Chess({ pgn: userPgn });
-        answerChess.seek(null);
-
-        console.log('Scoring answer');
-        const answerScore = scoreVariation(chess.history(), null, answerChess);
-        console.log('Answer Score: ', answerScore);
-        console.log('Final Solution History: ', chess.history());
-
-        addExtraVariation(answerChess.history(), null, chess);
-    };
+    const onInitialize = useCallback(
+        (_board: BoardApi, chess: Chess) => {
+            getSolutionScore(chess.history());
+            const answerChess = new Chess({ pgn: userPgn });
+            answerChess.seek(null);
+            scoreVariation(chess.history(), null, answerChess);
+            addExtraVariation(answerChess.history(), null, chess);
+        },
+        [userPgn],
+    );
 
     return (
         <PgnBoard
@@ -119,7 +214,8 @@ export const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({
             pgn={solutionPgn}
             showPlayerHeaders={false}
             startOrientation={orientation}
-            underboardTabs={[]}
+            underboardTabs={underboardTabs}
+            initialUnderboardTab={initialUnderboardTab}
         />
     );
 };

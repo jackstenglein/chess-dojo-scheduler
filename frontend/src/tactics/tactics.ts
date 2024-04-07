@@ -31,7 +31,7 @@ export const firstTest: TacticsProblem[] = [
         fen: 'r4rk1/pp3pp1/4pq1B/2N4R/6Q1/P7/1P3PPP/n5K1 w q - 0 1',
         solution: `[FEN "r4rk1/pp3pp1/4pq1B/2N4R/6Q1/P7/1P3PPP/n5K1 w q - 0 1"]
 [SetUp "1"]
-        
+
 1. Bxg7! { [1] } 1... Qg6 (1... Qxg7 2. Rg5 Qxg5 3. Qxg5+ Kh7 4. Nd7) 2. Bf6! { [1] The key move to see. Black is getting mated } *`,
     },
     {

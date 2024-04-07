@@ -98,23 +98,26 @@ export interface UnderboardApi {
 
 interface UnderboardProps {
     tabs: UnderboardTab[];
+    initialTab?: string;
     resizeData: ResizableData;
     onResize: (width: number, height: number) => void;
 }
 
 const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
-    ({ tabs, resizeData, onResize }, ref) => {
+    ({ tabs, initialTab, resizeData, onResize }, ref) => {
         const { chess } = useChess();
         const { game, isOwner } = useGame();
         const [focusEditor, setFocusEditor] = useState(false);
         const [focusCommenter, setFocusCommenter] = useState(false);
 
         const [underboard, setUnderboard] = useState(
-            isOwner
-                ? DefaultUnderboardTab.Editor
-                : Boolean(game)
-                  ? DefaultUnderboardTab.Comments
-                  : DefaultUnderboardTab.Explorer,
+            initialTab
+                ? initialTab
+                : isOwner
+                  ? DefaultUnderboardTab.Editor
+                  : Boolean(game)
+                    ? DefaultUnderboardTab.Comments
+                    : DefaultUnderboardTab.Explorer,
         );
         const light = useLightMode();
 
@@ -150,6 +153,10 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
         if (tabs.length === 0) {
             return null;
         }
+
+        const customTab = tabs.find(
+            (t) => typeof t !== 'string' && t.name === underboard,
+        ) as CustomUnderboardTab;
 
         return (
             <Resizable
@@ -241,6 +248,8 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 setFocusEditor={setFocusCommenter}
                             />
                         )}
+
+                        {customTab && customTab.element}
                     </Stack>
                 </Card>
             </Resizable>

@@ -176,7 +176,6 @@ interface BoardProps {
 const promotionPieces = ['q', 'n', 'r', 'b'];
 
 const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
-    // const chess = useState(new Chess())[0];
     const { chess } = useChess();
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);

@@ -18,6 +18,7 @@ export const CONTAINER_ID = 'resize-container';
 
 interface ResizableContainerProps {
     underboardTabs: UnderboardTab[];
+    initialUnderboardTab?: string;
 
     pgn?: string;
     fen?: string;
@@ -30,6 +31,7 @@ interface ResizableContainerProps {
 
 const ResizableContainer: React.FC<ResizableContainerProps> = ({
     underboardTabs,
+    initialUnderboardTab,
     showPlayerHeaders,
     pgn,
     fen,
@@ -92,6 +94,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
                 <Underboard
                     ref={underboardRef}
                     tabs={underboardTabs}
+                    initialTab={initialUnderboardTab}
                     resizeData={sizes.underboard}
                     onResize={onResize('underboard')}
                 />
