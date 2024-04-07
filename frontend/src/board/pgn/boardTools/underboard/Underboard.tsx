@@ -17,7 +17,6 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
-import { useAuth } from '../../../../auth/Auth';
 import { useGame } from '../../../../games/view/GamePage';
 import { useLightMode } from '../../../../ThemeProvider';
 import Explorer from '../../explorer/Explorer';
@@ -30,7 +29,7 @@ import Editor from './Editor';
 import Settings from './settings/Settings';
 import Tags from './Tags';
 
-export enum UnderboardTab {
+export enum DefaultUnderboardTab {
     Tags = 'tags',
     Editor = 'editor',
     Comments = 'comments',
@@ -39,33 +38,83 @@ export enum UnderboardTab {
     Settings = 'settings',
 }
 
+export interface DefaultUnderboardTabInfo {
+    name: string;
+    tooltip: string;
+    icon: JSX.Element;
+}
+
+export interface CustomUnderboardTab extends DefaultUnderboardTabInfo {
+    element: JSX.Element;
+}
+
+export type UnderboardTab = DefaultUnderboardTab | CustomUnderboardTab;
+
+const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
+    [DefaultUnderboardTab.Tags]: {
+        name: DefaultUnderboardTab.Tags,
+        tooltip: 'PGN Tags',
+        icon: <Sell />,
+    },
+    [DefaultUnderboardTab.Editor]: {
+        name: DefaultUnderboardTab.Editor,
+        tooltip: 'Edit PGN',
+        icon: <Edit />,
+    },
+    [DefaultUnderboardTab.Comments]: {
+        name: DefaultUnderboardTab.Comments,
+        tooltip: 'Comments',
+        icon: <Chat />,
+    },
+    [DefaultUnderboardTab.Explorer]: {
+        name: DefaultUnderboardTab.Explorer,
+        tooltip: 'Position Database',
+        icon: <Storage />,
+    },
+    [DefaultUnderboardTab.Clocks]: {
+        name: DefaultUnderboardTab.Clocks,
+        tooltip: 'Clock Usage',
+        icon: <AccessAlarm />,
+    },
+    [DefaultUnderboardTab.Settings]: {
+        name: DefaultUnderboardTab.Settings,
+        tooltip: 'Settings',
+        icon: <SettingsIcon />,
+    },
+};
+
+function getTabInfo(tab: UnderboardTab): DefaultUnderboardTabInfo {
+    if (typeof tab === 'string') {
+        return tabInfo[tab];
+    }
+    return tab;
+}
+
 export interface UnderboardApi {
-    switchTab: (tab: UnderboardTab) => void;
+    switchTab: (tab: DefaultUnderboardTab) => void;
     focusEditor: () => void;
     focusCommenter: () => void;
 }
 
 interface UnderboardProps {
+    tabs: UnderboardTab[];
     resizeData: ResizableData;
     onResize: (width: number, height: number) => void;
-    showExplorer?: boolean;
 }
 
 const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
-    ({ resizeData, onResize }, ref) => {
-        const user = useAuth().user;
+    ({ tabs, resizeData, onResize }, ref) => {
         const { chess } = useChess();
-        const { game } = useGame();
+        const { game, isOwner } = useGame();
         const [focusEditor, setFocusEditor] = useState(false);
         const [focusCommenter, setFocusCommenter] = useState(false);
 
-        const showEditor = game && game.owner === user?.username;
         const [underboard, setUnderboard] = useState(
-            showEditor
-                ? UnderboardTab.Editor
+            isOwner
+                ? DefaultUnderboardTab.Editor
                 : Boolean(game)
-                  ? UnderboardTab.Comments
-                  : UnderboardTab.Explorer,
+                  ? DefaultUnderboardTab.Comments
+                  : DefaultUnderboardTab.Explorer,
         );
         const light = useLightMode();
 
@@ -73,30 +122,34 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
             ref,
             () => {
                 return {
-                    switchTab(tab: UnderboardTab) {
+                    switchTab(tab: DefaultUnderboardTab) {
                         setUnderboard(tab);
                     },
                     focusEditor() {
-                        if (showEditor) {
-                            setUnderboard(UnderboardTab.Editor);
+                        if (isOwner) {
+                            setUnderboard(DefaultUnderboardTab.Editor);
                             setFocusEditor(true);
                         } else {
-                            setUnderboard(UnderboardTab.Comments);
+                            setUnderboard(DefaultUnderboardTab.Comments);
                             setFocusCommenter(true);
                         }
                     },
                     focusCommenter() {
-                        setUnderboard(UnderboardTab.Comments);
+                        setUnderboard(DefaultUnderboardTab.Comments);
                         setFocusCommenter(true);
                     },
                 };
             },
-            [setUnderboard, showEditor, setFocusEditor, setFocusCommenter],
+            [setUnderboard, isOwner, setFocusEditor, setFocusCommenter],
         );
 
         const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
             onResize(Math.floor(data.size.width), Math.floor(data.size.height));
         };
+
+        if (tabs.length === 0) {
+            return null;
+        }
 
         return (
             <Resizable
@@ -122,7 +175,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                     }}
                     variant={light ? 'outlined' : 'elevation'}
                 >
-                    {game && (
+                    {tabs.length > 1 && (
                         <Paper elevation={10} sx={{ boxShadow: 'none' }}>
                             <ToggleButtonGroup
                                 size='small'
@@ -131,96 +184,58 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 onChange={(_, val) => val && setUnderboard(val)}
                                 fullWidth
                             >
-                                <UnderboardButton
-                                    tooltip='PGN Tags'
-                                    value='tags'
-                                    sx={{
-                                        borderBottomLeftRadius: 0,
-                                        borderTop: light ? 0 : undefined,
-                                        borderLeft: light ? 0 : undefined,
-                                    }}
-                                >
-                                    <Sell />
-                                </UnderboardButton>
+                                {tabs.map((tab, index) => {
+                                    const info = getTabInfo(tab);
 
-                                {showEditor && (
-                                    <UnderboardButton
-                                        tooltip='Edit PGN'
-                                        value='editor'
-                                        sx={{
-                                            borderTop: light ? 0 : undefined,
-                                        }}
-                                    >
-                                        <Edit />
-                                    </UnderboardButton>
-                                )}
+                                    return (
+                                        <UnderboardButton
+                                            key={info.name}
+                                            tooltip={info.tooltip}
+                                            value={info.name}
+                                            sx={{
+                                                borderTop: light ? 0 : undefined,
 
-                                <UnderboardButton
-                                    tooltip='Comments'
-                                    value='comments'
-                                    sx={{ borderTop: light ? 0 : undefined }}
-                                >
-                                    <Chat />
-                                </UnderboardButton>
+                                                borderLeft:
+                                                    index === 0 && light ? 0 : undefined,
+                                                borderRight:
+                                                    index === tabs.length - 1 && light
+                                                        ? 0
+                                                        : undefined,
 
-                                <UnderboardButton
-                                    tooltip='Position Database'
-                                    value='explorer'
-                                    sx={{
-                                        borderTop: light ? 0 : undefined,
-                                    }}
-                                >
-                                    <Storage />
-                                </UnderboardButton>
-
-                                <UnderboardButton
-                                    tooltip='Clock Usage'
-                                    value='clocks'
-                                    sx={{
-                                        borderBottomRightRadius: 0,
-                                        borderTop: light ? 0 : undefined,
-                                    }}
-                                >
-                                    <AccessAlarm />
-                                </UnderboardButton>
-
-                                <UnderboardButton
-                                    tooltip='Settings'
-                                    value='settings'
-                                    sx={{
-                                        borderTop: light ? 0 : undefined,
-                                        borderRight: light ? 0 : undefined,
-                                        borderBottomRightRadius: 0,
-                                    }}
-                                >
-                                    <SettingsIcon />
-                                </UnderboardButton>
+                                                borderBottomRightRadius: 0,
+                                                borderBottomLeftRadius: 0,
+                                            }}
+                                        >
+                                            {info.icon}
+                                        </UnderboardButton>
+                                    );
+                                })}
                             </ToggleButtonGroup>
                         </Paper>
                     )}
 
                     <Stack sx={{ overflowY: 'auto', flexGrow: 1 }}>
-                        {underboard === 'tags' && (
+                        {underboard === DefaultUnderboardTab.Tags && (
                             <Tags
                                 tags={chess?.pgn.header.tags}
                                 game={game}
-                                allowEdits={showEditor}
+                                allowEdits={isOwner}
                             />
                         )}
-                        {underboard === 'editor' && (
+                        {underboard === DefaultUnderboardTab.Editor && (
                             <Editor
                                 focusEditor={focusEditor}
                                 setFocusEditor={setFocusEditor}
                             />
                         )}
-                        {underboard === 'explorer' && <Explorer />}
-                        {underboard === 'settings' && (
-                            <Settings showEditor={showEditor} />
+                        {underboard === DefaultUnderboardTab.Explorer && <Explorer />}
+                        {underboard === DefaultUnderboardTab.Settings && (
+                            <Settings showEditor={isOwner} />
                         )}
-                        {underboard === 'clocks' && (
-                            <ClockUsage showEditor={showEditor} />
+                        {underboard === DefaultUnderboardTab.Clocks && (
+                            <ClockUsage showEditor={isOwner} />
                         )}
-                        {underboard === 'comments' && (
+                        {underboard === DefaultUnderboardTab.Comments && (
                             <Comments
                                 focusEditor={focusCommenter}
                                 setFocusEditor={setFocusCommenter}

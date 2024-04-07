@@ -1,6 +1,5 @@
 import { Move } from '@jackstenglein/chess';
 import { Box, Paper, Stack } from '@mui/material';
-import { useAuth } from '../../../../auth/Auth';
 import { useGame } from '../../../../games/view/GamePage';
 import { useLightMode } from '../../../../ThemeProvider';
 import { useChess } from '../../PgnBoard';
@@ -10,14 +9,11 @@ import StatusIcon from './StatusIcon';
 
 interface BoardButtonsProps {
     onClickMove: (move: Move | null) => void;
-
-    showSave?: boolean;
 }
 
-const BoardButtons: React.FC<BoardButtonsProps> = ({ onClickMove, showSave }) => {
-    const user = useAuth().user;
+const BoardButtons: React.FC<BoardButtonsProps> = ({ onClickMove }) => {
     const light = useLightMode();
-    const { game } = useGame();
+    const { game, isOwner: isGameOwner } = useGame();
     const { chess } = useChess();
 
     return (
@@ -41,7 +37,7 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ onClickMove, showSave }) =>
             >
                 <StartButtons />
                 <ControlButtons onClickMove={onClickMove} />
-                {showSave && game && game.owner === user?.username ? (
+                {game && isGameOwner ? (
                     <StatusIcon game={game} />
                 ) : (
                     <Box sx={{ width: '40px' }}></Box>

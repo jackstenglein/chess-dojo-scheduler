@@ -3,6 +3,8 @@ import { createContext, useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
+import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
 import PgnBoard from '../../board/pgn/PgnBoard';
 import { Game } from '../../database/game';
 import PgnErrorBoundary from './PgnErrorBoundary';
@@ -10,6 +12,7 @@ import PgnErrorBoundary from './PgnErrorBoundary';
 type GameContextType = {
     game?: Game;
     onUpdateGame?: (g: Game) => void;
+    isOwner?: boolean;
 };
 
 const GameContext = createContext<GameContextType>({});
@@ -23,6 +26,7 @@ const GamePage = () => {
     const request = useRequest<Game>();
     const featureRequest = useRequest();
     const { cohort, id } = useParams();
+    const user = useAuth().user;
 
     const reset = request.reset;
     useEffect(() => {
@@ -45,6 +49,8 @@ const GamePage = () => {
         }
     }, [request, api, cohort, id]);
 
+    const isOwner = request.data?.owner === user?.username;
+
     return (
         <Box
             sx={{
@@ -61,13 +67,20 @@ const GamePage = () => {
                     value={{
                         game: request.data,
                         onUpdateGame: request.onSuccess,
+                        isOwner,
                     }}
                 >
                     <PgnBoard
-                        showTags
-                        showEditor
                         pgn={request.data?.pgn}
                         startOrientation={request.data?.orientation}
+                        underboardTabs={[
+                            DefaultUnderboardTab.Tags,
+                            ...(isOwner ? [DefaultUnderboardTab.Editor] : []),
+                            DefaultUnderboardTab.Comments,
+                            DefaultUnderboardTab.Explorer,
+                            DefaultUnderboardTab.Clocks,
+                            DefaultUnderboardTab.Settings,
+                        ]}
                     />
                 </GameContext.Provider>
             </PgnErrorBoundary>

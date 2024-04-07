@@ -18,7 +18,7 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { BoardApi, reconcile } from '../../../../Board';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
-import { UnderboardApi, UnderboardTab } from '../Underboard';
+import { DefaultUnderboardTab, UnderboardApi } from '../Underboard';
 
 export const BoardKeyBindingsKey = 'boardKeyBindings';
 
@@ -372,7 +372,7 @@ function handleOpenTags(
     _board: BoardApi | undefined,
     opts?: ShortcutHandlerOptions,
 ) {
-    opts?.underboardApi?.switchTab(UnderboardTab.Tags);
+    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Tags);
 }
 
 /**
@@ -388,7 +388,7 @@ function handleOpenEditor(
     opts?: ShortcutHandlerOptions,
 ) {
     if (opts?.showEditor) {
-        opts?.underboardApi?.switchTab(UnderboardTab.Editor);
+        opts?.underboardApi?.switchTab(DefaultUnderboardTab.Editor);
     }
 }
 
@@ -404,7 +404,7 @@ function handleOpenComments(
     _board: BoardApi | undefined,
     opts?: ShortcutHandlerOptions,
 ) {
-    opts?.underboardApi?.switchTab(UnderboardTab.Comments);
+    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Comments);
 }
 
 /**
@@ -419,7 +419,7 @@ function handleOpenDatabase(
     _board: BoardApi | undefined,
     opts?: ShortcutHandlerOptions,
 ) {
-    opts?.underboardApi?.switchTab(UnderboardTab.Explorer);
+    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Explorer);
 }
 
 /**
@@ -434,7 +434,7 @@ function handleOpenClocks(
     _board: BoardApi | undefined,
     opts?: ShortcutHandlerOptions,
 ) {
-    opts?.underboardApi?.switchTab(UnderboardTab.Clocks);
+    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Clocks);
 }
 
 /**
@@ -449,7 +449,7 @@ function handleOpenSettings(
     _board: BoardApi | undefined,
     opts?: ShortcutHandlerOptions,
 ) {
-    opts?.underboardApi?.switchTab(UnderboardTab.Settings);
+    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Settings);
 }
 
 /**

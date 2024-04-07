@@ -1,6 +1,7 @@
 import { Box, Container } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 
+import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
 import PgnBoard from '../../board/pgn/PgnBoard';
 
 const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -50,7 +51,7 @@ const ExplorerPage = () => {
             >
                 <PgnBoard
                     fen={searchParams.get('fen') || startingPositionFen}
-                    showExplorer
+                    underboardTabs={[DefaultUnderboardTab.Explorer]}
                     showPlayerHeaders={false}
                 />
             </Box>

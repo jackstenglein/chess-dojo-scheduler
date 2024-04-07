@@ -16,6 +16,7 @@ import { useAuth } from '../../auth/Auth';
 import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
+import { UnderboardTab } from './boardTools/underboard/Underboard';
 import ResizableContainer from './ResizableContainer';
 import { CONTAINER_ID } from './resize';
 
@@ -44,12 +45,10 @@ export interface PgnBoardApi {
 }
 
 interface PgnBoardProps {
+    underboardTabs: UnderboardTab[];
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
-    showTags?: boolean;
-    showEditor?: boolean;
-    showExplorer?: boolean;
     startOrientation?: Color;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
 }
@@ -57,11 +56,9 @@ interface PgnBoardProps {
 const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
     (
         {
+            underboardTabs,
             pgn,
             fen,
-            showTags,
-            showEditor,
-            showExplorer,
             showPlayerHeaders = true,
             startOrientation = 'white',
             onInitialize: parentOnInitialize,
@@ -143,8 +140,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             [chess],
         );
 
-        const showUnderboard = showTags || showEditor || showExplorer;
-
         return (
             <Box
                 id={CONTAINER_ID}
@@ -164,13 +159,11 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                     <ChessContext.Provider value={chessContext}>
                         <ResizableContainer
                             {...{
-                                showUnderboard,
-                                showExplorer,
+                                underboardTabs,
                                 showPlayerHeaders,
                                 pgn,
                                 fen,
                                 startOrientation,
-                                showEditor,
                                 onInitialize,
                                 onMove,
                                 onClickMove,

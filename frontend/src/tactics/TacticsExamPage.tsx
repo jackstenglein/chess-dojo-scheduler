@@ -2,6 +2,7 @@ import { Button, Container, Stack } from '@mui/material';
 import React, { useRef, useState } from 'react';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { BoardApi, Chess } from '../board/Board';
+import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
 import PgnBoard, { PgnBoardApi } from '../board/pgn/PgnBoard';
 import { addExtraVariation, getSolutionScore, scoreVariation } from './tactics';
 
@@ -70,7 +71,12 @@ const TacticsExamPage = () => {
                     Finish Early
                 </Button>
             </Stack>
-            <PgnBoard ref={pgnApi} fen={startingPositionFen} showPlayerHeaders={false} />
+            <PgnBoard
+                ref={pgnApi}
+                fen={startingPositionFen}
+                showPlayerHeaders={false}
+                underboardTabs={[DefaultUnderboardTab.Editor]}
+            />
         </Container>
     );
 };
@@ -113,6 +119,7 @@ export const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({
             pgn={solutionPgn}
             showPlayerHeaders={false}
             startOrientation={orientation}
+            underboardTabs={[]}
         />
     );
 };

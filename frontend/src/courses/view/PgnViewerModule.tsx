@@ -1,7 +1,7 @@
 import { Box, Container } from '@mui/material';
 
-import { ModuleProps } from './Module';
 import PgnBoard from '../../board/pgn/PgnBoard';
+import { ModuleProps } from './Module';
 
 const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {
     if (!module.pgns || module.pgns.length < 1) {
@@ -52,6 +52,7 @@ const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {
                     pgn={module.pgns[0]}
                     showPlayerHeaders={false}
                     startOrientation={module.boardOrientation}
+                    underboardTabs={[]}
                 />
             </Box>
         </Container>

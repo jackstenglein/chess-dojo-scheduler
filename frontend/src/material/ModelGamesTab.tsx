@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
 import { Box, Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { useAuth } from '../auth/Auth';
+import PgnBoard from '../board/pgn/PgnBoard';
 import PgnSelector from '../courses/view/PgnSelector';
 import { Game, GameInfo } from '../database/game';
-import LoadingPage from '../loading/LoadingPage';
 import { compareCohorts, dojoCohorts } from '../database/user';
 import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
-import PgnBoard from '../board/pgn/PgnBoard';
-import { useAuth } from '../auth/Auth';
+import LoadingPage from '../loading/LoadingPage';
 
 const ModelGamesTab = () => {
     const user = useAuth().user!;
@@ -28,8 +28,8 @@ const ModelGamesTab = () => {
                     console.log('listModelGames: ', res);
                     listRequest.onSuccess(
                         res.data.games.sort((lhs, rhs) =>
-                            compareCohorts(lhs.cohort, rhs.cohort)
-                        )
+                            compareCohorts(lhs.cohort, rhs.cohort),
+                        ),
                     );
                 })
                 .catch((err) => {
@@ -158,6 +158,7 @@ const ModelGamesTab = () => {
                                 key={getRequest.data.pgn}
                                 pgn={getRequest.data.pgn}
                                 startOrientation={getRequest.data.orientation}
+                                underboardTabs={[]}
                             />
                         </PgnErrorBoundary>
                     )}

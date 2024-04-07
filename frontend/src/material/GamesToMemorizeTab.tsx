@@ -1,10 +1,3 @@
-import { useEffect, useState } from 'react';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { Game, GameInfo } from '../database/game';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import { useApi } from '../api/Api';
-import { compareCohorts } from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
 import {
     Box,
     Container,
@@ -17,11 +10,18 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
+import { useEffect, useState } from 'react';
+import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import PgnBoard from '../board/pgn/PgnBoard';
-import PgnSelector from '../courses/view/PgnSelector';
 import PuzzleBoard from '../board/puzzle/PuzzleBoard';
-import { coachUrls, coaches } from '../database/course';
+import PgnSelector from '../courses/view/PgnSelector';
+import { coaches, coachUrls } from '../database/course';
+import { Game, GameInfo } from '../database/game';
+import { compareCohorts } from '../database/user';
+import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
+import LoadingPage from '../loading/LoadingPage';
 
 const GamesToMemorizeTab = () => {
     const user = useAuth().user!;
@@ -40,7 +40,7 @@ const GamesToMemorizeTab = () => {
                 .then((res) => {
                     console.log('listGamesToMemorize: ', res);
                     const games = res.data.games.sort((lhs, rhs) =>
-                        compareCohorts(lhs.cohort, rhs.cohort)
+                        compareCohorts(lhs.cohort, rhs.cohort),
                     );
                     listRequest.onSuccess(games);
                     const i = games.findIndex((g) => g.cohort === user.dojoCohort);
@@ -176,6 +176,7 @@ const GamesToMemorizeTab = () => {
                                     key={getRequest.data.pgn}
                                     pgn={getRequest.data.pgn}
                                     startOrientation={getRequest.data.orientation}
+                                    underboardTabs={[]}
                                 />
                             )}
 

@@ -5,7 +5,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-resizable/css/styles.css';
 import { useWindowSizeEffect } from '../../ThemeProvider';
 import { BoardApi, Chess, PrimitiveMove } from '../Board';
-import Underboard, { UnderboardApi } from './boardTools/underboard/Underboard';
+import Underboard, {
+    UnderboardApi,
+    UnderboardTab,
+} from './boardTools/underboard/Underboard';
 import KeyboardHandler from './KeyboardHandler';
 import { ResizablePgnText } from './pgnText/PgnText';
 import ResizableBoardArea from './ResizableBoardArea';
@@ -14,32 +17,29 @@ import { getNewSizes, getSizes } from './resize';
 export const CONTAINER_ID = 'resize-container';
 
 interface ResizableContainerProps {
-    showUnderboard?: boolean;
-    showExplorer?: boolean;
+    underboardTabs: UnderboardTab[];
 
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
-    showEditor?: boolean;
     onInitialize: (board: BoardApi, chess: Chess) => void;
     onMove: (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => void;
     onClickMove: (move: Move | null) => void;
 }
 
 const ResizableContainer: React.FC<ResizableContainerProps> = ({
-    showUnderboard,
-    showExplorer,
+    underboardTabs,
     showPlayerHeaders,
     pgn,
     fen,
     startOrientation,
-    showEditor,
     onInitialize,
     onMove,
     onClickMove,
 }) => {
     const underboardRef = useRef<UnderboardApi>(null);
+    const showUnderboard = underboardTabs.length > 0;
 
     const parentWidth =
         document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
@@ -91,7 +91,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
             {showUnderboard && (
                 <Underboard
                     ref={underboardRef}
-                    showExplorer={showExplorer}
+                    tabs={underboardTabs}
                     resizeData={sizes.underboard}
                     onResize={onResize('underboard')}
                 />
@@ -106,7 +106,6 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
                     pgn,
                     fen,
                     startOrientation,
-                    showEditor,
                     onInitialize,
                     onMove,
                     onClickMove,

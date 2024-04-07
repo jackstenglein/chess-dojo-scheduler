@@ -16,7 +16,6 @@ interface ResizableBoardAreaProps {
     fen?: string;
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
-    showEditor?: boolean;
     onInitialize: (board: BoardApi, chess: Chess) => void;
     onMove: (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => void;
     onClickMove: (move: Move | null) => void;
@@ -30,7 +29,6 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
     pgn,
     fen,
     startOrientation = 'white',
-    showEditor,
     onInitialize,
     onMove,
     onClickMove,
@@ -58,7 +56,7 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
 
             {showPlayerHeaders && <PlayerHeader type='footer' />}
 
-            <BoardButtons onClickMove={onClickMove} showSave={showEditor} />
+            <BoardButtons onClickMove={onClickMove} />
         </Stack>
     );
 };

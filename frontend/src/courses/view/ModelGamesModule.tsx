@@ -1,7 +1,7 @@
 import { Box, Container, Stack } from '@mui/material';
-import { ModuleProps } from './Module';
 import { useState } from 'react';
 import useMeasure from 'react-use-measure';
+import { ModuleProps } from './Module';
 
 import PgnBoard from '../../board/pgn/PgnBoard';
 import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
@@ -69,6 +69,7 @@ const ModelGamesModule: React.FC<ModuleProps> = ({ module }) => {
                             pgn={module.pgns[selectedIndex]}
                             showPlayerHeaders={true}
                             startOrientation={module.boardOrientation}
+                            underboardTabs={[]}
                         />
                     </PgnErrorBoundary>
                 </Box>
