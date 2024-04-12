@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 
 import { useMemo } from 'react';
-import { AxisOptions, Chart } from 'react-charts';
+import { AxisOptions, Chart } from '../../shim/react-charts';
 import { useAuth } from '../../auth/Auth';
 import {
     formatRatingSystem,

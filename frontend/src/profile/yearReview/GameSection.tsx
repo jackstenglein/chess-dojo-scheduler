@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { Chart } from 'react-charts';
+import { Chart } from '../../shim/react-charts';
 
 import { SectionProps } from './YearReviewPage';
 import Percentiles from './Percentiles';

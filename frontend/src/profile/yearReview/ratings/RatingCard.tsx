@@ -1,6 +1,6 @@
 import { Box, Card, CardContent, Chip, Stack, Tooltip, Typography } from '@mui/material';
 import { useMemo } from 'react';
-import { Chart } from 'react-charts';
+import { Chart } from '../../../shim/react-charts';
 import { ArrowDownward, ArrowUpward, Help, OpenInNew } from '@mui/icons-material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 

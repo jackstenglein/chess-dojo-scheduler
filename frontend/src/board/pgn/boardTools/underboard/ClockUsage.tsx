@@ -1,7 +1,7 @@
 import { Chess, Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
 import { Box, CardContent, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { AxisOptions, Chart, Datum as ChartDatum } from 'react-charts';
+import { AxisOptions, Chart, Datum as ChartDatum } from '../../../../shim/react-charts';
 import { useLightMode } from '../../../../ThemeProvider';
 import { reconcile } from '../../../Board';
 import { useChess } from '../../PgnBoard';

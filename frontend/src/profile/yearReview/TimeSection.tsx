@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Stack, Typography, Card, CardHeader, CardContent, Box } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { AxisOptions, Chart } from 'react-charts';
+import { AxisOptions, Chart } from '../../shim/react-charts';
 
 import { useAuth } from '../../auth/Auth';
 import { SectionProps } from './YearReviewPage';

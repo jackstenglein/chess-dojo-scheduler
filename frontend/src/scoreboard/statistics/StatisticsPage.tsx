@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { Container, Stack } from '@mui/material';
-import { AxisOptions } from 'react-charts';
+import { AxisOptions } from '../../shim/react-charts';
 
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { RatingSystem, dojoCohorts, formatRatingSystem } from '../../database/user';
