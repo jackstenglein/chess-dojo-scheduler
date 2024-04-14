@@ -1,7 +1,5 @@
 import { Chess, Move } from '@jackstenglein/chess';
 
-const scoreRegex = /^\[(\d+)\]/;
-
 interface TacticsProblem {
     orientation: 'white' | 'black';
     fen: string;
@@ -114,6 +112,13 @@ export function getMoveDescription(found?: boolean, score?: number): string {
     return `You didn't find this move, but it's worth 0 points.`;
 }
 
+/**
+ * Recursively calculates the total score for the given solution to the tactics test.
+ * Each move in the solution counts as one point toward the total score. Each move
+ * also has its userData.score field set.
+ * @param solution The Move history for the solution to a tactics problem.
+ * @returns The total score for the given solution.
+ */
 export function getSolutionScore(solution: Move[]): number {
     let score = 0;
 
@@ -125,23 +130,24 @@ export function getSolutionScore(solution: Move[]): number {
             }
         }
 
-        const scoreSearch = scoreRegex.exec(move.commentAfter || '');
-        if (scoreSearch && scoreSearch.length > 1) {
-            move.userData = {
-                score: parseInt(scoreSearch[1]),
-            };
-            move.commentAfter = move.commentAfter?.replace(scoreSearch[0], '');
-        } else {
-            move.userData = { score: 0 };
-        }
-
+        move.userData = {
+            score: 1,
+        };
         score += move.userData.score;
     }
 
     return score;
 }
 
+/**
+ * Recursively calculates the user's score for a given variation in a tactics test.
+ * @param solution The variation in the solution to the problem.
+ * @param currentAnswerMove The current move to start from in the user's answer.
+ * @param answer The user's answer Chess instance.
+ * @returns The user's score for the given variation.
+ */
 export function scoreVariation(
+    playAs: 'white' | 'black',
     solution: Move[],
     currentAnswerMove: Move | null,
     answer: Chess,
@@ -153,15 +159,21 @@ export function scoreVariation(
         // but may have found a variation, which can also have a score associated
         if (move.variations.length > 0) {
             for (let variation of move.variations) {
-                score += scoreVariation(variation, currentAnswerMove, answer);
+                score += scoreVariation(playAs, variation, currentAnswerMove, answer);
             }
         }
 
-        // Check if the user found this move and save it in the userData if so.
-        // If the user didn't find the move, then they couldn't have found the
-        // continuations, so we can break from the loop
+        if (move.color === playAs[0] && !answer.isMainline(move.san, currentAnswerMove)) {
+            // If this is the color the test has us playing as and the user didn't have this
+            // move as their mainline, we give them no points for the variation, so we can
+            // break from the loop
+            break;
+        }
+
         const answerMove = answer.move(move.san, currentAnswerMove, false, true, true);
         if (!answerMove) {
+            // The user didn't find this move at all (mainline or variation), so they couldn't
+            // have found any subsequent moves and we can break
             break;
         }
 
@@ -176,6 +188,13 @@ export function scoreVariation(
     return score;
 }
 
+/**
+ * Adds extra variations present in the given answer but not the solution to the solution.
+ * Each move in the extra variation has its userData.extra field set to true.
+ * @param answer The user's answer to the tactics test.
+ * @param currentSolutionMove The current move to start from in the solution.
+ * @param solution The solution's Chess instance.
+ */
 export function addExtraVariation(
     answer: Move[],
     currentSolutionMove: Move | null,

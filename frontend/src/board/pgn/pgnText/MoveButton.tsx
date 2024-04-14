@@ -3,7 +3,6 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
-    Box,
     Button as MuiButton,
     Grid,
     ListItemIcon,
@@ -17,10 +16,8 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
-import { RemoveCircle } from '@mui/icons-material';
 import { useLocalStorage } from 'usehooks-ts';
 import { useGame } from '../../../games/view/GamePage';
-import { getMoveDescription } from '../../../tactics/tactics';
 import { reconcile } from '../../Board';
 import {
     convertClockToSeconds,
@@ -45,7 +42,7 @@ export function getTextColor(move: Move, inline?: boolean): string {
     return 'text.primary';
 }
 
-interface ButtonProps {
+export interface ButtonProps {
     isCurrentMove: boolean;
     inline?: boolean;
     move: Move;
@@ -57,7 +54,7 @@ interface ButtonProps {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     const { isCurrentMove, inline, move, onClickMove, onRightClick, text, time } = props;
-    const { score, found, extra } = move.userData || {};
+    const { slots } = useChess();
 
     const displayNags = move.nags?.sort(compareNags).map((nag) => {
         const n = nags[getStandardNag(nag)];
@@ -108,7 +105,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             onClick={() => onClickMove(move)}
             onContextMenu={onRightClick}
         >
-            {time || score !== undefined || found || extra ? (
+            {time || slots?.moveButtonExtras ? (
                 <Stack
                     direction='row'
                     alignItems='center'
@@ -129,53 +126,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                         </Typography>
                     )}
 
-                    {extra && (
-                        <Tooltip title='This move was not present in the solution. You neither gained nor lost points for it.'>
-                            <RemoveCircle
-                                fontSize={'inherit'}
-                                sx={{ ml: 0.5 }}
-                                color='disabled'
-                            />
-                        </Tooltip>
-                    )}
-
-                    {score > 0 && (
-                        <Tooltip title={getMoveDescription(found, score)}>
-                            <Box
-                                sx={{
-                                    backgroundColor: found
-                                        ? 'success.main'
-                                        : 'error.main',
-                                    width: '20px',
-                                    height: '20px',
-                                    borderRadius: '10px',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginRight: '2px',
-                                    ...(inline
-                                        ? {
-                                              ml: 0.5,
-                                          }
-                                        : undefined),
-                                }}
-                            >
-                                <Typography
-                                    variant={inline ? 'body2' : 'caption'}
-                                    fontWeight='600'
-                                    sx={{
-                                        pt: '2px',
-                                        color: found
-                                            ? 'success.contrastText'
-                                            : 'background.paper',
-                                    }}
-                                >
-                                    {found ? '+' : '-'}
-                                    {score}
-                                </Typography>
-                            </Box>
-                        </Tooltip>
-                    )}
+                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
                 </Stack>
             ) : (
                 <>

@@ -12,11 +12,11 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { useAuth } from '../../auth/Auth';
 import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
 import { UnderboardTab } from './boardTools/underboard/Underboard';
+import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import ResizableContainer from './ResizableContainer';
 import { CONTAINER_ID } from './resize';
 
@@ -32,6 +32,7 @@ type ChessContextType = {
     config?: ChessConfig;
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
+    slots?: PgnBoardSlots;
 };
 
 export const ChessContext = createContext<ChessContextType>({});
@@ -44,6 +45,10 @@ export interface PgnBoardApi {
     getPgn: () => string;
 }
 
+export interface PgnBoardSlots {
+    moveButtonExtras?: React.JSXElementConstructor<MoveButtonProps>;
+}
+
 interface PgnBoardProps {
     underboardTabs: UnderboardTab[];
     initialUnderboardTab?: string;
@@ -52,6 +57,8 @@ interface PgnBoardProps {
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
+    allowMoveDeletion?: boolean;
+    slots?: PgnBoardSlots;
 }
 
 const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
@@ -64,12 +71,13 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             showPlayerHeaders = true,
             startOrientation = 'white',
             onInitialize: parentOnInitialize,
+            allowMoveDeletion,
+            slots,
         },
         ref,
     ) => {
         const [board, setBoard] = useState<BoardApi>();
         const [chess] = useState<Chess>(new Chess());
-        const user = useAuth().user;
         const [, setOrientation] = useState(startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
         const { game } = useGame();
@@ -86,12 +94,13 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 chess,
                 board,
                 config: {
-                    allowMoveDeletion: user && game?.owner === user.username,
+                    allowMoveDeletion,
                 },
                 toggleOrientation,
                 keydownMap,
+                slots,
             }),
-            [chess, board, game, user, toggleOrientation, keydownMap],
+            [chess, board, allowMoveDeletion, toggleOrientation, keydownMap, slots],
         );
 
         const onMove = useCallback(

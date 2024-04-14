@@ -81,6 +81,7 @@ const GamePage = () => {
                             DefaultUnderboardTab.Clocks,
                             DefaultUnderboardTab.Settings,
                         ]}
+                        allowMoveDeletion={request.data?.owner === user?.username}
                     />
                 </GameContext.Provider>
             </PgnErrorBoundary>

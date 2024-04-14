@@ -1,12 +1,16 @@
-import { Quiz } from '@mui/icons-material';
+import { Info, Quiz, RemoveCircle, Warning } from '@mui/icons-material';
 import {
+    Box,
     Button,
+    CardContent,
     Container,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Tooltip,
+    Typography,
 } from '@mui/material';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useCountdown } from 'react-countdown-circle-timer';
@@ -18,14 +22,18 @@ import {
 import PgnBoard, {
     BlockBoardKeyboardShortcuts,
     PgnBoardApi,
+    useChess,
 } from '../board/pgn/PgnBoard';
+import { ButtonProps as MoveButtonProps } from '../board/pgn/pgnText/MoveButton';
 import {
     addExtraVariation,
     firstTest,
+    getMoveDescription,
     getSolutionScore,
     scoreVariation,
 } from './tactics';
 import TacticsExamPgnSelector from './TacticsExamPgnSelector';
+import { Instructions } from './TacticsInstructionsPage';
 
 export interface Scores {
     total: {
@@ -74,7 +82,12 @@ const TacticsExamPage = () => {
             const solutionChess = new Chess({ pgn: firstTest[i].solution });
             const userChess = new Chess({ pgn: answerPgns.current[i] });
             const solutionScore = getSolutionScore(solutionChess.history());
-            const userScore = scoreVariation(solutionChess.history(), null, userChess);
+            const userScore = scoreVariation(
+                firstTest[i].orientation,
+                solutionChess.history(),
+                null,
+                userChess,
+            );
 
             scores.total.solution += solutionScore;
             scores.total.user += userScore;
@@ -140,6 +153,16 @@ const TacticsExamPage = () => {
                 showPlayerHeaders={false}
                 underboardTabs={[
                     {
+                        name: 'instructions',
+                        tooltip: 'Instructions',
+                        icon: <Info />,
+                        element: (
+                            <CardContent>
+                                <Instructions />
+                            </CardContent>
+                        ),
+                    },
+                    {
                         name: 'testInfo',
                         tooltip: 'Test Info',
                         icon: <Quiz />,
@@ -156,6 +179,10 @@ const TacticsExamPage = () => {
                     DefaultUnderboardTab.Editor,
                 ]}
                 initialUnderboardTab='testInfo'
+                allowMoveDeletion
+                slots={{
+                    moveButtonExtras: TacticsTestMoveButtonExtras,
+                }}
             />
 
             <Dialog
@@ -182,6 +209,31 @@ const TacticsExamPage = () => {
 
 export default TacticsExamPage;
 
+export const TacticsTestMoveButtonExtras: React.FC<MoveButtonProps> = ({ move }) => {
+    const { chess } = useChess();
+
+    if (!chess) {
+        console.log('No chess');
+        return null;
+    }
+
+    console.log('Turn: ', chess.turn(null));
+    if (move.color !== chess.turn(null)) {
+        return null;
+    }
+
+    if (chess.isMainline(move.san, move.previous)) {
+        console.log('Mainline');
+        return null;
+    }
+
+    return (
+        <Tooltip title='This move will not be counted as part of your solution. If you want this move to be counted, promote it by using the editor or right-clicking.'>
+            <Warning fontSize='small' sx={{ ml: 0.5 }} color='error' />
+        </Tooltip>
+    );
+};
+
 interface CompletedTacticsTestProps {
     userPgn: string;
     solutionPgn: string;
@@ -202,10 +254,10 @@ export const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({
             getSolutionScore(chess.history());
             const answerChess = new Chess({ pgn: userPgn });
             answerChess.seek(null);
-            scoreVariation(chess.history(), null, answerChess);
+            scoreVariation(orientation || 'white', chess.history(), null, answerChess);
             addExtraVariation(answerChess.history(), null, chess);
         },
-        [userPgn],
+        [userPgn, orientation],
     );
 
     return (
@@ -216,6 +268,59 @@ export const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({
             startOrientation={orientation}
             underboardTabs={underboardTabs}
             initialUnderboardTab={initialUnderboardTab}
+            slots={{
+                moveButtonExtras: CompletedMoveButtonExtras,
+            }}
         />
     );
+};
+
+const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) => {
+    const { score, found, extra } = move.userData || {};
+
+    if (extra) {
+        return (
+            <Tooltip title='This move was not present in the solution. You neither gained nor lost points for it.'>
+                <RemoveCircle fontSize='inherit' sx={{ ml: 0.5 }} color='disabled' />
+            </Tooltip>
+        );
+    }
+
+    if (score > 0) {
+        return (
+            <Tooltip title={getMoveDescription(found, score)}>
+                <Box
+                    sx={{
+                        backgroundColor: found ? 'success.main' : 'error.main',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '10px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginRight: '2px',
+                        ...(inline
+                            ? {
+                                  ml: 0.5,
+                              }
+                            : undefined),
+                    }}
+                >
+                    <Typography
+                        variant={inline ? 'body2' : 'caption'}
+                        fontWeight='600'
+                        sx={{
+                            pt: '2px',
+                            color: found ? 'success.contrastText' : 'background.paper',
+                        }}
+                    >
+                        {found ? '+' : '-'}
+                        {score}
+                    </Typography>
+                </Box>
+            </Tooltip>
+        );
+    }
+
+    return null;
 };

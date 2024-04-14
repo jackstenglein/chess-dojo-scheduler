@@ -25,6 +25,7 @@ interface TacticsExamPgnSelectorProps {
     countdown?: CountdownProps;
     onComplete?: () => void;
     scores?: Scores;
+    onReset?: () => void;
 }
 
 const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
@@ -34,6 +35,7 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
     countdown,
     onComplete,
     scores,
+    onReset,
 }) => {
     const [isFinishEarly, setIsFinishEarly] = useState(false);
 
@@ -103,6 +105,14 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                 ))}
             </List>
 
+            {onReset && (
+                <Stack alignItems='center' mt={3}>
+                    <Button variant='contained' onClick={onReset}>
+                        Reset Sample
+                    </Button>
+                </Stack>
+            )}
+
             <Dialog
                 open={isFinishEarly}
                 onClose={() => setIsFinishEarly(false)}
@@ -129,12 +139,11 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
 
 export default TacticsExamPgnSelector;
 
-const minuteSeconds = 60;
-const hourSeconds = 3600;
-
-const getTimeSeconds = (time: number) =>
-    `0${(time % hourSeconds) % minuteSeconds | 0}`.slice(-2);
-const getTimeMinutes = (time: number) => ((time % hourSeconds) / minuteSeconds) | 0;
+const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = `0${time % 60}`.slice(-2);
+    return `${minutes}:${seconds}`;
+};
 
 interface CountdownProps {
     elapsedTime: number;
@@ -195,9 +204,7 @@ const CountdownTimer = (props: CountdownProps) => {
                 }}
             >
                 <span style={{ color: stroke }}>
-                    <div>
-                        {getTimeMinutes(remainingTime)}:{getTimeSeconds(remainingTime)}
-                    </div>
+                    <div>{formatTime(remainingTime)}</div>
                 </span>
             </div>
         </div>
