@@ -1,6 +1,11 @@
-import { Stack, Typography, Chip } from '@mui/material';
+import { Chip, Stack } from '@mui/material';
 
-import { RatingSystem, formatRatingSystem, getRatingBoundary } from '../database/user';
+import {
+    formatRatingSystem,
+    getMinRatingBoundary,
+    getRatingBoundary,
+    RatingSystem,
+} from '../database/user';
 
 interface GraduationChipsProps {
     cohort: string;
@@ -19,17 +24,15 @@ const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
         <Stack
             direction='row'
             alignItems='center'
-            spacing={1}
+            columnGap={1}
             rowGap={1}
             mb={2}
             flexWrap='wrap'
         >
-            <Typography>Graduation:</Typography>
-
             {Object.values(ratingSystems).map((rs) => (
                 <Chip
                     key={rs}
-                    label={`${getRatingBoundary(cohort, rs)} ${formatRatingSystem(rs)}`}
+                    label={`${getMinRatingBoundary(cohort, rs)}-${getRatingBoundary(cohort, rs)} ${formatRatingSystem(rs)}`}
                 />
             ))}
         </Stack>

@@ -110,6 +110,9 @@ const ScoreboardPage = () => {
                 rows={dataRequest.data ?? []}
                 loading={dataRequest.isLoading()}
                 addUser={type === 'following'}
+                slots={{
+                    toolbar: ScoreboardToolbar,
+                }}
             />
 
             {dojoCohorts.includes(type) && (
@@ -122,6 +125,9 @@ const ScoreboardPage = () => {
                             requirements={requirements}
                             rows={graduationsRequest.data ?? []}
                             loading={graduationsRequest.isLoading()}
+                            slots={{
+                                toolbar: ScoreboardToolbar,
+                            }}
                         />
                     </div>
                 </>
@@ -133,3 +139,11 @@ const ScoreboardPage = () => {
 };
 
 export default ScoreboardPage;
+
+const ScoreboardToolbar = () => {
+    return (
+        <Typography variant='caption' color='text.secondary' sx={{ ml: 0.5, mt: 0.5 }}>
+            Tip: hold shift while scrolling to scroll horizontally
+        </Typography>
+    );
+};
