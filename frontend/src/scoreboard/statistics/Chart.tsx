@@ -1,6 +1,6 @@
 import { Stack, Typography, Chip, Box } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
-import { AxisOptions, Chart as ReactChart } from '../../shim/react-charts';
+import { AxisOptions, Chart as ReactChart } from 'react-charts';
 
 import { useAuth } from '../../auth/Auth';
 

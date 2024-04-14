@@ -3,7 +3,7 @@ import { Box, Card, CardContent, CardHeader, Stack, Typography } from '@mui/mate
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import { SectionProps } from './YearReviewPage';
-import { AxisOptions, Chart } from '../../shim/react-charts';
+import { AxisOptions, Chart } from 'react-charts';
 import { YearReviewDataSection } from '../../database/yearReview';
 import { CategoryColors, ScoreCategories } from '../activity/activity';
 import { useAuth } from '../../auth/Auth';

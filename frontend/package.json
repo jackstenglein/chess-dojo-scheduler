@@ -41,7 +41,7 @@
         "lodash.debounce": "^4.0.8",
         "luxon": "^3.4.4",
         "react": "^18.2.0",
-        "react-chartjs-2": "^5.2.0",
+        "react-charts": "^3.0.0-beta.55",
         "react-copy-to-clipboard": "^5.1.0",
         "react-countdown-circle-timer": "^3.2.1",
         "react-dom": "^18.2.0",
@@ -57,6 +57,7 @@
         "react-tooltip": "^4.4.3",
         "react-use-measure": "^2.1.1",
         "remark-gfm": "^4.0.0",
+        "rollup-plugin-size": "^0.3.1",
         "typescript": "^5.4.5",
         "usehooks-ts": "^3.1.0",
         "uuid": "^9.0.1",
@@ -105,6 +106,8 @@
     "overrides": {
         "cypress-real-events": {
             "cypress": "$cypress"
-        }
+        },
+        "d3-interpolate": "^3.0.1",
+        "d3-color": "^3.1.0"
     }
 }
