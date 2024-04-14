@@ -61,6 +61,17 @@ const ReplyEditor: React.FC<ReplyEditorProps> = ({ parent, onCancel }) => {
             });
     };
 
+    const onKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key !== 'Enter' || !e.shiftKey) {
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        onReply();
+    };
+
     return (
         <Stack width={1} pt={1}>
             <TextField
@@ -69,6 +80,8 @@ const ReplyEditor: React.FC<ReplyEditorProps> = ({ parent, onCancel }) => {
                 placeholder={`Reply to ${parent.owner.displayName} (${parent.owner.cohort})`}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
+                onKeyDown={onKeyDown}
+                disabled={request.isLoading()}
                 multiline
             />
             <Stack direction='row'>

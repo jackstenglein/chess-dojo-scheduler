@@ -1,6 +1,6 @@
 import { Send } from '@mui/icons-material';
 import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { useAuth } from '../../../../../auth/Auth';
@@ -74,6 +74,17 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEdit
             });
     };
 
+    const onKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key !== 'Enter' || !e.shiftKey) {
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        onSubmit();
+    };
+
     const move = chess?.currentMove();
 
     return (
@@ -90,13 +101,14 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEdit
                 multiline
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
+                onKeyDown={onKeyDown}
                 disabled={request.isLoading()}
                 maxRows={8}
             />
             {request.isLoading() ? (
                 <CircularProgress size={40} />
             ) : (
-                <Tooltip title='Post Comment'>
+                <Tooltip title='Post Comment. Tip: you can also use shift+enter while typing.'>
                     <div>
                         <IconButton
                             disabled={comment.trim().length === 0}

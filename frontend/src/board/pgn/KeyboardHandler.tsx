@@ -45,6 +45,9 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                 event.code.replace('Key', ''),
                 keydownMap?.current || {},
             );
+            if (!matchedAction) {
+                return;
+            }
 
             const activeElement = document.activeElement;
             if (
@@ -60,16 +63,14 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             event.preventDefault();
             event.stopPropagation();
 
-            if (matchedAction) {
-                keyboardShortcutHandlers[matchedAction]?.(chess, board, {
-                    underboardApi: underboardRef.current,
-                    toggleOrientation,
-                    setVariationDialogMove:
-                        variationBehavior === VariationBehavior.Dialog
-                            ? setVariationDialogMove
-                            : undefined,
-                });
-            }
+            keyboardShortcutHandlers[matchedAction]?.(chess, board, {
+                underboardApi: underboardRef.current,
+                toggleOrientation,
+                setVariationDialogMove:
+                    variationBehavior === VariationBehavior.Dialog
+                        ? setVariationDialogMove
+                        : undefined,
+            });
         },
         [
             board,

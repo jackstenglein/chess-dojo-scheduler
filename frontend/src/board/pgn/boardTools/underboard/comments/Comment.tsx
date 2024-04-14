@@ -194,6 +194,17 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             });
     };
 
+    const onKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key !== 'Enter' || !e.shiftKey) {
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        onSave();
+    };
+
     return (
         <>
             <BaseComment
@@ -205,9 +216,13 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
                                 id={BlockBoardKeyboardShortcuts}
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
+                                onKeyDown={onKeyDown}
                                 size='small'
                                 sx={{ pt: 0.5 }}
                                 multiline
+                                disabled={
+                                    request.isLoading() || deleteRequest.isLoading()
+                                }
                             />
                             <Stack direction='row'>
                                 <Button
