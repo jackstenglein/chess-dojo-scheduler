@@ -735,6 +735,7 @@ const KeyboardShortcuts = () => {
                 onClose={onCloseEditor}
                 maxWidth='sm'
                 fullWidth
+                disableEscapeKeyDown
                 classes={{
                     container: BlockBoardKeyboardShortcuts,
                 }}
