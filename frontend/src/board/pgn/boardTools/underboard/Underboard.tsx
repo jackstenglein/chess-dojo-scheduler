@@ -126,24 +126,28 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
             () => {
                 return {
                     switchTab(tab: DefaultUnderboardTab) {
-                        setUnderboard(tab);
+                        if (tabs.includes(tab)) {
+                            setUnderboard(tab);
+                        }
                     },
                     focusEditor() {
                         if (isOwner) {
                             setUnderboard(DefaultUnderboardTab.Editor);
                             setFocusEditor(true);
-                        } else {
+                        } else if (tabs.includes(DefaultUnderboardTab.Comments)) {
                             setUnderboard(DefaultUnderboardTab.Comments);
                             setFocusCommenter(true);
                         }
                     },
                     focusCommenter() {
-                        setUnderboard(DefaultUnderboardTab.Comments);
-                        setFocusCommenter(true);
+                        if (tabs.includes(DefaultUnderboardTab.Comments)) {
+                            setUnderboard(DefaultUnderboardTab.Comments);
+                            setFocusCommenter(true);
+                        }
                     },
                 };
             },
-            [setUnderboard, isOwner, setFocusEditor, setFocusCommenter],
+            [tabs, setUnderboard, isOwner, setFocusEditor, setFocusCommenter],
         );
 
         const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {

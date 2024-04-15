@@ -377,7 +377,7 @@ function handleOpenTags(
 
 /**
  * Handles opening the Editor tab in the underboard. This function is a no-op if opts
- * does not contain a valid underboardApi object or if opts.showEditor is falsy.
+ * does not contain a valid underboardApi object.
  * @param _chess The current Chess instance. Unused.
  * @param _board The current Board instance. Unused.
  * @param opts The options to use.
@@ -387,9 +387,7 @@ function handleOpenEditor(
     _board: BoardApi | undefined,
     opts?: ShortcutHandlerOptions,
 ) {
-    if (opts?.showEditor) {
-        opts?.underboardApi?.switchTab(DefaultUnderboardTab.Editor);
-    }
+    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Editor);
 }
 
 /**
