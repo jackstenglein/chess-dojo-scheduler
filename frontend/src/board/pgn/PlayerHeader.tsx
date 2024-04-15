@@ -240,7 +240,7 @@ const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
 }) => {
     const [capturedMaterialBehavior] = useLocalStorage(
         CapturedMaterialBehaviorKey,
-        CapturedMaterialBehavior.None,
+        CapturedMaterialBehavior.Difference,
     );
 
     if (!move || capturedMaterialBehavior === CapturedMaterialBehavior.None) {
