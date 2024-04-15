@@ -3,7 +3,10 @@ import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useLightMode } from '../../ThemeProvider';
-import { ShowCapturedMaterialKey } from './boardTools/underboard/settings/ViewerSettings';
+import {
+    CapturedMaterialBehavior,
+    CapturedMaterialBehaviorKey,
+} from './boardTools/underboard/settings/ViewerSettings';
 import { useChess } from './PgnBoard';
 import PieceIcon from './pieceIcons/PieceIcon';
 
@@ -235,9 +238,12 @@ const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
     move,
     color,
 }) => {
-    const [showCapturedMaterial] = useLocalStorage(ShowCapturedMaterialKey, false);
+    const [capturedMaterialBehavior] = useLocalStorage(
+        CapturedMaterialBehaviorKey,
+        CapturedMaterialBehavior.None,
+    );
 
-    if (!move || !showCapturedMaterial) {
+    if (!move || capturedMaterialBehavior === CapturedMaterialBehavior.None) {
         return null;
     }
 
@@ -252,6 +258,17 @@ const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
     const pieceTypes =
         color === 'w' ? ['p', 'n', 'b', 'r', 'q'] : ['P', 'N', 'B', 'R', 'Q'];
     const capturedPieces = getCapturedPieceCounts(move.after);
+
+    if (capturedMaterialBehavior === CapturedMaterialBehavior.Difference) {
+        const opposingPieceTypes =
+            color === 'w' ? ['P', 'N', 'B', 'R', 'Q'] : ['p', 'n', 'b', 'r', 'q'];
+        for (let i = 0; i < pieceTypes.length; i++) {
+            capturedPieces[pieceTypes[i]] = Math.max(
+                0,
+                capturedPieces[pieceTypes[i]] - capturedPieces[opposingPieceTypes[i]],
+            );
+        }
+    }
 
     return (
         <Stack direction='row' alignItems='center'>

@@ -12,7 +12,7 @@ import KeyboardShortcuts from './KeyboardShortcuts';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
-export const ShowCapturedMaterialKey = 'showCapturedMaterial';
+export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
 
 export enum GoToEndButtonBehavior {
     SingleClick = 'SINGLE_CLICK',
@@ -23,6 +23,12 @@ export enum GoToEndButtonBehavior {
 export enum VariationBehavior {
     None = 'NONE',
     Dialog = 'DIALOG',
+}
+
+export enum CapturedMaterialBehavior {
+    None = 'NONE',
+    Difference = 'DIFFERENCE',
+    All = 'ALL',
 }
 
 const ViewerSettings = () => {
@@ -38,10 +44,11 @@ const ViewerSettings = () => {
         ShowMoveTimesInPgnKey,
         false,
     );
-    const [showCapturedMaterial, setShowCapturedMaterial] = useLocalStorage(
-        ShowCapturedMaterialKey,
-        false,
-    );
+    const [capturedMaterialBehavior, setCapturedMaterialBehavior] =
+        useLocalStorage<string>(
+            CapturedMaterialBehaviorKey,
+            CapturedMaterialBehavior.Difference,
+        );
 
     return (
         <Stack spacing={3}>
@@ -72,6 +79,21 @@ const ViewerSettings = () => {
                 <MenuItem value={VariationBehavior.Dialog}>Prompt in Dialog</MenuItem>
             </TextField>
 
+            <TextField
+                select
+                label='Captured Material Display'
+                value={capturedMaterialBehavior}
+                onChange={(e) => setCapturedMaterialBehavior(e.target.value)}
+            >
+                <MenuItem value={CapturedMaterialBehavior.None}>None</MenuItem>
+                <MenuItem value={CapturedMaterialBehavior.Difference}>
+                    Show Difference Only
+                </MenuItem>
+                <MenuItem value={CapturedMaterialBehavior.All}>
+                    Show All Captured Material
+                </MenuItem>
+            </TextField>
+
             <Stack>
                 <FormControlLabel
                     control={
@@ -81,16 +103,6 @@ const ViewerSettings = () => {
                         />
                     }
                     label='Show elapsed time next to move'
-                />
-
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={showCapturedMaterial}
-                            onChange={(e) => setShowCapturedMaterial(e.target.checked)}
-                        />
-                    }
-                    label='Show captured material next to player names'
                 />
             </Stack>
 
