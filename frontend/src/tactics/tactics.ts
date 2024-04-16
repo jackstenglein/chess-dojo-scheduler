@@ -1,4 +1,6 @@
 import { Chess, Move } from '@jackstenglein/chess';
+import { Requirement } from '../database/requirement';
+import { ALL_COHORTS, compareCohorts, User } from '../database/user';
 
 interface TacticsProblem {
     orientation: 'white' | 'black';
@@ -228,4 +230,136 @@ export function addExtraVariation(
         }
         currentSolutionMove = existingMove;
     }
+}
+
+const PolgarM1ReqId = '917be358-e6d9-47e6-9cad-66fc2fdb5da6';
+const PolgarM2ReqId = 'f815084f-b9bc-408d-9db9-ba9b1c260ff3';
+const PuzzleRush5MinReqId = '42804d40-3651-438c-a8ae-e2200fe23b4c';
+const PuzzleSurvivalReqId = 'fa98ad32-219a-4ee9-ae02-2cda69efce06';
+
+/**
+ * Calculates the user's tactics rating.
+ *
+ * TODO: handle users 1700+.
+ * @param user The user to calculate the tactics rating for.
+ * @param requirements A list of requirements, which should contain the Polgar Mate requirements
+ * and the Puzzle Rush requirements.
+ * @returns The user's tactics rating.
+ */
+export function calculateTacticsRating(user: User, requirements: Requirement[]): number {
+    const polgarM1 = requirements.find((r) => r.id === PolgarM1ReqId);
+    const polgarM2 = requirements.find((r) => r.id === PolgarM2ReqId);
+    if (!polgarM1 || !polgarM2) {
+        return 0;
+    }
+
+    const polgarRating = getPolgarRating(user, polgarM1, polgarM2);
+    const puzzleRush5MinRating = getTaskRating(
+        user,
+        requirements.find((r) => r.id === PuzzleRush5MinReqId),
+    );
+    const puzzleSurvivalRating = getTaskRating(
+        user,
+        requirements.find((r) => r.id === PuzzleSurvivalReqId),
+    );
+
+    return (polgarRating + puzzleRush5MinRating + puzzleSurvivalRating) / 3;
+}
+
+/**
+ * Returns whether the user is assigned the given task, based on their cohort.
+ * @param user The user to check.
+ * @param req The task to check.
+ * @returns True if the user is assigned the given task.
+ */
+function hasTask(user: User, req: Requirement): boolean {
+    return Object.keys(req.counts).includes(user.dojoCohort);
+}
+
+/**
+ * Calculates the user's Polgar Mate rating.
+ * @param user The user to calculate the Polgar Mate rating for.
+ * @param polgarM1 The Polgar Mate in One requirement.
+ * @param polgarM2 The Polgar Mate in Two requirement.
+ * @returns The user's Polgar Mate rating.
+ */
+function getPolgarRating(
+    user: User,
+    polgarM1: Requirement,
+    polgarM2: Requirement,
+): number {
+    const hasM1 = hasTask(user, polgarM1);
+    const m1Rating = hasM1 ? getTaskRating(user, polgarM1) : 0;
+
+    if (hasM1 && m1Rating < getTaskMaxRating(polgarM1)) {
+        return m1Rating;
+    }
+
+    const m2Rating = getTaskRating(user, polgarM2);
+    return Math.max(m1Rating, m2Rating);
+}
+
+/**
+ * Calculates the user's rating for a given requirement.
+ * @param user The user to calculate the rating for.
+ * @param req The requirement to calculate the rating for.
+ * @returns The user's rating for the given requirement.
+ */
+function getTaskRating(user: User, req?: Requirement): number {
+    if (!req) {
+        return 0;
+    }
+
+    const progress = user.progress[req.id];
+    if (!progress) {
+        return 0;
+    }
+
+    const count = progress.counts[ALL_COHORTS];
+    if (!count) {
+        return 0;
+    }
+
+    const reqCounts = Object.entries(req.counts).sort((lhs, rhs) =>
+        compareCohorts(lhs[0], rhs[0]),
+    );
+
+    for (let i = 0; i < reqCounts.length; i++) {
+        const [cohort, reqCount] = reqCounts[i];
+        if (reqCount >= count) {
+            const tokens = cohort.split('-');
+            const minCohort = parseInt(tokens[0]);
+            const maxCohort = parseInt(tokens[1]);
+
+            const minReqCount = i ? reqCounts[i - 1][1] : req.startCount;
+
+            const rating =
+                ((maxCohort - minCohort) / (reqCount - minReqCount)) *
+                    (count - minReqCount) +
+                minCohort;
+            return rating;
+        }
+    }
+
+    return getTaskMaxRating(req);
+}
+
+/**
+ * Returns the max possible rating for the given requirement.
+ * @param req The requirement to get the max rating for.
+ * @returns The max possible rating for the requirement.
+ */
+function getTaskMaxRating(req: Requirement): number {
+    const reqCounts = Object.entries(req.counts).sort((lhs, rhs) =>
+        compareCohorts(lhs[0], rhs[0]),
+    );
+
+    for (let i = reqCounts.length - 1; i > 0; i--) {
+        if (reqCounts[i][1] !== reqCounts[i - 1][1]) {
+            break;
+        }
+        reqCounts.pop();
+    }
+
+    return parseInt(reqCounts[reqCounts.length - 1][0].split('-')[1]);
 }

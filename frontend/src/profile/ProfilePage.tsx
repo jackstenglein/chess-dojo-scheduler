@@ -21,6 +21,7 @@ import CountChip from './info/CountChip';
 import CreatedAtChip from './info/CreatedAtChip';
 import DiscordChip from './info/DiscordChip';
 import InactiveChip from './info/InactiveChip';
+import MetricsDashboard from './info/MetricsDashboard';
 import TimezoneChip from './info/TimezoneChip';
 import UserInfo from './info/UserInfo';
 import ProgressTab from './progress/ProgressTab';
@@ -174,6 +175,8 @@ const ProfilePage = () => {
                 </Stack>
 
                 <Bio bio={user.bio} />
+
+                <MetricsDashboard user={user} sx={{ mt: 3 }} />
 
                 <Box sx={{ width: '100%', typography: 'body1', mt: 5 }}>
                     <TabContext value={searchParams.get('view') || 'stats'}>
