@@ -9,12 +9,16 @@ import {
     Typography,
 } from '@mui/material';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import { Game, PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import { reconcile } from '../../../../Board';
 import { useChess } from '../../../PgnBoard';
 import Comment from './Comment';
 import CommentEditor, { CommentEditorProps } from './CommentEditor';
+
+const CommentViewKey = 'COMMENT_VIEW';
+const CommentSortByKey = 'COMMENT_SORT_BY';
 
 enum View {
     FullGame = 'FULL_GAME',
@@ -44,8 +48,8 @@ interface PositionCommentSection {
 }
 
 const Comments: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEditor }) => {
-    const [view, setView] = useState(View.FullGame);
-    const [sortBy, setSortBy] = useState(SortBy.Newest);
+    const [view, setView] = useLocalStorage(CommentViewKey, View.FullGame);
+    const [sortBy, setSortBy] = useLocalStorage(CommentSortByKey, SortBy.Newest);
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
     const { game } = useGame();
