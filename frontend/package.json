@@ -16,17 +16,14 @@
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@jackstenglein/chess": "^1.0.64",
         "@jackstenglein/mui-mentions": "^0.1.6",
-        "@mui/base": "^5.0.0-beta.37",
+        "@mui/base": "^5.0.0-beta.40",
         "@mui/icons-material": "^5.15.11",
         "@mui/lab": "^5.0.0-alpha.166",
         "@mui/material": "^5.15.11",
-        "@mui/x-data-grid-pro": "^6.19.6",
-        "@mui/x-date-pickers": "^6.19.3",
+        "@mui/x-data-grid-pro": "^6.19.10",
+        "@mui/x-date-pickers": "^6.19.9",
         "@svgr/core": "^8.1.0",
         "@svgr/plugin-jsx": "^8.1.0",
-        "@testing-library/jest-dom": "^6.4.2",
-        "@testing-library/react": "^15.0.0",
-        "@testing-library/user-event": "^14.5.2",
         "@types/node": "^20.12.7",
         "@types/react": "^18.2.75",
         "@types/react-dom": "^18.2.24",
@@ -37,11 +34,12 @@
         "chart.js": "^4.4.2",
         "chessground": "^9.0.4",
         "copy-to-clipboard": "^3.3.3",
-        "date-fns": "^2.30.0",
+        "date-fns": "^3.6.0",
+        "dotenv": "^16.4.5",
         "lodash.debounce": "^4.0.8",
         "luxon": "^3.4.4",
         "react": "^18.2.0",
-        "react-charts": "^3.0.0-beta.55",
+        "react-charts": "^3.0.0-beta.57",
         "react-copy-to-clipboard": "^5.1.0",
         "react-countdown-circle-timer": "^3.2.1",
         "react-dom": "^18.2.0",
@@ -63,19 +61,21 @@
         "uuid": "^9.0.1",
         "vite": "^5.2.8",
         "vite-tsconfig-paths": "^4.3.2",
+        "vitest": "^1.5.0",
         "web-vitals": "^3.5.2"
     },
     "scripts": {
         "start": "vite",
         "dev": "vite",
         "build": "vite build",
-        "test": "vite test",
+        "test": "npm run test:unit && npm run test:e2e",
+        "test:unit": "vitest run",
+        "test:e2e": "cypress run",
         "preview": "vite preview"
     },
     "eslintConfig": {
         "extends": [
             "react-app",
-            "react-app/jest",
             "plugin:cypress/recommended"
         ]
     },
@@ -92,6 +92,9 @@
         ]
     },
     "devDependencies": {
+        "@testing-library/jest-dom": "^6.4.2",
+        "@testing-library/react": "^15.0.2",
+        "@testing-library/user-event": "^14.5.2",
         "@types/lodash.debounce": "^4.0.9",
         "@types/luxon": "^3.4.2",
         "@types/react-copy-to-clipboard": "^5.0.7",
@@ -101,6 +104,7 @@
         "cypress": "^13.7.2",
         "cypress-real-events": "^1.12.0",
         "eslint-plugin-cypress": "^2.15.1",
+        "happy-dom": "^14.7.1",
         "prettier-plugin-organize-imports": "^3.2.4"
     },
     "overrides": {
@@ -108,6 +112,7 @@
             "cypress": "$cypress"
         },
         "d3-interpolate": "^3.0.1",
-        "d3-color": "^3.1.0"
+        "d3-color": "^3.1.0",
+        "d3-scale": "^4.0.2"
     }
 }

@@ -1,5 +1,7 @@
-import react from '@vitejs/plugin-react';
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
+
+import react from '@vitejs/plugin-react';
 
 export default defineConfig(() => {
     return {
@@ -14,5 +16,18 @@ export default defineConfig(() => {
             global: {},
         },
         plugins: [react()],
+        test: {
+            environment: 'happy-dom',
+            include: ['./src/**/*.test.ts', './src/**/*.test.tsx'],
+            setupFiles: ['./src/setupTests.ts'],
+            deps: {
+                optimizer: {
+                    web: {
+                        enabled: true,
+                        include: ['react-charts'],
+                    },
+                },
+            },
+        },
     };
 });
