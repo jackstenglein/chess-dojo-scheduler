@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { Button, Popover, Stack } from '@mui/material';
 import { format, getYear, setYear } from 'date-fns';
 
