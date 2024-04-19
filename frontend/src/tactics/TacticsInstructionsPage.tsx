@@ -56,12 +56,18 @@ const TacticsInstructionsPage = () => {
         const solutionChess = new Chess({ pgn: sampleProblem.solution });
         const userChess = new Chess({ pgn: completedPgn });
 
-        const solutionScore = getSolutionScore(solutionChess.history());
-        const userScore = scoreVariation(
+        const solutionScore = getSolutionScore(
+            sampleProblem.orientation,
+            solutionChess.history(),
+            solutionChess,
+            false,
+        );
+        const [userScore] = scoreVariation(
             sampleProblem.orientation,
             solutionChess.history(),
             null,
             userChess,
+            false,
         );
 
         scores.total.solution += solutionScore;
@@ -78,89 +84,95 @@ const TacticsInstructionsPage = () => {
     }
 
     return (
-        <Container sx={{ py: 4 }}>
-            <Stack alignItems='start'>
-                <Typography variant='h4'>Dojo Tactics Test</Typography>
+        <Container sx={{ py: 4 }} maxWidth={false}>
+            <Container>
+                <Stack alignItems='start'>
+                    <Typography variant='h4'>Dojo Tactics Test</Typography>
 
-                <Instructions />
+                    <Instructions />
 
-                <Typography variant='h6' mt={4}>
-                    Example
-                </Typography>
-                <Typography sx={{ mb: 3 }}>
-                    The following is an example position similar to the ones you will see
-                    in the test. You can use this as an optional, untimed warm-up to see
-                    how the test will work. You are not graded on this problem. When you
-                    have finished making your moves, click the "Finish Early" button to
-                    see the score you would have gotten in the real test.
-                </Typography>
+                    <Typography variant='h6' mt={4}>
+                        Example
+                    </Typography>
+                    <Typography sx={{ mb: 3 }}>
+                        The following is an example position similar to the ones you will
+                        see in the test. You can use this as an optional, untimed warm-up
+                        to see how the test will work. You are not graded on this problem.
+                        When you have finished making your moves, click the "Finish Early"
+                        button to see the score you would have gotten in the real test.
+                    </Typography>
+                </Stack>
+            </Container>
 
-                {completedPgn ? (
-                    <CompletedTacticsTest
-                        userPgn={completedPgn}
-                        solutionPgn={sampleProblem.solution}
-                        orientation={sampleProblem.orientation}
-                        underboardTabs={[
-                            {
-                                name: 'testInfo',
-                                tooltip: 'Test Info',
-                                icon: <Quiz />,
-                                element: (
-                                    <TacticsExamPgnSelector
-                                        count={1}
-                                        selected={0}
-                                        onSelect={() => null}
-                                        scores={scores}
-                                        onReset={onResetSample}
-                                    />
-                                ),
-                            },
-                        ]}
-                        initialUnderboardTab='testInfo'
-                    />
-                ) : (
-                    <PgnBoard
-                        ref={pgnApi}
-                        fen={sampleProblem.fen}
-                        showPlayerHeaders={false}
-                        startOrientation={sampleProblem.orientation}
-                        underboardTabs={[
-                            {
-                                name: 'testInfo',
-                                tooltip: 'Test Info',
-                                icon: <Quiz />,
-                                element: (
-                                    <TacticsExamPgnSelector
-                                        count={1}
-                                        selected={0}
-                                        onSelect={() => null}
-                                        countdown={countdown}
-                                        onComplete={onFinishSample}
-                                    />
-                                ),
-                            },
-                            DefaultUnderboardTab.Editor,
-                        ]}
-                        initialUnderboardTab='testInfo'
-                        allowMoveDeletion
-                        slots={{
-                            moveButtonExtras: TacticsTestMoveButtonExtras,
-                        }}
-                    />
-                )}
+            {completedPgn ? (
+                <CompletedTacticsTest
+                    userPgn={completedPgn}
+                    solutionPgn={sampleProblem.solution}
+                    orientation={sampleProblem.orientation}
+                    underboardTabs={[
+                        {
+                            name: 'testInfo',
+                            tooltip: 'Test Info',
+                            icon: <Quiz />,
+                            element: (
+                                <TacticsExamPgnSelector
+                                    count={1}
+                                    selected={0}
+                                    onSelect={() => null}
+                                    scores={scores}
+                                    onReset={onResetSample}
+                                />
+                            ),
+                        },
+                    ]}
+                    initialUnderboardTab='testInfo'
+                />
+            ) : (
+                <PgnBoard
+                    ref={pgnApi}
+                    fen={sampleProblem.fen}
+                    showPlayerHeaders={false}
+                    startOrientation={sampleProblem.orientation}
+                    underboardTabs={[
+                        {
+                            name: 'testInfo',
+                            tooltip: 'Test Info',
+                            icon: <Quiz />,
+                            element: (
+                                <TacticsExamPgnSelector
+                                    count={1}
+                                    selected={0}
+                                    onSelect={() => null}
+                                    countdown={countdown}
+                                    onComplete={onFinishSample}
+                                />
+                            ),
+                        },
+                        DefaultUnderboardTab.Editor,
+                    ]}
+                    initialUnderboardTab='testInfo'
+                    allowMoveDeletion
+                    slots={{
+                        moveButtonExtras: TacticsTestMoveButtonExtras,
+                    }}
+                />
+            )}
 
-                <Typography variant='h6' mt={6}>
-                    Start Test
-                </Typography>
-                <Typography>
-                    Click the button below to start. Your time begins as soon as you click
-                    the button.
-                </Typography>
+            <Container>
+                <Stack alignItems='start'>
+                    <Typography variant='h6' mt={6}>
+                        Start Test
+                    </Typography>
+                    <Typography>
+                        Click the button below to start. Your time begins as soon as you
+                        click the button.
+                    </Typography>
 
-                <Button variant='contained' sx={{ mt: 3 }} onClick={onStart}>
-                    Begin Test
-                </Button>
-            </Stack>
+                    <Button variant='contained' sx={{ mt: 3 }} onClick={onStart}>
+                        Begin Test
+                    </Button>
+                </Stack>
+            </Container>
         </Container>
     );
 };

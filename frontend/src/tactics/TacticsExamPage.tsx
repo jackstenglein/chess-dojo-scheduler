@@ -1,4 +1,10 @@
-import { Info, Quiz, RemoveCircle, Warning } from '@mui/icons-material';
+import {
+    Info,
+    Quiz,
+    RemoveCircle,
+    SwapHorizontalCircle,
+    Warning,
+} from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -278,12 +284,18 @@ function getScores(exam: Exam, answerPgns: string[]): Scores {
     for (let i = 0; i < exam.problems.length; i++) {
         const solutionChess = new Chess({ pgn: exam.problems[i].solution });
         const userChess = new Chess({ pgn: answerPgns[i] });
-        const solutionScore = getSolutionScore(solutionChess.history());
-        const userScore = scoreVariation(
+        const solutionScore = getSolutionScore(
+            exam.problems[i].orientation,
+            solutionChess.history(),
+            solutionChess,
+            false,
+        );
+        const [userScore] = scoreVariation(
             exam.problems[i].orientation,
             solutionChess.history(),
             null,
             userChess,
+            false,
         );
 
         scores.total.solution += solutionScore;
@@ -336,11 +348,18 @@ export const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({
 }) => {
     const onInitialize = useCallback(
         (_board: BoardApi, chess: Chess) => {
-            getSolutionScore(chess.history());
+            getSolutionScore(orientation || 'white', chess.history(), chess, false);
             const answerChess = new Chess({ pgn: userPgn });
             answerChess.seek(null);
-            scoreVariation(orientation || 'white', chess.history(), null, answerChess);
+            scoreVariation(
+                orientation || 'white',
+                chess.history(),
+                null,
+                answerChess,
+                false,
+            );
             addExtraVariation(answerChess.history(), null, chess);
+            console.log('Final History: ', chess.history());
         },
         [userPgn, orientation],
     );
@@ -361,7 +380,7 @@ export const CompletedTacticsTest: React.FC<CompletedTacticsTestProps> = ({
 };
 
 const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) => {
-    const { score, found, extra } = move.userData || {};
+    const { score, found, extra, isAlt, altFound } = move.userData || {};
 
     if (extra) {
         return (
@@ -371,12 +390,36 @@ const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) 
         );
     }
 
+    if (isAlt) {
+        if (found) {
+            return (
+                <Tooltip title='This move is an alternate solution. You got full credit for the mainline variation for finding this.'>
+                    <SwapHorizontalCircle
+                        fontSize='small'
+                        sx={{ ml: 0.5 }}
+                        color='success'
+                    />
+                </Tooltip>
+            );
+        }
+        return (
+            <Tooltip title='This move is an alternate solution. You would have received full credit for the mainline variation for finding this.'>
+                <SwapHorizontalCircle
+                    fontSize='small'
+                    sx={{ ml: 0.5 }}
+                    color='disabled'
+                />
+            </Tooltip>
+        );
+    }
+
     if (score > 0) {
         return (
-            <Tooltip title={getMoveDescription(found, score)}>
+            <Tooltip title={getMoveDescription({ found, score, altFound })}>
                 <Box
                     sx={{
-                        backgroundColor: found ? 'success.main' : 'error.main',
+                        backgroundColor:
+                            found || altFound ? 'success.main' : 'error.main',
                         width: '20px',
                         height: '20px',
                         borderRadius: '10px',
@@ -396,10 +439,13 @@ const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) 
                         fontWeight='600'
                         sx={{
                             pt: '2px',
-                            color: found ? 'success.contrastText' : 'background.paper',
+                            color:
+                                found || altFound
+                                    ? 'success.contrastText'
+                                    : 'background.paper',
                         }}
                     >
-                        {found ? '+' : '-'}
+                        {found || altFound ? '+' : '-'}
                         {score}
                     </Typography>
                 </Box>
