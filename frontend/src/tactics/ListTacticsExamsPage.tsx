@@ -1,11 +1,11 @@
-import { Container, Stack, Typography } from '@mui/material';
+import { Alert, Container, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
     GridRowParams,
     GridValueFormatterParams,
 } from '@mui/x-data-grid-pro';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -14,7 +14,7 @@ import { toDojoDateString } from '../calendar/displayDate';
 import { Exam, ExamType } from '../database/exam';
 import LoadingPage from '../loading/LoadingPage';
 
-const RANGES = ['1700-2100', '2100+'];
+const RANGES = ['1500-2100', '2100+'];
 
 interface CohortRangeExams {
     cohortRange: string;
@@ -94,6 +94,7 @@ const columns: GridColDef<Exam>[] = [
             return params.row.problems.length;
         },
         align: 'center',
+        headerAlign: 'center',
         flex: 1,
     },
     {
@@ -129,14 +130,7 @@ const columns: GridColDef<Exam>[] = [
 const ExamsTable = ({ exams }: { exams: Exam[] }) => {
     const user = useAuth().user;
     const navigate = useNavigate();
-
-    const onClickRow = (params: GridRowParams<Exam>) => {
-        if (params.row.answers[user?.username || '']) {
-            navigate('/tactics/exam', { state: { exam: params.row } });
-        } else {
-            navigate(`/tactics/instructions`, { state: { exam: params.row } });
-        }
-    };
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     const examColumns = useMemo(() => {
         return columns.concat(
@@ -185,13 +179,47 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         );
     }, [user]);
 
+    const onClickRow = (params: GridRowParams<Exam>) => {
+        if (params.row.answers[user?.username || '']) {
+            navigate('/tactics/exam', { state: { exam: params.row } });
+            return;
+        }
+
+        const i = exams.findIndex((e) => e.id === params.row.id);
+        if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
+            setSnackbarOpen(true);
+        } else {
+            navigate(`/tactics/instructions`, { state: { exam: params.row } });
+        }
+    };
+
+    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setSnackbarOpen(false);
+    };
+
     return (
-        <DataGridPro
-            autoHeight
-            columns={examColumns}
-            rows={exams}
-            hideFooter
-            onRowClick={onClickRow}
-        />
+        <>
+            <DataGridPro
+                autoHeight
+                columns={examColumns}
+                rows={exams}
+                hideFooter
+                onRowClick={onClickRow}
+                disableRowSelectionOnClick
+            />
+            <Snackbar
+                open={snackbarOpen}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert severity='error' variant='filled' onClose={handleClose}>
+                    This exam is locked until you complete the previous exam.
+                </Alert>
+            </Snackbar>
+        </>
     );
 };
