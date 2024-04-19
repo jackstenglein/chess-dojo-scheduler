@@ -141,8 +141,8 @@ services:
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
       PicturesBucket: ${chess-dojo-scheduler.PicturesBucket}
 
-  tacticsService:
-    path: tacticsService
+  examService:
+    path: examService
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}

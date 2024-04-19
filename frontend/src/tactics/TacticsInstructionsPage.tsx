@@ -3,7 +3,7 @@ import { Quiz } from '@mui/icons-material';
 import { Button, Container, Stack, Typography } from '@mui/material';
 import { useMemo, useRef, useState } from 'react';
 import { useCountdown } from 'react-countdown-circle-timer';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
 import PgnBoard, { PgnBoardApi } from '../board/pgn/PgnBoard';
 import { getSolutionScore, sampleProblem, scoreVariation } from './tactics';
@@ -18,6 +18,7 @@ const TacticsInstructionsPage = () => {
     const pgnApi = useRef<PgnBoardApi>(null);
     const [completedPgn, setCompletedPgn] = useState('');
     const navigate = useNavigate();
+    const locationState = useLocation().state;
 
     const onFinishSample = () => {
         setCompletedPgn(pgnApi.current?.getPgn() || '');
@@ -28,7 +29,7 @@ const TacticsInstructionsPage = () => {
     };
 
     const onStart = () => {
-        navigate('/tactics/test');
+        navigate('/tactics/exam', { state: locationState });
     };
 
     const countdown = useCountdown({
@@ -71,6 +72,10 @@ const TacticsInstructionsPage = () => {
         });
         return scores;
     }, [completedPgn]);
+
+    if (!locationState.exam) {
+        return <Navigate to='/tactics/' />;
+    }
 
     return (
         <Container sx={{ py: 4 }}>

@@ -61,6 +61,7 @@ import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
+import ListTacticsExamsPage from './tactics/ListTacticsExamsPage';
 import TacticsExamPage from './tactics/TacticsExamPage';
 import TacticsInstructionsPage from './tactics/TacticsInstructionsPage';
 import ThemeProvider from './ThemeProvider';
@@ -149,11 +150,12 @@ const router = createBrowserRouter(
                     </Route>
 
                     <Route path='tactics'>
+                        <Route index element={<ListTacticsExamsPage />} />
                         <Route
                             path='instructions'
                             element={<TacticsInstructionsPage />}
                         />
-                        <Route path='test' element={<TacticsExamPage />} />
+                        <Route path='exam' element={<TacticsExamPage />} />
                     </Route>
 
                     <Route path='chat' element={<ChatPage />} />
@@ -241,7 +243,14 @@ function Root() {
 
     return (
         <ApiProvider>
-            <ScrollRestoration getKey={(location) => location.pathname} />
+            <ScrollRestoration
+                getKey={(location) => {
+                    if (location.pathname.includes('tactics/instructions')) {
+                        return location.key;
+                    }
+                    return location.pathname;
+                }}
+            />
             <CacheProvider>
                 <TutorialProvider>
                     <Navbar />

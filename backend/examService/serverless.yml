@@ -1,6 +1,6 @@
-# Deploys the tactics service.
+# Deploys the exams service.
 
-service: chess-dojo-tactics
+service: chess-dojo-exams
 frameworkVersion: '3'
 
 plugins:
@@ -30,7 +30,7 @@ functions:
     handler: list/main.go
     events:
       - httpApi:
-          path: /tactics
+          path: /exams
           method: get
           authorizer:
             type: jwt
@@ -39,18 +39,49 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: !GetAtt TacticsTable.Arn
+        Resource: !GetAtt ExamsTable.Arn
+  
+  putAnswer:
+    handler: answers/put/main.go
+    events:
+      - httpApi:
+          path: /exams/answers
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt ExamsTable.Arn
+  
+  getAnswer:
+    handler: answers/get/main.go
+    events:
+      - httpApi:
+          path: /exams/answers
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt ExamsTable.Arn
 
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
 
   Resources:
-    TacticsTable:
+    ExamsTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Retain
       Properties:
-        TableName: ${sls:stage}-tactics
+        TableName: ${sls:stage}-exams
         AttributeDefinitions:
           - AttributeName: type
             AttributeType: S

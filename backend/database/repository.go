@@ -38,7 +38,7 @@ var followersTable = stage + "-followers"
 var newsfeedTable = stage + "-newsfeed"
 var yearReviewTable = stage + "-yearReviews"
 var clubTable = stage + "-clubs"
-var tacticsTable = stage + "-tactics"
+var examsTable = stage + "-exams"
 
 const gameTableOwnerIndex = "OwnerIdx"
 const gameTableWhiteIndex = "WhiteIndex"

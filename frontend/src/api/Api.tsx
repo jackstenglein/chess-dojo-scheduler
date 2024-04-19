@@ -9,6 +9,7 @@ import { User } from '../database/user';
 
 import { Club, ClubJoinRequestStatus } from '../database/club';
 import { Course } from '../database/course';
+import { ExamAnswer, ExamType } from '../database/exam';
 import { GameReviewType, PositionComment } from '../database/game';
 import { LeaderboardSite, TournamentType } from '../database/tournament';
 import {
@@ -42,6 +43,7 @@ import {
     listEvents,
     setEvent,
 } from './eventApi';
+import { ExamApiContextType, getExamAnswer, listExams, putExamAnswer } from './examApi';
 import {
     ExplorerApiContextType,
     followPosition,
@@ -160,7 +162,8 @@ type ApiContextType = UserApiContextType &
     ScoreboardApiContextType &
     ExplorerApiContextType &
     PaymentApiContextType &
-    ClubApiContextType;
+    ClubApiContextType &
+    ExamApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -411,6 +414,11 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 status: ClubJoinRequestStatus,
             ) => processJoinRequest(idToken, clubId, username, status),
             leaveClub: (clubId: string) => leaveClub(idToken, clubId),
+
+            listExams: (type: ExamType, startKey?: string) =>
+                listExams(idToken, type, startKey),
+            putExamAnswer: (answer: ExamAnswer) => putExamAnswer(idToken, answer),
+            getExamAnswer: (id: string) => getExamAnswer(idToken, id),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

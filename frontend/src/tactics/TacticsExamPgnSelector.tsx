@@ -19,16 +19,21 @@ import { BlockBoardKeyboardShortcuts } from '../board/pgn/PgnBoard';
 import { Scores } from './TacticsExamPage';
 
 interface TacticsExamPgnSelectorProps {
+    name?: string;
+    cohortRange?: string;
     count: number;
     selected: number;
     onSelect: (v: number) => void;
     countdown?: CountdownProps;
+    elapsedTime?: number;
     onComplete?: () => void;
     scores?: Scores;
     onReset?: () => void;
 }
 
 const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
+    name,
+    cohortRange,
     count,
     selected,
     onSelect,
@@ -36,11 +41,19 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
     onComplete,
     scores,
     onReset,
+    elapsedTime,
 }) => {
     const [isFinishEarly, setIsFinishEarly] = useState(false);
 
     return (
         <CardContent>
+            {name && cohortRange && (
+                <Stack alignItems='center' mb={3}>
+                    <Typography variant='h6' color='text.secondary'>
+                        {cohortRange}: {name}
+                    </Typography>
+                </Stack>
+            )}
             <Stack
                 spacing={3}
                 direction='row'
@@ -62,6 +75,9 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                         <Typography variant='h6'>Test Complete</Typography>
                         <Typography variant='subtitle1'>
                             Total Score: {scores?.total.user} / {scores?.total.solution}
+                        </Typography>
+                        <Typography variant='subtitle1'>
+                            Time Used: {formatTime(elapsedTime || 0)}
                         </Typography>
                     </Stack>
                 )}
@@ -140,7 +156,8 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
 export default TacticsExamPgnSelector;
 
 const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
+    time = Math.round(time);
+    const minutes = `0${Math.floor(time / 60)}`.slice(-2);
     const seconds = `0${time % 60}`.slice(-2);
     return `${minutes}:${seconds}`;
 };

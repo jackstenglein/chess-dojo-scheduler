@@ -12,8 +12,12 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCountdown } from 'react-countdown-circle-timer';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { useAuth } from '../auth/Auth';
 import { BoardApi, Chess } from '../board/Board';
 import {
     DefaultUnderboardTab,
@@ -25,9 +29,11 @@ import PgnBoard, {
     useChess,
 } from '../board/pgn/PgnBoard';
 import { ButtonProps as MoveButtonProps } from '../board/pgn/pgnText/MoveButton';
+import { Exam, ExamAnswer } from '../database/exam';
+import { getCurrentRating, normalizeToFide } from '../database/user';
+import LoadingPage from '../loading/LoadingPage';
 import {
     addExtraVariation,
-    firstTest,
     getMoveDescription,
     getSolutionScore,
     scoreVariation,
@@ -46,59 +52,81 @@ export interface Scores {
     }[];
 }
 
+function getColorsTime(limitSeconds?: number): { 0: number } & { 1: number } & number[] {
+    if (!limitSeconds) {
+        return [3600, 2700, 1800, 900, 0];
+    }
+
+    return [
+        limitSeconds,
+        limitSeconds * 0.75,
+        limitSeconds * 0.5,
+        limitSeconds * 0.25,
+        0,
+    ];
+}
+
 const TacticsExamPage = () => {
+    const user = useAuth().user!;
+    const api = useApi();
+    const answerRequest = useRequest<ExamAnswer>();
     const pgnApi = useRef<PgnBoardApi>(null);
     const [selectedProblem, setSelectedProblem] = useState(0);
-    const answerPgns = useRef<string[]>(firstTest.map(() => ''));
+    const exam = useLocation().state?.exam as Exam | undefined;
+    const answerPgns = useRef<string[]>((exam?.problems || []).map(() => ''));
     const [isTimeOver, setIsTimeOver] = useState(false);
-    const [isComplete, setIsComplete] = useState(false);
+
+    const hasTakenExam = Boolean(exam?.answers[user.username]);
+    const [isComplete, setIsComplete] = useState(hasTakenExam);
+    const [scores, setScores] = useState<Scores>();
 
     const onCountdownComplete = useCallback(() => {
         setIsTimeOver(true);
     }, [setIsTimeOver]);
 
     const countdown = useCountdown({
-        isPlaying: true,
+        isPlaying: !isComplete,
         size: 80,
         strokeWidth: 6,
-        duration: 3600,
+        duration: exam?.timeLimitSeconds || 3600,
         colors: ['#66bb6a', '#29b6f6', '#ce93d8', '#ffa726', '#f44336'],
-        colorsTime: [3600, 2700, 1800, 900, 0],
+        colorsTime: getColorsTime(exam?.timeLimitSeconds),
         trailColor: 'rgba(0,0,0,0)',
         onComplete: onCountdownComplete,
     });
 
-    const scores: Scores | undefined = useMemo(() => {
-        if (!isComplete) {
-            return undefined;
+    useEffect(() => {
+        if (!answerRequest.isSent() && exam && hasTakenExam) {
+            answerRequest.onStart();
+            api.getExamAnswer(exam.id)
+                .then((resp) => {
+                    console.log('getExamAnswer: ', resp);
+                    answerPgns.current = resp.data.answers.map((a) => a.pgn);
+                    setScores(getScores(exam, answerPgns.current));
+                    answerRequest.onSuccess(resp.data);
+                })
+                .catch((err) => {
+                    console.error('getExamAnswer: ', err);
+                    answerRequest.onFailure(err);
+                });
         }
+    }, [answerRequest, api, exam, hasTakenExam]);
 
-        const scores: Scores = {
-            total: { user: 0, solution: 0 },
-            problems: [],
-        };
+    if (!exam) {
+        return <Navigate to='/tactics' />;
+    }
 
-        for (let i = 0; i < firstTest.length; i++) {
-            const solutionChess = new Chess({ pgn: firstTest[i].solution });
-            const userChess = new Chess({ pgn: answerPgns.current[i] });
-            const solutionScore = getSolutionScore(solutionChess.history());
-            const userScore = scoreVariation(
-                firstTest[i].orientation,
-                solutionChess.history(),
-                null,
-                userChess,
-            );
+    if (hasTakenExam && (!answerRequest.isSent() || answerRequest.isLoading())) {
+        return <LoadingPage />;
+    }
 
-            scores.total.solution += solutionScore;
-            scores.total.user += userScore;
-            scores.problems.push({
-                user: userScore,
-                solution: solutionScore,
-            });
-        }
-
-        return scores;
-    }, [isComplete, answerPgns]);
+    if (answerRequest.isFailure()) {
+        return (
+            <Container>
+                <RequestSnackbar request={answerRequest} />
+            </Container>
+        );
+    }
 
     const onChangeProblem = (index: number) => {
         if (!isComplete) {
@@ -111,10 +139,10 @@ const TacticsExamPage = () => {
         return (
             <Container maxWidth={false} sx={{ py: 4 }}>
                 <CompletedTacticsTest
-                    key={firstTest[selectedProblem].fen}
+                    key={exam.problems[selectedProblem].fen}
                     userPgn={answerPgns.current[selectedProblem]}
-                    solutionPgn={firstTest[selectedProblem].solution}
-                    orientation={firstTest[selectedProblem].orientation}
+                    solutionPgn={exam.problems[selectedProblem].solution}
+                    orientation={exam.problems[selectedProblem].orientation}
                     underboardTabs={[
                         {
                             name: 'testInfo',
@@ -122,10 +150,16 @@ const TacticsExamPage = () => {
                             icon: <Quiz />,
                             element: (
                                 <TacticsExamPgnSelector
-                                    count={firstTest.length}
+                                    name={exam.name}
+                                    cohortRange={exam.cohortRange}
+                                    count={exam.problems.length}
                                     selected={selectedProblem}
                                     onSelect={onChangeProblem}
                                     scores={scores}
+                                    elapsedTime={
+                                        answerRequest.data?.timeUsedSeconds ||
+                                        countdown.elapsedTime
+                                    }
                                 />
                             ),
                         },
@@ -138,18 +172,42 @@ const TacticsExamPage = () => {
 
     const onComplete = () => {
         answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
+        const scores = getScores(exam, answerPgns.current);
+        setScores(scores);
         setIsComplete(true);
         setSelectedProblem(0);
+
+        const answer: ExamAnswer = {
+            type: user.username,
+            id: exam.id,
+            examType: exam.type,
+            cohort: user.dojoCohort,
+            rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
+            timeUsedSeconds: Math.round(countdown.elapsedTime),
+            createdAt: '',
+            answers: answerPgns.current.map((pgn, i) => ({
+                pgn,
+                score: scores.problems[i].user,
+                total: scores.problems[i].solution,
+            })),
+        };
+        api.putExamAnswer(answer)
+            .then((resp) => {
+                console.log('putExamAnswer: ', resp);
+            })
+            .catch((err) => {
+                console.error('putExamAnswer: ', err);
+            });
     };
 
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
             <PgnBoard
                 ref={pgnApi}
-                key={firstTest[selectedProblem].fen}
-                fen={firstTest[selectedProblem].fen}
+                key={exam.problems[selectedProblem].fen}
+                fen={exam.problems[selectedProblem].fen}
                 pgn={answerPgns.current[selectedProblem]}
-                startOrientation={firstTest[selectedProblem].orientation}
+                startOrientation={exam.problems[selectedProblem].orientation}
                 showPlayerHeaders={false}
                 underboardTabs={[
                     {
@@ -168,7 +226,9 @@ const TacticsExamPage = () => {
                         icon: <Quiz />,
                         element: (
                             <TacticsExamPgnSelector
-                                count={firstTest.length}
+                                name={exam.name}
+                                cohortRange={exam.cohortRange}
+                                count={exam.problems.length}
                                 selected={selectedProblem}
                                 onSelect={onChangeProblem}
                                 countdown={countdown}
@@ -209,21 +269,46 @@ const TacticsExamPage = () => {
 
 export default TacticsExamPage;
 
+function getScores(exam: Exam, answerPgns: string[]): Scores {
+    const scores: Scores = {
+        total: { user: 0, solution: 0 },
+        problems: [],
+    };
+
+    for (let i = 0; i < exam.problems.length; i++) {
+        const solutionChess = new Chess({ pgn: exam.problems[i].solution });
+        const userChess = new Chess({ pgn: answerPgns[i] });
+        const solutionScore = getSolutionScore(solutionChess.history());
+        const userScore = scoreVariation(
+            exam.problems[i].orientation,
+            solutionChess.history(),
+            null,
+            userChess,
+        );
+
+        scores.total.solution += solutionScore;
+        scores.total.user += userScore;
+        scores.problems.push({
+            user: userScore,
+            solution: solutionScore,
+        });
+    }
+
+    return scores;
+}
+
 export const TacticsTestMoveButtonExtras: React.FC<MoveButtonProps> = ({ move }) => {
     const { chess } = useChess();
 
     if (!chess) {
-        console.log('No chess');
         return null;
     }
 
-    console.log('Turn: ', chess.turn(null));
     if (move.color !== chess.turn(null)) {
         return null;
     }
 
     if (chess.isMainline(move.san, move.previous)) {
-        console.log('Mainline');
         return null;
     }
 
