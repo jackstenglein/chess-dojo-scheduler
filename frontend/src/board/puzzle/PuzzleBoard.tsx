@@ -40,7 +40,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     onNextPuzzle,
 }) => {
     const [board, setBoard] = useState<BoardApi>();
-    const [chess, setChess] = useState<Chess>(new Chess());
+    const [chess] = useState<Chess>(new Chess());
     const [status, setStatus] = useState(Status.WaitingForMove);
     const [move, setMove] = useState<Move | null>(null);
     const [lastCorrectMove, setLastCorrectMove] = useState<Move | null>(null);
