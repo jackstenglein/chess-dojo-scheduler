@@ -3,11 +3,11 @@ import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useLightMode } from '../../ThemeProvider';
+import { useChess } from './PgnBoard';
 import {
     CapturedMaterialBehavior,
     CapturedMaterialBehaviorKey,
 } from './boardTools/underboard/settings/ViewerSettings';
-import { useChess } from './PgnBoard';
 import PieceIcon from './pieceIcons/PieceIcon';
 
 interface PlayerHeaderProps {
@@ -137,7 +137,9 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
 
     const pgn = chess?.pgn;
     if (!pgn || !board) {
-        return null;
+        // Hack to get around chessground event listeners being in wrong place
+        // after the header's first render
+        return <EmptyHeader type={type} light={light} />;
     }
 
     const currentMove = chess?.currentMove();
@@ -234,6 +236,59 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
     );
 };
 
+export default PlayerHeader;
+
+function EmptyHeader({ type, light }: { type: string; light: boolean }) {
+    return (
+        <Paper
+            data-cy={`player-header-${type}`}
+            elevation={3}
+            variant={light ? 'outlined' : 'elevation'}
+            sx={{
+                gridArea: `player${type}`,
+                boxShadow: 'none',
+                height: 'fit-content',
+                py: '3px',
+                px: '6px',
+                visibility: 'hidden',
+            }}
+        >
+            <Stack direction='row' spacing={1} justifyContent='space-between'>
+                <Stack direction='row' spacing={1}>
+                    <>
+                        <Typography
+                            variant='subtitle2'
+                            color='text.secondary'
+                            fontWeight='bold'
+                        >
+                            1
+                        </Typography>
+                        <Divider flexItem orientation='vertical' />
+                    </>
+
+                    <Typography
+                        variant='subtitle2'
+                        color='text.secondary'
+                        fontWeight='bold'
+                    >
+                        Test
+                    </Typography>
+                </Stack>
+
+                <Tooltip title='Test'>
+                    <Typography
+                        variant='subtitle2'
+                        color='text.secondary'
+                        display='inline'
+                    >
+                        1:30:00
+                    </Typography>
+                </Tooltip>
+            </Stack>
+        </Paper>
+    );
+}
+
 const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
     move,
     color,
@@ -291,5 +346,3 @@ const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
         </Stack>
     );
 };
-
-export default PlayerHeader;
