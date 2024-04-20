@@ -1,6 +1,6 @@
 import { useState, MouseEvent } from 'react';
 import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Button, Popover, Stack } from '@mui/material';
 import { format, getMonth, getYear, setMonth } from 'date-fns';
 import NavigateBeforeRoundedIcon from '@mui/icons-material/NavigateBeforeRounded';

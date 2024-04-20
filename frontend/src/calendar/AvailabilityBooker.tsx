@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { TransitionProps } from '@mui/material/transitions';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 
 import { useApi } from '../api/Api';

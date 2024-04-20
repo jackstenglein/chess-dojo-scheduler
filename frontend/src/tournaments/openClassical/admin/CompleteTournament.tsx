@@ -9,7 +9,7 @@ import {
     Stack,
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useState } from 'react';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
