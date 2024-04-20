@@ -286,6 +286,21 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             blackSecTotal += blackBarData[blackBarData.length - 1].seconds;
         }
 
+        if (whiteBarData.length === 0) {
+            whiteBarData.push({
+                moveNumber: 0,
+                seconds: 0,
+                move: null,
+            });
+        }
+        if (blackBarData.length === 0) {
+            blackBarData.push({
+                moveNumber: 0,
+                seconds: 0,
+                move: null,
+            });
+        }
+
         return {
             total: [
                 {
@@ -370,7 +385,11 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     <Typography variant='caption' color='text.secondary'>
                         Time Used Per Move
                     </Typography>
-                    <Box width={1} height={15 * Math.ceil(chess.plyCount() / 2) + 10}>
+                    <Box
+                        width={1}
+                        height={20 * Math.ceil(chess.plyCount() / 2) + 10}
+                        minHeight={70}
+                    >
                         <Chart
                             options={{
                                 data: data.usedPerMove,
