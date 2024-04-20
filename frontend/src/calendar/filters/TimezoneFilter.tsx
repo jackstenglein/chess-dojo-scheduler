@@ -11,7 +11,7 @@ import {
 
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
 import { TimeFormat } from '../../database/user';

@@ -12,7 +12,7 @@ import {
     Typography,
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { EventType, trackEvent } from '../../analytics/events';
