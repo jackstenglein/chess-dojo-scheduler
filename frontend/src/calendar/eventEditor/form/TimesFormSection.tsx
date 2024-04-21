@@ -1,6 +1,6 @@
 import { Stack, Typography } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { useAuth } from '../../../auth/Auth';
 import { TimeFormat } from '../../../database/user';
 

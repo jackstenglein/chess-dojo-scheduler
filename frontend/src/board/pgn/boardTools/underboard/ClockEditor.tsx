@@ -2,7 +2,7 @@ import { Chess, Move } from '@jackstenglein/chess';
 import { TextField, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import ClockTextField from './ClockTextField';

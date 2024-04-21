@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import React, { useEffect, useRef, useState } from 'react';
 import {
     evalNags,
