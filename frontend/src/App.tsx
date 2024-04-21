@@ -4,17 +4,14 @@ import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { Amplify, Hub } from 'aws-amplify';
 import { useEffect } from 'react';
 import {
+    createBrowserRouter,
+    createRoutesFromElements,
     Outlet,
     Route,
     RouterProvider,
     ScrollRestoration,
-    createBrowserRouter,
-    createRoutesFromElements,
     useNavigate,
 } from 'react-router-dom';
-import ErrorBoundary from './ErrorBoundary';
-import NotFoundPage from './NotFoundPage';
-import ThemeProvider from './ThemeProvider';
 import { ApiProvider } from './api/Api';
 import { CacheProvider } from './api/cache/Cache';
 import { AuthProvider, RequireAuth } from './auth/Auth';
@@ -35,6 +32,7 @@ import { getConfig } from './config';
 import ListCoursesPage from './courses/list/ListCoursesPage';
 import CoursePage from './courses/view/CoursePage';
 import UnsubscribePage from './dojoDigest/UnsubscribePage';
+import ErrorBoundary from './ErrorBoundary';
 import EditGamePage from './games/edit/EditGamePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
 import ListGamesPage from './games/list/ListGamesPage';
@@ -42,12 +40,7 @@ import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
 import HelpPage from './help/HelpPage';
 import LandingPage from './landing/LandingPage';
-import BooksPage from './material/BooksPage';
 import MaterialPage from './material/MaterialPage';
-import MemorizeGamesPage from './material/MemorizeGamesPage';
-import ModelGamesPage from './material/ModelGamesPage';
-import RatingConversionsPage from './material/RatingConversionsPage';
-import SparringPage from './material/SparringPage';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
@@ -55,29 +48,31 @@ import StripeCancelationPage from './meeting/StripeCancelationPage';
 import Navbar from './navbar/Navbar';
 import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
 import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
+import NotFoundPage from './NotFoundPage';
 import NotificationPage from './notifications/NotificationPage';
-import ProfilePage from './profile/ProfilePage';
-import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import ProfileEditorPage from './profile/editor/ProfileEditorPage';
 import FollowersPage from './profile/followers/FollowersPage';
+import ProfilePage from './profile/ProfilePage';
+import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import YearReviewPage from './profile/yearReview/YearReviewPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
 import RecentPage from './recent/RecentPage';
 import RequirementPage from './requirements/RequirementPage';
-import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
+import ScoreboardPage from './scoreboard/ScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import ListTacticsExamsPage from './tactics/ListTacticsExamsPage';
 import TacticsExamPage from './tactics/TacticsExamPage';
 import TacticsInstructionsPage from './tactics/TacticsInstructionsPage';
-import TournamentsPage from './tournaments/TournamentsPage';
+import ThemeProvider from './ThemeProvider';
+import AdminPage from './tournaments/openClassical/admin/AdminPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import InfoPage from './tournaments/openClassical/InfoPage';
 import ListPage from './tournaments/openClassical/ListPage';
 import RegistrationPage from './tournaments/openClassical/RegistrationPage';
 import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
-import AdminPage from './tournaments/openClassical/admin/AdminPage';
+import TournamentsPage from './tournaments/TournamentsPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 import PricingPage from './upsell/PricingPage';
 
@@ -202,11 +197,6 @@ const router = createBrowserRouter(
 
                     <Route path='material'>
                         <Route index element={<MaterialPage />} />
-                        <Route path='books' element={<BooksPage />} />
-                        <Route path='sparring' element={<SparringPage />} />
-                        <Route path='modelgames' element={<ModelGamesPage />} />
-                        <Route path='memorizegames' element={<MemorizeGamesPage />} />
-                        <Route path='ratings' element={<RatingConversionsPage />} />
                     </Route>
 
                     <Route path='notifications' element={<NotificationPage />} />
