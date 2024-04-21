@@ -1,14 +1,17 @@
 import { Chess, Move } from '@jackstenglein/chess';
 import { Stack, TextField } from '@mui/material';
 import { TimeField } from '@mui/x-date-pickers';
+import { DateTime } from 'luxon';
 import { useLocalStorage } from 'usehooks-ts';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
-import { convertSecondsToDate, onChangeClock } from './ClockEditor';
+import { convertSecondsToDateTime, onChangeClock } from './ClockEditor';
 import { convertClockToSeconds, formatTime } from './ClockUsage';
 import { ClockFieldFormat, ClockFieldFormatKey } from './settings/EditorSettings';
 
-const defaultDate = new Date();
-defaultDate.setHours(0, 0, 0);
+const d = new Date();
+d.setHours(0, 0, 0);
+
+const defaultDateTime = DateTime.fromJSDate(d);
 
 interface ClockTextFieldProps {
     move: Move;
@@ -38,8 +41,9 @@ const ClockTextField: React.FC<ClockTextFieldProps> = ({
                 label={label}
                 format='HH:mm:ss'
                 value={
-                    convertSecondsToDate(convertClockToSeconds(move.commentDiag?.clk)) ||
-                    defaultDate
+                    convertSecondsToDateTime(
+                        convertClockToSeconds(move.commentDiag?.clk),
+                    ) || defaultDateTime
                 }
                 onChange={(value) => onChangeClock(chess, move, value)}
                 fullWidth

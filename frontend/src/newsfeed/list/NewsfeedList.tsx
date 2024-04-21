@@ -117,7 +117,9 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
             const newEntries = (data?.entries || [])
                 .concat(
                     resp.entries.sort((lhs, rhs) =>
-                        rhs.createdAt.localeCompare(lhs.createdAt),
+                        (rhs.date || rhs.createdAt).localeCompare(
+                            lhs.date || lhs.createdAt,
+                        ),
                     ),
                 )
                 .filter((e) => {

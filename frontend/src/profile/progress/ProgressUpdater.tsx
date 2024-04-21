@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { DatePicker } from '@mui/x-date-pickers';
+import { DateTime } from 'luxon';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -93,7 +93,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
 
     const [value, setValue] = useState<number>(currentCount);
     const [markComplete, setMarkComplete] = useState(true);
-    const [date, setDate] = useState<Date | null>(new Date());
+    const [date, setDate] = useState<DateTime | null>(DateTime.now());
     const [hours, setHours] = useState('');
     const [minutes, setMinutes] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -220,15 +220,13 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
 
                         <Grid container width={1}>
                             <Grid item xs={12} sm>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        label='Date'
-                                        disableFuture
-                                        value={date}
-                                        onChange={setDate}
-                                        slotProps={{ textField: { fullWidth: true } }}
-                                    />
-                                </LocalizationProvider>
+                                <DatePicker
+                                    label='Date'
+                                    disableFuture
+                                    value={date}
+                                    onChange={setDate}
+                                    slotProps={{ textField: { fullWidth: true } }}
+                                />
                             </Grid>
                             <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
                                 <TextField

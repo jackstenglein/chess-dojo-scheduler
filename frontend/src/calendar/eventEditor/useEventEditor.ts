@@ -1,5 +1,5 @@
+import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
-
 import { useAuth } from '../../auth/Auth';
 import { AvailabilityType, Event, EventType } from '../../database/event';
 import { dojoCohorts } from '../../database/user';
@@ -20,11 +20,10 @@ export function isValidDate(d: any) {
  * @param start The start date to get the minimum end from.
  * @returns A Date one hour after the provided start date, or null if start was null.
  */
-export function getMinEnd(start: Date | null): Date | null {
-    let minEnd: Date | null = null;
+export function getMinEnd(start: DateTime | null): DateTime | null {
+    let minEnd: DateTime | null = null;
     if (start !== null) {
-        minEnd = new Date();
-        minEnd.setTime(start.getTime() + ONE_HOUR);
+        minEnd = start.plus({ hours: 1 });
     }
     return minEnd;
 }
@@ -49,23 +48,23 @@ export interface UseEventEditorResponse {
     setTitle: (title: string) => void;
 
     /** The start Date of the Event. */
-    start: Date | null;
+    start: DateTime | null;
 
     /**
      * Sets the start date of the Event.
      * @param date The new start date of the Event.
      */
-    setStart: (date: Date | null) => void;
+    setStart: (date: DateTime | null) => void;
 
     /** The end date of the Event. */
-    end: Date | null;
+    end: DateTime | null;
 
     /**
      * Sets the end date of the Event.
      * @param date The new end date of the Event.
      * @returns
      */
-    setEnd: (date: Date | null) => void;
+    setEnd: (date: DateTime | null) => void;
 
     /** The location of the Event. */
     location: string;
@@ -206,8 +205,12 @@ export default function useEventEditor(
     );
     const [title, setTitle] = useState<string>(initialEvent?.title || '');
 
-    const [start, setStart] = useState<Date | null>(initialStart || null);
-    const [end, setEnd] = useState<Date | null>(initialEnd || null);
+    const [start, setStart] = useState<DateTime | null>(
+        initialStart ? DateTime.fromJSDate(initialStart) : null,
+    );
+    const [end, setEnd] = useState<DateTime | null>(
+        initialEnd ? DateTime.fromJSDate(initialEnd) : null,
+    );
 
     const [location, setLocation] = useState(initialEvent?.location || '');
     const [description, setDescription] = useState(initialEvent?.description || '');

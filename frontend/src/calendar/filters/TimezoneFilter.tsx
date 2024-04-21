@@ -1,3 +1,4 @@
+import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import {
     FormControl,
     FormControlLabel,
@@ -8,10 +9,7 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-
-import { WeekDays } from '@aldabil/react-scheduler/views/Month';
-import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { TimePicker } from '@mui/x-date-pickers';
 import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
 import { TimeFormat } from '../../database/user';
@@ -70,8 +68,8 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
     const browserDefaultLabel =
         timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
 
-    let minHourNum = minHour?.getHours() || 0;
-    let maxHourNum = (maxHour?.getHours() || 23) + 1;
+    let minHourNum = minHour?.hour || 0;
+    let maxHourNum = (maxHour?.hour || 23) + 1;
 
     return (
         <Stack spacing={2.5}>
@@ -135,42 +133,40 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
                 <MenuItem value={6}>Saturday</MenuItem>
             </TextField>
 
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <TimePicker
-                    label='Min Hour'
-                    views={['hours']}
-                    ampm={timeFormat === TimeFormat.TwelveHour}
-                    value={minHour}
-                    onChange={(v) => setMinHour(v)}
-                    maxTime={maxHour}
-                    slotProps={{
-                        textField: {
-                            size: 'small',
-                            helperText:
-                                minHourNum >= maxHourNum
-                                    ? 'Min hour cannot be greater than max hour'
-                                    : undefined,
-                        },
-                    }}
-                />
-                <TimePicker
-                    label='Max Hour'
-                    views={['hours']}
-                    ampm={timeFormat === TimeFormat.TwelveHour}
-                    value={maxHour}
-                    onChange={(v) => setMaxHour(v)}
-                    minTime={minHour}
-                    slotProps={{
-                        textField: {
-                            size: 'small',
-                            helperText:
-                                maxHourNum <= minHourNum
-                                    ? 'Max hour cannot be less than min hour'
-                                    : undefined,
-                        },
-                    }}
-                />
-            </LocalizationProvider>
+            <TimePicker
+                label='Min Hour'
+                views={['hours']}
+                ampm={timeFormat === TimeFormat.TwelveHour}
+                value={minHour}
+                onChange={(v) => setMinHour(v)}
+                maxTime={maxHour}
+                slotProps={{
+                    textField: {
+                        size: 'small',
+                        helperText:
+                            minHourNum >= maxHourNum
+                                ? 'Min hour cannot be greater than max hour'
+                                : undefined,
+                    },
+                }}
+            />
+            <TimePicker
+                label='Max Hour'
+                views={['hours']}
+                ampm={timeFormat === TimeFormat.TwelveHour}
+                value={maxHour}
+                onChange={(v) => setMaxHour(v)}
+                minTime={minHour}
+                slotProps={{
+                    textField: {
+                        size: 'small',
+                        helperText:
+                            maxHourNum <= minHourNum
+                                ? 'Max hour cannot be less than min hour'
+                                : undefined,
+                    },
+                }}
+            />
         </Stack>
     );
 };

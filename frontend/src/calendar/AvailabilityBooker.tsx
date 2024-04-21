@@ -1,36 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { LoadingButton } from '@mui/lab';
 import {
-    Dialog,
     AppBar,
+    Button,
+    Dialog,
+    DialogContent,
+    FormControl,
+    FormControlLabel,
+    FormHelperText,
+    FormLabel,
+    Link,
+    Radio,
+    RadioGroup,
+    Slide,
+    Stack,
     Toolbar,
     Typography,
-    Button,
-    DialogContent,
-    Stack,
-    FormControl,
-    FormLabel,
-    RadioGroup,
-    FormControlLabel,
-    Radio,
-    FormHelperText,
-    Slide,
-    Link,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 import { TransitionProps } from '@mui/material/transitions';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
-
+import { TimePicker } from '@mui/x-date-pickers';
+import { DateTime } from 'luxon';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { EventType, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { useCache } from '../api/cache/Cache';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { AvailabilityType, Event, getDisplayString } from '../database/event';
-import GraduationIcon from '../scoreboard/GraduationIcon';
-import { EventType, trackEvent } from '../analytics/events';
-import Avatar from '../profile/Avatar';
 import { useAuth } from '../auth/Auth';
+import { AvailabilityType, Event, getDisplayString } from '../database/event';
 import { TimeFormat } from '../database/user';
+import Avatar from '../profile/Avatar';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from './displayDate';
 import Field from './eventViewer/Field';
 import OwnerField from './eventViewer/OwnerField';
@@ -39,7 +38,7 @@ export const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
         children: React.ReactElement;
     },
-    ref: React.Ref<unknown>
+    ref: React.Ref<unknown>,
 ) {
     return <Slide direction='up' ref={ref} {...props} />;
 });
@@ -56,7 +55,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
     const user = useAuth().user;
 
     const [selectedType, setSelectedType] = useState<AvailabilityType | null>(null);
-    const [startTime, setStartTime] = useState<Date | null>(null);
+    const [startTime, setStartTime] = useState<DateTime | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const timezone = user?.timezoneOverride;
@@ -64,7 +63,11 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
 
     useEffect(() => {
         if (availability) {
-            setStartTime(getTimeZonedDate(new Date(availability.startTime), timezone));
+            setStartTime(
+                DateTime.fromJSDate(
+                    getTimeZonedDate(new Date(availability.startTime), timezone),
+                ),
+            );
         }
     }, [availability, setStartTime, timezone]);
 
@@ -89,7 +92,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
         if (startTime === null) {
             newErrors.time = 'You must select a time';
         } else {
-            selectedTime = getTimeZonedDate(startTime, timezone, 'forward');
+            selectedTime = getTimeZonedDate(startTime.toJSDate(), timezone, 'forward');
             if (
                 selectedTime.toISOString() < availability.startTime ||
                 selectedTime.toISOString() > availability.endTime
@@ -100,11 +103,9 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
 
         setErrors(newErrors);
         if (Object.entries(newErrors).length > 0) {
-            console.log('Returning due to errors');
             return;
         }
 
-        console.log('Booking availability: ', availability);
         request.onStart();
         api.bookEvent(availability.id, selectedTime!, selectedType!)
             .then((response) => {
@@ -127,7 +128,6 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
     };
 
     const confirmGroupBooking = () => {
-        console.log('Confirm group booking');
         request.onStart();
         api.bookEvent(availability.id)
             .then((response) => {
@@ -277,7 +277,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                     value={selectedType}
                                     onChange={(event) =>
                                         setSelectedType(
-                                            event.target.value as AvailabilityType
+                                            event.target.value as AvailabilityType,
                                         )
                                     }
                                 >
@@ -295,27 +295,23 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                 <FormHelperText>{errors.type}</FormHelperText>
                             </FormControl>
 
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <TimePicker
-                                    label='Start Time'
-                                    value={startTime}
-                                    onChange={(value) =>
-                                        setStartTime(value as unknown as Date)
-                                    }
-                                    slotProps={{
-                                        textField: {
-                                            fullWidth: true,
-                                            error: !!errors.time,
-                                            helperText:
-                                                errors.time ||
-                                                `Must be between ${minStartStr} and ${maxStartStr}`,
-                                        },
-                                    }}
-                                    minTime={new Date(availability.startTime)}
-                                    maxTime={new Date(availability.endTime)}
-                                    ampm={timeFormat === TimeFormat.TwelveHour}
-                                />
-                            </LocalizationProvider>
+                            <TimePicker
+                                label='Start Time'
+                                value={startTime}
+                                onChange={(value) => setStartTime(value)}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        error: !!errors.time,
+                                        helperText:
+                                            errors.time ||
+                                            `Must be between ${minStartStr} and ${maxStartStr}`,
+                                    },
+                                }}
+                                minTime={DateTime.fromISO(availability.startTime)}
+                                maxTime={DateTime.fromISO(availability.endTime)}
+                                ampm={timeFormat === TimeFormat.TwelveHour}
+                            />
                         </>
                     )}
                 </Stack>

@@ -14,8 +14,7 @@ import {
     Typography,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { TimeField } from '@mui/x-date-pickers';
 import React, { useEffect, useRef, useState } from 'react';
 import {
     evalNags,
@@ -29,7 +28,11 @@ import {
     setNagsInSet,
 } from '../../Nag';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
-import { convertSecondsToDate, handleIncrement, handleInitialClock } from './ClockEditor';
+import {
+    convertSecondsToDateTime,
+    handleIncrement,
+    handleInitialClock,
+} from './ClockEditor';
 import ClockTextField from './ClockTextField';
 import { getIncrement, getInitialClock } from './ClockUsage';
 
@@ -127,50 +130,48 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     return (
         <CardContent>
             <Stack spacing={3} mt={2}>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    {move && isMainline ? (
-                        <ClockTextField label='Clock (hh:mm:ss)' move={move} />
-                    ) : (
-                        !move && (
-                            <Grid2
-                                container
-                                columnSpacing={1}
-                                rowGap={3}
-                                alignItems='center'
-                                pb={2}
-                            >
-                                <Grid2 xs={6}>
-                                    <TimeField
-                                        id={BlockBoardKeyboardShortcuts}
-                                        label='Starting Time (hh:mm:ss)'
-                                        format='HH:mm:ss'
-                                        value={convertSecondsToDate(initialClock)}
-                                        onChange={(value) =>
-                                            handleInitialClock(chess, increment, value)
-                                        }
-                                        fullWidth
-                                    />
-                                </Grid2>
-
-                                <Grid2 xs={6}>
-                                    <TextField
-                                        id={BlockBoardKeyboardShortcuts}
-                                        label='Increment (Sec)'
-                                        value={`${increment}`}
-                                        onChange={(e) =>
-                                            handleIncrement(
-                                                chess,
-                                                initialClock,
-                                                e.target.value,
-                                            )
-                                        }
-                                        fullWidth
-                                    />
-                                </Grid2>
+                {move && isMainline ? (
+                    <ClockTextField label='Clock (hh:mm:ss)' move={move} />
+                ) : (
+                    !move && (
+                        <Grid2
+                            container
+                            columnSpacing={1}
+                            rowGap={3}
+                            alignItems='center'
+                            pb={2}
+                        >
+                            <Grid2 xs={6}>
+                                <TimeField
+                                    id={BlockBoardKeyboardShortcuts}
+                                    label='Starting Time (hh:mm:ss)'
+                                    format='HH:mm:ss'
+                                    value={convertSecondsToDateTime(initialClock)}
+                                    onChange={(value) =>
+                                        handleInitialClock(chess, increment, value)
+                                    }
+                                    fullWidth
+                                />
                             </Grid2>
-                        )
-                    )}
-                </LocalizationProvider>
+
+                            <Grid2 xs={6}>
+                                <TextField
+                                    id={BlockBoardKeyboardShortcuts}
+                                    label='Increment (Sec)'
+                                    value={`${increment}`}
+                                    onChange={(e) =>
+                                        handleIncrement(
+                                            chess,
+                                            initialClock,
+                                            e.target.value,
+                                        )
+                                    }
+                                    fullWidth
+                                />
+                            </Grid2>
+                        </Grid2>
+                    )
+                )}
 
                 <TextField
                     inputRef={textFieldRef}

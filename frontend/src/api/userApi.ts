@@ -1,11 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
-
-import { User } from '../database/user';
+import { DateTime } from 'luxon';
 import { getConfig } from '../config';
-import { Graduation } from '../database/graduation';
-import { TimelineEntry } from '../database/timeline';
-import { UserStatistics } from '../database/statistics';
 import { FollowerEntry } from '../database/follower';
+import { Graduation } from '../database/graduation';
+import { UserStatistics } from '../database/statistics';
+import { TimelineEntry } from '../database/timeline';
+import { User } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -40,7 +40,7 @@ export type UserApiContextType = {
      */
     listUserTimeline: (
         owner: string,
-        startKey?: string
+        startKey?: string,
     ) => Promise<ListUserTimelineResponse>;
 
     /**
@@ -68,7 +68,7 @@ export type UserApiContextType = {
      */
     updateUser: (
         update: Partial<User>,
-        autopickCohort?: boolean
+        autopickCohort?: boolean,
     ) => Promise<AxiosResponse<User, any>>;
 
     /**
@@ -86,8 +86,8 @@ export type UserApiContextType = {
         requirementId: string,
         incrementalCount: number,
         incrementalMinutesSpent: number,
-        date: Date | null,
-        notes: string
+        date: DateTime | null,
+        notes: string,
     ) => Promise<AxiosResponse<User, any>>;
 
     /**
@@ -106,7 +106,7 @@ export type UserApiContextType = {
         updated: TimelineEntry[],
         deleted: TimelineEntry[],
         count: number,
-        minutesSpent: number
+        minutesSpent: number,
     ) => Promise<AxiosResponse<User, any>>;
 
     /**
@@ -136,7 +136,7 @@ export type UserApiContextType = {
      */
     editFollower: (
         poster: string,
-        action: 'follow' | 'unfollow'
+        action: 'follow' | 'unfollow',
     ) => Promise<AxiosResponse<FollowerEntry | null, any>>;
 
     /**
@@ -147,7 +147,7 @@ export type UserApiContextType = {
      */
     listFollowers: (
         username: string,
-        startKey?: string
+        startKey?: string,
     ) => Promise<AxiosResponse<ListFollowersResponse, any>>;
 
     /**
@@ -158,7 +158,7 @@ export type UserApiContextType = {
      */
     listFollowing: (
         username: string,
-        startKey?: string
+        startKey?: string,
     ) => Promise<AxiosResponse<ListFollowersResponse, any>>;
 };
 
@@ -213,7 +213,7 @@ export interface ListUserTimelineResponse {
 export async function listUserTimeline(
     idToken: string,
     owner: string,
-    startKey?: string
+    startKey?: string,
 ) {
     let params = { startKey };
     const resp = await axios.get<ListUserTimelineResponse>(
@@ -223,7 +223,7 @@ export async function listUserTimeline(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        }
+        },
     );
     return resp.data;
 }
@@ -243,7 +243,7 @@ interface ListUsersResponse {
 export async function listUsersByCohort(
     idToken: string,
     cohort: string,
-    startKey?: string
+    startKey?: string,
 ) {
     let params = { startKey };
     const result: User[] = [];
@@ -276,7 +276,7 @@ export async function searchUsers(query: string, fields: string[], startKey?: st
             BASE_URL + '/public/user/search',
             {
                 params,
-            }
+            },
         );
         result.push(...resp.data.users);
         params.startKey = resp.data.lastEvaluatedKey;
@@ -297,7 +297,7 @@ export async function updateUser(
     idToken: string,
     update: Partial<User>,
     callback: (update: Partial<User>) => void,
-    autopickCohort?: boolean
+    autopickCohort?: boolean,
 ) {
     const result = await axios.put<User>(`${BASE_URL}/user`, update, {
         headers: {
@@ -329,9 +329,9 @@ export async function updateUserProgress(
     requirementId: string,
     incrementalCount: number,
     incrementalMinutesSpent: number,
-    date: Date | null,
+    date: DateTime | null,
     notes: string,
-    callback: (update: Partial<User>) => void
+    callback: (update: Partial<User>) => void,
 ) {
     const result = await axios.post<User>(
         BASE_URL + '/user/progress',
@@ -340,14 +340,14 @@ export async function updateUserProgress(
             requirementId,
             incrementalCount,
             incrementalMinutesSpent,
-            date: date?.toISOString(),
+            date: date?.toUTC().toISO(),
             notes,
         },
         {
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        }
+        },
     );
     callback(result.data);
     return result;
@@ -373,7 +373,7 @@ export async function updateUserTimeline(
     deleted: TimelineEntry[],
     count: number,
     minutesSpent: number,
-    callback: (update: Partial<User>) => void
+    callback: (update: Partial<User>) => void,
 ) {
     const result = await axios.post<User>(
         BASE_URL + '/user/progress/timeline',
@@ -389,7 +389,7 @@ export async function updateUserTimeline(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        }
+        },
     );
     callback(result.data);
     return result;
@@ -411,7 +411,7 @@ interface GraduationResponse {
 export async function graduate(
     idToken: string,
     comments: string,
-    callback: (update: Partial<User>) => void
+    callback: (update: Partial<User>) => void,
 ) {
     const result = await axios.post<GraduationResponse>(
         BASE_URL + '/user/graduate',
@@ -420,7 +420,7 @@ export async function graduate(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        }
+        },
     );
     callback(result.data.userUpdate);
     return result;
@@ -457,7 +457,7 @@ export function getFollower(idToken: string, poster: string) {
 export function editFollower(
     idToken: string,
     poster: string,
-    action: 'follow' | 'unfollow'
+    action: 'follow' | 'unfollow',
 ) {
     return axios.post<FollowerEntry | null>(
         `${BASE_URL}/user/followers`,
@@ -466,7 +466,7 @@ export function editFollower(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        }
+        },
     );
 }
 
@@ -484,7 +484,7 @@ export interface ListFollowersResponse {
 export function listFollowers(username: string, startKey?: string) {
     return axios.get<ListFollowersResponse>(
         `${BASE_URL}/public/user/${username}/followers`,
-        { params: { startKey } }
+        { params: { startKey } },
     );
 }
 
@@ -497,6 +497,6 @@ export function listFollowers(username: string, startKey?: string) {
 export function listFollowing(username: string, startKey?: string) {
     return axios.get<ListFollowersResponse>(
         `${BASE_URL}/public/user/${username}/following`,
-        { params: { startKey } }
+        { params: { startKey } },
     );
 }

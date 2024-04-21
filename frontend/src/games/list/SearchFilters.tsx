@@ -1,37 +1,35 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { styled } from '@mui/material/styles';
+import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { LoadingButton } from '@mui/lab';
 import {
-    Stack,
-    Typography,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Grid,
-    TextField,
     Accordion as MuiAccordion,
+    AccordionDetails as MuiAccordionDetails,
     AccordionProps,
     AccordionSummary as MuiAccordionSummary,
     AccordionSummaryProps,
-    AccordionDetails as MuiAccordionDetails,
+    FormControl,
+    Grid,
+    InputLabel,
     Link,
+    MenuItem,
+    Select,
+    Stack,
+    TextField,
+    Typography,
 } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { styled } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import { DateTime } from 'luxon';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+    Link as RouterLink,
     URLSearchParamsInit,
     useSearchParams,
-    Link as RouterLink,
 } from 'react-router-dom';
-
-import { dojoCohorts } from '../../database/user';
-import { useAuth, useFreeTier } from '../../auth/Auth';
-import { useApi } from '../../api/Api';
-import { SearchFunc } from './pagination';
 import { EventType, trackEvent } from '../../analytics/events';
+import { useApi } from '../../api/Api';
+import { useAuth, useFreeTier } from '../../auth/Auth';
+import { dojoCohorts } from '../../database/user';
+import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -68,11 +66,11 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 }));
 
 interface BaseFilterProps {
-    startDate: Date | null;
-    endDate: Date | null;
+    startDate: DateTime | null;
+    endDate: DateTime | null;
     isLoading: boolean;
-    setStartDate: React.Dispatch<React.SetStateAction<Date | null>>;
-    setEndDate: React.Dispatch<React.SetStateAction<Date | null>>;
+    setStartDate: React.Dispatch<React.SetStateAction<DateTime | null>>;
+    setEndDate: React.Dispatch<React.SetStateAction<DateTime | null>>;
     onSearch: () => void;
 }
 
@@ -109,35 +107,33 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                 </Select>
             </FormControl>
 
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                    <Grid item xs={12} md={12} lg>
-                        <DatePicker
-                            label='Start Date'
-                            value={startDate}
-                            onChange={(newValue) => {
-                                setStartDate(newValue);
-                            }}
-                            slotProps={{
-                                textField: { id: 'cohort-start-date', fullWidth: true },
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={12} lg>
-                        <DatePicker
-                            label='End Date'
-                            value={endDate}
-                            onChange={(newValue) => {
-                                setEndDate(newValue);
-                            }}
-                            slotProps={{
-                                textField: { id: 'cohort-end-date', fullWidth: true },
-                            }}
-                        />
-                    </Grid>
+            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid item xs={12} md={12} lg>
+                    <DatePicker
+                        label='Start Date'
+                        value={startDate}
+                        onChange={(newValue) => {
+                            setStartDate(newValue);
+                        }}
+                        slotProps={{
+                            textField: { id: 'cohort-start-date', fullWidth: true },
+                        }}
+                    />
                 </Grid>
-            </LocalizationProvider>
+
+                <Grid item xs={12} md={12} lg>
+                    <DatePicker
+                        label='End Date'
+                        value={endDate}
+                        onChange={(newValue) => {
+                            setEndDate(newValue);
+                        }}
+                        slotProps={{
+                            textField: { id: 'cohort-end-date', fullWidth: true },
+                        }}
+                    />
+                </Grid>
+            </Grid>
 
             <LoadingButton
                 data-cy='cohort-search-button'
@@ -166,35 +162,33 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                 uploaded previously through Dojo 1.0's Google Form submission will not be
                 matched.
             </Typography>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                    <Grid item xs={12} md={12} lg>
-                        <DatePicker
-                            label='Start Date'
-                            value={startDate}
-                            onChange={(newValue) => {
-                                setStartDate(newValue);
-                            }}
-                            slotProps={{
-                                textField: { id: 'owner-start-date', fullWidth: true },
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={12} lg>
-                        <DatePicker
-                            label='End Date'
-                            value={endDate}
-                            onChange={(newValue) => {
-                                setEndDate(newValue);
-                            }}
-                            slotProps={{
-                                textField: { id: 'owner-end-date', fullWidth: true },
-                            }}
-                        />
-                    </Grid>
+            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid item xs={12} md={12} lg>
+                    <DatePicker
+                        label='Start Date'
+                        value={startDate}
+                        onChange={(newValue) => {
+                            setStartDate(newValue);
+                        }}
+                        slotProps={{
+                            textField: { id: 'owner-start-date', fullWidth: true },
+                        }}
+                    />
                 </Grid>
-            </LocalizationProvider>
+
+                <Grid item xs={12} md={12} lg>
+                    <DatePicker
+                        label='End Date'
+                        value={endDate}
+                        onChange={(newValue) => {
+                            setEndDate(newValue);
+                        }}
+                        slotProps={{
+                            textField: { id: 'owner-end-date', fullWidth: true },
+                        }}
+                    />
+                </Grid>
+            </Grid>
 
             <LoadingButton
                 data-cy='owner-search-button'
@@ -270,35 +264,33 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                 <MenuItem value='black'>Black</MenuItem>
             </Select>
 
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                    <Grid item xs={12} md={12} lg>
-                        <DatePicker
-                            label='Start Date'
-                            value={startDate}
-                            onChange={(newValue) => {
-                                setStartDate(newValue);
-                            }}
-                            slotProps={{
-                                textField: { id: 'player-start-date', fullWidth: true },
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={12} lg>
-                        <DatePicker
-                            label='End Date'
-                            value={endDate}
-                            onChange={(newValue) => {
-                                setEndDate(newValue);
-                            }}
-                            slotProps={{
-                                textField: { id: 'player-end-date', fullWidth: true },
-                            }}
-                        />
-                    </Grid>
+            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid item xs={12} md={12} lg>
+                    <DatePicker
+                        label='Start Date'
+                        value={startDate}
+                        onChange={(newValue) => {
+                            setStartDate(newValue);
+                        }}
+                        slotProps={{
+                            textField: { id: 'player-start-date', fullWidth: true },
+                        }}
+                    />
                 </Grid>
-            </LocalizationProvider>
+
+                <Grid item xs={12} md={12} lg>
+                    <DatePicker
+                        label='End Date'
+                        value={endDate}
+                        onChange={(newValue) => {
+                            setEndDate(newValue);
+                        }}
+                        slotProps={{
+                            textField: { id: 'player-end-date', fullWidth: true },
+                        }}
+                    />
+                </Grid>
+            </Grid>
 
             <LoadingButton
                 data-cy='player-search-button'
@@ -366,35 +358,33 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                 />
             </FormControl>
 
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                    <Grid item xs={12} md={12} lg>
-                        <DatePicker
-                            label='Start Date'
-                            value={startDate}
-                            onChange={(newValue) => {
-                                setStartDate(newValue);
-                            }}
-                            slotProps={{
-                                textField: { id: 'opening-start-date', fullWidth: true },
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={12} lg>
-                        <DatePicker
-                            label='End Date'
-                            value={endDate}
-                            onChange={(newValue) => {
-                                setEndDate(newValue);
-                            }}
-                            slotProps={{
-                                textField: { id: 'opening-end-date', fullWidth: true },
-                            }}
-                        />
-                    </Grid>
+            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid item xs={12} md={12} lg>
+                    <DatePicker
+                        label='Start Date'
+                        value={startDate}
+                        onChange={(newValue) => {
+                            setStartDate(newValue);
+                        }}
+                        slotProps={{
+                            textField: { id: 'opening-start-date', fullWidth: true },
+                        }}
+                    />
                 </Grid>
-            </LocalizationProvider>
+
+                <Grid item xs={12} md={12} lg>
+                    <DatePicker
+                        label='End Date'
+                        value={endDate}
+                        onChange={(newValue) => {
+                            setEndDate(newValue);
+                        }}
+                        slotProps={{
+                            textField: { id: 'opening-end-date', fullWidth: true },
+                        }}
+                    />
+                </Grid>
+            </Grid>
 
             <LoadingButton
                 data-cy='opening-search-button'
@@ -512,13 +502,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
 
     const [expanded, setExpanded] = useState<string | false>(searchParams.get('type')!);
     const onChangePanel =
-        (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+        (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
             setExpanded(newExpanded ? panel : false);
         };
 
     // State variables for editing the form before clicking search
     const [editCohort, setCohort] = useState(
-        (searchParams.get('cohort') || '').replaceAll('%2B', '+')
+        (searchParams.get('cohort') || '').replaceAll('%2B', '+'),
     );
     const [editPlayer, setPlayer] = useState(searchParams.get('player') || '');
     const [editColor, setColor] = useState(searchParams.get('color') || '');
@@ -528,11 +518,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const paramsStartDate = searchParams.get('startDate');
     const paramsEndDate = searchParams.get('endDate');
 
-    const [editStartDate, setStartDate] = useState<Date | null>(
-        paramsStartDate ? new Date(paramsStartDate) : null
+    const [editStartDate, setStartDate] = useState<DateTime | null>(
+        paramsStartDate ? DateTime.fromISO(paramsStartDate) : null,
     );
-    const [editEndDate, setEndDate] = useState<Date | null>(
-        paramsEndDate ? new Date(paramsEndDate) : null
+    const [editEndDate, setEndDate] = useState<DateTime | null>(
+        paramsEndDate ? DateTime.fromISO(paramsEndDate) : null,
     );
 
     // Submitted variables that should be searched on
@@ -561,7 +551,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const searchByCohort = useCallback(
         (startKey: string) =>
             api.listGamesByCohort(cohort!, startKey, startDateStr, endDateStr),
-        [cohort, api, startDateStr, endDateStr]
+        [cohort, api, startDateStr, endDateStr],
     );
 
     const searchByPlayer = useCallback(
@@ -572,26 +562,26 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 startDateStr,
                 endDateStr,
                 player!,
-                color!
+                color!,
             ),
-        [api, startDateStr, endDateStr, player, color]
+        [api, startDateStr, endDateStr, player, color],
     );
 
     const searchByOwner = useCallback(
         (startKey: string) =>
             api.listGamesByOwner(user.username, startKey, startDateStr, endDateStr),
-        [api, user.username, startDateStr, endDateStr]
+        [api, user.username, startDateStr, endDateStr],
     );
 
     const searchByOpening = useCallback(
         (startKey: string) =>
             api.listGamesByOpening(eco, startKey, startDateStr, endDateStr),
-        [api, eco, startDateStr, endDateStr]
+        [api, eco, startDateStr, endDateStr],
     );
 
     const searchByPosition = useCallback(
         (startKey: string) => api.listGamesByPosition(fen, startKey),
-        [api, fen]
+        [api, fen],
     );
 
     // Search is called every time the above functions change, which should
@@ -638,8 +628,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         onSetSearchParams({
             type: SearchType.Cohort,
             cohort: editCohort,
-            startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
-            endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+            startDate: editStartDate?.toUTC().toISO() || '',
+            endDate: editEndDate?.toUTC().toISO() || '',
         });
     };
 
@@ -648,8 +638,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
             type: SearchType.Player,
             player: editPlayer,
             color: editColor,
-            startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
-            endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+            startDate: editStartDate?.toUTC().toISO() || '',
+            endDate: editEndDate?.toUTC().toISO() || '',
         });
     };
 
@@ -657,16 +647,16 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         onSetSearchParams({
             type: SearchType.Opening,
             eco: editEco,
-            startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
-            endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+            startDate: editStartDate?.toUTC().toISO() || '',
+            endDate: editEndDate?.toUTC().toISO() || '',
         });
     };
 
     const onSearchByOwner = () => {
         onSetSearchParams({
             type: SearchType.Owner,
-            startDate: isValid(editStartDate) ? editStartDate!.toISOString() : '',
-            endDate: isValid(editEndDate) ? editEndDate!.toISOString() : '',
+            startDate: editStartDate?.toUTC().toISO() || '',
+            endDate: editEndDate?.toUTC().toISO() || '',
         });
     };
 

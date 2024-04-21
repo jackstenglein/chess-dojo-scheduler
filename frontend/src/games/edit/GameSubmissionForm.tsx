@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { LoadingButton } from '@mui/lab';
 import {
     Container,
     FormControl,
@@ -12,14 +12,12 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
-
+import { useState } from 'react';
 import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
-import { getGameHeader } from './SubmitGamePreflight';
 import { useFreeTier } from '../../auth/Auth';
+import { getGameHeader } from './SubmitGamePreflight';
 
 const lichessStudyRegex = new RegExp('^https://lichess.org/study/.{8}$');
 const lichessChapterRegex = new RegExp('^https://lichess.org/study/.{8}/.{8}$');
@@ -54,7 +52,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
     const isFreeTier = useFreeTier();
 
     const [type, setType] = useState<GameSubmissionType>(
-        GameSubmissionType.LichessChapter
+        GameSubmissionType.LichessChapter,
     );
     const [lichessUrl, setLichessUrl] = useState('');
     const [pgnText, setPgnText] = useState('');
@@ -206,67 +204,62 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
                 )}
 
                 {type === GameSubmissionType.StartingPosition && (
-                    <LocalizationProvider
-                        dateAdapter={AdapterLuxon}
-                        adapterLocale={navigator.languages?.[0]}
+                    <Stack
+                        direction='row'
+                        spacing={1}
+                        alignItems='baseline'
+                        justifyContent='space-between'
                     >
-                        <Stack
-                            direction='row'
-                            spacing={1}
-                            alignItems='baseline'
-                            justifyContent='space-between'
+                        <TextField
+                            fullWidth
+                            data-cy={`white`}
+                            label='White'
+                            value={white}
+                            onChange={(e) => setWhite(e.target.value)}
+                            error={!!errors.white}
+                            helperText={errors.white}
+                        />
+
+                        <TextField
+                            fullWidth
+                            data-cy={`black`}
+                            label='Black'
+                            value={black}
+                            onChange={(e) => setBlack(e.target.value)}
+                            error={!!errors.black}
+                            helperText={errors.black}
+                        />
+
+                        <TextField
+                            fullWidth
+                            select
+                            data-cy={`result`}
+                            label='Result'
+                            value={result}
+                            onChange={(e) => setResult(e.target.value)}
+                            error={!!errors.result}
+                            helperText={errors.result}
                         >
-                            <TextField
-                                fullWidth
-                                data-cy={`white`}
-                                label='White'
-                                value={white}
-                                onChange={(e) => setWhite(e.target.value)}
-                                error={!!errors.white}
-                                helperText={errors.white}
-                            />
+                            <MenuItem value='1-0'>White Won</MenuItem>
+                            <MenuItem value='1/2-1/2'>Draw</MenuItem>
+                            <MenuItem value='0-1'>Black Won</MenuItem>
+                        </TextField>
 
-                            <TextField
-                                fullWidth
-                                data-cy={`black`}
-                                label='Black'
-                                value={black}
-                                onChange={(e) => setBlack(e.target.value)}
-                                error={!!errors.black}
-                                helperText={errors.black}
-                            />
-
-                            <TextField
-                                fullWidth
-                                select
-                                data-cy={`result`}
-                                label='Result'
-                                value={result}
-                                onChange={(e) => setResult(e.target.value)}
-                                error={!!errors.result}
-                                helperText={errors.result}
-                            >
-                                <MenuItem value='1-0'>White Won</MenuItem>
-                                <MenuItem value='1/2-1/2'>Draw</MenuItem>
-                                <MenuItem value='0-1'>Black Won</MenuItem>
-                            </TextField>
-
-                            <DatePicker
-                                label='Date'
-                                disableFuture
-                                value={date}
-                                onChange={(newValue) => setDate(newValue)}
-                                slotProps={{
-                                    textField: {
-                                        id: `date`,
-                                        error: !!errors.date,
-                                        helperText: errors.date,
-                                        fullWidth: true,
-                                    },
-                                }}
-                            />
-                        </Stack>
-                    </LocalizationProvider>
+                        <DatePicker
+                            label='Date'
+                            disableFuture
+                            value={date}
+                            onChange={(newValue) => setDate(newValue)}
+                            slotProps={{
+                                textField: {
+                                    id: `date`,
+                                    error: !!errors.date,
+                                    helperText: errors.date,
+                                    fullWidth: true,
+                                },
+                            }}
+                        />
+                    </Stack>
                 )}
 
                 <FormControl sx={{ pt: 3 }} disabled={isFreeTier}>

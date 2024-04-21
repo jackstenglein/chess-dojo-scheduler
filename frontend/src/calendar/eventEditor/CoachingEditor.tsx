@@ -10,7 +10,6 @@ import {
     Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
 import { useAuth } from '../../auth/Auth';
 import { Event, EventStatus } from '../../database/event';
 import { dojoCohorts, User } from '../../database/user';
@@ -21,7 +20,7 @@ import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
 import TimesFormSection from './form/TimesFormSection';
 import TitleFormSection from './form/TitleFormSection';
-import { isValidDate, UseEventEditorResponse } from './useEventEditor';
+import { UseEventEditorResponse } from './useEventEditor';
 
 function validatePrice(priceStr: string): [number, string] {
     const price = 100 * parseFloat(priceStr.trim());
@@ -46,13 +45,13 @@ export function validateCoachingEditor(
 
     if (editor.start === null) {
         errors.start = 'This field is required';
-    } else if (!isValidDate(editor.start)) {
+    } else if (!editor.start.isValid) {
         errors.start = 'Start time must be a valid time';
     }
 
     if (editor.end === null) {
         errors.end = 'This field is required';
-    } else if (!isValidDate(editor.end)) {
+    } else if (!editor.end.isValid) {
         errors.end = 'End time must be a valid time';
     }
 
@@ -115,12 +114,12 @@ export function validateCoachingEditor(
         : dojoCohorts.filter((c) => editor.cohorts[c]);
 
     const startTime = getTimeZonedDate(
-        editor.start!,
+        editor.start!.toJSDate(),
         user.timezoneOverride,
         'forward',
     ).toISOString();
     const endTime = getTimeZonedDate(
-        editor.end!,
+        editor.end!.toJSDate(),
         user.timezoneOverride,
         'forward',
     ).toISOString();

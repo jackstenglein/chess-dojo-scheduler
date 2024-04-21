@@ -1,4 +1,6 @@
 import { LicenseInfo } from '@mui/x-data-grid-pro';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { Amplify, Hub } from 'aws-amplify';
 import { useEffect } from 'react';
 import {
@@ -10,7 +12,6 @@ import {
     ScrollRestoration,
     useNavigate,
 } from 'react-router-dom';
-
 import { ApiProvider } from './api/Api';
 import { CacheProvider } from './api/cache/Cache';
 import { AuthProvider, RequireAuth } from './auth/Auth';
@@ -228,7 +229,12 @@ function App() {
     return (
         <AuthProvider>
             <ThemeProvider>
-                <RouterProvider router={router} />
+                <LocalizationProvider
+                    dateAdapter={AdapterLuxon}
+                    adapterLocale={navigator.languages?.[0]}
+                >
+                    <RouterProvider router={router} />
+                </LocalizationProvider>
             </ThemeProvider>
         </AuthProvider>
     );

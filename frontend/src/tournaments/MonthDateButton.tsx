@@ -1,14 +1,12 @@
-import { useState, MouseEvent } from 'react';
-import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import { Button, Popover, Stack } from '@mui/material';
-import { format, getMonth, getYear, setMonth } from 'date-fns';
 import NavigateBeforeRoundedIcon from '@mui/icons-material/NavigateBeforeRounded';
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
-import { IconButton, IconButtonProps } from '@mui/material';
+import { Button, IconButton, IconButtonProps, Popover, Stack } from '@mui/material';
+import { DateCalendar } from '@mui/x-date-pickers';
+import { DateTime } from 'luxon';
+import { MouseEvent, useState } from 'react';
 
 export const MIN_YEAR = 2023;
-export const MIN_MONTH = 6;
+export const MIN_MONTH = 7;
 export const MIN_DATE = '2023-07-11';
 
 interface LocaleArrowProps extends Omit<IconButtonProps, 'type'> {
@@ -39,14 +37,15 @@ export const LocaleArrow = ({ type, onClick, ...props }: LocaleArrowProps) => {
 };
 
 interface MonthDateButtonProps {
-    selectedDate: Date;
-    onChange(value: Date): void;
+    selectedDate: DateTime;
+    onChange(value: DateTime): void;
 }
 
 const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
-    const currentMonth = getMonth(selectedDate);
-    const currentYear = getYear(selectedDate);
+    const currentMonth = selectedDate.month;
+    const currentYear = selectedDate.year;
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const now = DateTime.now();
 
     const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -55,21 +54,16 @@ const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
         setAnchorEl(null);
     };
 
-    const handleChange = (e: Date | null) => {
-        onChange(e || new Date());
+    const handleChange = (e: DateTime | null) => {
+        onChange(e || DateTime.now());
         handleClose();
     };
     const handlePrev = () => {
-        const prevMonth = currentMonth - 1;
-        onChange(setMonth(selectedDate, prevMonth));
+        onChange(selectedDate.minus({ months: 1 }));
     };
     const handleNext = () => {
-        const nextMonth = currentMonth + 1;
-        onChange(setMonth(selectedDate, nextMonth));
+        onChange(selectedDate.plus({ months: 1 }));
     };
-
-    console.log('Current Month: ', currentMonth);
-    console.log('Current Year: ', currentYear);
 
     return (
         <Stack direction='row' alignItems='center'>
@@ -84,7 +78,7 @@ const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
                 onClick={handleOpen}
                 aria-label='selected month'
             >
-                {format(selectedDate, 'MMMM yyyy')}
+                {selectedDate.toFormat('MMMM yyyy')}
             </Button>
             <Popover
                 open={Boolean(anchorEl)}
@@ -95,25 +89,20 @@ const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
                     horizontal: 'left',
                 }}
             >
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateCalendar
-                        openTo='month'
-                        views={['year', 'month']}
-                        value={selectedDate}
-                        onChange={handleChange}
-                        disableFuture
-                        minDate={new Date(MIN_DATE)}
-                    />
-                </LocalizationProvider>
+                <DateCalendar
+                    openTo='month'
+                    views={['year', 'month']}
+                    value={selectedDate}
+                    onChange={handleChange}
+                    disableFuture
+                    minDate={DateTime.fromISO(MIN_DATE)}
+                />
             </Popover>
             <LocaleArrow
                 type='next'
                 onClick={handleNext}
                 aria-label='next month'
-                disabled={
-                    currentMonth >= getMonth(new Date()) &&
-                    currentYear >= getYear(new Date())
-                }
+                disabled={currentMonth >= now.month && currentYear >= now.year}
             />
         </Stack>
     );

@@ -252,8 +252,8 @@ export function getProcessedEvents(
             filters?.timezone,
         ).getHours();
         if (
-            startHour < (filters?.minHour?.getHours() || 0) ||
-            startHour > (filters?.maxHour?.getHours() || 24)
+            startHour < (filters?.minHour?.hour || 0) ||
+            startHour > (filters?.maxHour?.hour || 24)
         ) {
             continue;
         }
@@ -291,37 +291,8 @@ export default function CalendarPage() {
     const calendarRef = useRef<SchedulerRef>(null);
     const view = calendarRef.current?.scheduler.view;
 
-    const [shiftHeld, setShiftHeld] = useState(false);
     const copyRequest = useRequest();
-
     const deleteRequest = useRequest();
-
-    const downHandler = useCallback(
-        ({ key }: { key: string }) => {
-            if (key === 'Shift') {
-                setShiftHeld(true);
-            }
-        },
-        [setShiftHeld],
-    );
-
-    const upHandler = useCallback(
-        ({ key }: { key: string }) => {
-            if (key === 'Shift') {
-                setShiftHeld(false);
-            }
-        },
-        [setShiftHeld],
-    );
-
-    useEffect(() => {
-        window.addEventListener('keydown', downHandler);
-        window.addEventListener('keyup', upHandler);
-        return () => {
-            window.removeEventListener('keydown', downHandler);
-            window.removeEventListener('keyup', upHandler);
-        };
-    }, [downHandler, upHandler]);
 
     const deleteAvailability = useCallback(
         async (id: string) => {
@@ -345,7 +316,8 @@ export default function CalendarPage() {
 
     const copyAvailability = useCallback(
         async (
-            startDate: Date,
+            event: React.DragEvent<HTMLButtonElement>,
+            _droppedOn: Date,
             newEvent: ProcessedEvent,
             originalEvent: ProcessedEvent,
         ) => {
@@ -375,7 +347,7 @@ export default function CalendarPage() {
 
                 // If shift is held, then set the id and discord ids to
                 // undefined in order to create a new event
-                if (shiftHeld) {
+                if (event.shiftKey) {
                     id = undefined;
                     discordMessageId = undefined;
                     privateDiscordEventId = undefined;
@@ -399,7 +371,7 @@ export default function CalendarPage() {
                 copyRequest.onFailure(err);
             }
         },
-        [copyRequest, api, shiftHeld, view, putEvent],
+        [copyRequest, api, view, putEvent],
     );
 
     const processedEvents = useMemo(() => {

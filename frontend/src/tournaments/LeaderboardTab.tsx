@@ -1,7 +1,7 @@
 import { Button, MenuItem, Stack, TextField } from '@mui/material';
 import { DataGridPro, GridColDef, GridRowModel } from '@mui/x-data-grid-pro';
+import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
-
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { TimeControl, TimePeriod } from '../api/tournamentApi';
@@ -47,7 +47,7 @@ const LeaderboardTab = () => {
     const [site, setSite] = useState<LeaderboardSite>(LeaderboardSite.Lichess);
     const [tournamentType, setTournamentType] = useState(TournamentType.Arena);
     const [timeControl, setTimeControl] = useState<TimeControl>('blitz');
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(DateTime.now());
     const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
 
     useEffect(() => {
@@ -58,7 +58,7 @@ const LeaderboardTab = () => {
                 timePeriod,
                 tournamentType,
                 timeControl,
-                selectedDate.toISOString(),
+                selectedDate.toUTC().toISO(),
             )
                 .then((resp) => {
                     resp.data.players =

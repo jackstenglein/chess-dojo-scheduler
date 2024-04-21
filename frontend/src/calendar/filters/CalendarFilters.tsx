@@ -20,6 +20,7 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import { DayHours } from '@aldabil/react-scheduler/types';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
+import { DateTime } from 'luxon';
 import { useLocalStorage } from 'usehooks-ts';
 import { useEvents } from '../../api/cache/Cache';
 import { useAuth } from '../../auth/Auth';
@@ -131,11 +132,11 @@ export interface Filters {
     weekStartOn: WeekDays;
     setWeekStartOn: (v: WeekDays) => void;
 
-    minHour: Date | null;
-    setMinHour: (d: Date | null) => void;
+    minHour: DateTime | null;
+    setMinHour: (d: DateTime | null) => void;
 
-    maxHour: Date | null;
-    setMaxHour: (d: Date | null) => void;
+    maxHour: DateTime | null;
+    setMaxHour: (d: DateTime | null) => void;
 
     availabilities: boolean;
     setAvailabilities: (v: boolean) => void;
@@ -182,15 +183,15 @@ export function useFilters(): Filters {
         'calendarFilters.weekStartOn',
         0,
     );
-    const [minHour, setMinHour] = useLocalStorage<Date | null>(
+    const [minHour, setMinHour] = useLocalStorage<DateTime | null>(
         'calendarFilters.minHour',
-        new Date(new Date().setHours(0)),
-        { deserializer: (v) => new Date(JSON.parse(v)) },
+        DateTime.now().set({ hour: 0 }),
+        { deserializer: (v) => DateTime.fromISO(JSON.parse(v)) },
     );
-    const [maxHour, setMaxHour] = useLocalStorage<Date | null>(
+    const [maxHour, setMaxHour] = useLocalStorage<DateTime | null>(
         'calendarFilters.maxHour',
-        new Date(new Date().setHours(23)),
-        { deserializer: (v) => new Date(JSON.parse(v)) },
+        DateTime.now().set({ hour: 23 }),
+        { deserializer: (v) => DateTime.fromISO(JSON.parse(v)) },
     );
 
     const [availabilities, setAvailabilities] = useLocalStorage(
@@ -317,11 +318,11 @@ export function useFilters(): Filters {
  * @returns The hours of the minimum and maximum dates.
  */
 export function getHours(
-    minDate: Date | null,
-    maxDate: Date | null,
+    minDate: DateTime | null,
+    maxDate: DateTime | null,
 ): [DayHours, DayHours] {
-    let minHour = minDate?.getHours() || 0;
-    let maxHour = (maxDate?.getHours() || 23) + 1;
+    let minHour = minDate?.hour || 0;
+    let maxHour = (maxDate?.hour || 23) + 1;
 
     if (minHour < 0 || minHour > 23) {
         minHour = 0;

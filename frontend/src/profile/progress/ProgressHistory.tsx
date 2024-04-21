@@ -11,10 +11,9 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { DatePicker } from '@mui/x-date-pickers';
+import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -32,7 +31,7 @@ import { useTimeline } from '../activity/useTimeline';
 const NUMBER_REGEX = /^[0-9]*$/;
 
 interface HistoryItem {
-    date: Date | null;
+    date: DateTime | null;
     count: string;
     hours: string;
     minutes: string;
@@ -67,7 +66,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
         entry.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
         entry.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
-    const onChangeDate = (value: Date | null) => {
+    const onChangeDate = (value: DateTime | null) => {
         updateItem({
             date: value,
             count,
@@ -125,19 +124,17 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                 flexWrap={{ xs: 'wrap', sm: 'nowrap' }}
                 rowGap={2}
             >
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DatePicker
-                        label='Date'
-                        value={date}
-                        onChange={onChangeDate}
-                        slotProps={{
-                            textField: {
-                                error: !!error.date,
-                                helperText: error.date,
-                            },
-                        }}
-                    />
-                </LocalizationProvider>
+                <DatePicker
+                    label='Date'
+                    value={date}
+                    onChange={onChangeDate}
+                    slotProps={{
+                        textField: {
+                            error: !!error.date,
+                            helperText: error.date,
+                        },
+                    }}
+                />
 
                 {!isTimeOnly && (
                     <TextField
@@ -268,7 +265,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
 
         updated.push({
             ...item.entry,
-            date: item.date?.toISOString() || item.entry.createdAt,
+            date: item.date?.toUTC().toISO() || item.entry.createdAt,
             previousCount,
             newCount,
             minutesSpent,
@@ -312,7 +309,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
             .filter((t) => t.requirementId === requirement.id && t.cohort === cohort)
             .sort((a, b) => (a.date || a.createdAt).localeCompare(b.date || b.createdAt))
             .map((t, idx) => ({
-                date: new Date(t.date || t.createdAt),
+                date: DateTime.fromISO(t.date || t.createdAt),
                 count: `${t.newCount - t.previousCount}`,
                 hours: `${Math.floor(t.minutesSpent / 60)}`,
                 minutes: `${t.minutesSpent % 60}`,

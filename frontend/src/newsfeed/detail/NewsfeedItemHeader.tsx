@@ -1,12 +1,12 @@
-import { Link as RouterLink } from 'react-router-dom';
 import { Box, Link, Stack, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
-import Avatar from '../../profile/Avatar';
-import { TimelineEntry } from '../../database/timeline';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
-import { CategoryColors } from '../../profile/activity/activity';
-import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
 import { useAuth } from '../../auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
+import { TimelineEntry } from '../../database/timeline';
+import { CategoryColors } from '../../profile/activity/activity';
+import Avatar from '../../profile/Avatar';
+import GraduationIcon from '../../scoreboard/GraduationIcon';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;
@@ -18,7 +18,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
     const timezone = user?.timezoneOverride;
     const timeFormat = user?.timeFormat;
 
-    const createdAt = new Date(entry.createdAt);
+    const createdAt = new Date(entry.date || entry.createdAt);
     const date = toDojoDateString(createdAt, timezone, 'backward', {
         month: 'long',
         day: 'numeric',

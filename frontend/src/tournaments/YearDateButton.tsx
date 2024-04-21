@@ -1,18 +1,17 @@
-import { useState } from 'react';
-import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { Button, Popover, Stack } from '@mui/material';
-import { format, getYear, setYear } from 'date-fns';
-
+import { DateCalendar } from '@mui/x-date-pickers';
+import { getYear } from 'date-fns';
+import { DateTime } from 'luxon';
+import { useState } from 'react';
 import { LocaleArrow, MIN_DATE, MIN_YEAR } from './MonthDateButton';
 
 interface YearDateButtonProps {
-    selectedDate: Date;
-    onChange(value: Date): void;
+    selectedDate: DateTime;
+    onChange(value: DateTime): void;
 }
 
 const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
-    const currentYear = getYear(selectedDate);
+    const currentYear = selectedDate.year;
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
     const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -22,15 +21,15 @@ const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
         setAnchorEl(null);
     };
 
-    const handleChange = (e: Date | null) => {
-        onChange(e || new Date());
+    const handleChange = (e: DateTime | null) => {
+        onChange(e || DateTime.now());
         handleClose();
     };
     const handlePrev = () => {
-        onChange(setYear(selectedDate, currentYear - 1));
+        onChange(selectedDate.minus({ years: 1 }));
     };
     const handleNext = () => {
-        onChange(setYear(selectedDate, currentYear + 1));
+        onChange(selectedDate.plus({ years: 1 }));
     };
 
     return (
@@ -46,7 +45,7 @@ const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
                 onClick={handleOpen}
                 aria-label='selected year'
             >
-                {format(selectedDate, 'yyyy')}
+                {selectedDate.toFormat('yyyy')}
             </Button>
             <Popover
                 open={Boolean(anchorEl)}
@@ -57,16 +56,14 @@ const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
                     horizontal: 'left',
                 }}
             >
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateCalendar
-                        openTo='year'
-                        views={['year']}
-                        value={selectedDate}
-                        onChange={handleChange}
-                        disableFuture
-                        minDate={new Date(MIN_DATE)}
-                    />
-                </LocalizationProvider>
+                <DateCalendar
+                    openTo='year'
+                    views={['year']}
+                    value={selectedDate}
+                    onChange={handleChange}
+                    disableFuture
+                    minDate={DateTime.fromISO(MIN_DATE)}
+                />
             </Popover>
             <LocaleArrow
                 type='next'

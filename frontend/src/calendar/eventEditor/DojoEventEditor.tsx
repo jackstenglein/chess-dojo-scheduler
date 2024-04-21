@@ -1,20 +1,19 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-
-import { UseEventEditorResponse, isValidDate } from './useEventEditor';
-import CohortsFormSection from './form/CohortsFormSection';
-import TimesFormSection from './form/TimesFormSection';
-import LocationFormSection from './form/LocationFormSection';
-import DescriptionFormSection from './form/DescriptionFormSection';
-import { User, dojoCohorts } from '../../database/user';
-import { EventStatus, Event } from '../../database/event';
-import { getTimeZonedDate } from '../displayDate';
-import TitleFormSection from './form/TitleFormSection';
 import { Checkbox, FormControlLabel } from '@mui/material';
+import { Event, EventStatus } from '../../database/event';
+import { dojoCohorts, User } from '../../database/user';
+import { getTimeZonedDate } from '../displayDate';
+import CohortsFormSection from './form/CohortsFormSection';
+import DescriptionFormSection from './form/DescriptionFormSection';
+import LocationFormSection from './form/LocationFormSection';
+import TimesFormSection from './form/TimesFormSection';
+import TitleFormSection from './form/TitleFormSection';
+import { UseEventEditorResponse } from './useEventEditor';
 
 export function validateDojoEventEditor(
     user: User,
     originalEvent: ProcessedEvent | undefined,
-    editor: UseEventEditorResponse
+    editor: UseEventEditorResponse,
 ): [Event | null, Record<string, string>] {
     const errors: Record<string, string> = {};
 
@@ -24,13 +23,13 @@ export function validateDojoEventEditor(
 
     if (editor.start === null) {
         errors.start = 'This field is required';
-    } else if (!isValidDate(editor.start)) {
+    } else if (!editor.start.isValid) {
         errors.start = 'Start time must be a valid time';
     }
 
     if (editor.end === null) {
         errors.end = 'This field is required';
-    } else if (!isValidDate(editor.end)) {
+    } else if (!editor.end.isValid) {
         errors.end = 'End time must be a valid time';
     }
 
@@ -43,14 +42,14 @@ export function validateDojoEventEditor(
     }
 
     const startTime = getTimeZonedDate(
-        editor.start!,
+        editor.start!.toJSDate(),
         user.timezoneOverride,
-        'forward'
+        'forward',
     ).toISOString();
     const endTime = getTimeZonedDate(
-        editor.end!,
+        editor.end!.toJSDate(),
         user.timezoneOverride,
-        'forward'
+        'forward',
     ).toISOString();
 
     return [

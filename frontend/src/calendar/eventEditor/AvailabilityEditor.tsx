@@ -1,32 +1,31 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import {
-    Stack,
-    FormControlLabel,
     Checkbox,
-    FormHelperText,
     FormControl,
+    FormControlLabel,
+    FormHelperText,
+    Stack,
     Typography,
 } from '@mui/material';
-
 import {
-    EventStatus,
     AvailabilityType,
     Event,
+    EventStatus,
     getDefaultNumberOfParticipants,
     getDisplayString,
 } from '../../database/event';
-import { UseEventEditorResponse, getMinEnd, isValidDate } from './useEventEditor';
-import CohortsFormSection from './form/CohortsFormSection';
-import TimesFormSection from './form/TimesFormSection';
-import LocationFormSection from './form/LocationFormSection';
-import DescriptionFormSection from './form/DescriptionFormSection';
-import { User, dojoCohorts } from '../../database/user';
+import { dojoCohorts, User } from '../../database/user';
 import { getTimeZonedDate } from '../displayDate';
+import CohortsFormSection from './form/CohortsFormSection';
+import DescriptionFormSection from './form/DescriptionFormSection';
+import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
+import TimesFormSection from './form/TimesFormSection';
+import { getMinEnd, UseEventEditorResponse } from './useEventEditor';
 
 function getDefaultMaxParticipants(
     allAvailabilityTypes: boolean,
-    availabilityTypes: Record<string, boolean>
+    availabilityTypes: Record<string, boolean>,
 ): number {
     if (allAvailabilityTypes) {
         return 100;
@@ -36,7 +35,7 @@ function getDefaultMaxParticipants(
             if (enabled) {
                 defaultMaxParticipants = Math.max(
                     defaultMaxParticipants,
-                    getDefaultNumberOfParticipants(type as AvailabilityType)
+                    getDefaultNumberOfParticipants(type as AvailabilityType),
                 );
             }
         });
@@ -47,20 +46,20 @@ function getDefaultMaxParticipants(
 export function validateAvailabilityEditor(
     user: User,
     originalEvent: ProcessedEvent | undefined,
-    editor: UseEventEditorResponse
+    editor: UseEventEditorResponse,
 ): [Event | null, Record<string, string>] {
     const errors: Record<string, string> = {};
     const minEnd = getMinEnd(editor.start);
 
     if (editor.start === null) {
         errors.start = 'This field is required';
-    } else if (!isValidDate(editor.start)) {
+    } else if (!editor.start.isValid) {
         errors.start = 'Start time must be a valid time';
     }
 
     if (editor.end === null) {
         errors.end = 'This field is required';
-    } else if (!isValidDate(editor.end)) {
+    } else if (!editor.end.isValid) {
         errors.end = 'End time must be a valid time';
     } else if (minEnd !== null && editor.end < minEnd) {
         errors.end = 'End time must be at least one hour after start time';
@@ -69,7 +68,7 @@ export function validateAvailabilityEditor(
     const selectedTypes: AvailabilityType[] = editor.allAvailabilityTypes
         ? Object.values(AvailabilityType)
         : (Object.keys(editor.availabilityTypes).filter(
-              (t) => editor.availabilityTypes[t as AvailabilityType]
+              (t) => editor.availabilityTypes[t as AvailabilityType],
           ) as AvailabilityType[]);
     if (selectedTypes.length === 0) {
         errors.types = 'At least one type is required';
@@ -83,7 +82,7 @@ export function validateAvailabilityEditor(
 
     let maxParticipants = getDefaultMaxParticipants(
         editor.allAvailabilityTypes,
-        editor.availabilityTypes
+        editor.availabilityTypes,
     );
     if (editor.maxParticipants !== '') {
         maxParticipants = parseFloat(editor.maxParticipants);
@@ -103,14 +102,14 @@ export function validateAvailabilityEditor(
     }
 
     const startTime = getTimeZonedDate(
-        editor.start!,
+        editor.start!.toJSDate(),
         user.timezoneOverride,
-        'forward'
+        'forward',
     ).toISOString();
     const endTime = getTimeZonedDate(
-        editor.end!,
+        editor.end!.toJSDate(),
         user.timezoneOverride,
-        'forward'
+        'forward',
     ).toISOString();
 
     return [
@@ -170,7 +169,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
             if (enabled) {
                 defaultMaxParticipants = Math.max(
                     defaultMaxParticipants,
-                    getDefaultNumberOfParticipants(type as AvailabilityType)
+                    getDefaultNumberOfParticipants(type as AvailabilityType),
                 );
             }
         });
@@ -234,7 +233,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                                         onChange={(event) =>
                                             setAvailabilityType(
                                                 type,
-                                                event.target.checked
+                                                event.target.checked,
                                             )
                                         }
                                     />

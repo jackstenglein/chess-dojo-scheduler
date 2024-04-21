@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Dialog,
@@ -11,14 +11,11 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
-
+import { useState } from 'react';
 import { GameHeader } from '../../api/gameApi';
-import { LoadingButton } from '@mui/lab';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 interface FormHeader {
     white: string;
@@ -79,14 +76,14 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
 }) => {
     const multiple = initHeaders.length > 1;
     const [headers, setHeaders] = useState<FormHeader[]>(
-        initHeaders.map((h) => getFormHeader(h))
+        initHeaders.map((h) => getFormHeader(h)),
     );
     const [errors, setErrors] = useState<Record<number, FormError>>({});
 
     const onChangeHeader = (
         i: number,
         key: keyof GameHeader,
-        value: string | DateTime | null
+        value: string | DateTime | null,
     ) => {
         setHeaders([
             ...headers.slice(0, i),
@@ -140,95 +137,90 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                         : 'Your PGN is missing data. Please fill out the following fields to finish creating your game.'}
                 </DialogContentText>
 
-                <LocalizationProvider
-                    dateAdapter={AdapterLuxon}
-                    adapterLocale={navigator.languages?.[0]}
-                >
-                    <Stack spacing={3} mt={3}>
-                        {headers.map((h, i) => (
-                            <Grid2 key={i} container columnSpacing={1} rowSpacing={2}>
-                                {multiple && (
-                                    <Grid2
-                                        xs={12}
-                                        sm='auto'
-                                        display='flex'
-                                        alignItems='center'
-                                    >
-                                        <Typography variant='caption'>
-                                            Chapter {i + 1}
-                                        </Typography>
-                                    </Grid2>
-                                )}
-
-                                <Grid2 xs={12} sm={true}>
-                                    <TextField
-                                        fullWidth
-                                        data-cy={`white-${i}`}
-                                        label='White'
-                                        value={h.white}
-                                        onChange={(e) =>
-                                            onChangeHeader(i, 'white', e.target.value)
-                                        }
-                                        error={!!errors[i]?.white}
-                                        helperText={errors[i]?.white}
-                                    />
+                <Stack spacing={3} mt={3}>
+                    {headers.map((h, i) => (
+                        <Grid2 key={i} container columnSpacing={1} rowSpacing={2}>
+                            {multiple && (
+                                <Grid2
+                                    xs={12}
+                                    sm='auto'
+                                    display='flex'
+                                    alignItems='center'
+                                >
+                                    <Typography variant='caption'>
+                                        Chapter {i + 1}
+                                    </Typography>
                                 </Grid2>
+                            )}
 
-                                <Grid2 xs={12} sm={true}>
-                                    <TextField
-                                        fullWidth
-                                        data-cy={`black-${i}`}
-                                        label='Black'
-                                        value={h.black}
-                                        onChange={(e) =>
-                                            onChangeHeader(i, 'black', e.target.value)
-                                        }
-                                        error={!!errors[i]?.black}
-                                        helperText={errors[i]?.black}
-                                    />
-                                </Grid2>
-
-                                <Grid2 xs={12} sm={true}>
-                                    <TextField
-                                        select
-                                        data-cy={`result-${i}`}
-                                        label='Result'
-                                        value={h.result}
-                                        onChange={(e) =>
-                                            onChangeHeader(i, 'result', e.target.value)
-                                        }
-                                        error={!!errors[i]?.result}
-                                        helperText={errors[i]?.result}
-                                        fullWidth
-                                    >
-                                        <MenuItem value='1-0'>White Won</MenuItem>
-                                        <MenuItem value='1/2-1/2'>Draw</MenuItem>
-                                        <MenuItem value='0-1'>Black Won</MenuItem>
-                                    </TextField>
-                                </Grid2>
-
-                                <Grid2 xs={12} sm={true}>
-                                    <DatePicker
-                                        label='Date'
-                                        disableFuture
-                                        value={h.date}
-                                        onChange={(newValue) => {
-                                            onChangeHeader(i, 'date', newValue);
-                                        }}
-                                        slotProps={{
-                                            textField: {
-                                                id: `date-${i}`,
-                                                error: !!errors[i]?.date,
-                                                helperText: errors[i]?.date,
-                                                fullWidth: true,
-                                            },
-                                        }}
-                                    />
-                                </Grid2>
+                            <Grid2 xs={12} sm={true}>
+                                <TextField
+                                    fullWidth
+                                    data-cy={`white-${i}`}
+                                    label='White'
+                                    value={h.white}
+                                    onChange={(e) =>
+                                        onChangeHeader(i, 'white', e.target.value)
+                                    }
+                                    error={!!errors[i]?.white}
+                                    helperText={errors[i]?.white}
+                                />
                             </Grid2>
-                        ))}
-                    </Stack>
-                </LocalizationProvider>
+
+                            <Grid2 xs={12} sm={true}>
+                                <TextField
+                                    fullWidth
+                                    data-cy={`black-${i}`}
+                                    label='Black'
+                                    value={h.black}
+                                    onChange={(e) =>
+                                        onChangeHeader(i, 'black', e.target.value)
+                                    }
+                                    error={!!errors[i]?.black}
+                                    helperText={errors[i]?.black}
+                                />
+                            </Grid2>
+
+                            <Grid2 xs={12} sm={true}>
+                                <TextField
+                                    select
+                                    data-cy={`result-${i}`}
+                                    label='Result'
+                                    value={h.result}
+                                    onChange={(e) =>
+                                        onChangeHeader(i, 'result', e.target.value)
+                                    }
+                                    error={!!errors[i]?.result}
+                                    helperText={errors[i]?.result}
+                                    fullWidth
+                                >
+                                    <MenuItem value='1-0'>White Won</MenuItem>
+                                    <MenuItem value='1/2-1/2'>Draw</MenuItem>
+                                    <MenuItem value='0-1'>Black Won</MenuItem>
+                                </TextField>
+                            </Grid2>
+
+                            <Grid2 xs={12} sm={true}>
+                                <DatePicker
+                                    label='Date'
+                                    disableFuture
+                                    value={h.date}
+                                    onChange={(newValue) => {
+                                        onChangeHeader(i, 'date', newValue);
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            id: `date-${i}`,
+                                            error: !!errors[i]?.date,
+                                            helperText: errors[i]?.date,
+                                            fullWidth: true,
+                                        },
+                                    }}
+                                />
+                            </Grid2>
+                        </Grid2>
+                    ))}
+                </Stack>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} disabled={loading}>

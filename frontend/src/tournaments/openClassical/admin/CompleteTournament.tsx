@@ -8,8 +8,8 @@ import {
     DialogTitle,
     Stack,
 } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { DatePicker } from '@mui/x-date-pickers';
+import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
@@ -25,17 +25,17 @@ const CompleteTournament: React.FC<CompleteTournamentProps> = ({
     onSuccess,
 }) => {
     const [open, setOpen] = useState(false);
-    const [date, setDate] = useState<Date | null>(null);
+    const [date, setDate] = useState<DateTime | null>(null);
     const request = useRequest();
     const api = useApi();
 
     const onComplete = () => {
-        if (!date) {
+        if (!date || !date.isValid) {
             return;
         }
 
         request.onStart();
-        api.adminCompleteTournament(date.toISOString())
+        api.adminCompleteTournament(date.toUTC().toISO() || '')
             .then((resp) => {
                 console.log('adminCompleteTournament: ', resp);
                 request.onSuccess();
@@ -72,13 +72,11 @@ const CompleteTournament: React.FC<CompleteTournamentProps> = ({
                             registrations. This action cannot be undone.
                         </DialogContentText>
 
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DatePicker
-                                label='Next Tournament Start Date'
-                                value={date}
-                                onChange={(newValue) => setDate(newValue)}
-                            />
-                        </LocalizationProvider>
+                        <DatePicker
+                            label='Next Tournament Start Date'
+                            value={date}
+                            onChange={(newValue) => setDate(newValue)}
+                        />
                     </Stack>
                 </DialogContent>
                 <DialogActions>

@@ -1,14 +1,13 @@
 import { Chess, Move } from '@jackstenglein/chess';
 import { TextField, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-
+import { TimeField } from '@mui/x-date-pickers';
+import { DateTime } from 'luxon';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import ClockTextField from './ClockTextField';
 import { formatTime, getIncrement, getInitialClock } from './ClockUsage';
 
-export function convertSecondsToDate(seconds: number | undefined): Date | null {
+export function convertSecondsToDateTime(seconds: number | undefined): DateTime | null {
     if (!seconds) {
         return null;
     }
@@ -18,22 +17,22 @@ export function convertSecondsToDate(seconds: number | undefined): Date | null {
     const sec = Math.floor((seconds % 3600) % 60);
     const date = new Date();
     date.setHours(hours, minutes, sec);
-    return date;
+    return DateTime.fromJSDate(date);
 }
 
-function convertDateToClock(date: Date | null): string {
-    if (!date || isNaN(date.getTime())) {
+function convertDateTimeToClock(date: DateTime | null): string {
+    if (!date || !date.isValid) {
         return '';
     }
-    return formatTime(
-        date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(),
-    );
+    return formatTime(date.hour * 3600 + date.minute * 60 + date.second);
 }
 
-export function handleInitialClock(chess: Chess, increment: number, value: Date | null) {
-    const seconds = value
-        ? value.getHours() * 3600 + value.getMinutes() * 60 + value.getSeconds()
-        : 0;
+export function handleInitialClock(
+    chess: Chess,
+    increment: number,
+    value: DateTime | null,
+) {
+    const seconds = value ? value.hour * 3600 + value.minute * 60 + value.second : 0;
 
     let timeControl = `${seconds}`;
     if (increment) {
@@ -52,8 +51,8 @@ export function handleIncrement(chess: Chess, initialClock: number, value: strin
     }
 }
 
-export function onChangeClock(chess: Chess, move: Move, value: Date | null) {
-    const clk = convertDateToClock(value);
+export function onChangeClock(chess: Chess, move: Move, value: DateTime | null) {
+    const clk = convertDateTimeToClock(value);
     chess.setCommand('clk', clk, move);
 }
 
@@ -93,42 +92,38 @@ const ClockEditor = () => {
     }
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Grid2 container columnSpacing={1} rowGap={3} alignItems='center' pb={2}>
-                <Grid2 xs={6}>
-                    <TimeField
-                        id={BlockBoardKeyboardShortcuts}
-                        label='Starting Time'
-                        format='HH:mm:ss'
-                        value={convertSecondsToDate(initialClock)}
-                        onChange={(value) => handleInitialClock(chess, increment, value)}
-                        fullWidth
-                    />
-                </Grid2>
-
-                <Grid2 xs={6}>
-                    <TextField
-                        id={BlockBoardKeyboardShortcuts}
-                        label='Increment (Sec)'
-                        value={`${increment}`}
-                        onChange={(e) =>
-                            handleIncrement(chess, initialClock, e.target.value)
-                        }
-                        fullWidth
-                    />
-                </Grid2>
-
-                <Grid2 xs={12} pb={1}>
-                    <Typography component='p' variant='caption' textAlign='center'>
-                        Set remaining clock time after each move below.
-                        <br />
-                        Moves left blank will use the last-set clock time.
-                    </Typography>
-                </Grid2>
-
-                {grid}
+        <Grid2 container columnSpacing={1} rowGap={3} alignItems='center' pb={2}>
+            <Grid2 xs={6}>
+                <TimeField
+                    id={BlockBoardKeyboardShortcuts}
+                    label='Starting Time'
+                    format='HH:mm:ss'
+                    value={convertSecondsToDateTime(initialClock)}
+                    onChange={(value) => handleInitialClock(chess, increment, value)}
+                    fullWidth
+                />
             </Grid2>
-        </LocalizationProvider>
+
+            <Grid2 xs={6}>
+                <TextField
+                    id={BlockBoardKeyboardShortcuts}
+                    label='Increment (Sec)'
+                    value={`${increment}`}
+                    onChange={(e) => handleIncrement(chess, initialClock, e.target.value)}
+                    fullWidth
+                />
+            </Grid2>
+
+            <Grid2 xs={12} pb={1}>
+                <Typography component='p' variant='caption' textAlign='center'>
+                    Set remaining clock time after each move below.
+                    <br />
+                    Moves left blank will use the last-set clock time.
+                </Typography>
+            </Grid2>
+
+            {grid}
+        </Grid2>
     );
 };
 
