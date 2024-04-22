@@ -10,36 +10,41 @@ import NewsfeedItem from '../detail/NewsfeedItem';
 import LoadMoreButton from './LoadMoreButton';
 import MultipleSelectChip from './MultipleSelectChip';
 
-type FilterMap = Record<string, (entry: TimelineEntry) => boolean>
+type FilterMap = Record<string, (entry: TimelineEntry) => boolean>;
 
-const isGameAnalysisEntry = (entry: TimelineEntry) => entry.requirementCategory == "Games + Analysis";
+const isGameAnalysisEntry = (entry: TimelineEntry) =>
+    entry.requirementCategory == 'Games + Analysis';
 
-const isGameSubmissionEntry = (entry: TimelineEntry) => entry.requirementId == "GameSubmission";
-    
-const isAnnotationEntry = (entry: TimelineEntry) => isGameAnalysisEntry(entry) && isGameSubmissionEntry(entry);
+const isGameSubmissionEntry = (entry: TimelineEntry) =>
+    entry.requirementId == 'GameSubmission';
 
-const AllCategoriesFilterName = 'All Categories'
+const isAnnotationEntry = (entry: TimelineEntry) =>
+    isGameAnalysisEntry(entry) && isGameSubmissionEntry(entry);
 
-const CategoryFilters: FilterMap  = [
+const AllCategoriesFilterName = 'All Categories';
+
+const CategoryFilters: FilterMap = [
     'Tactics',
     'Middlegames + Strategy',
     'Endgame',
     'Opening',
     'Non-Dojo',
-].reduce((acc, category) => ({
-    ...acc,
-    [category]: (entry: TimelineEntry) => entry.requirementCategory == category
-}), {});
-
+].reduce(
+    (acc, category) => ({
+        ...acc,
+        [category]: (entry: TimelineEntry) => entry.requirementCategory == category,
+    }),
+    {},
+);
 
 const Filters: FilterMap = {
     [AllCategoriesFilterName]: () => true,
-    'Annotations': isAnnotationEntry,
-    'Games + Analysis': (entry) => isGameAnalysisEntry(entry) && !isAnnotationEntry(entry),
+    Annotations: isAnnotationEntry,
+    'Games + Analysis': (entry) =>
+        isGameAnalysisEntry(entry) && !isAnnotationEntry(entry),
     ...CategoryFilters,
-    
-}
-const FilterOptions = Object.fromEntries(Object.keys(Filters).map((k) => [k, k]))
+};
+const FilterOptions = Object.fromEntries(Object.keys(Filters).map((k) => [k, k]));
 
 function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) => void] {
     let startingIds = initialNewsfeedIds.filter(
@@ -91,7 +96,7 @@ interface NewsfeedListProps {
     newsfeedIdLabels?: Record<string, string>;
     showAdditionalFilters?: boolean;
 }
- 
+
 const NewsfeedList: React.FC<NewsfeedListProps> = ({
     initialNewsfeedIds,
     newsfeedIdLabels,
@@ -189,21 +194,26 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
     };
 
     const setFiltersWrapper = (proposedFilters: string[]) => {
-        const addedFilters = proposedFilters.filter((filter) => !filters.includes(filter));
+        const addedFilters = proposedFilters.filter(
+            (filter) => !filters.includes(filter),
+        );
 
-        let finalFilters = []
+        let finalFilters = [];
         if (addedFilters.includes(AllCategoriesFilterName)) {
-            finalFilters = [AllCategoriesFilterName]
+            finalFilters = [AllCategoriesFilterName];
         } else {
-            finalFilters = proposedFilters.filter((filter) => filter != AllCategoriesFilterName)
+            finalFilters = proposedFilters.filter(
+                (filter) => filter != AllCategoriesFilterName,
+            );
         }
 
-        setFilters(finalFilters)
-    }
+        setFilters(finalFilters);
+    };
 
-    const allEntries = data?.entries ?? []
-    const shownEntries = allEntries.filter((entry) => 
-        filters.some((filterKey) => Filters[filterKey]?.(entry)))
+    const allEntries = data?.entries ?? [];
+    const shownEntries = allEntries.filter((entry) =>
+        filters.some((filterKey) => Filters[filterKey]?.(entry)),
+    );
 
     return (
         <Stack spacing={3}>
