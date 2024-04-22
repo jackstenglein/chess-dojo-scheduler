@@ -161,8 +161,8 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
     }
 
     const onEdit = (entry: TimelineEntry) => {
-        const newData = data?.entries || [];
-        const i = newData.indexOf(entry);
+        const newData = data?.entries ?? [];
+        const i = newData.findIndex((e) => e.id == entry.id);
 
         setData({
             entries: [...newData.slice(0, i), entry, ...newData.slice(i + 1)],
@@ -239,7 +239,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
                 <NewsfeedItem
                     key={entry.id}
                     entry={entry}
-                    onEdit={() => onEdit(entry)}
+                    onEdit={onEdit}
                     maxComments={MAX_COMMENTS}
                 />
             ))}
