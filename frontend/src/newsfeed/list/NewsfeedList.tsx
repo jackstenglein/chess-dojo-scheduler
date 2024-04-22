@@ -10,6 +10,37 @@ import NewsfeedItem from '../detail/NewsfeedItem';
 import LoadMoreButton from './LoadMoreButton';
 import MultipleSelectChip from './MultipleSelectChip';
 
+type FilterMap = Record<string, (entry: TimelineEntry) => boolean>
+
+const isGameAnalysisEntry = (entry: TimelineEntry) => entry.requirementCategory == "Games + Analysis";
+
+const isGameSubmissionEntry = (entry: TimelineEntry) => entry.requirementId == "GameSubmission";
+    
+const isAnnotationEntry = (entry: TimelineEntry) => isGameAnalysisEntry(entry) && isGameSubmissionEntry(entry);
+
+const AllCategoriesFilterName = 'All Categories'
+
+const CategoryFilters: FilterMap  = [
+    'Tactics',
+    'Middlegames + Strategy',
+    'Endgame',
+    'Opening',
+    'Non-Dojo',
+].reduce((acc, category) => ({
+    ...acc,
+    [category]: (entry: TimelineEntry) => entry.requirementCategory == category
+}), {});
+
+
+const Filters: FilterMap = {
+    [AllCategoriesFilterName]: () => true,
+    'Annotations': isAnnotationEntry,
+    'Games + Analysis': (entry) => isGameAnalysisEntry(entry) && !isAnnotationEntry(entry),
+    ...CategoryFilters,
+    
+}
+const FilterOptions = Object.fromEntries(Object.keys(Filters).map((k) => [k, k]))
+
 function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) => void] {
     let startingIds = initialNewsfeedIds.filter(
         (id) => (localStorage.getItem(`newsfeedId_${id}`) || 'true') === 'true',
@@ -58,15 +89,18 @@ const MAX_COMMENTS = 3;
 interface NewsfeedListProps {
     initialNewsfeedIds: string[];
     newsfeedIdLabels?: Record<string, string>;
+    showAdditionalFilters?: boolean;
 }
-
+ 
 const NewsfeedList: React.FC<NewsfeedListProps> = ({
     initialNewsfeedIds,
     newsfeedIdLabels,
+    showAdditionalFilters,
 }) => {
     const api = useApi();
     const request = useRequest<ListNewsfeedResponse>();
     const [newsfeedIds, setNewsfeedIds] = useNewsfeedIds(initialNewsfeedIds);
+    const [filters, setFilters] = useState<string[]>([AllCategoriesFilterName]);
     const [data, setData] = useState<ListNewsfeedResponse>();
     const [lastStartKey, setLastStartKey] = useState<Record<string, string>>({});
 
@@ -121,8 +155,10 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
         return <LoadingPage />;
     }
 
-    const onEdit = (i: number, entry: TimelineEntry) => {
+    const onEdit = (entry: TimelineEntry) => {
         const newData = data?.entries || [];
+        const i = newData.indexOf(entry);
+
         setData({
             entries: [...newData.slice(0, i), entry, ...newData.slice(i + 1)],
             lastFetch: data?.lastFetch || '',
@@ -152,6 +188,23 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
             });
     };
 
+    const setFiltersWrapper = (proposedFilters: string[]) => {
+        const addedFilters = proposedFilters.filter((filter) => !filters.includes(filter));
+
+        let finalFilters = []
+        if (addedFilters.includes(AllCategoriesFilterName)) {
+            finalFilters = [AllCategoriesFilterName]
+        } else {
+            finalFilters = proposedFilters.filter((filter) => filter != AllCategoriesFilterName)
+        }
+
+        setFilters(finalFilters)
+    }
+
+    const allEntries = data?.entries ?? []
+    const shownEntries = allEntries.filter((entry) => 
+        filters.some((filterKey) => Filters[filterKey]?.(entry)))
+
     return (
         <Stack spacing={3}>
             {newsfeedIdLabels !== undefined && (
@@ -163,11 +216,20 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
                 />
             )}
 
-            {data?.entries.map((entry, i) => (
+            {showAdditionalFilters && (
+                <MultipleSelectChip
+                    selected={filters}
+                    setSelected={setFiltersWrapper}
+                    options={FilterOptions}
+                    label='Categories'
+                />
+            )}
+
+            {shownEntries.map((entry) => (
                 <NewsfeedItem
                     key={entry.id}
                     entry={entry}
-                    onEdit={(e) => onEdit(i, e)}
+                    onEdit={() => onEdit(entry)}
                     maxComments={MAX_COMMENTS}
                 />
             ))}
