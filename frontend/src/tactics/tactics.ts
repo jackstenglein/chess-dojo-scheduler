@@ -1,4 +1,4 @@
-import { Chess, Move } from '@jackstenglein/chess';
+import { Chess, COLOR, Move } from '@jackstenglein/chess';
 import { Requirement } from '../database/requirement';
 import { ALL_COHORTS, compareCohorts, User } from '../database/user';
 
@@ -46,9 +46,48 @@ export function getMoveDescription({
     return `You didn't find this move, but it's worth 0 points.`;
 }
 
+/**
+ * Returns the starting position FEN from the given PGN.
+ * @param pgn The PGN to get the FEN for.
+ */
+export function getFen(pgn: string): string {
+    const fenIndex = pgn.indexOf('[FEN "');
+    const endFenIndex = pgn.indexOf('"]', fenIndex);
+    return pgn.substring(fenIndex, endFenIndex).replace('[FEN "', '');
+}
+
+/**
+ * Returns the starting orientation from the given PGN.
+ * @param pgn The PGN to get the orientation for.
+ */
+export function getOrientation(pgn: string): 'white' | 'black' {
+    const fen = getFen(pgn);
+    const tokens = fen.split(' ');
+    const color = tokens[1];
+    if (color === 'b') {
+        return 'black';
+    }
+    return 'white';
+}
+
 const scoreRegex = /^\[(\d+)\]/;
 const alternateSolutionRegex = /^\[ALT\]/;
 const endOfLineRegex = /^\[EOL\]/;
+
+/**
+ * Gets the total score for the given PGN problem in an exam.
+ * @param pgn The PGN to get the score for.
+ */
+export function getTotalScore(pgn: string): number {
+    const chess = new Chess({ pgn });
+    chess.seek(null);
+    return getSolutionScore(
+        chess.turn() === COLOR.black ? 'black' : 'white',
+        chess.history(),
+        chess,
+        false,
+    );
+}
 
 /**
  * Recursively calculates the total score for the given solution to the tactics test.

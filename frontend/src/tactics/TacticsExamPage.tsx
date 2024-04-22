@@ -40,7 +40,9 @@ import { getCurrentRating, normalizeToFide } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import {
     addExtraVariation,
+    getFen,
     getMoveDescription,
+    getOrientation,
     getSolutionScore,
     scoreVariation,
 } from './tactics';
@@ -79,7 +81,7 @@ const TacticsExamPage = () => {
     const pgnApi = useRef<PgnBoardApi>(null);
     const [selectedProblem, setSelectedProblem] = useState(0);
     const exam = useLocation().state?.exam as Exam | undefined;
-    const answerPgns = useRef<string[]>((exam?.problems || []).map(() => ''));
+    const answerPgns = useRef<string[]>((exam?.pgns || []).map(() => ''));
     const [isTimeOver, setIsTimeOver] = useState(false);
 
     const hasTakenExam = Boolean(exam?.answers[user.username]);
@@ -145,10 +147,10 @@ const TacticsExamPage = () => {
         return (
             <Container maxWidth={false} sx={{ py: 4 }}>
                 <CompletedTacticsTest
-                    key={exam.problems[selectedProblem].fen}
+                    key={exam.pgns[selectedProblem]}
                     userPgn={answerPgns.current[selectedProblem]}
-                    solutionPgn={exam.problems[selectedProblem].solution}
-                    orientation={exam.problems[selectedProblem].orientation}
+                    solutionPgn={exam.pgns[selectedProblem]}
+                    orientation={getOrientation(exam.pgns[selectedProblem])}
                     underboardTabs={[
                         {
                             name: 'testInfo',
@@ -158,7 +160,7 @@ const TacticsExamPage = () => {
                                 <TacticsExamPgnSelector
                                     name={exam.name}
                                     cohortRange={exam.cohortRange}
-                                    count={exam.problems.length}
+                                    count={exam.pgns.length}
                                     selected={selectedProblem}
                                     onSelect={onChangeProblem}
                                     scores={scores}
@@ -210,10 +212,10 @@ const TacticsExamPage = () => {
         <Container maxWidth={false} sx={{ py: 4 }}>
             <PgnBoard
                 ref={pgnApi}
-                key={exam.problems[selectedProblem].fen}
-                fen={exam.problems[selectedProblem].fen}
+                key={exam.pgns[selectedProblem]}
+                fen={getFen(exam.pgns[selectedProblem])}
                 pgn={answerPgns.current[selectedProblem]}
-                startOrientation={exam.problems[selectedProblem].orientation}
+                startOrientation={getOrientation(exam.pgns[selectedProblem])}
                 showPlayerHeaders={false}
                 underboardTabs={[
                     {
@@ -234,7 +236,7 @@ const TacticsExamPage = () => {
                             <TacticsExamPgnSelector
                                 name={exam.name}
                                 cohortRange={exam.cohortRange}
-                                count={exam.problems.length}
+                                count={exam.pgns.length}
                                 selected={selectedProblem}
                                 onSelect={onChangeProblem}
                                 countdown={countdown}
@@ -281,17 +283,17 @@ function getScores(exam: Exam, answerPgns: string[]): Scores {
         problems: [],
     };
 
-    for (let i = 0; i < exam.problems.length; i++) {
-        const solutionChess = new Chess({ pgn: exam.problems[i].solution });
+    for (let i = 0; i < exam.pgns.length; i++) {
+        const solutionChess = new Chess({ pgn: exam.pgns[i] });
         const userChess = new Chess({ pgn: answerPgns[i] });
         const solutionScore = getSolutionScore(
-            exam.problems[i].orientation,
+            getOrientation(exam.pgns[i]),
             solutionChess.history(),
             solutionChess,
             false,
         );
         const [userScore] = scoreVariation(
-            exam.problems[i].orientation,
+            getOrientation(exam.pgns[i]),
             solutionChess.history(),
             null,
             userChess,

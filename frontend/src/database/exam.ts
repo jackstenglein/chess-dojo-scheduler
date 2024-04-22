@@ -1,18 +1,6 @@
-/** A single problem in an exam. */
-export interface ExamProblem {
-    /** The side to move first in the problem. */
-    orientation: 'white' | 'black';
-
-    /** The FEN of the starting position. */
-    fen: string;
-
-    /** The PGN of the solution to the problem. */
-    solution: string;
-}
-
+/** The type of an exam. */
 export enum ExamType {
     Tactics = 'TACTICS_EXAM',
-    Scores = 'SCORES',
 }
 
 /**
@@ -44,8 +32,8 @@ export interface Exam {
     /** The user-facing name of the exam. */
     name: string;
 
-    /** A single problem in an exam. */
-    problems: ExamProblem[];
+    /** The list of problem PGNs in the exam. */
+    pgns: string[];
 
     /** The max amount of time allowed to take the exam, in seconds. */
     timeLimitSeconds: number;
@@ -55,9 +43,6 @@ export interface Exam {
 
     /** A map from username to ExamAnswerSummary. */
     answers: Record<string, ExamAnswerSummary>;
-
-    /** The total score possible on the exam. */
-    totalScore: number;
 }
 
 /** A single user's answer to an exam problem. */

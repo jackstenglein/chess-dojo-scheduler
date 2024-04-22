@@ -28,18 +28,6 @@ const (
 	ExamType_Scores ExamType = "SCORES"
 )
 
-// A single problem in an exam.
-type ExamProblem struct {
-	// The side to move first in the problem.
-	Orientation string `dynamodbav:"orientation" json:"orientation"`
-
-	// The FEN of the starting position.
-	Fen string `dynamodbav:"fen" json:"fen"`
-
-	// The PGN of the solution to the problem.
-	Solution string `dynamodbav:"solution" json:"solution"`
-}
-
 // A summary of a single user's answer to an exam. Stored on the exam
 // to facilitate calculating the exam's linear regression.
 type ExamAnswerSummary struct {
@@ -64,8 +52,8 @@ type Exam struct {
 	// The user-facing name of the exam.
 	Name string `dynamodbav:"name" json:"name"`
 
-	// The problems included in the exam.
-	Problems []ExamProblem `dynamodbav:"problems" json:"problems"`
+	// The list of problem PGNs in the exam.
+	Pgns []string `dynamodbav:"pgns" json:"pgns"`
 
 	// The max amount of time allowed to take the exam, in seconds.
 	TimeLimitSeconds int `dynamodbav:"timeLimitSeconds" json:"timeLimitSeconds"`
@@ -75,9 +63,6 @@ type Exam struct {
 
 	// A map from username to ExamAnswerSummary.
 	Answers map[string]ExamAnswerSummary `dynamodbav:"answers" json:"answers"`
-
-	// The total score possible on the exam.
-	TotalScore int `dynamodbav:"totalScore" json:"totalScore"`
 }
 
 // A single user's answer to an exam problem.

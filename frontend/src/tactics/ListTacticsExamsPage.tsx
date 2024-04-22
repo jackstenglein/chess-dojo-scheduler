@@ -15,6 +15,7 @@ import { useAuth } from '../auth/Auth';
 import { toDojoDateString } from '../calendar/displayDate';
 import { Exam, ExamType } from '../database/exam';
 import LoadingPage from '../loading/LoadingPage';
+import { getTotalScore } from './tactics';
 
 const RANGES = ['1500-2100', '2100+'];
 
@@ -110,7 +111,7 @@ const columns: GridColDef<Exam>[] = [
         field: 'problems',
         headerName: '# of Problems',
         valueGetter(params) {
-            return params.row.problems.length;
+            return params.row.pgns.length;
         },
         align: 'center',
         headerAlign: 'center',
@@ -137,10 +138,14 @@ const columns: GridColDef<Exam>[] = [
             return avg;
         },
         renderCell(params) {
+            const totalScore = params.row.pgns.reduce(
+                (sum, pgn) => sum + getTotalScore(pgn),
+                0,
+            );
             if (isNaN(params.value)) {
-                return `- / ${params.row.totalScore}`;
+                return `- / ${totalScore}`;
             }
-            return `${params.value} / ${params.row.totalScore}`;
+            return `${params.value} / ${totalScore}`;
         },
         flex: 1,
     },
@@ -199,10 +204,14 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     return answer.score;
                 },
                 renderCell(params) {
+                    const totalScore = params.row.pgns.reduce(
+                        (sum, pgn) => sum + getTotalScore(pgn),
+                        0,
+                    );
                     if (params.value < 0) {
-                        return `- / ${params.row.totalScore}`;
+                        return `- / ${totalScore}`;
                     }
-                    return `${params.value} / ${params.row.totalScore}`;
+                    return `${params.value} / ${totalScore}`;
                 },
                 flex: 1,
             },

@@ -4,15 +4,15 @@ import { Button, Container, Stack, Typography } from '@mui/material';
 import { useMemo, useRef, useState } from 'react';
 import { useCountdown } from 'react-countdown-circle-timer';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
 import PgnBoard, { PgnBoardApi } from '../board/pgn/PgnBoard';
-import { getSolutionScore, sampleProblem, scoreVariation } from './tactics';
+import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
 import {
     CompletedTacticsTest,
     Scores,
     TacticsTestMoveButtonExtras,
 } from './TacticsExamPage';
 import TacticsExamPgnSelector from './TacticsExamPgnSelector';
+import { getSolutionScore, sampleProblem, scoreVariation } from './tactics';
 
 const TacticsInstructionsPage = () => {
     const pgnApi = useRef<PgnBoardApi>(null);
