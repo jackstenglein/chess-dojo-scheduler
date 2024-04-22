@@ -458,6 +458,7 @@ export default function CalendarPage() {
 
                         <Scheduler
                             ref={calendarRef}
+                            agenda={false}
                             month={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
                                 weekStartOn: weekStartOn,
