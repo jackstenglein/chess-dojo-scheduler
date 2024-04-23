@@ -210,10 +210,12 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
         setFilters(finalFilters);
     };
 
-    const allEntries = data?.entries ?? [];
-    const shownEntries = allEntries.filter((entry) =>
-        filters.some((filterKey) => Filters[filterKey]?.(entry)),
-    );
+    let shownEntries = data?.entries ?? [];
+    if (showAdditionalFilters) {
+        shownEntries = shownEntries.filter((entry) =>
+            filters.some((filterKey) => Filters[filterKey]?.(entry)),
+        );
+    }
 
     return (
         <Stack spacing={3}>
