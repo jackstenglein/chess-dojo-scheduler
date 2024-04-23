@@ -1,13 +1,27 @@
-import { Button, Container, Grid, Stack, Typography } from '@mui/material';
+import {
+    Box,
+    Button,
+    Container,
+    Stack,
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-
 import { AuthStatus, useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
+import JoinToday from './JoinToday';
+import Sensei from './Sensei';
+import Testimonials from './Testimonials';
+import WhatsIncluded from './WhatsIncluded';
 
 const LandingPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
     const locationState = useLocation().state;
+    const theme = useTheme();
+    const isMd = useMediaQuery(theme.breakpoints.up('md'));
 
     if (auth.status === AuthStatus.Loading) {
         return <LoadingPage />;
@@ -18,83 +32,96 @@ const LandingPage = () => {
     }
 
     return (
-        <Container data-cy='landing-page' maxWidth={false} sx={{ py: 5 }}>
-            <Grid container rowSpacing={4} columnSpacing={2}>
-                <Grid item xs={12} md={6} justifyContent='center'>
-                    <Stack
-                        height={1}
-                        justifyContent='center'
-                        alignItems='center'
-                        spacing={6}
-                    >
-                        <Stack alignItems='center' spacing={2}>
-                            <Typography variant='h2' textAlign='center' data-cy='title'>
-                                ChessDojo
-                            </Typography>
-                            <Typography
-                                variant='h5'
-                                textAlign='center'
-                                data-cy='subtitle'
-                            >
-                                The ChessDojo{' '}
+        <Container data-cy='landing-page' sx={{ py: 5 }} maxWidth='xl'>
+            <Box sx={{ height: 'calc(100vh - var(--navbar-height) - 200px)' }}>
+                <Grid2 container rowSpacing={4} columnSpacing={2}>
+                    <Grid2 xs={12} md={6} justifyContent='center'>
+                        <Stack
+                            height={1}
+                            justifyContent='center'
+                            alignItems='center'
+                            spacing={6}
+                        >
+                            <Stack alignItems='center' spacing={2}>
+                                <Typography
+                                    variant='h2'
+                                    textAlign='center'
+                                    data-cy='title'
+                                >
+                                    ChessDojo
+                                </Typography>
                                 <Typography
                                     variant='h5'
-                                    color='dojoOrange.main'
-                                    component='span'
+                                    textAlign='center'
+                                    data-cy='subtitle'
                                 >
-                                    Training Program
-                                </Typography>{' '}
-                                offers structured training plans for all levels 0-2500,
-                                along with an active and supportive community
-                            </Typography>
-                        </Stack>
+                                    The ChessDojo{' '}
+                                    <Typography
+                                        variant='h5'
+                                        color='dojoOrange.main'
+                                        component='span'
+                                    >
+                                        Training Program
+                                    </Typography>{' '}
+                                    offers structured training plans for all levels
+                                    0-2500, along with an active and supportive community
+                                </Typography>
+                            </Stack>
 
-                        <Stack direction='row' spacing={3}>
-                            <Button
-                                variant='contained'
-                                onClick={() =>
-                                    navigate('/signup', { state: locationState })
-                                }
-                                sx={{
-                                    fontSize: '1rem',
-                                    textTransform: 'none',
-                                    fontWeight: '600',
-                                    py: 1.5,
-                                    px: 2.5,
-                                }}
-                            >
-                                Sign Up for Free
-                            </Button>
-                            <Button
-                                variant='outlined'
-                                onClick={() =>
-                                    navigate('/signin', { state: locationState })
-                                }
-                                sx={{
-                                    fontSize: '1rem',
-                                    textTransform: 'none',
-                                    fontWeight: '600',
-                                    py: 1.5,
-                                    px: 2.5,
-                                }}
-                            >
-                                Sign In
-                            </Button>
+                            <Stack direction='row' spacing={3}>
+                                <Button
+                                    variant='contained'
+                                    onClick={() =>
+                                        navigate('/signup', { state: locationState })
+                                    }
+                                    sx={{
+                                        fontSize: '1rem',
+                                        textTransform: 'none',
+                                        fontWeight: '600',
+                                        py: 1.5,
+                                        px: 2.5,
+                                    }}
+                                >
+                                    Sign Up for Free
+                                </Button>
+                                <Button
+                                    variant='outlined'
+                                    onClick={() =>
+                                        navigate('/signin', { state: locationState })
+                                    }
+                                    sx={{
+                                        fontSize: '1rem',
+                                        textTransform: 'none',
+                                        fontWeight: '600',
+                                        py: 1.5,
+                                        px: 2.5,
+                                    }}
+                                >
+                                    Sign In
+                                </Button>
+                            </Stack>
                         </Stack>
-                    </Stack>
-                </Grid>
+                    </Grid2>
 
-                <Grid item xs={12} md={6}>
-                    <Stack height={1} justifyContent='center' alignItems='center'>
-                        <img
-                            alt=''
-                            src='https://static.wixstatic.com/media/cfd2ae_25636fbb6a6c4d07b3559de681014ec4~mv2.gif'
-                            width='100%'
-                            style={{ borderRadius: '6px' }}
-                        />
-                    </Stack>
-                </Grid>
-            </Grid>
+                    {isMd && (
+                        <Grid2 xs={12} md={6}>
+                            <Stack height={1} justifyContent='center' alignItems='center'>
+                                <img
+                                    alt=''
+                                    src='https://static.wixstatic.com/media/cfd2ae_25636fbb6a6c4d07b3559de681014ec4~mv2.gif'
+                                    width='100%'
+                                    style={{ borderRadius: '6px' }}
+                                />
+                            </Stack>
+                        </Grid2>
+                    )}
+                </Grid2>
+            </Box>
+
+            <WhatsIncluded />
+            <Sensei />
+            <Testimonials />
+            <JoinToday />
         </Container>
     );
 };
