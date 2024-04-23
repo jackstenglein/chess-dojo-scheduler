@@ -1,10 +1,10 @@
 import {
     Container,
     Divider,
+    Unstable_Grid2 as Grid,
     Link,
     Stack,
     Typography,
-    Unstable_Grid2 as Grid,
 } from '@mui/material';
 import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -43,6 +43,7 @@ const NewsfeedListPage = () => {
                         <NewsfeedList
                             initialNewsfeedIds={newsfeedIds}
                             newsfeedIdLabels={newsfeedIdLabels}
+                            showAdditionalFilters={true}
                         />
                     </Stack>
                 </Grid>

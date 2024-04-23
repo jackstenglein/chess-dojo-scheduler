@@ -1,12 +1,22 @@
-import { useMemo, useState } from 'react';
-import { Button, IconButton, Menu, Stack, Tooltip, Typography } from '@mui/material';
-import AddReactionIcon from '@mui/icons-material/AddReaction';
+import { CSSProperties, useMemo, useState } from 'react';
 
-import { TimelineEntry, Reaction } from '../../database/timeline';
-import { useAuth } from '../../auth/Auth';
-import { User } from '../../database/user';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
+import {
+    Button,
+    IconButton,
+    Menu,
+    Paper,
+    Stack,
+    Tooltip,
+    Typography,
+    useTheme,
+} from '@mui/material';
+
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
+import { Reaction, TimelineEntry } from '../../database/timeline';
+import { User } from '../../database/user';
 
 const ReactionTypes = [
     ':WhiteLogoText:',
@@ -61,7 +71,7 @@ const ReactionTypesToImage = {
 function isReactor(
     user: User,
     reactions: Record<string, Reaction> | null,
-    type: string
+    type: string,
 ): boolean {
     if (!reactions) {
         return false;
@@ -75,7 +85,7 @@ function isReactor(
 function getNewTypes(
     user: User,
     reactions: Record<string, Reaction> | null,
-    type: string
+    type: string,
 ): string[] {
     if (!reactions) {
         return [type];
@@ -92,6 +102,8 @@ function getNewTypes(
 }
 
 const ReactionEmoji: React.FC<{ type: string; icon?: boolean }> = ({ type, icon }) => {
+    const theme = useTheme();
+
     switch (type) {
         case ':LetsGo:':
         case ':JessePOG1:':
@@ -103,12 +115,20 @@ const ReactionEmoji: React.FC<{ type: string; icon?: boolean }> = ({ type, icon 
         case ':LevelUp:':
         case ':YodaKraai:':
         case ':Mate:':
+            const styles: CSSProperties = {
+                objectFit: 'contain',
+            };
+
+            if (theme.palette.mode === 'light' && type === ':WhiteLogoText:') {
+                styles.filter = 'invert(1)';
+            }
+
             return (
                 <img
                     alt={type}
                     width={icon ? '100%' : '20.1833px'}
                     height={icon ? '100%' : '30px'}
-                    style={{ objectFit: 'contain' }}
+                    style={styles}
                     src={ReactionTypesToImage[type]}
                 />
             );
@@ -184,7 +204,18 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                         }
                         onClick={() => onReact(type)}
                     >
-                        <ReactionEmoji type={type} />
+                        <Paper
+                            elevation={2}
+                            sx={{
+                                px: 0.75,
+                                borderRadius: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <ReactionEmoji type={type} />
+                        </Paper>
 
                         <Typography ml='0.375rem' fontWeight='600'>
                             {reactors.length}
