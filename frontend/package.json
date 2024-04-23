@@ -68,7 +68,8 @@
         "extends": [
             "react-app",
             "react-app/jest",
-            "plugin:cypress/recommended"
+            "plugin:cypress/recommended",
+            "plugin:eqeqeq-fix/recommended"
         ]
     },
     "browserslist": {
@@ -93,6 +94,7 @@
         "cypress": "^13.6.6",
         "cypress-real-events": "^1.11.0",
         "eslint-plugin-cypress": "^2.15.1",
+        "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "prettier-plugin-organize-imports": "^3.2.4"
     },
     "overrides": {
