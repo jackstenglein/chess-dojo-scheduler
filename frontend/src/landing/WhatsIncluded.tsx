@@ -173,6 +173,7 @@ const WhatsIncluded = () => {
                                                             maxHeight: '100%',
                                                             borderRadius: '4px',
                                                         }}
+                                                        alt=''
                                                     />
                                                 ))}
                                             </Stack>
