@@ -13,10 +13,10 @@ import MultipleSelectChip from './MultipleSelectChip';
 type FilterMap = Record<string, (entry: TimelineEntry) => boolean>;
 
 const isGameAnalysisEntry = (entry: TimelineEntry) =>
-    entry.requirementCategory == 'Games + Analysis';
+    entry.requirementCategory === 'Games + Analysis';
 
 const isGameSubmissionEntry = (entry: TimelineEntry) =>
-    entry.requirementId == 'GameSubmission';
+    entry.requirementId === 'GameSubmission';
 
 const isAnnotationEntry = (entry: TimelineEntry) =>
     isGameAnalysisEntry(entry) && isGameSubmissionEntry(entry);
@@ -32,7 +32,7 @@ const CategoryFilters: FilterMap = [
 ].reduce(
     (acc, category) => ({
         ...acc,
-        [category]: (entry: TimelineEntry) => entry.requirementCategory == category,
+        [category]: (entry: TimelineEntry) => entry.requirementCategory === category,
     }),
     {},
 );
@@ -162,7 +162,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
 
     const onEdit = (entry: TimelineEntry) => {
         const newData = data?.entries ?? [];
-        const i = newData.findIndex((e) => e.id == entry.id);
+        const i = newData.findIndex((e) => e.id === entry.id);
 
         setData({
             entries: [...newData.slice(0, i), entry, ...newData.slice(i + 1)],
@@ -203,7 +203,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
             finalFilters = [AllCategoriesFilterName];
         } else {
             finalFilters = proposedFilters.filter(
-                (filter) => filter != AllCategoriesFilterName,
+                (filter) => filter !== AllCategoriesFilterName,
             );
         }
 
