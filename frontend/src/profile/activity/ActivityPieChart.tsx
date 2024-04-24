@@ -1,15 +1,16 @@
-import { useState, useMemo } from 'react';
-import { Stack, TextField, MenuItem, Typography, Button, Grid } from '@mui/material';
+import { Button, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { useMemo, useState } from 'react';
 
-import { compareCohorts, User } from '../../database/user';
 import { useRequirements } from '../../api/cache/requirements';
-import PieChart, { PieChartData } from './PieChart';
+import { ALL_COHORTS, compareCohorts, User } from '../../database/user';
+import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import {
-    Timeframe,
     displayTimeframe,
     getScoreChartData,
     getTimeChartData,
+    Timeframe,
 } from './activity';
+import PieChart, { PieChartData } from './PieChart';
 import { UseTimelineResponse } from './useTimeline';
 
 /**
@@ -57,51 +58,62 @@ interface ActivityPieChartProps {
 }
 
 const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) => {
-    const [cohort, setCohort] = useState(user.dojoCohort);
+    const [cohorts, setCohorts] = useState([ALL_COHORTS]);
     const [timeframe, setTimeframe] = useState(Timeframe.AllTime);
-    const { requirements } = useRequirements(cohort, false);
+    const { requirements } = useRequirements(ALL_COHORTS, false);
 
     const [scoreChartCategory, setScoreChartCategory] = useState('');
     const [timeChartCategory, setTimeChartCategory] = useState('');
 
     const cohortOptions = useMemo(() => {
         if (!user.progress) {
-            return [user.dojoCohort];
+            return [ALL_COHORTS, user.dojoCohort];
         }
-        return Object.values(user.progress)
-            .map((v) => Object.keys(v.minutesSpent ?? {}))
-            .flat()
-            .concat(user.dojoCohort)
-            .sort(compareCohorts)
-            .filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
+        return [ALL_COHORTS].concat(
+            Object.values(user.progress)
+                .map((v) => Object.keys(v.minutesSpent ?? {}))
+                .flat()
+                .concat(user.dojoCohort)
+                .sort(compareCohorts)
+                .filter((item, pos, ary) => !pos || item !== ary[pos - 1]),
+        );
     }, [user.progress, user.dojoCohort]);
 
     const scoreChartData = useMemo(() => {
         return getScoreChartData(
             user,
-            cohort,
+            cohorts,
             timeframe,
             timeline.entries,
             scoreChartCategory,
-            requirements
+            requirements,
         );
-    }, [user, cohort, timeframe, timeline.entries, scoreChartCategory, requirements]);
+    }, [user, cohorts, timeframe, timeline.entries, scoreChartCategory, requirements]);
 
     const timeChartData = useMemo(() => {
         return getTimeChartData(
             user,
-            cohort,
+            cohorts,
             timeframe,
             timeline.entries,
             timeChartCategory,
-            requirements
+            requirements,
         );
-    }, [user, cohort, timeframe, timeline.entries, timeChartCategory, requirements]);
+    }, [user, cohorts, timeframe, timeline.entries, timeChartCategory, requirements]);
 
-    const onChangeCohort = (cohort: string) => {
+    const onChangeCohort = (newCohorts: string[]) => {
         setScoreChartCategory('');
         setTimeChartCategory('');
-        setCohort(cohort);
+
+        const addedCohorts = newCohorts.filter((c) => !cohorts.includes(c));
+        let finalCohorts = [];
+        if (addedCohorts.includes(ALL_COHORTS)) {
+            finalCohorts = [ALL_COHORTS];
+        } else {
+            finalCohorts = newCohorts.filter((c) => c !== ALL_COHORTS);
+        }
+
+        setCohorts(finalCohorts);
     };
 
     const onChangeTimeframe = (timeframe: Timeframe) => {
@@ -125,20 +137,21 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
     return (
         <Grid container columnSpacing={1} justifyContent='center'>
             <Grid item xs={12} sm={6}>
-                <TextField
-                    select
-                    label='Cohort'
-                    value={cohort}
-                    onChange={(event) => onChangeCohort(event.target.value)}
-                    sx={{ mb: 3 }}
-                    fullWidth
-                >
-                    {cohortOptions.map((option) => (
-                        <MenuItem key={option} value={option}>
-                            {option}
-                        </MenuItem>
-                    ))}
-                </TextField>
+                <MultipleSelectChip
+                    selected={cohorts}
+                    setSelected={onChangeCohort}
+                    options={cohortOptions.reduce(
+                        (acc, curr) => {
+                            acc[curr] = curr === ALL_COHORTS ? 'All Cohorts' : curr;
+                            return acc;
+                        },
+                        {} as Record<string, string>,
+                    )}
+                    label='Cohorts'
+                    sx={{ mb: 3, width: 1 }}
+                    size='small'
+                    error={cohorts.length === 0}
+                />
             </Grid>
 
             <Grid item xs={12} sm={6}>
@@ -149,7 +162,7 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
                     onChange={(event) =>
                         onChangeTimeframe(event.target.value as Timeframe)
                     }
-                    sx={{ mb: 3 }}
+                    sx={{ mb: 3, height: 1 }}
                     fullWidth
                 >
                     {Object.values(Timeframe).map((option) => (
