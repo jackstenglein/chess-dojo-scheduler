@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Move, EventType, Event } from '@jackstenglein/chess';
+import { Event, EventType, Move } from '@jackstenglein/chess';
 import { Grid, Paper } from '@mui/material';
-
-import MoveDisplay from './MoveDisplay';
+import { useEffect, useState } from 'react';
 import { useChess } from '../PgnBoard';
+import MoveDisplay from './MoveDisplay';
 
 interface VariationProps {
     handleScroll: (child: HTMLButtonElement | null) => void;
@@ -23,7 +22,7 @@ const Variation: React.FC<VariationProps> = ({ handleScroll, onClickMove }) => {
                     EventType.LegalMove,
                 ],
                 handler: (event: Event) => {
-                    if (event.type === EventType.DeleteMove && !event.mainlineMove) {
+                    if (event.type === EventType.DeleteMove && event.mainlineMove) {
                         setForceRender((v) => v + 1);
                     }
                     if (
