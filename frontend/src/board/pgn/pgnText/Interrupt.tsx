@@ -1,6 +1,5 @@
 import { Move } from '@jackstenglein/chess';
 import { Divider, Grid, Paper } from '@mui/material';
-
 import Comment from './Comment';
 import Ellipsis from './Ellipsis';
 import Lines from './Lines';
