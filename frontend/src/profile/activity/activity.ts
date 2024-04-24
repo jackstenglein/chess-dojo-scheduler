@@ -1,13 +1,13 @@
 import {
     CustomTask,
-    Requirement,
     getCurrentCount,
     getCurrentScore,
     getTotalCount,
     getUnitScore,
+    Requirement,
 } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
-import { User } from '../../database/user';
+import { ALL_COHORTS, dojoCohorts, User } from '../../database/user';
 import { PieChartData } from './PieChart';
 
 export const CategoryColors: Record<string, string> = {
@@ -98,7 +98,7 @@ function timeframeToISO(t: Timeframe): string {
 /**
  * Calculates the Dojo score data for the provided parameters.
  * @param user The user to calculate data for.
- * @param cohort The cohort to use when calculating the data.
+ * @param cohorts The cohorts to use when calculating the data.
  * @param timeframe The Timeframe to use as a cut-off when calculating.
  * @param timeline The timeline entries to use for the score data.
  * @param category The category to calculate data for.
@@ -107,43 +107,55 @@ function timeframeToISO(t: Timeframe): string {
  */
 export function getScoreChartData(
     user: User,
-    cohort: string,
+    cohorts: string[],
     timeframe: Timeframe,
     timeline: TimelineEntry[],
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): PieChartData[] {
     if (category) {
         return getCategoryScoreChartData(
             user,
-            cohort,
+            cohorts,
             timeframe,
             timeline,
             category,
-            requirements
+            requirements,
         );
     }
 
-    return getTimeframeScoreChartData(user, cohort, timeframe, timeline, requirements);
+    return getTimeframeScoreChartData(user, cohorts, timeframe, timeline, requirements);
 }
 
 /**
  * Returns the all-time Dojo score data for the given user, cohort and requirements.
  * @param user The user to calculate the data for.
- * @param cohort The cohort to use when calculating the score chart data.
+ * @param cohorts The cohorts to use when calculating the score chart data.
  * @param requirements The list of requirements to use when calculating the score chart data.
  * @returns A list of PieChartData objects containing the all time Dojo score data.
  */
 function getAllTimeScoreChartData(
     user: User,
-    cohort: string,
-    requirements: Requirement[]
+    cohorts: string[],
+    requirements: Requirement[],
 ): PieChartData[] {
     const data: Record<string, PieChartData> = {};
 
     for (const requirement of requirements) {
         const category = requirement.category;
-        const score = getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+
+        let reqCohorts = cohorts;
+        if (cohorts.includes(ALL_COHORTS)) {
+            reqCohorts = Object.keys(requirement.counts);
+        }
+
+        let score = 0;
+        for (const cohort of reqCohorts) {
+            score = Math.max(
+                score,
+                getCurrentScore(cohort, requirement, user.progress[requirement.id]),
+            );
+        }
 
         if (data[category]) {
             data[category].value += score;
@@ -162,31 +174,37 @@ function getAllTimeScoreChartData(
 /**
  * Returns the Dojo score data within a specific timeframe for the given user, cohort and requirements.
  * @param user The user to calculate the data for.
- * @param cohort The cohort to use when calculating the score chart data.
+ * @param cohorts The cohorts to use when calculating the score chart data.
  * @param timeframe The Timeframe to use when calculating the data.
  * @param requirements The list of requirements to use when calculating the score chart data.
  * @returns A list of PieChartData objects containing the Dojo score data within the Timeframe.
  */
 function getTimeframeScoreChartData(
     user: User,
-    cohort: string,
+    cohorts: string[],
     timeframe: Timeframe,
     timeline: TimelineEntry[],
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): PieChartData[] {
     if (timeframe === Timeframe.AllTime) {
-        return getAllTimeScoreChartData(user, cohort, requirements);
+        return getAllTimeScoreChartData(user, cohorts, requirements);
     }
 
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
-    const requirementMap = requirements.reduce((m, r) => {
-        m[r.id] = r;
-        return m;
-    }, {} as Record<string, Requirement>);
+    const requirementMap = requirements.reduce(
+        (m, r) => {
+            m[r.id] = r;
+            return m;
+        },
+        {} as Record<string, Requirement>,
+    );
 
     for (const entry of timeline) {
-        if (entry.cohort !== cohort || entry.requirementCategory === 'Non-Dojo') {
+        if (
+            (!cohorts.includes(ALL_COHORTS) && !cohorts.includes(entry.cohort)) ||
+            entry.requirementCategory === 'Non-Dojo'
+        ) {
             continue;
         }
         const requirement = requirementMap[entry.requirementId];
@@ -199,15 +217,15 @@ function getTimeframeScoreChartData(
 
         let score = 0;
         if (requirement.totalScore) {
-            if (entry.newCount === getTotalCount(cohort, requirement)) {
+            if (entry.newCount === getTotalCount(entry.cohort, requirement)) {
                 score = requirement.totalScore;
             }
         } else {
-            const unitScore = getUnitScore(cohort, requirement);
+            const unitScore = getUnitScore(entry.cohort, requirement);
             score =
                 Math.max(
                     entry.newCount - entry.previousCount - requirement.startCount,
-                    0
+                    0,
                 ) * unitScore;
         }
 
@@ -230,7 +248,7 @@ const numberedReqRegex = / #\d+$/;
 /**
  * Calculates the Dojo score of a given category for the provided parameters.
  * @param user The user to calculate the dojo score for.
- * @param cohort The cohort to calculate the score for.
+ * @param cohorts The cohorts to calculate the score for.
  * @param timeframe The Timeframe to use as a cut off when calculating the score.
  * @param timeline The timeline entries to use for the score data.
  * @param category The requirement category to calculate data for.
@@ -239,25 +257,31 @@ const numberedReqRegex = / #\d+$/;
  */
 function getCategoryScoreChartData(
     user: User,
-    cohort: string,
+    cohorts: string[],
     timeframe: Timeframe,
     timeline: TimelineEntry[],
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): PieChartData[] {
     if (timeframe === Timeframe.AllTime) {
-        return getAllTimeCategoryScoreChartData(user, cohort, category, requirements);
+        return getAllTimeCategoryScoreChartData(user, cohorts, category, requirements);
     }
 
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
-    const requirementMap = requirements.reduce((m, r) => {
-        m[r.id] = r;
-        return m;
-    }, {} as Record<string, Requirement>);
+    const requirementMap = requirements.reduce(
+        (m, r) => {
+            m[r.id] = r;
+            return m;
+        },
+        {} as Record<string, Requirement>,
+    );
 
     for (const entry of timeline) {
-        if (entry.cohort !== cohort || entry.requirementCategory !== category) {
+        if (
+            (!cohorts.includes(ALL_COHORTS) && !cohorts.includes(entry.cohort)) ||
+            entry.requirementCategory !== category
+        ) {
             continue;
         }
         const requirement = requirementMap[entry.requirementId];
@@ -270,15 +294,15 @@ function getCategoryScoreChartData(
 
         let score = 0;
         if (requirement.totalScore) {
-            if (entry.newCount === getTotalCount(cohort, requirement)) {
+            if (entry.newCount === getTotalCount(entry.cohort, requirement)) {
                 score = requirement.totalScore;
             }
         } else {
-            const unitScore = getUnitScore(cohort, requirement);
+            const unitScore = getUnitScore(entry.cohort, requirement);
             score =
                 Math.max(
                     entry.newCount - entry.previousCount - requirement.startCount,
-                    0
+                    0,
                 ) * unitScore;
         }
         if (score === 0) {
@@ -314,29 +338,55 @@ function getCategoryScoreChartData(
 /**
  * Returns the all-time Dojo score for the given user, cohort, category and requirements.
  * @param user The user to calculate the data for.
- * @param cohort The cohort to use when calculating the data.
+ * @param cohorts The cohorts to use when calculating the data.
  * @param category The requirement category to calculate data on.
  * @param requirements The list of requirements to use.
  * @returns A list of PieChartData objects containing the all-time Dojo score data for the given category.
  */
 function getAllTimeCategoryScoreChartData(
     user: User,
-    cohort: string,
+    cohorts: string[],
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): PieChartData[] {
     const data: Record<string, PieChartData> = {};
+
+    if (cohorts.includes(ALL_COHORTS)) {
+        cohorts = dojoCohorts;
+    }
 
     for (const requirement of requirements) {
         if (category !== requirement.category) {
             continue;
         }
 
-        const score = getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+        let score = 0;
+        let count = 0;
+
+        let reqCohorts = cohorts;
+        if (cohorts.includes(ALL_COHORTS)) {
+            reqCohorts = Object.keys(requirement.counts);
+        }
+
+        for (const cohort of reqCohorts) {
+            const cohortScore = getCurrentScore(
+                cohort,
+                requirement,
+                user.progress[requirement.id],
+            );
+            if (cohortScore > score) {
+                score = cohortScore;
+                count = getCurrentCount(
+                    cohort,
+                    requirement,
+                    user.progress[requirement.id],
+                );
+            }
+        }
+
         if (score === 0) {
             continue;
         }
-        const count = getCurrentCount(cohort, requirement, user.progress[requirement.id]);
 
         let name = requirement.name;
         const result = numberedReqRegex.exec(name);
@@ -365,7 +415,7 @@ function getAllTimeCategoryScoreChartData(
 /**
  * Calculates the time spent by the user for the specified parameters.
  * @param user The user to calculate the data for.
- * @param cohort The cohort to calculate data for.
+ * @param cohorts The cohorts to calculate data for.
  * @param timeframe The Timeframe to use as a cut off when calculating data.
  * @param timeline The timeline entries to use for the time data.
  * @param category The requirement category to calculate data for.
@@ -374,30 +424,30 @@ function getAllTimeCategoryScoreChartData(
  */
 export function getTimeChartData(
     user: User,
-    cohort: string,
+    cohorts: string[],
     timeframe: Timeframe,
     timeline: TimelineEntry[],
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): PieChartData[] {
     if (category) {
         return getCategoryTimeChartData(
             user,
-            cohort,
+            cohorts,
             timeframe,
             timeline,
             category,
-            requirements
+            requirements,
         );
     }
 
-    return getTimeframeTimeChartData(user, cohort, timeframe, timeline, requirements);
+    return getTimeframeTimeChartData(user, cohorts, timeframe, timeline, requirements);
 }
 
 /**
  * Calculates the time spent by the user in the specified cohort and timeframe.
  * @param user The user to calculate the data for.
- * @param cohort The cohort to calculate data for.
+ * @param cohorts The cohorts to calculate data for.
  * @param timeframe The Timeframe to use as a cut off when calculating data.
  * @param timeline The timeline entries to use for the time data.
  * @param requirements The list of requirements to calculate data for.
@@ -405,20 +455,23 @@ export function getTimeChartData(
  */
 function getTimeframeTimeChartData(
     user: User,
-    cohort: string,
+    cohorts: string[],
     timeframe: Timeframe,
     timeline: TimelineEntry[],
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): PieChartData[] {
     if (timeframe === Timeframe.AllTime) {
-        return getAllTimeTimeChartData(user, cohort, requirements);
+        return getAllTimeTimeChartData(user, cohorts, requirements);
     }
 
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
 
     for (const entry of timeline) {
-        if (entry.cohort !== cohort || entry.minutesSpent === 0) {
+        if (
+            (!cohorts.includes(ALL_COHORTS) && !cohorts.includes(entry.cohort)) ||
+            entry.minutesSpent === 0
+        ) {
             continue;
         }
         if ((entry.date || entry.createdAt) < timeCutoff) {
@@ -443,20 +496,23 @@ function getTimeframeTimeChartData(
 /**
  * Calculates the all-time time spent for the given user, cohort and requirements.
  * @param user The user to calculate the data for.
- * @param cohort The cohort to calculate the data for.
+ * @param cohorts The cohorts to calculate the data for.
  * @param requirements The list of requirements to calculate the data for.
  * @returns A list of PieChartData objects containing the all-time time data.
  */
 function getAllTimeTimeChartData(
     user: User,
-    cohort: string,
-    requirements: Requirement[]
+    cohorts: string[],
+    requirements: Requirement[],
 ): PieChartData[] {
     const requirementMap =
-        requirements.reduce((map, r) => {
-            map[r.id] = r;
-            return map;
-        }, {} as Record<string, Requirement | CustomTask>) ?? {};
+        requirements.reduce(
+            (map, r) => {
+                map[r.id] = r;
+                return map;
+            },
+            {} as Record<string, Requirement | CustomTask>,
+        ) ?? {};
 
     user.customTasks?.forEach((t) => {
         requirementMap[t.id] = t;
@@ -464,22 +520,35 @@ function getAllTimeTimeChartData(
 
     const data: Record<string, PieChartData> = {};
     Object.values(user.progress).forEach((progress) => {
-        if (!progress.minutesSpent || !progress.minutesSpent[cohort]) {
+        if (!progress.minutesSpent) {
             return;
         }
+
         const requirement = requirementMap[progress.requirementId];
         if (!requirement) {
             return;
         }
-        const categoryName = requirement.category;
-        if (data[categoryName]) {
-            data[categoryName].value += progress.minutesSpent[cohort];
-        } else {
-            data[categoryName] = {
-                name: categoryName,
-                value: progress.minutesSpent[cohort],
-                color: CategoryColors[requirement.category],
-            };
+
+        let reqCohorts = cohorts;
+        if (cohorts.includes(ALL_COHORTS)) {
+            reqCohorts = Object.keys(progress.minutesSpent);
+        }
+
+        for (const cohort of reqCohorts) {
+            if (!progress.minutesSpent[cohort]) {
+                continue;
+            }
+
+            const categoryName = requirement.category;
+            if (data[categoryName]) {
+                data[categoryName].value += progress.minutesSpent[cohort];
+            } else {
+                data[categoryName] = {
+                    name: categoryName,
+                    value: progress.minutesSpent[cohort],
+                    color: CategoryColors[requirement.category],
+                };
+            }
         }
     });
 
@@ -489,7 +558,7 @@ function getAllTimeTimeChartData(
 /**
  * Calculates the time spent on a given category for the provided parameters.
  * @param user The user to calculate the time spent for.
- * @param cohort The cohort to calculate the time spent for.
+ * @param cohorts The cohorts to calculate the time spent for.
  * @param timeframe The Timeframe to use as a cut off when calculating the time spent.
  * @param timeline The timeline entries to use for the time data.
  * @param category The category to calculate data for.
@@ -498,14 +567,14 @@ function getAllTimeTimeChartData(
  */
 function getCategoryTimeChartData(
     user: User,
-    cohort: string,
+    cohorts: string[],
     timeframe: Timeframe,
     timeline: TimelineEntry[],
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): PieChartData[] {
     if (timeframe === Timeframe.AllTime) {
-        return getAllTimeCategoryTimeChartData(user, cohort, category, requirements);
+        return getAllTimeCategoryTimeChartData(user, cohorts, category, requirements);
     }
 
     const data: Record<string, PieChartData> = {};
@@ -513,7 +582,7 @@ function getCategoryTimeChartData(
 
     for (const entry of timeline) {
         if (
-            entry.cohort !== cohort ||
+            (!cohorts.includes(ALL_COHORTS) && !cohorts.includes(entry.cohort)) ||
             entry.requirementCategory !== category ||
             entry.minutesSpent === 0 ||
             entry.requirementName === ''
@@ -550,16 +619,16 @@ function getCategoryTimeChartData(
 /**
  * Calculates the all-time time spent by the given user in the provided cohort and category.
  * @param user The user to calculate the data for.
- * @param cohort The cohort to use when calculating the data.
+ * @param cohorts The cohorts to use when calculating the data.
  * @param category The requirement category to calculate data for.
  * @param requirements The list of requirements to use.
  * @returns A list of PieChartData objects containing the all-time time data for the given category.
  */
 function getAllTimeCategoryTimeChartData(
     user: User,
-    cohort: string,
+    cohorts: string[],
     category: string,
-    requirements: Requirement[]
+    requirements: Requirement[],
 ): PieChartData[] {
     const data: Record<string, PieChartData> = {};
 
@@ -568,8 +637,13 @@ function getAllTimeCategoryTimeChartData(
             continue;
         }
         const progress = user.progress[requirement.id];
-        if (!progress || !progress.minutesSpent || !progress.minutesSpent[cohort]) {
+        if (!progress || !progress.minutesSpent) {
             continue;
+        }
+
+        let reqCohorts = cohorts;
+        if (cohorts.includes(ALL_COHORTS)) {
+            reqCohorts = Object.keys(progress.minutesSpent);
         }
 
         let name = requirement.name;
@@ -578,33 +652,51 @@ function getAllTimeCategoryTimeChartData(
             name = name.substring(0, result.index);
         }
 
-        if (data[name]) {
-            data[name].value += progress.minutesSpent[cohort];
-        } else {
-            data[name] = {
-                name,
-                value: progress.minutesSpent[cohort],
-                color: RequirementColors[
-                    Object.values(data).length % RequirementColors.length
-                ],
-            };
+        for (const cohort of reqCohorts) {
+            if (!progress.minutesSpent[cohort]) {
+                continue;
+            }
+
+            if (data[name]) {
+                data[name].value += progress.minutesSpent[cohort];
+            } else {
+                data[name] = {
+                    name,
+                    value: progress.minutesSpent[cohort],
+                    color: RequirementColors[
+                        Object.values(data).length % RequirementColors.length
+                    ],
+                };
+            }
         }
     }
     if (category === 'Non-Dojo') {
         for (const task of user.customTasks || []) {
             const progress = user.progress[task.id];
-            if (!progress || !progress.minutesSpent || !progress.minutesSpent[cohort]) {
+            if (!progress || !progress.minutesSpent) {
                 continue;
             }
 
             let name = task.name;
-            data[name] = {
-                name,
-                value: progress.minutesSpent[cohort],
-                color: RequirementColors[
-                    Object.values(data).length % RequirementColors.length
-                ],
-            };
+
+            let reqCohorts = cohorts;
+            if (cohorts.includes(ALL_COHORTS)) {
+                reqCohorts = Object.keys(progress.minutesSpent);
+            }
+
+            for (const cohort of reqCohorts) {
+                if (!progress.minutesSpent[cohort]) {
+                    continue;
+                }
+
+                data[name] = {
+                    name,
+                    value: progress.minutesSpent[cohort],
+                    color: RequirementColors[
+                        Object.values(data).length % RequirementColors.length
+                    ],
+                };
+            }
         }
     }
     return Object.values(data);

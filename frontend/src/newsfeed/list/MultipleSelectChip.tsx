@@ -1,11 +1,11 @@
-import { Theme, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import Chip from '@mui/material/Chip';
+import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Chip from '@mui/material/Chip';
+import { SxProps, Theme, useTheme } from '@mui/material/styles';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -32,6 +32,9 @@ interface MultipleSelectChipProps {
     setSelected: (v: string[]) => void;
     options: Record<string, string>;
     label: string;
+    size?: 'small' | 'medium';
+    sx?: SxProps;
+    error?: boolean;
 }
 
 export default function MultipleSelectChip({
@@ -39,6 +42,9 @@ export default function MultipleSelectChip({
     setSelected,
     options,
     label,
+    size,
+    sx,
+    error,
 }: MultipleSelectChipProps) {
     const theme = useTheme();
 
@@ -48,12 +54,12 @@ export default function MultipleSelectChip({
         } = event;
         setSelected(
             // On autofill we get a stringified value.
-            typeof value === 'string' ? value.split(',') : value
+            typeof value === 'string' ? value.split(',') : value,
         );
     };
 
     return (
-        <FormControl>
+        <FormControl sx={sx} error={error}>
             <InputLabel>{label}</InputLabel>
             <Select
                 multiple
@@ -63,7 +69,7 @@ export default function MultipleSelectChip({
                 renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {selected.map((value) => (
-                            <Chip key={value} label={options[value]} />
+                            <Chip key={value} label={options[value]} size={size} />
                         ))}
                     </Box>
                 )}

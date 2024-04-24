@@ -225,6 +225,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
                     setSelected={setNewsfeedIds}
                     options={newsfeedIdLabels}
                     label='Show Posts From'
+                    error={newsfeedIds.length === 0}
                 />
             )}
 
@@ -234,6 +235,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
                     setSelected={setFiltersWrapper}
                     options={FilterOptions}
                     label='Categories'
+                    error={filters.length === 0}
                 />
             )}
 
