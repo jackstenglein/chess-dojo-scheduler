@@ -254,7 +254,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 createMessage(idToken, auth.user!, id, content),
 
             createGame: (req: CreateGameRequest) => createGame(idToken, req),
-            getGame: (cohort: string, id: string) => getGame(idToken, cohort, id),
+            getGame: (cohort: string, id: string) => getGame(cohort, id),
             featureGame: (cohort: string, id: string, featured: string) =>
                 featureGame(idToken, cohort, id, featured),
             updateGame: (cohort: string, id: string, req: CreateGameRequest) =>

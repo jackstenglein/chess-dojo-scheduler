@@ -45,11 +45,8 @@ functions:
     handler: get/main.go
     events:
       - httpApi:
-          path: /game/{cohort}/{id+}
+          path: /public/game/{cohort}/{id+}
           method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
