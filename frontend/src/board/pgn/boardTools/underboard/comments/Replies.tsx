@@ -5,9 +5,10 @@ import { SortBy, usePositionCommentSort } from './Comments';
 
 interface RepliesProps {
     comment: PositionComment;
+    isReadonly?: boolean;
 }
 
-const Replies: React.FC<RepliesProps> = ({ comment }) => {
+const Replies: React.FC<RepliesProps> = ({ isReadonly, comment }) => {
     const { sortBy } = usePositionCommentSort();
 
     const replies = Object.values(comment.replies);
@@ -25,7 +26,7 @@ const Replies: React.FC<RepliesProps> = ({ comment }) => {
     return (
         <Stack pt={1} spacing={1.5}>
             {sortedComments.map((reply) => (
-                <Comment key={reply.id} comment={reply} />
+                <Comment isReadonly={isReadonly} key={reply.id} comment={reply} />
             ))}
         </Stack>
     );

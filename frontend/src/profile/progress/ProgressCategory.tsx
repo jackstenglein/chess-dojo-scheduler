@@ -1,3 +1,4 @@
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
     Accordion,
     AccordionDetails,
@@ -7,15 +8,14 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import ProgressItem from './ProgressItem';
+import { useMemo } from 'react';
+import { useFreeTier } from '../../auth/Auth';
 import { CustomTask, Requirement } from '../../database/requirement';
 import { User } from '../../database/user';
 import { useTutorial } from '../../tutorial/TutorialContext';
-import { useMemo } from 'react';
 import { TutorialName } from '../../tutorial/tutorialNames';
-import { useFreeTier } from '../../auth/Auth';
+import ProgressItem from './ProgressItem';
 
 export interface Category {
     name: string;
@@ -105,6 +105,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                             progress={user.progress[r.id]}
                             cohort={cohort}
                             isCurrentUser={isCurrentUser}
+                            user={user}
                         />
                     );
                 })}

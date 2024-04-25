@@ -177,7 +177,6 @@ const router = createBrowserRouter(
                         <Route path='submit' element={<EditGamePage />} />
                         <Route path='explorer' element={<ExplorerPage />} />
                         <Route path=':cohort/:id'>
-                            <Route index element={<GamePage />} />
                             <Route path='edit' element={<EditGamePage />} />
                         </Route>
                         <Route path='review-queue' element={<ReviewQueuePage />} />
@@ -212,6 +211,14 @@ const router = createBrowserRouter(
                     </Route>
                 </Route>
             </Route>
+
+            {/* Unauthenticated */}
+            <Route path='games'>
+                <Route path=':cohort/:id'>
+                    <Route index element={<GamePage />} />
+                </Route>
+            </Route>
+
             <Route path='*' element={<NotFoundPage />} />
         </Route>,
     ),

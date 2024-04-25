@@ -142,6 +142,10 @@ type Requirement struct {
 
 	// Whether the requirement is available on the free tier or not
 	IsFree bool `dynamodbav:"isFree" json:"isFree"`
+
+	// A list of requirement IDs which must be completed before this requirement can
+	// be updated.
+	Blockers []string `dynamodbav:"blockers" json:"blockers"`
 }
 
 func (r *Requirement) clampCount(cohort DojoCohort, count int) int {

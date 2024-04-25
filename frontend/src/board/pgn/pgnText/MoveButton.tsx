@@ -14,8 +14,8 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
-
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
 import { useGame } from '../../../games/view/GamePage';
 import { reconcile } from '../../Board';
@@ -47,7 +47,11 @@ export interface ButtonProps {
     inline?: boolean;
     move: Move;
     onClickMove: (m: Move) => void;
-    onRightClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onRightClick: (
+        event:
+            | React.MouseEvent<HTMLButtonElement>
+            | LongPressReactEvents<HTMLButtonElement>,
+    ) => void;
     text: string;
     time?: string;
 }
@@ -55,6 +59,13 @@ export interface ButtonProps {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     const { isCurrentMove, inline, move, onClickMove, onRightClick, text, time } = props;
     const { slots } = useChess();
+    const longPress = useLongPress<HTMLButtonElement>(onRightClick, {
+        detect: LongPressEventType.Touch,
+        threshold: 700,
+        onStart: (event) => {
+            event.preventDefault();
+        },
+    });
 
     const displayNags = move.nags?.sort(compareNags).map((nag) => {
         const n = nags[getStandardNag(nag)];
@@ -104,6 +115,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             }}
             onClick={() => onClickMove(move)}
             onContextMenu={onRightClick}
+            {...longPress()}
         >
             {time || slots?.moveButtonExtras ? (
                 <Stack
@@ -281,13 +293,21 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         }
     }, [move, chess, setIsCurrentMove, firstMove, handleScroll]);
 
-    const onRightClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (config?.allowMoveDeletion) {
-            event.preventDefault();
-            event.stopPropagation();
-            setMenuAnchorEl(event.currentTarget);
-        }
-    };
+    const allowMoveDeletion = config?.allowMoveDeletion;
+    const onRightClick = useCallback(
+        (
+            event:
+                | React.MouseEvent<HTMLButtonElement>
+                | LongPressReactEvents<HTMLButtonElement>,
+        ) => {
+            if (allowMoveDeletion) {
+                event.preventDefault();
+                event.stopPropagation();
+                setMenuAnchorEl(event.currentTarget || event.target);
+            }
+        },
+        [setMenuAnchorEl, allowMoveDeletion],
+    );
 
     const onDelete = () => {
         chess?.delete(move);

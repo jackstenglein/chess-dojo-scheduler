@@ -1,6 +1,5 @@
-import { CommentType, Move, EventType, Event } from '@jackstenglein/chess';
+import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { useEffect, useState } from 'react';
-
 import { useChess } from '../PgnBoard';
 import Markdown from './Markdown';
 

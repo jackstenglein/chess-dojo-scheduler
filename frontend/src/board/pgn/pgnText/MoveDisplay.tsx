@@ -1,11 +1,10 @@
 import { Event, EventType, Move } from '@jackstenglein/chess';
 import { useEffect, useState } from 'react';
-
-import MoveNumber from './MoveNumber';
+import { useChess } from '../PgnBoard';
 import Ellipsis from './Ellipsis';
 import Interrupt, { hasInterrupt } from './Interrupt';
 import MoveButton from './MoveButton';
-import { useChess } from '../PgnBoard';
+import MoveNumber from './MoveNumber';
 
 interface MoveProps {
     move: Move;
@@ -18,7 +17,7 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll, onClickMove }) =
     const [, setForceRender] = useState(0);
     const [, setHasComment] = useState(move.commentAfter && move.commentAfter !== '');
     const [needReminder, setNeedReminder] = useState(
-        move.previous === null || hasInterrupt(move.previous)
+        move.previous === null || hasInterrupt(move.previous),
     );
 
     useEffect(() => {

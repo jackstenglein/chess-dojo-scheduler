@@ -1,10 +1,9 @@
-import { Fragment, useEffect, useState } from 'react';
 import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { Box, Divider } from '@mui/material';
-
-import MoveButton from './MoveButton';
-import Comment from './Comment';
+import { Fragment, useEffect, useState } from 'react';
 import { useChess } from '../PgnBoard';
+import Comment from './Comment';
+import MoveButton from './MoveButton';
 
 const borderWidth = 1.5; // px
 const lineInset = 8; // px
@@ -48,7 +47,7 @@ const Line: React.FC<LineProps> = ({ line, depth, onClickMove, handleScroll }) =
                     depth={depth + 1}
                     onClickMove={onClickMove}
                     handleScroll={handleScroll}
-                />
+                />,
             );
             break;
         }
@@ -64,7 +63,7 @@ const Line: React.FC<LineProps> = ({ line, depth, onClickMove, handleScroll }) =
                     handleScroll={handleScroll}
                 />
                 <Comment move={move} inline />
-            </Fragment>
+            </Fragment>,
         );
     }
 

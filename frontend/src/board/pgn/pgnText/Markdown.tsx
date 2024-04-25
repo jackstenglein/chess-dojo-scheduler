@@ -85,7 +85,7 @@ const Markdown: React.FC<MarkdownProps> = ({ text, inline }) => {
                 ),
             }}
         >
-            {text.trim()}
+            {text}
         </ReactMarkdown>
     );
 };
@@ -94,12 +94,27 @@ function Text(props: any) {
     return (
         <Typography
             variant={props.inline ? 'caption' : 'body2'}
-            display={props.inline ? 'inline' : undefined}
             mx={props.inline ? '4px' : undefined}
             color='text.secondary'
             p={props.p || '6px'}
             whiteSpace='pre-line'
             fontSize={props.fontSize}
+            component='p'
+            sx={
+                props.inline
+                    ? {
+                          lineHeight: '1.43',
+                          '&:first-of-type': {
+                              display: 'inline',
+                          },
+                          '&:not(:first-of-type)': {
+                              marginLeft: 0,
+                              paddingLeft: 0,
+                              paddingTop: '18px',
+                          },
+                      }
+                    : undefined
+            }
         >
             {props.children}
         </Typography>
