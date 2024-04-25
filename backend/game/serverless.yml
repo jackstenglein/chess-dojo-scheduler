@@ -47,9 +47,6 @@ functions:
       - httpApi:
           path: /game/{cohort}/{id+}
           method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:

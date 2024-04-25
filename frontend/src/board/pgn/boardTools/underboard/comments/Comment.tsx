@@ -33,16 +33,23 @@ import ReplyEditor from './ReplyEditor';
 
 interface CommentProps {
     comment: PositionComment;
+    isReadonly?: boolean;
 }
 
-const Comment: React.FC<CommentProps> = ({ comment }) => {
+const Comment: React.FC<CommentProps> = ({ isReadonly, comment }) => {
     const viewer = useAuth().user;
 
     if (viewer?.username === comment.owner.username) {
         return <EditableComment comment={comment} />;
     }
 
-    return <BaseComment comment={comment} />;
+    return (
+        <BaseComment
+            isReadonly={isReadonly}
+            hideControls={isReadonly}
+            comment={comment}
+        />
+    );
 };
 
 export default Comment;
@@ -52,6 +59,7 @@ interface BaseCommentProps {
     renderContent?: JSX.Element;
     renderControls?: JSX.Element;
     hideControls?: boolean;
+    isReadonly?: boolean;
 }
 
 const BaseComment: React.FC<BaseCommentProps> = ({
@@ -59,6 +67,7 @@ const BaseComment: React.FC<BaseCommentProps> = ({
     renderContent,
     renderControls,
     hideControls,
+    isReadonly,
 }) => {
     const [expanded, setExpanded] = useState(true);
     const [isReplying, setIsReplying] = useState(false);
@@ -116,6 +125,7 @@ const BaseComment: React.FC<BaseCommentProps> = ({
                                 onCancel={() => setIsReplying(false)}
                             />
                         ) : (
+                            !isReadonly &&
                             !hideControls && (
                                 <Stack direction='row' spacing={1}>
                                     <Button
@@ -130,7 +140,7 @@ const BaseComment: React.FC<BaseCommentProps> = ({
                             )
                         )}
 
-                        <Replies comment={comment} />
+                        <Replies isReadonly={isReadonly} comment={comment} />
                     </Stack>
                 </Stack>
             </Collapse>

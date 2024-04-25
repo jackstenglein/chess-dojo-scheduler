@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
+import { AuthStatus, useAuth } from '../../../../auth/Auth';
 import { useGame } from '../../../../games/view/GamePage';
 import { useLightMode } from '../../../../ThemeProvider';
 import Explorer from '../../explorer/Explorer';
@@ -105,6 +106,7 @@ interface UnderboardProps {
 
 const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
     ({ tabs, initialTab, resizeData, onResize }, ref) => {
+        const auth = useAuth();
         const { chess } = useChess();
         const { game, isOwner } = useGame();
         const [focusEditor, setFocusEditor] = useState(false);
@@ -153,6 +155,8 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
         const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
             onResize(Math.floor(data.size.width), Math.floor(data.size.height));
         };
+
+        const isAuthenticated = auth.status === AuthStatus.Authenticated;
 
         if (tabs.length === 0) {
             return null;
@@ -248,6 +252,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                         )}
                         {underboard === DefaultUnderboardTab.Comments && (
                             <Comments
+                                isReadonly={!isAuthenticated}
                                 focusEditor={focusCommenter}
                                 setFocusEditor={setFocusCommenter}
                             />

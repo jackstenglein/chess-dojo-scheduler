@@ -1,4 +1,7 @@
-import { Chess, EventType, Move } from '@jackstenglein/chess';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+import { useLocalStorage } from 'usehooks-ts';
+
 import {
     Button,
     CardContent,
@@ -8,8 +11,9 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
+
+import { Chess, EventType, Move } from '@jackstenglein/chess';
+
 import { Game, PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import { reconcile } from '../../../../Board';
@@ -47,7 +51,15 @@ interface PositionCommentSection {
     comments: PositionComment[];
 }
 
-const Comments: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEditor }) => {
+type CommentsProps = CommentEditorProps & {
+    isReadonly?: boolean;
+};
+
+const Comments: React.FC<CommentsProps> = ({
+    focusEditor,
+    setFocusEditor,
+    isReadonly,
+}) => {
     const [view, setView] = useLocalStorage(CommentViewKey, View.FullGame);
     const [sortBy, setSortBy] = useLocalStorage(CommentSortByKey, SortBy.Newest);
     const { chess } = useChess();
@@ -114,6 +126,7 @@ const Comments: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEditor })
                         <PositionCommentSortContext.Provider value={{ sortBy }}>
                             {fenSections.map((s) => (
                                 <CommentSection
+                                    isReadonly={isReadonly}
                                     key={s.move?.fen || 'start'}
                                     section={s}
                                 />
@@ -122,10 +135,12 @@ const Comments: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEditor })
                     </Stack>
                 </Stack>
 
-                <CommentEditor
-                    focusEditor={focusEditor}
-                    setFocusEditor={setFocusEditor}
-                />
+                {!isReadonly && (
+                    <CommentEditor
+                        focusEditor={focusEditor}
+                        setFocusEditor={setFocusEditor}
+                    />
+                )}
             </Stack>
         </CardContent>
     );
@@ -203,9 +218,10 @@ function getCommentsForFen(
 
 interface CommentSectionProps {
     section: PositionCommentSection;
+    isReadonly?: boolean;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ section }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ isReadonly, section }) => {
     const { chess, board } = useChess();
     const move = section.move;
 
@@ -225,7 +241,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ section }) => {
                 <Divider sx={{ width: 1 }} />
             </Stack>
             {section.comments.map((c) => (
-                <Comment key={c.id} comment={c} />
+                <Comment isReadonly={isReadonly} key={c.id} comment={c} />
             ))}
             {section.comments.length === 0 && <Typography>No comments</Typography>}
         </Stack>

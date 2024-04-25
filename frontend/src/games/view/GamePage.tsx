@@ -4,8 +4,8 @@ import { useParams } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
-import PgnBoard from '../../board/pgn/PgnBoard';
 import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
+import PgnBoard from '../../board/pgn/PgnBoard';
 import { Game } from '../../database/game';
 import PgnErrorBoundary from './PgnErrorBoundary';
 
