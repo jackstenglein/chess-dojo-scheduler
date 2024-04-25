@@ -45,7 +45,7 @@ functions:
     handler: get/main.go
     events:
       - httpApi:
-          path: /game/{cohort}/{id+}
+          path: /public/game/{cohort}/{id+}
           method: get
     iamRoleStatements:
       - Effect: Allow

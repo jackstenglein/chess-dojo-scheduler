@@ -1,7 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-import { useLocalStorage } from 'usehooks-ts';
-
+import { Chess, EventType, Move } from '@jackstenglein/chess';
 import {
     Button,
     CardContent,
@@ -11,9 +8,8 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-
-import { Chess, EventType, Move } from '@jackstenglein/chess';
-
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import { Game, PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import { reconcile } from '../../../../Board';

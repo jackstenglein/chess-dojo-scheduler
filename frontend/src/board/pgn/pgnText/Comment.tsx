@@ -1,6 +1,5 @@
 import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { useEffect, useState } from 'react';
-
 import { useChess } from '../PgnBoard';
 import Markdown from './Markdown';
 
@@ -8,10 +7,9 @@ interface CommentProps {
     move: Move;
     type?: CommentType;
     inline?: boolean;
-    isReadonly?: boolean;
 }
 
-const Comment: React.FC<CommentProps> = ({ move, type, inline, isReadonly }) => {
+const Comment: React.FC<CommentProps> = ({ move, type, inline }) => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
 

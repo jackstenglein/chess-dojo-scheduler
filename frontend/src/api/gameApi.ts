@@ -239,20 +239,15 @@ export function createGame(idToken: string, req: CreateGameRequest) {
 
 /**
  * getGame returns the requested game.
- * @param idToken The id token of the current signed-in user.
  * @param cohort The cohort the game is in.
  * @param id The id of the game.
  * @returns An AxiosResponse containing the requested game.
  */
-export function getGame(idToken: string, cohort: string, id: string) {
+export function getGame(cohort: string, id: string) {
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.get<Game>(`${BASE_URL}/game/${cohort}/${id}`, {
-        headers: {
-            Authorization: 'Bearer ' + idToken,
-        },
-    });
+    return axios.get<Game>(`${BASE_URL}/public/game/${cohort}/${id}`);
 }
 
 /**
