@@ -104,6 +104,14 @@ def getPositions(row: dict):
     return positions
 
 
+def getBlockers(row: dict):
+    if not row['Blockers']:
+        return None
+    
+    blockers = row['Blockers'].split(',')
+    return blockers
+
+
 def main():
     items = []
     categories = {
@@ -153,6 +161,7 @@ def main():
                 'progressBarSuffix': row['Progress Bar Suffix'] if row['Progress Bar Suffix'] else '',
                 'expirationDays': int(row['Expiration Days']) if row['Expiration Days'] else -1,
                 'isFree': row['Free?'] == '1',
+                'blockers': getBlockers(row),
             }
 
             items.append(item)

@@ -5,11 +5,13 @@ import { Box, Button, Chip, Grid, Stack, Tooltip, Typography } from '@mui/materi
 import React, { useMemo, useState } from 'react';
 import { useAuth, useFreeTier } from '../auth/Auth';
 
-import { Loop } from '@mui/icons-material';
+import { Lock, Loop } from '@mui/icons-material';
+import { useRequirements } from '../api/cache/requirements';
 import {
     CustomTask,
     getTotalCount,
     getUnitScore,
+    isComplete,
     isRequirement,
     Requirement,
     ScoreboardDisplay,
@@ -128,6 +130,43 @@ const RepeatChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => 
     );
 };
 
+const BlockerChips: React.FC<{ requirement: Requirement }> = ({ requirement }) => {
+    const { requirements } = useRequirements(ALL_COHORTS, false);
+    const requirementMap = useMemo(() => {
+        return requirements.reduce(
+            (acc, r) => {
+                acc[r.id] = r;
+                return acc;
+            },
+            {} as Record<string, Requirement>,
+        );
+    }, [requirements]);
+
+    if (!requirement.blockers || requirement.blockers.length === 0) {
+        return null;
+    }
+
+    return (
+        <>
+            {requirement.blockers.map((id) => {
+                const blocker = requirementMap[id];
+                if (!blocker) {
+                    return null;
+                }
+
+                return (
+                    <Tooltip
+                        key={id}
+                        title={`You must complete ${blocker.category} - ${blocker.name} to update this task`}
+                    >
+                        <Chip color='secondary' icon={<Lock />} label={blocker.name} />
+                    </Tooltip>
+                );
+            })}
+        </>
+    );
+};
+
 interface RequirementDisplayProps {
     requirement: Requirement | CustomTask;
     onClose?: () => void;
@@ -153,6 +192,36 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
             : cohortOptions[0];
     }, [requirement, user.dojoCohort]);
 
+    const { requirements } = useRequirements(ALL_COHORTS, false);
+
+    const blocker = useMemo(() => {
+        if (!isRequirement(requirement)) {
+            return { isBlocked: false };
+        }
+
+        if (!requirement.blockers || requirement.blockers.length === 0) {
+            return { isBlocked: false };
+        }
+
+        const requirementMap = requirements.reduce(
+            (acc, r) => {
+                acc[r.id] = r;
+                return acc;
+            },
+            {} as Record<string, Requirement>,
+        );
+        for (const blockerId of requirement.blockers) {
+            const blocker = requirementMap[blockerId];
+            if (blocker && !isComplete(cohort, blocker, user.progress[blockerId])) {
+                return {
+                    isBlocked: true,
+                    reason: `This task is locked until you complete ${blocker.category} - ${blocker.name}.`,
+                };
+            }
+        }
+        return { isBlocked: false };
+    }, [requirement, requirements, cohort, user]);
+
     if (!isRequirement(requirement)) {
         return <CustomTaskDisplay task={requirement} onClose={onClose} />;
     }
@@ -161,7 +230,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
 
     const totalCount = requirement.counts[cohort] || requirement.counts[ALL_COHORTS];
     const currentCount = progress?.counts[cohort] || progress?.counts[ALL_COHORTS] || 0;
-    const isComplete = currentCount >= totalCount;
+    const isCompleted = currentCount >= totalCount;
 
     let requirementName = requirement.name;
     if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
@@ -185,15 +254,18 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                         </Typography>
                     </Stack>
                     <Stack direction='row' spacing={2} alignItems='center'>
-                        {isComplete && (
+                        {blocker.isBlocked ? (
+                            <Tooltip title={blocker.reason}>
+                                <Chip icon={<Lock />} label='Locked' color='error' />
+                            </Tooltip>
+                        ) : isCompleted ? (
                             <Chip
                                 icon={<CheckIcon />}
                                 label='Completed'
                                 color='success'
                                 onClick={() => setShowUpdateDialog(true)}
                             />
-                        )}
-                        {!isComplete && (
+                        ) : (
                             <Button
                                 variant='contained'
                                 onClick={() => setShowUpdateDialog(true)}
@@ -208,6 +280,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                     <DojoPointChip requirement={requirement} cohort={cohort} />
                     <ExpirationChip requirement={requirement} />
                     <RepeatChip requirement={requirement} />
+                    {requirement.blockers && <BlockerChips requirement={requirement} />}
                 </Stack>
 
                 <Typography

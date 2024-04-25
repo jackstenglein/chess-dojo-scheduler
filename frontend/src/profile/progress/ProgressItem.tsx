@@ -1,3 +1,4 @@
+import { Lock } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import {
     Checkbox,
@@ -9,26 +10,29 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { useState } from 'react';
-
+import React, { useMemo, useState } from 'react';
+import { useRequirements } from '../../api/cache/requirements';
 import { useFreeTier } from '../../auth/Auth';
 import {
     CustomTask,
     formatTime,
     getCurrentCount,
     getTotalTime,
+    isComplete,
     isExpired,
     isRequirement,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
 } from '../../database/requirement';
+import { ALL_COHORTS, User } from '../../database/user';
 import RequirementModal from '../../requirements/RequirementModal';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import CustomTaskProgressItem from './CustomTaskProgressItem';
 import ProgressDialog from './ProgressDialog';
 
 interface ProgressItemProps {
+    user: User;
     progress?: RequirementProgress;
     requirement: Requirement | CustomTask;
     cohort: string;
@@ -36,15 +40,12 @@ interface ProgressItemProps {
 }
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
+    user,
     progress,
     requirement,
     cohort,
     isCurrentUser,
 }) => {
-    const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-    const [showReqModal, setShowReqModal] = useState(false);
-    const isFreeTier = useFreeTier();
-
     if (!isRequirement(requirement)) {
         return (
             <CustomTaskProgressItem
@@ -55,6 +56,63 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             />
         );
     }
+
+    return (
+        <RequirementProgressItem
+            user={user}
+            progress={progress}
+            requirement={requirement}
+            cohort={cohort}
+            isCurrentUser={isCurrentUser}
+        />
+    );
+};
+
+export default ProgressItem;
+
+interface RequirementProgressItemProps extends ProgressItemProps {
+    requirement: Requirement;
+}
+
+const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
+    user,
+    progress,
+    requirement,
+    cohort,
+    isCurrentUser,
+}) => {
+    const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+    const [showReqModal, setShowReqModal] = useState(false);
+    const isFreeTier = useFreeTier();
+    const { requirements } = useRequirements(ALL_COHORTS, false);
+
+    const blocker = useMemo(() => {
+        if (!isRequirement(requirement)) {
+            return { isBlocked: false };
+        }
+
+        if (!requirement.blockers || requirement.blockers.length === 0) {
+            return { isBlocked: false };
+        }
+
+        const requirementMap = requirements.reduce(
+            (acc, r) => {
+                acc[r.id] = r;
+                return acc;
+            },
+            {} as Record<string, Requirement>,
+        );
+        for (const blockerId of requirement.blockers) {
+            const blocker = requirementMap[blockerId];
+            if (blocker && !isComplete(cohort, blocker, user.progress[blockerId])) {
+                return {
+                    isBlocked: true,
+                    reason: `This task is locked until you complete ${blocker.category} - ${blocker.name}.`,
+                };
+            }
+        }
+        return { isBlocked: false };
+    }, [requirement, requirements, cohort, user]);
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
@@ -119,6 +177,14 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
         requirementName += ` (${totalCount})`;
     }
 
+    if (blocker.isBlocked) {
+        UpdateElement = (
+            <Tooltip title={blocker.reason}>
+                <Lock />
+            </Tooltip>
+        );
+    }
+
     return (
         <Stack spacing={2} mt={2}>
             {showUpdateDialog && (
@@ -155,7 +221,9 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                         flexWrap='wrap'
                         alignItems='center'
                     >
-                        <Typography>{requirementName}</Typography>
+                        <Typography sx={{ opacity: blocker.isBlocked ? 0.5 : 1 }}>
+                            {requirementName}
+                        </Typography>
                     </Stack>
 
                     <Typography
@@ -177,9 +245,14 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                             '& ol': {
                                 display: 'none',
                             },
+                            opacity: blocker.isBlocked ? 0.7 : 1,
                         }}
                     />
-                    <Typography color='primary' variant='caption'>
+                    <Typography
+                        color='primary'
+                        variant='caption'
+                        sx={{ opacity: blocker.isBlocked ? 0.7 : 1 }}
+                    >
                         View More
                     </Typography>
                     {DescriptionElement}
@@ -191,14 +264,16 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                         justifyContent='end'
                         spacing={1}
                     >
-                        <Typography
-                            color='text.secondary'
-                            sx={{ display: { xs: 'none', sm: 'initial' } }}
-                            noWrap
-                            textOverflow='unset'
-                        >
-                            {time}
-                        </Typography>
+                        {!blocker.isBlocked && (
+                            <Typography
+                                color='text.secondary'
+                                sx={{ display: { xs: 'none', sm: 'initial' } }}
+                                noWrap
+                                textOverflow='unset'
+                            >
+                                {time}
+                            </Typography>
+                        )}
                         {UpdateElement}
                     </Stack>
                 </Grid>
@@ -226,5 +301,3 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
         </Stack>
     );
 };
-
-export default ProgressItem;

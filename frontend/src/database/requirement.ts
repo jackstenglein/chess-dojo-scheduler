@@ -61,6 +61,12 @@ export interface Requirement {
     sortPriority: string;
     expirationDays: number;
     isFree: boolean;
+
+    /**
+     * A list of requirement IDs which must be completed before this requirement
+     * can be updated.
+     */
+    blockers?: string[];
 }
 
 export interface RequirementProgress {
