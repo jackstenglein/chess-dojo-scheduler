@@ -4,11 +4,10 @@ import {
     Requirement,
     ScoreboardDisplay,
 } from '../../database/requirement';
-
+import { ALL_COHORTS, dojoCohorts } from '../../database/user';
 import { useApi } from '../Api';
 import { Request, useRequest } from '../Request';
 import { useCache } from './Cache';
-import { ALL_COHORTS, dojoCohorts } from '../../database/user';
 
 interface UseRequirementsResponse {
     requirements: Requirement[];
@@ -17,7 +16,7 @@ interface UseRequirementsResponse {
 
 export function useRequirements(
     cohort: string,
-    scoreboardOnly: boolean
+    scoreboardOnly: boolean,
 ): UseRequirementsResponse {
     const api = useApi();
     const cache = useCache();
@@ -49,9 +48,9 @@ export function useRequirements(
             !request.isSent()
         ) {
             request.onStart();
+            cache.requirements.markFetched(cohort);
             api.listRequirements(cohort, false)
                 .then((requirements) => {
-                    cache.requirements.markFetched(cohort);
                     cache.requirements.putMany(requirements);
                     request.onSuccess();
                 })

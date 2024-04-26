@@ -12,7 +12,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { useRequirements } from '../../api/cache/requirements';
 import { RequestSnackbar } from '../../api/Request';
 import { CustomTask, isComplete, Requirement } from '../../database/requirement';
-import { dojoCohorts, User } from '../../database/user';
+import { ALL_COHORTS, dojoCohorts, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import DojoScoreCard from '../stats/DojoScoreCard';
 import CustomTaskEditor from './CustomTaskEditor';
@@ -41,7 +41,8 @@ interface ProgressTabProps {
 
 const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     const [cohort, setCohort] = useState(user.dojoCohort);
-    const { requirements, request: requirementRequest } = useRequirements(cohort, false);
+    const { request: requirementRequest } = useRequirements(ALL_COHORTS, false);
+    const { requirements } = useRequirements(cohort, false);
     const [hideCompleted, setHideCompleted] = useHideCompleted(isCurrentUser);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({
         'Welcome to the Dojo': false,
