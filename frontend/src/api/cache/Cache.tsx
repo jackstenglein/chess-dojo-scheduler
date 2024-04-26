@@ -5,9 +5,9 @@ import {
     useContext,
     useEffect,
     useMemo,
+    useRef,
     useState,
 } from 'react';
-
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import { Club } from '../../database/club';
 import { Event } from '../../database/event';
@@ -31,7 +31,7 @@ interface IdentifiableCache<T> {
 
 function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
     const [objects, setObjects] = useState<Record<string, T>>({});
-    const [fetchedIds, setFetchedIds] = useState<Record<string, boolean>>({});
+    const fetchedIds = useRef<Record<string, boolean>>({});
     const request = useRequest();
 
     const get = useCallback(
@@ -88,19 +88,19 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
 
     const isFetched = useCallback(
         (id: string) => {
-            return fetchedIds[id] || false;
+            return fetchedIds.current[id] || false;
         },
         [fetchedIds],
     );
 
     const markFetched = useCallback(
         (id: string) => {
-            setFetchedIds((ids) => ({
-                ...ids,
+            fetchedIds.current = {
+                ...fetchedIds.current,
                 [id]: true,
-            }));
+            };
         },
-        [setFetchedIds],
+        [fetchedIds],
     );
 
     return {
