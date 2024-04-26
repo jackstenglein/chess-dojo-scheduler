@@ -29,7 +29,7 @@ export interface RemoteGame {
     url?: string;
     pgnText?: string;
     headers?: GameHeader[];
-    type?: GameSubmissionType;
+    type: GameSubmissionType;
 }
 
 interface ImportGameFormProps {
@@ -215,7 +215,10 @@ export const PGNForm: React.FC<ImportGameFormProps> = ({ onSubmit, loading }) =>
             return;
         }
 
-        onSubmit({ pgnText });
+        onSubmit({
+            pgnText,
+            type: GameSubmissionType.Manual,
+        });
     };
 
     return (
