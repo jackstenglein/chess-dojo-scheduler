@@ -125,6 +125,7 @@ services:
     path: email
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
 
   yearReviewService:

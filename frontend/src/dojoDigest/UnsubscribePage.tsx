@@ -1,12 +1,11 @@
 import { LoadingButton } from '@mui/lab';
 import { Container, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-
+import { Navigate } from 'react-router-dom';
+import { unsubscribeFromDojoDigest } from '../api/emailApi';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { unsubscribeFromDojoDigest } from '../api/dojoDigestApi';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import LoadingPage from '../loading/LoadingPage';
-import { Navigate } from 'react-router-dom';
 
 const UnsubscribePage = () => {
     const [email, setEmail] = useState('');

@@ -33,6 +33,7 @@ describe('Navbar', () => {
 
         cy.getBySel('navbar').contains('Tournaments');
         cy.getBySel('navbar').contains('Shop');
+        cy.getBySel('navbar').contains('Contact Us');
         cy.getBySel('navbar').contains('Sign In');
         cy.getBySel('navbar').contains('Sign Up');
         cy.getBySel('navbar').get('Profile').should('not.exist');

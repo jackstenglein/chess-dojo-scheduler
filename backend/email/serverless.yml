@@ -41,3 +41,23 @@ functions:
           - - 'arn:aws:s3:::'
             - ${param:SecretsBucket}
             - /dojoDigestUnsubscribeServiceAccountKey.json
+
+  createSupportTicket:
+    handler: support/main.go
+    events:
+      - httpApi:
+          path: /public/support-ticket
+          method: post
+      - httpApi:
+          path: /support-ticket
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ses:SendTemplatedEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/dojoscoreboard.com
+          - arn:aws:ses:${aws:region}:${aws:accountId}:template/supportTicket

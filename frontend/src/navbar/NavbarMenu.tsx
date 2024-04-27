@@ -2,6 +2,7 @@ import {
     CalendarToday,
     Checklist,
     ChevronRight,
+    ContactSupport,
     EmojiEvents as Tournaments,
     ExpandLess,
     ExpandMore,
@@ -225,6 +226,11 @@ function unauthenticatedStartItems(
                         window.open('https://www.chessdojo.club/shop', '_blank'),
                 },
             ],
+        },
+        {
+            name: 'Contact Us',
+            icon: <ContactSupport />,
+            onClick: () => navigate('/help'),
         },
     ];
 }

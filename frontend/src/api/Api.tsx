@@ -1,17 +1,15 @@
+import { DateTime } from 'luxon';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
-
 import { useAuth } from '../auth/Auth';
-
-import { Event } from '../database/event';
-import { Requirement } from '../database/requirement';
-import { TimelineEntry } from '../database/timeline';
-import { User } from '../database/user';
-
 import { Club, ClubJoinRequestStatus } from '../database/club';
 import { Course } from '../database/course';
+import { Event } from '../database/event';
 import { ExamAnswer, ExamType } from '../database/exam';
 import { GameReviewType, PositionComment } from '../database/game';
+import { Requirement } from '../database/requirement';
+import { TimelineEntry } from '../database/timeline';
 import { LeaderboardSite, TournamentType } from '../database/tournament';
+import { User } from '../database/user';
 import {
     batchGetClubs,
     ClubApiContextType,
@@ -32,6 +30,11 @@ import {
     purchaseCourse,
     setCourse,
 } from './courseApi';
+import {
+    createSupportTicket,
+    EmailApiContextType,
+    SupportTicketRequest,
+} from './emailApi';
 import {
     bookEvent,
     cancelEvent,
@@ -163,7 +166,8 @@ type ApiContextType = UserApiContextType &
     ExplorerApiContextType &
     PaymentApiContextType &
     ClubApiContextType &
-    ExamApiContextType;
+    ExamApiContextType &
+    EmailApiContextType;
 
 const ApiContext = createContext<ApiContextType>(null!);
 
@@ -201,7 +205,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 requirementId: string,
                 incrementalCount: number,
                 incrementalMinutesSpent: number,
-                date: Date | null,
+                date: DateTime | null,
                 notes: string,
             ) =>
                 updateUserProgress(
@@ -419,6 +423,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listExams(idToken, type, startKey),
             putExamAnswer: (answer: ExamAnswer) => putExamAnswer(idToken, answer),
             getExamAnswer: (id: string) => getExamAnswer(idToken, id),
+
+            createSupportTicket: (request: SupportTicketRequest) =>
+                createSupportTicket(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

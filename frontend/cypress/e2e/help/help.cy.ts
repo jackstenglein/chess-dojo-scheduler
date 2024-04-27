@@ -3,7 +3,7 @@ describe('Help Page', () => {
         cy.loginByCognitoApi(
             'help',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
         cy.visit('/help');
     });
@@ -38,5 +38,14 @@ describe('Help Page', () => {
 
         cy.location('pathname').should('equal', '/games');
         cy.getBySel('tutorial-tooltip').contains('Welcome to the Dojo Game Database');
+    });
+
+    it('requires all fields to submit support ticket', () => {
+        cy.getBySel('support-ticket-submit').click();
+
+        cy.getBySel('support-ticket-name').contains('This field is required');
+        cy.getBySel('support-ticket-email').contains('This field is required');
+        cy.getBySel('support-ticket-subject').contains('This field is required');
+        cy.getBySel('support-ticket-message').contains('This field is required');
     });
 });
