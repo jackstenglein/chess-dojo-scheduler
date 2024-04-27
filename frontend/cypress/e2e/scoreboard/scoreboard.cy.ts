@@ -3,7 +3,7 @@ describe('Scoreboard Page', () => {
         cy.loginByCognitoApi(
             'scoreboard',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
         cy.visit('/scoreboard');
     });
@@ -28,13 +28,16 @@ describe('Scoreboard Page', () => {
         cy.contains('Test Account').should(
             'have.attr',
             'href',
-            '/profile/398ee7df-13a1-4fbf-bae3-e156f252512d'
+            '/profile/398ee7df-13a1-4fbf-bae3-e156f252512d',
         );
     });
 
     it('hides free-tier users', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
+        cy.interceptApi('GET', '/scoreboard/1500-1600', {
+            fixture: 'scoreboard/empty.json',
+        });
         cy.visit('/scoreboard');
 
         cy.getBySel('upsell-alert')
@@ -63,7 +66,7 @@ describe('Scoreboard Page', () => {
             .should('have.length', columnGroups.length);
 
         columnGroups.forEach((group) =>
-            cy.getBySel('current-members-scoreboard').contains(group)
+            cy.getBySel('current-members-scoreboard').contains(group),
         );
     });
 
@@ -88,7 +91,7 @@ describe('Scoreboard Page', () => {
         ];
 
         defaultColumns.forEach((col) =>
-            cy.getBySel('current-members-scoreboard').contains(col)
+            cy.getBySel('current-members-scoreboard').contains(col),
         );
     });
 });
