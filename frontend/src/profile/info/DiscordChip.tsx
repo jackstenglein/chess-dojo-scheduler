@@ -1,12 +1,12 @@
-import { Chip, Tooltip, SvgIcon } from '@mui/material';
-import { forwardRef } from 'react';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
+import { Chip, SvgIcon, Tooltip } from '@mui/material';
+import { forwardRef } from 'react';
 
 type FontAwesomeSvgIconProps = {
     icon: any;
 };
 
-const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
+export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
     (props, ref) => {
         const { icon } = props;
 
@@ -37,10 +37,10 @@ const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
                 )}
             </SvgIcon>
         );
-    }
+    },
 );
 
-function DiscordIcon() {
+export function DiscordIcon() {
     return <FontAwesomeSvgIcon icon={faDiscord} />;
 }
 

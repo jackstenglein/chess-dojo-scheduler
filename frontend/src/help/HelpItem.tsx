@@ -15,7 +15,9 @@ const HelpItem: React.FC<PropsWithChildren<HelpItemProps>> = ({ title, children 
             }}
         >
             <Typography variant='h6'>{title}</Typography>
-            <Typography variant='body1'>{children}</Typography>
+            <Typography variant='body1' component='div'>
+                {children}
+            </Typography>
         </Stack>
     );
 };

@@ -9,8 +9,9 @@ import {
     Typography,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { formatRatingSystem, RatingSystem } from '../database/user';
+import { RatingSystem, formatRatingSystem } from '../database/user';
 import HelpItem from './HelpItem';
 import SupportTicket from './SupportTicket';
 
@@ -93,9 +94,8 @@ const UnauthenticatedHelp = () => {
                         <CardContent>
                             <Stack>
                                 {helpSections.map((section) => (
-                                    <>
+                                    <React.Fragment key={section.title}>
                                         <Link
-                                            key={section.title}
                                             href={`#${section.title}`}
                                             onClick={(e) => scrollToId(e, section.title)}
                                         >
@@ -115,7 +115,7 @@ const UnauthenticatedHelp = () => {
                                                 </li>
                                             ))}
                                         </ul>
-                                    </>
+                                    </React.Fragment>
                                 ))}
                                 <Link
                                     href='#support-ticket'
