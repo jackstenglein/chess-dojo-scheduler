@@ -37,7 +37,9 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll, onClickMove }) =
                         setForceRender((v) => v + 1);
                     }
                     if (event.type === EventType.UpdateComment && move === event.move) {
-                        setHasComment(move.commentAfter && move.commentAfter !== '');
+                        setHasComment(
+                            move.commentAfter && move.commentAfter.trim().length > 0,
+                        );
                     }
                     if (
                         event.type === EventType.DeleteMove &&
