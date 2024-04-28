@@ -1,10 +1,13 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 // The key of an item in the exams table.
@@ -196,4 +199,42 @@ func (repo *dynamoRepository) GetExamAnswer(username, id string) (*ExamAnswer, e
 	answer := ExamAnswer{}
 	err := repo.getItem(input, &answer)
 	return &answer, err
+}
+
+// Represents an update to a single UserExamSummary.
+type UserExamSummaryUpdate struct {
+	// The username to update
+	Username string
+
+	// The new summary to set
+	Summary UserExamSummary
+}
+
+// UpdateUserExamRatings uses DynamoDB PartiQL to batch update the given users' exam summaries for the given exam.
+func (repo *dynamoRepository) UpdateUserExamRatings(examId string, updates []UserExamSummaryUpdate) error {
+	for i := 0; i < len(updates); i += 25 {
+		statements := make([]*dynamodb.BatchStatementRequest, 0, 25)
+
+		for j := i; j < len(updates) && j < i+25; j++ {
+			update := updates[j]
+			params, err := dynamodbattribute.MarshalList([]interface{}{update.Summary, update.Username})
+			if err != nil {
+				return errors.Wrap(500, "Temporary server error", "Failed to marshal exam update", err)
+			}
+
+			statements = append(statements, &dynamodb.BatchStatementRequest{
+				Statement:  aws.String(fmt.Sprintf("UPDATE \"%s\" SET exams.\"%s\"=? WHERE username=?", userTable, examId)),
+				Parameters: params,
+			})
+		}
+
+		input := &dynamodb.BatchExecuteStatementInput{Statements: statements}
+		log.Debugf("Batch execute statement input: %v", input)
+		output, err := repo.svc.BatchExecuteStatement(input)
+		log.Debugf("Batch execute statement output: %v", output)
+		if err != nil {
+			return errors.Wrap(500, "Temporary server error", "Failed BatchExecuteStatement", err)
+		}
+	}
+	return nil
 }

@@ -149,9 +149,6 @@ export const LargeMenuUnauthenticated = () => {
 
     const { startItems, menuItems } = useNavbarItems(handleClick);
 
-    console.log('Start Items: ', startItems);
-    console.log('Menu Items: ', menuItems);
-
     return (
         <>
             <Logo />

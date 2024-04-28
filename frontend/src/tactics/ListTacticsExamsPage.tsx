@@ -91,7 +91,7 @@ export default ListTacticsExamsPage;
  * @returns The linear regression, or null if the exam does not have enough answers.
  */
 function getRegression(exam: Exam): SimpleLinearRegression | null {
-    const answers = Object.values(exam.answers);
+    const answers = Object.values(exam.answers).filter((a) => a.rating > 0);
     if (answers.length < 10) {
         return null;
     }
@@ -135,7 +135,7 @@ const columns: GridColDef<Exam>[] = [
         valueGetter(params) {
             const scores = Object.values(params.row.answers).map((a) => a.score);
             const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-            return avg;
+            return Math.round(10 * avg) / 10;
         },
         renderCell(params) {
             const totalScore = params.row.pgns.reduce(
@@ -169,7 +169,7 @@ const avgRatingColumn: GridColDef<Exam> = {
         return Math.round((10 * sum) / Object.values(params.row.answers).length) / 10;
     },
     renderCell(params) {
-        if (params.value < 0) {
+        if (params.value < 0 || isNaN(params.value)) {
             return (
                 <Tooltip title='Avg rating is not calculated until at least 10 people have taken the exam.'>
                     <Help sx={{ color: 'text.secondary' }} />
@@ -229,10 +229,17 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     if (!regression) {
                         return -1;
                     }
-                    return regression.predict(params.row.answers[user.username].score);
+                    return (
+                        Math.round(
+                            10 *
+                                regression.predict(
+                                    params.row.answers[user.username].score,
+                                ),
+                        ) / 10
+                    );
                 },
                 renderCell(params) {
-                    if (params.value < 0) {
+                    if (params.value < 0 || isNaN(params.value)) {
                         return (
                             <Tooltip title='Your rating is not calculated until at least 10 people have taken the exam.'>
                                 <Help sx={{ color: 'text.secondary' }} />
