@@ -836,6 +836,18 @@ const ProfileEditorPage = () => {
                                     label='Enable Light Mode (Warning: experimental, some UI elements may be hard to view)'
                                     sx={{ mb: 1.5 }}
                                 />
+                                   <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={enableLightMode}
+                                            onChange={(event) =>
+                                                setEnableLightMode(event.target.checked)
+                                            }
+                                        />
+                                    }
+                                    label='OTB Mode (View chess pieces in 3D)'
+                                    sx={{ mb: 1.5 }}
+                                />
                             </Stack>
                         </Stack>
 

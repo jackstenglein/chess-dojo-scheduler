@@ -11,7 +11,7 @@ import { Color, Key } from 'chessground/types';
 
 import { ResizableData } from './pgn/resize';
 
-import './board.css';
+import './3d-board.css';
 import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
 
@@ -106,6 +106,7 @@ export function reconcile(chess?: Chess, board?: BoardApi | null) {
         drawable: {
             shapes: toShapes(chess),
         },
+        
     });
 }
 
