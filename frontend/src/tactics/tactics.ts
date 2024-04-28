@@ -344,7 +344,7 @@ export function calculateTacticsRating(
     }
 
     if (isCohortGreater(user.dojoCohort, '1400-1500')) {
-        rating.components.push(getExamRating(user));
+        rating.components.push(...getExamRating(user));
     }
 
     rating.overall =
@@ -476,21 +476,44 @@ function getTaskMaxRating(req: Requirement): number {
  * @param user The user to get the rating component for.
  * @returns The exam rating component.
  */
-function getExamRating(user: User): TacticsRatingComponent {
+function getExamRating(user: User): TacticsRatingComponent[] {
     const numberOfExams = 3;
     const countedExams = Object.values(user.exams || {})
         .filter((e) => isCohortInRange(user.dojoCohort, e.cohortRange))
         .sort((lhs, rhs) => rhs.createdAt.localeCompare(lhs.createdAt))
         .slice(0, numberOfExams);
 
-    let rating = 0;
-    if (countedExams.length > 0) {
-        rating = countedExams.reduce((sum, e) => sum + e.rating, 0) / countedExams.length;
+    if (isCohortLess(user.dojoCohort, '2100-2200')) {
+        let rating = 0;
+        if (countedExams.length > 0) {
+            rating =
+                countedExams.reduce((sum, e) => sum + e.rating, 0) / countedExams.length;
+        }
+
+        return [
+            {
+                name: 'Exams',
+                rating,
+                description: 'The average of the 3 most recent Dojo Tactics Exam ratings',
+            },
+        ];
     }
 
-    return {
-        name: 'Exams',
-        rating,
-        description: 'The average of the 3 most recent Dojo Tactics Exam ratings',
-    };
+    return [
+        {
+            name: 'Exam 1',
+            rating: countedExams[0]?.rating || 0,
+            description: 'The most recent Dojo Tactics Exam rating',
+        },
+        {
+            name: 'Exam 2',
+            rating: countedExams[1]?.rating || 0,
+            description: 'The second-most recent Dojo Tactics Exam rating',
+        },
+        {
+            name: 'Exam 3',
+            rating: countedExams[2]?.rating || 0,
+            description: 'The third-most recent Dojo Tactics Exam rating',
+        },
+    ];
 }

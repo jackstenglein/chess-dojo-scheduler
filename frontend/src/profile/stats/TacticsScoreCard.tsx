@@ -21,7 +21,13 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                 </Box>
 
                 <Grid2 container rowGap={4} columnSpacing={2} justifyContent='center'>
-                    <Grid2 xs={12} display='flex' justifyContent='center'>
+                    <Grid2
+                        xs={tacticsRating.components.length % 2 ? 6 : 12}
+                        sm={3}
+                        md
+                        display='flex'
+                        justifyContent='center'
+                    >
                         <Stack direction='row' alignItems='end'>
                             <Stack alignItems='end'>
                                 <Typography variant='subtitle1' color='text.secondary'>
@@ -29,7 +35,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                 </Typography>
                                 <Typography
                                     sx={{
-                                        fontSize: '2.3rem',
+                                        fontSize: '2.25rem',
                                         lineHeight: 1,
                                         fontWeight: 'bold',
                                     }}
@@ -37,7 +43,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                     {Math.round(tacticsRating.overall)}
                                 </Typography>
                             </Stack>
-                            <Tooltip title='Overall tactics rating is the average of the below components'>
+                            <Tooltip title='Overall tactics rating is the average of the following components'>
                                 <Help
                                     sx={{
                                         mb: '5px',
@@ -65,6 +71,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                     </Typography>
 
                                     <Typography
+                                        color='text.secondary'
                                         sx={{
                                             fontSize: '2rem',
                                             lineHeight: 1,
