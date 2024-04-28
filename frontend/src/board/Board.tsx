@@ -18,6 +18,9 @@ import ResizeHandle from './pgn/ResizeHandle';
 export { Chess };
 export type { BoardApi };
 
+
+
+
 export function toColor(chess?: Chess): Color {
     if (!chess) {
         return 'white';
@@ -175,12 +178,19 @@ interface BoardProps {
 
 const promotionPieces = ['q', 'n', 'r', 'b'];
 
+
+
 const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const { chess } = useChess();
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
     const [isInitialized, setIsInitialized] = useState(false);
     const [promotion, setPromotion] = useState<PrePromotionMove | null>(null);
+    const [is3D, setIs3D] = useState('twoD-board');
+
+    const toggleThreeDMode = (mode: string = 'twoD-board') => {
+        setIs3D(mode);
+      };
 
     const onStartPromotion = useCallback(
         (move: PrePromotionMove) => {
@@ -211,7 +221,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
 
     useEffect(() => {
         if (boardRef.current && !board) {
-            const chessgroundApi = Chessground(boardRef.current, config);
+            const chessgroundApi = Chessground(boardRef.current, config );
             setBoard(chessgroundApi);
         } else if (boardRef.current && board && chess && !isInitialized) {
             if (config && config.fen) {
@@ -287,8 +297,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     }, [chess, board, onMove, onStartPromotion]);
 
     return (
-        <Box width={1} height={1}>
-            <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
+        <Box width={1} height={1} cl>
+            <div className={is3D} ref={boardRef} style={{ width: '100%', height: '100%' }} />
 
             <Dialog open={promotion !== null} onClose={onCancelPromotion}>
                 <DialogContent>
@@ -313,6 +323,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 </DialogContent>
             </Dialog>
         </Box>
+        
     );
 };
 
