@@ -1,3 +1,4 @@
+import { ExamType } from './exam';
 import { CustomTask, RequirementProgress } from './requirement';
 import { ScoreboardSummary } from './scoreboard';
 
@@ -149,6 +150,24 @@ export interface User {
 
     /** The set of club ids the user is a member of. */
     clubs?: string[];
+
+    /** A map from exam id to the user's summary for that exam. */
+    exams: Record<string, UserExamSummary>;
+}
+
+/** A summary of a user's performance on a single exam. */
+export interface UserExamSummary {
+    /** The type of the exam this summary refers to. */
+    examType: ExamType;
+
+    /** The cohort range of the exam this summary refers to. */
+    cohortRange: string;
+
+    /** The date the user took the exam, in ISO format. */
+    createdAt: string;
+
+    /** The rating the user got on the exam, as determined by the exam's linear regression. */
+    rating: number;
 }
 
 export interface PaymentInfo {
@@ -297,6 +316,41 @@ export function compareCohorts(a: string, b: string): number {
         return -1;
     }
     return 1;
+}
+
+/**
+ * Returns true if lhs > rhs
+ * @param lhs The left-hand cohort to compare.
+ * @param rhs The right-hand cohort to compare.
+ */
+export function isCohortGreater(lhs: string, rhs: string): boolean {
+    return parseInt(lhs) > parseInt(rhs);
+}
+
+/**
+ * Returns true if lhs < rhs
+ * @param lhs The left-hand cohort to compare.
+ * @param rhs The right-hand cohort to compare.
+ */
+export function isCohortLess(lhs: string, rhs: string): boolean {
+    return parseInt(lhs) < parseInt(rhs);
+}
+
+/**
+ * Returns true if the provided cohort is in the given half-open range [inclusive, exclusive).
+ * @param cohort The cohort to check.
+ * @param range The range to check. Does not have to be a real cohort (Ex: 1500-2000 or 2000+).
+ */
+export function isCohortInRange(cohort: string, range: string): boolean {
+    const minCohort = parseInt(range);
+    const maxCohort =
+        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : undefined;
+    const userCohort = parseInt(cohort);
+
+    if (!maxCohort) {
+        return userCohort >= minCohort;
+    }
+    return userCohort >= minCohort && userCohort < maxCohort;
 }
 
 /**

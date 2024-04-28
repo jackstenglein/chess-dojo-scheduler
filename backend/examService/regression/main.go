@@ -77,9 +77,10 @@ func processExam(record events.DynamoDBEventRecord) error {
 		updates = append(updates, database.UserExamSummaryUpdate{
 			Username: username,
 			Summary: database.UserExamSummary{
-				ExamType:  exam.Type,
-				CreatedAt: answer.CreatedAt,
-				Rating:    float32(rating),
+				ExamType:    exam.Type,
+				CohortRange: exam.CohortRange,
+				CreatedAt:   answer.CreatedAt,
+				Rating:      float32(rating),
 			},
 		})
 	}

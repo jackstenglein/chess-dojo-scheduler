@@ -18,11 +18,11 @@ import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';
 import {
+    RatingHistory,
+    RatingSystem,
     formatRatingSystem,
     getRatingBoundary,
     normalizeToFide,
-    RatingHistory,
-    RatingSystem,
 } from '../../database/user';
 
 export function getMemberLink(ratingSystem: RatingSystem, username: string): string {
@@ -124,10 +124,10 @@ function RatingProfileLink({
     system: RatingSystem;
 }) {
     if (usernameHidden || system === RatingSystem.Custom) {
-        return <Box sx={{ mb: 2 }} />;
+        return null;
     }
     return (
-        <Stack direction='row' alignItems='end' sx={{ mb: 2 }}>
+        <Stack direction='row' alignItems='end'>
             <Typography variant='subtitle1' color='text.secondary'>
                 {username}
             </Typography>
@@ -196,7 +196,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
     return (
         <Card variant='outlined'>
             <CardContent>
-                <Stack direction='row' justifyContent='space-between'>
+                <Stack direction='row' justifyContent='space-between' mb={2}>
                     <Stack>
                         <Typography variant='h6'>
                             {formatRatingSystem(system)}

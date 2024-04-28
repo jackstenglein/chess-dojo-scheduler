@@ -297,6 +297,9 @@ type UserExamSummary struct {
 	// The type of the exam this summary refers to.
 	ExamType ExamType `dynamodbav:"examType" json:"examType"`
 
+	// The cohort range of the exam this summary refers to.
+	CohortRange string `dynamodbav:"cohortRange" json:"cohortRange"`
+
 	// The date the user took the exam, in time.RFC3339 format
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 
