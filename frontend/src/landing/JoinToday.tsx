@@ -1,5 +1,7 @@
-import { Button, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useLocation, useNavigate } from 'react-router-dom';
+import PriceMatrix from '../upsell/PriceMatrix';
 
 const JoinToday = () => {
     const navigate = useNavigate();
@@ -7,45 +9,20 @@ const JoinToday = () => {
 
     return (
         <Stack width={1} alignItems='center' mt={5} textAlign='center'>
-            <Typography variant='h2'>
+            <Typography variant='h2' mb={3}>
                 Join the{' '}
                 <Typography variant='h2' color='dojoOrange.main' component='span'>
                     ChessDojo
                 </Typography>{' '}
                 training program today
             </Typography>
-            <Typography variant='h4' mb={3} textAlign='center'>
-                Try it for free! No credit card required.
-            </Typography>
 
-            <Stack direction='row' spacing={3} justifyContent='center'>
-                <Button
-                    variant='contained'
-                    onClick={() => navigate('/signup', { state: locationState })}
-                    sx={{
-                        fontSize: '1rem',
-                        textTransform: 'none',
-                        fontWeight: '600',
-                        py: 1.5,
-                        px: 2.5,
-                    }}
-                >
-                    Sign Up for Free
-                </Button>
-                <Button
-                    variant='outlined'
-                    onClick={() => navigate('/signin', { state: locationState })}
-                    sx={{
-                        fontSize: '1rem',
-                        textTransform: 'none',
-                        fontWeight: '600',
-                        py: 1.5,
-                        px: 2.5,
-                    }}
-                >
-                    Sign In
-                </Button>
-            </Stack>
+            <Grid2 container spacing={3} width={1}>
+                <PriceMatrix
+                    onSubscribe={() => navigate('/signup', { state: locationState })}
+                    onFreeTier={() => navigate('/signup', { state: locationState })}
+                />
+            </Grid2>
         </Stack>
     );
 };
