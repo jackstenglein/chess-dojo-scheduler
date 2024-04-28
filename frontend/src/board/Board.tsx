@@ -11,12 +11,17 @@ import { Color, Key } from 'chessground/types';
 
 import { ResizableData } from './pgn/resize';
 
-import './3d-board.css';
+import './board.css';
 import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
 
 export { Chess };
 export type { BoardApi };
+
+
+
+
+
 
 export function toColor(chess?: Chess): Color {
     if (!chess) {
@@ -88,6 +93,32 @@ export function toShapes(chess?: Chess): DrawShape[] {
     }
     return result;
 }
+
+
+
+export function changeOTBMode(otbMode?: boolean){
+
+    
+    useEffect(() => {
+        // Dynamically import either board.css or 3d-board.css based on some condition
+        if (otbMode) {
+            import('./3d-board.css').then(() => {
+                console.log('3D board CSS imported');
+            }).catch((error) => {
+                console.error('Error importing 3D board CSS:', error);
+            });
+        } else {
+            import('./board.css').then(() => {
+                console.log('Regular board CSS imported');
+            }).catch((error) => {
+                console.error('Error importing regular board CSS:', error);
+            });
+        }
+    }, []);
+
+
+}
+
 
 export function reconcile(chess?: Chess, board?: BoardApi | null) {
     if (!chess || !board) {
@@ -176,7 +207,10 @@ interface BoardProps {
 
 const promotionPieces = ['q', 'n', 'r', 'b'];
 
-const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
+
+
+const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove}) => {
+
     const { chess } = useChess();
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
@@ -361,7 +395,7 @@ const MaybeResizableBoard: React.FC<MaybeResizableBoardProps> = (props) => {
         );
     }
 
-    return <Board {...boardProps} />;
+    return <Board {...boardProps}  />;
 };
 
 export default MaybeResizableBoard;

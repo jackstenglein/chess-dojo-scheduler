@@ -14,7 +14,7 @@ import React, {
 } from 'react';
 import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
-import { BoardApi, PrimitiveMove, reconcile } from '../Board';
+import { BoardApi, PrimitiveMove, reconcile, changeOTBMode } from '../Board';
 import { UnderboardTab } from './boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import ResizableContainer from './ResizableContainer';
@@ -39,6 +39,10 @@ export const ChessContext = createContext<ChessContextType>({});
 
 export function useChess() {
     return useContext(ChessContext);
+}
+
+export function changeOTBModeButtonTrigger(mode?: boolean){
+    changeOTBMode(mode);
 }
 
 export interface PgnBoardApi {

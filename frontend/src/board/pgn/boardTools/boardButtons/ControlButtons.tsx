@@ -9,11 +9,12 @@ import {
 import { IconButton, Stack, Tooltip } from '@mui/material';
 
 import { useLocalStorage } from 'usehooks-ts';
-import { useChess } from '../../PgnBoard';
+import { useChess, changeOTBModeButtonTrigger } from '../../PgnBoard';
 import {
     GoToEndButtonBehavior,
     GoToEndButtonBehaviorKey,
 } from '../underboard/settings/ViewerSettings';
+import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
 
 interface ControlButtonsProps {
     onClickMove: (move: Move | null) => void;
@@ -29,6 +30,10 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
     const onFirstMove = () => {
         onClickMove(null);
     };
+
+    const fire3dMode = () => {
+      changeOTBModeButtonTrigger(true);
+    }
 
     const onPreviousMove = () => {
         if (chess) {
@@ -110,6 +115,13 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
                     <Flip sx={{ color: 'text.secondary' }} />
                 </IconButton>
             </Tooltip>
+
+            <Tooltip title='3D Board'>
+                <IconButton aria-label='view 3D board' onClick={fire3dMode}>
+                    <ThreeDRotationIcon sx={{ color: 'text.secondary' }} />
+                </IconButton>
+            </Tooltip>
+            
         </Stack>
     );
 };
