@@ -557,54 +557,13 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     let startItemsJsx: JSX.Element[] = [];
     if (profileCreated) {
         startItemsJsx = startItems.map((item) => (
-            <React.Fragment key={item.name}>
-                <MenuItem
-                    key={item.name}
-                    onClick={item.children ? item.onClick : handleClick(item.onClick)}
-                >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <Typography textAlign='center'>
-                        {item.name}
-                        {item.name === 'Calendar' && meetingCount
-                            ? ` (${meetingCount})`
-                            : ''}
-                    </Typography>
-                    {item.children &&
-                        (openItems[item.name] ? (
-                            <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
-                                <ExpandLess />
-                            </ListItemIcon>
-                        ) : (
-                            <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
-                                <ExpandMore />
-                            </ListItemIcon>
-                        ))}
-                </MenuItem>
-                {item.children && (
-                    <Collapse in={openItems[item.name]}>
-                        <List component='div' disablePadding>
-                            {item.children.map((child) => (
-                                <MenuItem
-                                    key={child.name}
-                                    onClick={handleClick(child.onClick)}
-                                    sx={{ pl: 3 }}
-                                >
-                                    {child.icon ? (
-                                        <ListItemIcon>{child.icon}</ListItemIcon>
-                                    ) : (
-                                        <ListItemIcon>
-                                            <ChevronRight />
-                                        </ListItemIcon>
-                                    )}
-                                    <Typography textAlign='center'>
-                                        {child.name}
-                                    </Typography>
-                                </MenuItem>
-                            ))}
-                        </List>
-                    </Collapse>
-                )}
-            </React.Fragment>
+            <NavMenuItem
+                key={item.name}
+                item={item}
+                openItems={openItems}
+                handleClick={handleClick}
+                meetingCount={meetingCount}
+            />
         ));
     }
 
