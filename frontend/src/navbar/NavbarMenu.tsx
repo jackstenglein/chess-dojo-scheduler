@@ -67,7 +67,7 @@ interface MenuProps {
 
 export interface NavbarItem {
     name: string;
-    icon: JSX.Element | null;
+    icon?: JSX.Element;
     onClick: () => void;
     children?: NavbarItem[];
 }
@@ -99,12 +99,10 @@ function allStartItems(
             children: [
                 {
                     name: 'DojoLiga',
-                    icon: null,
                     onClick: () => navigate('/tournaments'),
                 },
                 {
                     name: 'Open Classical',
-                    icon: null,
                     onClick: () => navigate('/tournaments/open-classical'),
                 },
             ],
@@ -122,7 +120,37 @@ function allStartItems(
         {
             name: 'Material',
             icon: <MenuBook />,
-            onClick: () => navigate('/material'),
+            onClick: () => toggleExpansion('Material'),
+            children: [
+                {
+                    name: 'Courses',
+                    onClick: () => navigate('/courses'),
+                },
+                {
+                    name: 'Tactics Exams',
+                    onClick: () => navigate('/tactics'),
+                },
+                {
+                    name: 'Books',
+                    onClick: () => navigate('/material/books'),
+                },
+                {
+                    name: 'Sparring Positions',
+                    onClick: () => navigate('/material/sparring'),
+                },
+                {
+                    name: 'Model Annotations',
+                    onClick: () => navigate('/material/modelgames'),
+                },
+                {
+                    name: 'Games to Memorize',
+                    onClick: () => navigate('/material/memorizegames'),
+                },
+                {
+                    name: 'Rating Conversions',
+                    onClick: () => navigate('/material/ratings'),
+                },
+            ],
         },
         {
             name: 'Clubs',
@@ -141,17 +169,14 @@ function allStartItems(
             children: [
                 {
                     name: 'Courses',
-                    icon: null,
                     onClick: () => navigate('/courses'),
                 },
                 {
                     name: 'Coaching',
-                    icon: null,
                     onClick: () => navigate('/coaching'),
                 },
                 {
                     name: 'Merch',
-                    icon: null,
                     onClick: () =>
                         window.open('https://www.chessdojo.club/shop', '_blank'),
                 },

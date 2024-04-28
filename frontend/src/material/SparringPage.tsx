@@ -1,24 +1,24 @@
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
     Box,
     Button,
     Collapse,
+    Container,
     Divider,
     Grid,
     IconButton,
     Stack,
     Typography,
 } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-
 import React, { useMemo, useState } from 'react';
 import { RequestSnackbar } from '../api/Request';
 import { useRequirements } from '../api/cache/requirements';
+import { useFreeTier } from '../auth/Auth';
+import { Requirement } from '../database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
-import { Requirement } from '../database/requirement';
 import Position from '../requirements/Position';
-import { useFreeTier } from '../auth/Auth';
 
 interface SparringRequirementProps {
     requirement: Requirement;
@@ -283,7 +283,7 @@ const sectionData = [
     },
 ];
 
-const SparringTab = () => {
+const SparringPage = () => {
     const { requirements, request } = useRequirements(ALL_COHORTS, true);
     const isFreeTier = useFreeTier();
 
@@ -311,7 +311,7 @@ const SparringTab = () => {
             } else {
                 section.subsections = dojoCohorts.map((cohort) => {
                     let reqs = requirements.filter(
-                        (r) => datum.selector(r) && r.counts[cohort]
+                        (r) => datum.selector(r) && r.counts[cohort],
                     );
                     const originalCount = reqs.length;
                     if (isFreeTier) {
@@ -336,14 +336,16 @@ const SparringTab = () => {
     }
 
     return (
-        <Stack spacing={4}>
-            <RequestSnackbar request={request} />
+        <Container sx={{ py: 4 }}>
+            <Stack spacing={4}>
+                <RequestSnackbar request={request} />
 
-            {sections.map((s) => (
-                <SparringSection key={s.name} section={s} />
-            ))}
-        </Stack>
+                {sections.map((s) => (
+                    <SparringSection key={s.name} section={s} />
+                ))}
+            </Stack>
+        </Container>
     );
 };
 
-export default SparringTab;
+export default SparringPage;

@@ -1,61 +1,29 @@
-import { useSearchParams } from 'react-router-dom';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Container, Box, Tab } from '@mui/material';
+import { Navigate, useSearchParams } from 'react-router-dom';
+import NotFoundPage from '../NotFoundPage';
 
-import BooksTab from './BooksTab';
-import RatingsTab from './RatingsTab';
-import SparringTab from './SparringTab';
-import ModelGamesTab from './ModelGamesTab';
-import GamesToMemorizeTab from './GamesToMemorizeTab';
-import CoursesTab from './CoursesTab';
-import { CourseType } from '../database/course';
-
+/**
+ * Legacy page that redirects to the new page. This is only still here in case the
+ * user had the old page bookmarked.
+ */
 const MaterialPage = () => {
-    const [searchParams, setSearchParams] = useSearchParams({ view: 'openings' });
+    const [searchParams] = useSearchParams({});
 
-    return (
-        <Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
-            <TabContext value={searchParams.get('view') || 'openings'}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <TabList
-                        onChange={(_, t) => setSearchParams({ view: t })}
-                        variant='scrollable'
-                    >
-                        <Tab label='Openings' value='openings' />
-                        <Tab label='Books' value='books' />
-                        <Tab label='Sparring Positions' value='sparring' />
-                        <Tab label='Model Annotations' value='modelGames' />
-                        <Tab label='Games to Memorize' value='memorizeGames' />
-                        <Tab label='Rating Conversions' value='ratings' />
-                    </TabList>
-                </Box>
+    switch (searchParams.get('view')) {
+        case 'openings':
+            return <Navigate to='/courses' replace />;
+        case 'books':
+            return <Navigate to='/material/books' replace />;
+        case 'sparring':
+            return <Navigate to='/material/sparring' replace />;
+        case 'modelGames':
+            return <Navigate to='/material/modelgames' replace />;
+        case 'memorizeGames':
+            return <Navigate to='/material/memorizegames' replace />;
+        case 'ratings':
+            return <Navigate to='/material/ratings' replace />;
+    }
 
-                <TabPanel value='books' sx={{ px: { xs: 0, sm: 3 } }}>
-                    <BooksTab />
-                </TabPanel>
-
-                <TabPanel value='openings' sx={{ px: { xs: 0, sm: 3 } }}>
-                    <CoursesTab type={CourseType.Opening} groupByColor />
-                </TabPanel>
-
-                <TabPanel value='sparring' sx={{ px: { xs: 0, sm: 3 } }}>
-                    <SparringTab />
-                </TabPanel>
-
-                <TabPanel value='modelGames'>
-                    <ModelGamesTab />
-                </TabPanel>
-
-                <TabPanel value='memorizeGames'>
-                    <GamesToMemorizeTab />
-                </TabPanel>
-
-                <TabPanel value='ratings' sx={{ px: { xs: 0, sm: 3 } }}>
-                    <RatingsTab />
-                </TabPanel>
-            </TabContext>
-        </Container>
-    );
+    return <NotFoundPage />;
 };
 
 export default MaterialPage;

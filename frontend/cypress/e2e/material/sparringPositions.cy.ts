@@ -3,13 +3,13 @@ describe('Sparring Positions Tab', () => {
         cy.loginByCognitoApi(
             'material',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
         cy.interceptApi('GET', '/requirements/ALL_COHORTS?scoreboardOnly=false').as(
-            'requirementRequest'
+            'requirementRequest',
         );
 
-        cy.visit('/material?view=sparring');
+        cy.visit('/material/sparring');
         cy.wait('@requirementRequest');
     });
 
@@ -54,7 +54,7 @@ describe('Sparring Positions Tab', () => {
             .then((clip) => clip.readText())
             .should(
                 'equal',
-                '2r2rk1/pb1nbppp/1p2pn2/2pp4/3P1B2/2PBPN2/PP3PPP/RN1QR1K1 w - - 0 1'
+                '2r2rk1/pb1nbppp/1p2pn2/2pp4/3P1B2/2PBPN2/PP3PPP/RN1QR1K1 w - - 0 1',
             );
     });
 });

@@ -3,9 +3,9 @@ describe('Model Games Tab', () => {
         cy.loginByCognitoApi(
             'material',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
-        cy.visit('/material?view=modelGames');
+        cy.visit('/material/modelgames');
     });
 
     it('should display correct contents', () => {

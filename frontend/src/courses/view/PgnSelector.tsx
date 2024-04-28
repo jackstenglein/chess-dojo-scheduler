@@ -1,4 +1,5 @@
 import { Header } from '@jackstenglein/chess';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
     Button,
     Card,
@@ -9,7 +10,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { PgnHeaders } from '../../database/game';
 
@@ -29,6 +29,7 @@ interface PgnSelectorProps {
     completed?: boolean[];
     fullHeight?: boolean;
     hiddenCount?: number;
+    noCard?: boolean;
 }
 
 const PgnSelector: React.FC<PgnSelectorProps> = ({
@@ -39,6 +40,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
     completed,
     fullHeight,
     hiddenCount,
+    noCard,
 }) => {
     let selectedHeaders: Array<Record<string, string> | PgnHeaders> = [];
     if (headers) {
@@ -47,17 +49,8 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
         selectedHeaders = pgns.map((pgn) => new Header(pgn).tags);
     }
 
-    return (
-        <Card
-            sx={{
-                gridArea: 'extras',
-                width: 1,
-                maxHeight: fullHeight ? 1 : '18em',
-                overflowY: 'scroll',
-                flexGrow: fullHeight ? 1 : undefined,
-            }}
-            data-cy='pgn-selector'
-        >
+    const items = (
+        <>
             <List>
                 {selectedHeaders.map((header, idx) => (
                     <ListItem data-cy='pgn-selector-item' key={idx} disablePadding>
@@ -117,6 +110,25 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                     </Button>
                 </Stack>
             )}
+        </>
+    );
+
+    if (noCard) {
+        return items;
+    }
+
+    return (
+        <Card
+            sx={{
+                gridArea: 'extras',
+                width: 1,
+                maxHeight: fullHeight ? 1 : '18em',
+                overflowY: 'scroll',
+                flexGrow: fullHeight ? 1 : undefined,
+            }}
+            data-cy='pgn-selector'
+        >
+            {items}
         </Card>
     );
 };

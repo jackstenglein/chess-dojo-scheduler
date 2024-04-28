@@ -17,13 +17,13 @@ import { useAuth, useFreeTier } from '../auth/Auth';
 import PgnBoard from '../board/pgn/PgnBoard';
 import PuzzleBoard from '../board/puzzle/PuzzleBoard';
 import PgnSelector from '../courses/view/PgnSelector';
-import { coaches, coachUrls } from '../database/course';
+import { coachUrls, coaches } from '../database/course';
 import { Game, GameInfo } from '../database/game';
 import { compareCohorts } from '../database/user';
 import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
 import LoadingPage from '../loading/LoadingPage';
 
-const GamesToMemorizeTab = () => {
+const MemorizeGamesPage = () => {
     const user = useAuth().user!;
     const api = useApi();
     const listRequest = useRequest<GameInfo[]>();
@@ -90,7 +90,7 @@ const GamesToMemorizeTab = () => {
     const games = isFreeTier ? listRequest.data.slice(0, 3) : listRequest.data;
 
     return (
-        <Stack>
+        <Container maxWidth={false} sx={{ pt: 4, pb: 10 }}>
             {!isFreeTier && (
                 <Typography sx={{ mb: 4 }}>
                     Games to memorize are also available in this{' '}
@@ -225,8 +225,8 @@ const GamesToMemorizeTab = () => {
                 <RequestSnackbar request={listRequest} />
                 <RequestSnackbar request={getRequest} />
             </Container>
-        </Stack>
+        </Container>
     );
 };
 
-export default GamesToMemorizeTab;
+export default MemorizeGamesPage;

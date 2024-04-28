@@ -3,16 +3,16 @@ describe('Memorize Games Tab', () => {
         cy.loginByCognitoApi(
             'material',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
-        cy.visit('/material?view=memorizeGames');
+        cy.visit('/material/memorizegames');
     });
 
     it('should have link to Lichess study', () => {
         cy.contains('Lichess study').should(
             'have.attr',
             'href',
-            'https://lichess.org/study/u9qJoSlL'
+            'https://lichess.org/study/u9qJoSlL',
         );
     });
 

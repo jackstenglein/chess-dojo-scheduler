@@ -3,9 +3,9 @@ describe('Books Tab', () => {
         cy.loginByCognitoApi(
             'material',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
-        cy.visit('/material?view=books');
+        cy.visit('/material/books');
     });
 
     it('should have correct sections', () => {
