@@ -1,25 +1,24 @@
+import { Chess, Move, SQUARES, Square } from '@jackstenglein/chess';
 import { Box, Button, Dialog, DialogContent, Stack } from '@mui/material';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Resizable, ResizeCallbackData } from 'react-resizable';
-
-import { Chess, Move, Square, SQUARES } from '@jackstenglein/chess';
 import { Chessground } from 'chessground';
 import { Api as BoardApi } from 'chessground/api';
 import { Config } from 'chessground/config';
 import { DrawShape } from 'chessground/draw';
 import { Color, Key } from 'chessground/types';
-
-import { ResizableData } from './pgn/resize';
-
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Resizable, ResizeCallbackData } from 'react-resizable';
+import { useLocalStorage } from 'usehooks-ts';
 import './board.css';
 import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
+import {
+    PerspectiveMode,
+    PerspectiveModeKey,
+} from './pgn/boardTools/underboard/settings/ViewerSettings';
+import { ResizableData } from './pgn/resize';
 
 export { Chess };
 export type { BoardApi };
-
-
-
 
 export function toColor(chess?: Chess): Color {
     if (!chess) {
@@ -178,19 +177,16 @@ interface BoardProps {
 
 const promotionPieces = ['q', 'n', 'r', 'b'];
 
-
-
 const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const { chess } = useChess();
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
     const [isInitialized, setIsInitialized] = useState(false);
     const [promotion, setPromotion] = useState<PrePromotionMove | null>(null);
-    const [is3D, setIs3D] = useState('twoD-board');
-
-    const toggleThreeDMode = (mode: string = 'twoD-board') => {
-        setIs3D(mode);
-      };
+    const [perspectiveMode] = useLocalStorage<string>(
+        PerspectiveModeKey,
+        PerspectiveMode.TwoD,
+    );
 
     const onStartPromotion = useCallback(
         (move: PrePromotionMove) => {
@@ -221,7 +217,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
 
     useEffect(() => {
         if (boardRef.current && !board) {
-            const chessgroundApi = Chessground(boardRef.current, config );
+            const chessgroundApi = Chessground(boardRef.current, config);
             setBoard(chessgroundApi);
         } else if (boardRef.current && board && chess && !isInitialized) {
             if (config && config.fen) {
@@ -297,8 +293,16 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     }, [chess, board, onMove, onStartPromotion]);
 
     return (
-        <Box width={1} height={1} cl>
-            <div className={is3D} ref={boardRef} style={{ width: '100%', height: '100%' }} />
+        <Box
+            width={1}
+            height={1}
+            className={
+                perspectiveMode === PerspectiveMode.ThreeD
+                    ? 'three-d-board'
+                    : 'two-d-board'
+            }
+        >
+            <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
 
             <Dialog open={promotion !== null} onClose={onCancelPromotion}>
                 <DialogContent>
@@ -323,7 +327,6 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 </DialogContent>
             </Dialog>
         </Box>
-        
     );
 };
 

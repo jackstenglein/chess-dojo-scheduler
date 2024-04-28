@@ -1,28 +1,24 @@
 import { Move } from '@jackstenglein/chess';
-import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
 import {
     ChevronLeft,
     ChevronRight,
     FirstPage,
-    LastPage,
     WifiProtectedSetup as Flip,
+    LastPage,
 } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip } from '@mui/material';
-
 import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
-import Board from '../../../Board';
 import {
     GoToEndButtonBehavior,
     GoToEndButtonBehaviorKey,
 } from '../underboard/settings/ViewerSettings';
-import { useCallback } from 'react';
 
 interface ControlButtonsProps {
     onClickMove: (move: Move | null) => void;
 }
 
-const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove}) => {
+const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
     const [goToEndBehavior] = useLocalStorage(
         GoToEndButtonBehaviorKey,
         GoToEndButtonBehavior.SingleClick,
@@ -39,10 +35,6 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove}) => {
         }
     };
 
-    const triggerThreeD = () => {
-        // some way to trigger the Board.toggleThreeDMode
-    }
-
     const onNextMove = () => {
         if (chess) {
             const nextMove = chess.nextMove();
@@ -57,8 +49,6 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove}) => {
             onClickMove(chess.lastMove());
         }
     };
-
-    
 
     return (
         <Stack direction='row'>
@@ -117,12 +107,6 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove}) => {
             <Tooltip title='Flip Board'>
                 <IconButton aria-label='flip board' onClick={toggleOrientation}>
                     <Flip sx={{ color: 'text.secondary' }} />
-                </IconButton>
-            </Tooltip>
-
-            <Tooltip title='3D Board'>
-                <IconButton aria-label='view 3D board' onClick={toggleOrientation}>
-                    <ThreeDRotationIcon sx={{ color: 'text.secondary' }} />
                 </IconButton>
             </Tooltip>
         </Stack>

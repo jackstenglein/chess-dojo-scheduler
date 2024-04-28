@@ -9,10 +9,16 @@ import {
 import { useLocalStorage } from 'usehooks-ts';
 import KeyboardShortcuts from './KeyboardShortcuts';
 
+export const PerspectiveModeKey = 'perspectiveMode';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
 export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
+
+export enum PerspectiveMode {
+    TwoD = 'TWO_D',
+    ThreeD = 'THREE_D',
+}
 
 export enum GoToEndButtonBehavior {
     SingleClick = 'SINGLE_CLICK',
@@ -32,6 +38,10 @@ export enum CapturedMaterialBehavior {
 }
 
 const ViewerSettings = () => {
+    const [perspectiveMode, setPerpsectiveMode] = useLocalStorage<string>(
+        PerspectiveModeKey,
+        PerspectiveMode.TwoD,
+    );
     const [goToEndBehavior, setGoToEndBehavior] = useLocalStorage<string>(
         GoToEndButtonBehaviorKey,
         GoToEndButtonBehavior.SingleClick,
@@ -53,6 +63,16 @@ const ViewerSettings = () => {
     return (
         <Stack spacing={3}>
             <Typography variant='h5'>Viewer Settings</Typography>
+
+            <TextField
+                select
+                label='Board Perspective'
+                value={perspectiveMode}
+                onChange={(e) => setPerpsectiveMode(e.target.value)}
+            >
+                <MenuItem value={PerspectiveMode.TwoD}>Two Dimensional</MenuItem>
+                <MenuItem value={PerspectiveMode.ThreeD}>Three Dimensional</MenuItem>
+            </TextField>
 
             <TextField
                 select
