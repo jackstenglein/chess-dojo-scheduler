@@ -24,6 +24,7 @@ export enum RestrictedAction {
     CreateClubs = 'Create new clubs',
     JoinSubscriberClubs = 'Join clubs restricted to subscribers',
     SubscriberChat = 'Access the subscriber-only chat',
+    TacticsExams = 'Take all tactics exams',
 }
 
 const defaultBulletPoints = [
