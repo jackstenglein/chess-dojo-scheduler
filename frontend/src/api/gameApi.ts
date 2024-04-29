@@ -193,19 +193,24 @@ export type GameApiContextType = {
 export enum GameSubmissionType {
     LichessChapter = 'lichessChapter',
     LichessStudy = 'lichessStudy',
+    LichessGame = 'lichessGame',
+    ChesscomGame = 'chesscomGame',
     Manual = 'manual',
     StartingPosition = 'startingPosition',
 }
 
-export interface CreateGameRequest {
-    type?: GameSubmissionType;
+export interface RemoteGame {
     url?: string;
     pgnText?: string;
     headers?: GameHeader[];
+    type: GameSubmissionType;
+}
+
+export type CreateGameRequest = {
     orientation?: string;
     unlisted?: boolean;
     timelineId?: string;
-}
+} & RemoteGame;
 
 export interface GameHeader {
     white: string;
@@ -582,3 +587,68 @@ export function markReviewed(idToken: string, cohort: string, id: string) {
         { headers: { Authorization: `Bearer ${idToken}` } },
     );
 }
+
+function isURL(
+    url: string,
+    {
+        hostname,
+        pathParts,
+    }: {
+        hostname: string;
+        pathParts: RegExp[];
+    },
+): boolean {
+    console.log(url);
+    let urlObj: URL | null = null;
+    try {
+        urlObj = new URL(url.trim());
+    } catch (error) {
+        // ...
+    }
+
+    if (urlObj === null) {
+        console.log('Invalid url');
+        return false;
+    }
+
+    if (urlObj.hostname !== hostname) {
+        console.log(urlObj.hostname);
+        return false;
+    }
+
+    const parts = urlObj.pathname.split('/').filter((part) => part);
+
+    for (const [idx, part] of parts.entries()) {
+        const re = pathParts[idx];
+        if (!re || !re.test(part)) {
+            console.log(part);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+export const isLichessStudyURL = (url: string) =>
+    isURL(url, {
+        hostname: 'lichess.org',
+        pathParts: [/^study$/, /^.{8}$/],
+    });
+
+export const isLichessGameURL = (url: string) =>
+    isURL(url, {
+        hostname: 'lichess.org',
+        pathParts: [/^.{8}$/, /^(black|white)$/],
+    });
+
+export const isLichessChapterURL = (url: string) =>
+    isURL(url, {
+        hostname: 'lichess.org',
+        pathParts: [/^study$/, /^.{8}$/, /^.{8}$/],
+    });
+
+export const isChesscomGameURL = (url: string) =>
+    isURL(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^game$/, /^(live|daily)$/, /\d+/],
+    });
