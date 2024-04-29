@@ -13,6 +13,7 @@ import {
     ScatterPlot,
     ScatterSeriesType,
     axisClasses,
+    cheerfulFiestaPalette,
     lineElementClasses,
 } from '@mui/x-charts';
 import { useMemo, useState } from 'react';
@@ -46,7 +47,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
 
             const series = cohortToSeries[answer.cohort] || {
                 type: 'scatter',
-                label: answer.cohort,
+                label: answer.cohort.replaceAll('00', ''),
                 data: [],
                 highlightScope: {
                     highlighted: 'item',
@@ -109,6 +110,27 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
         setCohorts(finalCohorts);
     };
 
+    const yourScoreSeries: ScatterSeriesType[] = exam.answers[user.username]
+        ? [
+              {
+                  type: 'scatter',
+                  label: 'Your Score',
+                  data: [
+                      {
+                          x: exam.answers[user.username].score,
+                          y: exam.answers[user.username].rating,
+                          id: user.username,
+                      },
+                  ],
+                  highlightScope: {
+                      highlighted: 'item',
+                      faded: 'global',
+                  },
+                  valueFormatter: (value) => `Score: ${value.x},\nRating: ${value.y}`,
+              },
+          ]
+        : [];
+
     return (
         <CardContent sx={{ height: 1 }}>
             <Stack height={1}>
@@ -118,13 +140,15 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     setSelected={onChangeCohort}
                     options={{
                         [ALL_COHORTS]: 'All Cohorts',
-                        ...Object.keys(cohortToSeries).reduce(
-                            (acc, cohort) => {
-                                acc[cohort] = cohort;
-                                return acc;
-                            },
-                            {} as Record<string, string>,
-                        ),
+                        ...Object.keys(cohortToSeries)
+                            .sort(compareCohorts)
+                            .reduce(
+                                (acc, cohort) => {
+                                    acc[cohort] = cohort;
+                                    return acc;
+                                },
+                                {} as Record<string, string>,
+                            ),
                     }}
                     error={cohorts.length === 0}
                 />
@@ -135,6 +159,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                         {
                             label: 'Score',
                             data: Array.from(Array(totalScore + 1)).map((_, i) => i),
+                            min: 0,
                         },
                     ]}
                     yAxis={[
@@ -144,28 +169,8 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                             min: 0,
                         },
                     ]}
-                    series={[
-                        {
-                            type: 'scatter',
-                            label: 'Your Score',
-                            data: [
-                                {
-                                    x: exam.answers[user.username]?.score || -1,
-                                    y: exam.answers[user.username]?.rating || -1,
-                                    id: user.username,
-                                },
-                            ],
-                            highlightScope: {
-                                highlighted: 'item',
-                                faded: 'global',
-                            },
-                            valueFormatter: (value) =>
-                                `Score: ${value.x}, Rating: ${value.y}`,
-                        },
-                        ...series,
-                        ...lineSeries,
-                    ]}
-                    margin={{ left: 60, right: 8 }}
+                    series={[...yourScoreSeries, ...series, ...lineSeries]}
+                    margin={{ left: 60, right: 8, top: 100 }}
                     sx={{
                         [`& .${axisClasses.left} .${axisClasses.label}`]: {
                             transform: 'translateX(-20px)',
@@ -177,19 +182,22 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                             strokeDasharray: '5 5',
                         },
                     }}
+                    colors={cheerfulFiestaPalette}
                 >
+                    <ChartsLegend
+                        slotProps={{ legend: { itemMarkWidth: 12, itemMarkHeight: 12 } }}
+                    />
                     <ChartsGrid vertical horizontal />
+
+                    <ChartsYAxis />
+                    <ChartsXAxis />
+
                     <g clipPath='url(#clip-path)'>
                         <LinePlot />
                     </g>
                     <ScatterPlot />
                     <ChartsVoronoiHandler />
-                    <ChartsXAxis />
-                    <ChartsYAxis />
                     <ChartsTooltip trigger='item' />
-                    <ChartsLegend
-                        slotProps={{ legend: { itemMarkWidth: 12, itemMarkHeight: 12 } }}
-                    />
                     <ChartsClipPath id='clip-path' />
                 </ResponsiveChartContainer>
             </Stack>
