@@ -2,7 +2,14 @@ import { useState } from 'react';
 
 import { Box, TextField } from '@mui/material';
 
-import { GameSubmissionType, RemoteGame } from '../../api/gameApi';
+import {
+    GameSubmissionType,
+    RemoteGame,
+    isChesscomGameURL,
+    isLichessChapterURL,
+    isLichessGameURL,
+    isLichessStudyURL,
+} from '../../api/gameApi';
 import { ImportButton } from './ImportButton';
 
 interface OnlineGameFormProps {
@@ -15,17 +22,18 @@ export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmi
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = () => {
-        const urlCheckers: [GameSubmissionType, RegExp][] = [
-            [GameSubmissionType.LichessChapter, lichessChapterRegex],
-            [GameSubmissionType.LichessStudy, lichessStudyRegex],
-            [GameSubmissionType.LichessGame, lichessGameRegex],
-            [GameSubmissionType.ChesscomGame, chesscomGameRegex],
+        const urlCheckers: [GameSubmissionType, (url: string) => boolean][] = [
+            [GameSubmissionType.LichessChapter, isLichessChapterURL],
+            [GameSubmissionType.LichessStudy, isLichessStudyURL],
+            [GameSubmissionType.LichessGame, isLichessGameURL],
+            [GameSubmissionType.ChesscomGame, isChesscomGameURL],
         ];
 
         let submissionType: GameSubmissionType | null = null;
-        for (const [candidate, regex] of urlCheckers) {
-            if (regex.test(url)) {
+        for (const [candidate, matcher] of urlCheckers) {
+            if (matcher(url)) {
                 submissionType = candidate;
+                break;
             }
         }
 
