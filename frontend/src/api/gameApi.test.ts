@@ -4,8 +4,7 @@ import { GameSubmissionType, isLichessStudyURL } from './gameApi';
 
 const testURLs: Record<string, string[]> = {
     [GameSubmissionType.ChesscomGame]: ['https://www.chess.com/game/live/107855985867'],
-    [GameSubmissionType.LichessGame]: ['https://lichess.org/1MaMRh7b/black'],
-
+    [GameSubmissionType.LichessGame]: ['https://lichess.org/mN1qj7pP/black'],
     [GameSubmissionType.LichessStudy]: ['https://lichess.org/study/y14Z6s3N'],
     [GameSubmissionType.LichessChapter]: ['https://lichess.org/study/y14Z6s3N/fqJZzUm8'],
 };
