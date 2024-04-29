@@ -26,7 +26,9 @@ export enum PieceStyleTwoD {
     Pixel = 'PIXEL_P',
     WOOD = 'WOOD_P',
     Celtic = 'CELTIC_P',
-    Fantasy = 'FANTASY_P'
+    Fantasy = 'FANTASY_P',
+    Cherry = 'CHERRY_P',
+    Walnut = 'WALNUT_P'
 }
 
 export enum GoToEndButtonBehavior {
@@ -95,9 +97,11 @@ const ViewerSettings = () => {
             >
                 <MenuItem value={PieceStyleTwoD.Standard}>Standard View</MenuItem>
                 <MenuItem value={PieceStyleTwoD.Pixel}>Pixel Night</MenuItem>
-                <MenuItem value={PieceStyleTwoD.WOOD}>Wooden Park</MenuItem>
-                <MenuItem value={PieceStyleTwoD.Celtic}>Summer time</MenuItem>
+                <MenuItem value={PieceStyleTwoD.WOOD}>Wood Park</MenuItem>
+                <MenuItem value={PieceStyleTwoD.Walnut}>Walnut Castle</MenuItem>
+                <MenuItem value={PieceStyleTwoD.Celtic}>Summer Time</MenuItem>
                 <MenuItem value={PieceStyleTwoD.Fantasy}>Moon Light</MenuItem>
+                <MenuItem value={PieceStyleTwoD.Cherry}>Cherry Blossom</MenuItem>
             </TextField>
 
             <TextField

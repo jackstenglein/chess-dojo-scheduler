@@ -162,6 +162,403 @@
 
 
 
+/* 2D BOARD WOOD CSS */
+
+.twoD-board-wood .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.twoD-board-wood .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.twoD-board-wood .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.twoD-board-wood .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.twoD-board-wood .cg-wrap coords.files coord:nth-child(2n),
+.twoD-board-wood .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.twoD-board-wood .cg-wrap coords.ranks coord:nth-child(2n),
+.twoD-board-wood .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.twoD-board-wood .cg-wrap coords.files coord:nth-child(2n + 1),
+.twoD-board-wood .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.twoD-board-wood .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.twoD-board-wood cg-board {
+    background-image: url('https://github.com/lichess-org/lila/blob/master/public/images/board/maple.jpg?raw=true') !important;
+}
+
+.twoD-board-wood .cg-wrap piece.pawn.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/wP.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.bishop.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/wB.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.knight.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/wN.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.rook.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/wR.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.queen.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/wQ.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.king.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/wK.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.pawn.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/bP.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.bishop.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/bB.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.knight.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/bN.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.rook.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/bR.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.queen.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/bQ.svg') !important;
+}
+.twoD-board-wood .cg-wrap piece.king.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/bK.svg') !important;
+}
+
+
+
+/* 2D BOARD Summer CSS */
+
+.twoD-board-summer .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.twoD-board-summer .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.twoD-board-summer .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.twoD-board-summer .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.twoD-board-summer .cg-wrap coords.files coord:nth-child(2n),
+.twoD-board-summer .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.twoD-board-summer .cg-wrap coords.ranks coord:nth-child(2n),
+.twoD-board-summer .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.twoD-board-summer .cg-wrap coords.files coord:nth-child(2n + 1),
+.twoD-board-summer .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.twoD-board-summer .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.twoD-board-summer cg-board {
+    background-image: url('https://github.com/lichess-org/lila/blob/master/public/images/board/green-plastic.png?raw=true') !important;
+}
+
+.twoD-board-summer .cg-wrap piece.pawn.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/wP.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.bishop.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/wB.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.knight.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/wN.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.rook.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/wR.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.queen.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/wQ.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.king.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/wK.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.pawn.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/bP.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.bishop.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/bB.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.knight.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/bN.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.rook.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/bR.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.queen.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/bQ.svg') !important;
+}
+.twoD-board-summer .cg-wrap piece.king.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/celtic/bK.svg') !important;
+}
+
+
+/* 2D BOARD Moon CSS */
+
+.twoD-board-moon .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.twoD-board-moon .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.twoD-board-moon .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.twoD-board-moon .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.twoD-board-moon .cg-wrap coords.files coord:nth-child(2n),
+.twoD-board-moon .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.twoD-board-moon .cg-wrap coords.ranks coord:nth-child(2n),
+.twoD-board-moon .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.twoD-board-moon .cg-wrap coords.files coord:nth-child(2n + 1),
+.twoD-board-moon .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.twoD-board-moon .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.twoD-board-moon cg-board {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila/master/public/images/board/grey.jpg') !important;
+}
+
+.twoD-board-moon .cg-wrap piece.pawn.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/wP.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.bishop.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/wB.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.knight.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/wN.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.rook.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/wR.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.queen.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/wQ.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.king.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/wK.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.pawn.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/bP.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.bishop.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/bB.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.knight.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/bN.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.rook.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/bR.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.queen.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/bQ.svg') !important;
+}
+.twoD-board-moon .cg-wrap piece.king.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/bK.svg') !important;
+}
+
+
+/* 2D BOARD Cherry CSS */
+
+.twoD-board-cherry .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.twoD-board-cherry .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.twoD-board-cherry .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.twoD-board-cherry .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.twoD-board-cherry .cg-wrap coords.files coord:nth-child(2n),
+.twoD-board-cherry .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.twoD-board-cherry .cg-wrap coords.ranks coord:nth-child(2n),
+.twoD-board-cherry .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.twoD-board-cherry .cg-wrap coords.files coord:nth-child(2n + 1),
+.twoD-board-cherry .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.twoD-board-cherry .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.twoD-board-cherry cg-board {
+    background-image: url('https://github.com/lichess-org/lila/blob/master/public/images/board/pink-pyramid.png?raw=true') !important;
+}
+
+.twoD-board-cherry .cg-wrap piece.pawn.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/wP.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.bishop.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/wB.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.knight.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/wN.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.rook.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/wR.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.queen.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/wQ.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.king.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/wK.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.pawn.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/bP.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.bishop.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/bB.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.knight.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/bN.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.rook.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/bR.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.queen.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/bQ.svg') !important;
+}
+.twoD-board-cherry .cg-wrap piece.king.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/bK.svg') !important;
+}
+
+
+/* 2D BOARD WALNUT CSS */
+
+.twoD-board-walnut .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.twoD-board-walnut .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.twoD-board-walnut .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.twoD-board-walnut .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.twoD-board-walnut .cg-wrap coords.files coord:nth-child(2n),
+.twoD-board-walnut .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.twoD-board-walnut .cg-wrap coords.ranks coord:nth-child(2n),
+.twoD-board-walnut .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.twoD-board-walnut .cg-wrap coords.files coord:nth-child(2n + 1),
+.twoD-board-walnut .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.twoD-board-walnut .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.twoD-board-walnut cg-board {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila/master/public/images/board/wood.jpg') !important;
+}
+
+.twoD-board-walnut .cg-wrap piece.pawn.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/wP.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.bishop.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/wB.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.knight.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/wN.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.rook.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/wR.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.queen.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/wQ.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.king.white {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/wK.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.pawn.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/bP.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.bishop.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/bB.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.knight.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/bN.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.rook.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/bR.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.queen.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/bQ.svg') !important;
+}
+.twoD-board-walnut .cg-wrap piece.king.black {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/bK.svg') !important;
+}
+
+
+
 /* 3D BOARD STANDARD CSS */
 
 .threeD .cg-wrap coords.ranks {
@@ -194,7 +591,7 @@
 .threeD .cg-wrap coords.files {
     bottom: 1px !important;
     left: 2px !important;
-    height: 1.2em !important;
+    height: 3em !important;
     text-transform: lowercase !important;
     text-align: left !important;
 }
@@ -206,40 +603,40 @@
 }
 
 .threeD .cg-wrap piece.pawn.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/White%20Pawn.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Pawn.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.bishop.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/White%20Bishop.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Bishop.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.knight.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/White%20Knight.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Knight.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.rook.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/White%20Rook.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Rook.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.queen.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/White%20Queen.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Queen.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.king.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/White%20King.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-King.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.pawn.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/Black%20Pawn.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Pawn.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.bishop.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/Black%20Bishop.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Bishop.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.knight.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.rook.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/Black%20Rook.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Rook.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.queen.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/Black%20Queen.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Queen.png?raw=true') !important;
 }
 .threeD .cg-wrap piece.king.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Wood/MaxRes/Black%20King.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-King.png?raw=true') !important;
 }
 
 /* 3D BOARD PIXEL CSS */
@@ -285,38 +682,437 @@
 }
 
 .threeD-pixel .cg-wrap piece.pawn.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/White-Pawn.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Pawn.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.bishop.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/White-Bishop.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Bishop.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.knight.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/White-Knight.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Knight.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.rook.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/White-Rook.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Rook.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.queen.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/White-Queen.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Queen.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.king.white {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/White-King.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-King.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.pawn.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/Black-Pawn.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Pawn.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.bishop.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/Black-Bishop.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Bishop.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.knight.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.rook.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/Black-Rook.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Rook.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.queen.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/Black-Queen.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Queen.png?raw=true') !important;
 }
 .threeD-pixel .cg-wrap piece.king.black {
-    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/Experimental/MaxRes/Black-King.png?raw=true') !important;
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-King.png?raw=true') !important;
+}
+
+
+/* 3D BOARD WOOD CSS */
+
+
+.threeD-wood .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.threeD-wood .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.threeD-wood .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.threeD-wood .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.threeD-wood .cg-wrap coords.files coord:nth-child(2n),
+.threeD-wood .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.threeD-wood .cg-wrap coords.ranks coord:nth-child(2n),
+.threeD-wood .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.threeD-wood .cg-wrap coords.files coord:nth-child(2n + 1),
+.threeD-wood .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.threeD-wood .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.threeD-wood cg-board {
+    background-image: url('https://github.com/lichess-org/lila/blob/master/public/images/board/maple.jpg?raw=true') !important;
+}
+
+.threeD-wood .cg-wrap piece.pawn.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Pawn.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.bishop.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Bishop.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.knight.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Knight.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.rook.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Rook.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.queen.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Queen.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.king.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-King.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.pawn.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Pawn.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.bishop.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Bishop.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.knight.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.rook.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Rook.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.queen.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Queen.png?raw=true') !important;
+}
+.threeD-wood .cg-wrap piece.king.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-King.png?raw=true') !important;
+}
+
+/* 3D BOARD SUMMER CSS */
+
+
+.threeD-summer .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.threeD-summer .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.threeD-summer .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.threeD-summer .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.threeD-summer .cg-wrap coords.files coord:nth-child(2n),
+.threeD-summer .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.threeD-summer .cg-wrap coords.ranks coord:nth-child(2n),
+.threeD-summer .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.threeD-summer .cg-wrap coords.files coord:nth-child(2n + 1),
+.threeD-summer .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.threeD-summer .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.threeD-summer cg-board {
+    background-image: url('https://github.com/lichess-org/lila/blob/master/public/images/board/green-plastic.png?raw=true') !important;
+}
+
+.threeD-summer .cg-wrap piece.pawn.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Pawn.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.bishop.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Bishop.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.knight.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Knight.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.rook.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Rook.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.queen.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Queen.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.king.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-King.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.pawn.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Pawn.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.bishop.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Bishop.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.knight.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.rook.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Rook.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.queen.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Queen.png?raw=true') !important;
+}
+.threeD-summer .cg-wrap piece.king.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-King.png?raw=true') !important;
+}
+
+
+/* 3D BOARD MOON CSS */
+
+
+.threeD-moon .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.threeD-moon .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.threeD-moon .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.threeD-moon .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.threeD-moon .cg-wrap coords.files coord:nth-child(2n),
+.threeD-moon .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.threeD-moon .cg-wrap coords.ranks coord:nth-child(2n),
+.threeD-moon .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.threeD-moon .cg-wrap coords.files coord:nth-child(2n + 1),
+.threeD-moon .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.threeD-moon .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.threeD-moon cg-board {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila/master/public/images/board/grey.jpg') !important;
+}
+
+.threeD-moon .cg-wrap piece.pawn.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Pawn.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.bishop.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Bishop.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.knight.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Knight.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.rook.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Rook.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.queen.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Queen.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.king.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-King.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.pawn.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Pawn.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.bishop.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Bishop.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.knight.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.rook.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Rook.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.queen.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Queen.png?raw=true') !important;
+}
+.threeD-moon .cg-wrap piece.king.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-King.png?raw=true') !important;
+}
+
+
+/* 3D BOARD CHERRY CSS */
+
+
+.threeD-cherry .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.threeD-cherry .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.threeD-cherry .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.threeD-cherry .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.threeD-cherry .cg-wrap coords.files coord:nth-child(2n),
+.threeD-cherry .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.threeD-cherry .cg-wrap coords.ranks coord:nth-child(2n),
+.threeD-cherry .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.threeD-cherry .cg-wrap coords.files coord:nth-child(2n + 1),
+.threeD-cherry .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.threeD-cherry .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.threeD-cherry cg-board {
+    background-image: url('https://github.com/lichess-org/lila/blob/master/public/images/board/pink-pyramid.png?raw=true') !important;
+}
+
+.threeD-cherry .cg-wrap piece.pawn.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Pawn.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.bishop.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Bishop.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.knight.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Knight.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.rook.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Rook.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.queen.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Queen.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.king.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-King.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.pawn.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Pawn.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.bishop.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Bishop.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.knight.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.rook.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Rook.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.queen.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Queen.png?raw=true') !important;
+}
+.threeD-cherry .cg-wrap piece.king.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-King.png?raw=true') !important;
+}
+
+
+/* 3D BOARD WALNUT CSS */
+
+
+.threeD-walnut .cg-wrap coords.ranks {
+    right: 0 !important;
+    top: 1px !important;
+    left: unset !important;
+    width: 0.8em !important;
+}
+
+.threeD-walnut .cg-wrap coords.ranks coord {
+    transform: unset !important;
+}
+
+.threeD-walnut .cg-wrap coords.ranks coord:nth-child(2n + 1),
+.threeD-walnut.cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.threeD-walnut .cg-wrap coords.files coord:nth-child(2n),
+.threeD-walnut .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+    color: #7a9db2 !important;
+    font-weight: 600;
+}
+
+.threeD-walnut .cg-wrap coords.ranks coord:nth-child(2n),
+.threeD-walnut .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
+.threeD-walnut .cg-wrap coords.files coord:nth-child(2n + 1),
+.threeD-walnut .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+    color: #c5d5dc !important;
+    font-weight: 600;
+}
+
+.threeD-walnut .cg-wrap coords.files {
+    bottom: 1px !important;
+    left: 2px !important;
+    height: 1.2em !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+.threeD-walnut cg-board {
+    background-image: url('https://raw.githubusercontent.com/lichess-org/lila/master/public/images/board/wood.jpg') !important;
+}
+
+.threeD-walnut .cg-wrap piece.pawn.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Pawn.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.bishop.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Bishop.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.knight.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Knight.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.rook.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Rook.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.queen.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-Queen.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.king.white {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/White-King.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.pawn.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Pawn.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.bishop.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Bishop.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.knight.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Knight-Flipped.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.rook.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Rook.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.queen.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-Queen.png?raw=true') !important;
+}
+.threeD-walnut .cg-wrap piece.king.black {
+    background-image: url('https://github.com/clarkerubber/Staunton-Pieces/blob/master/Renders/RedVBlue/MaxRes/Black-King.png?raw=true') !important;
 }

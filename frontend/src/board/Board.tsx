@@ -311,6 +311,26 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
       className = 'twoD-board-pixel';
     } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Pixel){
       className = 'threeD-pixel';
+    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.WOOD){
+      className = 'twoD-board-wood'
+    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Celtic){
+      className = 'twoD-board-summer'
+    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Fantasy){
+        className = 'twoD-board-moon'
+    }else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.WOOD){
+        className = 'threeD-wood';
+    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Celtic){
+        className = 'threeD-summer';
+    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Fantasy){
+        className = 'threeD-moon';
+    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Cherry){
+        className = 'twoD-board-cherry';
+    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Cherry){
+        className = 'threeD-cherry';
+    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Walnut){
+        className = 'twoD-board-walnut';
+    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Walnut){
+        className = 'threeD-walnut';
     }
 
     else{
