@@ -115,9 +115,11 @@ resources:
         CallbackURLs:
           - ${file(../config-${sls:stage}.yml):frontendHost}
           - ${file(../config-${sls:stage}.yml):mobileHost}
+          - https://www.dojoscoreboard.com
         LogoutURLs:
           - ${file(../config-${sls:stage}.yml):frontendHost}
           - ${file(../config-${sls:stage}.yml):mobileHost}
+          - https://www.dojoscoreboard.com
         SupportedIdentityProviders:
           - COGNITO
           - Google
@@ -148,10 +150,10 @@ resources:
         UserPoolId: { Ref: CognitoUserPool }
         Domain: !If
           - IsProd
-          - auth.dojoscoreboard.com
-          - authdev.dojoscoreboard.com
+          - auth.chessdojo.club
+          - authdev.chessdojo.club
         CustomDomainConfig:
-          CertificateArn: ${file(../config-${sls:stage}.yml):domainCertificateArn}
+          CertificateArn: !Ref CustomDomainCertificate
 
     UserPoolIdentityProvider:
       Type: AWS::Cognito::UserPoolIdentityProvider
