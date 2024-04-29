@@ -1,43 +1,49 @@
-import { expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { GameSubmissionType, isLichessStudyURL } from './gameApi';
+import {
+    GameSubmissionType,
+    isChesscomGameURL,
+    isLichessChapterURL,
+    isLichessGameURL,
+    isLichessStudyURL,
+} from './gameApi';
 
 const testURLs: Record<string, string[]> = {
     [GameSubmissionType.ChesscomGame]: ['https://www.chess.com/game/live/107855985867'],
     [GameSubmissionType.LichessGame]: ['https://lichess.org/mN1qj7pP/black'],
-    [GameSubmissionType.LichessStudy]: ['https://lichess.org/study/y14Z6s3N'],
+    [GameSubmissionType.LichessStudy]: ['https://lichess.org/study/JIPuIPVG/'],
     [GameSubmissionType.LichessChapter]: ['https://lichess.org/study/y14Z6s3N/fqJZzUm8'],
 };
 
-const expectExclusive = (
-    submissionType: GameSubmissionType,
-    match: (url: string) => boolean,
-) => {
-    for (const [otherType, urls] of Object.entries(testURLs)) {
-        if (otherType !== submissionType) {
-            for (const url of urls) {
-                expect(
-                    match(url),
-                    `${submissionType} url matcher should not the ${otherType} url ${url}`,
-                ).toBeFalsy();
-            }
-        }
-    }
+const urlMatchers: Record<string, (url: string) => boolean> = {
+    [GameSubmissionType.ChesscomGame]: isChesscomGameURL,
+    [GameSubmissionType.LichessGame]: isLichessGameURL,
+    [GameSubmissionType.LichessStudy]: isLichessStudyURL,
+    [GameSubmissionType.LichessChapter]: isLichessChapterURL,
 };
 
-const expectMatches = (
-    submissionType: GameSubmissionType,
-    match: (url: string) => boolean,
-) =>
-    testURLs[submissionType].forEach((url) => {
-        expect(
-            match(url),
-            `${submissionType} url matcher should match ${url}`,
-        ).toBeTruthy();
-    });
+Object.entries(urlMatchers).forEach(([submissionType, match]) =>
+    describe(`${submissionType} URL matcher`, () => {
+        it('does not match URLs that other matchers match', () => {
+            for (const [otherType, urls] of Object.entries(testURLs)) {
+                if (otherType !== submissionType) {
+                    for (const url of urls) {
+                        expect(
+                            match(url),
+                            `${submissionType} url matcher should not match the ${otherType} url ${url}`,
+                        ).toBeFalsy();
+                    }
+                }
+            }
+        });
 
-it('does not detect non-Lichess studies', async () =>
-    expectExclusive(GameSubmissionType.LichessStudy, isLichessStudyURL));
-
-it('detects Lichess studies', async () =>
-    expectMatches(GameSubmissionType.LichessStudy, isLichessStudyURL));
+        it('matches relevant URLs', async () => {
+            testURLs[submissionType].forEach((url) => {
+                expect(
+                    match(url),
+                    `${submissionType} url matcher should match ${url}`,
+                ).toBeTruthy();
+            });
+        });
+    }),
+);
