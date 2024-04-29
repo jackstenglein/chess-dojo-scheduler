@@ -186,6 +186,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const [perspectiveMode] = useLocalStorage<string>(
         PerspectiveModeKey,
         PerspectiveMode.TwoD,
+        
     );
 
     const onStartPromotion = useCallback(
@@ -227,7 +228,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 chess.loadPgn(config.pgn);
                 chess.seek(null);
             }
-
+            
             board.set({
                 ...config,
                 fen: chess.fen(),
@@ -253,7 +254,9 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                     onChange:
                         config?.drawable?.onChange || defaultOnDrawableChange(chess),
                 },
+                addPieceZIndex: perspectiveMode === PerspectiveMode.ThreeD
             });
+            
 
             if (onInitialize) {
                 onInitialize(board, chess);
@@ -288,18 +291,24 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                             ),
                     },
                 },
+                addPieceZIndex: perspectiveMode === PerspectiveMode.ThreeD
             });
         }
     }, [chess, board, onMove, onStartPromotion]);
+
+    let className: string;
+    if (perspectiveMode === PerspectiveMode.ThreeD) {
+      className = 'threeD';
+    } else {
+      className = 'twoD-board';
+    }
 
     return (
         <Box
             width={1}
             height={1}
             className={
-                perspectiveMode === PerspectiveMode.ThreeD
-                    ? 'three-d-board'
-                    : 'two-d-board'
+                className
             }
         >
             <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
