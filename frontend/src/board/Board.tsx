@@ -14,6 +14,8 @@ import ResizeHandle from './pgn/ResizeHandle';
 import {
     PerspectiveMode,
     PerspectiveModeKey,
+    PieceStyleTwoD,
+    PieceStyleModeKey2D
 } from './pgn/boardTools/underboard/settings/ViewerSettings';
 import { ResizableData } from './pgn/resize';
 
@@ -188,6 +190,10 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         PerspectiveMode.TwoD,
         
     );
+    const [boardtheme] = useLocalStorage<string>(
+        PieceStyleModeKey2D,
+        PieceStyleTwoD.Standard
+    )
 
     const onStartPromotion = useCallback(
         (move: PrePromotionMove) => {
@@ -297,10 +303,18 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     }, [chess, board, onMove, onStartPromotion]);
 
     let className: string;
-    if (perspectiveMode === PerspectiveMode.ThreeD) {
+    if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Standard) {
       className = 'threeD';
-    } else {
+    } else if(perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Standard) {
       className = 'twoD-board';
+    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Pixel){
+      className = 'twoD-board-pixel';
+    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Pixel){
+      className = 'threeD-pixel';
+    }
+
+    else{
+        className = 'twoD-board';
     }
 
     return (

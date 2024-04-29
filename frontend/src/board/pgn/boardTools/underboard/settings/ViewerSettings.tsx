@@ -10,6 +10,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import KeyboardShortcuts from './KeyboardShortcuts';
 
 export const PerspectiveModeKey = 'perspectiveMode';
+export const PieceStyleModeKey2D = 'pieceStyleMode2D'
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
@@ -18,6 +19,14 @@ export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
 export enum PerspectiveMode {
     TwoD = 'TWO_D',
     ThreeD = 'THREE_D',
+}
+
+export enum PieceStyleTwoD {
+    Standard = 'STANDARD_P',
+    Pixel = 'PIXEL_P',
+    WOOD = 'WOOD_P',
+    Celtic = 'CELTIC_P',
+    Fantasy = 'FANTASY_P'
 }
 
 export enum GoToEndButtonBehavior {
@@ -41,6 +50,10 @@ const ViewerSettings = () => {
     const [perspectiveMode, setPerpsectiveMode] = useLocalStorage<string>(
         PerspectiveModeKey,
         PerspectiveMode.TwoD,
+    );
+    const [pieceStyleMode2D, setPieceStyleMode2D] = useLocalStorage<string>(
+        PieceStyleModeKey2D,
+        PieceStyleTwoD.Standard
     );
     const [goToEndBehavior, setGoToEndBehavior] = useLocalStorage<string>(
         GoToEndButtonBehaviorKey,
@@ -72,6 +85,19 @@ const ViewerSettings = () => {
             >
                 <MenuItem value={PerspectiveMode.TwoD}>Two Dimensional</MenuItem>
                 <MenuItem value={PerspectiveMode.ThreeD}>Three Dimensional</MenuItem>
+            </TextField>
+
+            <TextField
+                select
+                label='Board Theme'
+                value={pieceStyleMode2D}
+                onChange={(e) => setPieceStyleMode2D(e.target.value)}
+            >
+                <MenuItem value={PieceStyleTwoD.Standard}>Standard View</MenuItem>
+                <MenuItem value={PieceStyleTwoD.Pixel}>Pixel Night</MenuItem>
+                <MenuItem value={PieceStyleTwoD.WOOD}>Wooden Park</MenuItem>
+                <MenuItem value={PieceStyleTwoD.Celtic}>Summer time</MenuItem>
+                <MenuItem value={PieceStyleTwoD.Fantasy}>Moon Light</MenuItem>
             </TextField>
 
             <TextField
