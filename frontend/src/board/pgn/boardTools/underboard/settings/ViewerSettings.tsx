@@ -9,26 +9,26 @@ import {
 import { useLocalStorage } from 'usehooks-ts';
 import KeyboardShortcuts from './KeyboardShortcuts';
 
-export const PerspectiveModeKey = 'perspectiveMode';
-export const PieceStyleModeKey2D = 'pieceStyleMode2D'
+export const BoardStyleKey = 'boardStyle';
+export const PieceStyleKey = 'pieceStyle';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
 export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
 
-export enum PerspectiveMode {
-    TwoD = 'TWO_D',
-    ThreeD = 'THREE_D',
+export enum BoardStyle {
+    Standard = 'STANDARD',
 }
 
-export enum PieceStyleTwoD {
-    Standard = 'STANDARD_P',
-    Pixel = 'PIXEL_P',
-    WOOD = 'WOOD_P',
-    Celtic = 'CELTIC_P',
-    Fantasy = 'FANTASY_P',
-    Cherry = 'CHERRY_P',
-    Walnut = 'WALNUT_P'
+export enum PieceStyle {
+    Standard = 'STANDARD',
+    Pixel = 'PIXEL',
+    Wood = 'WOOD',
+    Celtic = 'CELTIC',
+    Fantasy = 'FANTASY',
+    Cherry = 'CHERRY',
+    Walnut = 'WALNUT',
+    ThreeD = 'THREE_D',
 }
 
 export enum GoToEndButtonBehavior {
@@ -49,13 +49,13 @@ export enum CapturedMaterialBehavior {
 }
 
 const ViewerSettings = () => {
-    const [perspectiveMode, setPerpsectiveMode] = useLocalStorage<string>(
-        PerspectiveModeKey,
-        PerspectiveMode.TwoD,
+    const [boardStyle, setBoardStyle] = useLocalStorage<string>(
+        BoardStyleKey,
+        BoardStyle.Standard,
     );
-    const [pieceStyleMode2D, setPieceStyleMode2D] = useLocalStorage<string>(
-        PieceStyleModeKey2D,
-        PieceStyleTwoD.Standard
+    const [pieceStyle, setPieceStyle] = useLocalStorage<string>(
+        PieceStyleKey,
+        PieceStyle.Standard,
     );
     const [goToEndBehavior, setGoToEndBehavior] = useLocalStorage<string>(
         GoToEndButtonBehaviorKey,
@@ -81,27 +81,27 @@ const ViewerSettings = () => {
 
             <TextField
                 select
-                label='Board Perspective'
-                value={perspectiveMode}
-                onChange={(e) => setPerpsectiveMode(e.target.value)}
+                label='Board Style'
+                value={boardStyle}
+                onChange={(e) => setBoardStyle(e.target.value)}
             >
-                <MenuItem value={PerspectiveMode.TwoD}>Two Dimensional</MenuItem>
-                <MenuItem value={PerspectiveMode.ThreeD}>Three Dimensional</MenuItem>
+                <MenuItem value={BoardStyle.Standard}>Standard</MenuItem>
             </TextField>
 
             <TextField
                 select
-                label='Board Theme'
-                value={pieceStyleMode2D}
-                onChange={(e) => setPieceStyleMode2D(e.target.value)}
+                label='Piece Style'
+                value={pieceStyle}
+                onChange={(e) => setPieceStyle(e.target.value)}
             >
-                <MenuItem value={PieceStyleTwoD.Standard}>Standard View</MenuItem>
-                <MenuItem value={PieceStyleTwoD.Pixel}>Pixel Night</MenuItem>
-                <MenuItem value={PieceStyleTwoD.WOOD}>Wood Park</MenuItem>
-                <MenuItem value={PieceStyleTwoD.Walnut}>Walnut Castle</MenuItem>
-                <MenuItem value={PieceStyleTwoD.Celtic}>Summer Time</MenuItem>
-                <MenuItem value={PieceStyleTwoD.Fantasy}>Moon Light</MenuItem>
-                <MenuItem value={PieceStyleTwoD.Cherry}>Cherry Blossom</MenuItem>
+                <MenuItem value={PieceStyle.Standard}>Standard</MenuItem>
+                <MenuItem value={PieceStyle.Pixel}>Pixel Night</MenuItem>
+                <MenuItem value={PieceStyle.Wood}>Wood Park</MenuItem>
+                <MenuItem value={PieceStyle.Walnut}>Walnut Castle</MenuItem>
+                <MenuItem value={PieceStyle.Celtic}>Summer Time</MenuItem>
+                <MenuItem value={PieceStyle.Fantasy}>Moon Light</MenuItem>
+                <MenuItem value={PieceStyle.Cherry}>Cherry Blossom</MenuItem>
+                <MenuItem value={PieceStyle.ThreeD}>Three Dimensional</MenuItem>
             </TextField>
 
             <TextField

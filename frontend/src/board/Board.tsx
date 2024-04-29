@@ -9,13 +9,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
 import './board.css';
+import { getBoardSx, getPieceSx } from './boardThemes';
 import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
 import {
-    PerspectiveMode,
-    PerspectiveModeKey,
-    PieceStyleTwoD,
-    PieceStyleModeKey2D
+    BoardStyle,
+    BoardStyleKey,
+    PieceStyle,
+    PieceStyleKey,
 } from './pgn/boardTools/underboard/settings/ViewerSettings';
 import { ResizableData } from './pgn/resize';
 
@@ -185,15 +186,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const boardRef = useRef<HTMLDivElement>(null);
     const [isInitialized, setIsInitialized] = useState(false);
     const [promotion, setPromotion] = useState<PrePromotionMove | null>(null);
-    const [perspectiveMode] = useLocalStorage<string>(
-        PerspectiveModeKey,
-        PerspectiveMode.TwoD,
-        
-    );
-    const [boardtheme] = useLocalStorage<string>(
-        PieceStyleModeKey2D,
-        PieceStyleTwoD.Standard
-    )
+    const [boardStyle] = useLocalStorage<BoardStyle>(BoardStyleKey, BoardStyle.Standard);
+    const [pieceStyle] = useLocalStorage<PieceStyle>(PieceStyleKey, PieceStyle.Standard);
 
     const onStartPromotion = useCallback(
         (move: PrePromotionMove) => {
@@ -234,7 +228,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 chess.loadPgn(config.pgn);
                 chess.seek(null);
             }
-            
+
             board.set({
                 ...config,
                 fen: chess.fen(),
@@ -260,9 +254,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                     onChange:
                         config?.drawable?.onChange || defaultOnDrawableChange(chess),
                 },
-                addPieceZIndex: perspectiveMode === PerspectiveMode.ThreeD
+                addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
             });
-            
 
             if (onInitialize) {
                 onInitialize(board, chess);
@@ -279,6 +272,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         onMove,
         onInitialize,
         onStartPromotion,
+        pieceStyle,
     ]);
 
     useEffect(() => {
@@ -297,53 +291,16 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                             ),
                     },
                 },
-                addPieceZIndex: perspectiveMode === PerspectiveMode.ThreeD
+                addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
             });
         }
-    }, [chess, board, onMove, onStartPromotion]);
-
-    let className: string;
-    if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Standard) {
-      className = 'threeD';
-    } else if(perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Standard) {
-      className = 'twoD-board';
-    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Pixel){
-      className = 'twoD-board-pixel';
-    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Pixel){
-      className = 'threeD-pixel';
-    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.WOOD){
-      className = 'twoD-board-wood'
-    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Celtic){
-      className = 'twoD-board-summer'
-    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Fantasy){
-        className = 'twoD-board-moon'
-    }else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.WOOD){
-        className = 'threeD-wood';
-    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Celtic){
-        className = 'threeD-summer';
-    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Fantasy){
-        className = 'threeD-moon';
-    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Cherry){
-        className = 'twoD-board-cherry';
-    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Cherry){
-        className = 'threeD-cherry';
-    } else if (perspectiveMode === PerspectiveMode.TwoD && boardtheme === PieceStyleTwoD.Walnut){
-        className = 'twoD-board-walnut';
-    } else if (perspectiveMode === PerspectiveMode.ThreeD && boardtheme === PieceStyleTwoD.Walnut){
-        className = 'threeD-walnut';
-    }
-
-    else{
-        className = 'twoD-board';
-    }
+    }, [chess, board, onMove, onStartPromotion, pieceStyle]);
 
     return (
         <Box
             width={1}
             height={1}
-            className={
-                className
-            }
+            sx={{ ...getPieceSx(pieceStyle), ...getBoardSx(boardStyle) }}
         >
             <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
 
