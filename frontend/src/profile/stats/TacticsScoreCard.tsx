@@ -1,5 +1,4 @@
-import { Help } from '@mui/icons-material';
-import { Box, Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
@@ -12,49 +11,52 @@ interface TacticsScoreCardProps {
 const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     const { requirements } = useRequirements(ALL_COHORTS, true);
     const tacticsRating = calculateTacticsRating(user, requirements);
+    const minCohort = parseInt(user.dojoCohort);
+    const maxCohort =
+        user.dojoCohort.split('-').length > 1
+            ? parseInt(user.dojoCohort.split('-')[1])
+            : minCohort;
 
     return (
         <Card variant='outlined'>
             <CardContent>
-                <Box mb={2}>
-                    <Typography variant='h6'>Tactics Rating</Typography>
-                </Box>
+                <Stack
+                    direction='row'
+                    mb={2}
+                    spacing={2}
+                    justifyContent='start'
+                    alignItems='center'
+                >
+                    <Typography variant='h6'>Tactics Rating </Typography>
+                    <Tooltip
+                        title={
+                            tacticsRating.overall < minCohort
+                                ? 'Your tactics rating is low for your cohort. It is calculated as the average of the below components.'
+                                : tacticsRating.overall > maxCohort
+                                  ? 'Your tactics rating is at the next level! It is calculated as the average of the below components.'
+                                  : 'Your tactics rating is even with your cohort. It is calculated as the average of the below components.'
+                        }
+                    >
+                        <Typography
+                            variant='h6'
+                            sx={{
+                                fontSize: '2rem',
+                                fontWeight: 'bold',
+                            }}
+                            color={
+                                tacticsRating.overall < minCohort
+                                    ? 'error'
+                                    : tacticsRating.overall > maxCohort
+                                      ? 'success.main'
+                                      : 'warning.main'
+                            }
+                        >
+                            {Math.round(tacticsRating.overall)}
+                        </Typography>
+                    </Tooltip>
+                </Stack>
 
                 <Grid2 container rowGap={4} columnSpacing={2} justifyContent='center'>
-                    <Grid2
-                        xs={tacticsRating.components.length % 2 ? 6 : 12}
-                        sm={3}
-                        md
-                        display='flex'
-                        justifyContent='center'
-                    >
-                        <Stack direction='row' alignItems='end'>
-                            <Stack alignItems='end'>
-                                <Typography variant='subtitle1' color='text.secondary'>
-                                    Overall
-                                </Typography>
-                                <Typography
-                                    sx={{
-                                        fontSize: '2.25rem',
-                                        lineHeight: 1,
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    {Math.round(tacticsRating.overall)}
-                                </Typography>
-                            </Stack>
-                            <Tooltip title='Overall tactics rating is the average of the following components'>
-                                <Help
-                                    sx={{
-                                        mb: '5px',
-                                        ml: '3px',
-                                        color: 'text.secondary',
-                                    }}
-                                />
-                            </Tooltip>
-                        </Stack>
-                    </Grid2>
-
                     {tacticsRating.components.map((c) => (
                         <Grid2
                             key={c.name}
@@ -64,14 +66,13 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             display='flex'
                             justifyContent='center'
                         >
-                            <Stack direction='row' alignItems='end'>
-                                <Stack alignItems='end'>
+                            <Tooltip title={c.description}>
+                                <Stack alignItems='center'>
                                     <Typography variant='body2' color='text.secondary'>
                                         {c.name}
                                     </Typography>
 
                                     <Typography
-                                        color='text.secondary'
                                         sx={{
                                             fontSize: '2rem',
                                             lineHeight: 1,
@@ -81,16 +82,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                         {Math.round(c.rating)}
                                     </Typography>
                                 </Stack>
-                                <Tooltip title={c.description}>
-                                    <Help
-                                        sx={{
-                                            mb: '5px',
-                                            ml: '3px',
-                                            color: 'text.secondary',
-                                        }}
-                                    />
-                                </Tooltip>
-                            </Stack>
+                            </Tooltip>
                         </Grid2>
                     ))}
                 </Grid2>
