@@ -33,7 +33,7 @@ const config: Record<string, Config> = {
             userPoolId: 'us-east-1_apywr6kwu',
             userPoolWebClientId: '76en8knncv8bfpfgbheua6j6k',
             oauth: {
-                domain: 'authdev.dojoscoreboard.com',
+                domain: 'user-pool-domain-dev-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com',
                 scope: ['profile', 'email', 'openid'],
                 redirectSignIn: 'http://localhost:3000',
                 redirectSignOut: 'http://localhost:3000',
@@ -62,7 +62,7 @@ const config: Record<string, Config> = {
             userPoolId: 'us-east-1_apywr6kwu',
             userPoolWebClientId: '76en8knncv8bfpfgbheua6j6k',
             oauth: {
-                domain: 'authdev.dojoscoreboard.com',
+                domain: 'user-pool-domain-dev-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com',
                 scope: ['profile', 'email', 'openid'],
                 redirectSignIn: 'http://localhost:3000',
                 redirectSignOut: 'http://localhost:3000',
@@ -91,7 +91,7 @@ const config: Record<string, Config> = {
             userPoolId: 'us-east-1_0revSxCzf',
             userPoolWebClientId: '1dfi5rar7a2fr5samugigrmise',
             oauth: {
-                domain: 'auth.dojoscoreboard.com',
+                domain: 'user-pool-domain-prod-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com',
                 scope: ['profile', 'email', 'openid'],
                 redirectSignIn: 'https://www.dojoscoreboard.com',
                 redirectSignOut: 'https://www.dojoscoreboard.com',
@@ -116,5 +116,5 @@ const config: Record<string, Config> = {
 };
 
 export function getConfig(): Config {
-    return config[process.env.NODE_ENV];
+    return config[process.env.NODE_ENV || ''];
 }

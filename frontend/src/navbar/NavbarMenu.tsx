@@ -178,7 +178,7 @@ function allStartItems(
                 {
                     name: 'Merch',
                     onClick: () =>
-                        window.open('https://www.chessdojo.club/shop', '_blank'),
+                        window.open('https://www.chessdojo.shop/shop', '_blank'),
                 },
             ],
         },

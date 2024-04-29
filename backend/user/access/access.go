@@ -36,32 +36,32 @@ func IsForbidden(email string, timeout time.Duration) (bool, error) {
 	if timeout > 0 {
 		ctx, cncl := context.WithTimeout(context.Background(), timeout)
 		defer cncl()
-		req, err = http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("https://chessdojo.club/_functions/user/%s", email), nil)
+		req, err = http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("https://chessdojo.shop/_functions/user/%s", email), nil)
 	} else {
-		req, err = http.NewRequest("GET", fmt.Sprintf("https://chessdojo.club/_functions/user/%s", email), nil)
+		req, err = http.NewRequest("GET", fmt.Sprintf("https://chessdojo.shop/_functions/user/%s", email), nil)
 	}
 
 	if err != nil {
-		return false, errors.Wrap(500, "Temporary server error", "Failed to create request to chessdojo.club", err)
+		return false, errors.Wrap(500, "Temporary server error", "Failed to create request to chessdojo.shop", err)
 	}
 	req.Header.Set("Auth", wixApiKey)
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return false, errors.Wrap(500, "Temporary server error", "Failed to send request to chessdojo.club", err)
+		return false, errors.Wrap(500, "Temporary server error", "Failed to send request to chessdojo.shop", err)
 	}
 
 	if res.StatusCode >= 500 {
 		body, _ := io.ReadAll(res.Body)
 		defer res.Body.Close()
-		log.Errorf("Failed to check auth for email `%s`. Chessdojo.club returned status `%d`: %v", email, res.StatusCode, string(body))
+		log.Errorf("Failed to check auth for email `%s`. chessdojo.shop returned status `%d`: %v", email, res.StatusCode, string(body))
 		return false, nil
 	}
 	if res.StatusCode == 404 {
-		return true, errors.New(403, fmt.Sprintf("Not Authorized: email `%s` not found on https://chessdojo.club", email), "")
+		return true, errors.New(403, fmt.Sprintf("Not Authorized: email `%s` not found on https://chessdojo.shop", email), "")
 	}
 	if res.StatusCode != 200 {
-		return true, errors.New(403, fmt.Sprintf("Not Authorized: https://chessdojo.club returned status `%d` for email `%s`", res.StatusCode, email), "")
+		return true, errors.New(403, fmt.Sprintf("Not Authorized: https://chessdojo.shop returned status `%d` for email `%s`", res.StatusCode, email), "")
 	}
 
 	var body AccessResponse
@@ -70,7 +70,7 @@ func IsForbidden(email string, timeout time.Duration) (bool, error) {
 	}
 
 	if len(body.Subscriptions) == 0 {
-		return true, errors.New(403, fmt.Sprintf("Not Authorized: no active subscriptions found on https://chessdojo.club for email `%s`", email), "")
+		return true, errors.New(403, fmt.Sprintf("Not Authorized: no active subscriptions found on https://chessdojo.shop for email `%s`", email), "")
 	}
 
 	return false, nil

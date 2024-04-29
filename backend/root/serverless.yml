@@ -131,6 +131,16 @@ resources:
         UserPoolId: { Ref: CognitoUserPool }
         Domain: user-pool-domain-${sls:stage}-chess-dojo-scheduler
 
+    CustomDomainCertificate:
+      Type: AWS::CertificateManager::Certificate
+      DeletionPolicy: Retain
+      Properties:
+        DomainName: ${file(../config-${sls:stage}.yml):cognitoUserPoolDomain}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${file(../config-${sls:stage}.yml):cognitoUserPoolDomain}
+            HostedZoneId: ${file(../config-${sls:stage}.yml):hostedZoneId}
+
     CustomUserPoolDomain:
       Type: AWS::Cognito::UserPoolDomain
       DeletionPolicy: Retain

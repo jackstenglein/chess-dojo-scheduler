@@ -287,7 +287,7 @@ const helpSections = [
                         Go to the game you want to delete. Click the{' '}
                         <strong>Trash Icon</strong> below the board to permanently delete
                         your game and any associated comments. For games submitted through
-                        the old database (on chessdojo.club), fill out the following form:{' '}
+                        the old database (on chessdojo.shop), fill out the following form:{' '}
                         <Link
                             href='https://forms.gle/v3JMwxyLQw3LMA1Y9'
                             target='_blank'
