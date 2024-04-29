@@ -598,7 +598,6 @@ function isURL(
         pathParts: RegExp[];
     },
 ): boolean {
-    console.log(url);
     let urlObj: URL | null = null;
     try {
         urlObj = new URL(url.trim());
@@ -607,12 +606,10 @@ function isURL(
     }
 
     if (urlObj === null) {
-        console.log('Invalid url');
         return false;
     }
 
     if (urlObj.hostname !== hostname) {
-        console.log(urlObj.hostname);
         return false;
     }
 
@@ -621,7 +618,6 @@ function isURL(
     for (const [idx, part] of parts.entries()) {
         const re = pathParts[idx];
         if (!re || !re.test(part)) {
-            console.log(part);
             return false;
         }
     }
