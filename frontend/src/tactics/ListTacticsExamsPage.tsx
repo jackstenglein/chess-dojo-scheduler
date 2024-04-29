@@ -101,7 +101,7 @@ export default ListTacticsExamsPage;
  * @param exam The exam to get the linear regression for.
  * @returns The linear regression, or null if the exam does not have enough answers.
  */
-function getRegression(exam: Exam): SimpleLinearRegression | null {
+export function getRegression(exam: Exam): SimpleLinearRegression | null {
     const answers = Object.values(exam.answers).filter((a) => a.rating > 0);
     if (answers.length < 10) {
         return null;

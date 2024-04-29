@@ -1,4 +1,5 @@
 import {
+    Assessment,
     Info,
     Quiz,
     RemoveCircle,
@@ -25,19 +26,22 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { BoardApi, Chess } from '../board/Board';
-import {
-    DefaultUnderboardTab,
-    UnderboardTab,
-} from '../board/pgn/boardTools/underboard/Underboard';
 import PgnBoard, {
     BlockBoardKeyboardShortcuts,
     PgnBoardApi,
     useChess,
 } from '../board/pgn/PgnBoard';
+import {
+    DefaultUnderboardTab,
+    UnderboardTab,
+} from '../board/pgn/boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from '../board/pgn/pgnText/MoveButton';
 import { Exam, ExamAnswer } from '../database/exam';
 import { getCurrentRating, normalizeToFide } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
+import ExamStatistics from './ExamStatistics';
+import TacticsExamPgnSelector from './TacticsExamPgnSelector';
+import { Instructions } from './TacticsInstructionsPage';
 import {
     addExtraVariation,
     getFen,
@@ -46,8 +50,6 @@ import {
     getSolutionScore,
     scoreVariation,
 } from './tactics';
-import TacticsExamPgnSelector from './TacticsExamPgnSelector';
-import { Instructions } from './TacticsInstructionsPage';
 
 export interface Scores {
     total: {
@@ -153,8 +155,8 @@ const TacticsExamPage = () => {
                     orientation={getOrientation(exam.pgns[selectedProblem])}
                     underboardTabs={[
                         {
-                            name: 'testInfo',
-                            tooltip: 'Test Info',
+                            name: 'examInfo',
+                            tooltip: 'Exam Info',
                             icon: <Quiz />,
                             element: (
                                 <TacticsExamPgnSelector
@@ -171,8 +173,14 @@ const TacticsExamPage = () => {
                                 />
                             ),
                         },
+                        {
+                            name: 'examStats',
+                            tooltip: 'Exam Statistics',
+                            icon: <Assessment />,
+                            element: <ExamStatistics exam={exam} />,
+                        },
                     ]}
-                    initialUnderboardTab='testInfo'
+                    initialUnderboardTab='examInfo'
                 />
             </Container>
         );
