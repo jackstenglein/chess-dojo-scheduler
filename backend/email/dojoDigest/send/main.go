@@ -78,7 +78,7 @@ func main() {
 		}
 
 		msg := gomail.NewMessage()
-		msg.SetHeader("From", "ChessDojo Digest <digest@mail.dojoscoreboard.com>")
+		msg.SetHeader("From", "ChessDojo Digest <digest@mail.chessdojo.club>")
 		msg.SetHeader("To", email)
 		msg.SetHeader("Subject", "Training Program News - Dojo Digest Vol. 7")
 		msg.SetHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
@@ -95,7 +95,7 @@ func main() {
 
 		input := &ses.SendRawEmailInput{
 			Destinations: []*string{aws.String(email)},
-			Source:       aws.String("digest@mail.dojoscoreboard.com"),
+			Source:       aws.String("digest@mail.chessdojo.club"),
 			RawMessage:   &ses.RawMessage{Data: rawEmail.Bytes()},
 		}
 
