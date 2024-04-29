@@ -126,7 +126,8 @@ func (repo *dynamoRepository) ListExams(examType ExamType, startKey string, out 
 }
 
 // PutExamAnswerSummary creates and saves an ExamAnswerSummary using the provided ExamAnswer.
-func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) error {
+// The updated Exam is returned
+func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) (*Exam, error) {
 	score := 0
 	for _, a := range answer.Answers {
 		score += a.Score
@@ -140,7 +141,7 @@ func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) error {
 	}
 	item, err := dynamodbattribute.MarshalMap(summary)
 	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Unable to marshal answer summary", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal answer summary", err)
 	}
 
 	input := &dynamodb.UpdateItemInput{
@@ -157,18 +158,18 @@ func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) error {
 			"type": {S: aws.String(string(answer.ExamType))},
 			"id":   {S: aws.String(answer.Id)},
 		},
-		ReturnValues: aws.String("NONE"),
+		ReturnValues: aws.String("ALL_NEW"),
 		TableName:    aws.String(examsTable),
 	}
 
-	_, err = repo.svc.UpdateItem(input)
-	if err != nil {
+	exam := &Exam{}
+	if err := repo.updateItem(input, exam); err != nil {
 		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return errors.Wrap(400, "Invalid request: exam not found or you have already taken it", "DynamoDB conditional check failed", err)
+			return nil, errors.Wrap(400, "Invalid request: exam not found or you have already taken it", "DynamoDB conditional check failed", err)
 		}
-		return errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
 	}
-	return nil
+	return exam, nil
 }
 
 // PutExamAnswer inserts the provided answer into the database.

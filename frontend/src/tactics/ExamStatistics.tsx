@@ -150,8 +150,8 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                             label: 'Your Score',
                             data: [
                                 {
-                                    x: exam.answers[user.username].score,
-                                    y: exam.answers[user.username].rating,
+                                    x: exam.answers[user.username]?.score || -1,
+                                    y: exam.answers[user.username]?.rating || -1,
                                     id: user.username,
                                 },
                             ],

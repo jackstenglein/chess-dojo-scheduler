@@ -16,9 +16,9 @@ export type ExamApiContextType = {
     /**
      * Saves the provided exam answer in the database.
      * @param answer The answer to save.
-     * @returns An AxiosResponse containing the saved answer.
+     * @returns An AxiosResponse containing the updated Exam.
      */
-    putExamAnswer: (answer: ExamAnswer) => Promise<AxiosResponse<ExamAnswer>>;
+    putExamAnswer: (answer: ExamAnswer) => Promise<AxiosResponse<Exam>>;
 
     /**
      * Fetches an exam answer created by the calling user.
@@ -63,10 +63,10 @@ export async function listExams(idToken: string, type: ExamType, startKey?: stri
  * Saves the provided exam answer in the database.
  * @param idToken The id token of the current signed-in user.
  * @param answer The answer to save.
- * @returns An AxiosResponse containing the saved answer.
+ * @returns An AxiosResponse containing the updated Exam.
  */
 export function putExamAnswer(idToken: string, answer: ExamAnswer) {
-    return axios.put<ExamAnswer>(`${BASE_URL}/exams/answers`, answer, {
+    return axios.put<Exam>(`${BASE_URL}/exams/answers`, answer, {
         headers: { Authorization: `Bearer ${idToken}` },
     });
 }

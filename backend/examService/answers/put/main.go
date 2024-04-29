@@ -48,12 +48,13 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	answer.CreatedAt = time.Now().Format(time.RFC3339)
 
-	if err := repository.PutExamAnswerSummary(&answer); err != nil {
+	exam, err := repository.PutExamAnswerSummary(&answer)
+	if err != nil {
 		return api.Failure(err), nil
 	}
 
 	if err := repository.PutExamAnswer(&answer); err != nil {
 		return api.Failure(err), nil
 	}
-	return api.Success(&answer), nil
+	return api.Success(exam), nil
 }

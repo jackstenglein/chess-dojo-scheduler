@@ -82,7 +82,7 @@ const TacticsExamPage = () => {
     const answerRequest = useRequest<ExamAnswer>();
     const pgnApi = useRef<PgnBoardApi>(null);
     const [selectedProblem, setSelectedProblem] = useState(0);
-    const exam = useLocation().state?.exam as Exam | undefined;
+    const [exam, setExam] = useState<Exam>(useLocation().state?.exam);
     const answerPgns = useRef<string[]>((exam?.pgns || []).map(() => ''));
     const [isTimeOver, setIsTimeOver] = useState(false);
 
@@ -200,16 +200,31 @@ const TacticsExamPage = () => {
             cohort: user.dojoCohort,
             rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
             timeUsedSeconds: Math.round(countdown.elapsedTime),
-            createdAt: '',
+            createdAt: new Date().toISOString(),
             answers: answerPgns.current.map((pgn, i) => ({
                 pgn,
                 score: scores.problems[i].user,
                 total: scores.problems[i].solution,
             })),
         };
+        answerRequest.onSuccess(answer);
+        setExam({
+            ...exam,
+            answers: {
+                ...exam.answers,
+                [user.username]: {
+                    cohort: user.dojoCohort,
+                    rating: answer.rating,
+                    score: scores.total.user,
+                    createdAt: '',
+                },
+            },
+        });
+
         api.putExamAnswer(answer)
             .then((resp) => {
                 console.log('putExamAnswer: ', resp);
+                setExam(resp.data);
             })
             .catch((err) => {
                 console.error('putExamAnswer: ', err);

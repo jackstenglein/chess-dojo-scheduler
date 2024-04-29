@@ -140,8 +140,9 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                 <DialogTitle>Finish Early?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure you want to finish the test early? You will not be
-                        able to change your answers if you continue.
+                        Are you sure you want to finish the test early? This will end the
+                        entire test, and you will not be able to change your answers if
+                        you continue.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
