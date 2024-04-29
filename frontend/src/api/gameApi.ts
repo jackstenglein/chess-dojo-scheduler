@@ -615,9 +615,13 @@ function isURL(
 
     const parts = urlObj.pathname.split('/').filter((part) => part);
 
+    if (parts.length !== pathParts.length) {
+        return false;
+    }
+
     for (const [idx, part] of parts.entries()) {
         const re = pathParts[idx];
-        if (!re || !re.test(part)) {
+        if (!re.test(part)) {
             return false;
         }
     }
