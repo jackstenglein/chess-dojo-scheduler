@@ -1,3 +1,4 @@
+import { grey } from '@mui/material/colors';
 import {
     BoardStyle,
     PieceStyle,
@@ -5,6 +6,8 @@ import {
 
 interface BoardSx {
     '--board-background': string;
+    '--light-square-coord-color': string;
+    '--dark-square-coord-color': string;
 }
 
 interface PieceSx {
@@ -33,31 +36,45 @@ export function getBoardSx(style: BoardStyle): BoardSx {
         case BoardStyle.Standard:
             return {
                 '--board-background': `url('https://chess-dojo-images.s3.amazonaws.com/board/backgrounds/icy_sea.png')`,
+                '--light-square-coord-color': '#7a9db2',
+                '--dark-square-coord-color': '#c5d5dc',
             };
         case BoardStyle.Ocean:
             return {
                 '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/ncf-board.png?raw=true')`,
+                '--dark-square-coord-color': '#bbcfff',
+                '--light-square-coord-color': '#5477ca',
             };
-        case BoardStyle.CHERRY_BLOSSOM:
+        case BoardStyle.CherryBlossom:
             return {
                 '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/pink-pyramid.png?raw=true')`,
-            }
-        case BoardStyle.MOON:
+                '--dark-square-coord-color': '#f1f1c9',
+                '--light-square-coord-color': '#f37a7a',
+            };
+        case BoardStyle.Moon:
             return {
                 '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/grey.jpg?raw=true')`,
-            } 
-        case BoardStyle.SUMMER:
+                '--dark-square-coord-color': grey['300'],
+                '--light-square-coord-color': grey['800'],
+            };
+        case BoardStyle.Summer:
             return {
                 '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/green-plastic.png?raw=true')`,
-            }
-        case BoardStyle.WALNUT:
+                '--dark-square-coord-color': '#f1f6b2',
+                '--light-square-coord-color': '#59935d',
+            };
+        case BoardStyle.Walnut:
             return {
                 '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/maple2.jpg?raw=true')`,
-            }         
-        case BoardStyle.WOOD:
+                '--dark-square-coord-color': '#e0c498',
+                '--light-square-coord-color': '#9f6853',
+            };
+        case BoardStyle.Wood:
             return {
                 '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/wood.jpg?raw=true')`,
-            }   
+                '--dark-square-coord-color': '#d9a55a',
+                '--light-square-coord-color': '#88471d',
+            };
     }
 }
 
@@ -89,7 +106,7 @@ export function getPieceSx(style: PieceStyle): PieceSx {
                 'https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/pixel/',
                 '.svg',
             );
-        case PieceStyle.Wood:
+        case PieceStyle.Spatial:
             return getStandardPieceBackgrounds(
                 'https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/spatial/',
                 '.svg',
@@ -104,12 +121,12 @@ export function getPieceSx(style: PieceStyle): PieceSx {
                 'https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/fantasy/',
                 '.svg',
             );
-        case PieceStyle.Cherry:
+        case PieceStyle.Chessnut:
             return getStandardPieceBackgrounds(
                 'https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/chessnut/',
                 '.svg',
             );
-        case PieceStyle.Walnut:
+        case PieceStyle.Cburnett:
             return getStandardPieceBackgrounds(
                 'https://raw.githubusercontent.com/lichess-org/lila-gif/1c47319f4750e90b8883ec97017cb63b68731ee5/theme/piece/cburnett/',
                 '.svg',

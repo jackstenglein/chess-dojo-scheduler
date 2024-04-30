@@ -18,23 +18,22 @@ export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
 
 export enum BoardStyle {
     Standard = 'STANDARD',
-    MOON = 'MOON',
-    SUMMER = 'SUMMER',
-    WOOD = 'WOOD',
-    WALNUT = 'WALNUT',
-    CHERRY_BLOSSOM = 'CHERRY_BLOSSOM',
-    Ocean = 'OCEAN'
-
+    Moon = 'MOON',
+    Summer = 'SUMMER',
+    Wood = 'WOOD',
+    Walnut = 'WALNUT',
+    CherryBlossom = 'CHERRY_BLOSSOM',
+    Ocean = 'OCEAN',
 }
 
 export enum PieceStyle {
     Standard = 'STANDARD',
     Pixel = 'PIXEL',
-    Wood = 'WOOD',
+    Spatial = 'WOOD',
     Celtic = 'CELTIC',
     Fantasy = 'FANTASY',
-    Cherry = 'CHERRY',
-    Walnut = 'WALNUT',
+    Chessnut = 'CHERRY',
+    Cburnett = 'WALNUT',
     ThreeD = 'THREE_D',
 }
 
@@ -93,14 +92,12 @@ const ViewerSettings = () => {
                 onChange={(e) => setBoardStyle(e.target.value)}
             >
                 <MenuItem value={BoardStyle.Standard}>Standard</MenuItem>
-                <MenuItem value={BoardStyle.Ocean}> Ocean </MenuItem>
-                <MenuItem value={BoardStyle.WALNUT}>Walnut</MenuItem>
-                <MenuItem value={BoardStyle.WOOD}>Wood</MenuItem>
-                <MenuItem value={BoardStyle.SUMMER}>Summer</MenuItem>
-                <MenuItem value={BoardStyle.CHERRY_BLOSSOM}>Cherry Blossom</MenuItem>
-                <MenuItem value={BoardStyle.MOON}>Moon</MenuItem>
-              
-                
+                <MenuItem value={BoardStyle.CherryBlossom}>Cherry Blossom</MenuItem>
+                <MenuItem value={BoardStyle.Moon}>Moon</MenuItem>
+                <MenuItem value={BoardStyle.Ocean}>Ocean</MenuItem>
+                <MenuItem value={BoardStyle.Summer}>Summer</MenuItem>
+                <MenuItem value={BoardStyle.Walnut}>Walnut</MenuItem>
+                <MenuItem value={BoardStyle.Wood}>Wood</MenuItem>
             </TextField>
 
             <TextField
@@ -110,13 +107,13 @@ const ViewerSettings = () => {
                 onChange={(e) => setPieceStyle(e.target.value)}
             >
                 <MenuItem value={PieceStyle.Standard}>Standard</MenuItem>
-                <MenuItem value={PieceStyle.Pixel}>Pixel </MenuItem>
-                <MenuItem value={PieceStyle.Wood}>Spatial</MenuItem>
-                <MenuItem value={PieceStyle.Walnut}>Cburnett</MenuItem>
+                <MenuItem value={PieceStyle.Cburnett}>Cburnett</MenuItem>
                 <MenuItem value={PieceStyle.Celtic}>Celtic</MenuItem>
+                <MenuItem value={PieceStyle.Chessnut}>Chessnut</MenuItem>
                 <MenuItem value={PieceStyle.Fantasy}>Fantasy</MenuItem>
-                <MenuItem value={PieceStyle.Cherry}> Chessnut</MenuItem>
-                <MenuItem value={PieceStyle.ThreeD}>3D </MenuItem>
+                <MenuItem value={PieceStyle.Pixel}>Pixel</MenuItem>
+                <MenuItem value={PieceStyle.Spatial}>Spatial</MenuItem>
+                <MenuItem value={PieceStyle.ThreeD}>3D</MenuItem>
             </TextField>
 
             <TextField
