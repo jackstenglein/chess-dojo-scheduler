@@ -18,6 +18,13 @@ export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
 
 export enum BoardStyle {
     Standard = 'STANDARD',
+    MOON = 'MOON',
+    SUMMER = 'SUMMER',
+    WOOD = 'WOOD',
+    WALNUT = 'WALNUT',
+    CHERRY_BLOSSOM = 'CHERRY_BLOSSOM',
+    Ocean = 'OCEAN'
+
 }
 
 export enum PieceStyle {
@@ -86,6 +93,14 @@ const ViewerSettings = () => {
                 onChange={(e) => setBoardStyle(e.target.value)}
             >
                 <MenuItem value={BoardStyle.Standard}>Standard</MenuItem>
+                <MenuItem value={BoardStyle.Ocean}> Ocean </MenuItem>
+                <MenuItem value={BoardStyle.WALNUT}>Walnut</MenuItem>
+                <MenuItem value={BoardStyle.WOOD}>Wood</MenuItem>
+                <MenuItem value={BoardStyle.SUMMER}>Summer</MenuItem>
+                <MenuItem value={BoardStyle.CHERRY_BLOSSOM}>Cherry Blossom</MenuItem>
+                <MenuItem value={BoardStyle.MOON}>Moon</MenuItem>
+              
+                
             </TextField>
 
             <TextField
@@ -95,13 +110,13 @@ const ViewerSettings = () => {
                 onChange={(e) => setPieceStyle(e.target.value)}
             >
                 <MenuItem value={PieceStyle.Standard}>Standard</MenuItem>
-                <MenuItem value={PieceStyle.Pixel}>Pixel Night</MenuItem>
-                <MenuItem value={PieceStyle.Wood}>Wood Park</MenuItem>
-                <MenuItem value={PieceStyle.Walnut}>Walnut Castle</MenuItem>
-                <MenuItem value={PieceStyle.Celtic}>Summer Time</MenuItem>
-                <MenuItem value={PieceStyle.Fantasy}>Moon Light</MenuItem>
-                <MenuItem value={PieceStyle.Cherry}>Cherry Blossom</MenuItem>
-                <MenuItem value={PieceStyle.ThreeD}>Three Dimensional</MenuItem>
+                <MenuItem value={PieceStyle.Pixel}>Pixel </MenuItem>
+                <MenuItem value={PieceStyle.Wood}>Spatial</MenuItem>
+                <MenuItem value={PieceStyle.Walnut}>Cburnett</MenuItem>
+                <MenuItem value={PieceStyle.Celtic}>Celtic</MenuItem>
+                <MenuItem value={PieceStyle.Fantasy}>Fantasy</MenuItem>
+                <MenuItem value={PieceStyle.Cherry}> Chessnut</MenuItem>
+                <MenuItem value={PieceStyle.ThreeD}>3D </MenuItem>
             </TextField>
 
             <TextField

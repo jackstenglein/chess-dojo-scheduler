@@ -34,6 +34,30 @@ export function getBoardSx(style: BoardStyle): BoardSx {
             return {
                 '--board-background': `url('https://chess-dojo-images.s3.amazonaws.com/board/backgrounds/icy_sea.png')`,
             };
+        case BoardStyle.Ocean:
+            return {
+                '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/ncf-board.png?raw=true')`,
+            };
+        case BoardStyle.CHERRY_BLOSSOM:
+            return {
+                '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/pink-pyramid.png?raw=true')`,
+            }
+        case BoardStyle.MOON:
+            return {
+                '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/grey.jpg?raw=true')`,
+            } 
+        case BoardStyle.SUMMER:
+            return {
+                '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/green-plastic.png?raw=true')`,
+            }
+        case BoardStyle.WALNUT:
+            return {
+                '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/maple2.jpg?raw=true')`,
+            }         
+        case BoardStyle.WOOD:
+            return {
+                '--board-background': `url('https://github.com/lichess-org/lila/blob/master/public/images/board/wood.jpg?raw=true')`,
+            }   
     }
 }
 
