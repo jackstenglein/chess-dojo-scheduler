@@ -3,11 +3,10 @@ import {
     ChevronLeft,
     ChevronRight,
     FirstPage,
-    LastPage,
     WifiProtectedSetup as Flip,
+    LastPage,
 } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip } from '@mui/material';
-
 import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
 import {

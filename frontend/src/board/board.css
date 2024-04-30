@@ -17,7 +17,7 @@
 .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
 .cg-wrap coords.files coord:nth-child(2n),
 .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
-    color: #7a9db2 !important;
+    color: var(--light-square-coord-color) !important;
     font-weight: 600;
 }
 
@@ -25,7 +25,7 @@
 .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
 .cg-wrap coords.files coord:nth-child(2n + 1),
 .cg-wrap.orientation-black coords.files coord:nth-child(2n) {
-    color: #c5d5dc !important;
+    color: var(--dark-square-coord-color) !important;
     font-weight: 600;
 }
 
@@ -38,42 +38,42 @@
 }
 
 cg-board {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/backgrounds/icy_sea.png') !important;
+    background-image: var(--board-background) !important;
 }
 
 .cg-wrap piece.pawn.white {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/wp.png') !important;
+    background-image: var(--white-pawn) !important;
 }
 .cg-wrap piece.bishop.white {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/wb.png') !important;
+    background-image: var(--white-bishop) !important;
 }
 .cg-wrap piece.knight.white {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/wn.png') !important;
+    background-image: var(--white-knight) !important;
 }
 .cg-wrap piece.rook.white {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/wr.png') !important;
+    background-image: var(--white-rook) !important;
 }
 .cg-wrap piece.queen.white {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/wq.png') !important;
+    background-image: var(--white-queen) !important;
 }
 .cg-wrap piece.king.white {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/wk.png') !important;
+    background-image: var(--white-king) !important;
 }
 .cg-wrap piece.pawn.black {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/bp.png') !important;
+    background-image: var(--black-pawn) !important;
 }
 .cg-wrap piece.bishop.black {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/bb.png') !important;
+    background-image: var(--black-bishop) !important;
 }
 .cg-wrap piece.knight.black {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/bn.png') !important;
+    background-image: var(--black-knight) !important;
 }
 .cg-wrap piece.rook.black {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/br.png') !important;
+    background-image: var(--black-rook) !important;
 }
 .cg-wrap piece.queen.black {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/bq.png') !important;
+    background-image: var(--black-queen) !important;
 }
 .cg-wrap piece.king.black {
-    background-image: url('https://chess-dojo-images.s3.amazonaws.com/board/pieces/bases/bk.png') !important;
+    background-image: var(--black-king) !important;
 }

@@ -1,19 +1,24 @@
+import { Chess, Move, SQUARES, Square } from '@jackstenglein/chess';
 import { Box, Button, Dialog, DialogContent, Stack } from '@mui/material';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Resizable, ResizeCallbackData } from 'react-resizable';
-
-import { Chess, Move, Square, SQUARES } from '@jackstenglein/chess';
 import { Chessground } from 'chessground';
 import { Api as BoardApi } from 'chessground/api';
 import { Config } from 'chessground/config';
 import { DrawShape } from 'chessground/draw';
 import { Color, Key } from 'chessground/types';
-
-import { ResizableData } from './pgn/resize';
-
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Resizable, ResizeCallbackData } from 'react-resizable';
+import { useLocalStorage } from 'usehooks-ts';
 import './board.css';
+import { getBoardSx, getPieceSx } from './boardThemes';
 import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
+import {
+    BoardStyle,
+    BoardStyleKey,
+    PieceStyle,
+    PieceStyleKey,
+} from './pgn/boardTools/underboard/settings/ViewerSettings';
+import { ResizableData } from './pgn/resize';
 
 export { Chess };
 export type { BoardApi };
@@ -181,6 +186,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const boardRef = useRef<HTMLDivElement>(null);
     const [isInitialized, setIsInitialized] = useState(false);
     const [promotion, setPromotion] = useState<PrePromotionMove | null>(null);
+    const [boardStyle] = useLocalStorage<BoardStyle>(BoardStyleKey, BoardStyle.Standard);
+    const [pieceStyle] = useLocalStorage<PieceStyle>(PieceStyleKey, PieceStyle.Standard);
 
     const onStartPromotion = useCallback(
         (move: PrePromotionMove) => {
@@ -247,6 +254,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                     onChange:
                         config?.drawable?.onChange || defaultOnDrawableChange(chess),
                 },
+                addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
             });
 
             if (onInitialize) {
@@ -264,6 +272,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         onMove,
         onInitialize,
         onStartPromotion,
+        pieceStyle,
     ]);
 
     useEffect(() => {
@@ -282,12 +291,17 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                             ),
                     },
                 },
+                addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
             });
         }
-    }, [chess, board, onMove, onStartPromotion]);
+    }, [chess, board, onMove, onStartPromotion, pieceStyle]);
 
     return (
-        <Box width={1} height={1}>
+        <Box
+            width={1}
+            height={1}
+            sx={{ ...getPieceSx(pieceStyle), ...getBoardSx(boardStyle) }}
+        >
             <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
 
             <Dialog open={promotion !== null} onClose={onCancelPromotion}>
