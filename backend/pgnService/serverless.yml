@@ -20,6 +20,7 @@ provider:
     stage: ${sls:stage}
   httpApi:
     id: ${param:httpApiId}
+  deploymentMethod: direct
 
 functions:
   processGame:

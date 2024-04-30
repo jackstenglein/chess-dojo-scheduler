@@ -1,4 +1,5 @@
-// Implements a Lambda handler which saves an exam answer in the database.
+// Implements a Lambda handler which saves an ExamAttempt in the database.
+// The updated Exam is returned.
 package main
 
 import (
@@ -15,6 +16,12 @@ import (
 
 var repository = database.DynamoDB
 
+type PutExamAttemptRequest struct {
+	ExamType database.ExamType    `json:"examType"`
+	ExamId   string               `json:"examId"`
+	Attempt  database.ExamAttempt `json:"attempt"`
+}
+
 func main() {
 	lambda.Start(handler)
 }
@@ -28,32 +35,35 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
-	answer := database.ExamAnswer{}
-	if err := json.Unmarshal([]byte(event.Body), &answer); err != nil {
+	request := PutExamAttemptRequest{}
+	if err := json.Unmarshal([]byte(event.Body), &request); err != nil {
 		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err)), nil
 	}
 
-	if string(answer.Type) != info.Username {
-		return api.Failure(errors.New(400, "Invalid request: type must equal username", "")), nil
+	if string(request.ExamType) == "" {
+		return api.Failure(errors.New(400, "Invalid request: examType is required", "")), nil
 	}
-	if answer.Id == "" {
-		return api.Failure(errors.New(400, "Invalid request: id is required", "")), nil
+	if request.ExamId == "" {
+		return api.Failure(errors.New(400, "Invalid request: examId is required", "")), nil
 	}
-	if answer.Cohort == "" {
-		return api.Failure(errors.New(400, "Invalid request: cohort is required", "")), nil
+	if request.Attempt.Cohort == "" {
+		return api.Failure(errors.New(400, "Invalid request: attempt.cohort is required", "")), nil
 	}
-	if answer.Rating == 0 {
-		return api.Failure(errors.New(400, "Invalid request: rating is required", "")), nil
+	if request.Attempt.Rating == 0 {
+		return api.Failure(errors.New(400, "Invalid request: attempt.rating is required", "")), nil
 	}
 
-	answer.CreatedAt = time.Now().Format(time.RFC3339)
+	request.Attempt.CreatedAt = time.Now().Format(time.RFC3339)
 
-	if err := repository.PutExamAnswerSummary(&answer); err != nil {
+	answer, err := repository.PutExamAttempt(info.Username, request.ExamId, request.ExamType, &request.Attempt)
+	if err != nil {
 		return api.Failure(err), nil
 	}
 
-	if err := repository.PutExamAnswer(&answer); err != nil {
+	exam, err := repository.PutExamAnswerSummary(answer)
+	if err != nil {
 		return api.Failure(err), nil
 	}
-	return api.Success(&answer), nil
+
+	return api.Success(exam), nil
 }

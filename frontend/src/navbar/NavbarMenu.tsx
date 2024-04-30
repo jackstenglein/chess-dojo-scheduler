@@ -67,7 +67,7 @@ interface MenuProps {
 
 export interface NavbarItem {
     name: string;
-    icon: JSX.Element | null;
+    icon?: JSX.Element;
     onClick: () => void;
     children?: NavbarItem[];
 }
@@ -99,12 +99,10 @@ function allStartItems(
             children: [
                 {
                     name: 'DojoLiga',
-                    icon: null,
                     onClick: () => navigate('/tournaments'),
                 },
                 {
                     name: 'Open Classical',
-                    icon: null,
                     onClick: () => navigate('/tournaments/open-classical'),
                 },
             ],
@@ -122,7 +120,37 @@ function allStartItems(
         {
             name: 'Material',
             icon: <MenuBook />,
-            onClick: () => navigate('/material'),
+            onClick: () => toggleExpansion('Material'),
+            children: [
+                {
+                    name: 'Courses',
+                    onClick: () => navigate('/courses'),
+                },
+                {
+                    name: 'Tactics Tests',
+                    onClick: () => navigate('/tactics'),
+                },
+                {
+                    name: 'Books',
+                    onClick: () => navigate('/material/books'),
+                },
+                {
+                    name: 'Sparring Positions',
+                    onClick: () => navigate('/material/sparring'),
+                },
+                {
+                    name: 'Model Annotations',
+                    onClick: () => navigate('/material/modelgames'),
+                },
+                {
+                    name: 'Games to Memorize',
+                    onClick: () => navigate('/material/memorizegames'),
+                },
+                {
+                    name: 'Rating Conversions',
+                    onClick: () => navigate('/material/ratings'),
+                },
+            ],
         },
         {
             name: 'Clubs',
@@ -141,19 +169,16 @@ function allStartItems(
             children: [
                 {
                     name: 'Courses',
-                    icon: null,
                     onClick: () => navigate('/courses'),
                 },
                 {
                     name: 'Coaching',
-                    icon: null,
                     onClick: () => navigate('/coaching'),
                 },
                 {
                     name: 'Merch',
-                    icon: null,
                     onClick: () =>
-                        window.open('https://www.chessdojo.club/shop', '_blank'),
+                        window.open('https://www.chessdojo.shop/shop', '_blank'),
                 },
             ],
         },
@@ -557,54 +582,13 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     let startItemsJsx: JSX.Element[] = [];
     if (profileCreated) {
         startItemsJsx = startItems.map((item) => (
-            <React.Fragment key={item.name}>
-                <MenuItem
-                    key={item.name}
-                    onClick={item.children ? item.onClick : handleClick(item.onClick)}
-                >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <Typography textAlign='center'>
-                        {item.name}
-                        {item.name === 'Calendar' && meetingCount
-                            ? ` (${meetingCount})`
-                            : ''}
-                    </Typography>
-                    {item.children &&
-                        (openItems[item.name] ? (
-                            <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
-                                <ExpandLess />
-                            </ListItemIcon>
-                        ) : (
-                            <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
-                                <ExpandMore />
-                            </ListItemIcon>
-                        ))}
-                </MenuItem>
-                {item.children && (
-                    <Collapse in={openItems[item.name]}>
-                        <List component='div' disablePadding>
-                            {item.children.map((child) => (
-                                <MenuItem
-                                    key={child.name}
-                                    onClick={handleClick(child.onClick)}
-                                    sx={{ pl: 3 }}
-                                >
-                                    {child.icon ? (
-                                        <ListItemIcon>{child.icon}</ListItemIcon>
-                                    ) : (
-                                        <ListItemIcon>
-                                            <ChevronRight />
-                                        </ListItemIcon>
-                                    )}
-                                    <Typography textAlign='center'>
-                                        {child.name}
-                                    </Typography>
-                                </MenuItem>
-                            ))}
-                        </List>
-                    </Collapse>
-                )}
-            </React.Fragment>
+            <NavMenuItem
+                key={item.name}
+                item={item}
+                openItems={openItems}
+                handleClick={handleClick}
+                meetingCount={meetingCount}
+            />
         ));
     }
 

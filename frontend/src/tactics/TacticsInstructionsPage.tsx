@@ -1,31 +1,58 @@
-import { Chess } from '@jackstenglein/chess';
 import { Quiz } from '@mui/icons-material';
 import { Button, Container, Stack, Typography } from '@mui/material';
-import { useMemo, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useCountdown } from 'react-countdown-circle-timer';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { RequestStatus, useRequest } from '../api/Request';
 import PgnBoard, { PgnBoardApi } from '../board/pgn/PgnBoard';
 import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
+import { Exam, ExamAnswer, ExamType } from '../database/exam';
 import {
-    CompletedTacticsTest,
-    Scores,
+    CompletedTacticsExam,
     TacticsTestMoveButtonExtras,
+    getScores,
 } from './TacticsExamPage';
 import TacticsExamPgnSelector from './TacticsExamPgnSelector';
-import { getSolutionScore, sampleProblem, scoreVariation } from './tactics';
+import { sampleProblem } from './tactics';
+
+const sampleExam: Exam = {
+    type: ExamType.Tactics,
+    id: 'sample',
+    name: 'Sample',
+    cohortRange: 'Instructions',
+    pgns: [sampleProblem.solution],
+    timeLimitSeconds: 3600,
+    answers: {},
+};
 
 const TacticsInstructionsPage = () => {
     const pgnApi = useRef<PgnBoardApi>(null);
-    const [completedPgn, setCompletedPgn] = useState('');
     const navigate = useNavigate();
     const locationState = useLocation().state;
+    const request = useRequest<ExamAnswer>();
 
     const onFinishSample = () => {
-        setCompletedPgn(pgnApi.current?.getPgn() || '');
-    };
-
-    const onResetSample = () => {
-        setCompletedPgn('');
+        const scores = getScores(sampleExam, [pgnApi.current?.getPgn() || '']);
+        request.onSuccess({
+            type: 'sample',
+            id: 'sample',
+            examType: ExamType.Tactics,
+            attempts: [
+                {
+                    answers: [
+                        {
+                            pgn: pgnApi.current?.getPgn() || '',
+                            score: scores.problems[0].user,
+                            total: scores.problems[0].solution,
+                        },
+                    ],
+                    cohort: 'sample',
+                    rating: -1,
+                    timeUsedSeconds: Math.round(countdown.elapsedTime),
+                    createdAt: new Date().toISOString(),
+                },
+            ],
+        });
     };
 
     const onStart = () => {
@@ -42,42 +69,6 @@ const TacticsInstructionsPage = () => {
         trailColor: 'rgba(0,0,0,0)',
         onComplete: onFinishSample,
     });
-
-    const scores: Scores | undefined = useMemo(() => {
-        if (!completedPgn) {
-            return undefined;
-        }
-
-        const scores: Scores = {
-            total: { user: 0, solution: 0 },
-            problems: [],
-        };
-
-        const solutionChess = new Chess({ pgn: sampleProblem.solution });
-        const userChess = new Chess({ pgn: completedPgn });
-
-        const solutionScore = getSolutionScore(
-            sampleProblem.orientation,
-            solutionChess.history(),
-            solutionChess,
-            false,
-        );
-        const [userScore] = scoreVariation(
-            sampleProblem.orientation,
-            solutionChess.history(),
-            null,
-            userChess,
-            false,
-        );
-
-        scores.total.solution += solutionScore;
-        scores.total.user += userScore;
-        scores.problems.push({
-            user: userScore,
-            solution: solutionScore,
-        });
-        return scores;
-    }, [completedPgn]);
 
     if (!locationState.exam) {
         return <Navigate to='/tactics/' />;
@@ -104,28 +95,11 @@ const TacticsInstructionsPage = () => {
                 </Stack>
             </Container>
 
-            {completedPgn ? (
-                <CompletedTacticsTest
-                    userPgn={completedPgn}
-                    solutionPgn={sampleProblem.solution}
-                    orientation={sampleProblem.orientation}
-                    underboardTabs={[
-                        {
-                            name: 'testInfo',
-                            tooltip: 'Test Info',
-                            icon: <Quiz />,
-                            element: (
-                                <TacticsExamPgnSelector
-                                    count={1}
-                                    selected={0}
-                                    onSelect={() => null}
-                                    scores={scores}
-                                    onReset={onResetSample}
-                                />
-                            ),
-                        },
-                    ]}
-                    initialUnderboardTab='testInfo'
+            {request.status === RequestStatus.Success ? (
+                <CompletedTacticsExam
+                    exam={sampleExam}
+                    answerRequest={request}
+                    onReset={request.reset}
                 />
             ) : (
                 <PgnBoard
@@ -140,11 +114,14 @@ const TacticsInstructionsPage = () => {
                             icon: <Quiz />,
                             element: (
                                 <TacticsExamPgnSelector
+                                    cohortRange='Instructions'
+                                    name='Sample'
                                     count={1}
                                     selected={0}
                                     onSelect={() => null}
                                     countdown={countdown}
                                     onComplete={onFinishSample}
+                                    orientations={[sampleProblem.orientation]}
                                 />
                             ),
                         },
@@ -206,7 +183,8 @@ export const Instructions = () => {
                     </li>
                     <li>
                         For each problem, the board will be oriented with the side to move
-                        on the bottom.
+                        on the bottom. The side to move will also be displayed in the list
+                        of problems.
                     </li>
                     <li>
                         The PGN editor is available for you to add comments or annotations

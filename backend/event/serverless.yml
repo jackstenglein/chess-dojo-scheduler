@@ -23,6 +23,7 @@ provider:
     discordCoachingChannelId: ${file(../config-${sls:stage}.yml):discordCoachingChannelId}
   httpApi:
     id: ${param:httpApiId}
+  deploymentMethod: direct
 
 custom:
   go:

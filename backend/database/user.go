@@ -287,6 +287,24 @@ type User struct {
 	// The username of the user's Lichess account that was banned for ToS violation,
 	// if they have been banned on Lichess.
 	LichessBan string `dynamodbav:"lichessBan,omitempty" json:"-"`
+
+	// A map from exam id to the user's summary for that exam
+	Exams map[string]UserExamSummary `dynamodbav:"exams" json:"exams"`
+}
+
+// A summary of a user's performance on a single exam.
+type UserExamSummary struct {
+	// The type of the exam this summary refers to.
+	ExamType ExamType `dynamodbav:"examType" json:"examType"`
+
+	// The cohort range of the exam this summary refers to.
+	CohortRange string `dynamodbav:"cohortRange" json:"cohortRange"`
+
+	// The date the user took the exam, in time.RFC3339 format
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+
+	// The rating the user got on the exam, as determined by the exam's linear regression.
+	Rating float32 `dynamodbav:"rating" json:"rating"`
 }
 
 type PaymentInfo struct {
@@ -786,6 +804,9 @@ func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) 
 	}
 	if len(user.RatingHistories) == 0 {
 		item["ratingHistories"] = &dynamodb.AttributeValue{M: emptyMap}
+	}
+	if len(user.Exams) == 0 {
+		item["exams"] = &dynamodb.AttributeValue{M: emptyMap}
 	}
 
 	input := &dynamodb.PutItemInput{

@@ -6,7 +6,6 @@ describe('Signin Page', () => {
     it('has correct content', () => {
         cy.getBySel('title').should('have.text', 'ChessDojo Training Program');
         cy.getBySel('subtitle').should('have.text', 'Sign In');
-        cy.getBySel('warning').should('contain', 'This account is separate');
     });
 
     it('should link to signup', () => {

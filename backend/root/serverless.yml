@@ -19,6 +19,7 @@ provider:
   runtime: provided.al2
   architecture: arm64
   region: us-east-1
+  deploymentMethod: direct
 
 resources:
   Conditions:
@@ -114,9 +115,11 @@ resources:
         CallbackURLs:
           - ${file(../config-${sls:stage}.yml):frontendHost}
           - ${file(../config-${sls:stage}.yml):mobileHost}
+          - https://www.dojoscoreboard.com
         LogoutURLs:
           - ${file(../config-${sls:stage}.yml):frontendHost}
           - ${file(../config-${sls:stage}.yml):mobileHost}
+          - https://www.dojoscoreboard.com
         SupportedIdentityProviders:
           - COGNITO
           - Google
@@ -130,6 +133,16 @@ resources:
         UserPoolId: { Ref: CognitoUserPool }
         Domain: user-pool-domain-${sls:stage}-chess-dojo-scheduler
 
+    CustomDomainCertificate:
+      Type: AWS::CertificateManager::Certificate
+      DeletionPolicy: Retain
+      Properties:
+        DomainName: ${file(../config-${sls:stage}.yml):cognitoUserPoolDomain}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${file(../config-${sls:stage}.yml):cognitoUserPoolDomain}
+            HostedZoneId: ${file(../config-${sls:stage}.yml):hostedZoneId}
+
     CustomUserPoolDomain:
       Type: AWS::Cognito::UserPoolDomain
       DeletionPolicy: Retain
@@ -137,10 +150,10 @@ resources:
         UserPoolId: { Ref: CognitoUserPool }
         Domain: !If
           - IsProd
-          - auth.dojoscoreboard.com
-          - authdev.dojoscoreboard.com
+          - auth.chessdojo.club
+          - authdev.chessdojo.club
         CustomDomainConfig:
-          CertificateArn: ${file(../config-${sls:stage}.yml):domainCertificateArn}
+          CertificateArn: !Ref CustomDomainCertificate
 
     UserPoolIdentityProvider:
       Type: AWS::Cognito::UserPoolIdentityProvider

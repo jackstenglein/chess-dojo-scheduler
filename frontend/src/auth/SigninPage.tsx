@@ -1,6 +1,5 @@
 import { LoadingButton } from '@mui/lab';
 import {
-    Alert,
     Button,
     CircularProgress,
     Container,
@@ -91,12 +90,6 @@ const SigninPage = () => {
                     <Typography variant='h6' data-cy='subtitle'>
                         Sign In
                     </Typography>
-
-                    <Alert severity='warning' sx={{ mt: 2 }} data-cy='warning'>
-                        This account is separate from your account on chessdojo.club. Do
-                        not try to use your chessdojo.club account to login. You must
-                        first create an account on this site to login.
-                    </Alert>
                 </Stack>
 
                 <Stack width={0.75} spacing={4} alignItems='center'>

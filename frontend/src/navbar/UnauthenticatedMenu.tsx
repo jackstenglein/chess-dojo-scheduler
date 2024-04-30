@@ -47,12 +47,10 @@ function unauthenticatedStartItems(
             children: [
                 {
                     name: 'DojoLiga',
-                    icon: null,
                     onClick: () => navigate('/tournaments'),
                 },
                 {
                     name: 'Open Classical',
-                    icon: null,
                     onClick: () => navigate('/tournaments/open-classical'),
                 },
             ],
@@ -64,19 +62,16 @@ function unauthenticatedStartItems(
             children: [
                 {
                     name: 'Courses',
-                    icon: null,
                     onClick: () => navigate('/courses'),
                 },
                 {
                     name: 'Coaching',
-                    icon: null,
                     onClick: () => navigate('/coaching'),
                 },
                 {
                     name: 'Merch',
-                    icon: null,
                     onClick: () =>
-                        window.open('https://www.chessdojo.club/shop', '_blank'),
+                        window.open('https://www.chessdojo.shop/shop', '_blank'),
                 },
             ],
         },
@@ -148,9 +143,6 @@ export const LargeMenuUnauthenticated = () => {
     };
 
     const { startItems, menuItems } = useNavbarItems(handleClick);
-
-    console.log('Start Items: ', startItems);
-    console.log('Menu Items: ', menuItems);
 
     return (
         <>

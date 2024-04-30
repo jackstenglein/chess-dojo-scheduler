@@ -17,6 +17,7 @@ provider:
     stage: ${sls:stage}
   httpApi:
     id: ${param:httpApiId}
+  deploymentMethod: direct
 
 custom:
   go:
@@ -55,23 +56,4 @@ functions:
         Action:
           - dynamodb:Query
           - dynamodb:Scan
-        Resource: ${param:RequirementsTableArn}
-
-  set:
-    handler: set/main.go
-    events:
-      - httpApi:
-          path: /requirement
-          method: put
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
         Resource: ${param:RequirementsTableArn}

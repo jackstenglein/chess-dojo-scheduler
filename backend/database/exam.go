@@ -1,10 +1,13 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 // The key of an item in the exams table.
@@ -77,6 +80,25 @@ type ExamProblemAnswer struct {
 	Total int `dynamodbav:"total" json:"total"`
 }
 
+// A single user's attempt on an exam. Users can retake an exam,
+// but only the first attempt is scored.
+type ExamAttempt struct {
+	// The user's answers to the problems included in the exam.
+	Answers []ExamProblemAnswer `dynamodbav:"answers" json:"answers"`
+
+	// The user's cohort, at the time of the attempt.
+	Cohort string `dynamodbav:"cohort" json:"cohort"`
+
+	// The user's normalized rating, at the time of the attempt.
+	Rating float32 `dynamodbav:"rating" json:"rating"`
+
+	// The amount of time used during the attempt.
+	TimeUsedSeconds int `dynamodbav:"timeUsedSeconds" json:"timeUsedSeconds"`
+
+	// The date the user took the exam, in time.RFC3339 format.
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+}
+
 // A single user's answer to a full exam.
 type ExamAnswer struct {
 	// The database table key of the exam. Type will be the user's username
@@ -86,19 +108,27 @@ type ExamAnswer struct {
 	// The type of the exam this answer refers to.
 	ExamType ExamType `dynamodbav:"examType" json:"examType"`
 
+	// The user's attempts on the exam.
+	Attempts []ExamAttempt `dynamodbav:"attempts" json:"attempts"`
+
 	// The user's answers to the problems included in the exam.
+	// Deprecated
 	Answers []ExamProblemAnswer `dynamodbav:"answers" json:"answers"`
 
 	// The user's cohort, at the time they took the exam.
+	// Deprecated
 	Cohort string `dynamodbav:"cohort" json:"cohort"`
 
 	// The user's normalized rating, at the time they took the exam.
+	// Deprecated
 	Rating float32 `dynamodbav:"rating" json:"rating"`
 
 	// The amount of time used while taking the exam.
+	// Deprecated
 	TimeUsedSeconds int `dynamodbav:"timeUsedSeconds" json:"timeUsedSeconds"`
 
 	// The date the user took the exam, in time.RFC3339 format
+	// Deprecated
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 }
 
@@ -123,21 +153,27 @@ func (repo *dynamoRepository) ListExams(examType ExamType, startKey string, out 
 }
 
 // PutExamAnswerSummary creates and saves an ExamAnswerSummary using the provided ExamAnswer.
-func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) error {
+// The updated Exam is returned. If the ExamAnswer does not require updating the Exam, then nil is returned.
+func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) (*Exam, error) {
+	if len(answer.Attempts) > 1 {
+		// We've already saved the first attempt on the Exam, and don't need to do anything with this update.
+		return nil, nil
+	}
+
 	score := 0
-	for _, a := range answer.Answers {
+	for _, a := range answer.Attempts[0].Answers {
 		score += a.Score
 	}
 
 	summary := ExamAnswerSummary{
-		Cohort:    answer.Cohort,
-		Rating:    answer.Rating,
+		Cohort:    answer.Attempts[0].Cohort,
+		Rating:    answer.Attempts[0].Rating,
 		Score:     score,
-		CreatedAt: answer.CreatedAt,
+		CreatedAt: answer.Attempts[0].CreatedAt,
 	}
 	item, err := dynamodbattribute.MarshalMap(summary)
 	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Unable to marshal answer summary", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal answer summary", err)
 	}
 
 	input := &dynamodb.UpdateItemInput{
@@ -154,33 +190,52 @@ func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) error {
 			"type": {S: aws.String(string(answer.ExamType))},
 			"id":   {S: aws.String(answer.Id)},
 		},
-		ReturnValues: aws.String("NONE"),
+		ReturnValues: aws.String("ALL_NEW"),
 		TableName:    aws.String(examsTable),
 	}
 
-	_, err = repo.svc.UpdateItem(input)
-	if err != nil {
+	exam := &Exam{}
+	if err := repo.updateItem(input, exam); err != nil {
 		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return errors.Wrap(400, "Invalid request: exam not found or you have already taken it", "DynamoDB conditional check failed", err)
+			return nil, errors.Wrap(400, "Invalid request: exam not found or you have already taken it", "DynamoDB conditional check failed", err)
 		}
-		return errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem", err)
 	}
-	return nil
+	return exam, nil
 }
 
-// PutExamAnswer inserts the provided answer into the database.
-func (repo *dynamoRepository) PutExamAnswer(answer *ExamAnswer) error {
-	item, err := dynamodbattribute.MarshalMap(answer)
+// PutExamAttempt inserts the provided exam attempt into the database. It is appended to the
+// existing list of attempts. The updated ExamAnswer is returned.
+func (repo *dynamoRepository) PutExamAttempt(username string, examId string, examType ExamType, attempt *ExamAttempt) (*ExamAnswer, error) {
+	item, err := dynamodbattribute.MarshalMap(attempt)
 	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Unable to marshal answer", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal attempt", err)
 	}
 
-	input := &dynamodb.PutItemInput{
-		Item:      item,
-		TableName: aws.String(examsTable),
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type": {S: aws.String(username)},
+			"id":   {S: aws.String(examId)},
+		},
+		UpdateExpression: aws.String("SET #et = :et, #a = list_append(if_not_exists(#a, :empty_list), :a)"),
+		ExpressionAttributeNames: map[string]*string{
+			"#et": aws.String("examType"),
+			"#a":  aws.String("attempts"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":et":         {S: aws.String(string(examType))},
+			":empty_list": {L: []*dynamodb.AttributeValue{}},
+			":a":          {L: []*dynamodb.AttributeValue{{M: item}}},
+		},
+		TableName:    aws.String(examsTable),
+		ReturnValues: aws.String("ALL_NEW"),
 	}
-	_, err = repo.svc.PutItem(input)
-	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+
+	answer := &ExamAnswer{}
+	if err := repo.updateItem(input, answer); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed updateItem call", err)
+	}
+	return answer, nil
 }
 
 // GetExamAnswer fetches the provided exam answer from the database.
@@ -196,4 +251,42 @@ func (repo *dynamoRepository) GetExamAnswer(username, id string) (*ExamAnswer, e
 	answer := ExamAnswer{}
 	err := repo.getItem(input, &answer)
 	return &answer, err
+}
+
+// Represents an update to a single UserExamSummary.
+type UserExamSummaryUpdate struct {
+	// The username to update
+	Username string
+
+	// The new summary to set
+	Summary UserExamSummary
+}
+
+// UpdateUserExamRatings uses DynamoDB PartiQL to batch update the given users' exam summaries for the given exam.
+func (repo *dynamoRepository) UpdateUserExamRatings(examId string, updates []UserExamSummaryUpdate) error {
+	for i := 0; i < len(updates); i += 25 {
+		statements := make([]*dynamodb.BatchStatementRequest, 0, 25)
+
+		for j := i; j < len(updates) && j < i+25; j++ {
+			update := updates[j]
+			params, err := dynamodbattribute.MarshalList([]interface{}{update.Summary, update.Username})
+			if err != nil {
+				return errors.Wrap(500, "Temporary server error", "Failed to marshal exam update", err)
+			}
+
+			statements = append(statements, &dynamodb.BatchStatementRequest{
+				Statement:  aws.String(fmt.Sprintf("UPDATE \"%s\" SET exams.\"%s\"=? WHERE username=?", userTable, examId)),
+				Parameters: params,
+			})
+		}
+
+		input := &dynamodb.BatchExecuteStatementInput{Statements: statements}
+		log.Debugf("Batch execute statement input: %v", input)
+		output, err := repo.svc.BatchExecuteStatement(input)
+		log.Debugf("Batch execute statement output: %v", output)
+		if err != nil {
+			return errors.Wrap(500, "Temporary server error", "Failed BatchExecuteStatement", err)
+		}
+	}
+	return nil
 }

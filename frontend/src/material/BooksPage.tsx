@@ -1,8 +1,15 @@
-import { useState } from 'react';
-import { Box, Collapse, Divider, IconButton, Stack, Typography } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-
+import {
+    Box,
+    Collapse,
+    Container,
+    Divider,
+    IconButton,
+    Stack,
+    Typography,
+} from '@mui/material';
+import { useState } from 'react';
 import { Book as BookModel, BookSection, sections } from './books';
 
 function getDisplayTitle(b: BookModel) {
@@ -67,14 +74,16 @@ const Section: React.FC<SectionProps> = ({ section }) => {
     );
 };
 
-const BooksTab = () => {
+const BooksPage = () => {
     return (
-        <Stack spacing={3}>
-            {sections.map((s) => (
-                <Section key={s.title} section={s} />
-            ))}
-        </Stack>
+        <Container sx={{ py: 5 }}>
+            <Stack spacing={3}>
+                {sections.map((s) => (
+                    <Section key={s.title} section={s} />
+                ))}
+            </Stack>
+        </Container>
     );
 };
 
-export default BooksTab;
+export default BooksPage;

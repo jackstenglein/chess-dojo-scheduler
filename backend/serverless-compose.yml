@@ -38,7 +38,6 @@ services:
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
-      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       RequirementsTableArn: ${chess-dojo-scheduler.RequirementsTableArn}
 
   graduations:
@@ -147,3 +146,4 @@ services:
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}

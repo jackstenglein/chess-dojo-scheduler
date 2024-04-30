@@ -17,6 +17,7 @@ provider:
     stage: ${sls:stage}
   httpApi:
     id: ${param:httpApiId}
+  deploymentMethod: direct
 
 custom:
   go:
@@ -59,5 +60,5 @@ functions:
         Action:
           - ses:SendTemplatedEmail
         Resource:
-          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/dojoscoreboard.com
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
           - arn:aws:ses:${aws:region}:${aws:accountId}:template/supportTicket

@@ -15,7 +15,7 @@ const BASE_URL = getConfig().api.baseUrl;
 export type UserApiContextType = {
     /**
      * checkUserAccess returns a 200 OK if the current signed-in user has an active subscription
-     * on chessdojo.club and an error otherwise.
+     * on chessdojo.shop and an error otherwise.
      * @returns An empty AxiosResponse if the current user has an active subscription.
      */
     checkUserAccess: () => Promise<AxiosResponse<any, any>>;
@@ -164,7 +164,7 @@ export type UserApiContextType = {
 
 /**
  * checkUserAccess returns a 200 OK if the current signed-in user has an active subscription
- * on chessdojo.club and an error otherwise.
+ * on chessdojo.shop and an error otherwise.
  * @param idToken The id token of the current signed-in user.
  * @returns An empty AxiosResponse if the current user has an active subscription.
  */

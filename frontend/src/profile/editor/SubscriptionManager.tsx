@@ -1,11 +1,11 @@
-import { Button, Divider, Stack, Typography } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 import { OpenInNew } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
+import { Button, Divider, Stack, Typography } from '@mui/material';
 
-import { SubscriptionStatus, User } from '../../database/user';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useApi } from '../../api/Api';
 import { useNavigate } from 'react-router-dom';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { SubscriptionStatus, User } from '../../database/user';
 
 interface SubscriptionManagerProps {
     user: User;
@@ -69,7 +69,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
                     ) : (
                         <Button
                             variant='contained'
-                            href='https://www.chessdojo.club/account/my-subscriptions'
+                            href='https://www.chessdojo.shop/account/my-subscriptions'
                             endIcon={<OpenInNew />}
                         >
                             Manage Subscription

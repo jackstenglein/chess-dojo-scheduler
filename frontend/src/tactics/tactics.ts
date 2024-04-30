@@ -1,6 +1,13 @@
 import { Chess, COLOR, Move } from '@jackstenglein/chess';
 import { Requirement } from '../database/requirement';
-import { ALL_COHORTS, compareCohorts, User } from '../database/user';
+import {
+    ALL_COHORTS,
+    compareCohorts,
+    isCohortGreater,
+    isCohortInRange,
+    isCohortLess,
+    User,
+} from '../database/user';
 
 interface TacticsProblem {
     orientation: 'white' | 'black';
@@ -274,33 +281,77 @@ const PolgarM2ReqId = 'f815084f-b9bc-408d-9db9-ba9b1c260ff3';
 const PuzzleRush5MinReqId = '42804d40-3651-438c-a8ae-e2200fe23b4c';
 const PuzzleSurvivalReqId = 'fa98ad32-219a-4ee9-ae02-2cda69efce06';
 
+export interface TacticsRating {
+    /** The user's overall tactics rating. */
+    overall: number;
+
+    /** A list of components making up the tactics rating. */
+    components: TacticsRatingComponent[];
+}
+
+export interface TacticsRatingComponent {
+    /** The name of the component. */
+    name: string;
+
+    /** The user's rating for this specific component. */
+    rating: number;
+
+    /** A description of the component to be displayed to users. */
+    description: string;
+}
+
 /**
  * Calculates the user's tactics rating.
  *
- * TODO: handle users 1700+.
  * @param user The user to calculate the tactics rating for.
  * @param requirements A list of requirements, which should contain the Polgar Mate requirements
  * and the Puzzle Rush requirements.
  * @returns The user's tactics rating.
  */
-export function calculateTacticsRating(user: User, requirements: Requirement[]): number {
-    const polgarM1 = requirements.find((r) => r.id === PolgarM1ReqId);
-    const polgarM2 = requirements.find((r) => r.id === PolgarM2ReqId);
-    if (!polgarM1 || !polgarM2) {
-        return 0;
+export function calculateTacticsRating(
+    user: User,
+    requirements: Requirement[],
+): TacticsRating {
+    const rating: TacticsRating = {
+        overall: 0,
+        components: [],
+    };
+
+    if (isCohortLess(user.dojoCohort, '2100-2200')) {
+        rating.components.push(getPolgarRating(user, requirements));
     }
 
-    const polgarRating = getPolgarRating(user, polgarM1, polgarM2);
-    const puzzleRush5MinRating = getTaskRating(
-        user,
-        requirements.find((r) => r.id === PuzzleRush5MinReqId),
-    );
-    const puzzleSurvivalRating = getTaskRating(
-        user,
-        requirements.find((r) => r.id === PuzzleSurvivalReqId),
-    );
+    if (isCohortLess(user.dojoCohort, '1700-1800')) {
+        rating.components.push({
+            name: 'PR 5 Min',
+            rating: getTaskRating(
+                user,
+                requirements.find((r) => r.id === PuzzleRush5MinReqId),
+            ),
+            description: 'Based on progress on the Puzzle Rush 5 Min task',
+        });
+    }
 
-    return (polgarRating + puzzleRush5MinRating + puzzleSurvivalRating) / 3;
+    if (isCohortLess(user.dojoCohort, '2100-2200')) {
+        rating.components.push({
+            name: 'PR Survival',
+            rating: getTaskRating(
+                user,
+                requirements.find((r) => r.id === PuzzleSurvivalReqId),
+            ),
+            description: 'Based on progress on the Puzzle Rush Survival task',
+        });
+    }
+
+    if (isCohortGreater(user.dojoCohort, '1400-1500')) {
+        rating.components.push(...getExamRating(user));
+    }
+
+    rating.overall =
+        rating.components.reduce((sum, c) => sum + c.rating, 0) /
+        rating.components.length;
+
+    return rating;
 }
 
 /**
@@ -322,18 +373,37 @@ function hasTask(user: User, req: Requirement): boolean {
  */
 function getPolgarRating(
     user: User,
-    polgarM1: Requirement,
-    polgarM2: Requirement,
-): number {
+    requirements: Requirement[],
+): TacticsRatingComponent {
+    const polgarM1 = requirements.find((r) => r.id === PolgarM1ReqId);
+    const polgarM2 = requirements.find((r) => r.id === PolgarM2ReqId);
+    if (!polgarM1 || !polgarM2) {
+        return {
+            name: 'Polgar Mates',
+            rating: 0,
+            description: 'Based on progress on the Polgar Mates in 1 and 2 tasks',
+        };
+    }
+
     const hasM1 = hasTask(user, polgarM1);
     const m1Rating = hasM1 ? getTaskRating(user, polgarM1) : 0;
 
     if (hasM1 && m1Rating < getTaskMaxRating(polgarM1)) {
-        return m1Rating;
+        return {
+            name: 'Polgar Mates',
+            rating: m1Rating,
+            description: 'Based on progress on the Polgar Mates in 1 task',
+        };
     }
 
     const m2Rating = getTaskRating(user, polgarM2);
-    return Math.max(m1Rating, m2Rating);
+    return {
+        name: 'Polgar Mates',
+        rating: Math.max(m1Rating, m2Rating),
+        description: hasM1
+            ? 'Based on progress on the Polgar Mates in 1 and 2 tasks'
+            : 'Based on progress on the Polgar Mates in 2 task',
+    };
 }
 
 /**
@@ -399,4 +469,51 @@ function getTaskMaxRating(req: Requirement): number {
     }
 
     return parseInt(reqCounts[reqCounts.length - 1][0].split('-')[1]);
+}
+
+/**
+ * Gets the exam rating component for the given user.
+ * @param user The user to get the rating component for.
+ * @returns The exam rating component.
+ */
+function getExamRating(user: User): TacticsRatingComponent[] {
+    const numberOfExams = 3;
+    const countedExams = Object.values(user.exams || {})
+        .filter((e) => isCohortInRange(user.dojoCohort, e.cohortRange))
+        .sort((lhs, rhs) => rhs.createdAt.localeCompare(lhs.createdAt))
+        .slice(0, numberOfExams);
+
+    if (isCohortLess(user.dojoCohort, '2100-2200')) {
+        let rating = 0;
+        if (countedExams.length > 0) {
+            rating =
+                countedExams.reduce((sum, e) => sum + e.rating, 0) / countedExams.length;
+        }
+
+        return [
+            {
+                name: 'Tests',
+                rating,
+                description: 'The average of the 3 most recent Dojo Tactics Test ratings',
+            },
+        ];
+    }
+
+    return [
+        {
+            name: 'Test 1',
+            rating: countedExams[0]?.rating || 0,
+            description: 'The most recent Dojo Tactics Test rating',
+        },
+        {
+            name: 'Test 2',
+            rating: countedExams[1]?.rating || 0,
+            description: 'The second-most recent Dojo Tactics Test rating',
+        },
+        {
+            name: 'Test 3',
+            rating: countedExams[2]?.rating || 0,
+            description: 'The third-most recent Dojo Tactics Test rating',
+        },
+    ];
 }

@@ -9,6 +9,7 @@ import {
     User,
 } from '../../database/user';
 import RatingCard from './RatingCard';
+import TacticsScoreCard from './TacticsScoreCard';
 
 interface StatsTabProps {
     user: User;
@@ -66,6 +67,8 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
                     />
                 );
             })}
+
+            <TacticsScoreCard user={user} />
         </Stack>
     );
 };

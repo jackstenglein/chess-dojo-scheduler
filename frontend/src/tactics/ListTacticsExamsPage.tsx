@@ -1,23 +1,34 @@
-import { Help } from '@mui/icons-material';
-import { Alert, Container, Snackbar, Stack, Tooltip, Typography } from '@mui/material';
+import { Help, Lock } from '@mui/icons-material';
+import {
+    Alert,
+    Container,
+    Link,
+    Snackbar,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
+    GridRenderCellParams,
     GridRowParams,
     GridValueFormatterParams,
+    GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import { SimpleLinearRegression } from 'ml-regression-simple-linear';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import { toDojoDateString } from '../calendar/displayDate';
 import { Exam, ExamType } from '../database/exam';
 import LoadingPage from '../loading/LoadingPage';
+import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import { getTotalScore } from './tactics';
 
-const RANGES = ['1500-2100', '2100+'];
+const RANGES = ['1500-2000', '2000+'];
 
 interface CohortRangeExams {
     cohortRange: string;
@@ -67,7 +78,7 @@ const ListTacticsExamsPage = () => {
     return (
         <Container sx={{ py: 4 }}>
             <Stack spacing={4}>
-                <Typography variant='h5'>Tactics Exams</Typography>
+                <Typography variant='h5'>Tactics Tests</Typography>
 
                 {cohortRanges.map((range) => (
                     <Stack key={range.cohortRange}>
@@ -90,8 +101,8 @@ export default ListTacticsExamsPage;
  * @param exam The exam to get the linear regression for.
  * @returns The linear regression, or null if the exam does not have enough answers.
  */
-function getRegression(exam: Exam): SimpleLinearRegression | null {
-    const answers = Object.values(exam.answers);
+export function getRegression(exam: Exam): SimpleLinearRegression | null {
+    const answers = Object.values(exam.answers).filter((a) => a.rating > 0);
     if (answers.length < 10) {
         return null;
     }
@@ -102,11 +113,6 @@ function getRegression(exam: Exam): SimpleLinearRegression | null {
 }
 
 const columns: GridColDef<Exam>[] = [
-    {
-        field: 'name',
-        headerName: 'Name',
-        flex: 1,
-    },
     {
         field: 'problems',
         headerName: '# of Problems',
@@ -135,7 +141,7 @@ const columns: GridColDef<Exam>[] = [
         valueGetter(params) {
             const scores = Object.values(params.row.answers).map((a) => a.score);
             const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-            return avg;
+            return Math.round(10 * avg) / 10;
         },
         renderCell(params) {
             const totalScore = params.row.pgns.reduce(
@@ -169,7 +175,7 @@ const avgRatingColumn: GridColDef<Exam> = {
         return Math.round((10 * sum) / Object.values(params.row.answers).length) / 10;
     },
     renderCell(params) {
-        if (params.value < 0) {
+        if (params.value < 0 || isNaN(params.value)) {
             return (
                 <Tooltip title='Avg rating is not calculated until at least 10 people have taken the exam.'>
                     <Help sx={{ color: 'text.secondary' }} />
@@ -185,15 +191,37 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
     const user = useAuth().user;
     const navigate = useNavigate();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [upsellOpen, setUpsellOpen] = useState(false);
+    const isFreeTier = useFreeTier();
 
     const examColumns = useMemo(() => {
-        return columns.concat(
+        const examColumns: GridColDef<Exam>[] = [
+            {
+                field: 'name',
+                headerName: 'Name',
+                renderCell(params: GridRenderCellParams<Exam, string>) {
+                    const i = exams.findIndex((e) => e.id === params.row.id);
+                    if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
+                        return (
+                            <Tooltip title='This exam is locked until you complete the previous exam'>
+                                <Stack direction='row' spacing={0.5} alignItems='center'>
+                                    <Link color='text.disabled'>{params.value}</Link>
+                                    <Lock fontSize='small' />
+                                </Stack>
+                            </Tooltip>
+                        );
+                    }
+                    return <Link sx={{ cursor: 'pointer' }}>{params.value}</Link>;
+                },
+                flex: 1,
+            },
+            ...columns,
             {
                 field: 'yourScore',
                 headerName: 'Your Score',
                 align: 'center',
                 headerAlign: 'center',
-                valueGetter(params) {
+                valueGetter(params: GridValueGetterParams<Exam>) {
                     if (!user) {
                         return -1;
                     }
@@ -203,12 +231,12 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     }
                     return answer.score;
                 },
-                renderCell(params) {
+                renderCell(params: GridRenderCellParams<Exam, number>) {
                     const totalScore = params.row.pgns.reduce(
                         (sum, pgn) => sum + getTotalScore(pgn),
                         0,
                     );
-                    if (params.value < 0) {
+                    if (!params.value || params.value < 0) {
                         return `- / ${totalScore}`;
                     }
                     return `${params.value} / ${totalScore}`;
@@ -221,7 +249,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 headerName: 'Your Rating',
                 align: 'center',
                 headerAlign: 'center',
-                valueGetter(params) {
+                valueGetter(params: GridValueGetterParams<Exam>) {
                     if (!user || !params.row.answers[user.username]) {
                         return '';
                     }
@@ -229,10 +257,17 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     if (!regression) {
                         return -1;
                     }
-                    return regression.predict(params.row.answers[user.username].score);
+                    return (
+                        Math.round(
+                            10 *
+                                regression.predict(
+                                    params.row.answers[user.username].score,
+                                ),
+                        ) / 10
+                    );
                 },
-                renderCell(params) {
-                    if (params.value < 0) {
+                renderCell(params: GridRenderCellParams<Exam, number>) {
+                    if (!params.value || params.value < 0 || isNaN(params.value)) {
                         return (
                             <Tooltip title='Your rating is not calculated until at least 10 people have taken the exam.'>
                                 <Help sx={{ color: 'text.secondary' }} />
@@ -247,7 +282,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 headerName: 'Date Taken',
                 align: 'center',
                 headerAlign: 'center',
-                valueGetter(params) {
+                valueGetter(params: GridValueGetterParams<Exam>) {
                     if (!user) {
                         return '';
                     }
@@ -261,7 +296,8 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 },
                 flex: 1,
             },
-        );
+        ];
+        return examColumns;
     }, [user]);
 
     const onClickRow = (params: GridRowParams<Exam>) => {
@@ -273,6 +309,8 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         const i = exams.findIndex((e) => e.id === params.row.id);
         if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
             setSnackbarOpen(true);
+        } else if (isFreeTier) {
+            setUpsellOpen(true);
         } else {
             navigate(`/tactics/instructions`, { state: { exam: params.row } });
         }
@@ -305,6 +343,11 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     This exam is locked until you complete the previous exam.
                 </Alert>
             </Snackbar>
+            <UpsellDialog
+                open={upsellOpen}
+                onClose={() => setUpsellOpen(false)}
+                currentAction={RestrictedAction.TacticsExams}
+            />
         </>
     );
 };
