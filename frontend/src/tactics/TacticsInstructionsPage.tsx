@@ -121,6 +121,7 @@ const TacticsInstructionsPage = () => {
                                     onSelect={() => null}
                                     countdown={countdown}
                                     onComplete={onFinishSample}
+                                    orientations={[sampleProblem.orientation]}
                                 />
                             ),
                         },
@@ -182,7 +183,8 @@ export const Instructions = () => {
                     </li>
                     <li>
                         For each problem, the board will be oriented with the side to move
-                        on the bottom.
+                        on the bottom. The side to move will also be displayed in the list
+                        of problems.
                     </li>
                     <li>
                         The PGN editor is available for you to add comments or annotations

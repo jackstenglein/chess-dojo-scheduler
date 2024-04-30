@@ -492,28 +492,28 @@ function getExamRating(user: User): TacticsRatingComponent[] {
 
         return [
             {
-                name: 'Exams',
+                name: 'Tests',
                 rating,
-                description: 'The average of the 3 most recent Dojo Tactics Exam ratings',
+                description: 'The average of the 3 most recent Dojo Tactics Test ratings',
             },
         ];
     }
 
     return [
         {
-            name: 'Exam 1',
+            name: 'Test 1',
             rating: countedExams[0]?.rating || 0,
-            description: 'The most recent Dojo Tactics Exam rating',
+            description: 'The most recent Dojo Tactics Test rating',
         },
         {
-            name: 'Exam 2',
+            name: 'Test 2',
             rating: countedExams[1]?.rating || 0,
-            description: 'The second-most recent Dojo Tactics Exam rating',
+            description: 'The second-most recent Dojo Tactics Test rating',
         },
         {
-            name: 'Exam 3',
+            name: 'Test 3',
             rating: countedExams[2]?.rating || 0,
-            description: 'The third-most recent Dojo Tactics Exam rating',
+            description: 'The third-most recent Dojo Tactics Test rating',
         },
     ];
 }

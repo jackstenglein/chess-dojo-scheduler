@@ -275,7 +275,7 @@ const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                         ),
                     },
                     {
-                        name: 'testInfo',
+                        name: 'examInfo',
                         tooltip: 'Test Info',
                         icon: <Quiz />,
                         element: (
@@ -287,12 +287,13 @@ const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                                 onSelect={onChangeProblem}
                                 countdown={countdown}
                                 onComplete={onComplete}
+                                orientations={exam.pgns.map((pgn) => getOrientation(pgn))}
                             />
                         ),
                     },
                     DefaultUnderboardTab.Editor,
                 ]}
-                initialUnderboardTab='testInfo'
+                initialUnderboardTab='examInfo'
                 allowMoveDeletion
                 slots={{
                     moveButtonExtras: TacticsTestMoveButtonExtras,
@@ -443,7 +444,7 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
                 underboardTabs={[
                     {
                         name: 'examInfo',
-                        tooltip: 'Exam Info',
+                        tooltip: 'Test Info',
                         icon: <Quiz />,
                         element: (
                             <CompletedTacticsExamPgnSelector
@@ -467,7 +468,7 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
                     },
                     {
                         name: 'examStats',
-                        tooltip: 'Exam Statistics',
+                        tooltip: 'Test Statistics',
                         icon: <Assessment />,
                         element: <ExamStatistics exam={exam} />,
                     },

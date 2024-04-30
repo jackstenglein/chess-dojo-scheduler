@@ -127,7 +127,7 @@ function allStartItems(
                     onClick: () => navigate('/courses'),
                 },
                 {
-                    name: 'Tactics Exams',
+                    name: 'Tactics Tests',
                     onClick: () => navigate('/tactics'),
                 },
                 {

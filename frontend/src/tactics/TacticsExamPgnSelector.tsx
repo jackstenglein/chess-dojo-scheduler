@@ -16,7 +16,6 @@ import {
 import { useState } from 'react';
 import { ColorFormat } from 'react-countdown-circle-timer';
 import { BlockBoardKeyboardShortcuts } from '../board/pgn/PgnBoard';
-import { Scores } from './TacticsExamPage';
 
 export interface TacticsExamPgnSelectorProps {
     name: string;
@@ -24,11 +23,9 @@ export interface TacticsExamPgnSelectorProps {
     count: number;
     selected: number;
     onSelect: (v: number) => void;
-    countdown?: CountdownProps;
-    elapsedTime?: number;
+    countdown: CountdownProps;
     onComplete?: () => void;
-    scores?: Scores;
-    onReset?: () => void;
+    orientations: string[];
 }
 
 const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
@@ -39,9 +36,7 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
     onSelect,
     countdown,
     onComplete,
-    scores,
-    onReset,
-    elapsedTime,
+    orientations,
 }) => {
     const [isFinishEarly, setIsFinishEarly] = useState(false);
 
@@ -58,27 +53,10 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                 alignItems='center'
                 justifyContent='center'
             >
-                {countdown ? (
-                    <>
-                        <CountdownTimer {...countdown} />
-                        <Button
-                            variant='contained'
-                            onClick={() => setIsFinishEarly(true)}
-                        >
-                            Finish Early
-                        </Button>
-                    </>
-                ) : (
-                    <Stack alignItems='center'>
-                        <Typography variant='h6'>Test Complete</Typography>
-                        <Typography variant='subtitle1'>
-                            Total Score: {scores?.total.user} / {scores?.total.solution}
-                        </Typography>
-                        <Typography variant='subtitle1'>
-                            Time Used: {formatTime(elapsedTime || 0)}
-                        </Typography>
-                    </Stack>
-                )}
+                <CountdownTimer {...countdown} />
+                <Button variant='contained' onClick={() => setIsFinishEarly(true)}>
+                    Finish Early
+                </Button>
             </Stack>
 
             <List sx={{ mt: 2 }}>
@@ -107,25 +85,15 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                             >
                                 <Typography>Problem {i + 1}</Typography>
 
-                                {scores && (
-                                    <Typography>
-                                        {scores.problems[i].user} /{' '}
-                                        {scores.problems[i].solution}
-                                    </Typography>
-                                )}
+                                <Typography color='text.secondary'>
+                                    {orientations[i][0].toUpperCase()}
+                                    {orientations[i].slice(1)}
+                                </Typography>
                             </Stack>
                         </ListItemButton>
                     </ListItem>
                 ))}
             </List>
-
-            {onReset && (
-                <Stack alignItems='center' mt={3}>
-                    <Button variant='contained' onClick={onReset}>
-                        Reset Sample
-                    </Button>
-                </Stack>
-            )}
 
             <Dialog
                 open={isFinishEarly}

@@ -14,7 +14,10 @@ import { Scores } from './TacticsExamPage';
 import { TacticsExamPgnSelectorProps, formatTime } from './TacticsExamPgnSelector';
 
 interface CompletedTacticsExamPgnSelectorProps
-    extends Omit<TacticsExamPgnSelectorProps, 'countdown' | 'onComplete'> {
+    extends Omit<
+        TacticsExamPgnSelectorProps,
+        'countdown' | 'onComplete' | 'orientations'
+    > {
     elapsedTime: number;
     onReset: () => void;
     resetLabel?: string;
