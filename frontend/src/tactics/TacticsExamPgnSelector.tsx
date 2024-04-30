@@ -18,9 +18,9 @@ import { ColorFormat } from 'react-countdown-circle-timer';
 import { BlockBoardKeyboardShortcuts } from '../board/pgn/PgnBoard';
 import { Scores } from './TacticsExamPage';
 
-interface TacticsExamPgnSelectorProps {
-    name?: string;
-    cohortRange?: string;
+export interface TacticsExamPgnSelectorProps {
+    name: string;
+    cohortRange: string;
     count: number;
     selected: number;
     onSelect: (v: number) => void;
@@ -47,13 +47,11 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
 
     return (
         <CardContent>
-            {name && cohortRange && (
-                <Stack alignItems='center' mb={3}>
-                    <Typography variant='h6' color='text.secondary'>
-                        {cohortRange}: {name}
-                    </Typography>
-                </Stack>
-            )}
+            <Stack alignItems='center' mb={3}>
+                <Typography variant='h6' color='text.secondary'>
+                    {cohortRange}: {name}
+                </Typography>
+            </Stack>
             <Stack
                 spacing={3}
                 direction='row'
@@ -156,7 +154,7 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
 
 export default TacticsExamPgnSelector;
 
-const formatTime = (time: number) => {
+export const formatTime = (time: number) => {
     time = Math.round(time);
     const minutes = `0${Math.floor(time / 60)}`.slice(-2);
     const seconds = `0${time % 60}`.slice(-2);

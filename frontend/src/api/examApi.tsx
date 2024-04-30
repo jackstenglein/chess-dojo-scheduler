@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { getConfig } from '../config';
-import { Exam, ExamAnswer, ExamType } from '../database/exam';
+import { Exam, ExamAnswer, ExamAttempt, ExamType } from '../database/exam';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -14,11 +14,18 @@ export type ExamApiContextType = {
     listExams: (type: ExamType, startKey?: string) => Promise<Exam[]>;
 
     /**
-     * Saves the provided exam answer in the database.
-     * @param answer The answer to save.
-     * @returns An AxiosResponse containing the updated Exam.
+     * Saves the provided exam attempt in the database.
+     * @param examType The type of the exam attempted.
+     * @param examId The id of the exam attempted.
+     * @param attempt The attempt to save.
+     * @returns An AxiosResponse containing the updated Exam or null if this
+     * ExamAttempt did not generate an update to the Exam.
      */
-    putExamAnswer: (answer: ExamAnswer) => Promise<AxiosResponse<Exam>>;
+    putExamAttempt: (
+        examType: ExamType,
+        examId: string,
+        attempt: ExamAttempt,
+    ) => Promise<AxiosResponse<Exam | null>>;
 
     /**
      * Fetches an exam answer created by the calling user.
@@ -60,15 +67,27 @@ export async function listExams(idToken: string, type: ExamType, startKey?: stri
 }
 
 /**
- * Saves the provided exam answer in the database.
+ * Saves the provided exam attempt in the database.
  * @param idToken The id token of the current signed-in user.
- * @param answer The answer to save.
- * @returns An AxiosResponse containing the updated Exam.
+ * @param examType The type of the exam attempted.
+ * @param examId The id of the exam attempted.
+ * @param attempt The attempt to save.
+ * @returns An AxiosResponse containing the updated Exam or null if this
+ * ExamAttempt did not generate an update to the Exam.
  */
-export function putExamAnswer(idToken: string, answer: ExamAnswer) {
-    return axios.put<Exam>(`${BASE_URL}/exams/answers`, answer, {
-        headers: { Authorization: `Bearer ${idToken}` },
-    });
+export function putExamAttempt(
+    idToken: string,
+    examType: ExamType,
+    examId: string,
+    attempt: ExamAttempt,
+) {
+    return axios.put<Exam>(
+        `${BASE_URL}/exams/answers`,
+        { examType, examId, attempt },
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
+    );
 }
 
 /**
