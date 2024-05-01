@@ -236,7 +236,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                         (sum, pgn) => sum + getTotalScore(pgn),
                         0,
                     );
-                    if (!params.value || params.value < 0) {
+                    if (params.value === undefined || params.value < 0) {
                         return `- / ${totalScore}`;
                     }
                     return `${params.value} / ${totalScore}`;
