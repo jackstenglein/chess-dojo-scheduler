@@ -61,7 +61,15 @@ const ListTacticsExamsPage = () => {
             for (const range of RANGES) {
                 const exams = request.data
                     .filter((c) => c.cohortRange === range)
-                    .sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+                    .sort((lhs, rhs) => {
+                        if (
+                            parseInt(lhs.name.replace('Test #', '')) <
+                            parseInt(rhs.name.replace('Test #', ''))
+                        ) {
+                            return -1;
+                        }
+                        return 1;
+                    });
                 cohortRanges.push({
                     cohortRange: range,
                     exams,
@@ -328,6 +336,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         <>
             <DataGridPro
                 autoHeight
+                autoPageSize
                 columns={examColumns}
                 rows={exams}
                 hideFooter
