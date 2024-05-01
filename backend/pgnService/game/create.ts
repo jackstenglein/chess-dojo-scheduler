@@ -7,15 +7,17 @@ import {
     PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { Chess } from '@jackstenglein/chess';
 import {
     APIGatewayProxyEventV2,
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
-import { Chess } from '@jackstenglein/chess';
 
+import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
+import { getLichessChapter, getLichessGame, getLichessStudy } from './lichess';
 import {
     CreateGameRequest,
     Game,
@@ -23,7 +25,6 @@ import {
     GameImportType,
     GameOrientation,
 } from './types';
-import { getLichessChapter, getLichessStudy } from './lichess';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const usersTable = process.env.stage + '-users';
@@ -50,8 +51,14 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         let pgnTexts: string[] = [];
         if (request.type === GameImportType.LichessChapter) {
             pgnTexts = [await getLichessChapter(request.url)];
+        } else if (request.type === GameImportType.LichessGame) {
+            pgnTexts = [await getLichessGame(request.url)];
         } else if (request.type === GameImportType.LichessStudy) {
             pgnTexts = await getLichessStudy(request.url);
+        } else if (request.type === GameImportType.ChesscomGame) {
+            pgnTexts = [await getChesscomGame(request.url)];
+        } else if (request.type === GameImportType.ChesscomAnalysis) {
+            pgnTexts = [await getChesscomAnalysis(request.url)];
         } else if (request.type === GameImportType.Manual) {
             if (!request.pgnText) {
                 throw new ApiError({
@@ -71,12 +78,15 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         }
         console.log('PGN texts length: ', pgnTexts.length);
 
+        // TODO: Remove before merge
+        console.log('First PGN contents', pgnTexts[0]);
+
         const [games, headers] = getGames(
             user,
             pgnTexts,
             request.headers,
             request.orientation!,
-            request.unlisted
+            request.unlisted,
         );
         if (headers.length > 0) {
             return success({ count: headers.length, headers });
@@ -118,7 +128,7 @@ async function getUser(event: APIGatewayProxyEventV2): Promise<Record<string, an
                 username: { S: userInfo.username },
             },
             TableName: usersTable,
-        })
+        }),
     );
     if (!getItemOutput.Item) {
         throw new ApiError({
@@ -188,7 +198,7 @@ function getGames(
     pgnTexts: string[],
     reqHeaders: GameImportHeaders[] | undefined,
     orientation: GameOrientation,
-    unlisted: boolean | undefined
+    unlisted: boolean | undefined,
 ): [Game[], GameImportHeaders[]] {
     const games: Game[] = [];
     const headers: GameImportHeaders[] = [];
@@ -202,7 +212,7 @@ function getGames(
             pgnTexts[i],
             reqHeaders?.[i],
             orientation,
-            unlisted
+            unlisted,
         );
 
         headers.push(header);
@@ -219,13 +229,34 @@ function getGames(
     return [games, []];
 }
 
+export function isFairyChess(pgnText: string) {
+    return (
+        /^\[Variant .*\]$/gim.test(pgnText) &&
+        !/^\[Variant\s+['"]?Standard['"]?\s*\]$/gim.test(pgnText)
+    );
+}
+
 export function getGame(
     user: Record<string, any> | undefined,
     pgnText: string,
     headers: GameImportHeaders | undefined,
     orientation: GameOrientation,
-    unlisted: boolean | undefined
-): [Game | null, GameImportHeaders] {
+    unlisted: boolean | undefined,
+): [Game, GameImportHeaders] {
+    if (unlisted === undefined) {
+        unlisted = true;
+    }
+
+    // We do not support variants due to current limitations with
+    // @JackStenglein/pgn-parser
+    if (isFairyChess(pgnText)) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Chess variants are not supported',
+            privateMessage: 'Variant header found in PGN text',
+        });
+    }
+
     try {
         const chess = new Chess({ pgn: pgnText });
         if (headers?.white) {
@@ -241,34 +272,33 @@ export function getGame(
             chess.setHeader('Result', headers.result);
         }
 
-        chess.setHeader('White', chess.header().White?.trim() || '');
-        chess.setHeader('Black', chess.header().Black?.trim() || '');
-        chess.setHeader('Date', chess.header().Date?.replaceAll('-', '.') || '');
-        chess.setHeader('Result', chess.header().Result?.replace('*', '').trim() || '');
+        chess.setHeader('White', chess.header().White?.trim() || '???');
+        chess.setHeader('Black', chess.header().Black?.trim() || '???');
+        chess.setHeader('Date', chess.header().Date?.trim().replaceAll('-', '.') || '');
+        chess.setHeader('Result', chess.header().Result?.trim() || '*');
         chess.setHeader('PlyCount', `${chess.plyCount()}`);
-
-        if (
-            !chess.header().White ||
-            !chess.header().Black ||
-            !isValidDate(chess.header().Date) ||
-            !isValidResult(chess.header().Result)
-        ) {
-            return [
-                null,
-                {
-                    white: chess.header().White,
-                    black: chess.header().Black,
-                    date: isValidDate(chess.header().Date) ? chess.header().Date : '',
-                    result: isValidResult(chess.header().Result)
-                        ? chess.header().Result
-                        : '',
-                },
-            ];
-        }
 
         const now = new Date();
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
         const timelineId = unlisted ? '' : `${uploadDate}_${uuidv4()}`;
+
+        const dateHeader = chess.header().Date;
+        if (dateHeader && !isValidDate(dateHeader)) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'PGN has an invalid Date header',
+                privateMessage: `Unsupported date header. After transformation: ${dateHeader}`,
+            });
+        }
+
+        const resultHeader = chess.header().Result;
+        if (resultHeader && !isValidResult(resultHeader)) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'PGN has an invalid Result header',
+                privateMessage: `Unsupported result header. After transformation: ${resultHeader}`,
+            });
+        }
 
         return [
             {
@@ -337,7 +367,7 @@ function isValidResult(result?: string): boolean {
     if (!result) {
         return false;
     }
-    return result === '1-0' || result === '0-1' || result === '1/2-1/2';
+    return result === '1-0' || result === '0-1' || result === '1/2-1/2' || result === '*';
 }
 
 async function batchPutGames(games: Game[]): Promise<number> {
@@ -358,7 +388,7 @@ async function batchPutGames(games: Game[]): Promise<number> {
                     [gamesTable]: batch,
                 },
                 ReturnConsumedCapacity: 'NONE',
-            })
+            }),
         );
         if (
             result.UnprocessedItems &&
@@ -398,7 +428,7 @@ export async function createTimelineEntry(game: Game) {
                     reactions: {},
                 }),
                 TableName: timelineTable,
-            })
+            }),
         );
     } catch (err) {
         console.error('Failed to create timeline entry: ', err);

@@ -2,42 +2,42 @@ import axios from 'axios';
 
 import { ApiError } from './errors';
 
-export async function getLichessChapter(url?: string): Promise<string> {
-    if (!url) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage:
-                'Invalid request: url is required when importing from Lichess chapter',
-        });
-    }
+export async function getLichessGame(url?: string): Promise<string> {
+    const gameId = getPathSegment(url, 0);
 
     try {
-        const response = await axios.get<string>(`${url}.pgn?source=true`);
+        const exportUrl = `https://lichess.org/game/export/${gameId}?evals=0&clocks=1`;
+        const response = await axios.get<string>(exportUrl, {
+            headers: { Accept: 'application/x-chess-pgn' },
+        });
+        return response.data;
+    } catch (err: unknown) {
+        handleError('Lichess game', err);
+        throw err;
+    }
+}
+
+export async function getLichessChapter(url?: string): Promise<string> {
+    const studyId = getPathSegment(url, 1);
+    const chapterId = getPathSegment(url, 2);
+
+    const exportUrl = `https://lichess.org/study/${studyId}/${chapterId}.pgn?source=true`;
+
+    try {
+        const response = await axios.get<string>(exportUrl);
         return response.data;
     } catch (err) {
-        if (err.response?.status === 401) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage:
-                    'Invalid request: Lichess study must be public or unlisted',
-                cause: err,
-            });
-        }
+        handleError('Lichess Study Chapter', err);
         throw err;
     }
 }
 
 export async function getLichessStudy(url?: string): Promise<string[]> {
-    if (!url) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage:
-                'Invalid request: url is required when importing from Lichess study',
-        });
-    }
+    const studyId = getPathSegment(url, 1);
 
+    const exportUrl = `https://lichess.org/study/${studyId}.pgn?source=true`;
     try {
-        const response = await axios.get<string>(`${url}.pgn?source=true`);
+        const response = await axios.get<string>(exportUrl);
         const games = response.data.split('\n\n\n[');
         return games
             .map((g, i) => {
@@ -52,14 +52,65 @@ export async function getLichessStudy(url?: string): Promise<string[]> {
             })
             .filter((v) => v !== '');
     } catch (err) {
-        if (err.response?.status === 401) {
+        handleError('Lichess Study', err);
+        throw err;
+    }
+}
+
+function getPathSegment(url: string | undefined, idx: number) {
+    if (!url) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'URL required',
+            privateMessage: 'Attempted to parse an undefined URL',
+        });
+    }
+
+    let urlObj: URL;
+    try {
+        urlObj = new URL(url.trim());
+    } catch (error) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Invalid url',
+            privateMessage: `Was unable to parse this URL: ${url}`,
+        });
+        // ...
+    }
+
+    const parts = urlObj.pathname.split('/').filter((part) => part);
+    if (parts.length <= idx) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Invalid url',
+            privateMessage: `Expected more path segments than existed when extracting url fields: ${url}`,
+        });
+    }
+
+    return parts[idx];
+}
+
+function handleError(requested: string, err: unknown) {
+    if (axios.isAxiosError(err) && err.response !== undefined) {
+        const status = err.response.status;
+        if (status === 401) {
             throw new ApiError({
                 statusCode: 400,
-                publicMessage:
-                    'Invalid request: Lichess study must be public or unlisted',
+                publicMessage: '',
+                cause: err,
+            });
+        } else if (status === 403 || status == 401) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `${requested} settings forbid exporting.`,
+                cause: err,
+            });
+        } else if (status === 404) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `${requested} not found.`,
                 cause: err,
             });
         }
-        throw err;
     }
 }

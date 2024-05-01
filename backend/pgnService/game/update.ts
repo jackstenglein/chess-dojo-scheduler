@@ -23,7 +23,7 @@ import {
     GameUpdate,
     UpdateGameRequest,
 } from './types';
-import { getLichessChapter } from './lichess';
+import { getLichessChapter, getLichessGame } from './lichess';
 import {
     cleanupChessbasePgn,
     createTimelineEntry,
@@ -34,6 +34,7 @@ import {
     success,
     timelineTable,
 } from './create';
+import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -159,6 +160,12 @@ async function getGameUpdate(
         let pgnText = '';
         if (request.type === GameImportType.LichessChapter) {
             pgnText = await getLichessChapter(request.url);
+        } else if (request.type === GameImportType.LichessGame) {
+            pgnText = await getLichessGame(request.url);
+        } else if (request.type === GameImportType.ChesscomGame) {
+            pgnText = await getChesscomGame(request.url);
+        } else if (request.type === GameImportType.ChesscomAnalysis) {
+            pgnText = await getChesscomAnalysis(request.url);
         } else if (request.type === GameImportType.Manual) {
             if (!request.pgnText) {
                 throw new ApiError({

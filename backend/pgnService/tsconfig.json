@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "lib": ["es2021"],
-        "strict": true
+        "strict": true,
+        "esModuleInterop": true
     }
 }

@@ -116,6 +116,9 @@ export interface GameUpdate {
 export enum GameImportType {
     LichessChapter = 'lichessChapter',
     LichessStudy = 'lichessStudy',
+    LichessGame = 'lichessGame',
+    ChesscomGame = 'chesscomGame',
+    ChesscomAnalysis = 'chesscomAnalysis',
     Manual = 'manual',
     StartingPosition = 'startingPosition',
 }
