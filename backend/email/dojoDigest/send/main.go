@@ -108,7 +108,7 @@ func main() {
 		}
 	}
 
-	log.Printf("Finished. Success: %d, Failed: %d, Skipped: %d\n", success, failed, skipped)
+	log.Printf("Finished. Success: %d, Failed: %d, Unsubscribed: %d\n", success, failed, skipped)
 }
 
 func getUnsubscribers() map[string]bool {
