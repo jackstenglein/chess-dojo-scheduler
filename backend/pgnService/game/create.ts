@@ -86,7 +86,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             pgnTexts,
             request.headers,
             request.orientation!,
-            request.unlisted,
         );
         if (headers.length > 0) {
             return success({ count: headers.length, headers });
@@ -198,7 +197,6 @@ function getGames(
     pgnTexts: string[],
     reqHeaders: GameImportHeaders[] | undefined,
     orientation: GameOrientation,
-    unlisted: boolean | undefined,
 ): [Game[], GameImportHeaders[]] {
     const games: Game[] = [];
     const headers: GameImportHeaders[] = [];
@@ -207,13 +205,7 @@ function getGames(
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
 
-        const [game, header] = getGame(
-            user,
-            pgnTexts[i],
-            reqHeaders?.[i],
-            orientation,
-            unlisted,
-        );
+        const [game, header] = getGame(user, pgnTexts[i], reqHeaders?.[i], orientation);
 
         headers.push(header);
         if (!game) {
@@ -241,12 +233,7 @@ export function getGame(
     pgnText: string,
     headers: GameImportHeaders | undefined,
     orientation: GameOrientation,
-    unlisted: boolean | undefined,
 ): [Game, GameImportHeaders] {
-    if (unlisted === undefined) {
-        unlisted = true;
-    }
-
     // We do not support variants due to current limitations with
     // @JackStenglein/pgn-parser
     if (isFairyChess(pgnText)) {
@@ -280,7 +267,6 @@ export function getGame(
 
         const now = new Date();
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
-        const timelineId = unlisted ? '' : `${uploadDate}_${uuidv4()}`;
 
         const dateHeader = chess.header().Date;
         if (dateHeader && !isValidDate(dateHeader)) {
@@ -309,7 +295,6 @@ export function getGame(
                 date: chess.header().Date,
                 createdAt: now.toISOString(),
                 updatedAt: now.toISOString(),
-                ...(unlisted ? {} : { publishedAt: now.toISOString() }),
                 owner: user?.username || '',
                 ownerDisplayName: user?.displayName || '',
                 ownerPreviousCohort: user?.previousCohort || '',
@@ -318,8 +303,7 @@ export function getGame(
                 orientation,
                 comments: [],
                 positionComments: {},
-                unlisted: Boolean(unlisted),
-                timelineId,
+                unlisted: true,
             },
             {
                 white: chess.header().White,

@@ -72,7 +72,6 @@ export interface CreateGameRequest {
     pgnText?: string;
     headers?: GameImportHeaders[];
     orientation?: GameOrientation;
-    unlisted?: boolean;
 }
 
 export interface UpdateGameRequest extends CreateGameRequest {

@@ -16,9 +16,8 @@ test('getGame defaults gracefully', () => {
     const reqHeaders = undefined;
     const orientation = GameOrientation.White;
     const user = undefined;
-    const unlisted = undefined;
 
-    const [game] = getGame(user, pgnText, reqHeaders, orientation, unlisted);
+    const [game] = getGame(user, pgnText, reqHeaders, orientation);
 
     assert.isNotNull(game, 'empty PGN should be supported');
     assert.isTrue(game?.unlisted);
@@ -28,7 +27,6 @@ test('getGame handles incomplete pgn', () => {
     const reqHeaders = undefined;
     const orientation = GameOrientation.White;
     const user = undefined;
-    const unlisted = undefined;
 
     const pgnText = `
 [Event "Quick Tips to Improve Your Chess: Part 1: Don't Block Your Central Pawns!"]
@@ -49,7 +47,7 @@ test('getGame handles incomplete pgn', () => {
 
 
 `;
-    const [game] = getGame(user, pgnText, reqHeaders, orientation, unlisted);
+    const [game] = getGame(user, pgnText, reqHeaders, orientation);
 
     const pgn = game.pgn.trim();
     assert.equal(pgn[pgn.length - 1], '*');
