@@ -1,4 +1,4 @@
-import { Container, Typography } from '@mui/material';
+import { Alert, Container, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
@@ -9,6 +9,10 @@ import { AuthStatus, useAuth } from '../auth/Auth';
 import { SubscriptionStatus } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import PriceMatrix from './PriceMatrix';
+
+const today = new Date();
+const promoEnd = new Date('2024-06-01');
+const showPromo = today.getTime() < promoEnd.getTime();
 
 interface PricingPageProps {
     onFreeTier?: () => void;
@@ -56,7 +60,14 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         <Container sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
 
-            <Grid2 container spacing={3}>
+            <Grid2 container spacing={3} justifyContent='center'>
+                {showPromo && (
+                    <Grid2 xs='auto' mb={5}>
+                        <Alert severity='info' variant='outlined'>
+                            Use code DOJO30 at checkout for 30% off your first month
+                        </Alert>
+                    </Grid2>
+                )}
                 <Grid2 xs={12} textAlign='center'>
                     <Typography variant='subtitle1' color='text.secondary'>
                         Choose your pricing plan
