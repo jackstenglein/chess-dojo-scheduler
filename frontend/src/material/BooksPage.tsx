@@ -6,6 +6,7 @@ import {
     Container,
     Divider,
     IconButton,
+    Link,
     Stack,
     Typography,
 } from '@mui/material';
@@ -22,9 +23,9 @@ function getDisplayTitle(b: BookModel) {
 const Book: React.FC<{ book: BookModel }> = ({ book }) => {
     if (book.link) {
         return (
-            <a href={book.link} target='_blank' rel='noreferrer'>
+            <Link href={book.link} target='_blank' rel='noreferrer'>
                 <Typography>{getDisplayTitle(book)}</Typography>
-            </a>
+            </Link>
         );
     }
     return <Typography>{getDisplayTitle(book)}</Typography>;
