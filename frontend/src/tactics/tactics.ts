@@ -301,7 +301,7 @@ export interface TacticsRatingComponent {
     /** The name of the component. */
     name: string;
 
-    /** The user's rating for this specific component. */
+    /** The user's rating for this specific component. If negative, the user doesn't have a rating for this component. */
     rating: number;
 
     /** A description of the component to be displayed to users. */
@@ -355,9 +355,12 @@ export function calculateTacticsRating(
         rating.components.push(...getExamRating(user));
     }
 
-    rating.overall =
-        rating.components.reduce((sum, c) => sum + c.rating, 0) /
-        rating.components.length;
+    const countedComponents = rating.components.filter((c) => c.rating >= 0);
+    if (countedComponents.length > 0) {
+        rating.overall =
+            countedComponents.reduce((sum, c) => sum + c.rating, 0) /
+            countedComponents.length;
+    }
 
     return rating;
 }
@@ -388,13 +391,13 @@ function getPolgarRating(
     if (!polgarM1 || !polgarM2) {
         return {
             name: 'Polgar Mates',
-            rating: 0,
+            rating: -1,
             description: 'Based on progress on the Polgar Mates in 1 and 2 tasks',
         };
     }
 
     const hasM1 = hasTask(user, polgarM1);
-    const m1Rating = hasM1 ? getTaskRating(user, polgarM1) : 0;
+    const m1Rating = hasM1 ? getTaskRating(user, polgarM1) : -1;
 
     if (hasM1 && m1Rating < getTaskMaxRating(polgarM1)) {
         return {
@@ -422,17 +425,17 @@ function getPolgarRating(
  */
 function getTaskRating(user: User, req?: Requirement): number {
     if (!req) {
-        return 0;
+        return -1;
     }
 
     const progress = user.progress[req.id];
     if (!progress) {
-        return 0;
+        return -1;
     }
 
     const count = progress.counts[ALL_COHORTS];
     if (!count) {
-        return 0;
+        return -1;
     }
 
     const reqCounts = Object.entries(req.counts).sort((lhs, rhs) =>
@@ -492,7 +495,7 @@ function getExamRating(user: User): TacticsRatingComponent[] {
         .slice(0, numberOfExams);
 
     if (isCohortLess(user.dojoCohort, '2100-2200')) {
-        let rating = 0;
+        let rating = -1;
         if (countedExams.length > 0) {
             rating =
                 countedExams.reduce((sum, e) => sum + e.rating, 0) / countedExams.length;
@@ -510,17 +513,17 @@ function getExamRating(user: User): TacticsRatingComponent[] {
     return [
         {
             name: 'Test 1',
-            rating: countedExams[0]?.rating || 0,
+            rating: countedExams[0]?.rating ?? -1,
             description: 'The most recent Dojo Tactics Test rating',
         },
         {
             name: 'Test 2',
-            rating: countedExams[1]?.rating || 0,
+            rating: countedExams[1]?.rating ?? -1,
             description: 'The second-most recent Dojo Tactics Test rating',
         },
         {
             name: 'Test 3',
-            rating: countedExams[2]?.rating || 0,
+            rating: countedExams[2]?.rating ?? -1,
             description: 'The third-most recent Dojo Tactics Test rating',
         },
     ];
