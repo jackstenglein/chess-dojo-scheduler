@@ -169,13 +169,17 @@ interface InProgressTacticsExamProps {
     setExam: (e: Exam) => void;
     answerRequest: Request<ExamAnswer>;
     setIsRetaking: (v: boolean) => void;
+    disableClock?: boolean;
+    disableSave?: boolean;
 }
 
-const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
+export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
     exam,
     setExam,
     answerRequest,
     setIsRetaking,
+    disableClock,
+    disableSave,
 }) => {
     const user = useAuth().user!;
     const api = useApi();
@@ -189,7 +193,7 @@ const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
     }, [setIsTimeOver]);
 
     const countdown = useCountdown({
-        isPlaying: true,
+        isPlaying: !disableClock,
         size: 80,
         strokeWidth: 6,
         duration: exam?.timeLimitSeconds || 3600,
@@ -242,16 +246,18 @@ const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
         });
         setIsRetaking(false);
 
-        api.putExamAttempt(exam.type, exam.id, attempt)
-            .then((resp) => {
-                console.log('putExamAttempt: ', resp);
-                if (resp.data) {
-                    setExam(resp.data);
-                }
-            })
-            .catch((err) => {
-                console.error('putExamAttempt: ', err);
-            });
+        if (!disableSave) {
+            api.putExamAttempt(exam.type, exam.id, attempt)
+                .then((resp) => {
+                    console.log('putExamAttempt: ', resp);
+                    if (resp.data) {
+                        setExam(resp.data);
+                    }
+                })
+                .catch((err) => {
+                    console.error('putExamAttempt: ', err);
+                });
+        }
     };
 
     return (

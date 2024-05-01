@@ -1,74 +1,28 @@
-import { Quiz } from '@mui/icons-material';
-import { Button, Container, Stack, Typography } from '@mui/material';
-import { useRef } from 'react';
-import { useCountdown } from 'react-countdown-circle-timer';
+import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { RequestStatus, useRequest } from '../api/Request';
-import PgnBoard, { PgnBoardApi } from '../board/pgn/PgnBoard';
-import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
 import { Exam, ExamAnswer, ExamType } from '../database/exam';
-import {
-    CompletedTacticsExam,
-    TacticsTestMoveButtonExtras,
-    getScores,
-} from './TacticsExamPage';
-import TacticsExamPgnSelector from './TacticsExamPgnSelector';
-import { sampleProblem } from './tactics';
+import { CompletedTacticsExam, InProgressTacticsExam } from './TacticsExamPage';
+import { sampleProblems } from './tactics';
 
 const sampleExam: Exam = {
     type: ExamType.Tactics,
     id: 'sample',
     name: 'Sample',
     cohortRange: 'Instructions',
-    pgns: [sampleProblem.solution],
+    pgns: sampleProblems,
     timeLimitSeconds: 3600,
     answers: {},
 };
 
 const TacticsInstructionsPage = () => {
-    const pgnApi = useRef<PgnBoardApi>(null);
     const navigate = useNavigate();
     const locationState = useLocation().state;
     const request = useRequest<ExamAnswer>();
 
-    const onFinishSample = () => {
-        const scores = getScores(sampleExam, [pgnApi.current?.getPgn() || '']);
-        request.onSuccess({
-            type: 'sample',
-            id: 'sample',
-            examType: ExamType.Tactics,
-            attempts: [
-                {
-                    answers: [
-                        {
-                            pgn: pgnApi.current?.getPgn() || '',
-                            score: scores.problems[0].user,
-                            total: scores.problems[0].solution,
-                        },
-                    ],
-                    cohort: 'sample',
-                    rating: -1,
-                    timeUsedSeconds: Math.round(countdown.elapsedTime),
-                    createdAt: new Date().toISOString(),
-                },
-            ],
-        });
-    };
-
     const onStart = () => {
         navigate('/tactics/exam', { state: locationState });
     };
-
-    const countdown = useCountdown({
-        isPlaying: false,
-        size: 80,
-        strokeWidth: 6,
-        duration: 3600,
-        colors: ['#66bb6a', '#29b6f6', '#ce93d8', '#ffa726', '#f44336'],
-        colorsTime: [3600, 2700, 1800, 900, 0],
-        trailColor: 'rgba(0,0,0,0)',
-        onComplete: onFinishSample,
-    });
 
     if (!locationState.exam) {
         return <Navigate to='/tactics/' />;
@@ -86,11 +40,12 @@ const TacticsInstructionsPage = () => {
                         Example
                     </Typography>
                     <Typography sx={{ mb: 3 }}>
-                        The following is an example position similar to the ones you will
-                        see in the test. You can use this as an optional, untimed warm-up
-                        to see how the test will work. You are not graded on this problem.
-                        When you have finished making your moves, click the "Finish Early"
-                        button to see the score you would have gotten in the real test.
+                        The following is a sample test similar to the one you will take.
+                        You can use this as an optional, untimed warm-up to see how the
+                        test will work. You are not graded on these problems. When you
+                        have finished making your moves, click the "Finish Early" button
+                        to see the score you would have gotten if this had been a real
+                        test.
                     </Typography>
                 </Stack>
             </Container>
@@ -102,36 +57,13 @@ const TacticsInstructionsPage = () => {
                     onReset={request.reset}
                 />
             ) : (
-                <PgnBoard
-                    ref={pgnApi}
-                    fen={sampleProblem.fen}
-                    showPlayerHeaders={false}
-                    startOrientation={sampleProblem.orientation}
-                    underboardTabs={[
-                        {
-                            name: 'testInfo',
-                            tooltip: 'Test Info',
-                            icon: <Quiz />,
-                            element: (
-                                <TacticsExamPgnSelector
-                                    cohortRange='Instructions'
-                                    name='Sample'
-                                    count={1}
-                                    selected={0}
-                                    onSelect={() => null}
-                                    countdown={countdown}
-                                    onComplete={onFinishSample}
-                                    orientations={[sampleProblem.orientation]}
-                                />
-                            ),
-                        },
-                        DefaultUnderboardTab.Editor,
-                    ]}
-                    initialUnderboardTab='testInfo'
-                    allowMoveDeletion
-                    slots={{
-                        moveButtonExtras: TacticsTestMoveButtonExtras,
-                    }}
+                <InProgressTacticsExam
+                    exam={sampleExam}
+                    setExam={() => null}
+                    answerRequest={request}
+                    setIsRetaking={() => null}
+                    disableClock
+                    disableSave
                 />
             )}
 
@@ -163,7 +95,7 @@ export const Instructions = () => {
                 Instructions
             </Typography>
             <Typography>
-                <ul style={{ margin: 0 }}>
+                <Box component='ul' sx={{ m: 0, '& li': { mt: 1 } }}>
                     <li>
                         Unlike most online tactics trainers, you play both your moves and
                         your opponent's. You will not receive feedback on any moves until
@@ -180,6 +112,10 @@ export const Instructions = () => {
                         In each variation, only your main move will be counted as part of
                         your solution. You can promote variations to select which moves
                         will be included in your solution.
+                    </li>
+                    <li>
+                        Not every problem has a tactical solution. In this case, just play
+                        a move that improves your position in some way.
                     </li>
                     <li>
                         For each problem, the board will be oriented with the side to move
@@ -205,7 +141,7 @@ export const Instructions = () => {
                         Once the test starts, do not refresh or navigate away from the
                         page. Your progress will be lost if you do so.
                     </li>
-                </ul>
+                </Box>
             </Typography>
         </>
     );
