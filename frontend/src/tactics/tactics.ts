@@ -447,7 +447,7 @@ function getTaskRating(user: User, req?: Requirement): number {
         if (reqCount >= count) {
             const tokens = cohort.split('-');
             const minCohort = parseInt(tokens[0]);
-            const maxCohort = parseInt(tokens[1]);
+            const maxCohort = parseInt(tokens[1] || '2500');
 
             const minReqCount = i ? reqCounts[i - 1][1] : req.startCount;
 
@@ -479,7 +479,8 @@ function getTaskMaxRating(req: Requirement): number {
         reqCounts.pop();
     }
 
-    return parseInt(reqCounts[reqCounts.length - 1][0].split('-')[1]);
+    const tokens = reqCounts[reqCounts.length - 1][0].split('-');
+    return parseInt(tokens[1] || '2500');
 }
 
 /**
