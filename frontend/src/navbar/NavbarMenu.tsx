@@ -39,6 +39,16 @@ import { hasCreatedProfile } from '../database/user';
 import NotificationButton from '../notifications/NotificationButton';
 import PawnIcon from './PawnIcon';
 import ProfileButton from './ProfileButton';
+import ImportContactsIcon from '@mui/icons-material/ImportContacts';
+import ExtensionIcon from '@mui/icons-material/Extension';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import BorderColorIcon from '@mui/icons-material/BorderColor';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
 } from './UnauthenticatedMenu';
@@ -99,10 +109,12 @@ function allStartItems(
             children: [
                 {
                     name: 'DojoLiga',
+                    icon: <MilitaryTechIcon/>,
                     onClick: () => navigate('/tournaments'),
                 },
                 {
                     name: 'Open Classical',
+                    icon: <MilitaryTechIcon/>,
                     onClick: () => navigate('/tournaments/open-classical'),
                 },
             ],
@@ -124,30 +136,37 @@ function allStartItems(
             children: [
                 {
                     name: 'Courses',
+                    icon: <ImportContactsIcon/>,
                     onClick: () => navigate('/courses'),
                 },
                 {
                     name: 'Tactics Tests',
+                    icon: <ExtensionIcon/>,
                     onClick: () => navigate('/tactics'),
                 },
                 {
                     name: 'Books',
+                    icon: <AutoStoriesIcon/>,
                     onClick: () => navigate('/material/books'),
                 },
                 {
                     name: 'Sparring Positions',
+                    icon: <LocalFireDepartmentIcon/>,
                     onClick: () => navigate('/material/sparring'),
                 },
                 {
                     name: 'Model Annotations',
+                    icon: <BorderColorIcon/>,
                     onClick: () => navigate('/material/modelgames'),
                 },
                 {
                     name: 'Games to Memorize',
+                    icon: <PsychologyIcon/>,
                     onClick: () => navigate('/material/memorizegames'),
                 },
                 {
                     name: 'Rating Conversions',
+                    icon: <SignalCellularAltIcon/>,
                     onClick: () => navigate('/material/ratings'),
                 },
             ],
@@ -169,14 +188,17 @@ function allStartItems(
             children: [
                 {
                     name: 'Courses',
+                    icon: <ImportContactsIcon/>,
                     onClick: () => navigate('/courses'),
                 },
                 {
                     name: 'Coaching',
+                    icon: <RocketLaunchIcon/>,
                     onClick: () => navigate('/coaching'),
                 },
                 {
                     name: 'Merch',
+                    icon: <StorefrontIcon/>,
                     onClick: () =>
                         window.open('https://www.chessdojo.shop/shop', '_blank'),
                 },
