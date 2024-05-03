@@ -302,7 +302,9 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                 initialUnderboardTab='examInfo'
                 allowMoveDeletion
                 slots={{
-                    moveButtonExtras: TacticsTestMoveButtonExtras,
+                    moveButton: {
+                        extras: TacticsTestMoveButtonExtras,
+                    },
                 }}
             />
 
@@ -481,7 +483,9 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
                 ]}
                 initialUnderboardTab='examInfo'
                 slots={{
-                    moveButtonExtras: CompletedMoveButtonExtras,
+                    moveButton: {
+                        extras: CompletedMoveButtonExtras,
+                    },
                 }}
             />
         </Container>

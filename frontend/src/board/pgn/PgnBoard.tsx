@@ -12,12 +12,13 @@ import React, {
     useRef,
     useState,
 } from 'react';
+import { useAuth } from '../../auth/Auth';
 import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
-import { UnderboardTab } from './boardTools/underboard/Underboard';
-import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import ResizableContainer from './ResizableContainer';
+import { UnderboardTab } from './boardTools/underboard/Underboard';
+import { ButtonProps as MoveButtonProps, MoveMenuProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
 
 export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
@@ -46,7 +47,11 @@ export interface PgnBoardApi {
 }
 
 export interface PgnBoardSlots {
-    moveButtonExtras?: React.JSXElementConstructor<MoveButtonProps>;
+    moveButton?: {
+        extras?: React.JSXElementConstructor<MoveButtonProps>;
+        allowContextMenu?: (chess: Chess | undefined, move: Move) => boolean;
+        contextMenu?: React.JSXElementConstructor<MoveMenuProps>;
+    };
 }
 
 interface PgnBoardProps {
@@ -81,6 +86,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         const [, setOrientation] = useState(startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
         const { game } = useGame();
+        const username = useAuth().user?.username;
 
         const toggleOrientation = useCallback(() => {
             if (board) {
@@ -105,14 +111,33 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
 
         const onMove = useCallback(
             (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
-                chess.move({
+                const existingMove = chess.move(
+                    {
+                        from: primMove.orig,
+                        to: primMove.dest,
+                        promotion: primMove.promotion,
+                    },
+                    undefined,
+                    undefined,
+                    true,
+                    true,
+                );
+                const move = chess.move({
                     from: primMove.orig,
                     to: primMove.dest,
                     promotion: primMove.promotion,
                 });
+
+                if (!existingMove && move) {
+                    console.log('Adding user data');
+                    move.userData = {
+                        ...move.userData,
+                        username,
+                    };
+                }
                 reconcile(chess, board);
             },
-            [],
+            [username],
         );
 
         const onInitialize = useCallback(

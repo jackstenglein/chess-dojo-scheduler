@@ -3,13 +3,13 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
-    Button as MuiButton,
     Grid,
     ListItemIcon,
     ListItemText,
     Menu,
     MenuItem,
     MenuList,
+    Button as MuiButton,
     Stack,
     Tooltip,
     Typography,
@@ -19,6 +19,8 @@ import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long
 import { useLocalStorage } from 'usehooks-ts';
 import { useGame } from '../../../games/view/GamePage';
 import { reconcile } from '../../Board';
+import { compareNags, getStandardNag, nags } from '../Nag';
+import { useChess } from '../PgnBoard';
 import {
     convertClockToSeconds,
     formatTime,
@@ -26,8 +28,6 @@ import {
     getInitialClock,
 } from '../boardTools/underboard/ClockUsage';
 import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
-import { compareNags, getStandardNag, nags } from '../Nag';
-import { useChess } from '../PgnBoard';
 
 export function getTextColor(move: Move, inline?: boolean): string {
     for (const nag of move.nags || []) {
@@ -117,7 +117,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             onContextMenu={onRightClick}
             {...longPress()}
         >
-            {time || slots?.moveButtonExtras ? (
+            {time || slots?.moveButton?.extras ? (
                 <Stack
                     direction='row'
                     alignItems='center'
@@ -138,7 +138,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                         </Typography>
                     )}
 
-                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
+                    {slots?.moveButton?.extras && <slots.moveButton.extras {...props} />}
                 </Stack>
             ) : (
                 <>
@@ -150,37 +150,45 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     );
 });
 
-interface MoveMenuProps {
+export interface MoveMenuProps {
     anchor?: HTMLElement;
     move: Move;
-    onDelete: () => void;
     onClose: () => void;
 }
 
-const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) => {
-    const chess = useChess().chess!;
+const MoveMenu: React.FC<MoveMenuProps> = (props) => {
+    const { slots } = useChess();
+    if (slots?.moveButton?.contextMenu) {
+        return <slots.moveButton.contextMenu {...props} />;
+    }
+    return <DefaultMoveMenu {...props} />;
+};
 
-    const canPromote = chess.canPromoteVariation(move);
+const DefaultMoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onClose }) => {
+    const { chess, board } = useChess();
+
+    const canPromote = chess?.canPromoteVariation(move);
 
     const onClickDelete = () => {
-        onDelete();
+        chess?.delete(move);
+        reconcile(chess, board);
         onClose();
     };
 
     const onMakeMainline = () => {
-        chess.promoteVariation(move, true);
+        chess?.promoteVariation(move, true);
         onClose();
     };
 
     const onPromote = () => {
-        chess.promoteVariation(move);
+        chess?.promoteVariation(move);
         onClose();
     };
 
     return (
         <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
             <MenuList>
-                <MenuItem disabled={chess.isInMainline(move)} onClick={onMakeMainline}>
+                <MenuItem disabled={chess?.isInMainline(move)} onClick={onMakeMainline}>
                     <ListItemIcon>
                         <CheckIcon />
                     </ListItemIcon>
@@ -223,7 +231,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     handleScroll,
 }) => {
     const { game } = useGame();
-    const { chess, board, config } = useChess();
+    const { chess, config, slots } = useChess();
     const ref = useRef<HTMLButtonElement>(null);
     const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
@@ -294,13 +302,14 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     }, [move, chess, setIsCurrentMove, firstMove, handleScroll]);
 
     const allowMoveDeletion = config?.allowMoveDeletion;
+    const allowContextMenu = slots?.moveButton?.allowContextMenu;
     const onRightClick = useCallback(
         (
             event:
                 | React.MouseEvent<HTMLButtonElement>
                 | LongPressReactEvents<HTMLButtonElement>,
         ) => {
-            if (allowMoveDeletion) {
+            if (allowMoveDeletion || allowContextMenu?.(chess, move)) {
                 event.preventDefault();
                 event.stopPropagation();
                 setMenuAnchorEl(event.currentTarget || event.target);
@@ -308,11 +317,6 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         },
         [setMenuAnchorEl, allowMoveDeletion],
     );
-
-    const onDelete = () => {
-        chess?.delete(move);
-        reconcile(chess, board);
-    };
 
     const handleMenuClose = () => {
         setMenuAnchorEl(undefined);
@@ -342,12 +346,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     onRightClick={onRightClick}
                     text={text}
                 />
-                <MoveMenu
-                    anchor={menuAnchorEl}
-                    move={move}
-                    onDelete={onDelete}
-                    onClose={handleMenuClose}
-                />
+                <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
             </>
         );
     }
@@ -366,12 +365,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 text={moveText}
                 time={moveTime}
             />
-            <MoveMenu
-                anchor={menuAnchorEl}
-                move={move}
-                onDelete={onDelete}
-                onClose={handleMenuClose}
-            />
+            <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
         </Grid>
     );
 };
