@@ -1,5 +1,5 @@
 import { Card, CardContent, Grid, Stack, Typography } from '@mui/material';
-
+import EqualizerIcon from '@mui/icons-material/Equalizer';
 import {
     getCategoryScore,
     getCohortScore,
@@ -80,7 +80,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
         <Card variant='outlined' id='cohort-score-card'>
             <CardContent>
                 <Stack mb={2}>
-                    <Typography variant='h6'>Cohort Score</Typography>
+                    <Typography variant='h6'> <EqualizerIcon color='primary'/> Cohort Score</Typography>
                 </Stack>
 
                 <Grid container rowGap={2}>

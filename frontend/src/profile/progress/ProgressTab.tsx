@@ -17,6 +17,8 @@ import LoadingPage from '../../loading/LoadingPage';
 import DojoScoreCard from '../stats/DojoScoreCard';
 import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory from './ProgressCategory';
+import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
 function useHideCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('hideCompletedTasks', 'false');
@@ -183,8 +185,8 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     />
                 </FormGroup>
                 <Stack direction='row' spacing={1} justifyContent='end'>
-                    <Button onClick={onExpandAll}>Expand All</Button>
-                    <Button onClick={onCollapseAll}>Collapse All</Button>
+                    <Button onClick={onExpandAll}> <KeyboardDoubleArrowDownIcon/> Expand All</Button>
+                    <Button onClick={onCollapseAll}><KeyboardDoubleArrowUpIcon/> Collapse All</Button>
                 </Stack>
             </Stack>
 

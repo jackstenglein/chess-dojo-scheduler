@@ -1,12 +1,12 @@
-import { faDiscord } from '@fortawesome/free-brands-svg-icons';
-import { Chip, SvgIcon, Tooltip } from '@mui/material';
 import { forwardRef } from 'react';
+import { SvgIcon } from '@mui/material';
+import { faChessKnight } from '@fortawesome/free-solid-svg-icons';
 
 type FontAwesomeSvgIconProps = {
     icon: any;
 };
 
-export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
+const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
     (props, ref) => {
         const { icon } = props;
 
@@ -15,12 +15,7 @@ export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconPr
         } = icon;
 
         return (
-            <SvgIcon
-                ref={ref}
-                viewBox={`0 0 ${width} ${height}`}
-                fontSize='small'
-                className='MuiChip-icon'
-            >
+            <SvgIcon ref={ref} viewBox={`0 0 ${width} ${height}`}>
                 {typeof svgPathData === 'string' ? (
                     <path d={svgPathData} />
                 ) : (
@@ -37,32 +32,9 @@ export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconPr
                 )}
             </SvgIcon>
         );
-    },
+    }
 );
 
-export function DiscordIcon() {
-    return <FontAwesomeSvgIcon icon={faDiscord} />;
+export default function NightIcon(props: any) {
+    return <FontAwesomeSvgIcon icon={faChessKnight} />;
 }
-
-interface DiscordChipProps {
-    username?: string;
-}
-
-const DiscordChip: React.FC<DiscordChipProps> = ({ username }) => {
-    if (!username) {
-        return null;
-    }
-
-    return (
-        <Tooltip title="The user's Discord username">
-            <Chip
-                icon={<DiscordIcon />}
-                label={username}
-                variant='outlined'
-                color='primary'
-            />
-        </Tooltip>
-    );
-};
-
-export default DiscordChip;

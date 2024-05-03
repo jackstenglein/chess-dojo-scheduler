@@ -2,7 +2,14 @@ import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-
+import TimelineIcon from '@mui/icons-material/Timeline';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import StarIcon from '@mui/icons-material/Star';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import PawnIcon from '../navbar/PawnIcon';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import GroupsIcon from '@mui/icons-material/Groups';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
@@ -141,6 +148,7 @@ const ProfilePage = () => {
                             variant='contained'
                             onClick={onFollow}
                             loading={followRequest.isLoading()}
+                            startIcon={followRequest.data ? <ThumbDownIcon/> : <ThumbUpIcon />}
                         >
                             {followRequest.data ? 'Unfollow' : 'Follow'}
                         </LoadingButton>
@@ -165,6 +173,7 @@ const ProfilePage = () => {
                         label='Followers'
                         singularLabel='Follower'
                         link={`/profile/${user.username}/followers`}
+                        
                     />
                     <CountChip
                         count={user.followingCount}
@@ -186,18 +195,21 @@ const ProfilePage = () => {
                                 aria-label='profile tabs'
                                 variant='scrollable'
                             >
-                                <Tab label='Ratings' value='stats' />
+                                <Tab label='Ratings' value='stats' icon={<TimelineIcon/>} iconPosition='start' />
                                 {user.isCoach && (
-                                    <Tab label='Coaching' value='coaching' />
+                                    <Tab label='Coaching' value='coaching' icon={<RocketLaunchIcon/>} iconPosition='start' />
                                 )}
                                 <Tab
                                     id='training-plan-tab'
                                     label='Training Plan'
                                     value='progress'
+                                    icon={<StarIcon />}
+                                    iconPosition='start'
+
                                 />
-                                <Tab label='Activity' value='activity' />
-                                <Tab label='Games' value='games' />
-                                <Tab label='Clubs' value='clubs' />
+                                <Tab label='Activity' value='activity' icon={<PieChartIcon/>} iconPosition='start' />
+                                <Tab label='Games' value='games' icon={<PawnIcon />} iconPosition='start' />
+                                <Tab label='Clubs' value='clubs' icon={<GroupsIcon/>} iconPosition='start'/>
                             </Tabs>
                         </Box>
                         <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
