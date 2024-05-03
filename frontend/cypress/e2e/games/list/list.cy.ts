@@ -16,11 +16,11 @@ describe('List Games Page', () => {
         cy.getBySel('games-table').contains('Date');
     });
 
-    it('has submit game button', () => {
-        cy.getBySel('submit-game-button').contains('Submit a Game');
-        cy.getBySel('submit-game-button').click();
+    it('has import game button', () => {
+        cy.getBySel('import-game-button').contains('Import a Game');
+        cy.getBySel('import-game-button').click();
 
-        cy.location('pathname').should('equal', '/games/submit');
+        cy.location('pathname').should('equal', '/games/import');
     });
 
     it('has link to full database', () => {

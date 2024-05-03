@@ -13,7 +13,7 @@ const steps: Step[] = [
         disableBeacon: true,
     },
     {
-        target: '#submit-game-button',
+        target: '#import-game-button',
         title: 'Submitting a Game',
         content:
             'To submit a game, click this button. You can import games from Lichess studies or manually input a PGN.',

@@ -174,8 +174,8 @@ const ListGamesPage = () => {
         }
     };
 
-    const onSubmit = () => {
-        navigate('submit');
+    const onImport = () => {
+        navigate('import');
     };
 
     const onDownloadDatabase = () => {
@@ -268,12 +268,12 @@ const ListGamesPage = () => {
                 <Grid item xs={12} md={3} lg={4} pr={2}>
                     <Stack spacing={4}>
                         <Button
-                            data-cy='submit-game-button'
-                            id='submit-game-button'
+                            data-cy='import-game-button'
+                            id='import-game-button'
                             variant='contained'
-                            onClick={onSubmit}
+                            onClick={onImport}
                         >
-                            Submit a Game
+                            Import a Game
                         </Button>
 
                         <Divider />
