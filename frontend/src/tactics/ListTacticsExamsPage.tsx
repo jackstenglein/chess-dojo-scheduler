@@ -87,7 +87,7 @@ const ListTacticsExamsPage = () => {
     return (
         <Container sx={{ py: 4 }}>
             <Stack spacing={4}>
-                <Typography variant='h5'> <ExtIcoensionn /> Tactics Tests</Typography>
+                <Typography variant='h5' align='center'> <ExtIcoensionn /> ChessDojo Tactics Tests</Typography>
 
                 {cohortRanges.map((range) => (
                     <Stack key={range.cohortRange}>
