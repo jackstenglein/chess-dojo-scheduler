@@ -1,5 +1,4 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import StarIcon from '@mui/icons-material/Star';
 import {
     Accordion,
     AccordionDetails,
@@ -81,7 +80,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                     justifyContent='space-between'
                     sx={{ width: 1, mr: 2 }}
                 >
-                    <Typography fontWeight='bold'> <StarIcon color='primary'/>  {c.name} </Typography>
+                    <Typography fontWeight='bold'> {c.name} </Typography>
                     {c.name === 'Non-Dojo' ? (
                         <Typography color='text.secondary'>
                             {c.requirements.length} Activities

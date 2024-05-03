@@ -9,6 +9,7 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import PawnIcon from '../navbar/PawnIcon';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import GroupsIcon from '@mui/icons-material/Groups';
+import EditIcon from '@mui/icons-material/Edit';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -137,6 +138,7 @@ const ProfilePage = () => {
                             <Button
                                 id='edit-profile-button'
                                 variant='contained'
+                                startIcon={<EditIcon/>}
                                 onClick={() => navigate('/profile/edit')}
                             >
                                 Edit Profile
