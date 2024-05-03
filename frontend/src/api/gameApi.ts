@@ -206,10 +206,11 @@ export interface RemoteGame {
     type: GameSubmissionType;
 }
 
+export type BoardOrientation = 'white' | 'black';
+
 export type CreateGameRequest = {
-    orientation?: string;
-    unlisted?: boolean;
     timelineId?: string;
+    orientation: BoardOrientation;
 } & RemoteGame;
 
 export interface GameHeader {
@@ -629,24 +630,28 @@ function isURL(
     return true;
 }
 
+// Example: https://lichess.org/study/JIPuIPVG/
 export const isLichessStudyURL = (url: string) =>
     isURL(url, {
         hostname: 'lichess.org',
         pathParts: [/^study$/, /^.{8}$/],
     });
 
+// Example: https://lichess.org/mN1qj7pP/black
 export const isLichessGameURL = (url: string) =>
     isURL(url, {
         hostname: 'lichess.org',
         pathParts: [/^.{8}$/, /^(black|white)$/],
     });
 
+// Example: https://lichess.org/study/y14Z6s3N/fqJZzUm8
 export const isLichessChapterURL = (url: string) =>
     isURL(url, {
         hostname: 'lichess.org',
         pathParts: [/^study$/, /^.{8}$/, /^.{8}$/],
     });
 
+// Example: https://www.chess.com/game/live/107855985867
 export const isChesscomGameURL = (url: string) =>
     isURL(url, {
         hostname: 'www.chess.com',

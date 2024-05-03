@@ -2,11 +2,29 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { TabContext, TabPanel } from '@mui/lab';
-import { Box, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
+import {
+    Box,
+    Container,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    Radio,
+    RadioGroup,
+    Stack,
+    Tab,
+    Tabs,
+    Typography,
+} from '@mui/material';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
-import { CreateGameRequest, GameHeader, isGame } from '../../api/gameApi';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import {
+    BoardOrientation,
+    CreateGameRequest,
+    GameHeader,
+    RemoteGame,
+    isGame,
+} from '../../api/gameApi';
 import { OnlineGameForm } from './OnlineGameForm';
 import { PGNForm } from './PGNForm';
 import { StartingPositionForm } from './StartingPositionForm';
@@ -15,16 +33,6 @@ enum ImportSource {
     URL = 'url',
     StartingPosition = 'starting-position',
     PGNText = 'pgn-text',
-}
-
-const TabLabels = {
-    [ImportSource.URL]: 'Online Game/Study',
-    [ImportSource.PGNText]: 'PGN',
-    [ImportSource.StartingPosition]: 'Starting Position',
-};
-
-interface ImportTabProps {
-    source: ImportSource;
 }
 
 interface ImportTabPanelProps {
@@ -51,15 +59,23 @@ const ImportGamePage = () => {
     const request = useRequest();
     const navigate = useNavigate();
     const [source, setSource] = useState<ImportSource>(ImportSource.URL);
+    const [orientation, setOrientation] = useState<BoardOrientation>('white');
 
     const [preflight, setPreflight] = useState<Preflight>();
 
     const loading = request.isLoading();
 
-    const onImport = (req: CreateGameRequest) => {
+    const onImport = (remoteGame: RemoteGame) => {
+        const req = {
+            ...remoteGame,
+            orientation,
+        };
+        console.log(req);
+
         request.onStart();
         api.createGame(req)
             .then((response) => {
+                console.log(response);
                 if (isGame(response.data)) {
                     const game = response.data;
                     trackEvent(EventType.SubmitGame, {
@@ -86,7 +102,7 @@ const ImportGamePage = () => {
                         source: req.type,
                     });
                     request.onSuccess(`Created ${count} games`);
-                    navigate('/profile?view=games');
+                    //navigate('/profile?view=games');
                 }
             })
             .catch((err) => {
@@ -101,6 +117,7 @@ const ImportGamePage = () => {
 
     return (
         <>
+            <RequestSnackbar request={request} showSuccess />
             <Container maxWidth='md' sx={{ py: 5 }}>
                 <Stack spacing={2}>
                     <Typography variant='h6'>Import Game</Typography>
@@ -111,38 +128,65 @@ const ImportGamePage = () => {
                         can view and comment.
                     </Typography>
                     <Box sx={{ typography: 'body1' }}>
-                        <TabContext value={source}>
-                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                <Tabs
-                                    onChange={handleTabChange}
-                                    value={source}
-                                    aria-label='import sources tabs'
-                                    variant='scrollable'
+                        <Stack>
+                            <FormControl sx={{ pt: 1, pb: 3 }}>
+                                <FormLabel>Board Orientation</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={orientation}
+                                    onChange={(_, v) =>
+                                        setOrientation(v as BoardOrientation)
+                                    }
                                 >
-                                    <Tab
-                                        value={ImportSource.URL}
-                                        label={'Lichess & Chess.com'}
+                                    <FormControlLabel
+                                        value='white'
+                                        control={<Radio />}
+                                        label='White'
                                     />
-                                    <Tab value={ImportSource.PGNText} label='PGN' />
-                                    <Tab
-                                        value={ImportSource.StartingPosition}
-                                        label='Starting Position'
+                                    <FormControlLabel
+                                        value='black'
+                                        control={<Radio />}
+                                        label='Black'
                                     />
-                                </Tabs>
-                            </Box>
-                            <ImportTabPanel source={ImportSource.URL}>
-                                <OnlineGameForm onSubmit={onImport} loading={loading} />
-                            </ImportTabPanel>
-                            <ImportTabPanel source={ImportSource.PGNText}>
-                                <PGNForm onSubmit={onImport} loading={loading} />
-                            </ImportTabPanel>
-                            <ImportTabPanel source={ImportSource.StartingPosition}>
-                                <StartingPositionForm
-                                    onSubmit={onImport}
-                                    loading={loading}
-                                />
-                            </ImportTabPanel>
-                        </TabContext>
+                                </RadioGroup>
+                            </FormControl>
+
+                            <TabContext value={source}>
+                                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                    <Tabs
+                                        onChange={handleTabChange}
+                                        value={source}
+                                        aria-label='import sources tabs'
+                                        variant='scrollable'
+                                    >
+                                        <Tab
+                                            value={ImportSource.URL}
+                                            label={'Lichess & Chess.com'}
+                                        />
+                                        <Tab value={ImportSource.PGNText} label='PGN' />
+                                        <Tab
+                                            value={ImportSource.StartingPosition}
+                                            label='Starting Position'
+                                        />
+                                    </Tabs>
+                                </Box>
+                                <ImportTabPanel source={ImportSource.URL}>
+                                    <OnlineGameForm
+                                        onSubmit={onImport}
+                                        loading={loading}
+                                    />
+                                </ImportTabPanel>
+                                <ImportTabPanel source={ImportSource.PGNText}>
+                                    <PGNForm onSubmit={onImport} loading={loading} />
+                                </ImportTabPanel>
+                                <ImportTabPanel source={ImportSource.StartingPosition}>
+                                    <StartingPositionForm
+                                        onSubmit={onImport}
+                                        loading={loading}
+                                    />
+                                </ImportTabPanel>
+                            </TabContext>
+                        </Stack>
                     </Box>
                 </Stack>
             </Container>
