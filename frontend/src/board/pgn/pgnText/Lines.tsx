@@ -1,6 +1,6 @@
 import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
-import { Box, Divider } from '@mui/material';
-import { Fragment, useEffect, useState } from 'react';
+import { Box, Collapse, Divider, Stack, Tooltip, Typography } from '@mui/material';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useChess } from '../PgnBoard';
 import Comment from './Comment';
 import MoveButton from './MoveButton';
@@ -12,7 +12,7 @@ interface LineProps {
     line: Move[];
     depth: number;
     onClickMove: (m: Move) => void;
-    handleScroll: (child: HTMLButtonElement | null) => void;
+    handleScroll: (child: HTMLElement | null) => void;
 }
 
 const Line: React.FC<LineProps> = ({ line, depth, onClickMove, handleScroll }) => {
@@ -85,15 +85,29 @@ const Line: React.FC<LineProps> = ({ line, depth, onClickMove, handleScroll }) =
     );
 };
 
+const SCROLL_EXPANSION_INTO_VIEW_Y = 110;
+
 interface LinesProps {
     lines: Move[][];
     depth?: number;
     onClickMove: (m: Move) => void;
-    handleScroll: (child: HTMLButtonElement | null) => void;
+    handleScroll: (child: HTMLElement | null) => void;
 }
 
 const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove, handleScroll }) => {
+    const [expanded, setExpanded] = useState(true);
+    const expandRef = useRef<HTMLHRElement>(null);
     let d = depth || 0;
+
+    const onCollapse = () => {
+        setExpanded(false);
+        if (
+            expandRef.current &&
+            expandRef.current.getBoundingClientRect().y < SCROLL_EXPANSION_INTO_VIEW_Y
+        ) {
+            handleScroll(expandRef.current);
+        }
+    };
 
     return (
         <Box
@@ -104,9 +118,10 @@ const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove, handleScroll }
             }}
         >
             {d > 0 && (
-                <>
+                <Stack direction='row' alignItems={expanded ? undefined : 'center'}>
                     {/* Horizontal line when we go down another level */}
                     <Divider
+                        ref={expandRef}
                         sx={{
                             borderWidth: `${borderWidth}px`,
                             width: `${lineInset}px`,
@@ -115,29 +130,61 @@ const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove, handleScroll }
                             left: `${-lineInset}px`,
                         }}
                     />
-                    {/* Vertical divider showing how far this line extends */}
-                    <Divider
-                        component='div'
-                        orientation='vertical'
-                        sx={{
-                            position: 'absolute',
-                            borderWidth: `${borderWidth}px`,
-                            height: 1,
-                            left: 0,
-                        }}
-                    />
-                </>
+
+                    {expanded ? (
+                        <Tooltip key='collapse' title='Collapse variations' followCursor>
+                            <Divider
+                                component='div'
+                                orientation='vertical'
+                                onClick={onCollapse}
+                                sx={{
+                                    position: 'absolute',
+                                    borderWidth: `${borderWidth}px`,
+                                    height: 1,
+                                    left: 0,
+                                    cursor: 'pointer',
+                                    ':hover': {
+                                        borderColor: 'primary.main',
+                                    },
+                                }}
+                            />
+                        </Tooltip>
+                    ) : (
+                        <Tooltip key='expand' title='Expand variations'>
+                            <Box
+                                bgcolor='text.disabled'
+                                borderRadius='50%'
+                                sx={{
+                                    width: '20px',
+                                    height: '20px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    mb: '2px',
+                                    cursor: 'pointer',
+                                }}
+                                onClick={() => setExpanded(true)}
+                            >
+                                <Typography variant='caption' color='background.paper'>
+                                    +{lines.length}
+                                </Typography>
+                            </Box>
+                        </Tooltip>
+                    )}
+                </Stack>
             )}
 
-            {lines.map((l, idx) => (
-                <Line
-                    key={idx}
-                    line={l}
-                    depth={d}
-                    onClickMove={onClickMove}
-                    handleScroll={handleScroll}
-                />
-            ))}
+            <Collapse in={expanded}>
+                {lines.map((l, idx) => (
+                    <Line
+                        key={idx}
+                        line={l}
+                        depth={d}
+                        onClickMove={onClickMove}
+                        handleScroll={handleScroll}
+                    />
+                ))}
+            </Collapse>
         </Box>
     );
 };

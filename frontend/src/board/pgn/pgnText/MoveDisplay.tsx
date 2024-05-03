@@ -8,7 +8,7 @@ import MoveNumber from './MoveNumber';
 
 interface MoveProps {
     move: Move;
-    handleScroll: (child: HTMLButtonElement | null) => void;
+    handleScroll: (child: HTMLElement | null) => void;
     onClickMove: (m: Move) => void;
 }
 
