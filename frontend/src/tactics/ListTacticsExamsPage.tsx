@@ -317,7 +317,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         const i = exams.findIndex((e) => e.id === params.row.id);
         if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
             setSnackbarOpen(true);
-        } else if (isFreeTier) {
+        } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);
         } else {
             navigate(`/tactics/instructions`, { state: { exam: params.row } });
