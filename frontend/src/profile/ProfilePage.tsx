@@ -201,36 +201,36 @@ const ProfilePage = () => {
                                 <ProfileTab
                                     label='Ratings'
                                     value='stats'
-                                    icon={<Timeline />}
+                                    icon={<Timeline fontSize='small' />}
                                 />
 
                                 {user.isCoach && (
                                     <ProfileTab
                                         label='Coaching'
                                         value='coaching'
-                                        icon={<RocketLaunch />}
+                                        icon={<RocketLaunch fontSize='small' />}
                                     />
                                 )}
                                 <ProfileTab
                                     id='training-plan-tab'
                                     label='Training Plan'
                                     value='progress'
-                                    icon={<Star />}
+                                    icon={<Star fontSize='small' />}
                                 />
                                 <ProfileTab
                                     label='Activity'
                                     value='activity'
-                                    icon={<PieChart />}
+                                    icon={<PieChart fontSize='small' />}
                                 />
                                 <ProfileTab
                                     label='Games'
                                     value='games'
-                                    icon={<PawnIcon />}
+                                    icon={<PawnIcon fontSize='small' />}
                                 />
                                 <ProfileTab
                                     label='Clubs'
                                     value='clubs'
-                                    icon={<Groups />}
+                                    icon={<Groups fontSize='small' />}
                                 />
                             </Tabs>
                         </Box>

@@ -1,6 +1,6 @@
-import { forwardRef } from 'react';
-import { SvgIcon } from '@mui/material';
 import { faChessPawn } from '@fortawesome/free-solid-svg-icons';
+import { SvgIcon } from '@mui/material';
+import { forwardRef } from 'react';
 
 type FontAwesomeSvgIconProps = {
     icon: any;
@@ -8,14 +8,14 @@ type FontAwesomeSvgIconProps = {
 
 const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
     (props, ref) => {
-        const { icon } = props;
+        const { icon, ...others } = props;
 
         const {
             icon: [width, height, , , svgPathData],
         } = icon;
 
         return (
-            <SvgIcon ref={ref} viewBox={`0 0 ${width} ${height}`}>
+            <SvgIcon {...others} ref={ref} viewBox={`0 0 ${width} ${height}`}>
                 {typeof svgPathData === 'string' ? (
                     <path d={svgPathData} />
                 ) : (
@@ -32,9 +32,9 @@ const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
                 )}
             </SvgIcon>
         );
-    }
+    },
 );
 
 export default function PawnIcon(props: any) {
-    return <FontAwesomeSvgIcon icon={faChessPawn} />;
+    return <FontAwesomeSvgIcon icon={faChessPawn} {...props} />;
 }

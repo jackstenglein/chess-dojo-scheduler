@@ -9,10 +9,12 @@ import {
     getTotalScore,
 } from '../../database/requirement';
 import {
+    RatingSystem,
     User,
     getCurrentRating,
     getMinRatingBoundary,
     getRatingBoundary,
+    normalizeToFide,
 } from '../../database/user';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 
@@ -51,7 +53,7 @@ const DojoScoreCardProgressBar: React.FC<DojoScoreCardProgressBarProps> = ({
                 sm: 'center',
             }}
         >
-            <Stack alignItems='start' width={{ xs: 1, sm: '154px' }}>
+            <Stack alignItems='start' width={{ xs: 1 }}>
                 <Typography variant='subtitle2' color='text.secondary'>
                     {title}
                 </Typography>
@@ -73,25 +75,32 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     const cohortScore = getCohortScore(user, cohort, requirements);
     const percentComplete = Math.round((100 * cohortScore) / totalScore);
 
-    const graduationBoundary = getRatingBoundary(cohort, user.ratingSystem);
-    const minRatingBoundary = getMinRatingBoundary(cohort, user.ratingSystem);
+    const graduationBoundary = getRatingBoundary(cohort, RatingSystem.Fide);
+    const minRatingBoundary = getMinRatingBoundary(cohort, RatingSystem.Fide);
+    const normalizedRating = normalizeToFide(getCurrentRating(user), user.ratingSystem);
 
     return (
         <Card variant='outlined' id='cohort-score-card'>
             <CardContent>
-                <Stack direction='row' spacing={0.5} mb={2} alignItems='center'>
-                    <EqualizerIcon color='primary' sx={{ mb: '4px' }} />
-                    <Typography variant='h6'>Cohort Progress</Typography>
-                </Stack>
+                <Grid container rowGap={2} columnSpacing={3} alignItems='center'>
+                    <Grid item xs={12} sm={5} md={3} mb={{ xs: 0, sm: 3 }}>
+                        <Stack direction='row' spacing={0.5} alignItems='center'>
+                            <EqualizerIcon
+                                color='primary'
+                                sx={{ position: 'relative', bottom: '3px' }}
+                            />
+                            <Typography variant='h6'>Cohort&nbsp;Progress</Typography>
+                        </Stack>
+                    </Grid>
 
-                <Grid container rowGap={2}>
-                    {graduationBoundary && (
-                        <DojoScoreCardProgressBar
-                            title='Graduation'
-                            value={getCurrentRating(user)}
-                            min={minRatingBoundary}
-                            max={graduationBoundary}
-                        />
+                    {graduationBoundary && normalizedRating > 0 && (
+                        <Grid item xs={12} sm={7} md={9} mb={{ xs: 3, sm: 3 }}>
+                            <ScoreboardProgress
+                                value={normalizedRating}
+                                min={minRatingBoundary}
+                                max={graduationBoundary}
+                            />
+                        </Grid>
                     )}
 
                     <DojoScoreCardProgressBar
