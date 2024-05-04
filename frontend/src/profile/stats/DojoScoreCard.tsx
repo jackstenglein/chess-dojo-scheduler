@@ -1,5 +1,5 @@
 import EqualizerIcon from '@mui/icons-material/Equalizer';
-import { Card, CardContent, Grid, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import {
@@ -79,11 +79,19 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     const minRatingBoundary = getMinRatingBoundary(cohort, RatingSystem.Fide);
     const normalizedRating = normalizeToFide(getCurrentRating(user), user.ratingSystem);
 
+    const showRatingProgress = graduationBoundary && normalizedRating > 0;
+
     return (
         <Card variant='outlined' id='cohort-score-card'>
             <CardContent>
                 <Grid container rowGap={2} columnSpacing={3} alignItems='center'>
-                    <Grid item xs={12} sm={5} md={3} mb={{ xs: 0, sm: 3 }}>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={showRatingProgress ? 5 : 12}
+                        md={showRatingProgress ? 3 : 12}
+                        mb={{ xs: 0, sm: 3 }}
+                    >
                         <Stack direction='row' spacing={0.5} alignItems='center'>
                             <EqualizerIcon
                                 color='primary'
@@ -93,14 +101,19 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                         </Stack>
                     </Grid>
 
-                    {graduationBoundary && normalizedRating > 0 && (
-                        <Grid item xs={12} sm={7} md={9} mb={{ xs: 3, sm: 3 }}>
-                            <ScoreboardProgress
-                                value={normalizedRating}
-                                min={minRatingBoundary}
-                                max={graduationBoundary}
-                            />
-                        </Grid>
+                    {showRatingProgress && (
+                        <Tooltip title='The normalized Dojo rating, compared to the graduation rating for this cohort'>
+                            <Grid item xs={12} sm={7} md={9} mb={{ xs: 3, sm: 3 }}>
+                                <ScoreboardProgress
+                                    value={normalizedRating}
+                                    min={minRatingBoundary}
+                                    max={graduationBoundary}
+                                    color='success'
+                                    sx={{ height: '8px', borderRadius: '2px' }}
+                                    label={`${normalizedRating} / ${graduationBoundary}`}
+                                />
+                            </Grid>
+                        </Tooltip>
                     )}
 
                     <DojoScoreCardProgressBar
