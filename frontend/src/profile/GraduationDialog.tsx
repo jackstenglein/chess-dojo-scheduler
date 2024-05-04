@@ -17,6 +17,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import { RatingSystem, shouldPromptGraduation } from '../database/user';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
+import SchoolIcon from '@mui/icons-material/School';
 
 const GraduationDialog = () => {
     const [comments, setComments] = useState('');
@@ -75,6 +76,7 @@ const GraduationDialog = () => {
                         color='success'
                         onClick={onOpen}
                         disabled={disableGraduation}
+                        startIcon={<SchoolIcon />}
                     >
                         Graduate
                     </Button>

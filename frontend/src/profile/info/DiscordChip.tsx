@@ -59,7 +59,7 @@ const DiscordChip: React.FC<DiscordChipProps> = ({ username }) => {
                 icon={<DiscordIcon />}
                 label={username}
                 variant='outlined'
-                color='secondary'
+                color='primary'
             />
         </Tooltip>
     );

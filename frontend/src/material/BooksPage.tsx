@@ -77,12 +77,25 @@ const Section: React.FC<SectionProps> = ({ section }) => {
 
 const BooksPage = () => {
     return (
-        <Container sx={{ py: 5 }}>
-            <Stack spacing={3}>
-                {sections.map((s) => (
-                    <Section key={s.title} section={s} />
-                ))}
-            </Stack>
+        <Container sx={{ py: 3 }}>
+            <Typography variant='h5' align='center'>
+                ChessDojo Recommended Books
+            </Typography>
+            <Container sx={{ py: 3 }}>
+                <Typography>
+                    The following books have been handpicked by the Senseis for each
+                    cohort. Below you'll see the list of books that are assigned for each
+                    rating band, split among the main recommendations, tactics books, and
+                    endgame books.
+                </Typography>
+            </Container>
+            <Container sx={{ py: 1 }}>
+                <Stack spacing={3}>
+                    {sections.map((s) => (
+                        <Section key={s.title} section={s} />
+                    ))}
+                </Stack>
+            </Container>
         </Container>
     );
 };

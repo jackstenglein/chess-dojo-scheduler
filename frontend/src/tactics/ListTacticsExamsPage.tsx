@@ -1,4 +1,5 @@
 import { Help, Lock } from '@mui/icons-material';
+import Extension from '@mui/icons-material/Extension';
 import {
     Alert,
     Container,
@@ -86,7 +87,10 @@ const ListTacticsExamsPage = () => {
     return (
         <Container sx={{ py: 4 }}>
             <Stack spacing={4}>
-                <Typography variant='h5'>Tactics Tests</Typography>
+                <Stack direction='row' justifyContent='center' spacing={1}>
+                    <Extension />
+                    <Typography variant='h5'>Tactics Tests</Typography>
+                </Stack>
 
                 {cohortRanges.map((range) => (
                     <Stack key={range.cohortRange}>

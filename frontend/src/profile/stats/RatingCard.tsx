@@ -13,7 +13,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';

@@ -8,7 +8,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-
 import { useMemo } from 'react';
 import { useFreeTier } from '../../auth/Auth';
 import { CustomTask, Requirement } from '../../database/requirement';
@@ -83,11 +82,11 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                     <Typography fontWeight='bold'>{c.name}</Typography>
                     {c.name === 'Non-Dojo' ? (
                         <Typography color='text.secondary'>
-                            {c.requirements.length} activities
+                            {c.requirements.length} Activities
                         </Typography>
                     ) : (
                         <Typography color='text.secondary'>
-                            {`${c.totalComplete}/${c.requirements.length} tasks`}
+                            {`${c.totalComplete}/${c.requirements.length} Tasks`}
                         </Typography>
                     )}
                 </Stack>

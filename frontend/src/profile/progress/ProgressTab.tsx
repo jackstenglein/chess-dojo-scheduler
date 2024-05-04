@@ -1,3 +1,4 @@
+import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
     Button,
     Checkbox,
@@ -9,10 +10,10 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { useRequirements } from '../../api/cache/requirements';
 import { RequestSnackbar } from '../../api/Request';
-import { CustomTask, isComplete, Requirement } from '../../database/requirement';
-import { ALL_COHORTS, dojoCohorts, User } from '../../database/user';
+import { useRequirements } from '../../api/cache/requirements';
+import { CustomTask, Requirement, isComplete } from '../../database/requirement';
+import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import DojoScoreCard from '../stats/DojoScoreCard';
 import CustomTaskEditor from './CustomTaskEditor';
@@ -183,8 +184,12 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     />
                 </FormGroup>
                 <Stack direction='row' spacing={1} justifyContent='end'>
-                    <Button onClick={onExpandAll}>Expand All</Button>
-                    <Button onClick={onCollapseAll}>Collapse All</Button>
+                    <Button onClick={onExpandAll} startIcon={<KeyboardDoubleArrowDown />}>
+                        Expand All
+                    </Button>
+                    <Button onClick={onCollapseAll} startIcon={<KeyboardDoubleArrowUp />}>
+                        Collapse All
+                    </Button>
                 </Stack>
             </Stack>
 
