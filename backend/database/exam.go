@@ -27,8 +27,8 @@ const (
 	// Indicates the item is a tactics exam.
 	ExamType_Tactics ExamType = "TACTICS_EXAM"
 
-	// Indicates the item is the recorded scores for a single exam.
-	ExamType_Scores ExamType = "SCORES"
+	// Indicates the item is a Polgar mates exam.
+	ExamType_Polgar ExamType = "POLGAR_EXAM"
 )
 
 // A summary of a single user's answer to an exam. Stored on the exam
