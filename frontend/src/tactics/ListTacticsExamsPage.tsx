@@ -1,4 +1,5 @@
 import { Help, Lock } from '@mui/icons-material';
+import Extension from '@mui/icons-material/Extension';
 import {
     Alert,
     Container,
@@ -26,7 +27,6 @@ import { toDojoDateString } from '../calendar/displayDate';
 import { Exam, ExamType } from '../database/exam';
 import LoadingPage from '../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import ExtIcoensionn from '@mui/icons-material/Extension';
 import { getTotalScore } from './tactics';
 
 const RANGES = ['1500-2000', '2000+'];
@@ -87,7 +87,10 @@ const ListTacticsExamsPage = () => {
     return (
         <Container sx={{ py: 4 }}>
             <Stack spacing={4}>
-                <Typography variant='h5' align='center'> <ExtIcoensionn /> ChessDojo Tactics Tests</Typography>
+                <Stack direction='row' justifyContent='center' spacing={1}>
+                    <Extension />
+                    <Typography variant='h5'>Tactics Tests</Typography>
+                </Stack>
 
                 {cohortRanges.map((range) => (
                     <Stack key={range.cohortRange}>

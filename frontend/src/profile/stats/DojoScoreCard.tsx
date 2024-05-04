@@ -1,9 +1,12 @@
-import { Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
+import { Card, CardContent, Grid, Stack, Typography } from '@mui/material';
+import React from 'react';
+import { useRequirements } from '../../api/cache/requirements';
 import {
     getCategoryScore,
     getCohortScore,
     getTotalCategoryScore,
+    getTotalScore,
 } from '../../database/requirement';
 import {
     User,
@@ -11,10 +14,7 @@ import {
     getMinRatingBoundary,
     getRatingBoundary,
 } from '../../database/user';
-import { useRequirements } from '../../api/cache/requirements';
-import { getTotalScore } from '../../database/requirement';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
-import React from 'react';
 
 const categories = [
     'Games + Analysis',
@@ -79,8 +79,9 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     return (
         <Card variant='outlined' id='cohort-score-card'>
             <CardContent>
-                <Stack mb={2}>
-                    <Typography variant='h6'> <EqualizerIcon color='primary' fontSize='large'/> Cohort Progress</Typography>
+                <Stack direction='row' spacing={0.5} mb={2} alignItems='center'>
+                    <EqualizerIcon color='primary' sx={{ mb: '4px' }} />
+                    <Typography variant='h6'>Cohort Progress</Typography>
                 </Stack>
 
                 <Grid container rowGap={2}>
@@ -113,11 +114,11 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                             key={idx}
                             title={c}
                             value={Math.round(
-                                getCategoryScore(user, cohort, c, requirements)
+                                getCategoryScore(user, cohort, c, requirements),
                             )}
                             min={0}
                             max={Math.round(
-                                getTotalCategoryScore(cohort, c, requirements)
+                                getTotalCategoryScore(cohort, c, requirements),
                             )}
                         />
                     ))}

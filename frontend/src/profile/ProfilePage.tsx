@@ -1,28 +1,30 @@
+import {
+    Edit,
+    Groups,
+    PieChart,
+    RocketLaunch,
+    Star,
+    ThumbDown,
+    ThumbUp,
+    Timeline,
+} from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import StarIcon from '@mui/icons-material/Star';
-import PieChartIcon from '@mui/icons-material/PieChart';
-import PawnIcon from '../navbar/PawnIcon';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import GroupsIcon from '@mui/icons-material/Groups';
-import EditIcon from '@mui/icons-material/Edit';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import NotFoundPage from '../NotFoundPage';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { FollowerEntry } from '../database/follower';
 import { User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
-import NotFoundPage from '../NotFoundPage';
+import PawnIcon from '../navbar/PawnIcon';
+import GamesTab from './GamesTab';
+import GraduationDialog from './GraduationDialog';
 import ActivityTab from './activity/ActivityTab';
 import ClubsTab from './clubs/ClubsTab';
 import CoachTab from './coach/CoachTab';
-import GamesTab from './GamesTab';
-import GraduationDialog from './GraduationDialog';
 import Bio from './info/Bio';
 import CoachChip from './info/CoachChip';
 import CountChip from './info/CountChip';
@@ -138,7 +140,7 @@ const ProfilePage = () => {
                             <Button
                                 id='edit-profile-button'
                                 variant='contained'
-                                startIcon={<EditIcon/>}
+                                startIcon={<Edit />}
                                 onClick={() => navigate('/profile/edit')}
                             >
                                 Edit Profile
@@ -150,7 +152,7 @@ const ProfilePage = () => {
                             variant='contained'
                             onClick={onFollow}
                             loading={followRequest.isLoading()}
-                            startIcon={followRequest.data ? <ThumbDownIcon/> : <ThumbUpIcon />}
+                            startIcon={followRequest.data ? <ThumbDown /> : <ThumbUp />}
                         >
                             {followRequest.data ? 'Unfollow' : 'Follow'}
                         </LoadingButton>
@@ -167,15 +169,14 @@ const ProfilePage = () => {
                 >
                     <CoachChip user={user} />
                     <InactiveChip user={user} />
-                    <CreatedAtChip createdAt={user.createdAt} />
-                    <TimezoneChip timezone={user.timezoneOverride} />
                     <DiscordChip username={user.discordUsername} />
+                    <TimezoneChip timezone={user.timezoneOverride} />
+                    <CreatedAtChip createdAt={user.createdAt} />
                     <CountChip
                         count={user.followerCount}
                         label='Followers'
                         singularLabel='Follower'
                         link={`/profile/${user.username}/followers`}
-                        
                     />
                     <CountChip
                         count={user.followingCount}
@@ -197,21 +198,40 @@ const ProfilePage = () => {
                                 aria-label='profile tabs'
                                 variant='scrollable'
                             >
-                                <Tab label='Ratings' value='stats' icon={<TimelineIcon/>} iconPosition='start' />
+                                <ProfileTab
+                                    label='Ratings'
+                                    value='stats'
+                                    icon={<Timeline />}
+                                />
+
                                 {user.isCoach && (
-                                    <Tab label='Coaching' value='coaching' icon={<RocketLaunchIcon/>} iconPosition='start' />
+                                    <ProfileTab
+                                        label='Coaching'
+                                        value='coaching'
+                                        icon={<RocketLaunch />}
+                                    />
                                 )}
-                                <Tab
+                                <ProfileTab
                                     id='training-plan-tab'
                                     label='Training Plan'
                                     value='progress'
-                                    icon={<StarIcon />}
-                                    iconPosition='start'
-
+                                    icon={<Star />}
                                 />
-                                <Tab label='Activity' value='activity' icon={<PieChartIcon/>} iconPosition='start' />
-                                <Tab label='Games' value='games' icon={<PawnIcon />} iconPosition='start' />
-                                <Tab label='Clubs' value='clubs' icon={<GroupsIcon/>} iconPosition='start'/>
+                                <ProfileTab
+                                    label='Activity'
+                                    value='activity'
+                                    icon={<PieChart />}
+                                />
+                                <ProfileTab
+                                    label='Games'
+                                    value='games'
+                                    icon={<PawnIcon />}
+                                />
+                                <ProfileTab
+                                    label='Clubs'
+                                    value='clubs'
+                                    icon={<Groups />}
+                                />
                             </Tabs>
                         </Box>
                         <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
@@ -246,3 +266,26 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
+function ProfileTab({
+    label,
+    value,
+    icon,
+    ...others
+}: {
+    label: string;
+    value: string;
+    icon: JSX.Element;
+    [key: string]: string | JSX.Element;
+}) {
+    return (
+        <Tab
+            {...others}
+            label={label}
+            value={value}
+            icon={icon}
+            iconPosition='start'
+            sx={{ minHeight: '48px' }}
+        />
+    );
+}

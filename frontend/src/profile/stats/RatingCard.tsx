@@ -2,8 +2,6 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import HelpIcon from '@mui/icons-material/Help';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import PawnIcon from '../../navbar/PawnIcon';
-import NightIcon from '../../navbar/NightIcon';
 import {
     Box,
     Card,
@@ -15,7 +13,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';
@@ -201,7 +198,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                 <Stack direction='row' justifyContent='space-between' mb={2}>
                     <Stack>
                         <Typography variant='h6'>
-                             {formatRatingSystem(system)}
+                            {formatRatingSystem(system)}
                             {system === RatingSystem.Custom && name && ` (${name})`}
                         </Typography>
                         <RatingProfileLink

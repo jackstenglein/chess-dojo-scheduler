@@ -1,7 +1,5 @@
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import StarIcon from '@mui/icons-material/Star';
 import {
     Box,
     Collapse,
@@ -44,13 +42,13 @@ const Section: React.FC<SectionProps> = ({ section }) => {
     };
 
     return (
-        <Box>  
+        <Box>
             <Stack direction='row' alignItems='center'>
                 <IconButton size='small' onClick={toggleOpen}>
                     {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                 </IconButton>
                 <Typography variant='h6' onClick={toggleOpen} sx={{ cursor: 'pointer' }}>
-                   <StarIcon/> {section.title}
+                    {section.title}
                 </Typography>
             </Stack>
             <Divider />
@@ -80,17 +78,24 @@ const Section: React.FC<SectionProps> = ({ section }) => {
 const BooksPage = () => {
     return (
         <Container sx={{ py: 3 }}>
-            <Typography variant='h5' align='center'> <AutoStoriesIcon/> ChessDojo Recommended Books </Typography>
+            <Typography variant='h5' align='center'>
+                ChessDojo Recommended Books
+            </Typography>
             <Container sx={{ py: 3 }}>
-            <Typography > The following books have been handpicked by the Senseis for each cohort. Below you'll see the list of books that are assigned for each rating band, split among the main recommendations, tactics books, and endgame books. </Typography>
+                <Typography>
+                    The following books have been handpicked by the Senseis for each
+                    cohort. Below you'll see the list of books that are assigned for each
+                    rating band, split among the main recommendations, tactics books, and
+                    endgame books.
+                </Typography>
             </Container>
             <Container sx={{ py: 1 }}>
-            <Stack spacing={3}>
-                {sections.map((s) => (
-                    <Section key={s.title} section={s} />
-                ))}
-            </Stack>
-        </Container>
+                <Stack spacing={3}>
+                    {sections.map((s) => (
+                        <Section key={s.title} section={s} />
+                    ))}
+                </Stack>
+            </Container>
         </Container>
     );
 };
