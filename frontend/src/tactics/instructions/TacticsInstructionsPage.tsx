@@ -107,17 +107,8 @@ NOTE: this is your final warning that not every position in the tactics test has
 ];
 
 const polgarSampleProblems = [
-    `[Event "sample problem: sample"]
-[Site "https://lichess.org/study/I2BbgtdT/Mtyyv413"]
-[Result "*"]
-[Variant "Standard"]
-[ECO "?"]
-[Opening "?"]
-[Annotator "https://lichess.org/@/jessekraai"]
-[FEN "8/8/5p2/5B2/8/1K1R4/8/2k5 w - - 0 1"]
+    `[FEN "8/8/5p2/5B2/8/1K1R4/8/2k5 w - - 0 1"]
 [SetUp "1"]
-[UTCDate "2024.05.03"]
-[UTCTime "23:49:44"]
 
 1. Bg4 { You need to now consider all of black's legal moves. } 1... f5 (1... Kb1 2. Rd1#) 2. Rd1# *`,
 ];

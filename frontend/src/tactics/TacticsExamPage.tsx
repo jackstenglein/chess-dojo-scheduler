@@ -42,6 +42,7 @@ import TacticsExamPgnSelector from './TacticsExamPgnSelector';
 import Instructions from './instructions/Instructions';
 import {
     addExtraVariation,
+    getEventHeader,
     getFen,
     getMoveDescription,
     getOrientation,
@@ -297,6 +298,7 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                                 countdown={countdown}
                                 onComplete={onComplete}
                                 orientations={exam.pgns.map((pgn) => getOrientation(pgn))}
+                                pgnNames={exam.pgns.map((pgn) => getEventHeader(pgn))}
                             />
                         ),
                     },
@@ -485,6 +487,7 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
                                 attempt={selectedAttempt}
                                 selectAttempt={setAttempt}
                                 maxAttempts={answerRequest.data?.attempts.length || 1}
+                                pgnNames={exam.pgns.map((pgn) => getEventHeader(pgn))}
                             />
                         ),
                     },

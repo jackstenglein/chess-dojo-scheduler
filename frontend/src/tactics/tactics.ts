@@ -62,6 +62,22 @@ export function getOrientation(pgn: string): 'white' | 'black' {
     return 'white';
 }
 
+/**
+ * Returns the Event header from the given PGN.
+ * @param pgn The PGN to get the Event header from.
+ */
+export function getEventHeader(pgn: string): string {
+    const eventIndex = pgn.indexOf('[Event "');
+    if (eventIndex < 0) {
+        return '';
+    }
+    const endEventIndex = pgn.indexOf('"]', eventIndex);
+    if (endEventIndex < 0) {
+        return '';
+    }
+    return pgn.substring(eventIndex, endEventIndex).replace('[Event "', '');
+}
+
 const scoreRegex = /^\[(\d+)\]/;
 const alternateSolutionRegex = /^\[ALT\]/;
 const endOfLineRegex = /^\[EOL\]/;

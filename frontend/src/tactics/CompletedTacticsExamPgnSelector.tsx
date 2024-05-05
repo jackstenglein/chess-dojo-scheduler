@@ -40,6 +40,7 @@ const CompletedTacticsExamPgnSelector: React.FC<CompletedTacticsExamPgnSelectorP
     attempt,
     selectAttempt,
     maxAttempts,
+    pgnNames,
 }) => {
     return (
         <CardContent>
@@ -102,7 +103,9 @@ const CompletedTacticsExamPgnSelector: React.FC<CompletedTacticsExamPgnSelectorP
                                 width={1}
                                 spacing={1}
                             >
-                                <Typography>Problem {i + 1}</Typography>
+                                <Typography>
+                                    {pgnNames?.[i] || `Problem ${i + 1}`}
+                                </Typography>
 
                                 {scores && (
                                     <Typography>

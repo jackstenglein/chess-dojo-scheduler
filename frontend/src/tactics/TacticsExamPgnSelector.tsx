@@ -26,6 +26,7 @@ export interface TacticsExamPgnSelectorProps {
     countdown: CountdownProps;
     onComplete?: () => void;
     orientations: string[];
+    pgnNames?: string[];
 }
 
 const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
@@ -37,6 +38,7 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
     countdown,
     onComplete,
     orientations,
+    pgnNames,
 }) => {
     const [isFinishEarly, setIsFinishEarly] = useState(false);
 
@@ -83,7 +85,9 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                                 width={1}
                                 spacing={1}
                             >
-                                <Typography>Problem {i + 1}</Typography>
+                                <Typography>
+                                    {pgnNames?.[i] || `Problem ${i + 1}`}
+                                </Typography>
 
                                 <Typography color='text.secondary'>
                                     {orientations[i][0].toUpperCase()}
