@@ -181,7 +181,7 @@ interface BoardProps {
 const promotionPieces = ['q', 'n', 'r', 'b'];
 
 const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
-    const { chess } = useChess();
+    const { chess, config: chessConfig } = useChess();
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -221,12 +221,11 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             const chessgroundApi = Chessground(boardRef.current, config);
             setBoard(chessgroundApi);
         } else if (boardRef.current && board && chess && !isInitialized) {
-            if (config && config.fen) {
-                chess.load(config.fen);
-            }
-            if (config && config.pgn) {
+            if (config?.pgn) {
                 chess.loadPgn(config.pgn);
                 chess.seek(null);
+            } else if (config?.fen) {
+                chess.load(config.fen);
             }
 
             board.set({
@@ -257,9 +256,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
             });
 
-            if (onInitialize) {
-                onInitialize(board, chess);
-            }
+            onInitialize?.(board, chess);
             setIsInitialized(true);
         }
     }, [
@@ -274,6 +271,15 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         onStartPromotion,
         pieceStyle,
     ]);
+
+    const fen = config?.fen;
+    const pgn = config?.pgn;
+    const initKey = chessConfig?.initKey;
+    useEffect(() => {
+        if (initKey || fen || pgn) {
+            setIsInitialized(false);
+        }
+    }, [initKey, fen, pgn, setIsInitialized]);
 
     useEffect(() => {
         if (chess && board) {

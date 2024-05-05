@@ -21,7 +21,7 @@ import { useAuth } from '../auth/Auth';
 import { Exam } from '../database/exam';
 import { ALL_COHORTS, compareCohorts } from '../database/user';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
-import { getRegression } from './ListTacticsExamsPage';
+import { getRegression } from './list/ExamsTable';
 import { getTotalScore } from './tactics';
 
 interface ExamStatisticsProps {

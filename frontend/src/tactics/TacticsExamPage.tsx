@@ -39,7 +39,7 @@ import LoadingPage from '../loading/LoadingPage';
 import CompletedTacticsExamPgnSelector from './CompletedTacticsExamPgnSelector';
 import ExamStatistics from './ExamStatistics';
 import TacticsExamPgnSelector from './TacticsExamPgnSelector';
-import { Instructions } from './TacticsInstructionsPage';
+import Instructions from './instructions/Instructions';
 import {
     addExtraVariation,
     getFen,
@@ -264,7 +264,6 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
         <Container maxWidth={false} sx={{ py: 4 }}>
             <PgnBoard
                 ref={pgnApi}
-                key={exam.pgns[selectedProblem]}
                 fen={getFen(exam.pgns[selectedProblem])}
                 pgn={answerPgns.current[selectedProblem]}
                 startOrientation={getOrientation(exam.pgns[selectedProblem])}
@@ -276,7 +275,11 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                         icon: <Info />,
                         element: (
                             <CardContent>
-                                <Instructions />
+                                <Instructions
+                                    type={exam.type}
+                                    timeLimitSeconds={exam.timeLimitSeconds}
+                                    length={exam.pgns.length}
+                                />
                             </CardContent>
                         ),
                     },
@@ -300,7 +303,12 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                     DefaultUnderboardTab.Editor,
                 ]}
                 initialUnderboardTab='examInfo'
-                allowMoveDeletion
+                allowMoveDeletion={!exam.takebacksDisabled}
+                disableTakebacks={
+                    exam.takebacksDisabled
+                        ? getOrientation(exam.pgns[selectedProblem])
+                        : undefined
+                }
                 slots={{
                     moveButtonExtras: TacticsTestMoveButtonExtras,
                 }}
@@ -363,7 +371,7 @@ export function getScores(exam: Exam, answerPgns: string[]): Scores {
 }
 
 export const TacticsTestMoveButtonExtras: React.FC<MoveButtonProps> = ({ move }) => {
-    const { chess } = useChess();
+    const { chess, config } = useChess();
 
     if (!chess) {
         return null;
@@ -375,6 +383,14 @@ export const TacticsTestMoveButtonExtras: React.FC<MoveButtonProps> = ({ move })
 
     if (chess.isMainline(move.san, move.previous)) {
         return null;
+    }
+
+    if (config?.disableTakebacks?.[0] === move.color) {
+        return (
+            <Tooltip title='Only your first move for the solving side is counted in this test. This move and any following moves will not be counted.'>
+                <Warning fontSize='small' sx={{ ml: 0.5 }} color='error' />
+            </Tooltip>
+        );
     }
 
     return (
@@ -442,7 +458,7 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
             <PgnBoard
-                key={`${selectedProblem}-${selectedAttempt}`}
+                initKey={`${selectedProblem}-${selectedAttempt}`}
                 onInitialize={onInitialize}
                 pgn={solutionPgn}
                 showPlayerHeaders={false}

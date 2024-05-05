@@ -20,6 +20,7 @@ parser.add_argument('-n', '--name', type=str, help='The name of the exam', requi
 parser.add_argument('-t', '--type', type=str, help='The type of the exam', required=True, choices=VALID_TYPES)
 parser.add_argument('-c', '--cohorts', type=str, help='The cohort range of the exam', required=True)
 parser.add_argument('-l', '--limit', type=int, help='The time limit in minutes of the exam', required=True)
+parser.add_argument('--takebacks', action=argparse.BooleanOptionalAction, help='Whether takebacks are enabled or not', required=True)
 
 
 def main():
@@ -37,6 +38,7 @@ def main():
         'name': args.name,
         'pgns': [],
         'timeLimitSeconds': 60*args.limit,
+        'takebacksDisabled': not args.takebacks
     }
 
     pgn = True
@@ -44,7 +46,7 @@ def main():
         try:
             pgn = chess.pgn.read_game(pgnfile)
             if pgn is not None:
-                exam['pgns'].append({'S': str(pgn)})
+                exam['pgns'].append(str(pgn))
             else:
                 print('Got invalid PGN: ', pgn)
         except Exception as e:

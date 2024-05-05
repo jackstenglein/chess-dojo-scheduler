@@ -66,6 +66,9 @@ type Exam struct {
 
 	// A map from username to ExamAnswerSummary.
 	Answers map[string]ExamAnswerSummary `dynamodbav:"answers" json:"answers"`
+
+	// Whether takebacks for the side to move are disabled.
+	TakebacksDisabled bool `dynamodbav:"takebacksDisabled" json:"takebacksDisabled"`
 }
 
 // A single user's answer to an exam problem.

@@ -1,14 +1,5 @@
 import { Help, Lock } from '@mui/icons-material';
-import Extension from '@mui/icons-material/Extension';
-import {
-    Alert,
-    Container,
-    Link,
-    Snackbar,
-    Stack,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { Alert, Link, Snackbar, Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -18,94 +9,13 @@ import {
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import { SimpleLinearRegression } from 'ml-regression-simple-linear';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import { toDojoDateString } from '../calendar/displayDate';
-import { Exam, ExamType } from '../database/exam';
-import LoadingPage from '../loading/LoadingPage';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import { getTotalScore } from './tactics';
-
-const RANGES = ['1500-2000', '2000+'];
-
-interface CohortRangeExams {
-    cohortRange: string;
-    exams: Exam[];
-}
-
-const ListTacticsExamsPage = () => {
-    const api = useApi();
-    const request = useRequest<Exam[]>();
-
-    useEffect(() => {
-        if (!request.isSent()) {
-            request.onStart();
-
-            api.listExams(ExamType.Tactics)
-                .then((exams) => {
-                    console.log('Exams: ', exams);
-                    request.onSuccess(exams);
-                })
-                .catch((err) => {
-                    console.error('listExams: ', err);
-                    request.onFailure(err);
-                });
-        }
-    }, [request, api]);
-
-    const cohortRanges = useMemo(() => {
-        const cohortRanges: CohortRangeExams[] = [];
-        if (request.data) {
-            for (const range of RANGES) {
-                const exams = request.data
-                    .filter((c) => c.cohortRange === range)
-                    .sort((lhs, rhs) => {
-                        if (
-                            parseInt(lhs.name.replace('Test #', '')) <
-                            parseInt(rhs.name.replace('Test #', ''))
-                        ) {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                cohortRanges.push({
-                    cohortRange: range,
-                    exams,
-                });
-            }
-        }
-        return cohortRanges;
-    }, [request]);
-
-    if (!request.isSent() || request.isLoading()) {
-        return <LoadingPage />;
-    }
-
-    return (
-        <Container sx={{ py: 4 }}>
-            <Stack spacing={4}>
-                <Stack direction='row' justifyContent='center' spacing={1}>
-                    <Extension />
-                    <Typography variant='h5'>Tactics Tests</Typography>
-                </Stack>
-
-                {cohortRanges.map((range) => (
-                    <Stack key={range.cohortRange}>
-                        <Typography variant='h6'>{range.cohortRange}</Typography>
-
-                        <ExamsTable exams={range.exams} />
-                    </Stack>
-                ))}
-            </Stack>
-            <RequestSnackbar request={request} />
-        </Container>
-    );
-};
-
-export default ListTacticsExamsPage;
+import { useAuth, useFreeTier } from '../../auth/Auth';
+import { toDojoDateString } from '../../calendar/displayDate';
+import { Exam } from '../../database/exam';
+import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import { getTotalScore } from '../tactics';
 
 /**
  * Returns the linear regression for this exam. If the exam has not been taken
@@ -364,3 +274,5 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         </>
     );
 };
+
+export default ExamsTable;

@@ -15,15 +15,17 @@ import React, {
 import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
 import { BoardApi, PrimitiveMove, reconcile } from '../Board';
+import ResizableContainer from './ResizableContainer';
 import { UnderboardTab } from './boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
-import ResizableContainer from './ResizableContainer';
 import { CONTAINER_ID } from './resize';
 
 export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
 
 interface ChessConfig {
+    initKey?: string;
     allowMoveDeletion?: boolean;
+    disableTakebacks?: Color | 'both';
 }
 
 type ChessContextType = {
@@ -49,7 +51,7 @@ export interface PgnBoardSlots {
     moveButtonExtras?: React.JSXElementConstructor<MoveButtonProps>;
 }
 
-interface PgnBoardProps {
+interface PgnBoardProps extends ChessConfig {
     underboardTabs: UnderboardTab[];
     initialUnderboardTab?: string;
     pgn?: string;
@@ -57,7 +59,6 @@ interface PgnBoardProps {
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
-    allowMoveDeletion?: boolean;
     slots?: PgnBoardSlots;
 }
 
@@ -71,7 +72,9 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             showPlayerHeaders = true,
             startOrientation = 'white',
             onInitialize: parentOnInitialize,
+            initKey,
             allowMoveDeletion,
+            disableTakebacks,
             slots,
         },
         ref,
@@ -94,7 +97,9 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 chess,
                 board,
                 config: {
+                    initKey,
                     allowMoveDeletion,
+                    disableTakebacks,
                 },
                 toggleOrientation,
                 keydownMap,

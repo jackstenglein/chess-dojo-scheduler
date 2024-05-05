@@ -1,6 +1,7 @@
 /** The type of an exam. */
 export enum ExamType {
     Tactics = 'TACTICS_EXAM',
+    Polgar = 'POLGAR_EXAM',
 }
 
 /**
@@ -43,6 +44,9 @@ export interface Exam {
 
     /** A map from username to ExamAnswerSummary. */
     answers: Record<string, ExamAnswerSummary>;
+
+    /** Whether takebacks for the side to move are disabled. */
+    takebacksDisabled?: boolean;
 }
 
 /** A single user's answer to an exam problem. */

@@ -17,11 +17,11 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import { TimeField } from '@mui/x-date-pickers';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+    Nag,
     evalNags,
     getNagInSet,
     getNagsInSet,
     moveNags,
-    Nag,
     nags,
     positionalNags,
     setNagInSet,
@@ -61,7 +61,7 @@ interface EditorProps {
 }
 
 const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
-    const { chess } = useChess();
+    const { chess, config } = useChess();
     const [, setForceRender] = useState(0);
     const textFieldRef = useRef<HTMLTextAreaElement>();
 
@@ -126,6 +126,10 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const handleMultiNags = (nagSet: Nag[]) => (event: any, newNags: string[]) => {
         chess.setNags(setNagsInSet(newNags, nagSet, move?.nags));
     };
+
+    const takebacksDisabled =
+        config?.disableTakebacks === 'both' ||
+        config?.disableTakebacks?.[0] === move?.color;
 
     return (
         <CardContent>
@@ -240,7 +244,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             <Button
                                 startIcon={<CheckIcon />}
                                 variant='outlined'
-                                disabled={chess?.isInMainline(move)}
+                                disabled={chess?.isInMainline(move) || takebacksDisabled}
                                 onClick={() => chess?.promoteVariation(move, true)}
                             >
                                 Make main line
@@ -248,7 +252,9 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             <Button
                                 startIcon={<ArrowUpwardIcon />}
                                 variant='outlined'
-                                disabled={!chess?.canPromoteVariation(move)}
+                                disabled={
+                                    !chess?.canPromoteVariation(move) || takebacksDisabled
+                                }
                                 onClick={() => chess?.promoteVariation(move)}
                             >
                                 Move variation up
@@ -257,6 +263,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                                 startIcon={<DeleteIcon />}
                                 variant='outlined'
                                 onClick={() => chess?.delete(move)}
+                                disabled={!config?.allowMoveDeletion || takebacksDisabled}
                             >
                                 Delete from here
                             </Button>

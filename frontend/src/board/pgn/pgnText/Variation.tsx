@@ -5,7 +5,7 @@ import { useChess } from '../PgnBoard';
 import MoveDisplay from './MoveDisplay';
 
 interface VariationProps {
-    handleScroll: (child: HTMLButtonElement | null) => void;
+    handleScroll: (child: HTMLElement | null) => void;
     onClickMove: (m: Move) => void;
 }
 
@@ -17,11 +17,15 @@ const Variation: React.FC<VariationProps> = ({ handleScroll, onClickMove }) => {
         if (chess) {
             const observer = {
                 types: [
+                    EventType.Initialized,
                     EventType.DeleteMove,
                     EventType.PromoteVariation,
                     EventType.LegalMove,
                 ],
                 handler: (event: Event) => {
+                    if (event.type === EventType.Initialized) {
+                        setForceRender((v) => v + 1);
+                    }
                     if (event.type === EventType.DeleteMove && event.mainlineMove) {
                         setForceRender((v) => v + 1);
                     }
