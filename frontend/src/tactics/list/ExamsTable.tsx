@@ -1,4 +1,4 @@
-import { Help, Lock } from '@mui/icons-material';
+import { Check, Close, Help, Lock } from '@mui/icons-material';
 import { Alert, Link, Snackbar, Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
@@ -54,6 +54,26 @@ const columns: GridColDef<Exam>[] = [
         headerAlign: 'center',
         align: 'center',
         flex: 1,
+    },
+    {
+        field: 'takebacksDisabled',
+        headerName: 'Takebacks',
+        headerAlign: 'center',
+        align: 'center',
+        width: 88,
+        renderCell(params) {
+            return (
+                <Tooltip
+                    title={
+                        params.value
+                            ? 'Takebacks are disabled for this exam. Once you make a move, it is locked in.'
+                            : 'Takebacks are enabled for this exam. After making a move, you can promote another move instead.'
+                    }
+                >
+                    {params.value ? <Close color='error' /> : <Check color='success' />}
+                </Tooltip>
+            );
+        },
     },
     {
         field: 'avgScore',
@@ -256,6 +276,8 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 hideFooter
                 onRowClick={onClickRow}
                 disableRowSelectionOnClick
+                disableColumnMenu
+                disableColumnSelector
             />
             <Snackbar
                 open={snackbarOpen}
