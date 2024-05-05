@@ -1,4 +1,5 @@
 import { Chess, COLOR, Move } from '@jackstenglein/chess';
+import { ExamType } from '../database/exam';
 import { Requirement } from '../database/requirement';
 import {
     ALL_COHORTS,
@@ -319,7 +320,7 @@ export function calculateTacticsRating(
     };
 
     if (isCohortLess(user.dojoCohort, '2100-2200')) {
-        rating.components.push(getPolgarRating(user, requirements));
+        rating.components.push(...getExamRating(user, ExamType.Polgar));
     }
 
     if (isCohortLess(user.dojoCohort, '1700-1800')) {
@@ -345,7 +346,7 @@ export function calculateTacticsRating(
     }
 
     if (isCohortGreater(user.dojoCohort, '1400-1500')) {
-        rating.components.push(...getExamRating(user));
+        rating.components.push(...getExamRating(user, ExamType.Tactics));
     }
 
     const countedComponents = rating.components.filter((c) => c.rating >= 0);
@@ -356,58 +357,6 @@ export function calculateTacticsRating(
     }
 
     return rating;
-}
-
-/**
- * Returns whether the user is assigned the given task, based on their cohort.
- * @param user The user to check.
- * @param req The task to check.
- * @returns True if the user is assigned the given task.
- */
-function hasTask(user: User, req: Requirement): boolean {
-    return Object.keys(req.counts).includes(user.dojoCohort);
-}
-
-/**
- * Calculates the user's Polgar Mate rating.
- * @param user The user to calculate the Polgar Mate rating for.
- * @param polgarM1 The Polgar Mate in One requirement.
- * @param polgarM2 The Polgar Mate in Two requirement.
- * @returns The user's Polgar Mate rating.
- */
-function getPolgarRating(
-    user: User,
-    requirements: Requirement[],
-): TacticsRatingComponent {
-    const polgarM1 = requirements.find((r) => r.id === PolgarM1ReqId);
-    const polgarM2 = requirements.find((r) => r.id === PolgarM2ReqId);
-    if (!polgarM1 || !polgarM2) {
-        return {
-            name: 'Polgar Mates',
-            rating: -1,
-            description: 'Based on progress on the Polgar Mates in 1 and 2 tasks',
-        };
-    }
-
-    const hasM1 = hasTask(user, polgarM1);
-    const m1Rating = hasM1 ? getTaskRating(user, polgarM1) : -1;
-
-    if (hasM1 && m1Rating < getTaskMaxRating(polgarM1)) {
-        return {
-            name: 'Polgar Mates',
-            rating: m1Rating,
-            description: 'Based on progress on the Polgar Mates in 1 task',
-        };
-    }
-
-    const m2Rating = getTaskRating(user, polgarM2);
-    return {
-        name: 'Polgar Mates',
-        rating: Math.max(m1Rating, m2Rating),
-        description: hasM1
-            ? 'Based on progress on the Polgar Mates in 1 and 2 tasks'
-            : 'Based on progress on the Polgar Mates in 2 task',
-    };
 }
 
 /**
@@ -479,12 +428,20 @@ function getTaskMaxRating(req: Requirement): number {
 /**
  * Gets the exam rating component for the given user.
  * @param user The user to get the rating component for.
+ * @param examType The type of exam to get the rating for.
  * @returns The exam rating component.
  */
-function getExamRating(user: User): TacticsRatingComponent[] {
+function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[] {
     const numberOfExams = 3;
     const countedExams = Object.values(user.exams || {})
-        .filter((e) => isCohortInRange(user.dojoCohort, e.cohortRange))
+        .filter(
+            (e) =>
+                e.examType === examType &&
+                // If a user is above the cohort range for a series of tests,
+                // we don't count it, as it could potentially give them an inflated score.
+                (isCohortInRange(user.dojoCohort, e.cohortRange) ||
+                    isCohortLess(user.dojoCohort, e.cohortRange)),
+        )
         .sort((lhs, rhs) => rhs.createdAt.localeCompare(lhs.createdAt))
         .slice(0, numberOfExams);
 
@@ -497,9 +454,9 @@ function getExamRating(user: User): TacticsRatingComponent[] {
 
         return [
             {
-                name: 'Tests',
+                name: `${displayExamType(examType)}s`,
                 rating,
-                description: 'The average of the 3 most recent Dojo Tactics Test ratings',
+                description: `The average of the 3 most recent ${displayExamType(examType)} ratings`,
             },
         ];
     }
@@ -508,17 +465,30 @@ function getExamRating(user: User): TacticsRatingComponent[] {
         {
             name: 'Test 1',
             rating: countedExams[0]?.rating ?? -1,
-            description: 'The most recent Dojo Tactics Test rating',
+            description: `The most recent ${displayExamType(examType)} rating`,
         },
         {
             name: 'Test 2',
             rating: countedExams[1]?.rating ?? -1,
-            description: 'The second-most recent Dojo Tactics Test rating',
+            description: `The second-most recent ${displayExamType(examType)} rating`,
         },
         {
             name: 'Test 3',
             rating: countedExams[2]?.rating ?? -1,
-            description: 'The third-most recent Dojo Tactics Test rating',
+            description: `The third-most recent ${displayExamType(examType)} rating`,
         },
     ];
+}
+
+/**
+ * Returns a UI display string for the given exam type.
+ * @param examType The exam type to display.
+ */
+function displayExamType(examType: ExamType): string {
+    switch (examType) {
+        case ExamType.Tactics:
+            return 'Tactics Test';
+        case ExamType.Polgar:
+            return 'Polgar Mate Test';
+    }
 }
