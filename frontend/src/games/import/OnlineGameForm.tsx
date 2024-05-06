@@ -5,6 +5,7 @@ import { Box, TextField } from '@mui/material';
 import {
     GameSubmissionType,
     RemoteGame,
+    isChesscomAnalysisURL,
     isChesscomGameURL,
     isLichessChapterURL,
     isLichessGameURL,
@@ -27,6 +28,7 @@ export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmi
             [GameSubmissionType.LichessStudy, isLichessStudyURL],
             [GameSubmissionType.LichessGame, isLichessGameURL],
             [GameSubmissionType.ChesscomGame, isChesscomGameURL],
+            [GameSubmissionType.ChesscomAnalysis, isChesscomAnalysisURL],
         ];
 
         let submissionType: GameSubmissionType | null = null;
