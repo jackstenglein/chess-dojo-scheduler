@@ -1,16 +1,17 @@
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
-    Box,
-    Collapse,
+    Card,
+    CardContent,
+    CardHeader,
     Container,
-    Divider,
-    IconButton,
     Link,
     Stack,
     Typography,
 } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
+import { useAuth } from '../auth/Auth';
+import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
+import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
 import { Book as BookModel, BookSection, sections } from './books';
 
 function getDisplayTitle(b: BookModel) {
@@ -24,7 +25,7 @@ const Book: React.FC<{ book: BookModel }> = ({ book }) => {
     if (book.link) {
         return (
             <Link href={book.link} target='_blank' rel='noreferrer'>
-                <Typography>{getDisplayTitle(book)}</Typography>
+                {getDisplayTitle(book)}
             </Link>
         );
     }
@@ -33,69 +34,108 @@ const Book: React.FC<{ book: BookModel }> = ({ book }) => {
 
 interface SectionProps {
     section: BookSection;
+    cohort: string;
 }
 
-const Section: React.FC<SectionProps> = ({ section }) => {
-    const [open, setOpen] = useState(false);
-    const toggleOpen = () => {
-        setOpen(!open);
-    };
+const Section: React.FC<SectionProps> = ({ section, cohort }) => {
+    const books = section.cohorts.find((c) => c.cohort === cohort)?.books;
+    if (!books) {
+        return null;
+    }
 
     return (
-        <Box>
-            <Stack direction='row' alignItems='center'>
-                <IconButton size='small' onClick={toggleOpen}>
-                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                </IconButton>
-                <Typography variant='h6' onClick={toggleOpen} sx={{ cursor: 'pointer' }}>
-                    {section.title}
-                </Typography>
-            </Stack>
-            <Divider />
+        <Stack spacing={1}>
+            <Typography variant='subtitle1' fontWeight='bold' color='text.secondary'>
+                {section.title}
+            </Typography>
 
-            <Collapse in={open} timeout='auto'>
-                <Stack spacing={2} mt={2}>
-                    {section.cohorts.map((c) => (
-                        <Stack key={c.cohort} alignItems='start'>
-                            <Typography
-                                variant='subtitle1'
-                                fontWeight='bold'
-                                color='text.secondary'
-                            >
-                                {c.cohort}
-                            </Typography>
-                            {c.books.map((b) => (
-                                <Book key={b.title} book={b} />
-                            ))}
-                        </Stack>
-                    ))}
-                </Stack>
-            </Collapse>
-        </Box>
+            <ul>
+                {books.map((b) => (
+                    <li key={b.title}>
+                        <Book key={b.title} book={b} />
+                    </li>
+                ))}
+            </ul>
+        </Stack>
     );
 };
 
 const BooksPage = () => {
+    const user = useAuth().user;
+    const [cohorts, setCohorts] = useState([user?.dojoCohort || ALL_COHORTS]);
+
+    const onChangeCohort = (newCohorts: string[]) => {
+        const addedCohorts = newCohorts.filter((c) => !cohorts.includes(c));
+        let finalCohorts = [];
+        if (addedCohorts.includes(ALL_COHORTS)) {
+            finalCohorts = [ALL_COHORTS];
+        } else {
+            finalCohorts = newCohorts
+                .filter((c) => c !== ALL_COHORTS)
+                .sort(compareCohorts);
+        }
+
+        setCohorts(finalCohorts);
+    };
+
     return (
         <Container sx={{ py: 3 }}>
-            <Typography variant='h5' align='center'>
-                ChessDojo Recommended Books
-            </Typography>
-            <Container sx={{ py: 3 }}>
+            <Stack spacing={3}>
+                <Typography variant='h5' align='center'>
+                    ChessDojo Recommended Books
+                </Typography>
                 <Typography>
                     The following books have been handpicked by the Senseis for each
                     cohort. Below you'll see the list of books that are assigned for each
                     rating band, split among the main recommendations, tactics books, and
                     endgame books.
                 </Typography>
-            </Container>
-            <Container sx={{ py: 1 }}>
-                <Stack spacing={3}>
-                    {sections.map((s) => (
-                        <Section key={s.title} section={s} />
-                    ))}
-                </Stack>
-            </Container>
+            </Stack>
+            <Stack mt={3} spacing={3}>
+                <MultipleSelectChip
+                    selected={cohorts}
+                    setSelected={onChangeCohort}
+                    options={[ALL_COHORTS, ...dojoCohorts].reduce(
+                        (acc, curr) => {
+                            acc[curr] = curr === ALL_COHORTS ? 'All Cohorts' : curr;
+                            return acc;
+                        },
+                        {} as Record<string, string>,
+                    )}
+                    label='Cohorts'
+                    sx={{ mb: 3, width: 1 }}
+                    size='small'
+                    error={cohorts.length === 0}
+                />
+
+                <Grid2 container rowGap={2} columnSpacing={2}>
+                    {(cohorts[0] === ALL_COHORTS ? dojoCohorts : cohorts).map(
+                        (cohort) => (
+                            <Grid2 key={cohort} xs={12} sm={6}>
+                                <Card
+                                    variant='outlined'
+                                    sx={{
+                                        height: 1,
+                                    }}
+                                >
+                                    <CardHeader title={cohort} />
+                                    <CardContent>
+                                        <Stack spacing={3}>
+                                            {sections.map((s) => (
+                                                <Section
+                                                    key={s.title}
+                                                    section={s}
+                                                    cohort={cohort}
+                                                />
+                                            ))}
+                                        </Stack>
+                                    </CardContent>
+                                </Card>
+                            </Grid2>
+                        ),
+                    )}
+                </Grid2>
+            </Stack>
         </Container>
     );
 };
