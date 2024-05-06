@@ -142,8 +142,14 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 field: 'name',
                 headerName: 'Name',
                 renderCell(params: GridRenderCellParams<Exam, string>) {
+                    const hasAnswered = Boolean(params.row.answers[user?.username || '']);
+
                     const i = exams.findIndex((e) => e.id === params.row.id);
-                    if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
+                    if (
+                        !hasAnswered &&
+                        i >= 1 &&
+                        !Boolean(exams[i - 1].answers[user?.username || ''])
+                    ) {
                         return (
                             <Tooltip title='This exam is locked until you complete the previous exam'>
                                 <Stack direction='row' spacing={0.5} alignItems='center'>
