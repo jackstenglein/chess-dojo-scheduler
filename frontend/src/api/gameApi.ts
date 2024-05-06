@@ -195,6 +195,7 @@ export enum GameSubmissionType {
     LichessStudy = 'lichessStudy',
     LichessGame = 'lichessGame',
     ChesscomGame = 'chesscomGame',
+    ChesscomAnalysis = 'chesscomAnalysis',
     Manual = 'manual',
     StartingPosition = 'startingPosition',
 }
@@ -603,14 +604,10 @@ function isURL(
     try {
         urlObj = new URL(url.trim());
     } catch (error) {
-        // ...
-    }
-
-    if (urlObj === null) {
         return false;
     }
 
-    if (urlObj.hostname !== hostname) {
+    if (urlObj === null || urlObj.hostname !== hostname) {
         return false;
     }
 
@@ -630,30 +627,54 @@ function isURL(
     return true;
 }
 
+const matchLichessId = /^(\w{8}|\w{12})$/;
+const matchChesscomId = /^(\w{10,}|\d+)$/;
+
 // Example: https://lichess.org/study/JIPuIPVG/
 export const isLichessStudyURL = (url: string) =>
     isURL(url, {
         hostname: 'lichess.org',
-        pathParts: [/^study$/, /^.{8}$/],
+        pathParts: [/^study$/, matchLichessId],
     });
 
 // Example: https://lichess.org/mN1qj7pP/black
 export const isLichessGameURL = (url: string) =>
     isURL(url, {
         hostname: 'lichess.org',
-        pathParts: [/^.{8}$/, /^(black|white)$/],
+        pathParts: [matchLichessId, /^(black|white)$/],
+    }) ||
+    isURL(url, {
+        hostname: 'lichess.org',
+        pathParts: [matchLichessId],
     });
 
 // Example: https://lichess.org/study/y14Z6s3N/fqJZzUm8
 export const isLichessChapterURL = (url: string) =>
     isURL(url, {
         hostname: 'lichess.org',
-        pathParts: [/^study$/, /^.{8}$/, /^.{8}$/],
+        pathParts: [/^study$/, matchLichessId, matchLichessId],
     });
 
 // Example: https://www.chess.com/game/live/107855985867
 export const isChesscomGameURL = (url: string) =>
     isURL(url, {
         hostname: 'www.chess.com',
-        pathParts: [/^game$/, /^(live|daily)$/, /\d+/],
+        pathParts: [/^game$/, /^(live|daily)$/, matchChesscomId],
+    });
+
+// Example: https://www.chess.com/analysis/game/live/108036079387?tab=review
+// Example: https://www.chess.com/analysis/library/3zupGBprJa?tab=analysis&move=0
+// Example: https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis
+export const isChesscomAnalysisURL = (url: string) =>
+    isURL(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^analysis$/, /^(game|library)$/, /^(pgn|live)$/, matchChesscomId],
+    }) ||
+    isURL(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^analysis$/, /^(game|library)$/, matchChesscomId],
+    }) ||
+    isURL(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^a$/, matchChesscomId],
     });

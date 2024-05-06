@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { ApiError } from './errors';
+import { getPathSegment } from './helpers';
 
 export async function getLichessGame(url?: string): Promise<string> {
     const gameId = getPathSegment(url, 0);
@@ -55,39 +56,6 @@ export async function getLichessStudy(url?: string): Promise<string[]> {
         handleError('Lichess Study', err);
         throw err;
     }
-}
-
-function getPathSegment(url: string | undefined, idx: number) {
-    if (!url) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'URL required',
-            privateMessage: 'Attempted to parse an undefined URL',
-        });
-    }
-
-    let urlObj: URL;
-    try {
-        urlObj = new URL(url.trim());
-    } catch (error) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid url',
-            privateMessage: `Was unable to parse this URL: ${url}`,
-        });
-        // ...
-    }
-
-    const parts = urlObj.pathname.split('/').filter((part) => part);
-    if (parts.length <= idx) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid url',
-            privateMessage: `Expected more path segments than existed when extracting url fields: ${url}`,
-        });
-    }
-
-    return parts[idx];
 }
 
 function handleError(requested: string, err: unknown) {

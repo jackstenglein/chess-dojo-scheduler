@@ -268,15 +268,6 @@ export function getGame(
         const now = new Date();
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
 
-        const dateHeader = chess.header().Date;
-        if (dateHeader && !isValidDate(dateHeader)) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'PGN has an invalid Date header',
-                privateMessage: `Unsupported date header. After transformation: ${dateHeader}`,
-            });
-        }
-
         const resultHeader = chess.header().Result;
         if (resultHeader && !isValidResult(resultHeader)) {
             throw new ApiError({
@@ -320,31 +311,6 @@ export function getGame(
             cause: err,
         });
     }
-}
-
-const dateRegex = /^\d{4}\.\d{2}\.\d{2}$/;
-
-function isValidDate(date?: string): boolean {
-    if (!date) {
-        return false;
-    }
-    if (!dateRegex.test(date)) {
-        return false;
-    }
-
-    const d = Date.parse(date.replaceAll('.', '-'));
-    if (isNaN(d)) {
-        return false;
-    }
-
-    const now = new Date();
-    now.setDate(now.getDate() + 2);
-
-    if (d > now.getTime()) {
-        return false;
-    }
-
-    return true;
 }
 
 function isValidResult(result?: string): boolean {

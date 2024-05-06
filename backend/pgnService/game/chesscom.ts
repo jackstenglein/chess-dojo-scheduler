@@ -1,6 +1,6 @@
+import { Chess } from '@jackstenglein/chess';
 import tcn from '@savi2w/chess-tcn';
 import axios from 'axios';
-import { Chess } from 'chess.js';
 import { Browser, BrowserErrorCaptureEnum } from 'happy-dom';
 import moment from 'moment';
 import { ApiError } from './errors';

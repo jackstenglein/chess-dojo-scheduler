@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
     GameSubmissionType,
+    isChesscomAnalysisURL,
     isChesscomGameURL,
     isLichessChapterURL,
     isLichessGameURL,
@@ -10,13 +11,23 @@ import {
 
 const testURLs: Record<string, string[]> = {
     [GameSubmissionType.ChesscomGame]: ['https://www.chess.com/game/live/107855985867'],
-    [GameSubmissionType.LichessGame]: ['https://lichess.org/mN1qj7pP/black'],
+    [GameSubmissionType.ChesscomAnalysis]: [
+        'https://www.chess.com/analysis/game/live/108036079387?tab=review',
+        'https://www.chess.com/analysis/library/3zupGBprJa?tab=analysis&move=0',
+        'https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis',
+    ],
+    [GameSubmissionType.LichessGame]: [
+        'https://lichess.org/mN1qj7pP/black',
+        'https://lichess.org/mN1qj7pP/',
+        'https://lichess.org/mN1qj7pP',
+    ],
     [GameSubmissionType.LichessStudy]: ['https://lichess.org/study/JIPuIPVG/'],
     [GameSubmissionType.LichessChapter]: ['https://lichess.org/study/y14Z6s3N/fqJZzUm8'],
 };
 
 const urlMatchers: Record<string, (url: string) => boolean> = {
     [GameSubmissionType.ChesscomGame]: isChesscomGameURL,
+    [GameSubmissionType.ChesscomAnalysis]: isChesscomAnalysisURL,
     [GameSubmissionType.LichessGame]: isLichessGameURL,
     [GameSubmissionType.LichessStudy]: isLichessStudyURL,
     [GameSubmissionType.LichessChapter]: isLichessChapterURL,

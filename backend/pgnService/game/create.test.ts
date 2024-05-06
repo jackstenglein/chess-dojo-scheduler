@@ -11,6 +11,13 @@ test('isFairyChess does not trigger on standard chess', () => {
     assert.isFalse(isFairyChess(pgnText));
 });
 
+test('isFairyChess triggers on variants', () => {
+    const pgnText =
+        '[Black "sammynouri"]\n[Variant "Chess960"]\n[SetUp "1"]\n[FEN "rknbrnbq/pppppppp/8/8/8/8/PPPPPPPP/RKNBRNBQ w - - 0 1"]';
+
+    assert.isTrue(isFairyChess(pgnText));
+});
+
 test('getGame defaults gracefully', () => {
     const pgnText = '';
     const reqHeaders = undefined;
@@ -21,6 +28,28 @@ test('getGame defaults gracefully', () => {
 
     assert.isNotNull(game, 'empty PGN should be supported');
     assert.isTrue(game?.unlisted);
+});
+
+test('getGame supports chess.com saved annotation default Date', () => {
+    const reqHeaders = undefined;
+    const orientation = GameOrientation.White;
+    const user = undefined;
+
+    const pgnText = `
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. c3 Nf6 4. d4 Nxe4 5. d5 Ne7 6. Nxe5 d6 7. Bb5+ c6 8. dxc6
+Qb6 {here Black threatens Qxf2 check mate!} 9. cxb7+ Kd8 10. Nxf7+ Kc7 {now if
+White plays bxa8+Q he loses to the Qxf2 check mate.} 11. bxa8=N+ Kb7 12. Nxb6
+{1-0 Black resigned} *`;
+
+    getGame(user, pgnText, reqHeaders, orientation);
 });
 
 test('getGame handles incomplete pgn', () => {
