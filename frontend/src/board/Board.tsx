@@ -248,6 +248,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                             ),
                     },
                 },
+                lastMove: [],
                 drawable: {
                     shapes: config?.drawable?.shapes || toShapes(chess),
                     onChange:
