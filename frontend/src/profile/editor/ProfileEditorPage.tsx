@@ -1,5 +1,12 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
+import SaveIcon from '@mui/icons-material/Save';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import InfoIcon from '@mui/icons-material/Info';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { LoadingButton } from '@mui/lab';
 import {
     Alert,
@@ -447,27 +454,30 @@ const ProfileEditorPage = () => {
                         <CardContent>
                             <Stack>
                                 <Link href='#personal' onClick={scrollToId('personal')}>
+                                <InfoIcon style={{ verticalAlign: 'middle', marginRight: '0.2em' }} />
                                     Personal Info
                                 </Link>
                                 <Link href='#ratings' onClick={scrollToId('ratings')}>
+                                    <TimelineIcon style={{ verticalAlign: 'middle', marginRight: '0.2em' }} />
                                     Ratings
                                 </Link>
                                 <Link
                                     href='#notifications'
                                     onClick={scrollToId('notifications')}
                                 >
+                                    <NotificationsIcon style={{ verticalAlign: 'middle', marginRight: '0.2em' }}/>
                                     Notifications
                                 </Link>
                                 <Link
                                     href='#user-interface'
                                     onClick={scrollToId('user-interface')}
-                                >
-                                    UI
+                                >  <SettingsSuggestIcon style={{ verticalAlign: 'middle', marginRight: '0.2em' }}/>
+                                    UI Setting
                                 </Link>
                                 <Link
                                     href='#subscription'
                                     onClick={scrollToId('subscription')}
-                                >
+                                >  <MonetizationOnIcon style={{ verticalAlign: 'middle', marginRight: '0.2em' }}/>
                                     Subscription/Billing
                                 </Link>
                             </Stack>
@@ -504,6 +514,7 @@ const ProfileEditorPage = () => {
                                     onClick={onSave}
                                     loading={request.status === RequestStatus.Loading}
                                     disabled={!changesMade}
+                                    startIcon={<SaveIcon/>}
                                 >
                                     Save
                                 </LoadingButton>
@@ -513,6 +524,7 @@ const ProfileEditorPage = () => {
                                     color='error'
                                     disableElevation
                                     onClick={() => navigate('..')}
+                                    startIcon={<NotInterestedIcon/>}
                                 >
                                     Cancel
                                 </Button>
@@ -532,7 +544,7 @@ const ProfileEditorPage = () => {
                                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                                 }}
                             >
-                                <Typography variant='h5'>Personal</Typography>
+                                <Typography variant='h5'> <InfoIcon style={{ verticalAlign: 'middle', marginRight: '0.1em' }} /> Personal Info</Typography>
                                 <Divider />
                             </Stack>
 
@@ -637,7 +649,7 @@ const ProfileEditorPage = () => {
                                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                                 }}
                             >
-                                <Typography variant='h5'>Ratings</Typography>
+                                <Typography variant='h5'> <TimelineIcon style={{ verticalAlign: 'middle', marginRight: '0.1em' }} /> Ratings</Typography>
                                 <Divider />
                             </Stack>
 
@@ -819,7 +831,7 @@ const ProfileEditorPage = () => {
                                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                                 }}
                             >
-                                <Typography variant='h5'>UI</Typography>
+                                <Typography variant='h5'> <SettingsSuggestIcon style={{ verticalAlign: 'middle', marginRight: '0.1em' }}/> UI Setting</Typography>
                                 <Divider />
                             </Stack>
 

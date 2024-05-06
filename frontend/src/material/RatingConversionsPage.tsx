@@ -26,6 +26,7 @@ const RatingConversionsPage = () => {
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>
+                            
                             <TableCell sx={{ fontWeight: 'bold' }}>
                                 {formatRatingSystem(Fide)} (Dojo Cohort)
                             </TableCell>
@@ -58,6 +59,7 @@ const RatingConversionsPage = () => {
                                         </TableCell>
                                     );
                                 })}
+                                
                             </TableRow>
                         ))}
                         <TableRow>

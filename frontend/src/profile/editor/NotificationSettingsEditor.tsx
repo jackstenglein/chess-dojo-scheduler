@@ -1,7 +1,9 @@
 import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { UserNotificationSettings } from '../../database/user';
-
+import WebAssetIcon from '@mui/icons-material/WebAsset';
+import { DiscordIcon } from '../info/DiscordChip';
+import EmailIcon from '@mui/icons-material/Email';
 function getSettingValue(
     notificationSettings: UserNotificationSettings,
     path: string
@@ -45,11 +47,13 @@ function setSettingValue(
 interface NotificationSettingsSection {
     label: string;
     settings: Array<{ label: string; path: string }>;
+    icon: React.ReactNode;
 }
 
 const sections: NotificationSettingsSection[] = [
     {
         label: 'Site',
+        icon: <WebAssetIcon style={{ verticalAlign: 'middle', marginRight: '0.1em' }}/>,
         settings: [
             {
                 label: 'Notify me when a comment is added to my game',
@@ -71,6 +75,7 @@ const sections: NotificationSettingsSection[] = [
     },
     {
         label: 'Discord',
+        icon: <DiscordIcon />,
         settings: [
             {
                 label: 'Notify me via a Discord DM when my meeting is booked',
@@ -84,6 +89,7 @@ const sections: NotificationSettingsSection[] = [
     },
     {
         label: 'Email',
+        icon: <EmailIcon style={{ verticalAlign: 'middle', marginRight: '0.1em' }}/>,
         settings: [
             {
                 label: 'Notify me via email when I am about to be marked inactive',
@@ -114,7 +120,7 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                 }}
             >
-                <Typography variant='h5'>Notifications</Typography>
+                <Typography variant='h5'> <NotificationsIcon style={{ verticalAlign: 'middle', marginRight: '0.1em' }}/> Notifications</Typography>
                 <Divider />
             </Stack>
 
@@ -127,8 +133,9 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                             scrollMarginTop: '88px',
                         }}
                     >
-                        {s.label}
+                        {s.icon } {s.label}
                     </Typography>
+                    
 
                     {s.settings.map((setting) => (
                         <FormControlLabel

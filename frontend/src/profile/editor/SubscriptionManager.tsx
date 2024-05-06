@@ -1,7 +1,7 @@
 import { OpenInNew } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Button, Divider, Stack, Typography } from '@mui/material';
-
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -42,13 +42,13 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                 }}
             >
-                <Typography variant='h5'>Subscription/Billing</Typography>
+                <Typography variant='h5'><MonetizationOnIcon style={{ verticalAlign: 'middle', marginRight: '0.1em' }}/>  Subscription/Billing</Typography>
                 <Divider />
             </Stack>
 
             {isFreeTier ? (
                 <>
-                    <Typography>Subscription Status: Free Tier</Typography>
+                    <Typography> Subscription Status: Free Tier</Typography>
                     <Button variant='contained' onClick={() => navigate('/prices')}>
                         View Prices
                     </Button>
