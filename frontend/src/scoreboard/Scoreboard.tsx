@@ -19,11 +19,13 @@ import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
 import { useFreeTier } from '../auth/Auth';
 import { isGraduation } from '../database/graduation';
-import { formatTime, Requirement, ScoreboardDisplay } from '../database/requirement';
-import { User } from '../database/user';
+import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
+import { User, compareCohorts } from '../database/user';
 import Avatar from '../profile/Avatar';
 import GraduationIcon from './GraduationIcon';
+import ScoreboardProgress from './ScoreboardProgress';
 import {
+    ScoreboardRow,
     formatPercentComplete,
     getCohortScore,
     getColumnDefinition,
@@ -34,9 +36,7 @@ import {
     getRatingChange,
     getRatingSystem,
     getStartRating,
-    ScoreboardRow,
 } from './scoreboardData';
-import ScoreboardProgress from './ScoreboardProgress';
 
 interface ColumnGroupChild {
     field: string;
@@ -127,22 +127,26 @@ const graduatedColumn: GridColDef<ScoreboardRow> = {
     renderCell: (params: GridRenderCellParams<ScoreboardRow>) => {
         let graduationCohorts = params.row.graduationCohorts;
         if (graduationCohorts && graduationCohorts.length > 0) {
+            graduationCohorts = graduationCohorts
+                .sort(compareCohorts)
+                .filter((c, i) => graduationCohorts.indexOf(c) === i);
             if (graduationCohorts.length > 3) {
                 graduationCohorts = graduationCohorts.slice(graduationCohorts.length - 3);
             }
+
             return (
                 <Stack direction='row'>
-                    {graduationCohorts
-                        .filter((c, i) => graduationCohorts.indexOf(c) === i)
-                        .map((c) => (
-                            <GraduationIcon key={c} cohort={c} size={32} />
-                        ))}
+                    {graduationCohorts.map((c) => (
+                        <GraduationIcon key={c} cohort={c} size={32} />
+                    ))}
                 </Stack>
             );
         }
         return <GraduationIcon cohort={params.row.previousCohort} size={32} />;
     },
+    width: 110,
     align: 'center',
+    headerAlign: 'center',
 };
 
 const summaryUserInfoColumns = [
@@ -171,6 +175,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         minWidth: 175,
         valueGetter: getRatingSystem,
         align: 'center',
+        headerAlign: 'center',
     },
     {
         field: 'startRating',
@@ -178,6 +183,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         minWidth: 150,
         valueGetter: getStartRating,
         align: 'center',
+        headerAlign: 'center',
     },
     {
         field: 'currentRating',
@@ -185,6 +191,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         minWidth: 150,
         valueGetter: getCurrentRating,
         align: 'center',
+        headerAlign: 'center',
     },
     {
         field: 'ratingChange',
@@ -192,6 +199,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         minWidth: 150,
         valueGetter: getRatingChange,
         align: 'center',
+        headerAlign: 'center',
     },
     {
         field: 'normalizedRating',
@@ -207,6 +215,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
                 </Tooltip>
             ),
         align: 'center',
+        headerAlign: 'center',
     },
 ];
 

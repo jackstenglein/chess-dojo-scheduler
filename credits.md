@@ -1,8 +1,9 @@
 # Credits
 
-Thanks to the following artist/devs for providing us with their unqiue chess-board/piece styles!
+Thanks to the following artist/devs!
 
-## Piece Style Credits
+## Piece Styles
+
 - Fantasy [Maurizio Monge](https://github.com/maurimo/chess-art)
 - Pixel [therealqtpi](https://twitter.com/therealqtpi)
 - spatial [Maurizio Monge](https://github.com/maurimo/chess-art)
@@ -11,9 +12,14 @@ Thanks to the following artist/devs for providing us with their unqiue chess-boa
 - cburnett [Alexis Luengas](https://github.com/LexLuengas)
 
 
-## Board styles Credit:
+## Board Styles
+
 Thanks to Lichess for their amazing work in open source chess!
 
 - [Lichess gifs](https://github.com/lichess-org/lila-gif/tree/master/theme/piece/cburnett)
 - [Lichess repo](https://github.com/lichess-org/lila/tree/master/public/images/board)
 - [Lichess Copying info](https://github.com/lichess-org/lila/blob/master/COPYING.md)
+
+## Graduation Icons
+
+- [Jalpp](https://github.com/jalpp/DojoIcons)

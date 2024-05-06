@@ -1,10 +1,10 @@
-import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
+import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
-import Avatar from '../Avatar';
+import { SubscriptionStatus, User, compareCohorts } from '../../database/user';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
-import { SubscriptionStatus, User } from '../../database/user';
+import Avatar from '../Avatar';
 
 interface UserInfoProps {
     user: User;
@@ -43,6 +43,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, linkUsername }) => {
                     {user.graduationCohorts && user.graduationCohorts.length > 0 ? (
                         <Stack direction='row' spacing={0.5} flexWrap='wrap' rowGap={1}>
                             {user.graduationCohorts
+                                .sort(compareCohorts)
                                 .filter((c, i) => user.graduationCohorts.indexOf(c) === i)
                                 .map((c) => (
                                     <GraduationIcon key={c} cohort={c} />
