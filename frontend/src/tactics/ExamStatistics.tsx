@@ -17,9 +17,10 @@ import {
     lineElementClasses,
 } from '@mui/x-charts';
 import { useMemo, useState } from 'react';
+import { useLightMode } from '../ThemeProvider';
 import { useAuth } from '../auth/Auth';
 import { Exam } from '../database/exam';
-import { ALL_COHORTS, compareCohorts } from '../database/user';
+import { ALL_COHORTS, cohortColors, compareCohorts } from '../database/user';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
 import { getRegression } from './list/ExamsTable';
 import { getTotalScore } from './tactics';
@@ -36,6 +37,7 @@ interface ExamStatisticsProps {
 const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
     const [cohorts, setCohorts] = useState([ALL_COHORTS]);
     const user = useAuth().user!;
+    const isLight = useLightMode();
 
     const cohortToSeries = useMemo(() => {
         const cohortToSeries: Record<string, ScatterSeriesType> = {};
@@ -54,6 +56,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     faded: 'global',
                 },
                 valueFormatter: (value) => `Score: ${value.x}, Rating: ${value.y}`,
+                color: cohortColors[answer.cohort],
             };
             series.data?.push({ x: answer.score, y: answer.rating, id: username });
             cohortToSeries[answer.cohort] = series;
@@ -94,6 +97,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 data: Array.from(Array(totalScore + 1)).map((_, i) =>
                     regression.predict(i),
                 ),
+                color: isLight ? '#000' : '#fff',
             },
         ] as LineSeriesType[];
     }, [exam, totalScore]);
@@ -127,6 +131,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                       faded: 'global',
                   },
                   valueFormatter: (value) => `Score: ${value.x},\nRating: ${value.y}`,
+                  color: isLight ? '#000' : '#fff',
               },
           ]
         : [];
@@ -185,7 +190,13 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     colors={cheerfulFiestaPalette}
                 >
                     <ChartsLegend
-                        slotProps={{ legend: { itemMarkWidth: 12, itemMarkHeight: 12 } }}
+                        slotProps={{
+                            legend: {
+                                itemMarkWidth: 10,
+                                itemMarkHeight: 10,
+                                labelStyle: { fontSize: 13 },
+                            },
+                        }}
                     />
                     <ChartsGrid vertical horizontal />
 
