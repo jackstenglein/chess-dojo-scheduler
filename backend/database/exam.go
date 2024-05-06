@@ -31,6 +31,10 @@ const (
 	ExamType_Polgar ExamType = "POLGAR_EXAM"
 )
 
+func IsValidExamType(examType ExamType) bool {
+	return examType == ExamType_Tactics || examType == ExamType_Polgar
+}
+
 // A summary of a single user's answer to an exam. Stored on the exam
 // to facilitate calculating the exam's linear regression.
 type ExamAnswerSummary struct {
