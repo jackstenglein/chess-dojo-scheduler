@@ -1,4 +1,4 @@
-import { CardContent, Stack } from '@mui/material';
+import { CardContent, Stack, Typography } from '@mui/material';
 import {
     ChartsClipPath,
     ChartsGrid,
@@ -16,7 +16,7 @@ import {
     cheerfulFiestaPalette,
     lineElementClasses,
 } from '@mui/x-charts';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLightMode } from '../ThemeProvider';
 import { useAuth } from '../auth/Auth';
 import { Exam } from '../database/exam';
@@ -38,6 +38,8 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
     const [cohorts, setCohorts] = useState([ALL_COHORTS]);
     const user = useAuth().user!;
     const isLight = useLightMode();
+    const ref = useRef<HTMLDivElement>(null);
+    const [legendMargin, setLegendMargin] = useState(100);
 
     const cohortToSeries = useMemo(() => {
         const cohortToSeries: Record<string, ScatterSeriesType> = {};
@@ -94,13 +96,30 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 id: 'best-fit',
                 type: 'line',
                 label: 'Best Fit',
-                data: Array.from(Array(totalScore + 1)).map((_, i) =>
+                data: Array.from(Array(totalScore + 2)).map((_, i) =>
                     regression.predict(i),
                 ),
                 color: isLight ? '#000' : '#fff',
             },
         ] as LineSeriesType[];
     }, [exam, totalScore]);
+
+    useEffect(() => {
+        if (!ref.current) {
+            return;
+        }
+
+        const observer = new ResizeObserver(() => {
+            const newLegendMargin = getLegendMargin(
+                series.length,
+                ref.current?.getBoundingClientRect().width || 0,
+            );
+            setLegendMargin(newLegendMargin);
+        });
+        observer.observe(ref.current);
+
+        return () => observer.disconnect();
+    }, [ref, series, setLegendMargin]);
 
     const onChangeCohort = (newCohorts: string[]) => {
         const addedCohorts = newCohorts.filter((c) => !cohorts.includes(c));
@@ -136,9 +155,18 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
           ]
         : [];
 
+    let userCount = series.reduce((sum, s) => sum + s.data.length, 0);
+    if (cohorts[0] === ALL_COHORTS || cohorts.includes(user.dojoCohort)) {
+        userCount += 1;
+    }
+
+    const avgScore =
+        series.reduce((sum, s) => sum + s.data.reduce((ds, d) => ds + d.x, 0), 0) /
+        userCount;
+
     return (
         <CardContent sx={{ height: 1 }}>
-            <Stack height={1}>
+            <Stack ref={ref} height={1}>
                 <MultipleSelectChip
                     label='Cohorts'
                     selected={cohorts}
@@ -158,12 +186,35 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     error={cohorts.length === 0}
                 />
 
+                <Stack direction='row' spacing={2} justifyContent='center' mt={1} mb={1}>
+                    <Typography variant='body2'>
+                        <Typography
+                            variant='body2'
+                            component='span'
+                            color='text.secondary'
+                        >
+                            Users:
+                        </Typography>{' '}
+                        {userCount}
+                    </Typography>
+                    <Typography variant='body2'>
+                        <Typography
+                            variant='body2'
+                            component='span'
+                            color='text.secondary'
+                        >
+                            Avg Score:
+                        </Typography>{' '}
+                        {Math.round(10 * avgScore) / 10}
+                    </Typography>
+                </Stack>
+
                 <ResponsiveChartContainer
                     disableAxisListener
                     xAxis={[
                         {
                             label: 'Score',
-                            data: Array.from(Array(totalScore + 1)).map((_, i) => i),
+                            data: Array.from(Array(totalScore + 2)).map((_, i) => i),
                             min: 0,
                         },
                     ]}
@@ -174,8 +225,8 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                             min: 0,
                         },
                     ]}
-                    series={[...yourScoreSeries, ...series, ...lineSeries]}
-                    margin={{ left: 60, right: 8, top: 100 }}
+                    series={[...series, ...lineSeries, ...yourScoreSeries]}
+                    margin={{ left: 60, right: 8, top: legendMargin }}
                     sx={{
                         [`& .${axisClasses.left} .${axisClasses.label}`]: {
                             transform: 'translateX(-20px)',
@@ -195,6 +246,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                                 itemMarkWidth: 10,
                                 itemMarkHeight: 10,
                                 labelStyle: { fontSize: 13 },
+                                padding: 0,
                             },
                         }}
                     />
@@ -217,3 +269,29 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
 };
 
 export default ExamStatistics;
+
+const legendPadding = 11.5;
+const cohortLegendWidth = 60;
+const legendLineHeight = 14;
+const yourScoreWidth = 90;
+const bestFitWidth = 62;
+
+function getLegendMargin(numCohorts: number, parentWidth: number): number {
+    if (parentWidth <= 0) {
+        return 100;
+    }
+
+    const cohortsPerLine = Math.floor(parentWidth / cohortLegendWidth);
+    const numCohortLines = Math.ceil(numCohorts / cohortsPerLine);
+
+    const leftoverWidth =
+        parentWidth -
+        yourScoreWidth -
+        bestFitWidth -
+        cohortLegendWidth * (numCohorts - cohortsPerLine * (numCohortLines - 1));
+    const numLines = leftoverWidth < 0 ? numCohortLines + 1 : numCohortLines;
+
+    console.log('Num lines: ', numLines);
+
+    return 2 * legendPadding + numLines * legendLineHeight + 9 * (numLines - 1);
+}
