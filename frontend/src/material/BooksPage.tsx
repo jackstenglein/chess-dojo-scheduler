@@ -94,6 +94,7 @@ const BooksPage = () => {
             </Stack>
             <Stack mt={3} spacing={3}>
                 <MultipleSelectChip
+                    data-cy='cohort-selector'
                     selected={cohorts}
                     setSelected={onChangeCohort}
                     options={[ALL_COHORTS, ...dojoCohorts].reduce(

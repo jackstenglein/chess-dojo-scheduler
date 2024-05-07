@@ -35,6 +35,7 @@ interface MultipleSelectChipProps {
     size?: 'small' | 'medium';
     sx?: SxProps;
     error?: boolean;
+    'data-cy'?: string;
 }
 
 export default function MultipleSelectChip({
@@ -45,6 +46,7 @@ export default function MultipleSelectChip({
     size,
     sx,
     error,
+    ...others
 }: MultipleSelectChipProps) {
     const theme = useTheme();
 
@@ -59,7 +61,7 @@ export default function MultipleSelectChip({
     };
 
     return (
-        <FormControl sx={sx} error={error}>
+        <FormControl {...others} sx={sx} error={error}>
             <InputLabel>{label}</InputLabel>
             <Select
                 multiple

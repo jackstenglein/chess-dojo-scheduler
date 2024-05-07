@@ -14,7 +14,7 @@ describe('Scoreboard Page', () => {
 
     it('has selector to change views', () => {
         cy.getBySel('scoreboard-view-selector').click();
-        cy.contains('User Search').click();
+        cy.contains('Search Users').click();
 
         cy.location('pathname').should('equal', '/scoreboard/search');
     });
