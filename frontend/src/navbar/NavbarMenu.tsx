@@ -49,6 +49,11 @@ import { hasCreatedProfile } from '../database/user';
 import NotificationButton from '../notifications/NotificationButton';
 import PawnIcon from './PawnIcon';
 import ProfileButton from './ProfileButton';
+import SearchIcon from '@mui/icons-material/Search';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import LanguageIcon from '@mui/icons-material/Language';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import GroupIcon from '@mui/icons-material/Group';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
 } from './UnauthenticatedMenu';
@@ -100,7 +105,34 @@ function allStartItems(
         {
             name: 'Scoreboard',
             icon: <Scoreboard />,
-            onClick: () => navigate('/scoreboard'),
+            onClick: () => toggleExpansion('Scoreboard'),
+            children: [
+                {
+                    name: 'My Cohort',
+                    icon: <GroupIcon/>,
+                    onClick: () => navigate('/scoreboard'),
+                },
+                {
+                    name: 'Full Dojo',
+                    icon: <LanguageIcon />,
+                    onClick: () => navigate('scoreboard/dojo'),
+                },
+                {
+                    name: 'Followers',
+                    icon: <ThumbUpIcon />,
+                    onClick: () => navigate('scoreboard/following')
+                },
+                {
+                    name: 'Search Users',
+                    icon: <SearchIcon />,
+                    onClick: () => navigate('scoreboard/search'),
+                },
+                {
+                    name: 'Statistics',
+                    icon: <AutoGraphIcon />,
+                    onClick: () => navigate('scoreboard/stats'),
+                },
+            ]
         },
         {
             name: 'Tournaments',

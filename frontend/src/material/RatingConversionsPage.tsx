@@ -14,6 +14,7 @@ import {
     formatRatingSystem,
     getRatingBoundary,
 } from '../database/user';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 
 const { Fide, Custom, ...others } = RatingSystem;
 
@@ -40,7 +41,7 @@ const RatingConversionsPage = () => {
                     <TableBody>
                         {dojoCohorts.slice(0, dojoCohorts.length - 1).map((c, i) => (
                             <TableRow key={c}>
-                                <TableCell key='Fide'>{c}</TableCell>
+                                <TableCell key='Fide'> <GraduationIcon cohort={c} sx={{ marginRight: '0.5em', verticalAlign: 'middle'}} title={`Badge awarded by graduating from ${c}`}/> {c}</TableCell>
                                 {ratingSystems.map((rs) => {
                                     const minRating =
                                         i === 0
@@ -63,7 +64,7 @@ const RatingConversionsPage = () => {
                             </TableRow>
                         ))}
                         <TableRow>
-                            <TableCell>{dojoCohorts[dojoCohorts.length - 1]}</TableCell>
+                            <TableCell>  <GraduationIcon cohort={dojoCohorts[dojoCohorts.length - 1]} sx={{ marginRight: '0.2em', verticalAlign: 'middle'}} title={`Badge awarded by graduating from 2400+`}/> {dojoCohorts[dojoCohorts.length - 1]}</TableCell>
                             {ratingSystems.map((rs) => (
                                 <TableCell key={rs}>
                                     {getRatingBoundary(

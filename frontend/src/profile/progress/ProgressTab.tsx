@@ -18,7 +18,7 @@ import LoadingPage from '../../loading/LoadingPage';
 import DojoScoreCard from '../stats/DojoScoreCard';
 import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory from './ProgressCategory';
-
+import GraduationIcon from '../../scoreboard/GraduationIcon';
 function useHideCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('hideCompletedTasks', 'false');
     const otherProfile = useState('false');
@@ -153,7 +153,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             >
                 {dojoCohorts.map((option) => (
                     <MenuItem key={option} value={option}>
-                        {option}
+                        <GraduationIcon cohort={option} sx={{ marginRight: '0.6em', verticalAlign: 'middle'}} title={``}/> {option}
                     </MenuItem>
                 ))}
             </TextField>
