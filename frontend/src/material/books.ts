@@ -22,6 +22,443 @@ export const sections: BookSection[] = [
                 cohort: '0-300',
                 books: [
                     {
+                        title: "Everyone's First Chess Workbook Part 1",
+                        author: 'Peter Giannatos',
+                        link: 'https://amzn.to/3ZQSRVa',
+                    },
+                ],
+            },
+            {
+                cohort: '300-400',
+                books: [
+                    {
+                        title: "Everyone's First Chess Workbook through Exercise 218 (end of Skewer chapter)",
+                        author: 'Peter Giannatos',
+                        link: 'https://amzn.to/3ZQSRVa',
+                    },
+                ],
+            },
+            {
+                cohort: '400-500',
+                books: [
+                    {
+                        title: "Everyone's First Chess Workbook through Exercise 323 (end of Decoy chapter)",
+                        author: 'Peter Giannatos',
+                        link: 'https://amzn.to/3ZQSRVa',
+                    },
+                ],
+            },
+            {
+                cohort: '500-600',
+                books: [
+                    {
+                        title: "Everyone's First Chess Workbook Parts 1-2",
+                        author: 'Peter Giannatos',
+                        link: 'https://amzn.to/3ZQSRVa',
+                    },
+                ],
+            },
+            {
+                cohort: '600-700',
+                books: [
+                    {
+                        title: "Everyone's First Chess Workbook",
+                        author: 'Peter Giannatos',
+                        link: 'https://amzn.to/3ZQSRVa',
+                    },
+                ],
+            },
+            {
+                cohort: '700-800',
+                books: [
+                    {
+                        title: 'Chess Tactics for Kids',
+                        author: 'Murray Chandler',
+                        link: 'https://amzn.to/3UFp7Le',
+                    },
+                ],
+            },
+            {
+                cohort: '800-900',
+                books: [
+                    {
+                        title: 'How to Beat Your Dad at Chess',
+                        author: 'Murray Chandler',
+                        link: 'https://amzn.to/44lLZlX',
+                    },
+                ],
+            },
+            {
+                cohort: '900-1000',
+                books: [
+                    {
+                        title: 'Learn Chess the Right Way: Book 3',
+                        author: 'Susan Polgar',
+                        link: 'https://amzn.to/49WWVYt',
+                    },
+                    {
+                        title: 'First Book of Morphy',
+                        author: 'Frisco Del Rosario',
+                        link: 'https://amzn.to/3mpoG8X',
+                    },
+                ],
+            },
+            {
+                cohort: '1000-1100',
+                books: [
+                    {
+                        title: 'Logical Chess: Move by Move',
+                        author: 'Irving Chernev',
+                        link: 'https://amzn.to/41XE8ta',
+                    },
+                ],
+            },
+            {
+                cohort: '1100-1200',
+                books: [
+                    {
+                        title: 'Most Instructive Games',
+                        author: 'Irving Chernev',
+                        link: 'https://amzn.to/3ymxorn',
+                    },
+                ],
+            },
+            {
+                cohort: '1200-1300',
+                books: [
+                    {
+                        title: 'Modern Ideas in Chess',
+                        author: 'Richard Reti',
+                        link: 'https://amzn.to/3SVRan7',
+                    },
+                ],
+            },
+            {
+                cohort: '1300-1400',
+                books: [
+                    {
+                        title: 'Winning Chess Strategies',
+                        author: 'Yasser Seirawan',
+                        link: 'https://amzn.to/3mD1ynK',
+                    },
+                ],
+            },
+            {
+                cohort: '1400-1500',
+                books: [
+                    {
+                        title: 'Simple Chess',
+                        author: 'Michael Stean',
+                        link: 'https://amzn.to/3SYGgge',
+                    },
+                ],
+            },
+            {
+                cohort: '1500-1600',
+                books: [
+                    {
+                        title: 'Simple Chess',
+                        author: 'Michael Stean',
+                        link: 'https://amzn.to/3SYGgge',
+                    },
+                    {
+                        title: 'How to Reassess Your Chess',
+                        author: 'Jeremy Silman',
+                        link: 'https://amzn.to/3Lfqfk6',
+                    },
+                ],
+            },
+            {
+                cohort: '1600-1700',
+                books: [
+                    {
+                        title: 'How to Reassess Your Chess',
+                        author: 'Jeremy Silman',
+                        link: 'https://amzn.to/3Lfqfk6',
+                    },
+                ],
+            },
+            {
+                cohort: '1700-1800',
+                books: [
+                    {
+                        title: 'Evaluate Like a Grandmaster',
+                        author: 'Eugene Perelshteyn',
+                        link: 'https://amzn.to/3IZZk9w',
+                    },
+                    {
+                        title: 'Art of Attack in Chess',
+                        author: 'Vladimir Vukovic',
+                        link: 'https://amzn.to/3SYIw7c',
+                    },
+                    {
+                        title: 'Techniques of Positional Play',
+                        author: 'Valeri Bronznik',
+                        link: 'https://amzn.to/44hhwWm',
+                    },
+                ],
+            },
+            {
+                cohort: '1800-1900',
+                books: [
+                    {
+                        title: 'Evaluate Like a Grandmaster',
+                        author: 'Eugene Perelshteyn',
+                        link: 'https://amzn.to/3IZZk9w',
+                    },
+                    {
+                        title: 'Techniques of Positional Play',
+                        author: 'Valeri Bronznik',
+                        link: 'https://amzn.to/44hhwWm',
+                    },
+                    {
+                        title: 'New York 1924',
+                        author: 'Alexander Alekhine',
+                        link: 'https://amzn.to/3yjYY8C',
+                    },
+                ],
+            },
+            {
+                cohort: '1900-2000',
+                books: [
+                    {
+                        title: 'Techniques of Positional Play',
+                        author: 'Valeri Bronznik',
+                        link: 'https://amzn.to/44hhwWm',
+                    },
+                    {
+                        title: 'New York 1924',
+                        author: 'Alexander Alekhine',
+                        link: 'https://amzn.to/3yjYY8C',
+                    },
+                    {
+                        title: 'Tal-Botvinnik 1960',
+                        author: 'Mikhail Tal',
+                        link: 'https://amzn.to/3F7taHI',
+                    },
+                ],
+            },
+            {
+                cohort: '2000-2100',
+                books: [
+                    {
+                        title: 'New York 1924',
+                        author: 'Alexander Alekhine',
+                        link: 'https://amzn.to/3yjYY8C',
+                    },
+                    {
+                        title: 'Strategic Chess Exercises',
+                        author: 'Emmanuel Bricard',
+                        link: 'https://amzn.to/3JBr44U',
+                    },
+                    {
+                        title: 'Tal-Botvinnik 1960',
+                        author: 'Mikhail Tal',
+                        link: 'https://amzn.to/3F7taHI',
+                    },
+                    {
+                        title: 'My 60 Memorable Games',
+                        author: 'Bobby Fischer',
+                        link: 'https://amzn.to/3Yv6058',
+                    },
+                    {
+                        title: 'Life & Games of Mikhail Tal',
+                        author: 'Mikhail Tal',
+                        link: 'https://amzn.to/3mCnOOz',
+                    },
+                    {
+                        title: 'Secrets of Grandmaster Chess',
+                        author: 'John Nunn',
+                        link: 'https://amzn.to/3YAtS7k',
+                    },
+                    {
+                        title: 'Seven Deadly Chess Sins',
+                        author: 'Jonathan Rowson',
+                        link: 'https://amzn.to/3F8P39T',
+                    },
+                    {
+                        title: 'Mastering Chess Strategy',
+                        author: 'Johan Hellsten',
+                        link: 'https://amzn.to/3kZ4ria',
+                    },
+                ],
+            },
+            {
+                cohort: '2100-2200',
+                books: [
+                    {
+                        title: 'Strategic Chess Exercises',
+                        author: 'Emmanuel Bricard',
+                        link: 'https://amzn.to/3JBr44U',
+                    },
+                    {
+                        title: 'Tal-Botvinnik 1960',
+                        author: 'Mikhail Tal',
+                        link: 'https://amzn.to/3F7taHI',
+                    },
+                    {
+                        title: 'My 60 Memorable Games',
+                        author: 'Bobby Fischer',
+                        link: 'https://amzn.to/3Yv6058',
+                    },
+                    {
+                        title: 'Life & Games of Mikhail Tal',
+                        author: 'Mikhail Tal',
+                        link: 'https://amzn.to/3mCnOOz',
+                    },
+                    {
+                        title: 'Secrets of Grandmaster Chess',
+                        author: 'John Nunn',
+                        link: 'https://amzn.to/3YAtS7k',
+                    },
+                    {
+                        title: 'Seven Deadly Chess Sins',
+                        author: 'Jonathan Rowson',
+                        link: 'https://amzn.to/3F8P39T',
+                    },
+                    {
+                        title: 'Mastering Chess Strategy',
+                        author: 'Johan Hellsten',
+                        link: 'https://amzn.to/3kZ4ria',
+                    },
+                    {
+                        title: 'Chess Structures: A Grandmaster Guide',
+                        author: 'Mauricio Flores Rios',
+                        link: 'https://amzn.to/3IYBBqg',
+                    },
+                ],
+            },
+            {
+                cohort: '2200-2300',
+                books: [
+                    {
+                        title: 'Tal-Botvinnik 1960',
+                        author: 'Mikhail Tal',
+                        link: 'https://amzn.to/3F7taHI',
+                    },
+                    {
+                        title: 'My 60 Memorable Games',
+                        author: 'Bobby Fischer',
+                        link: 'https://amzn.to/3Yv6058',
+                    },
+                    {
+                        title: 'Life & Games of Mikhail Tal',
+                        author: 'Mikhail Tal',
+                        link: 'https://amzn.to/3mCnOOz',
+                    },
+                    {
+                        title: 'Secrets of Grandmaster Chess',
+                        author: 'John Nunn',
+                        link: 'https://amzn.to/3YAtS7k',
+                    },
+                    {
+                        title: 'Seven Deadly Chess Sins',
+                        author: 'Jonathan Rowson',
+                        link: 'https://amzn.to/3F8P39T',
+                    },
+                    {
+                        title: 'Mastering Chess Strategy',
+                        author: 'Johan Hellsten',
+                        link: 'https://amzn.to/3kZ4ria',
+                    },
+                    {
+                        title: 'Chess Structures: A Grandmaster Guide',
+                        author: 'Mauricio Flores Rios',
+                        link: 'https://amzn.to/3IYBBqg',
+                    },
+                    {
+                        title: 'Test of Time',
+                        author: 'Garry Kasparov',
+                    },
+                ],
+            },
+            {
+                cohort: '2300-2400',
+                books: [
+                    {
+                        title: 'My 60 Memorable Games',
+                        author: 'Bobby Fischer',
+                        link: 'https://amzn.to/3Yv6058',
+                    },
+                    {
+                        title: 'Seven Deadly Chess Sins',
+                        author: 'Jonathan Rowson',
+                        link: 'https://amzn.to/3F8P39T',
+                    },
+                    {
+                        title: 'Test of Time',
+                        author: 'Garry Kasparov',
+                    },
+                    {
+                        title: 'Fire on Board',
+                        author: 'Alexei Shirov',
+                        link: 'https://amzn.to/3ypU2iF',
+                    },
+                    {
+                        title: 'Kramnik: My Life & Games',
+                        author: 'Vladimir Kramnik',
+                        link: 'https://amzn.to/3mCHhi3',
+                    },
+                    {
+                        title: 'Positional Decision Making',
+                        author: 'Boris Gelfand',
+                        link: 'https://amzn.to/3L7S0LB',
+                    },
+                    {
+                        title: `Alekhine's Best Games`,
+                        author: 'Alexander Alekhine',
+                        link: 'https://amzn.to/3HPCMbF',
+                    },
+                ],
+            },
+            {
+                cohort: '2400+',
+                books: [
+                    {
+                        title: 'My 60 Memorable Games',
+                        author: 'Bobby Fischer',
+                        link: 'https://amzn.to/3Yv6058',
+                    },
+                    {
+                        title: 'Test of Time',
+                        author: 'Garry Kasparov',
+                    },
+                    {
+                        title: 'Fire on Board',
+                        author: 'Alexei Shirov',
+                        link: 'https://amzn.to/3ypU2iF',
+                    },
+                    {
+                        title: 'Kramnik: My Life & Games',
+                        author: 'Vladimir Kramnik',
+                        link: 'https://amzn.to/3mCHhi3',
+                    },
+                    {
+                        title: 'Positional Decision Making',
+                        author: 'Boris Gelfand',
+                        link: 'https://amzn.to/3L7S0LB',
+                    },
+                    {
+                        title: 'My Great Predecessors',
+                        author: 'Garry Kasparov',
+                        link: 'https://amzn.to/3kZ9OOm',
+                    },
+                    {
+                        title: `Alekhine's Best Games`,
+                        author: 'Alexander Alekhine',
+                        link: 'https://amzn.to/3HPCMbF',
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        title: 'Tactics',
+        cohorts: [
+            {
+                cohort: '0-300',
+                books: [
+                    {
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
@@ -136,11 +573,6 @@ export const sections: BookSection[] = [
                         author: 'Susan Polgar',
                         link: 'https://amzn.to/49WWVYt',
                     },
-                    {
-                        title: 'First Book of Morphy',
-                        author: 'Frisco Del Rosario',
-                        link: 'https://amzn.to/3mpoG8X',
-                    },
                 ],
             },
             {
@@ -155,11 +587,6 @@ export const sections: BookSection[] = [
                         title: 'Winning Chess Tactics',
                         author: 'Yasser Seirawan',
                         link: 'https://amzn.to/49Z3oCc',
-                    },
-                    {
-                        title: 'Logical Chess: Move by Move',
-                        author: 'Irving Chernev',
-                        link: 'https://amzn.to/41XE8ta',
                     },
                 ],
             },
@@ -176,11 +603,6 @@ export const sections: BookSection[] = [
                         author: 'Franco Masetti',
                         link: 'https://amzn.to/3wpO5ol',
                     },
-                    {
-                        title: 'Most Instructive Games',
-                        author: 'Irving Chernev',
-                        link: 'https://amzn.to/3ymxorn',
-                    },
                 ],
             },
             {
@@ -192,9 +614,9 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Modern Ideas in Chess',
-                        author: 'Richard Reti',
-                        link: 'https://amzn.to/3SVRan7',
+                        title: 'Visualize 1 on Chessable',
+                        author: 'Benedictine',
+                        link: 'https://www.chessable.com/visualise-1/course/25695/',
                     },
                 ],
             },
@@ -205,11 +627,6 @@ export const sections: BookSection[] = [
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Winning Chess Strategies',
-                        author: 'Yasser Seirawan',
-                        link: 'https://amzn.to/3mD1ynK',
                     },
                 ],
             },
@@ -223,13 +640,8 @@ export const sections: BookSection[] = [
                     },
                     {
                         title: '1001 Chess Exercises for Club Players',
-                        author: 'Franco Masetti',
+                        author: 'Frank Erwich',
                         link: 'https://amzn.to/3Ue8AMA',
-                    },
-                    {
-                        title: 'Simple Chess',
-                        author: 'Michael Stean',
-                        link: 'https://amzn.to/3SYGgge',
                     },
                 ],
             },
@@ -246,16 +658,6 @@ export const sections: BookSection[] = [
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
                     },
-                    {
-                        title: 'Simple Chess',
-                        author: 'Michael Stean',
-                        link: 'https://amzn.to/3SYGgge',
-                    },
-                    {
-                        title: 'How to Reassess Your Chess',
-                        author: 'Jeremy Silman',
-                        link: 'https://amzn.to/3Lfqfk6',
-                    },
                 ],
             },
             {
@@ -270,11 +672,6 @@ export const sections: BookSection[] = [
                         title: 'Chess Tactics From Scratch',
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
-                    },
-                    {
-                        title: 'How to Reassess Your Chess',
-                        author: 'Jeremy Silman',
-                        link: 'https://amzn.to/3Lfqfk6',
                     },
                 ],
             },
@@ -291,21 +688,6 @@ export const sections: BookSection[] = [
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
                     },
-                    {
-                        title: 'Evaluate Like a Grandmaster',
-                        author: 'Eugene Perelshteyn',
-                        link: 'https://amzn.to/3IZZk9w',
-                    },
-                    {
-                        title: 'Art of Attack in Chess',
-                        author: 'Vladimir Vukovic',
-                        link: 'https://amzn.to/3SYIw7c',
-                    },
-                    {
-                        title: 'Techniques of Positional Play',
-                        author: 'Valeri Bronznik',
-                        link: 'https://amzn.to/44hhwWm',
-                    },
                 ],
             },
             {
@@ -320,21 +702,6 @@ export const sections: BookSection[] = [
                         title: 'Woodpecker Method',
                         author: 'Axel Smith & Hans Tikkanen',
                         link: 'https://amzn.to/3FuI0bR',
-                    },
-                    {
-                        title: 'Evaluate Like a Grandmaster',
-                        author: 'Eugene Perelshteyn',
-                        link: 'https://amzn.to/3IZZk9w',
-                    },
-                    {
-                        title: 'Techniques of Positional Play',
-                        author: 'Valeri Bronznik',
-                        link: 'https://amzn.to/44hhwWm',
-                    },
-                    {
-                        title: 'New York 1924',
-                        author: 'Alexander Alekhine',
-                        link: 'https://amzn.to/3yjYY8C',
                     },
                 ],
             },
@@ -355,21 +722,6 @@ export const sections: BookSection[] = [
                         title: 'Grandmaster Preparation: Calculation',
                         author: 'Jacob Aagaard',
                         link: 'https://amzn.to/3xVl6t3',
-                    },
-                    {
-                        title: 'Techniques of Positional Play',
-                        author: 'Valeri Bronznik',
-                        link: 'https://amzn.to/44hhwWm',
-                    },
-                    {
-                        title: 'New York 1924',
-                        author: 'Alexander Alekhine',
-                        link: 'https://amzn.to/3yjYY8C',
-                    },
-                    {
-                        title: 'Tal-Botvinnik 1960',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3F7taHI',
                     },
                 ],
             },
@@ -396,46 +748,6 @@ export const sections: BookSection[] = [
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
                     },
-                    {
-                        title: 'New York 1924',
-                        author: 'Alexander Alekhine',
-                        link: 'https://amzn.to/3yjYY8C',
-                    },
-                    {
-                        title: 'Strategic Chess Exercises',
-                        author: 'Emmanuel Bricard',
-                        link: 'https://amzn.to/3JBr44U',
-                    },
-                    {
-                        title: 'Tal-Botvinnik 1960',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3F7taHI',
-                    },
-                    {
-                        title: 'My 60 Memorable Games',
-                        author: 'Bobby Fischer',
-                        link: 'https://amzn.to/3Yv6058',
-                    },
-                    {
-                        title: 'Life & Games of Mikhail Tal',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3mCnOOz',
-                    },
-                    {
-                        title: 'Secrets of Grandmaster Chess',
-                        author: 'John Nunn',
-                        link: 'https://amzn.to/3YAtS7k',
-                    },
-                    {
-                        title: 'Seven Deadly Chess Sins',
-                        author: 'Jonathan Rowson',
-                        link: 'https://amzn.to/3F8P39T',
-                    },
-                    {
-                        title: 'Mastering Chess Strategy',
-                        author: 'Johan Hellsten',
-                        link: 'https://amzn.to/3kZ4ria',
-                    },
                 ],
             },
             {
@@ -460,46 +772,6 @@ export const sections: BookSection[] = [
                         title: 'Perfect Your Chess',
                         author: 'Andrei Volokitin',
                         link: 'https://amzn.to/3mA75eP',
-                    },
-                    {
-                        title: 'Strategic Chess Exercises',
-                        author: 'Emmanuel Bricard',
-                        link: 'https://amzn.to/3JBr44U',
-                    },
-                    {
-                        title: 'Tal-Botvinnik 1960',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3F7taHI',
-                    },
-                    {
-                        title: 'My 60 Memorable Games',
-                        author: 'Bobby Fischer',
-                        link: 'https://amzn.to/3Yv6058',
-                    },
-                    {
-                        title: 'Life & Games of Mikhail Tal',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3mCnOOz',
-                    },
-                    {
-                        title: 'Secrets of Grandmaster Chess',
-                        author: 'John Nunn',
-                        link: 'https://amzn.to/3YAtS7k',
-                    },
-                    {
-                        title: 'Seven Deadly Chess Sins',
-                        author: 'Jonathan Rowson',
-                        link: 'https://amzn.to/3F8P39T',
-                    },
-                    {
-                        title: 'Mastering Chess Strategy',
-                        author: 'Johan Hellsten',
-                        link: 'https://amzn.to/3kZ4ria',
-                    },
-                    {
-                        title: 'Chess Structures: A Grandmaster Guide',
-                        author: 'Mauricio Flores Rios',
-                        link: 'https://amzn.to/3IYBBqg',
                     },
                 ],
             },
@@ -530,45 +802,6 @@ export const sections: BookSection[] = [
                         title: 'The Best Move',
                         author: 'Vlastimil Hort',
                         link: 'https://amzn.to/3F3Fyc4',
-                    },
-                    {
-                        title: 'Tal-Botvinnik 1960',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3F7taHI',
-                    },
-                    {
-                        title: 'My 60 Memorable Games',
-                        author: 'Bobby Fischer',
-                        link: 'https://amzn.to/3Yv6058',
-                    },
-                    {
-                        title: 'Life & Games of Mikhail Tal',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3mCnOOz',
-                    },
-                    {
-                        title: 'Secrets of Grandmaster Chess',
-                        author: 'John Nunn',
-                        link: 'https://amzn.to/3YAtS7k',
-                    },
-                    {
-                        title: 'Seven Deadly Chess Sins',
-                        author: 'Jonathan Rowson',
-                        link: 'https://amzn.to/3F8P39T',
-                    },
-                    {
-                        title: 'Mastering Chess Strategy',
-                        author: 'Johan Hellsten',
-                        link: 'https://amzn.to/3kZ4ria',
-                    },
-                    {
-                        title: 'Chess Structures: A Grandmaster Guide',
-                        author: 'Mauricio Flores Rios',
-                        link: 'https://amzn.to/3IYBBqg',
-                    },
-                    {
-                        title: 'Test of Time',
-                        author: 'Garry Kasparov',
                     },
                 ],
             },
@@ -604,40 +837,6 @@ export const sections: BookSection[] = [
                         title: "Recognizing Your Opponent's Resources",
                         author: 'Mark Dvoretsky',
                         link: 'https://amzn.to/4aUmMl3',
-                    },
-                    {
-                        title: 'My 60 Memorable Games',
-                        author: 'Bobby Fischer',
-                        link: 'https://amzn.to/3Yv6058',
-                    },
-                    {
-                        title: 'Seven Deadly Chess Sins',
-                        author: 'Jonathan Rowson',
-                        link: 'https://amzn.to/3F8P39T',
-                    },
-                    {
-                        title: 'Test of Time',
-                        author: 'Garry Kasparov',
-                    },
-                    {
-                        title: 'Fire on Board',
-                        author: 'Alexei Shirov',
-                        link: 'https://amzn.to/3ypU2iF',
-                    },
-                    {
-                        title: 'Kramnik: My Life & Games',
-                        author: 'Vladimir Kramnik',
-                        link: 'https://amzn.to/3mCHhi3',
-                    },
-                    {
-                        title: 'Positional Decision Making',
-                        author: 'Boris Gelfand',
-                        link: 'https://amzn.to/3L7S0LB',
-                    },
-                    {
-                        title: `Alekhine's Best Games`,
-                        author: 'Alexander Alekhine',
-                        link: 'https://amzn.to/3HPCMbF',
                     },
                 ],
             },
@@ -679,40 +878,6 @@ export const sections: BookSection[] = [
                         author: 'Lev Psakhis',
                         link: 'https://amzn.to/4aVaTeV',
                     },
-                    {
-                        title: 'My 60 Memorable Games',
-                        author: 'Bobby Fischer',
-                        link: 'https://amzn.to/3Yv6058',
-                    },
-                    {
-                        title: 'Test of Time',
-                        author: 'Garry Kasparov',
-                    },
-                    {
-                        title: 'Fire on Board',
-                        author: 'Alexei Shirov',
-                        link: 'https://amzn.to/3ypU2iF',
-                    },
-                    {
-                        title: 'Kramnik: My Life & Games',
-                        author: 'Vladimir Kramnik',
-                        link: 'https://amzn.to/3mCHhi3',
-                    },
-                    {
-                        title: 'Positional Decision Making',
-                        author: 'Boris Gelfand',
-                        link: 'https://amzn.to/3L7S0LB',
-                    },
-                    {
-                        title: 'My Great Predecessors',
-                        author: 'Garry Kasparov',
-                        link: 'https://amzn.to/3kZ9OOm',
-                    },
-                    {
-                        title: `Alekhine's Best Games`,
-                        author: 'Alexander Alekhine',
-                        link: 'https://amzn.to/3HPCMbF',
-                    },
                 ],
             },
         ],
@@ -732,7 +897,7 @@ export const sections: BookSection[] = [
                 cohort: '1000-1100',
                 books: [
                     {
-                        title: "Silman's Complete Endgame Course Parts 1-3",
+                        title: "Silman's Complete Endgame Course Parts 1-2",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
@@ -821,6 +986,11 @@ export const sections: BookSection[] = [
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
+                    {
+                        title: 'Endgame Strategy (original version)',
+                        author: 'Mikhail Shereshevsky',
+                        link: 'https://amzn.to/3J3K2k3',
+                    },
                 ],
             },
             {
@@ -842,25 +1012,20 @@ export const sections: BookSection[] = [
                 cohort: '1900-2000',
                 books: [
                     {
-                        title: 'Endgame Strategy',
-                        author: 'Mikhail Shereshevsky',
-                        link: 'https://amzn.to/3J3K2k3',
-                    },
-                    {
                         title: "Silman's Complete Endgame Course Part 6",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
+                    },
+                    {
+                        title: 'Endgame Virtuoso',
+                        author: 'Vasily Smyslov',
+                        link: 'https://amzn.to/3yobRyE',
                     },
                 ],
             },
             {
                 cohort: '2000-2100',
                 books: [
-                    {
-                        title: 'Endgame Strategy',
-                        author: 'Mikhail Shereshevsky',
-                        link: 'https://amzn.to/3J3K2k3',
-                    },
                     {
                         title: '100 Endgames You Must Know',
                         author: 'Jesus de la Villa',
@@ -886,6 +1051,11 @@ export const sections: BookSection[] = [
                         author: 'Vasily Smyslov',
                         link: 'https://amzn.to/3yobRyE',
                     },
+                    {
+                        title: 'Endgame Virtuoso (Karpov)',
+                        author: 'Tibor Karolyi',
+                        link: 'https://amzn.to/44mSXr8',
+                    },
                 ],
             },
             {
@@ -897,13 +1067,19 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3J2hSpo',
                     },
                     {
-                        title: 'Endgame Virtuoso',
-                        author: 'Vasily Smyslov',
-                        link: 'https://amzn.to/3yobRyE',
+                        title: 'Endgame Virtuoso (Karpov)',
+                        author: 'Tibor Karolyi',
+                        link: 'https://amzn.to/44mSXr8',
                     },
                     {
                         title: 'Mastering Endgame Strategy',
                         author: 'Johan Hellsten',
+                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
+                    },
+                    {
+                        title: 'Rook Endings',
+                        author: 'Grigory Levenfish & Vasily Smyslov',
+                        link: 'https://amzn.to/3ZIYmW0',
                     },
                 ],
             },
@@ -913,6 +1089,7 @@ export const sections: BookSection[] = [
                     {
                         title: 'Mastering Endgame Strategy',
                         author: 'Johan Hellsten',
+                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
                     },
                     {
                         title: 'Rook Endings',
@@ -937,6 +1114,7 @@ export const sections: BookSection[] = [
                     {
                         title: 'Mastering Endgame Strategy',
                         author: 'Johan Hellsten',
+                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
                     },
                     {
                         title: 'Rook Endings',
