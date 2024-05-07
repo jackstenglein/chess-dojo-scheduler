@@ -305,8 +305,6 @@ export const dojoCohorts: string[] = [
     '2200-2300',
     '2300-2400',
     '2400+',
-    // '2500+',
-    // '2600+',
 ];
 
 export const ALL_COHORTS = 'ALL_COHORTS';
@@ -621,7 +619,7 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Custom]: -1,
     },
     '2200-2300': {
-        [RatingSystem.Fide]: 2300, 
+        [RatingSystem.Fide]: 2300,
         [RatingSystem.Uscf]: 2400,
         [RatingSystem.Chesscom]: 2525,
         [RatingSystem.Lichess]: 2525,
@@ -632,8 +630,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Custom]: -1,
     },
     '2300-2400': {
-        [RatingSystem.Fide]: 2400, 
-        [RatingSystem.Uscf]: 2500, 
+        [RatingSystem.Fide]: 2400,
+        [RatingSystem.Uscf]: 2500,
         [RatingSystem.Chesscom]: 2600,
         [RatingSystem.Lichess]: 2600,
         [RatingSystem.Ecf]: 2400,
@@ -642,29 +640,6 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 2510,
         [RatingSystem.Custom]: -1,
     },
-    // '2400+': {
-    //     [RatingSystem.Fide]: 2450, 
-    //     [RatingSystem.Uscf]: 2555, 
-    //     [RatingSystem.Chesscom]: 2700,
-    //     [RatingSystem.Lichess]: 2700,
-    //     [RatingSystem.Ecf]: 2500,
-    //     [RatingSystem.Cfc]: 2625,
-    //     [RatingSystem.Dwz]: 2430,
-    //     [RatingSystem.Acf]: 2530,
-    //     [RatingSystem.Custom]: -1,
-    // },
-    // '2500+': {
-    //     [RatingSystem.Fide]: 2550, 
-    //     [RatingSystem.Uscf]: 2655, 
-    //     [RatingSystem.Chesscom]: 2800,
-    //     [RatingSystem.Lichess]: 2800,
-    //     [RatingSystem.Ecf]: 2600,
-    //     [RatingSystem.Cfc]: 2725,
-    //     [RatingSystem.Dwz]: 2530,
-    //     [RatingSystem.Acf]: 2630,
-    //     [RatingSystem.Custom]: -1,
-    // },
-   
 };
 
 export function getRatingBoundary(

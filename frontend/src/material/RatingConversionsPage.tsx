@@ -1,12 +1,14 @@
 import {
     Container,
     Paper,
+    Stack,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
+    Typography,
 } from '@mui/material';
 import {
     RatingSystem,
@@ -27,7 +29,6 @@ const RatingConversionsPage = () => {
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>
-                            
                             <TableCell sx={{ fontWeight: 'bold' }}>
                                 {formatRatingSystem(Fide)} (Dojo Cohort)
                             </TableCell>
@@ -41,7 +42,16 @@ const RatingConversionsPage = () => {
                     <TableBody>
                         {dojoCohorts.slice(0, dojoCohorts.length - 1).map((c, i) => (
                             <TableRow key={c}>
-                                <TableCell key='Fide'> <GraduationIcon cohort={c} sx={{ marginRight: '0.5em', verticalAlign: 'middle'}} title={`Badge awarded by graduating from ${c}`}/> {c}</TableCell>
+                                <TableCell key='Fide'>
+                                    <Stack
+                                        direction='row'
+                                        spacing={2}
+                                        alignItems='center'
+                                    >
+                                        <GraduationIcon cohort={c} tooltip='' />
+                                        <Typography variant='body2'>{c}</Typography>
+                                    </Stack>
+                                </TableCell>
                                 {ratingSystems.map((rs) => {
                                     const minRating =
                                         i === 0
@@ -60,11 +70,20 @@ const RatingConversionsPage = () => {
                                         </TableCell>
                                     );
                                 })}
-                                
                             </TableRow>
                         ))}
                         <TableRow>
-                            <TableCell>  <GraduationIcon cohort={dojoCohorts[dojoCohorts.length - 1]} sx={{ marginRight: '0.2em', verticalAlign: 'middle'}} title={`Badge awarded by graduating from 2400+`}/> {dojoCohorts[dojoCohorts.length - 1]}</TableCell>
+                            <TableCell>
+                                <Stack direction='row' spacing={2} alignItems='center'>
+                                    <GraduationIcon
+                                        cohort={dojoCohorts[dojoCohorts.length - 1]}
+                                        tooltip=''
+                                    />
+                                    <Typography variant='body2'>
+                                        {dojoCohorts[dojoCohorts.length - 1]}
+                                    </Typography>
+                                </Stack>
+                            </TableCell>
                             {ratingSystems.map((rs) => (
                                 <TableCell key={rs}>
                                     {getRatingBoundary(

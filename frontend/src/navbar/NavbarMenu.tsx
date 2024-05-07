@@ -27,6 +27,11 @@ import {
     Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import GroupIcon from '@mui/icons-material/Group';
+import LanguageIcon from '@mui/icons-material/Language';
+import SearchIcon from '@mui/icons-material/Search';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import {
     Badge,
     Button,
@@ -49,11 +54,6 @@ import { hasCreatedProfile } from '../database/user';
 import NotificationButton from '../notifications/NotificationButton';
 import PawnIcon from './PawnIcon';
 import ProfileButton from './ProfileButton';
-import SearchIcon from '@mui/icons-material/Search';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import LanguageIcon from '@mui/icons-material/Language';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import GroupIcon from '@mui/icons-material/Group';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
 } from './UnauthenticatedMenu';
@@ -109,7 +109,7 @@ function allStartItems(
             children: [
                 {
                     name: 'My Cohort',
-                    icon: <GroupIcon/>,
+                    icon: <GroupIcon />,
                     onClick: () => navigate('/scoreboard'),
                 },
                 {
@@ -120,7 +120,7 @@ function allStartItems(
                 {
                     name: 'Followers',
                     icon: <ThumbUpIcon />,
-                    onClick: () => navigate('scoreboard/following')
+                    onClick: () => navigate('scoreboard/following'),
                 },
                 {
                     name: 'Search Users',
@@ -132,7 +132,7 @@ function allStartItems(
                     icon: <AutoGraphIcon />,
                     onClick: () => navigate('scoreboard/stats'),
                 },
-            ]
+            ],
         },
         {
             name: 'Tournaments',

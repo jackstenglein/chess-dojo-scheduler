@@ -24,7 +24,6 @@ import { ALL_COHORTS, cohortColors, compareCohorts } from '../database/user';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
 import { getRegression } from './list/ExamsTable';
 import { getTotalScore } from './tactics';
-import GraduationIcon from '../scoreboard/GraduationIcon';
 
 interface ExamStatisticsProps {
     /** The exam to display statistics for. */
@@ -145,7 +144,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     selected={cohorts}
                     setSelected={onChangeCohort}
                     options={{
-                        [ALL_COHORTS]:  'All Cohorts',
+                        [ALL_COHORTS]: 'All Cohorts',
                         ...Object.keys(cohortToSeries)
                             .sort(compareCohorts)
                             .reduce(

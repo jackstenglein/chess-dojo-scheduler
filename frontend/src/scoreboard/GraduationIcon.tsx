@@ -24,11 +24,7 @@ export const cohortIcons: Record<string, string> = {
     '2100-2200': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2100-2200.png',
     '2200-2300': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2200-2300.png',
     '2300-2400': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
-
     '2400+': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
-    // '2500+': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
-    // '2600+': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
-     
 };
 
 const Tooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -43,10 +39,15 @@ interface GraduationIconProps {
     cohort?: string;
     size?: number;
     sx?: React.CSSProperties;
-    title?: string;
+    tooltip?: string;
 }
 
-const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40, sx, title}) => {
+const GraduationIcon: React.FC<GraduationIconProps> = ({
+    cohort,
+    size = 40,
+    sx,
+    tooltip,
+}) => {
     if (!cohort) {
         return null;
     }
@@ -56,9 +57,8 @@ const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40, sx, 
         return null;
     }
 
-    //`Graduated from ${cohort}`
     return (
-        <Tooltip title={title}>
+        <Tooltip title={tooltip !== undefined ? tooltip : `Graduated from ${cohort}`}>
             <img
                 data-cy='graduation-icon'
                 src={url}
@@ -71,15 +71,9 @@ const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40, sx, 
                     ...(cohort === '2300-2400'
                         ? { filter: `drop-shadow(0px 0px ${size / 8}px silver)` }
                         : {}),
-                    ... (cohort === '2400+' // pick from silver, blue, purple or this #25ffee or red or #25ff2c
+                    ...(cohort === '2400+'
                         ? { filter: `drop-shadow(0px 0px ${size / 8}px #fedf53` }
                         : {}),
-                    // ...(cohort === '2500+'
-                    //     ? { filter: `drop-shadow(0px 0px ${size / 8}px blue)` }
-                    //     : {}),
-                    // ... (cohort === '2600+' // pick from silver, blue, purple or this #25ffee or red or #25ff2c
-                    //     ? { filter: `drop-shadow(0px 0px ${size / 8}px purple` }
-
                 }}
             />
         </Tooltip>
