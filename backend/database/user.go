@@ -218,7 +218,7 @@ type User struct {
 	PreviousCohort DojoCohort `dynamodbav:"previousCohort" json:"previousCohort"`
 
 	// The cohorts the user has graduated from
-	GraduationCohorts []DojoCohort `dynamodbav:"graduationCohorts" json:"graduationCohorts"`
+	GraduationCohorts []DojoCohort `dynamodbav:"graduationCohorts,stringset" json:"graduationCohorts"`
 
 	// When the user most recently graduated
 	LastGraduatedAt string `dynamodbav:"lastGraduatedAt" json:"lastGraduatedAt"`

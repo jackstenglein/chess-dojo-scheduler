@@ -269,7 +269,14 @@ export function addExtraVariation(
                 false,
                 false,
                 true,
-            )!;
+            );
+            if (!existingMove) {
+                // This only happens if the user's answer has an invalid move.
+                // IE: the test changed since they took it. In that case, we break, since
+                // none of the following moves can be valid either.
+                break;
+            }
+
             existingMove.userData = {
                 extra: true,
             };

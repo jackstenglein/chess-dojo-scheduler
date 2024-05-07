@@ -119,6 +119,7 @@ const BooksPage = () => {
                                         height: 1,
                                     }}
                                 >
+
                                     <CardHeader title={
                                           <>
                                           <GraduationIcon cohort={cohort} sx={{ marginRight: '0.6em', verticalAlign: 'middle'}} title={``}/>

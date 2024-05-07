@@ -311,6 +311,32 @@ export const dojoCohorts: string[] = [
 
 export const ALL_COHORTS = 'ALL_COHORTS';
 
+export const cohortColors: Record<string, string> = {
+    '0-300': '#f8d0f5',
+    '300-400': '#eb92c8',
+    '400-500': '#c768bc',
+    '500-600': '#f1e156',
+    '600-700': '#c8c71d',
+    '700-800': '#a3951b',
+    '800-900': '#eea44f',
+    '900-1000': '#d97333',
+    '1000-1100': '#9b4007',
+    '1100-1200': '#70ec50',
+    '1200-1300': '#71c44e',
+    '1300-1400': '#0c5c03',
+    '1400-1500': '#5551ec',
+    '1500-1600': '#004aad',
+    '1600-1700': '#003375',
+    '1700-1800': '#ae03ff',
+    '1800-1900': '#ac00c8',
+    '1900-2000': '#6b017d',
+    '2000-2100': '#fd0304',
+    '2100-2200': '#c21818',
+    '2200-2300': '#951313',
+    '2300-2400': '#bd4804',
+    '2400+': '#9e3b00',
+};
+
 export function compareCohorts(a: string, b: string): number {
     const aInt = parseInt(a);
     const bInt = parseInt(b);
