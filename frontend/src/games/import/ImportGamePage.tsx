@@ -2,29 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { TabContext, TabPanel } from '@mui/lab';
-import {
-    Box,
-    Container,
-    FormControl,
-    FormControlLabel,
-    FormLabel,
-    Radio,
-    RadioGroup,
-    Stack,
-    Tab,
-    Tabs,
-    Typography,
-} from '@mui/material';
+import { Box, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import {
-    BoardOrientation,
-    CreateGameRequest,
-    GameHeader,
-    RemoteGame,
-    isGame,
-} from '../../api/gameApi';
+import { CreateGameRequest, RemoteGame, isGame } from '../../api/gameApi';
 import { OnlineGameForm } from './OnlineGameForm';
 import { PGNForm } from './PGNForm';
 import { StartingPositionForm } from './StartingPositionForm';
@@ -48,30 +30,19 @@ const ImportTabPanel: React.FC<ImportTabPanelProps> = ({ children, source }) => 
     );
 };
 
-interface Preflight {
-    req: CreateGameRequest;
-    headers: GameHeader[];
-    function: 'create' | 'edit';
-}
-
 const ImportGamePage = () => {
     const api = useApi();
     const request = useRequest();
     const navigate = useNavigate();
     const [source, setSource] = useState<ImportSource>(ImportSource.URL);
-    const [orientation, setOrientation] = useState<BoardOrientation>('white');
-
-    const [preflight, setPreflight] = useState<Preflight>();
 
     const loading = request.isLoading();
 
     const onImport = (remoteGame: RemoteGame) => {
-        const req = {
+        const req: CreateGameRequest = {
             ...remoteGame,
-            orientation,
+            orientation: 'white',
         };
-        console.log(req);
-
         request.onStart();
         api.createGame(req)
             .then((response) => {
@@ -90,11 +61,6 @@ const ImportGamePage = () => {
                     );
                 } else if (response.data.headers) {
                     request.onSuccess();
-                    setPreflight({
-                        function: 'create',
-                        req,
-                        headers: response.data.headers,
-                    });
                 } else {
                     const count = response.data.count;
                     trackEvent(EventType.SubmitGame, {
@@ -102,7 +68,7 @@ const ImportGamePage = () => {
                         source: req.type,
                     });
                     request.onSuccess(`Created ${count} games`);
-                    //navigate('/profile?view=games');
+                    navigate('/profile?view=games');
                 }
             })
             .catch((err) => {
@@ -128,65 +94,38 @@ const ImportGamePage = () => {
                         can view and comment.
                     </Typography>
                     <Box sx={{ typography: 'body1' }}>
-                        <Stack>
-                            <FormControl sx={{ pt: 1, pb: 3 }}>
-                                <FormLabel>Board Orientation</FormLabel>
-                                <RadioGroup
-                                    row
-                                    value={orientation}
-                                    onChange={(_, v) =>
-                                        setOrientation(v as BoardOrientation)
-                                    }
+                        <TabContext value={source}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                <Tabs
+                                    onChange={handleTabChange}
+                                    value={source}
+                                    aria-label='import sources tabs'
+                                    variant='scrollable'
                                 >
-                                    <FormControlLabel
-                                        value='white'
-                                        control={<Radio />}
-                                        label='White'
+                                    <Tab
+                                        value={ImportSource.URL}
+                                        label={'Lichess & Chess.com'}
                                     />
-                                    <FormControlLabel
-                                        value='black'
-                                        control={<Radio />}
-                                        label='Black'
+                                    <Tab value={ImportSource.PGNText} label='PGN' />
+                                    <Tab
+                                        value={ImportSource.StartingPosition}
+                                        label='Starting Position'
                                     />
-                                </RadioGroup>
-                            </FormControl>
-
-                            <TabContext value={source}>
-                                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                    <Tabs
-                                        onChange={handleTabChange}
-                                        value={source}
-                                        aria-label='import sources tabs'
-                                        variant='scrollable'
-                                    >
-                                        <Tab
-                                            value={ImportSource.URL}
-                                            label={'Lichess & Chess.com'}
-                                        />
-                                        <Tab value={ImportSource.PGNText} label='PGN' />
-                                        <Tab
-                                            value={ImportSource.StartingPosition}
-                                            label='Starting Position'
-                                        />
-                                    </Tabs>
-                                </Box>
-                                <ImportTabPanel source={ImportSource.URL}>
-                                    <OnlineGameForm
-                                        onSubmit={onImport}
-                                        loading={loading}
-                                    />
-                                </ImportTabPanel>
-                                <ImportTabPanel source={ImportSource.PGNText}>
-                                    <PGNForm onSubmit={onImport} loading={loading} />
-                                </ImportTabPanel>
-                                <ImportTabPanel source={ImportSource.StartingPosition}>
-                                    <StartingPositionForm
-                                        onSubmit={onImport}
-                                        loading={loading}
-                                    />
-                                </ImportTabPanel>
-                            </TabContext>
-                        </Stack>
+                                </Tabs>
+                            </Box>
+                            <ImportTabPanel source={ImportSource.URL}>
+                                <OnlineGameForm onSubmit={onImport} loading={loading} />
+                            </ImportTabPanel>
+                            <ImportTabPanel source={ImportSource.PGNText}>
+                                <PGNForm onSubmit={onImport} loading={loading} />
+                            </ImportTabPanel>
+                            <ImportTabPanel source={ImportSource.StartingPosition}>
+                                <StartingPositionForm
+                                    onSubmit={onImport}
+                                    loading={loading}
+                                />
+                            </ImportTabPanel>
+                        </TabContext>
                     </Box>
                 </Stack>
             </Container>
