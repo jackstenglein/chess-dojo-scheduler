@@ -24,6 +24,7 @@ export const cohortIcons: Record<string, string> = {
     '2100-2200': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2100-2200.png',
     '2200-2300': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2200-2300.png',
     '2300-2400': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
+    '2400+': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
 };
 
 const Tooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -38,9 +39,15 @@ interface GraduationIconProps {
     cohort?: string;
     size?: number;
     sx?: React.CSSProperties;
+    tooltip?: string;
 }
 
-const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40, sx }) => {
+const GraduationIcon: React.FC<GraduationIconProps> = ({
+    cohort,
+    size = 40,
+    sx,
+    tooltip,
+}) => {
     if (!cohort) {
         return null;
     }
@@ -51,7 +58,7 @@ const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40, sx }
     }
 
     return (
-        <Tooltip title={`Graduated from ${cohort}`}>
+        <Tooltip title={tooltip !== undefined ? tooltip : `Graduated from ${cohort}`}>
             <img
                 data-cy='graduation-icon'
                 src={url}
@@ -62,7 +69,10 @@ const GraduationIcon: React.FC<GraduationIconProps> = ({ cohort, size = 40, sx }
                     ...sx,
 
                     ...(cohort === '2300-2400'
-                        ? { filter: `drop-shadow(0px 0px ${size / 8}px #fedf53)` }
+                        ? { filter: `drop-shadow(0px 0px ${size / 8}px silver)` }
+                        : {}),
+                    ...(cohort === '2400+'
+                        ? { filter: `drop-shadow(0px 0px ${size / 8}px #fedf53` }
                         : {}),
                 }}
             />

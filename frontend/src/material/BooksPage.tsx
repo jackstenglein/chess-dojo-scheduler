@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 import { Book as BookModel, BookSection, sections } from './books';
 
 function getDisplayTitle(b: BookModel) {
@@ -118,7 +119,22 @@ const BooksPage = () => {
                                         height: 1,
                                     }}
                                 >
-                                    <CardHeader title={cohort} />
+                                    <CardHeader
+                                        title={
+                                            <>
+                                                <GraduationIcon
+                                                    cohort={cohort}
+                                                    sx={{
+                                                        marginRight: '0.6em',
+                                                        verticalAlign: 'middle',
+                                                    }}
+                                                    tooltip=''
+                                                />{' '}
+                                                {cohort}
+                                            </>
+                                        }
+                                    />
+
                                     <CardContent>
                                         <Stack spacing={3}>
                                             {sections.map((s) => (

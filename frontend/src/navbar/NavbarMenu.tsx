@@ -27,6 +27,11 @@ import {
     Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import GroupIcon from '@mui/icons-material/Group';
+import LanguageIcon from '@mui/icons-material/Language';
+import SearchIcon from '@mui/icons-material/Search';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import {
     Badge,
     Button,
@@ -100,7 +105,34 @@ function allStartItems(
         {
             name: 'Scoreboard',
             icon: <Scoreboard />,
-            onClick: () => navigate('/scoreboard'),
+            onClick: () => toggleExpansion('Scoreboard'),
+            children: [
+                {
+                    name: 'My Cohort',
+                    icon: <GroupIcon />,
+                    onClick: () => navigate('/scoreboard'),
+                },
+                {
+                    name: 'Full Dojo',
+                    icon: <LanguageIcon />,
+                    onClick: () => navigate('scoreboard/dojo'),
+                },
+                {
+                    name: 'Followers',
+                    icon: <ThumbUpIcon />,
+                    onClick: () => navigate('scoreboard/following'),
+                },
+                {
+                    name: 'Search Users',
+                    icon: <SearchIcon />,
+                    onClick: () => navigate('scoreboard/search'),
+                },
+                {
+                    name: 'Statistics',
+                    icon: <AutoGraphIcon />,
+                    onClick: () => navigate('scoreboard/stats'),
+                },
+            ],
         },
         {
             name: 'Tournaments',
