@@ -47,7 +47,7 @@ export type GameApiContextType = {
     updateGame: (
         cohort: string,
         id: string,
-        req: CreateGameRequest,
+        req: UpdateGameRequest,
     ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
 
     /**
@@ -203,15 +203,20 @@ export enum GameSubmissionType {
 export interface RemoteGame {
     url?: string;
     pgnText?: string;
-    headers?: GameHeader[];
-    type: GameSubmissionType;
+    type?: GameSubmissionType;
 }
 
 export type BoardOrientation = 'white' | 'black';
 
 export type CreateGameRequest = {
+    orientation: BoardOrientation;
+} & RemoteGame;
+
+export type UpdateGameRequest = {
     timelineId?: string;
     orientation: BoardOrientation;
+    unlisted?: boolean;
+    headers?: GameHeader[];
 } & RemoteGame;
 
 export interface GameHeader {
@@ -298,7 +303,7 @@ export function updateGame(
     idToken: string,
     cohort: string,
     id: string,
-    req: CreateGameRequest,
+    req: UpdateGameRequest,
 ) {
     cohort = encodeURIComponent(cohort);
     // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded

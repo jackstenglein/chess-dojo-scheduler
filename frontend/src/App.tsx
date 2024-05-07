@@ -177,7 +177,6 @@ const router = createBrowserRouter(
                     <Route path='games'>
                         <Route index element={<ListGamesPage />} />
                         <Route path='import' element={<ImportGamePage />} />
-                        <Route path='submit' element={<EditGamePage />} />
                         <Route path='explorer' element={<ExplorerPage />} />
                         <Route path=':cohort/:id'>
                             <Route path='edit' element={<EditGamePage />} />

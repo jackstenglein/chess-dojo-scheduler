@@ -59,7 +59,7 @@ interface FormError {
     result: string;
 }
 
-interface SubmitGamePreflightProps {
+interface PublishGamePreflightProps {
     open: boolean;
     onClose: () => void;
     initHeaders: GameHeader[];
@@ -67,7 +67,7 @@ interface SubmitGamePreflightProps {
     onSubmit: (headers: GameHeader[]) => void;
 }
 
-const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
+const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
     open,
     onClose,
     initHeaders,
@@ -129,12 +129,10 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
 
     return (
         <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
-            <DialogTitle></DialogTitle>
+            <DialogTitle>Almost done</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    {multiple
-                        ? 'Some of your PGNs are missing data. Please fill out the following fields to finish creating your games.'
-                        : 'Your PGN is missing data. Please fill out the following fields to finish creating your game.'}
+                    More data is needed to publish your game.
                 </DialogContentText>
 
                 <Stack spacing={3} mt={3}>
@@ -238,4 +236,4 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
     );
 };
 
-export default SubmitGamePreflight;
+export default PublishGamePreflight;
