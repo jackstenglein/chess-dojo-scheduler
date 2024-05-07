@@ -490,7 +490,6 @@ const ProfileEditorPage = () => {
                                     href='#user-interface'
                                     onClick={scrollToId('user-interface')}
                                 >
-                                    {' '}
                                     <SettingsSuggestIcon
                                         fontSize='small'
                                         style={{
@@ -504,7 +503,6 @@ const ProfileEditorPage = () => {
                                     href='#subscription'
                                     onClick={scrollToId('subscription')}
                                 >
-                                    {' '}
                                     <MonetizationOnIcon
                                         fontSize='small'
                                         style={{

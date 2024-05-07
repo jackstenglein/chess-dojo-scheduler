@@ -53,7 +53,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
 
             {isFreeTier ? (
                 <>
-                    <Typography> Subscription Status: Free Tier</Typography>
+                    <Typography>Subscription Status: Free Tier</Typography>
                     <Button variant='contained' onClick={() => navigate('/prices')}>
                         View Prices
                     </Button>

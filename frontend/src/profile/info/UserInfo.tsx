@@ -46,7 +46,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, linkUsername }) => {
                                 .sort(compareCohorts)
                                 .filter((c, i) => user.graduationCohorts.indexOf(c) === i)
                                 .map((c) => (
-                                    <GraduationIcon key={c} cohort={c} title={`Graduated from ${c}`}/>
+                                    <GraduationIcon key={c} cohort={c} />
                                 ))}
                         </Stack>
                     ) : (
