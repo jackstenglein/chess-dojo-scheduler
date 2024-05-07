@@ -4,6 +4,7 @@ import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { Amplify, Hub } from 'aws-amplify';
 import { useEffect } from 'react';
 import {
+    Navigate,
     Outlet,
     Route,
     RouterProvider,
@@ -202,11 +203,9 @@ const router = createBrowserRouter(
 
                     <Route path='material'>
                         <Route index element={<MaterialPage />} />
-                        <Route path='books' element={<BooksPage />} />
                         <Route path='sparring' element={<SparringPage />} />
                         <Route path='modelgames' element={<ModelGamesPage />} />
                         <Route path='memorizegames' element={<MemorizeGamesPage />} />
-                        <Route path='ratings' element={<RatingConversionsPage />} />
                     </Route>
 
                     <Route path='notifications' element={<NotificationPage />} />
@@ -224,11 +223,24 @@ const router = createBrowserRouter(
             </Route>
 
             {/* Unauthenticated */}
+
             <Route path='games'>
                 <Route path=':cohort/:id'>
                     <Route index element={<GamePage />} />
                 </Route>
             </Route>
+
+            <Route path='material'>
+                <Route path='books' element={<BooksPage />} />
+                <Route path='ratings' element={<RatingConversionsPage />} />
+            </Route>
+
+            {/* Legacy routes from Wix */}
+            <Route path='books-by-rating' element={<BooksPage />} />
+            <Route path='recommendations' element={<BooksPage />} />
+            <Route path='training' element={<Navigate to='/' replace />} />
+            <Route path='home' element={<Navigate to='/' replace />} />
+            <Route path='plans-pricing' element={<PricingPage />} />
 
             <Route path='*' element={<NotFoundPage />} />
         </Route>,

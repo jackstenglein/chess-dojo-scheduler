@@ -32,6 +32,7 @@ describe('Navbar', () => {
         cy.visit('/');
 
         cy.getBySel('navbar').contains('Tournaments');
+        cy.getBySel('navbar').contains('Material');
         cy.getBySel('navbar').contains('Shop');
         cy.getBySel('navbar').contains('Contact Us');
         cy.getBySel('navbar').contains('Sign In');
@@ -43,6 +44,7 @@ describe('Navbar', () => {
 
         cy.getBySel('navbar-more-button').click();
         cy.get('#menu-appbar').contains('Tournaments');
+        cy.get('#menu-appbar').contains('Material');
         cy.get('#menu-appbar').contains('Shop');
         cy.get('#menu-appbar').contains('Sign In');
         cy.get('#menu-appbar').contains('Sign Up');

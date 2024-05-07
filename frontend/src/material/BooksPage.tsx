@@ -25,7 +25,7 @@ function getDisplayTitle(b: BookModel) {
 const Book: React.FC<{ book: BookModel }> = ({ book }) => {
     if (book.link) {
         return (
-            <Link href={book.link} target='_blank' rel='noreferrer'>
+            <Link href={book.link} target='_blank' rel='noopener'>
                 {getDisplayTitle(book)}
             </Link>
         );

@@ -3,14 +3,14 @@ describe('Statistics Page', () => {
         cy.loginByCognitoApi(
             'scoreboard',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
         cy.visit('/scoreboard/stats');
     });
 
     it('has selector to change views', () => {
         cy.getBySel('scoreboard-view-selector').click();
-        cy.contains('User Search').click();
+        cy.contains('Search Users').click();
 
         cy.location('pathname').should('equal', '/scoreboard/search');
     });

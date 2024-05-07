@@ -26,6 +26,11 @@ export const sections: BookSection[] = [
                         author: 'Peter Giannatos',
                         link: 'https://amzn.to/3ZQSRVa',
                     },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
                 ],
             },
             {
@@ -35,6 +40,11 @@ export const sections: BookSection[] = [
                         title: "Everyone's First Chess Workbook through Exercise 218 (end of Skewer chapter)",
                         author: 'Peter Giannatos',
                         link: 'https://amzn.to/3ZQSRVa',
+                    },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                 ],
             },
@@ -46,6 +56,11 @@ export const sections: BookSection[] = [
                         author: 'Peter Giannatos',
                         link: 'https://amzn.to/3ZQSRVa',
                     },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
                 ],
             },
             {
@@ -55,6 +70,11 @@ export const sections: BookSection[] = [
                         title: "Everyone's First Chess Workbook Parts 1-2",
                         author: 'Peter Giannatos',
                         link: 'https://amzn.to/3ZQSRVa',
+                    },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                 ],
             },
@@ -66,6 +86,11 @@ export const sections: BookSection[] = [
                         author: 'Peter Giannatos',
                         link: 'https://amzn.to/3ZQSRVa',
                     },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
                 ],
             },
             {
@@ -76,6 +101,11 @@ export const sections: BookSection[] = [
                         author: 'Murray Chandler',
                         link: 'https://amzn.to/3UFp7Le',
                     },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
                 ],
             },
             {
@@ -85,6 +115,16 @@ export const sections: BookSection[] = [
                         title: 'How to Beat Your Dad at Chess',
                         author: 'Murray Chandler',
                         link: 'https://amzn.to/44lLZlX',
+                    },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: "It's About Time",
+                        author: 'Jesse Kraai',
+                        link: 'https://www.chessable.com/its-about-time-a-beginners-guide-to-time-in-chess/course/194972/',
                     },
                 ],
             },
@@ -100,6 +140,11 @@ export const sections: BookSection[] = [
                         title: 'First Book of Morphy',
                         author: 'Frisco Del Rosario',
                         link: 'https://amzn.to/3mpoG8X',
+                    },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                 ],
             },
@@ -456,126 +501,6 @@ export const sections: BookSection[] = [
         title: 'Tactics',
         cohorts: [
             {
-                cohort: '0-300',
-                books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook Part 1",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
-                    },
-                ],
-            },
-            {
-                cohort: '300-400',
-                books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook through Exercise 218 (end of Skewer chapter)",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
-                    },
-                ],
-            },
-            {
-                cohort: '400-500',
-                books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook through Exercise 323 (end of Decoy chapter)",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
-                    },
-                ],
-            },
-            {
-                cohort: '500-600',
-                books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook Parts 1-2",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
-                    },
-                ],
-            },
-            {
-                cohort: '600-700',
-                books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
-                    },
-                ],
-            },
-            {
-                cohort: '700-800',
-                books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Chess Tactics for Kids',
-                        author: 'Murray Chandler',
-                        link: 'https://amzn.to/3UFp7Le',
-                    },
-                ],
-            },
-            {
-                cohort: '800-900',
-                books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'How to Beat Your Dad at Chess',
-                        author: 'Murray Chandler',
-                        link: 'https://amzn.to/44lLZlX',
-                    },
-                ],
-            },
-            {
-                cohort: '900-1000',
-                books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Learn Chess the Right Way: Book 3',
-                        author: 'Susan Polgar',
-                        link: 'https://amzn.to/49WWVYt',
-                    },
-                ],
-            },
-            {
                 cohort: '1000-1100',
                 books: [
                     {
@@ -628,6 +553,11 @@ export const sections: BookSection[] = [
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
                     },
+                    {
+                        title: 'Common Chess Patterns',
+                        author: 'Benedictine',
+                        link: 'https://www.chessable.com/common-chess-patterns/course/13348/',
+                    },
                 ],
             },
             {
@@ -673,6 +603,11 @@ export const sections: BookSection[] = [
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
                     },
+                    {
+                        title: 'Checkmate Patterns Manual',
+                        author: 'CraftyRaf',
+                        link: 'https://www.chessable.com/the-checkmate-patterns-manual/course/17841/',
+                    },
                 ],
             },
             {
@@ -688,6 +623,11 @@ export const sections: BookSection[] = [
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
                     },
+                    {
+                        title: 'Endgame Studies 101',
+                        author: 'Kostya Kavutskiy',
+                        link: 'https://www.chessable.com/endgame-studies-101/course/81472/',
+                    },
                 ],
             },
             {
@@ -697,6 +637,11 @@ export const sections: BookSection[] = [
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Endgame Studies 101',
+                        author: 'Kostya Kavutskiy',
+                        link: 'https://www.chessable.com/endgame-studies-101/course/81472/',
                     },
                     {
                         title: 'Woodpecker Method',
