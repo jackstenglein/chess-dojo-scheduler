@@ -6,7 +6,6 @@ import {
     ChevronRight,
     ExpandLess,
     ExpandMore,
-    Extension,
     Feed,
     Forum,
     Groups,
@@ -24,6 +23,7 @@ import {
     Scoreboard,
     Sell,
     SignalCellularAlt,
+    Speed,
     Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
@@ -57,8 +57,7 @@ import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
 } from './UnauthenticatedMenu';
-import IconComponent from '../profile/progress/IconComponent';
-import { Speed } from '@mui/icons-material';
+
 export const Logo = () => {
     const navigate = useNavigate();
     return (
@@ -174,7 +173,7 @@ function allStartItems(
                 },
                 {
                     name: 'Tactics Tests',
-                    icon: <Speed /> ,
+                    icon: <Speed />,
                     onClick: () => navigate('/tactics'),
                 },
                 {

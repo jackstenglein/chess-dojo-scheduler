@@ -1,9 +1,8 @@
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-
 import { useApi } from '../../api/Api';
-import { formatTime, ScoreboardDisplay } from '../../database/requirement';
-import { TimelineEntry } from '../../database/timeline';
+import { ScoreboardDisplay, formatTime } from '../../database/requirement';
+import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 import CommentEditor from './CommentEditor';
 import CommentList from './CommentList';
@@ -11,7 +10,7 @@ import GameNewsfeedItem from './GameNewsfeedItem';
 import GraduationNewsfeedItem from './GraduationNewsfeedItem';
 import NewsfeedItemHeader from './NewsfeedItemHeader';
 import ReactionList from './ReactionList';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+
 interface NewsfeedItemProps {
     entry: TimelineEntry;
     onEdit: (entry: TimelineEntry) => void;
@@ -54,10 +53,10 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments 
 };
 
 const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }) => {
-    if (entry.requirementId === 'Graduation') {
+    if (entry.requirementId === TimelineSpecialRequirementId.Graduation) {
         return <GraduationNewsfeedItem entry={entry} />;
     }
-    if (entry.requirementId === 'GameSubmission') {
+    if (entry.requirementId === TimelineSpecialRequirementId.GameSubmission) {
         return <GameNewsfeedItem entry={entry} />;
     }
 
@@ -72,11 +71,8 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
             <Typography>
                 {isComplete ? 'Completed' : 'Updated'}{' '}
                 <strong>{entry.requirementName}</strong>
-                
             </Typography>
-            
-            
-            
+
             {(entry.dojoPoints > 0 || entry.totalDojoPoints > 0) && (
                 <Stack direction='row' spacing={1}>
                     <Typography component='span' color='text.secondary'>

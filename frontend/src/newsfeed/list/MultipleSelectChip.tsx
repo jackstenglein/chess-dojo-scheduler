@@ -6,9 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import IconComponent from '../../profile/progress/IconComponent';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -29,10 +27,16 @@ function getStyles(value: string, selected: readonly string[], theme: Theme) {
     };
 }
 
+export interface MultipleSelectChipOption {
+    value: string;
+    label: string;
+    icon?: JSX.Element;
+}
+
 interface MultipleSelectChipProps {
     selected: string[];
     setSelected: (v: string[]) => void;
-    options: Record<string, string>;
+    options: MultipleSelectChipOption[];
     label: string;
     size?: 'small' | 'medium';
     sx?: SxProps;
@@ -73,16 +77,24 @@ export default function MultipleSelectChip({
                 renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {selected.map((value) => (
-                            <Chip key={value} label={options[value]} size={size} />
+                            <Chip
+                                key={value}
+                                label={options.find((o) => o.value === value)?.label}
+                                size={size}
+                            />
                         ))}
                     </Box>
                 )}
                 MenuProps={MenuProps}
             >
-                {Object.entries(options).map(([v, l]) => (
-                    <MenuItem key={v} value={v} style={getStyles(v, selected, theme)}>
-                        {/* we take advantage of null values and render the icon or a cohort icon only if label matches the mapping otherwise they disappear! */}
-                          <IconComponent iconName={l}/>  <GraduationIcon cohort={l} size={25} sx={{marginRight: '0.6em', verticalAlign: 'middle', }} tooltip=''/>  {l} 
+                {options.map((option) => (
+                    <MenuItem
+                        key={option.value}
+                        value={option.value}
+                        style={getStyles(option.value, selected, theme)}
+                    >
+                        {option.icon}
+                        {option.label}
                     </MenuItem>
                 ))}
             </Select>

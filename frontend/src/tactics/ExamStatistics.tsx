@@ -1,3 +1,4 @@
+import { AllInclusive } from '@mui/icons-material';
 import { CardContent, Stack, Typography } from '@mui/material';
 import {
     ChartsClipPath,
@@ -22,6 +23,7 @@ import { useAuth } from '../auth/Auth';
 import { Exam } from '../database/exam';
 import { ALL_COHORTS, cohortColors, compareCohorts } from '../database/user';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
+import GraduationIcon from '../scoreboard/GraduationIcon';
 import { getRegression } from './list/ExamsTable';
 import { getTotalScore } from './tactics';
 
@@ -171,18 +173,27 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     label='Cohorts'
                     selected={cohorts}
                     setSelected={onChangeCohort}
-                    options={{
-                        [ALL_COHORTS]: 'All Cohorts',
-                        ...Object.keys(cohortToSeries)
-                            .sort(compareCohorts)
-                            .reduce(
-                                (acc, cohort) => {
-                                    acc[cohort] = cohort;
-                                    return acc;
-                                },
-                                {} as Record<string, string>,
+                    options={[
+                        ALL_COHORTS,
+                        ...Object.keys(cohortToSeries).sort(compareCohorts),
+                    ].map((opt) => ({
+                        value: opt,
+                        label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
+                        icon:
+                            opt === ALL_COHORTS ? (
+                                <AllInclusive
+                                    color='primary'
+                                    sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                                />
+                            ) : (
+                                <GraduationIcon
+                                    cohort={opt}
+                                    size={25}
+                                    sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                                    tooltip=''
+                                />
                             ),
-                    }}
+                    }))}
                     error={cohorts.length === 0}
                 />
 

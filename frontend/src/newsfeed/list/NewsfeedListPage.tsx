@@ -1,3 +1,4 @@
+import { Groups } from '@mui/icons-material';
 import {
     Container,
     Divider,
@@ -10,28 +11,50 @@ import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useClubs } from '../../api/cache/clubs';
 import { useAuth } from '../../auth/Auth';
+import GraduationIcon from '../../scoreboard/GraduationIcon';
+import { icons } from '../../style/icons';
 import NewsfeedList from './NewsfeedList';
 
 const NewsfeedListPage = () => {
     const user = useAuth().user!;
     const { clubs } = useClubs(user.clubs || []);
-    
 
-    const [newsfeedIds, newsfeedIdLabels] = useMemo(() => {
+    const [newsfeedIds, newsfeedIdOptions] = useMemo(() => {
         let newsfeedIds = ['following', user.dojoCohort];
         newsfeedIds = newsfeedIds.concat(clubs.map((c) => c.id));
 
-        const newsfeedIdLabels = clubs.reduce(
-            (map, club) => {
-                map[club.id] = club.name;
-                return map;
+        const FollowersIcon = icons['Followers'];
+        const newsfeedIdOptions = [
+            {
+                value: 'following',
+                label: 'Followers',
+                icon: (
+                    <FollowersIcon
+                        sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                    />
+                ),
             },
-            {} as Record<string, string>,
+            {
+                value: user.dojoCohort,
+                label: 'My Cohort',
+                icon: (
+                    <GraduationIcon
+                        cohort={user.dojoCohort}
+                        size={25}
+                        tooltip=''
+                        sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                    />
+                ),
+            },
+        ].concat(
+            clubs.map((club) => ({
+                value: club.id,
+                label: club.name,
+                icon: <Groups sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />,
+            })),
         );
-        newsfeedIdLabels['following'] = 'Followers';
-        newsfeedIdLabels[user.dojoCohort] = 'My Cohort';
 
-        return [newsfeedIds, newsfeedIdLabels];
+        return [newsfeedIds, newsfeedIdOptions];
     }, [clubs, user.dojoCohort]);
 
     return (
@@ -43,7 +66,7 @@ const NewsfeedListPage = () => {
 
                         <NewsfeedList
                             initialNewsfeedIds={newsfeedIds}
-                            newsfeedIdLabels={newsfeedIdLabels}
+                            newsfeedIdOptions={newsfeedIdOptions}
                             showAdditionalFilters={true}
                         />
                     </Stack>

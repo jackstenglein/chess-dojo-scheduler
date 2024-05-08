@@ -97,13 +97,18 @@ const BooksPage = () => {
                     data-cy='cohort-selector'
                     selected={cohorts}
                     setSelected={onChangeCohort}
-                    options={[ALL_COHORTS, ...dojoCohorts].reduce(
-                        (acc, curr) => {
-                            acc[curr] = curr === ALL_COHORTS ? 'All Cohorts' : curr;
-                            return acc;
-                        },
-                        {} as Record<string, string>,
-                    )}
+                    options={[ALL_COHORTS, ...dojoCohorts].map((opt) => ({
+                        value: opt,
+                        label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
+                        icon: (
+                            <GraduationIcon
+                                cohort={opt}
+                                size={25}
+                                sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                                tooltip=''
+                            />
+                        ),
+                    }))}
                     label='Cohorts'
                     sx={{ mb: 3, width: 1 }}
                     size='small'

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, compareCohorts, User } from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
+import GraduationIcon from '../../scoreboard/GraduationIcon';
 import {
     displayTimeframe,
     getScoreChartData,
@@ -66,17 +67,30 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
     const [timeChartCategory, setTimeChartCategory] = useState('');
 
     const cohortOptions = useMemo(() => {
-        if (!user.progress) {
-            return [ALL_COHORTS, user.dojoCohort];
+        let cohortOptions = [ALL_COHORTS, user.dojoCohort];
+
+        if (user.progress) {
+            cohortOptions = [ALL_COHORTS].concat(
+                Object.values(user.progress)
+                    .map((v) => Object.keys(v.minutesSpent ?? {}))
+                    .flat()
+                    .concat(user.dojoCohort)
+                    .sort(compareCohorts)
+                    .filter((item, pos, ary) => !pos || item !== ary[pos - 1]),
+            );
         }
-        return [ALL_COHORTS].concat(
-            Object.values(user.progress)
-                .map((v) => Object.keys(v.minutesSpent ?? {}))
-                .flat()
-                .concat(user.dojoCohort)
-                .sort(compareCohorts)
-                .filter((item, pos, ary) => !pos || item !== ary[pos - 1]),
-        );
+        return cohortOptions.map((opt) => ({
+            value: opt,
+            label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
+            icon: (
+                <GraduationIcon
+                    cohort={opt}
+                    size={25}
+                    sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                    tooltip=''
+                />
+            ),
+        }));
     }, [user.progress, user.dojoCohort]);
 
     const scoreChartData = useMemo(() => {
@@ -140,13 +154,7 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
                 <MultipleSelectChip
                     selected={cohorts}
                     setSelected={onChangeCohort}
-                    options={cohortOptions.reduce(
-                        (acc, curr) => {
-                            acc[curr] = curr === ALL_COHORTS ? 'All Cohorts' : curr;
-                            return acc;
-                        },
-                        {} as Record<string, string>,
-                    )}
+                    options={cohortOptions}
                     label='Cohorts'
                     sx={{ mb: 3, width: 1 }}
                     size='small'

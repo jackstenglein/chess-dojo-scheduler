@@ -1,5 +1,10 @@
 import { Comment } from './game';
-import { ScoreboardDisplay } from './requirement';
+import { RequirementCategory, ScoreboardDisplay } from './requirement';
+
+export enum TimelineSpecialRequirementId {
+    GameSubmission = 'GameSubmission',
+    Graduation = 'Graduation',
+}
 
 export interface TimelineEntry {
     owner: string;
@@ -7,7 +12,7 @@ export interface TimelineEntry {
     id: string;
     requirementId: string;
     requirementName: string;
-    requirementCategory: string;
+    requirementCategory: RequirementCategory;
     cohort: string;
     totalCount: number;
     previousCount: number;

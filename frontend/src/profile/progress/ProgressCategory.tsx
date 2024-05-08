@@ -12,36 +12,16 @@ import { useMemo } from 'react';
 import { useFreeTier } from '../../auth/Auth';
 import { CustomTask, Requirement } from '../../database/requirement';
 import { User } from '../../database/user';
+import { icons } from '../../style/icons';
 import { useTutorial } from '../../tutorial/TutorialContext';
 import { TutorialName } from '../../tutorial/tutorialNames';
 import ProgressItem from './ProgressItem';
-import WavingHandIcon from '@mui/icons-material/WavingHand';
-import BiotechIcon from '@mui/icons-material/Biotech';
-import ExtensionIcon from '@mui/icons-material/Extension';
-import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
-import SportsScoreIcon from '@mui/icons-material/SportsScore';
-import PawnIcon from '../../navbar/PawnIcon';
-import IconComponent from './IconComponent';
-import StyleIcon from '@mui/icons-material/Style';
-
-import { OverridableComponent } from '@mui/material/OverridableComponent';
 
 export interface Category {
     name: string;
     requirements: Array<Requirement | CustomTask>;
     totalComplete: number;
-    
 }
-
-// export const IconMap : Record<string, OverridableComponent<SvgIconTypeMap<{}, "svg">>> = {
-//     'Welcome to the Dojo': WavingHandIcon,
-//     'Games + Analysis': BiotechIcon,
-//     'Tactics': ExtensionIcon,
-//     'Middlegames + Strategy': CrisisAlertIcon,
-//     'Endgame': SportsScoreIcon,
-//     'Opening': StyleIcon,
-//     'Non-Dojo': StyleIcon,
-// }
 
 interface ProgressCategoryProps {
     c: Category;
@@ -83,6 +63,8 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
         return c.requirements.filter((r) => !r.isFree).length;
     }, [c.requirements, isFreeTier]);
 
+    const Icon = icons[c.name];
+
     return (
         <Accordion
             key={c.name}
@@ -99,14 +81,16 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                     direction='row'
                     justifyContent='space-between'
                     sx={{ width: 1, mr: 2 }}
-                >   
-                    <Typography fontWeight='bold'>  <> 
-                    
-                    <IconComponent iconName={c.name} /> 
-
-                    {c.name}
-                    
-                    </></Typography>
+                >
+                    <Typography fontWeight='bold'>
+                        {Icon && (
+                            <Icon
+                                color='primary'
+                                sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                            />
+                        )}
+                        {c.name}
+                    </Typography>
                     {c.name === 'Non-Dojo' ? (
                         <Typography color='text.secondary'>
                             {c.requirements.length} Activities

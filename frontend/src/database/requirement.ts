@@ -23,7 +23,7 @@ export interface CustomTask {
         [cohort: string]: number;
     };
     scoreboardDisplay: ScoreboardDisplay;
-    category: string;
+    category: RequirementCategory;
     updatedAt: string;
     isFree?: boolean;
 }
@@ -36,10 +36,21 @@ export interface Position {
     result: string;
 }
 
+export enum RequirementCategory {
+    Welcome = 'Welcome to the Dojo',
+    Games = 'Games + Analysis',
+    Tactics = 'Tactics',
+    Middlegames = 'Middlegames + Strategy',
+    Endgame = 'Endgame',
+    Opening = 'Opening',
+    Graduation = 'Graduation',
+    NonDojo = 'Non-Dojo',
+}
+
 export interface Requirement {
     id: string;
     status: RequirementStatus;
-    category: string;
+    category: RequirementCategory;
     name: string;
     description: string;
     freeDescription: string;

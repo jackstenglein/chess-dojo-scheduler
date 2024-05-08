@@ -3,9 +3,10 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import { useAuth } from '../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
-import { TimelineEntry } from '../../database/timeline';
-import { CategoryColors } from '../../profile/activity/activity';
+import { RequirementCategory } from '../../database/requirement';
+import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
 import Avatar from '../../profile/Avatar';
+import { CategoryColors } from '../../profile/activity/activity';
 import GraduationIcon from '../../scoreboard/GraduationIcon';
 
 interface NewsfeedItemHeaderProps {
@@ -28,6 +29,11 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
         minute: '2-digit',
     });
 
+    const category =
+        entry.requirementId === TimelineSpecialRequirementId.GameSubmission
+            ? RequirementCategory.Games
+            : entry.requirementCategory;
+
     return (
         <Stack
             direction='row'
@@ -37,29 +43,33 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
             flexWrap='wrap'
             rowGap={1}
         >
-            <Stack direction='row' spacing={2} alignItems='center'>          
+            <Stack direction='row' spacing={2} alignItems='center'>
                 <Avatar
                     username={entry.owner}
                     displayName={entry.ownerDisplayName}
                     size={60}
                 />
-                
+
                 <Stack>
                     <Typography>
-                    
                         <Link component={RouterLink} to={`/profile/${entry.owner}`}>
-                            {entry.ownerDisplayName} 
+                            {entry.ownerDisplayName}
                         </Link>
-                        <GraduationIcon cohort={entry.cohort} size={25} sx={{
-                                                        marginLeft: '0.6em',
-                                                        verticalAlign: 'middle',
-                                                    }} /> 
+                        <GraduationIcon
+                            cohort={entry.graduationInfo?.newCohort || entry.cohort}
+                            size={25}
+                            sx={{
+                                marginLeft: '0.6em',
+                                verticalAlign: 'middle',
+                            }}
+                            tooltip={`Member of the ${entry.graduationInfo?.newCohort || entry.cohort} cohort`}
+                        />
                     </Typography>
+
                     <Typography variant='body2' color='text.secondary'>
                         {date} at {time}
                     </Typography>
                 </Stack>
-                
             </Stack>
 
             {entry.requirementId === 'Graduation' ? (
@@ -68,11 +78,9 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
                 </Box>
             ) : (
                 <Stack direction='row' spacing={1} alignItems='center'>
-                    <Stack alignItems={{ xs: 'start', sm: 'end' }}>
-                        <Typography
-                            sx={{ color: CategoryColors[entry.requirementCategory] }}
-                        >
-                            {entry.requirementCategory}
+                    <Stack alignItems='end'>
+                        <Typography sx={{ color: CategoryColors[category] }}>
+                            {category}
                         </Typography>
                         <Typography variant='body2' color='text.secondary'>
                             {entry.cohort}
