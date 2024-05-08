@@ -102,7 +102,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                 >   
                     <Typography fontWeight='bold'>  <> 
                     
-                    <IconComponent iconName={c.name}/> 
+                    <IconComponent iconName={c.name} /> 
 
                     {c.name}
                     

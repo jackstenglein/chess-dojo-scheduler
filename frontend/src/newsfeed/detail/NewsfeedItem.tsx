@@ -11,7 +11,7 @@ import GameNewsfeedItem from './GameNewsfeedItem';
 import GraduationNewsfeedItem from './GraduationNewsfeedItem';
 import NewsfeedItemHeader from './NewsfeedItemHeader';
 import ReactionList from './ReactionList';
-
+import GraduationIcon from '../../scoreboard/GraduationIcon';
 interface NewsfeedItemProps {
     entry: TimelineEntry;
     onEdit: (entry: TimelineEntry) => void;
@@ -72,8 +72,11 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
             <Typography>
                 {isComplete ? 'Completed' : 'Updated'}{' '}
                 <strong>{entry.requirementName}</strong>
+                
             </Typography>
-
+            
+            
+            
             {(entry.dojoPoints > 0 || entry.totalDojoPoints > 0) && (
                 <Stack direction='row' spacing={1}>
                     <Typography component='span' color='text.secondary'>

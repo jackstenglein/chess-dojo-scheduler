@@ -57,7 +57,8 @@ import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
 } from './UnauthenticatedMenu';
-
+import IconComponent from '../profile/progress/IconComponent';
+import { Speed } from '@mui/icons-material';
 export const Logo = () => {
     const navigate = useNavigate();
     return (
@@ -173,7 +174,7 @@ function allStartItems(
                 },
                 {
                     name: 'Tactics Tests',
-                    icon: <Extension />,
+                    icon: <Speed /> ,
                     onClick: () => navigate('/tactics'),
                 },
                 {

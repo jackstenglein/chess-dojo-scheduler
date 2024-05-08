@@ -37,24 +37,29 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
             flexWrap='wrap'
             rowGap={1}
         >
-            <Stack direction='row' spacing={2} alignItems='center'>
+            <Stack direction='row' spacing={2} alignItems='center'>          
                 <Avatar
                     username={entry.owner}
                     displayName={entry.ownerDisplayName}
                     size={60}
                 />
-
+                
                 <Stack>
                     <Typography>
+                    
                         <Link component={RouterLink} to={`/profile/${entry.owner}`}>
-                            {entry.ownerDisplayName}
+                            {entry.ownerDisplayName} 
                         </Link>
+                        <GraduationIcon cohort={entry.cohort} size={25} sx={{
+                                                        marginLeft: '0.6em',
+                                                        verticalAlign: 'middle',
+                                                    }} /> 
                     </Typography>
-
                     <Typography variant='body2' color='text.secondary'>
                         {date} at {time}
                     </Typography>
                 </Stack>
+                
             </Stack>
 
             {entry.requirementId === 'Graduation' ? (

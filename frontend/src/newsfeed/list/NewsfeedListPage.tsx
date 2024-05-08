@@ -15,6 +15,7 @@ import NewsfeedList from './NewsfeedList';
 const NewsfeedListPage = () => {
     const user = useAuth().user!;
     const { clubs } = useClubs(user.clubs || []);
+    
 
     const [newsfeedIds, newsfeedIdLabels] = useMemo(() => {
         let newsfeedIds = ['following', user.dojoCohort];
@@ -27,7 +28,7 @@ const NewsfeedListPage = () => {
             },
             {} as Record<string, string>,
         );
-        newsfeedIdLabels['following'] = 'People I Follow';
+        newsfeedIdLabels['following'] = 'Followers';
         newsfeedIdLabels[user.dojoCohort] = 'My Cohort';
 
         return [newsfeedIds, newsfeedIdLabels];

@@ -6,7 +6,9 @@ import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
-
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import IconComponent from '../../profile/progress/IconComponent';
+import GraduationIcon from '../../scoreboard/GraduationIcon';
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -79,7 +81,8 @@ export default function MultipleSelectChip({
             >
                 {Object.entries(options).map(([v, l]) => (
                     <MenuItem key={v} value={v} style={getStyles(v, selected, theme)}>
-                        {l}
+                        {/* we take advantage of null values and render the icon or a cohort icon only if label matches the mapping otherwise they disappear! */}
+                          <IconComponent iconName={l}/>  <GraduationIcon cohort={l} size={25} sx={{marginRight: '0.6em', verticalAlign: 'middle', }} tooltip=''/>  {l} 
                     </MenuItem>
                 ))}
             </Select>
