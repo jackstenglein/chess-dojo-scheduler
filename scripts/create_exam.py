@@ -20,8 +20,10 @@ parser.add_argument('-n', '--name', type=str, help='The name of the exam', requi
 parser.add_argument('-t', '--type', type=str, help='The type of the exam', required=True, choices=VALID_TYPES)
 parser.add_argument('-c', '--cohorts', type=str, help='The cohort range of the exam', required=True)
 parser.add_argument('-l', '--limit', type=int, help='The time limit in minutes of the exam', required=True)
+parser.add_argument('--id', type=str, help='Whether to use an already existing id')
 parser.add_argument('--takebacks', action=argparse.BooleanOptionalAction, help='Whether takebacks are enabled or not', required=True)
 parser.add_argument('--keep-event', action=argparse.BooleanOptionalAction, help='Whether to preserve the event header or not')
+parser.add_argument('--pgn-only', action=argparse.BooleanOptionalAction, help='If passed, only dump the pgns field')
 
 
 def main():
@@ -33,7 +35,7 @@ def main():
 
     exam = {
         'type': args.type,
-        'id': str(uuid.uuid4()),
+        'id': args.id if args.id else str(uuid.uuid4()),
         'answers': {},
         'cohortRange': args.cohorts,
         'name': args.name,
@@ -62,7 +64,7 @@ def main():
 
 
     with open('out.json', 'w') as outfile:
-        outfile.write(json.dumps(exam))
+        outfile.write(json.dumps(exam['pgns']) if args.pgn_only else json.dumps(exam))
 
 
 if __name__ == '__main__':
