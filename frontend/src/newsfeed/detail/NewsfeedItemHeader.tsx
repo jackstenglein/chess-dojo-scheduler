@@ -57,7 +57,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
                         <CohortIcon
                             cohort={entry.graduationInfo?.newCohort || entry.cohort}
                             size={25}
-                            sx={{ marginLeft: '0.6em', verticalAlign: 'middle' }}
+                            sx={{ marginLeft: '0.6rem', verticalAlign: 'middle' }}
                             tooltip={`Member of the ${entry.graduationInfo?.newCohort || entry.cohort} cohort`}
                         />
                     </Typography>

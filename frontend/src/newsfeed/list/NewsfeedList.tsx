@@ -6,7 +6,7 @@ import { ListNewsfeedResponse } from '../../api/newsfeedApi';
 import { RequirementCategory } from '../../database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
 import LoadingPage from '../../loading/LoadingPage';
-import { icons } from '../../style/icons';
+import Icon from '../../style/Icon';
 import NewsfeedItem from '../detail/NewsfeedItem';
 import LoadMoreButton from './LoadMoreButton';
 import MultipleSelectChip, { MultipleSelectChipOption } from './MultipleSelectChip';
@@ -46,19 +46,10 @@ const Filters: FilterMap = {
     ...CategoryFilters,
 };
 const FilterOptions = Object.keys(Filters).map((opt) => {
-    const Icon = icons[opt];
     return {
         value: opt,
         label: opt,
-        icon: Icon ? (
-            <Icon
-                color='primary'
-                sx={{
-                    marginRight: '0.6em',
-                    verticalAlign: 'middle',
-                }}
-            />
-        ) : undefined,
+        icon: <Icon name={opt} color='primary' />,
     };
 });
 

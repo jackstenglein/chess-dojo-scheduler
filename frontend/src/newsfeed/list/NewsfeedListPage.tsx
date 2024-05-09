@@ -1,4 +1,3 @@
-import { Groups } from '@mui/icons-material';
 import {
     Container,
     Divider,
@@ -12,7 +11,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useClubs } from '../../api/cache/clubs';
 import { useAuth } from '../../auth/Auth';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import { icons } from '../../style/icons';
+import Icon from '../../style/Icon';
 import NewsfeedList from './NewsfeedList';
 
 const NewsfeedListPage = () => {
@@ -23,30 +22,22 @@ const NewsfeedListPage = () => {
         let newsfeedIds = ['following', user.dojoCohort];
         newsfeedIds = newsfeedIds.concat(clubs.map((c) => c.id));
 
-        const FollowersIcon = icons['Followers'];
         const newsfeedIdOptions = [
             {
                 value: 'following',
                 label: 'Followers',
-                icon: <FollowersIcon color='primary' sx={{ marginRight: '0.6rem' }} />,
+                icon: <Icon name='followers' color='primary' />,
             },
             {
                 value: user.dojoCohort,
                 label: 'My Cohort',
-                icon: (
-                    <CohortIcon
-                        cohort={user.dojoCohort}
-                        size={25}
-                        tooltip=''
-                        sx={{ marginRight: '0.6rem' }}
-                    />
-                ),
+                icon: <CohortIcon cohort={user.dojoCohort} size={25} tooltip='' />,
             },
         ].concat(
             clubs.map((club) => ({
                 value: club.id,
                 label: club.name,
-                icon: <Groups color='primary' sx={{ marginRight: '0.6em' }} />,
+                icon: <Icon name='clubs' color='primary' />,
             })),
         );
 

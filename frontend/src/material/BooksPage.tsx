@@ -132,7 +132,7 @@ const BooksPage = () => {
                                                 <CohortIcon
                                                     cohort={cohort}
                                                     sx={{
-                                                        marginRight: '0.6em',
+                                                        marginRight: '0.6rem',
                                                         verticalAlign: 'middle',
                                                     }}
                                                     tooltip=''

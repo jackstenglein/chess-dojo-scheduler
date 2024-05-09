@@ -1,3 +1,4 @@
+import { ListItemIcon, ListItemText } from '@mui/material';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
@@ -93,8 +94,8 @@ export default function MultipleSelectChip({
                         value={option.value}
                         style={getStyles(option.value, selected, theme)}
                     >
-                        {option.icon}
-                        {option.label}
+                        <ListItemIcon>{option.icon}</ListItemIcon>
+                        <ListItemText>{option.label}</ListItemText>
                     </MenuItem>
                 ))}
             </Select>

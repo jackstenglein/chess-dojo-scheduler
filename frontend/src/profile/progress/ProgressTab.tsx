@@ -156,7 +156,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     <MenuItem key={option} value={option}>
                         <CohortIcon
                             cohort={option}
-                            sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                            sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
                             tooltip=''
                         />{' '}
                         {option}

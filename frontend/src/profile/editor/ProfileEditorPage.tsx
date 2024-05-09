@@ -456,7 +456,7 @@ const ProfileEditorPage = () => {
                                 <Link href='#personal' onClick={scrollToId('personal')}>
                                     <InfoIcon
                                         fontSize='small'
-                                        style={{
+                                        sx={{
                                             verticalAlign: 'middle',
                                             marginRight: '0.2em',
                                         }}
@@ -466,7 +466,7 @@ const ProfileEditorPage = () => {
                                 <Link href='#ratings' onClick={scrollToId('ratings')}>
                                     <TimelineIcon
                                         fontSize='small'
-                                        style={{
+                                        sx={{
                                             verticalAlign: 'middle',
                                             marginRight: '0.2em',
                                         }}
@@ -479,7 +479,7 @@ const ProfileEditorPage = () => {
                                 >
                                     <NotificationsIcon
                                         fontSize='small'
-                                        style={{
+                                        sx={{
                                             verticalAlign: 'middle',
                                             marginRight: '0.2em',
                                         }}
@@ -492,7 +492,7 @@ const ProfileEditorPage = () => {
                                 >
                                     <SettingsSuggestIcon
                                         fontSize='small'
-                                        style={{
+                                        sx={{
                                             verticalAlign: 'middle',
                                             marginRight: '0.2em',
                                         }}
@@ -505,7 +505,7 @@ const ProfileEditorPage = () => {
                                 >
                                     <MonetizationOnIcon
                                         fontSize='small'
-                                        style={{
+                                        sx={{
                                             verticalAlign: 'middle',
                                             marginRight: '0.2em',
                                         }}

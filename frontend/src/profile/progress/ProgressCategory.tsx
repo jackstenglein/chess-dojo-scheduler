@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 import { useFreeTier } from '../../auth/Auth';
 import { CustomTask, Requirement } from '../../database/requirement';
 import { User } from '../../database/user';
-import { icons } from '../../style/icons';
+import Icon from '../../style/Icon';
 import { useTutorial } from '../../tutorial/TutorialContext';
 import { TutorialName } from '../../tutorial/tutorialNames';
 import ProgressItem from './ProgressItem';
@@ -63,8 +63,6 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
         return c.requirements.filter((r) => !r.isFree).length;
     }, [c.requirements, isFreeTier]);
 
-    const Icon = icons[c.name];
-
     return (
         <Accordion
             key={c.name}
@@ -83,12 +81,11 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                     sx={{ width: 1, mr: 2 }}
                 >
                     <Typography fontWeight='bold'>
-                        {Icon && (
-                            <Icon
-                                color='primary'
-                                sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
-                            />
-                        )}
+                        <Icon
+                            name={c.name}
+                            color='primary'
+                            sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
+                        />
                         {c.name}
                     </Typography>
                     {c.name === 'Non-Dojo' ? (

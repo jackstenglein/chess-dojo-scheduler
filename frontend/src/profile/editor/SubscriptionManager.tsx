@@ -44,7 +44,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
             >
                 <Typography variant='h5'>
                     <MonetizationOnIcon
-                        style={{ verticalAlign: 'middle', marginRight: '0.1em' }}
+                        sx={{ verticalAlign: 'middle', marginRight: '0.1em' }}
                     />{' '}
                     Subscription/Billing
                 </Typography>
