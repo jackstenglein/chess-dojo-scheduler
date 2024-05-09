@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useClubs } from '../api/cache/clubs';
 import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
-import GraduationIcon from './GraduationIcon';
+import CohortIcon from './CohortIcon';
 
 const NO_CLUBS: string[] = [];
 
@@ -80,7 +80,7 @@ const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({
             ))}
             {dojoCohorts.map((option) => (
                 <MenuItem key={option} value={option}>
-                    <GraduationIcon
+                    <CohortIcon
                         cohort={option}
                         sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
                         tooltip=''

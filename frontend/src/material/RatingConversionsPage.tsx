@@ -16,7 +16,7 @@ import {
     formatRatingSystem,
     getRatingBoundary,
 } from '../database/user';
-import GraduationIcon from '../scoreboard/GraduationIcon';
+import CohortIcon from '../scoreboard/CohortIcon';
 
 const { Fide, Custom, ...others } = RatingSystem;
 
@@ -48,7 +48,7 @@ const RatingConversionsPage = () => {
                                         spacing={2}
                                         alignItems='center'
                                     >
-                                        <GraduationIcon cohort={c} tooltip='' />
+                                        <CohortIcon cohort={c} tooltip='' />
                                         <Typography variant='body2'>{c}</Typography>
                                     </Stack>
                                 </TableCell>
@@ -75,7 +75,7 @@ const RatingConversionsPage = () => {
                         <TableRow>
                             <TableCell>
                                 <Stack direction='row' spacing={2} alignItems='center'>
-                                    <GraduationIcon
+                                    <CohortIcon
                                         cohort={dojoCohorts[dojoCohorts.length - 1]}
                                         tooltip=''
                                     />

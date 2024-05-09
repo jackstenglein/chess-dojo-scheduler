@@ -23,13 +23,13 @@ import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
-import { useCache } from '../api/cache/Cache';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
+import { useCache } from '../api/cache/Cache';
 import { useAuth } from '../auth/Auth';
 import { AvailabilityType, Event, getDisplayString } from '../database/event';
 import { TimeFormat } from '../database/user';
 import Avatar from '../profile/Avatar';
-import GraduationIcon from '../scoreboard/GraduationIcon';
+import CohortIcon from '../scoreboard/CohortIcon';
 import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from './displayDate';
 import Field from './eventViewer/Field';
 import OwnerField from './eventViewer/OwnerField';
@@ -258,10 +258,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                                 {p.displayName} ({p.cohort})
                                             </Typography>
                                         </Link>
-                                        <GraduationIcon
-                                            cohort={p.previousCohort}
-                                            size={22}
-                                        />
+                                        <CohortIcon cohort={p.previousCohort} size={22} />
                                     </Stack>
                                 ))}
                             </Stack>

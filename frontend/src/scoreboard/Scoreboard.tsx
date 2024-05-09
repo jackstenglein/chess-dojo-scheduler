@@ -22,7 +22,7 @@ import { isGraduation } from '../database/graduation';
 import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
 import { User, compareCohorts } from '../database/user';
 import Avatar from '../profile/Avatar';
-import GraduationIcon from './GraduationIcon';
+import CohortIcon from './CohortIcon';
 import ScoreboardProgress from './ScoreboardProgress';
 import {
     ScoreboardRow,
@@ -137,12 +137,12 @@ const graduatedColumn: GridColDef<ScoreboardRow> = {
             return (
                 <Stack direction='row'>
                     {graduationCohorts.map((c) => (
-                        <GraduationIcon key={c} cohort={c} size={32} />
+                        <CohortIcon key={c} cohort={c} size={32} />
                     ))}
                 </Stack>
             );
         }
-        return <GraduationIcon cohort={params.row.previousCohort} size={32} />;
+        return <CohortIcon cohort={params.row.previousCohort} size={32} />;
     },
     width: 110,
     align: 'center',

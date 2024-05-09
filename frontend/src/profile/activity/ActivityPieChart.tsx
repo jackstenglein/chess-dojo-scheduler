@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, compareCohorts, User } from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+import CohortIcon from '../../scoreboard/CohortIcon';
 import {
     displayTimeframe,
     getScoreChartData,
@@ -83,11 +83,12 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
             value: opt,
             label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
             icon: (
-                <GraduationIcon
+                <CohortIcon
                     cohort={opt}
                     size={25}
-                    sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                    sx={{ marginRight: '0.6rem' }}
                     tooltip=''
+                    color='primary'
                 />
             ),
         }));

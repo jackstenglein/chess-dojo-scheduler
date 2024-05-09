@@ -11,7 +11,7 @@ import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useClubs } from '../../api/cache/clubs';
 import { useAuth } from '../../auth/Auth';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+import CohortIcon from '../../scoreboard/CohortIcon';
 import { icons } from '../../style/icons';
 import NewsfeedList from './NewsfeedList';
 
@@ -28,21 +28,17 @@ const NewsfeedListPage = () => {
             {
                 value: 'following',
                 label: 'Followers',
-                icon: (
-                    <FollowersIcon
-                        sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
-                    />
-                ),
+                icon: <FollowersIcon color='primary' sx={{ marginRight: '0.6rem' }} />,
             },
             {
                 value: user.dojoCohort,
                 label: 'My Cohort',
                 icon: (
-                    <GraduationIcon
+                    <CohortIcon
                         cohort={user.dojoCohort}
                         size={25}
                         tooltip=''
-                        sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                        sx={{ marginRight: '0.6rem' }}
                     />
                 ),
             },
@@ -50,7 +46,7 @@ const NewsfeedListPage = () => {
             clubs.map((club) => ({
                 value: club.id,
                 label: club.name,
-                icon: <Groups sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />,
+                icon: <Groups color='primary' sx={{ marginRight: '0.6em' }} />,
             })),
         );
 

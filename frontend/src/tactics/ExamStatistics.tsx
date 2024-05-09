@@ -1,4 +1,3 @@
-import { AllInclusive } from '@mui/icons-material';
 import { CardContent, Stack, Typography } from '@mui/material';
 import {
     ChartsClipPath,
@@ -23,7 +22,7 @@ import { useAuth } from '../auth/Auth';
 import { Exam } from '../database/exam';
 import { ALL_COHORTS, cohortColors, compareCohorts } from '../database/user';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
-import GraduationIcon from '../scoreboard/GraduationIcon';
+import CohortIcon from '../scoreboard/CohortIcon';
 import { getRegression } from './list/ExamsTable';
 import { getTotalScore } from './tactics';
 
@@ -179,20 +178,15 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     ].map((opt) => ({
                         value: opt,
                         label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
-                        icon:
-                            opt === ALL_COHORTS ? (
-                                <AllInclusive
-                                    color='primary'
-                                    sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
-                                />
-                            ) : (
-                                <GraduationIcon
-                                    cohort={opt}
-                                    size={25}
-                                    sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
-                                    tooltip=''
-                                />
-                            ),
+                        icon: (
+                            <CohortIcon
+                                cohort={opt}
+                                size={25}
+                                sx={{ marginRight: '0.6rem' }}
+                                tooltip=''
+                                color='primary'
+                            />
+                        ),
                     }))}
                     error={cohorts.length === 0}
                 />
