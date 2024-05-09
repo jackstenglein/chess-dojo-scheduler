@@ -5,28 +5,29 @@ import {
     getTotalCount,
     getUnitScore,
     Requirement,
+    RequirementCategory,
 } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
 import { ALL_COHORTS, dojoCohorts, User } from '../../database/user';
 import { PieChartData } from './PieChart';
 
-export const CategoryColors: Record<string, string> = {
-    'Welcome to the Dojo': '#c27ba0', // light magenta 1
-    'Games + Analysis': '#ff9900', // orange
-    Tactics: '#38761d', // dark green 2
-    'Middlegames + Strategy': '#0000ff', // blue
-    Endgame: '#674ea7', // dark purple 1
-    Opening: '#cc0000', // dark red 1
-    Graduation: '#f44336', // red
-    'Non-Dojo': '#cccccc', // gray
+export const CategoryColors: Record<RequirementCategory, string> = {
+    [RequirementCategory.Welcome]: '#c27ba0', // light magenta 1
+    [RequirementCategory.Games]: '#ff9900', // orange
+    [RequirementCategory.Tactics]: '#38761d', // dark green 2
+    [RequirementCategory.Middlegames]: '#0000ff', // blue
+    [RequirementCategory.Endgame]: '#674ea7', // dark purple 1
+    [RequirementCategory.Opening]: '#cc0000', // dark red 1
+    [RequirementCategory.Graduation]: '#f44336', // red
+    [RequirementCategory.NonDojo]: '#cccccc', // gray
 };
 
 export const ScoreCategories = [
-    'Games + Analysis',
-    'Tactics',
-    'Middlegames + Strategy',
-    'Endgame',
-    'Opening',
+    RequirementCategory.Games,
+    RequirementCategory.Tactics,
+    RequirementCategory.Middlegames,
+    RequirementCategory.Endgame,
+    RequirementCategory.Opening,
 ];
 
 export const RequirementColors = [

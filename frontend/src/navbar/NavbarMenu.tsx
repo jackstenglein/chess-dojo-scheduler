@@ -6,7 +6,6 @@ import {
     ChevronRight,
     ExpandLess,
     ExpandMore,
-    Extension,
     Feed,
     Forum,
     Groups,
@@ -24,6 +23,7 @@ import {
     Scoreboard,
     Sell,
     SignalCellularAlt,
+    Speed,
     Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
@@ -173,7 +173,7 @@ function allStartItems(
                 },
                 {
                     name: 'Tactics Tests',
-                    icon: <Extension />,
+                    icon: <Speed />,
                     onClick: () => navigate('/tactics'),
                 },
                 {

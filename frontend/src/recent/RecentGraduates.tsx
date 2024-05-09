@@ -22,7 +22,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { Graduation } from '../database/graduation';
 import LoadingPage from '../loading/LoadingPage';
 import Avatar from '../profile/Avatar';
-import GraduationIcon from '../scoreboard/GraduationIcon';
+import CohortIcon from '../scoreboard/CohortIcon';
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];
@@ -116,12 +116,12 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
                 return (
                     <Stack direction='row'>
                         {graduationCohorts.map((c) => (
-                            <GraduationIcon key={c} cohort={c} size={32} />
+                            <CohortIcon key={c} cohort={c} size={32} />
                         ))}
                     </Stack>
                 );
             }
-            return <GraduationIcon cohort={params.row.previousCohort} size={32} />;
+            return <CohortIcon cohort={params.row.previousCohort} size={32} />;
         },
     },
     {

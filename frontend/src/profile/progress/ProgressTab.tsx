@@ -15,7 +15,7 @@ import { useRequirements } from '../../api/cache/requirements';
 import { CustomTask, Requirement, isComplete } from '../../database/requirement';
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+import CohortIcon from '../../scoreboard/CohortIcon';
 import DojoScoreCard from '../stats/DojoScoreCard';
 import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory from './ProgressCategory';
@@ -154,7 +154,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             >
                 {dojoCohorts.map((option) => (
                     <MenuItem key={option} value={option}>
-                        <GraduationIcon
+                        <CohortIcon
                             cohort={option}
                             sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
                             tooltip=''

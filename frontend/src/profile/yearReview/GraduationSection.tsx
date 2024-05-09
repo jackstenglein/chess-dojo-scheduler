@@ -1,8 +1,8 @@
 import { Stack, Typography } from '@mui/material';
 
-import { SectionProps } from './YearReviewPage';
 import { compareCohorts } from '../../database/user';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+import CohortIcon from '../../scoreboard/CohortIcon';
+import { SectionProps } from './YearReviewPage';
 
 const GraduationSection: React.FC<SectionProps> = ({ review }) => {
     if (!review.graduations || review.graduations.length === 0) {
@@ -43,7 +43,7 @@ const GraduationSection: React.FC<SectionProps> = ({ review }) => {
                 mt={2}
             >
                 {sorted.map((cohort) => (
-                    <GraduationIcon key={cohort} cohort={cohort} size={75} />
+                    <CohortIcon key={cohort} cohort={cohort} size={75} />
                 ))}
             </Stack>
         </Stack>

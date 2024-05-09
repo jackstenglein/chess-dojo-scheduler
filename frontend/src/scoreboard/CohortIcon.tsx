@@ -1,5 +1,13 @@
-import { Tooltip as MuiTooltip, TooltipProps, tooltipClasses } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { AllInclusive } from '@mui/icons-material';
+import {
+    Tooltip as MuiTooltip,
+    SvgIconProps,
+    TooltipProps,
+    tooltipClasses,
+} from '@mui/material';
+import { SxProps, styled } from '@mui/material/styles';
+import { CSSProperties } from 'react';
+import { ALL_COHORTS } from '../database/user';
 
 export const cohortIcons: Record<string, string> = {
     '0-300': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/0-300.png',
@@ -35,21 +43,27 @@ const Tooltip = styled(({ className, ...props }: TooltipProps) => (
     },
 }));
 
-interface GraduationIconProps {
+interface CohortIconProps {
     cohort?: string;
     size?: number;
-    sx?: React.CSSProperties;
+    sx?: SxProps;
     tooltip?: string;
 }
 
-const GraduationIcon: React.FC<GraduationIconProps> = ({
+const CohortIcon: React.FC<CohortIconProps & SvgIconProps> = ({
     cohort,
     size = 40,
     sx,
     tooltip,
+    ...svgProps
 }) => {
     if (!cohort) {
         return null;
+    }
+
+    if (cohort === ALL_COHORTS) {
+        console.log('Returning all inclusive with sx and svgProps', sx, svgProps);
+        return <AllInclusive sx={sx} {...svgProps} />;
     }
 
     const url = cohortIcons[cohort];
@@ -66,7 +80,7 @@ const GraduationIcon: React.FC<GraduationIconProps> = ({
                 width={size}
                 height={size}
                 style={{
-                    ...sx,
+                    ...(sx as CSSProperties),
 
                     ...(cohort === '2300-2400'
                         ? { filter: `drop-shadow(0px 0px ${size / 8}px silver)` }
@@ -80,4 +94,4 @@ const GraduationIcon: React.FC<GraduationIconProps> = ({
     );
 };
 
-export default GraduationIcon;
+export default CohortIcon;

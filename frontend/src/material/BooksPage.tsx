@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
-import GraduationIcon from '../scoreboard/GraduationIcon';
+import CohortIcon from '../scoreboard/CohortIcon';
 import { Book as BookModel, BookSection, sections } from './books';
 
 function getDisplayTitle(b: BookModel) {
@@ -97,13 +97,19 @@ const BooksPage = () => {
                     data-cy='cohort-selector'
                     selected={cohorts}
                     setSelected={onChangeCohort}
-                    options={[ALL_COHORTS, ...dojoCohorts].reduce(
-                        (acc, curr) => {
-                            acc[curr] = curr === ALL_COHORTS ? 'All Cohorts' : curr;
-                            return acc;
-                        },
-                        {} as Record<string, string>,
-                    )}
+                    options={[ALL_COHORTS, ...dojoCohorts].map((opt) => ({
+                        value: opt,
+                        label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
+                        icon: (
+                            <CohortIcon
+                                cohort={opt}
+                                size={25}
+                                sx={{ marginRight: '0.6rem' }}
+                                tooltip=''
+                                color='primary'
+                            />
+                        ),
+                    }))}
                     label='Cohorts'
                     sx={{ mb: 3, width: 1 }}
                     size='small'
@@ -123,7 +129,7 @@ const BooksPage = () => {
                                     <CardHeader
                                         title={
                                             <>
-                                                <GraduationIcon
+                                                <CohortIcon
                                                     cohort={cohort}
                                                     sx={{
                                                         marginRight: '0.6em',

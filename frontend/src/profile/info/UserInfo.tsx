@@ -3,7 +3,7 @@ import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
 import { SubscriptionStatus, User, compareCohorts } from '../../database/user';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+import CohortIcon from '../../scoreboard/CohortIcon';
 import Avatar from '../Avatar';
 
 interface UserInfoProps {
@@ -46,13 +46,11 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, linkUsername }) => {
                                 .sort(compareCohorts)
                                 .filter((c, i) => user.graduationCohorts.indexOf(c) === i)
                                 .map((c) => (
-                                    <GraduationIcon key={c} cohort={c} />
+                                    <CohortIcon key={c} cohort={c} />
                                 ))}
                         </Stack>
                     ) : (
-                        user.previousCohort && (
-                            <GraduationIcon cohort={user.previousCohort} />
-                        )
+                        user.previousCohort && <CohortIcon cohort={user.previousCohort} />
                     )}
                 </Stack>
                 <Typography variant='h5' color='text.secondary'>

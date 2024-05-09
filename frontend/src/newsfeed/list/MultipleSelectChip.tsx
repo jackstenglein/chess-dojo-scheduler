@@ -27,10 +27,16 @@ function getStyles(value: string, selected: readonly string[], theme: Theme) {
     };
 }
 
+export interface MultipleSelectChipOption {
+    value: string;
+    label: string;
+    icon?: JSX.Element;
+}
+
 interface MultipleSelectChipProps {
     selected: string[];
     setSelected: (v: string[]) => void;
-    options: Record<string, string>;
+    options: MultipleSelectChipOption[];
     label: string;
     size?: 'small' | 'medium';
     sx?: SxProps;
@@ -71,15 +77,24 @@ export default function MultipleSelectChip({
                 renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {selected.map((value) => (
-                            <Chip key={value} label={options[value]} size={size} />
+                            <Chip
+                                key={value}
+                                label={options.find((o) => o.value === value)?.label}
+                                size={size}
+                            />
                         ))}
                     </Box>
                 )}
                 MenuProps={MenuProps}
             >
-                {Object.entries(options).map(([v, l]) => (
-                    <MenuItem key={v} value={v} style={getStyles(v, selected, theme)}>
-                        {l}
+                {options.map((option) => (
+                    <MenuItem
+                        key={option.value}
+                        value={option.value}
+                        style={getStyles(option.value, selected, theme)}
+                    >
+                        {option.icon}
+                        {option.label}
                     </MenuItem>
                 ))}
             </Select>
