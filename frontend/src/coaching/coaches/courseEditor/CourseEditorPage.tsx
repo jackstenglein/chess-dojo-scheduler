@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { ArrowUpward, Delete } from '@mui/icons-material';
 import {
     Alert,
     Button,
@@ -22,17 +21,18 @@ import {
     Typography,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { ArrowUpward, Delete } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { Course, CourseSellingPoint, CourseType } from '../../../database/course';
-import { useApi } from '../../../api/Api';
-import { useAuth } from '../../../auth/Auth';
-import { dojoCohorts, getCohortRange } from '../../../database/user';
-import PurchaseCoursePreview from './PurchaseCoursePreview';
-import LoadingPage from '../../../loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
-
+import { useApi } from '../../../api/Api';
+import { RequestSnackbar, useRequest } from '../../../api/Request';
+import { useAuth } from '../../../auth/Auth';
+import { Course, CourseSellingPoint, CourseType } from '../../../database/course';
+import { dojoCohorts, getCohortRange } from '../../../database/user';
+import LoadingPage from '../../../loading/LoadingPage';
+import CohortIcon from '../../../scoreboard/CohortIcon';
+import PurchaseCoursePreview from './PurchaseCoursePreview';
 interface CoursePurchaseOptionEditor {
     name: string;
     fullPrice: string;
@@ -138,7 +138,7 @@ const CourseEditorPage = () => {
                                 fullPrice: `${option.fullPrice / 100}`,
                                 currentPrice: `${option.currentPrice / 100}`,
                                 sellingPoints: option.sellingPoints || [],
-                            }))
+                            })),
                         );
                     }
                 })
@@ -193,7 +193,7 @@ const CourseEditorPage = () => {
     const onChangePurchaseOption = (
         idx: number,
         key: Omit<keyof CoursePurchaseOptionEditor, 'sellingPoints'>,
-        value: string
+        value: string,
     ) => {
         setPurchaseOptions([
             ...purchaseOptions.slice(0, idx),
@@ -242,7 +242,7 @@ const CourseEditorPage = () => {
         purchaseOptionIdx: number,
         sellingPointIdx: number,
         key: keyof CourseSellingPoint,
-        value: string | boolean
+        value: string | boolean,
     ) => {
         setPurchaseOptions([
             ...purchaseOptions.slice(0, purchaseOptionIdx),
@@ -251,7 +251,7 @@ const CourseEditorPage = () => {
                 sellingPoints: [
                     ...purchaseOptions[purchaseOptionIdx].sellingPoints.slice(
                         0,
-                        sellingPointIdx
+                        sellingPointIdx,
                     ),
                     {
                         ...purchaseOptions[purchaseOptionIdx].sellingPoints[
@@ -260,7 +260,7 @@ const CourseEditorPage = () => {
                         [key]: value,
                     },
                     ...purchaseOptions[purchaseOptionIdx].sellingPoints.slice(
-                        sellingPointIdx + 1
+                        sellingPointIdx + 1,
                     ),
                 ],
             },
@@ -293,10 +293,10 @@ const CourseEditorPage = () => {
                 sellingPoints: [
                     ...purchaseOptions[purchaseOptionIdx].sellingPoints.slice(
                         0,
-                        sellingPointIdx
+                        sellingPointIdx,
                     ),
                     ...purchaseOptions[purchaseOptionIdx].sellingPoints.slice(
-                        sellingPointIdx + 1
+                        sellingPointIdx + 1,
                     ),
                 ],
             },
@@ -592,6 +592,16 @@ const CourseEditorPage = () => {
                             >
                                 {dojoCohorts.map((cohort) => (
                                     <MenuItem key={cohort} value={cohort}>
+                                        <CohortIcon
+                                            cohort={cohort}
+                                            size={40}
+                                            sx={{
+                                                marginRight: '0.6rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                            tooltip=''
+                                            color='primary'
+                                        />
                                         {cohort}
                                     </MenuItem>
                                 ))}
@@ -712,7 +722,7 @@ const CourseEditorPage = () => {
                                             onChangePurchaseOption(
                                                 idx,
                                                 'name',
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         helperText='If left blank, it defaults to the course name. Generally set this only if you have multiple purchase options.'
@@ -724,7 +734,7 @@ const CourseEditorPage = () => {
                                             onChangePurchaseOption(
                                                 idx,
                                                 'fullPrice',
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         InputProps={{
@@ -735,7 +745,7 @@ const CourseEditorPage = () => {
                                             ),
                                         }}
                                         error={Boolean(
-                                            errors.purchaseOptions?.[idx]?.fullPrice
+                                            errors.purchaseOptions?.[idx]?.fullPrice,
                                         )}
                                         helperText={
                                             errors.purchaseOptions?.[idx]?.fullPrice
@@ -749,7 +759,7 @@ const CourseEditorPage = () => {
                                             onChangePurchaseOption(
                                                 idx,
                                                 'currentPrice',
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         helperText={
@@ -764,7 +774,7 @@ const CourseEditorPage = () => {
                                             ),
                                         }}
                                         error={Boolean(
-                                            errors.purchaseOptions?.[idx]?.currentPrice
+                                            errors.purchaseOptions?.[idx]?.currentPrice,
                                         )}
                                     />
                                 </Stack>
@@ -795,7 +805,7 @@ const CourseEditorPage = () => {
                                                             idx,
                                                             spIdx,
                                                             'description',
-                                                            e.target.value
+                                                            e.target.value,
                                                         )
                                                     }
                                                 />
@@ -809,7 +819,7 @@ const CourseEditorPage = () => {
                                                                     idx,
                                                                     spIdx,
                                                                     'included',
-                                                                    e.target.checked
+                                                                    e.target.checked,
                                                                 )
                                                             }
                                                         />
@@ -822,7 +832,7 @@ const CourseEditorPage = () => {
                                                             onClick={() =>
                                                                 onMoveUpSellingPoint(
                                                                     idx,
-                                                                    spIdx
+                                                                    spIdx,
                                                                 )
                                                             }
                                                         >
@@ -835,7 +845,7 @@ const CourseEditorPage = () => {
                                                         onClick={() =>
                                                             onDeleteSellingPoint(
                                                                 idx,
-                                                                spIdx
+                                                                spIdx,
                                                             )
                                                         }
                                                     >
