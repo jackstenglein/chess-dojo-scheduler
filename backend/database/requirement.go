@@ -149,6 +149,21 @@ func (r *Requirement) clampCount(cohort DojoCohort, count int) int {
 	return (int)(math.Max(math.Min(float64(count), float64(r.Counts[cohort])), float64(r.StartCount)))
 }
 
+// Returns true if the given progress is expired for the requirement.
+func (r *Requirement) IsExpired(progress *RequirementProgress) bool {
+	if r.ExpirationDays <= 0 || progress == nil {
+		return false
+	}
+
+	expirationDate, err := time.Parse(time.RFC3339, progress.UpdatedAt)
+	if err != nil {
+		return false
+	}
+
+	expirationDate = expirationDate.Add(time.Duration(r.ExpirationDays) * time.Hour * 24)
+	return time.Now().After(expirationDate)
+}
+
 // CalculateScore returns the score for the given requirement based on the provided
 // cohort and progress.
 func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32 {
@@ -161,15 +176,8 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 	if _, ok := r.Counts[cohort]; !ok {
 		return 0
 	}
-
-	if r.ExpirationDays > 0 {
-		expirationDate, err := time.Parse(time.RFC3339, progress.UpdatedAt)
-		if err != nil {
-			expirationDate = expirationDate.Add(time.Duration(r.ExpirationDays) * time.Hour * 24)
-			if time.Now().After(expirationDate) {
-				return 0
-			}
-		}
+	if r.IsExpired(progress) {
+		return 0
 	}
 
 	var count int
