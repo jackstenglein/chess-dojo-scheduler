@@ -33,12 +33,38 @@ import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellPage from '../../upsell/UpsellPage';
 import ListGamesTutorial from './ListGamesTutorial';
 import { usePagination } from './pagination';
-
+import Icon from '../../style/Icon';
+import CohortIcon from '../../scoreboard/CohortIcon';
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
         width: 115,
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
+            if (params.row.ownerDisplayName === '') {
+                return '';
+            }
+
+            return (
+                <Stack
+                    direction='row'
+                    spacing={1}
+                    alignItems='center'
+                    onClick={(e) => e.stopPropagation()}
+                >     <CohortIcon
+                cohort={params.row.cohort}
+                size={25}
+                sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
+                tooltip=""
+            />
+                    <Typography variant='caption'> {params.row.cohort} </Typography>
+                   
+                    
+                </Stack>
+            );
+        }
+   
+        
     },
     {
         field: 'owner',
@@ -64,6 +90,8 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
                     <Link component={RouterLink} to={`/profile/${params.row.owner}`}>
                         {params.row.ownerDisplayName}
                     </Link>
+
+                    
                 </Stack>
             );
         },
@@ -272,8 +300,10 @@ const ListGamesPage = () => {
                             id='submit-game-button'
                             variant='contained'
                             onClick={onSubmit}
+                            color='success'
+                            startIcon={<Icon name='upload' color='inherit' sx={{marginRight: '0.3rem'}}/>}
                         >
-                            Submit a Game
+                            Upload Game
                         </Button>
 
                         <Divider />
@@ -284,8 +314,10 @@ const ListGamesPage = () => {
                         />
 
                         <Stack spacing={0.5}>
-                            <Typography variant='caption' alignSelf='end'>
+                            
+                            <Typography variant='body2' alignSelf='start'>
                                 <Link component={RouterLink} to='/games/review-queue'>
+                                <Icon name='line' color='primary' sx={{marginRight: '0.5rem', verticalAlign: 'middle'}}/>
                                     Sensei Game Review Queue
                                 </Link>
                             </Typography>
@@ -293,10 +325,11 @@ const ListGamesPage = () => {
                             <Typography
                                 data-cy='download-database-button'
                                 id='download-full-database'
-                                variant='caption'
-                                alignSelf='end'
+                                variant='body2'
+                                alignSelf='start'
                             >
                                 <Link
+                                    
                                     href={
                                         isFreeTier
                                             ? undefined
@@ -306,7 +339,9 @@ const ListGamesPage = () => {
                                     rel='noreferrer'
                                     onClick={isFreeTier ? onDownloadDatabase : undefined}
                                 >
-                                    Download full database (updated every 24 hours)
+                                    <Icon name='download' color='primary' sx={{marginRight: '0.5rem', verticalAlign: 'middle'}}/>
+                                    Download full database 
+                                    (updated every 24 hours)
                                 </Link>
                             </Typography>
                         </Stack>

@@ -77,8 +77,8 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
                     <Stack alignItems='end'>
                         <Typography sx={{ color: CategoryColors[category] }}>
                             {category}
-                        </Typography>
-                        <Typography variant='body2' color='text.secondary'>
+                        </Typography>      
+                        <Typography variant='body2' color='text.secondary' >     
                             {entry.cohort}
                         </Typography>
                     </Stack>
