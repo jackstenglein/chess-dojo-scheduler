@@ -5,6 +5,7 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
+import Icon from '../style/Icon';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -87,8 +88,8 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
             {currentUser.username === user.username && (
-                <Button variant='contained' onClick={onSubmit}>
-                    Submit a Game
+                <Button variant='contained' onClick={onSubmit} color='success' startIcon={<Icon name='upload' sx={{middleRight: "0.5rem", verticalAlign: "middle"}}/>}>
+                    Upload Game
                 </Button>
             )}
 
