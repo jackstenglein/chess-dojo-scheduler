@@ -28,7 +28,7 @@
         "@types/react-dom": "^18.2.24",
         "@vitejs/plugin-react": "^4.2.1",
         "@widgetbot/react-embed": "^1.9.0",
-        "aws-amplify": "^5.3.18",
+        "aws-amplify": "^6.3.0",
         "axios": "^1.6.8",
         "chessground": "^9.1.1",
         "copy-to-clipboard": "^3.3.3",
