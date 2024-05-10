@@ -9,11 +9,11 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { CreateGameRequest, RemoteGame, isGame } from '../../api/gameApi';
 import { OnlineGameForm } from './OnlineGameForm';
 import { PGNForm } from './PGNForm';
-import { StartingPositionForm } from './StartingPositionForm';
+import { PositionForm } from './PositionForm';
 
 enum ImportSource {
     URL = 'url',
-    StartingPosition = 'starting-position',
+    Position = 'starting-position',
     PGNText = 'pgn-text',
 }
 
@@ -104,12 +104,18 @@ const ImportGamePage = () => {
                                 >
                                     <Tab
                                         value={ImportSource.URL}
-                                        label={'Lichess & Chess.com'}
+                                        label={'Online Game'}
+                                        data-cy={'import-url'}
                                     />
-                                    <Tab value={ImportSource.PGNText} label='PGN' />
                                     <Tab
-                                        value={ImportSource.StartingPosition}
-                                        label='Starting Position'
+                                        value={ImportSource.PGNText}
+                                        label='PGN'
+                                        data-cy={'import-pgn-text'}
+                                    />
+                                    <Tab
+                                        value={ImportSource.Position}
+                                        label='Position'
+                                        data-cy={'import-position'}
                                     />
                                 </Tabs>
                             </Box>
@@ -119,11 +125,8 @@ const ImportGamePage = () => {
                             <ImportTabPanel source={ImportSource.PGNText}>
                                 <PGNForm onSubmit={onImport} loading={loading} />
                             </ImportTabPanel>
-                            <ImportTabPanel source={ImportSource.StartingPosition}>
-                                <StartingPositionForm
-                                    onSubmit={onImport}
-                                    loading={loading}
-                                />
+                            <ImportTabPanel source={ImportSource.Position}>
+                                <PositionForm onSubmit={onImport} loading={loading} />
                             </ImportTabPanel>
                         </TabContext>
                     </Box>

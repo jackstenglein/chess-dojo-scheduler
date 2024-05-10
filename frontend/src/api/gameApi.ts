@@ -197,13 +197,14 @@ export enum GameSubmissionType {
     ChesscomGame = 'chesscomGame',
     ChesscomAnalysis = 'chesscomAnalysis',
     Manual = 'manual',
-    StartingPosition = 'startingPosition',
+    FEN = 'fen',
 }
 
 export interface RemoteGame {
     url?: string;
     pgnText?: string;
     type?: GameSubmissionType;
+    fen?: string;
 }
 
 export type BoardOrientation = 'white' | 'black';

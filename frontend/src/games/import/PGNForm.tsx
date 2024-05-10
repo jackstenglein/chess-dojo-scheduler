@@ -48,7 +48,7 @@ export const PGNForm: React.FC<PGNFormProps> = ({ onSubmit, loading }) => {
         <Stack spacing={2}>
             <TextField
                 data-cy='pgn-text'
-                label='PGN Text'
+                label='Paste PGN'
                 placeholder={pgnTextPlaceholder}
                 value={pgnText}
                 onChange={(e) => setPgnText(e.target.value)}
