@@ -14,6 +14,7 @@ export const PieceStyleKey = 'pieceStyle';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
+export const ShowLegalMovesKey = 'showLegalMoves';
 export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
 
 export enum BoardStyle {
@@ -80,6 +81,7 @@ const ViewerSettings = () => {
             CapturedMaterialBehaviorKey,
             CapturedMaterialBehavior.Difference,
         );
+    const [showLegalMoves, setShowLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
 
     return (
         <Stack spacing={3}>
@@ -157,6 +159,16 @@ const ViewerSettings = () => {
             </TextField>
 
             <Stack>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={showLegalMoves}
+                            onChange={(e) => setShowLegalMoves(e.target.checked)}
+                        />
+                    }
+                    label='Show legal moves'
+                />
+
                 <FormControlLabel
                     control={
                         <Checkbox

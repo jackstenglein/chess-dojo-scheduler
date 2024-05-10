@@ -17,6 +17,7 @@ import {
     BoardStyleKey,
     PieceStyle,
     PieceStyleKey,
+    ShowLegalMovesKey,
 } from './pgn/boardTools/underboard/settings/ViewerSettings';
 import { ResizableData } from './pgn/resize';
 
@@ -188,6 +189,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const [promotion, setPromotion] = useState<PrePromotionMove | null>(null);
     const [boardStyle] = useLocalStorage<BoardStyle>(BoardStyleKey, BoardStyle.Standard);
     const [pieceStyle] = useLocalStorage<PieceStyle>(PieceStyleKey, PieceStyle.Standard);
+    const [showLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
 
     const onStartPromotion = useCallback(
         (move: PrePromotionMove) => {
@@ -302,6 +304,14 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             });
         }
     }, [chess, board, onMove, onStartPromotion, pieceStyle]);
+
+    useEffect(() => {
+        board?.set({
+            movable: {
+                showDests: showLegalMoves,
+            },
+        });
+    }, [board, showLegalMoves]);
 
     return (
         <Box
