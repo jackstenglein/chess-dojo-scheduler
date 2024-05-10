@@ -38,7 +38,7 @@ import { getCurrentRating, normalizeToFide } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import CompletedTacticsExamPgnSelector from './CompletedTacticsExamPgnSelector';
 import ExamStatistics from './ExamStatistics';
-import TacticsExamPgnSelector from './TacticsExamPgnSelector';
+import TacticsExamPgnSelector, { ProblemStatus } from './TacticsExamPgnSelector';
 import Instructions from './instructions/Instructions';
 import {
     addExtraVariation,
@@ -188,6 +188,7 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
     const [selectedProblem, setSelectedProblem] = useState(0);
     const answerPgns = useRef<string[]>((exam?.pgns || []).map(() => ''));
     const [isTimeOver, setIsTimeOver] = useState(false);
+    const [problemStatus, setProblemStatus] = useState<Record<number, ProblemStatus>>({});
 
     const onCountdownComplete = useCallback(() => {
         setIsTimeOver(true);
@@ -299,6 +300,8 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                                 onComplete={onComplete}
                                 orientations={exam.pgns.map((pgn) => getOrientation(pgn))}
                                 pgnNames={exam.pgns.map((pgn) => getEventHeader(pgn))}
+                                problemStatus={problemStatus}
+                                setProblemStatus={setProblemStatus}
                             />
                         ),
                     },

@@ -1,3 +1,4 @@
+import { Check, Warning } from '@mui/icons-material';
 import {
     Button,
     CardContent,
@@ -10,12 +11,21 @@ import {
     ListItem,
     ListItemButton,
     ListItemIcon,
+    Menu,
+    MenuItem,
     Stack,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { ColorFormat } from 'react-countdown-circle-timer';
 import { BlockBoardKeyboardShortcuts } from '../board/pgn/PgnBoard';
+
+export enum ProblemStatus {
+    Unknown = '',
+    Complete = 'COMPLETE',
+    NeedsReview = 'NEEDS_REVIEW',
+}
 
 export interface TacticsExamPgnSelectorProps {
     name: string;
@@ -27,6 +37,8 @@ export interface TacticsExamPgnSelectorProps {
     onComplete?: () => void;
     orientations: string[];
     pgnNames?: string[];
+    problemStatus?: Record<number, ProblemStatus>;
+    setProblemStatus?: (status: Record<number, ProblemStatus>) => void;
 }
 
 const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
@@ -39,8 +51,33 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
     onComplete,
     orientations,
     pgnNames,
+    problemStatus,
+    setProblemStatus,
 }) => {
     const [isFinishEarly, setIsFinishEarly] = useState(false);
+    const [statusAnchorEl, setStatusAnchorEl] = useState<HTMLElement | null>(null);
+    const [openStatusProblem, setOpenStatusProblem] = useState(-1);
+
+    const handleOpenStatusMenu = (i: number, e: React.MouseEvent<HTMLDivElement>) => {
+        if (problemStatus && setProblemStatus) {
+            e.preventDefault();
+            setOpenStatusProblem(i);
+            setStatusAnchorEl(e.currentTarget);
+        }
+    };
+
+    const handleCloseStatusMenu = () => {
+        setOpenStatusProblem(-1);
+        setStatusAnchorEl(null);
+    };
+
+    const markStatus = (status: ProblemStatus) => {
+        setProblemStatus?.({
+            ...problemStatus,
+            [openStatusProblem]: status,
+        });
+        handleCloseStatusMenu();
+    };
 
     return (
         <CardContent>
@@ -67,6 +104,7 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                         <ListItemButton
                             selected={i === selected}
                             onClick={() => onSelect(i)}
+                            onContextMenu={(e) => handleOpenStatusMenu(i, e)}
                         >
                             <ListItemIcon sx={{ minWidth: '40px' }}>
                                 <Stack alignItems='center' width={1}>
@@ -89,10 +127,22 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                                     {pgnNames?.[i] || `Problem ${i + 1}`}
                                 </Typography>
 
-                                <Typography color='text.secondary'>
-                                    {orientations[i][0].toUpperCase()}
-                                    {orientations[i].slice(1)}
-                                </Typography>
+                                <Stack direction='row' spacing={2}>
+                                    {problemStatus?.[i] === ProblemStatus.Complete && (
+                                        <Tooltip title='You marked this problem as complete. Right click to change.'>
+                                            <Check color='success' />
+                                        </Tooltip>
+                                    )}
+                                    {problemStatus?.[i] === ProblemStatus.NeedsReview && (
+                                        <Tooltip title='You marked this problem as needs review. Right click to change.'>
+                                            <Warning color='warning' />
+                                        </Tooltip>
+                                    )}
+                                    <Typography color='text.secondary'>
+                                        {orientations[i][0].toUpperCase()}
+                                        {orientations[i].slice(1)}
+                                    </Typography>
+                                </Stack>
                             </Stack>
                         </ListItemButton>
                     </ListItem>
@@ -120,6 +170,43 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                     <Button onClick={onComplete}>Finish</Button>
                 </DialogActions>
             </Dialog>
+
+            <Menu
+                anchorEl={statusAnchorEl}
+                open={Boolean(statusAnchorEl)}
+                onClose={handleCloseStatusMenu}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+            >
+                <MenuItem
+                    onClick={() => markStatus(ProblemStatus.Complete)}
+                    disabled={
+                        problemStatus?.[openStatusProblem] === ProblemStatus.Complete
+                    }
+                >
+                    Mark as Completed
+                </MenuItem>
+                <MenuItem
+                    onClick={() => markStatus(ProblemStatus.NeedsReview)}
+                    disabled={
+                        problemStatus?.[openStatusProblem] === ProblemStatus.NeedsReview
+                    }
+                >
+                    Mark as Needs Review
+                </MenuItem>
+                <MenuItem
+                    onClick={() => markStatus(ProblemStatus.Unknown)}
+                    disabled={!problemStatus?.[openStatusProblem]}
+                >
+                    Clear Status
+                </MenuItem>
+            </Menu>
         </CardContent>
     );
 };

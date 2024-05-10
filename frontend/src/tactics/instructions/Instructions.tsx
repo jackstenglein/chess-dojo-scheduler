@@ -74,6 +74,12 @@ export const TacticsInstructions: React.FC<InstructionsProps> = ({
                         graded solely on which moves are present in your final PGN.
                     </li>
                     <li>
+                        You can right-click in the list of problems to mark them as
+                        complete or needs review. This is purely an organizational tool
+                        for you to use as you take the test. You grade will not be based
+                        on which problems have which status.
+                    </li>
+                    <li>
                         You will have {Math.round(timeLimitSeconds / 60)} minutes for{' '}
                         {length} positions. Some problems may be harder than others. You
                         can split the time up among the positions however you choose. You
@@ -133,6 +139,12 @@ export const PolgarMateInstructions: React.FC<InstructionsProps> = ({
                         The PGN editor is available for you to add comments or annotations
                         if this helps you think, but you are not graded on these. You are
                         graded solely on which moves are present in your final PGN.
+                    </li>
+                    <li>
+                        You can right-click in the list of problems to mark them as
+                        complete or needs review. This is purely an organizational tool
+                        for you to use as you take the test. You grade will not be based
+                        on which problems have which status.
                     </li>
                     <li>
                         You will have {Math.round(timeLimitSeconds / 60)} minutes for{' '}
