@@ -45,7 +45,7 @@ export const PGNForm: React.FC<PGNFormProps> = ({ onSubmit, loading }) => {
     };
 
     return (
-        <Stack spacing={2}>
+        <Stack spacing={1}>
             <TextField
                 data-cy='pgn-text'
                 label='Paste PGN'
@@ -57,7 +57,11 @@ export const PGNForm: React.FC<PGNFormProps> = ({ onSubmit, loading }) => {
                 error={!!error}
                 helperText={error}
             />
-            <ImportButton loading={loading} onClick={handleSubmit} />
+            <ImportButton
+                sx={{ alignSelf: 'flex-end' }}
+                loading={loading}
+                onClick={handleSubmit}
+            />
         </Stack>
     );
 };

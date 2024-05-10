@@ -64,7 +64,11 @@ export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmi
                 error={!!error}
                 helperText={error}
             />
-            <ImportButton loading={loading} onClick={handleSubmit} />
+            <ImportButton
+                sx={{ alignSelf: 'flex-end' }}
+                loading={loading}
+                onClick={handleSubmit}
+            />
         </Box>
     );
 };
