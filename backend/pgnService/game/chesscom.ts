@@ -129,7 +129,7 @@ export async function getChesscomGame(gameURL?: string) {
     const game = new Chess();
 
     const startingPosition = gameData.pgnHeaders['FEN']?.toString();
-    game.load(startingPosition, { skipValidation: true });
+    game.load(startingPosition);
 
     encodedMoves.forEach((encodedMove, idx) => {
         const timestamp = moveTimestamps[idx];
@@ -141,8 +141,8 @@ export async function getChesscomGame(gameURL?: string) {
     });
 
     for (const [key, value] of Object.entries(gameData.pgnHeaders)) {
-        game.header(key, value.toString());
+        game.setHeader(key, value.toString());
     }
 
-    return game.pgn();
+    return game.pgn.render();
 }
