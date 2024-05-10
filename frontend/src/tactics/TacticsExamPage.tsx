@@ -303,6 +303,7 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                         ),
                     },
                     DefaultUnderboardTab.Editor,
+                    DefaultUnderboardTab.Settings,
                 ]}
                 initialUnderboardTab='examInfo'
                 allowMoveDeletion={!exam.takebacksDisabled}
@@ -497,6 +498,7 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
                         icon: <Assessment />,
                         element: <ExamStatistics exam={exam} />,
                     },
+                    DefaultUnderboardTab.Settings,
                 ]}
                 initialUnderboardTab='examInfo'
                 slots={{
