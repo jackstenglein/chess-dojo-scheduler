@@ -14,9 +14,11 @@
 }
 
 .cg-wrap coords.ranks coord:nth-child(2n + 1),
-.cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
 .cg-wrap coords.files coord:nth-child(2n),
-.cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
+.cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
+.cg-wrap.orientation-black coords.files coord:nth-child(2n + 1),
+.cg-wrap coords.squares:nth-child(2n) coord:nth-child(2n + 1),
+.cg-wrap coords.squares:nth-child(2n + 1) coord:nth-child(2n) {
     color: var(--light-square-coord-color) !important;
     font-weight: 600;
 }
@@ -24,7 +26,9 @@
 .cg-wrap coords.ranks coord:nth-child(2n),
 .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
 .cg-wrap coords.files coord:nth-child(2n + 1),
-.cg-wrap.orientation-black coords.files coord:nth-child(2n) {
+.cg-wrap.orientation-black coords.files coord:nth-child(2n),
+.cg-wrap coords.squares:nth-child(2n) coord:nth-child(2n),
+.cg-wrap coords.squares:nth-child(2n + 1) coord:nth-child(2n + 1) {
     color: var(--dark-square-coord-color) !important;
     font-weight: 600;
 }

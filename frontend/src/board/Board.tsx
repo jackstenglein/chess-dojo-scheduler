@@ -15,6 +15,8 @@ import ResizeHandle from './pgn/ResizeHandle';
 import {
     BoardStyle,
     BoardStyleKey,
+    CoordinateStyle,
+    CoordinateStyleKey,
     PieceStyle,
     PieceStyleKey,
     ShowLegalMovesKey,
@@ -189,6 +191,10 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const [promotion, setPromotion] = useState<PrePromotionMove | null>(null);
     const [boardStyle] = useLocalStorage<BoardStyle>(BoardStyleKey, BoardStyle.Standard);
     const [pieceStyle] = useLocalStorage<PieceStyle>(PieceStyleKey, PieceStyle.Standard);
+    const [coordinateStyle] = useLocalStorage<CoordinateStyle>(
+        CoordinateStyleKey,
+        CoordinateStyle.RankFileOnly,
+    );
     const [showLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
 
     const onStartPromotion = useCallback(
@@ -312,6 +318,14 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             },
         });
     }, [board, showLegalMoves]);
+
+    useEffect(() => {
+        board?.set({
+            coordinates: coordinateStyle !== CoordinateStyle.None,
+            coordinatesOnSquares: coordinateStyle === CoordinateStyle.AllSquares,
+        });
+        board?.redrawAll();
+    }, [board, coordinateStyle]);
 
     return (
         <Box

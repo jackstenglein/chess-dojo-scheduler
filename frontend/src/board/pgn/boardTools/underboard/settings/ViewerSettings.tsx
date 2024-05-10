@@ -11,6 +11,7 @@ import KeyboardShortcuts from './KeyboardShortcuts';
 
 export const BoardStyleKey = 'boardStyle';
 export const PieceStyleKey = 'pieceStyle';
+export const CoordinateStyleKey = 'coordinateStyle';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
@@ -38,6 +39,12 @@ export enum PieceStyle {
     ThreeD = 'THREE_D',
 }
 
+export enum CoordinateStyle {
+    None = 'NONE',
+    RankFileOnly = 'RANK_FILE',
+    AllSquares = 'ALL_SQUARES',
+}
+
 export enum GoToEndButtonBehavior {
     SingleClick = 'SINGLE_CLICK',
     DoubleClick = 'DOUBLE_CLICK',
@@ -63,6 +70,10 @@ const ViewerSettings = () => {
     const [pieceStyle, setPieceStyle] = useLocalStorage<string>(
         PieceStyleKey,
         PieceStyle.Standard,
+    );
+    const [coordinateStyle, setCoordinateStyle] = useLocalStorage<CoordinateStyle>(
+        CoordinateStyleKey,
+        CoordinateStyle.RankFileOnly,
     );
     const [goToEndBehavior, setGoToEndBehavior] = useLocalStorage<string>(
         GoToEndButtonBehaviorKey,
@@ -116,6 +127,19 @@ const ViewerSettings = () => {
                 <MenuItem value={PieceStyle.Pixel}>Pixel</MenuItem>
                 <MenuItem value={PieceStyle.Spatial}>Spatial</MenuItem>
                 <MenuItem value={PieceStyle.ThreeD}>3D</MenuItem>
+            </TextField>
+
+            <TextField
+                select
+                label='Coordinate Style'
+                value={coordinateStyle}
+                onChange={(e) => setCoordinateStyle(e.target.value as CoordinateStyle)}
+            >
+                <MenuItem value={CoordinateStyle.None}>None</MenuItem>
+                <MenuItem value={CoordinateStyle.RankFileOnly}>
+                    Rank and File Only
+                </MenuItem>
+                <MenuItem value={CoordinateStyle.AllSquares}>Every Square</MenuItem>
             </TextField>
 
             <TextField

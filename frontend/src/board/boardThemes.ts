@@ -36,8 +36,8 @@ export function getBoardSx(style: BoardStyle): BoardSx {
         case BoardStyle.Standard:
             return {
                 '--board-background': `url('https://chess-dojo-images.s3.amazonaws.com/board/backgrounds/icy_sea.png')`,
-                '--light-square-coord-color': '#7a9db2',
-                '--dark-square-coord-color': '#c5d5dc',
+                '--light-square-coord-color': '#7296ac',
+                '--dark-square-coord-color': '#fff',
             };
         case BoardStyle.Ocean:
             return {
