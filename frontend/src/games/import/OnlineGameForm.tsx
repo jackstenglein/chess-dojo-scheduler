@@ -23,6 +23,11 @@ export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmi
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = () => {
+        if (url.trim() === '') {
+            setError('URL is required.');
+            return;
+        }
+
         const urlCheckers: [GameSubmissionType, (url: string) => boolean][] = [
             [GameSubmissionType.LichessChapter, isLichessChapterURL],
             [GameSubmissionType.LichessStudy, isLichessStudyURL],
@@ -44,14 +49,14 @@ export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmi
             return;
         }
 
-        setError('The URL provided is unsupported. Is it correct?');
+        setError('The provided URL is unsupported. Is it correct?');
     };
 
     return (
         <Box display='flex' gap={1}>
             <TextField
                 sx={{ flexGrow: 1 }}
-                data-cy='url'
+                data-cy='online-game-url'
                 label='Lichess or Chess.com URL'
                 placeholder='https://lichess.org/study/abcd1234/abcd1234'
                 value={url}

@@ -668,16 +668,15 @@ export const isChesscomGameURL = (url: string) =>
     });
 
 // Example: https://www.chess.com/analysis/game/live/108036079387?tab=review
-// Example: https://www.chess.com/analysis/library/3zupGBprJa?tab=analysis&move=0
 // Example: https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis
 export const isChesscomAnalysisURL = (url: string) =>
     isURL(url, {
         hostname: 'www.chess.com',
-        pathParts: [/^analysis$/, /^(game|library)$/, /^(pgn|live)$/, matchChesscomId],
+        pathParts: [/^analysis$/, /^game$/, /^(pgn|live)$/, matchChesscomId],
     }) ||
     isURL(url, {
         hostname: 'www.chess.com',
-        pathParts: [/^analysis$/, /^(game|library)$/, matchChesscomId],
+        pathParts: [/^analysis$/, /^game$/, matchChesscomId],
     }) ||
     isURL(url, {
         hostname: 'www.chess.com',

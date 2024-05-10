@@ -13,7 +13,6 @@ const testURLs: Record<string, string[]> = {
     [GameSubmissionType.ChesscomGame]: ['https://www.chess.com/game/live/107855985867'],
     [GameSubmissionType.ChesscomAnalysis]: [
         'https://www.chess.com/analysis/game/live/108036079387?tab=review',
-        'https://www.chess.com/analysis/library/3zupGBprJa?tab=analysis&move=0',
         'https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis',
     ],
     [GameSubmissionType.LichessGame]: [
