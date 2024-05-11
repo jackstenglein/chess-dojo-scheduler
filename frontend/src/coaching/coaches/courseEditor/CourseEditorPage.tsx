@@ -1,4 +1,5 @@
 import { ArrowUpward, Delete } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 import {
     Alert,
     Button,
@@ -23,8 +24,6 @@ import {
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-
-import { LoadingButton } from '@mui/lab';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
 import { useAuth } from '../../../auth/Auth';
@@ -33,6 +32,7 @@ import { dojoCohorts, getCohortRange } from '../../../database/user';
 import LoadingPage from '../../../loading/LoadingPage';
 import CohortIcon from '../../../scoreboard/CohortIcon';
 import PurchaseCoursePreview from './PurchaseCoursePreview';
+
 interface CoursePurchaseOptionEditor {
     name: string;
     fullPrice: string;

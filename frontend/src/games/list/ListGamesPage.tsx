@@ -1,3 +1,4 @@
+import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import {
     Button,
     Container,
@@ -17,54 +18,40 @@ import {
     GridRowParams,
     GridValueFormatterParams,
 } from '@mui/x-data-grid-pro';
-
+import React, { useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar } from '../../api/Request';
-import { GameInfo } from '../../database/game';
-import { RenderPlayers, RenderResult } from './GameListItem';
-import SearchFilters from './SearchFilters';
-
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
-import React, { useMemo, useState } from 'react';
 import { useFreeTier } from '../../auth/Auth';
+import { GameInfo } from '../../database/game';
 import Avatar from '../../profile/Avatar';
+import CohortIcon from '../../scoreboard/CohortIcon';
+import Icon from '../../style/Icon';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellPage from '../../upsell/UpsellPage';
+import { RenderPlayers, RenderResult } from './GameListItem';
 import ListGamesTutorial from './ListGamesTutorial';
+import SearchFilters from './SearchFilters';
 import { usePagination } from './pagination';
-import Icon from '../../style/Icon';
-import CohortIcon from '../../scoreboard/CohortIcon';
+
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
         width: 115,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
-            if (params.row.ownerDisplayName === '') {
-                return '';
-            }
-
             return (
                 <Stack
                     direction='row'
                     spacing={1}
                     alignItems='center'
                     onClick={(e) => e.stopPropagation()}
-                >     <CohortIcon
-                cohort={params.row.cohort}
-                size={25}
-                sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
-                tooltip=""
-            />
-                    <Typography variant='caption'> {params.row.cohort} </Typography>
-                   
-                    
+                >
+                    <CohortIcon cohort={params.value} size={25} tooltip='' />
+                    <Typography variant='body2'>{params.value}</Typography>
                 </Stack>
             );
-        }
-   
-        
+        },
     },
     {
         field: 'owner',
@@ -90,8 +77,6 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
                     <Link component={RouterLink} to={`/profile/${params.row.owner}`}>
                         {params.row.ownerDisplayName}
                     </Link>
-
-                    
                 </Stack>
             );
         },
@@ -301,7 +286,13 @@ const ListGamesPage = () => {
                             variant='contained'
                             onClick={onSubmit}
                             color='success'
-                            startIcon={<Icon name='upload' color='inherit' sx={{marginRight: '0.3rem'}}/>}
+                            startIcon={
+                                <Icon
+                                    name='upload'
+                                    color='inherit'
+                                    sx={{ marginRight: '0.3rem' }}
+                                />
+                            }
                         >
                             Upload Game
                         </Button>
@@ -314,10 +305,16 @@ const ListGamesPage = () => {
                         />
 
                         <Stack spacing={0.5}>
-                            
                             <Typography variant='body2' alignSelf='start'>
                                 <Link component={RouterLink} to='/games/review-queue'>
-                                <Icon name='line' color='primary' sx={{marginRight: '0.5rem', verticalAlign: 'middle'}}/>
+                                    <Icon
+                                        name='line'
+                                        color='primary'
+                                        sx={{
+                                            marginRight: '0.5rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                    />
                                     Sensei Game Review Queue
                                 </Link>
                             </Typography>
@@ -329,7 +326,6 @@ const ListGamesPage = () => {
                                 alignSelf='start'
                             >
                                 <Link
-                                    
                                     href={
                                         isFreeTier
                                             ? undefined
@@ -339,9 +335,15 @@ const ListGamesPage = () => {
                                     rel='noreferrer'
                                     onClick={isFreeTier ? onDownloadDatabase : undefined}
                                 >
-                                    <Icon name='download' color='primary' sx={{marginRight: '0.5rem', verticalAlign: 'middle'}}/>
-                                    Download full database 
-                                    (updated every 24 hours)
+                                    <Icon
+                                        name='download'
+                                        color='primary'
+                                        sx={{
+                                            marginRight: '0.5rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                    />
+                                    Download full database (updated every 24 hours)
                                 </Link>
                             </Typography>
                         </Stack>
