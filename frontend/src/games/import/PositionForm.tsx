@@ -14,6 +14,7 @@ import { useRequirements } from '../../api/cache/requirements';
 import { GameSubmissionType, RemoteGame } from '../../api/gameApi';
 import { useAuth } from '../../auth/Auth';
 import Board from '../../board/Board';
+import { ChessContext } from '../../board/pgn/PgnBoard';
 import { ImportButton } from './ImportButton';
 
 const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -92,18 +93,21 @@ interface PositionFormProps {
 }
 
 export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit }) => {
-    const [game, setGame] = useState<Chess>(new Chess(startingPositionFen));
+    const [fen, setFen] = useState<string>(startingPositionFen);
     const [error, setError] = useState<string | null>(null);
     const [by, setBy] = useState('starting');
+    const [chess] = useState(new Chess());
+
     const auth = useAuth();
 
     const cohort = auth.user?.dojoCohort;
 
     const changeFen = (fen: string) => {
         setError(null);
+        setFen(fen);
 
         try {
-            setGame(new Chess(fen));
+            chess.load(fen);
         } catch {
             setError('Invalid FEN');
         }
@@ -111,7 +115,7 @@ export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit })
 
     const handleSubmit = () => {
         onSubmit({
-            pgnText: game.pgn.render(),
+            pgnText: chess.pgn.render(),
             type: GameSubmissionType.Manual,
         });
     };
@@ -154,7 +158,7 @@ export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit })
                         <FENField
                             key='by-fen'
                             changeFen={changeFen}
-                            fen={game.fen()}
+                            fen={fen}
                             error={error}
                         />
                     )}
@@ -172,12 +176,13 @@ export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit })
                     />
                 </Box>
                 <Box sx={{ aspectRatio: '1 / 1', maxWidth: '500px', height: 'auto' }}>
-                    <Board
-                        config={{
-                            fen: game.fen(),
-                            viewOnly: true,
-                        }}
-                    />
+                    <ChessContext.Provider value={{ chess }}>
+                        <Board
+                            config={{
+                                fen: chess.fen(),
+                            }}
+                        />
+                    </ChessContext.Provider>
                 </Box>
             </Stack>
         </Box>
