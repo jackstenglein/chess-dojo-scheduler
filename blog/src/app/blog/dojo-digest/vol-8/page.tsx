@@ -34,12 +34,12 @@ export default function DojoDigestVol8() {
             <Stack mt={3}>
                 <Typography component='div'>
                     We launched the training program 2 years ago with a Google doc and a
-                    couple of paper clips. Since then, we've made great technical
+                    couple of paper clips. Since then, we&apos;ve made great technical
                     improvements and learned a lot about what chess improvement involves
                     across the rating spectrum. While we are constantly improving the
                     site, the release of 3.0 gave us the opportunity to revamp our program
                     using the experience of the last 2 years. Here are just some of the
-                    biggest changes we've launched:
+                    biggest changes we&apos;ve launched:
                     <ul>
                         <li>Tactics Tests</li>
                         <li>Tactics Rating & Player Dashboard</li>
@@ -55,12 +55,13 @@ export default function DojoDigestVol8() {
                 </Typography>
 
                 <Typography mt={2} mb={1}>
-                    <strong>Tactics Tests</strong> - We've developed a new style of
+                    <strong>Tactics Tests</strong> - We&apos;ve developed a new style of
                     tactics test! In normal tactics tests, you make your move and the
                     computer plays a single line for your opponent. This can lead to bad
-                    habits, as you don't always have to calculate all of your opponent's
-                    resources. In the Dojo tests, you input moves for both you and your
-                    opponent, and you're graded both on the mainline and on variations:
+                    habits, as you don&apos;t always have to calculate all of your
+                    opponent&apos;s resources. In the Dojo tests, you input moves for both
+                    you and your opponent, and you&apos;re graded both on the mainline and
+                    on variations:
                 </Typography>
 
                 <Image
@@ -75,15 +76,15 @@ export default function DojoDigestVol8() {
                     textAlign='center'
                     mb={2}
                 >
-                    In this example, we found the mainline but missed the opponent's
+                    In this example, we found the mainline but missed the opponent&apos;s
                     defense 18...Rac8 and its refutation, leading to a score of 7/11.
                 </Typography>
 
                 <Typography mb={2}>
                     All test problems are hand-picked by one of the Dojo senseis, and the
-                    solutions are lightly annotated. After you've completed a test, you
-                    can see how you stack up against the rest of the Dojo or against just
-                    a few cohorts:
+                    solutions are lightly annotated. After you&apos;ve completed a test,
+                    you can see how you stack up against the rest of the Dojo or against
+                    just a few cohorts:
                 </Typography>
 
                 <Image
@@ -100,17 +101,17 @@ export default function DojoDigestVol8() {
                 </Typography>
 
                 <Typography mt={4}>
-                    <strong>Tactics Rating & Player Dashboard</strong> - We're using our
-                    new tests, along with some other key metrics, to give everyone a Dojo
-                    Tactics Rating. This will allow players to see how strong they are –
-                    tactically – relative to their cohort. Your tactics rating can be
-                    found on the{' '}
+                    <strong>Tactics Rating & Player Dashboard</strong> - We&apos;re using
+                    our new tests, along with some other key metrics, to give everyone a
+                    Dojo Tactics Rating. This will allow players to see how strong they
+                    are – tactically – relative to their cohort. Your tactics rating can
+                    be found on the{' '}
                     <Link href='https://www.chessdojo.club/profile?view=stats'>
                         ratings tab
                     </Link>{' '}
                     of your profile. Further down the line, we have plans to add similar
                     Dojo Strategy and Dojo Endgame Ratings. All of these ratings will live
-                    in a player's dashboard, where you can see all key metrics at a
+                    in a player&apos;s dashboard, where you can see all key metrics at a
                     glance.
                 </Typography>
 
@@ -129,22 +130,23 @@ export default function DojoDigestVol8() {
                         annotated games database
                     </Link>{' '}
                     has improved tremendously since Dojo 2.0. Even old-timer Sensei Kraai
-                    prefers it to Chessbase! Here are some of the features we've added:
+                    prefers it to Chessbase! Here are some of the features we&apos;ve
+                    added:
                     <ul>
                         <li>
                             Annotate your games in unlisted mode. When unlisted, you can
-                            share your games via the URL, but otherwise it won't appear on
-                            the site. This lets you work on your annotations and get
-                            feedback, then publish to the rest of the Dojo when ready.
+                            share your games via the URL, but otherwise it won&apos;t
+                            appear on the site. This lets you work on your annotations and
+                            get feedback, then publish to the rest of the Dojo when ready.
                         </li>
                         <li>
-                            Games are now viewable by users who don't have a Dojo account,
-                            so you can share your annotations with your friends or coach
-                            without having to force them to sign up.
+                            Games are now viewable by users who don&apos;t have a Dojo
+                            account, so you can share your annotations with your friends
+                            or coach without having to force them to sign up.
                         </li>
                         <li>
-                            You can now comment on individual moves in other users' games,
-                            and other users can reply to your comments in a thread.
+                            You can now comment on individual moves in other users&apos;
+                            games, and other users can reply to your comments in a thread.
                         </li>
 
                         <Image
@@ -160,10 +162,10 @@ export default function DojoDigestVol8() {
 
                         <li>
                             Completely customizable keyboard shortcuts! Want to click
-                            through another user's game, comment on a move and return back
-                            to clicking through the game? Set your keyboard shortcuts, and
-                            you can do that without ever touching your mouse. Perfect for
-                            power users.
+                            through another user&apos;s game, comment on a move and return
+                            back to clicking through the game? Set your keyboard
+                            shortcuts, and you can do that without ever touching your
+                            mouse. Perfect for power users.
                         </li>
                         <li>
                             Search for annotated games in the database by position. You
@@ -203,7 +205,7 @@ export default function DojoDigestVol8() {
                     Training Program from the beginning was that if someone does all the
                     requirements, they will make it to the next level. The senseis will
                     therefore start reviewing the profile of anyone who completes 80% of
-                    their cohort's training program without graduating.
+                    their cohort&apos;s training program without graduating.
                 </Typography>
 
                 <Typography mt={4}>
@@ -216,10 +218,10 @@ export default function DojoDigestVol8() {
                 </Typography>
 
                 <Typography mt={4}>
-                    <strong>Coming Soon</strong> - As if all that wasn't enough, we have
-                    more great projects planned, including an opening trainer, the How to
-                    Analyze Your Games book and a new rating conversion table. Keep an eye
-                    out for our Dojo Digest next month!
+                    <strong>Coming Soon</strong> - As if all that wasn&apos;t enough, we
+                    have more great projects planned, including an opening trainer, the
+                    How to Analyze Your Games book and a new rating conversion table. Keep
+                    an eye out for our Dojo Digest next month!
                 </Typography>
 
                 <Typography mt={4}>
@@ -248,14 +250,14 @@ export default function DojoDigestVol8() {
                     <Link href='https://www.chessdojo.club/profile/google_114391023466287136398'>
                         NoseKnowsAll
                     </Link>{' '}
-                    created two new Lichess studies, which both made it to the staffs'
-                    picks list.{' '}
+                    created two new Lichess studies, which both made it to the
+                    staffs&apos; picks list.{' '}
                     <Link href='https://lichess.org/study/kjBSgqoA'>
                         Talk to Your Pieces
                     </Link>{' '}
                     is best for players under 2000 Lichess, while{' '}
                     <Link href='https://lichess.org/study/dYFcDtRq'>
-                        Pawns Aren't People
+                        Pawns Aren&apos;t People
                     </Link>{' '}
                     is best for players 1900-2400 Lichess. He also recently played his
                     best game ever! Check out the annotations{' '}
@@ -283,7 +285,7 @@ export default function DojoDigestVol8() {
                 </Typography>
 
                 <Typography textAlign='center' mt={4}>
-                    Over the past year of Dojo 2.0, we've collectively achieved:
+                    Over the past year of Dojo 2.0, we&apos;ve collectively achieved:
                     <br />
                     <br />
                     <strong>137,000</strong> rating points gained
