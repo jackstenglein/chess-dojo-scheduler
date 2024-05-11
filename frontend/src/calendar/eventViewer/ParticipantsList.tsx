@@ -5,7 +5,7 @@ import { Warning } from '@mui/icons-material';
 import { useAuth } from '../../auth/Auth';
 import { Event } from '../../database/event';
 import Avatar from '../../profile/Avatar';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+import CohortIcon from '../../scoreboard/CohortIcon';
 
 interface ParticipantsListProps {
     event: Event;
@@ -36,7 +36,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                             {event.ownerDisplayName} ({event.ownerCohort})
                         </Typography>
                     </Link>
-                    <GraduationIcon cohort={event.ownerPreviousCohort} size={22} />
+                    <CohortIcon cohort={event.ownerPreviousCohort} size={22} />
                 </Stack>
             )}
 
@@ -59,7 +59,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                                 {p.displayName} ({p.cohort})
                             </Typography>
                         </Link>
-                        <GraduationIcon cohort={p.previousCohort} size={22} />
+                        <CohortIcon cohort={p.previousCohort} size={22} />
 
                         {showPaymentWarning &&
                             !p.hasPaid &&

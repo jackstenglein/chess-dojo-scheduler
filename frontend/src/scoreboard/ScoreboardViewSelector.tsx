@@ -1,9 +1,14 @@
+import { Groups } from '@mui/icons-material';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import LanguageIcon from '@mui/icons-material/Language';
+import SearchIcon from '@mui/icons-material/Search';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { MenuItem, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
 import { useClubs } from '../api/cache/clubs';
 import { useAuth } from '../auth/Auth';
 import { dojoCohorts } from '../database/user';
+import CohortIcon from './CohortIcon';
 
 const NO_CLUBS: string[] = [];
 
@@ -51,17 +56,36 @@ const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({
             sx={{ mb: 3 }}
             fullWidth
         >
-            <MenuItem value='search'>User Search</MenuItem>
-            <MenuItem value='stats'>Statistics</MenuItem>
-            <MenuItem value='dojo'>Full Dojo</MenuItem>
-            <MenuItem value='following'>People I Follow</MenuItem>
+            <MenuItem value='search'>
+                <SearchIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
+                Search Users
+            </MenuItem>
+            <MenuItem value='stats'>
+                <AutoGraphIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
+                Statistics
+            </MenuItem>
+            <MenuItem value='dojo'>
+                <LanguageIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
+                Full Dojo
+            </MenuItem>
+            <MenuItem value='following'>
+                <ThumbUpIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
+                Followers
+            </MenuItem>
             {clubs.map((club) => (
                 <MenuItem key={club.id} value={`clubs/${club.id}`}>
+                    <Groups sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
                     {club.name}
                 </MenuItem>
             ))}
             {dojoCohorts.map((option) => (
                 <MenuItem key={option} value={option}>
+                    <CohortIcon
+                        cohort={option}
+                        sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                        tooltip=''
+                        size={25}
+                    />{' '}
                     {option}
                 </MenuItem>
             ))}

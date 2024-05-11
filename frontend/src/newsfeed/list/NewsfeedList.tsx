@@ -1,22 +1,23 @@
 import { Stack } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-
 import { useApi } from '../../api/Api';
-import { ListNewsfeedResponse } from '../../api/newsfeedApi';
 import { useRequest } from '../../api/Request';
-import { TimelineEntry } from '../../database/timeline';
+import { ListNewsfeedResponse } from '../../api/newsfeedApi';
+import { RequirementCategory } from '../../database/requirement';
+import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
 import LoadingPage from '../../loading/LoadingPage';
+import Icon from '../../style/Icon';
 import NewsfeedItem from '../detail/NewsfeedItem';
 import LoadMoreButton from './LoadMoreButton';
-import MultipleSelectChip from './MultipleSelectChip';
+import MultipleSelectChip, { MultipleSelectChipOption } from './MultipleSelectChip';
 
 type FilterMap = Record<string, (entry: TimelineEntry) => boolean>;
 
 const isGameAnalysisEntry = (entry: TimelineEntry) =>
-    entry.requirementCategory === 'Games + Analysis';
+    entry.requirementCategory === RequirementCategory.Games;
 
 const isGameSubmissionEntry = (entry: TimelineEntry) =>
-    entry.requirementId === 'GameSubmission';
+    entry.requirementId === TimelineSpecialRequirementId.GameSubmission;
 
 const isAnnotationEntry = (entry: TimelineEntry) =>
     isGameAnalysisEntry(entry) && isGameSubmissionEntry(entry);
@@ -24,11 +25,11 @@ const isAnnotationEntry = (entry: TimelineEntry) =>
 const AllCategoriesFilterName = 'All Categories';
 
 const CategoryFilters: FilterMap = [
-    'Tactics',
-    'Middlegames + Strategy',
-    'Endgame',
-    'Opening',
-    'Non-Dojo',
+    RequirementCategory.Tactics,
+    RequirementCategory.Middlegames,
+    RequirementCategory.Endgame,
+    RequirementCategory.Opening,
+    RequirementCategory.NonDojo,
 ].reduce(
     (acc, category) => ({
         ...acc,
@@ -40,11 +41,17 @@ const CategoryFilters: FilterMap = [
 const Filters: FilterMap = {
     [AllCategoriesFilterName]: () => true,
     Annotations: isAnnotationEntry,
-    'Games + Analysis': (entry) =>
+    [RequirementCategory.Games]: (entry) =>
         isGameAnalysisEntry(entry) && !isAnnotationEntry(entry),
     ...CategoryFilters,
 };
-const FilterOptions = Object.fromEntries(Object.keys(Filters).map((k) => [k, k]));
+const FilterOptions = Object.keys(Filters).map((opt) => {
+    return {
+        value: opt,
+        label: opt,
+        icon: <Icon name={opt} color='primary' />,
+    };
+});
 
 function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) => void] {
     let startingIds = initialNewsfeedIds.filter(
@@ -93,13 +100,13 @@ const MAX_COMMENTS = 3;
 
 interface NewsfeedListProps {
     initialNewsfeedIds: string[];
-    newsfeedIdLabels?: Record<string, string>;
+    newsfeedIdOptions?: MultipleSelectChipOption[];
     showAdditionalFilters?: boolean;
 }
 
 const NewsfeedList: React.FC<NewsfeedListProps> = ({
     initialNewsfeedIds,
-    newsfeedIdLabels,
+    newsfeedIdOptions,
     showAdditionalFilters,
 }) => {
     const api = useApi();
@@ -221,11 +228,11 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
 
     return (
         <Stack spacing={3}>
-            {newsfeedIdLabels !== undefined && (
+            {newsfeedIdOptions !== undefined && (
                 <MultipleSelectChip
                     selected={newsfeedIds}
                     setSelected={setNewsfeedIds}
-                    options={newsfeedIdLabels}
+                    options={newsfeedIdOptions}
                     label='Show Posts From'
                     error={newsfeedIds.length === 0}
                 />

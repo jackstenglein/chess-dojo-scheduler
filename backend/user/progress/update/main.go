@@ -99,7 +99,9 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 	originalScore := requirement.CalculateScore(request.Cohort, progress)
 
 	var originalCount int
-	if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
+	if requirement.IsExpired(progress) {
+		originalCount = 0
+	} else if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
 		originalCount = progress.Counts[database.AllCohorts]
 		progress.Counts[database.AllCohorts] += request.IncrementalCount
 	} else {

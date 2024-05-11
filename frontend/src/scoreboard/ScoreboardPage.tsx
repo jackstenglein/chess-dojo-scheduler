@@ -64,10 +64,15 @@ const ScoreboardPage = () => {
         }
     });
 
+    useEffect(() => {
+        if (type) {
+            dataRequest.reset();
+            graduationsRequest.reset();
+        }
+    }, [type]);
+
     const onChangeViewType = (type: string) => {
         navigate(`/scoreboard/${type}`);
-        dataRequest.reset();
-        graduationsRequest.reset();
     };
 
     if (!type) {

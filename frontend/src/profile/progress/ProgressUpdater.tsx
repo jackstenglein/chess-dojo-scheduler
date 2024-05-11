@@ -20,11 +20,11 @@ import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import {
     CustomTask,
-    getCurrentCount,
-    isRequirement,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
+    getCurrentCount,
+    isRequirement,
 } from '../../database/requirement';
 import InputSlider from './InputSlider';
 
@@ -58,14 +58,16 @@ function getIncrementalCount(
 
     if (alreadyComplete) {
         if (!markComplete) {
-            return -totalCount;
+            // Reset to 0
+            return -currentCount;
         }
+        // No change
         return 0;
     }
 
     if (!markComplete) {
         // The user is just changing the time
-        return currentCount;
+        return 0;
     }
 
     return totalCount - currentCount;

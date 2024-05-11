@@ -10,27 +10,38 @@ import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useClubs } from '../../api/cache/clubs';
 import { useAuth } from '../../auth/Auth';
+import CohortIcon from '../../scoreboard/CohortIcon';
+import Icon from '../../style/Icon';
 import NewsfeedList from './NewsfeedList';
 
 const NewsfeedListPage = () => {
     const user = useAuth().user!;
     const { clubs } = useClubs(user.clubs || []);
 
-    const [newsfeedIds, newsfeedIdLabels] = useMemo(() => {
+    const [newsfeedIds, newsfeedIdOptions] = useMemo(() => {
         let newsfeedIds = ['following', user.dojoCohort];
         newsfeedIds = newsfeedIds.concat(clubs.map((c) => c.id));
 
-        const newsfeedIdLabels = clubs.reduce(
-            (map, club) => {
-                map[club.id] = club.name;
-                return map;
+        const newsfeedIdOptions = [
+            {
+                value: 'following',
+                label: 'Followers',
+                icon: <Icon name='followers' color='primary' />,
             },
-            {} as Record<string, string>,
+            {
+                value: user.dojoCohort,
+                label: 'My Cohort',
+                icon: <CohortIcon cohort={user.dojoCohort} size={25} tooltip='' />,
+            },
+        ].concat(
+            clubs.map((club) => ({
+                value: club.id,
+                label: club.name,
+                icon: <Icon name='clubs' color='primary' />,
+            })),
         );
-        newsfeedIdLabels['following'] = 'People I Follow';
-        newsfeedIdLabels[user.dojoCohort] = 'My Cohort';
 
-        return [newsfeedIds, newsfeedIdLabels];
+        return [newsfeedIds, newsfeedIdOptions];
     }, [clubs, user.dojoCohort]);
 
     return (
@@ -42,7 +53,7 @@ const NewsfeedListPage = () => {
 
                         <NewsfeedList
                             initialNewsfeedIds={newsfeedIds}
-                            newsfeedIdLabels={newsfeedIdLabels}
+                            newsfeedIdOptions={newsfeedIdOptions}
                             showAdditionalFilters={true}
                         />
                     </Stack>

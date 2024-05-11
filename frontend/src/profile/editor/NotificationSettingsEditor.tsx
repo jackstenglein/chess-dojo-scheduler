@@ -1,10 +1,11 @@
+import { Email, Notifications, Web } from '@mui/icons-material';
 import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-
 import { UserNotificationSettings } from '../../database/user';
+import { DiscordIcon } from '../info/DiscordChip';
 
 function getSettingValue(
     notificationSettings: UserNotificationSettings,
-    path: string
+    path: string,
 ): boolean {
     const components = path.split('.');
 
@@ -21,7 +22,7 @@ function getSettingValue(
 function setSettingValue(
     notificationSettings: UserNotificationSettings,
     path: string,
-    value: boolean
+    value: boolean,
 ): UserNotificationSettings {
     const components = path.split('.');
     const result = Object.assign({}, notificationSettings);
@@ -45,11 +46,13 @@ function setSettingValue(
 interface NotificationSettingsSection {
     label: string;
     settings: Array<{ label: string; path: string }>;
+    icon: React.ReactNode;
 }
 
 const sections: NotificationSettingsSection[] = [
     {
         label: 'Site',
+        icon: <Web />,
         settings: [
             {
                 label: 'Notify me when a comment is added to my game',
@@ -71,6 +74,7 @@ const sections: NotificationSettingsSection[] = [
     },
     {
         label: 'Discord',
+        icon: <DiscordIcon />,
         settings: [
             {
                 label: 'Notify me via a Discord DM when my meeting is booked',
@@ -84,6 +88,7 @@ const sections: NotificationSettingsSection[] = [
     },
     {
         label: 'Email',
+        icon: <Email />,
         settings: [
             {
                 label: 'Notify me via email when I am about to be marked inactive',
@@ -114,21 +119,29 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                 }}
             >
-                <Typography variant='h5'>Notifications</Typography>
+                <Typography variant='h5'>
+                    <Notifications
+                        style={{ verticalAlign: 'middle', marginRight: '0.1em' }}
+                    />{' '}
+                    Notifications
+                </Typography>
                 <Divider />
             </Stack>
 
             {sections.map((s) => (
                 <Stack key={s.label} spacing={0.5}>
-                    <Typography
-                        id={`notifications-${s.label.toLowerCase()}`}
-                        variant='h6'
-                        sx={{
-                            scrollMarginTop: '88px',
-                        }}
-                    >
-                        {s.label}
-                    </Typography>
+                    <Stack direction='row' spacing={1} alignItems='center'>
+                        {s.icon}
+                        <Typography
+                            id={`notifications-${s.label.toLowerCase()}`}
+                            variant='h6'
+                            sx={{
+                                scrollMarginTop: '88px',
+                            }}
+                        >
+                            {s.label}
+                        </Typography>
+                    </Stack>
 
                     {s.settings.map((setting) => (
                         <FormControlLabel
@@ -138,7 +151,7 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                                     checked={
                                         !getSettingValue(
                                             notificationSettings,
-                                            setting.path
+                                            setting.path,
                                         )
                                     }
                                     onChange={(e) =>
@@ -146,8 +159,8 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                                             setSettingValue(
                                                 notificationSettings,
                                                 setting.path,
-                                                !e.target.checked
-                                            )
+                                                !e.target.checked,
+                                            ),
                                         )
                                     }
                                 />

@@ -1,6 +1,7 @@
 /** The type of an exam. */
 export enum ExamType {
     Tactics = 'TACTICS_EXAM',
+    Polgar = 'POLGAR_EXAM',
 }
 
 /**
@@ -43,6 +44,9 @@ export interface Exam {
 
     /** A map from username to ExamAnswerSummary. */
     answers: Record<string, ExamAnswerSummary>;
+
+    /** Whether takebacks for the side to move are disabled. */
+    takebacksDisabled?: boolean;
 }
 
 /** A single user's answer to an exam problem. */
@@ -57,17 +61,12 @@ export interface ExamProblemAnswer {
     total: number;
 }
 
-/** A single user's answer to a full exam. */
-export interface ExamAnswer {
-    /** The user's username. */
-    type: string;
-
-    /** The v4 UUID of the exam. */
-    id: string;
-
-    /** The type of the exam this answer refers to. */
-    examType: ExamType;
-
+/**
+ * A single user's attempt on an exam. Users can retake exams,
+ * but only the first attempt is scored. All attempts are stored together
+ * in an ExamAnswer object.
+ */
+export interface ExamAttempt {
     /** The user's answers to the problems included in the exam. */
     answers: ExamProblemAnswer[];
 
@@ -82,4 +81,19 @@ export interface ExamAnswer {
 
     /** The date the user took the exam, in time.RFC3339 format. */
     createdAt: string;
+}
+
+/** A single user's answer to a full exam. */
+export interface ExamAnswer {
+    /** The user's username. */
+    type: string;
+
+    /** The v4 UUID of the exam. */
+    id: string;
+
+    /** The type of the exam this answer refers to. */
+    examType: ExamType;
+
+    /** The user's attempts on the exam. */
+    attempts: ExamAttempt[];
 }

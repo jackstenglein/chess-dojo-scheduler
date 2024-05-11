@@ -4,6 +4,7 @@ import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { Amplify, Hub } from 'aws-amplify';
 import { useEffect } from 'react';
 import {
+    Navigate,
     Outlet,
     Route,
     RouterProvider,
@@ -43,7 +44,12 @@ import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
 import HelpPage from './help/HelpPage';
 import LandingPage from './landing/LandingPage';
+import BooksPage from './material/BooksPage';
 import MaterialPage from './material/MaterialPage';
+import MemorizeGamesPage from './material/MemorizeGamesPage';
+import ModelGamesPage from './material/ModelGamesPage';
+import RatingConversionsPage from './material/RatingConversionsPage';
+import SparringPage from './material/SparringPage';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
@@ -64,9 +70,9 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
-import ListTacticsExamsPage from './tactics/ListTacticsExamsPage';
 import TacticsExamPage from './tactics/TacticsExamPage';
-import TacticsInstructionsPage from './tactics/TacticsInstructionsPage';
+import TacticsInstructionsPage from './tactics/instructions/TacticsInstructionsPage';
+import ListTacticsExamsPage from './tactics/list/ListTacticsExamsPage';
 import TournamentsPage from './tournaments/TournamentsPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import InfoPage from './tournaments/openClassical/InfoPage';
@@ -198,6 +204,9 @@ const router = createBrowserRouter(
 
                     <Route path='material'>
                         <Route index element={<MaterialPage />} />
+                        <Route path='sparring' element={<SparringPage />} />
+                        <Route path='modelgames' element={<ModelGamesPage />} />
+                        <Route path='memorizegames' element={<MemorizeGamesPage />} />
                     </Route>
 
                     <Route path='notifications' element={<NotificationPage />} />
@@ -215,11 +224,24 @@ const router = createBrowserRouter(
             </Route>
 
             {/* Unauthenticated */}
+
             <Route path='games'>
                 <Route path=':cohort/:id'>
                     <Route index element={<GamePage />} />
                 </Route>
             </Route>
+
+            <Route path='material'>
+                <Route path='books' element={<BooksPage />} />
+                <Route path='ratings' element={<RatingConversionsPage />} />
+            </Route>
+
+            {/* Legacy routes from Wix */}
+            <Route path='books-by-rating' element={<BooksPage />} />
+            <Route path='recommendations' element={<BooksPage />} />
+            <Route path='training' element={<Navigate to='/' replace />} />
+            <Route path='home' element={<Navigate to='/' replace />} />
+            <Route path='plans-pricing' element={<PricingPage />} />
 
             <Route path='*' element={<NotFoundPage />} />
         </Route>,

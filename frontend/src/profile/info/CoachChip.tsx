@@ -1,6 +1,6 @@
 import { Chip, Tooltip } from '@mui/material';
 import { Sports } from '@mui/icons-material';
-
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { User } from '../../database/user';
 
 interface CoachChipProps {
@@ -15,10 +15,10 @@ const CoachChip: React.FC<CoachChipProps> = ({ user }) => {
     return (
         <Tooltip title='This member is a Dojo coach'>
             <Chip
-                icon={<Sports fontSize='small' />}
+                icon={<RocketLaunchIcon fontSize='small' />}
                 label='Coach'
                 variant='outlined'
-                color='primary'
+                color='success'
             />
         </Tooltip>
     );

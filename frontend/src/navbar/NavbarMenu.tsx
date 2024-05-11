@@ -1,4 +1,6 @@
 import {
+    AutoStories,
+    BorderColor,
     CalendarToday,
     Checklist,
     ChevronRight,
@@ -8,15 +10,28 @@ import {
     Forum,
     Groups,
     Help,
+    ImportContacts,
+    LocalFireDepartment,
     Logout,
     MenuBook,
     Menu as MenuIcon,
+    MilitaryTech,
     Notifications,
     Person2 as Person2Icon,
+    Psychology,
+    RocketLaunch,
     Scoreboard,
     Sell,
+    SignalCellularAlt,
+    Speed,
+    Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import GroupIcon from '@mui/icons-material/Group';
+import LanguageIcon from '@mui/icons-material/Language';
+import SearchIcon from '@mui/icons-material/Search';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import {
     Badge,
     Button,
@@ -90,7 +105,34 @@ function allStartItems(
         {
             name: 'Scoreboard',
             icon: <Scoreboard />,
-            onClick: () => navigate('/scoreboard'),
+            onClick: () => toggleExpansion('Scoreboard'),
+            children: [
+                {
+                    name: 'My Cohort',
+                    icon: <GroupIcon />,
+                    onClick: () => navigate('/scoreboard'),
+                },
+                {
+                    name: 'Full Dojo',
+                    icon: <LanguageIcon />,
+                    onClick: () => navigate('scoreboard/dojo'),
+                },
+                {
+                    name: 'Followers',
+                    icon: <ThumbUpIcon />,
+                    onClick: () => navigate('scoreboard/following'),
+                },
+                {
+                    name: 'Search Users',
+                    icon: <SearchIcon />,
+                    onClick: () => navigate('scoreboard/search'),
+                },
+                {
+                    name: 'Statistics',
+                    icon: <AutoGraphIcon />,
+                    onClick: () => navigate('scoreboard/stats'),
+                },
+            ],
         },
         {
             name: 'Tournaments',
@@ -99,10 +141,12 @@ function allStartItems(
             children: [
                 {
                     name: 'DojoLiga',
+                    icon: <MilitaryTech />,
                     onClick: () => navigate('/tournaments'),
                 },
                 {
                     name: 'Open Classical',
+                    icon: <MilitaryTech />,
                     onClick: () => navigate('/tournaments/open-classical'),
                 },
             ],
@@ -124,30 +168,37 @@ function allStartItems(
             children: [
                 {
                     name: 'Courses',
+                    icon: <ImportContacts />,
                     onClick: () => navigate('/courses'),
                 },
                 {
-                    name: 'Tactics Exams',
+                    name: 'Tactics Tests',
+                    icon: <Speed />,
                     onClick: () => navigate('/tactics'),
                 },
                 {
                     name: 'Books',
+                    icon: <AutoStories />,
                     onClick: () => navigate('/material/books'),
                 },
                 {
                     name: 'Sparring Positions',
+                    icon: <LocalFireDepartment />,
                     onClick: () => navigate('/material/sparring'),
                 },
                 {
                     name: 'Model Annotations',
+                    icon: <BorderColor />,
                     onClick: () => navigate('/material/modelgames'),
                 },
                 {
                     name: 'Games to Memorize',
+                    icon: <Psychology />,
                     onClick: () => navigate('/material/memorizegames'),
                 },
                 {
                     name: 'Rating Conversions',
+                    icon: <SignalCellularAlt />,
                     onClick: () => navigate('/material/ratings'),
                 },
             ],
@@ -169,14 +220,17 @@ function allStartItems(
             children: [
                 {
                     name: 'Courses',
+                    icon: <ImportContacts />,
                     onClick: () => navigate('/courses'),
                 },
                 {
                     name: 'Coaching',
+                    icon: <RocketLaunch />,
                     onClick: () => navigate('/coaching'),
                 },
                 {
                     name: 'Merch',
+                    icon: <Storefront />,
                     onClick: () =>
                         window.open('https://www.chessdojo.shop/shop', '_blank'),
                 },

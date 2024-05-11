@@ -1,12 +1,14 @@
 import {
     Container,
     Paper,
+    Stack,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
+    Typography,
 } from '@mui/material';
 import {
     RatingSystem,
@@ -14,6 +16,7 @@ import {
     formatRatingSystem,
     getRatingBoundary,
 } from '../database/user';
+import CohortIcon from '../scoreboard/CohortIcon';
 
 const { Fide, Custom, ...others } = RatingSystem;
 
@@ -39,7 +42,16 @@ const RatingConversionsPage = () => {
                     <TableBody>
                         {dojoCohorts.slice(0, dojoCohorts.length - 1).map((c, i) => (
                             <TableRow key={c}>
-                                <TableCell key='Fide'>{c}</TableCell>
+                                <TableCell key='Fide'>
+                                    <Stack
+                                        direction='row'
+                                        spacing={2}
+                                        alignItems='center'
+                                    >
+                                        <CohortIcon cohort={c} tooltip='' />
+                                        <Typography variant='body2'>{c}</Typography>
+                                    </Stack>
+                                </TableCell>
                                 {ratingSystems.map((rs) => {
                                     const minRating =
                                         i === 0
@@ -61,7 +73,17 @@ const RatingConversionsPage = () => {
                             </TableRow>
                         ))}
                         <TableRow>
-                            <TableCell>{dojoCohorts[dojoCohorts.length - 1]}</TableCell>
+                            <TableCell>
+                                <Stack direction='row' spacing={2} alignItems='center'>
+                                    <CohortIcon
+                                        cohort={dojoCohorts[dojoCohorts.length - 1]}
+                                        tooltip=''
+                                    />
+                                    <Typography variant='body2'>
+                                        {dojoCohorts[dojoCohorts.length - 1]}
+                                    </Typography>
+                                </Stack>
+                            </TableCell>
                             {ratingSystems.map((rs) => (
                                 <TableCell key={rs}>
                                     {getRatingBoundary(

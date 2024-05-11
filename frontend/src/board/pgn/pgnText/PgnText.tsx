@@ -19,7 +19,7 @@ const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
     const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
 
-    const handleScroll = (child: HTMLButtonElement | null) => {
+    const handleScroll = (child: HTMLElement | null) => {
         const scrollParent = ref.current;
         if (child && scrollParent) {
             const parentRect = scrollParent.getBoundingClientRect();

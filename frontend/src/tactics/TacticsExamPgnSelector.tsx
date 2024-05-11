@@ -1,3 +1,4 @@
+import { Check, Warning } from '@mui/icons-material';
 import {
     Button,
     CardContent,
@@ -10,25 +11,34 @@ import {
     ListItem,
     ListItemButton,
     ListItemIcon,
+    Menu,
+    MenuItem,
     Stack,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { ColorFormat } from 'react-countdown-circle-timer';
 import { BlockBoardKeyboardShortcuts } from '../board/pgn/PgnBoard';
-import { Scores } from './TacticsExamPage';
 
-interface TacticsExamPgnSelectorProps {
-    name?: string;
-    cohortRange?: string;
+export enum ProblemStatus {
+    Unknown = '',
+    Complete = 'COMPLETE',
+    NeedsReview = 'NEEDS_REVIEW',
+}
+
+export interface TacticsExamPgnSelectorProps {
+    name: string;
+    cohortRange: string;
     count: number;
     selected: number;
     onSelect: (v: number) => void;
-    countdown?: CountdownProps;
-    elapsedTime?: number;
+    countdown: CountdownProps;
     onComplete?: () => void;
-    scores?: Scores;
-    onReset?: () => void;
+    orientations: string[];
+    pgnNames?: string[];
+    problemStatus?: Record<number, ProblemStatus>;
+    setProblemStatus?: (status: Record<number, ProblemStatus>) => void;
 }
 
 const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
@@ -39,48 +49,53 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
     onSelect,
     countdown,
     onComplete,
-    scores,
-    onReset,
-    elapsedTime,
+    orientations,
+    pgnNames,
+    problemStatus,
+    setProblemStatus,
 }) => {
     const [isFinishEarly, setIsFinishEarly] = useState(false);
+    const [statusAnchorEl, setStatusAnchorEl] = useState<HTMLElement | null>(null);
+    const [openStatusProblem, setOpenStatusProblem] = useState(-1);
+
+    const handleOpenStatusMenu = (i: number, e: React.MouseEvent<HTMLDivElement>) => {
+        if (problemStatus && setProblemStatus) {
+            e.preventDefault();
+            setOpenStatusProblem(i);
+            setStatusAnchorEl(e.currentTarget);
+        }
+    };
+
+    const handleCloseStatusMenu = () => {
+        setOpenStatusProblem(-1);
+        setStatusAnchorEl(null);
+    };
+
+    const markStatus = (status: ProblemStatus) => {
+        setProblemStatus?.({
+            ...problemStatus,
+            [openStatusProblem]: status,
+        });
+        handleCloseStatusMenu();
+    };
 
     return (
         <CardContent>
-            {name && cohortRange && (
-                <Stack alignItems='center' mb={3}>
-                    <Typography variant='h6' color='text.secondary'>
-                        {cohortRange}: {name}
-                    </Typography>
-                </Stack>
-            )}
+            <Stack alignItems='center' mb={3}>
+                <Typography variant='h6' color='text.secondary'>
+                    {cohortRange}: {name}
+                </Typography>
+            </Stack>
             <Stack
                 spacing={3}
                 direction='row'
                 alignItems='center'
                 justifyContent='center'
             >
-                {countdown ? (
-                    <>
-                        <CountdownTimer {...countdown} />
-                        <Button
-                            variant='contained'
-                            onClick={() => setIsFinishEarly(true)}
-                        >
-                            Finish Early
-                        </Button>
-                    </>
-                ) : (
-                    <Stack alignItems='center'>
-                        <Typography variant='h6'>Test Complete</Typography>
-                        <Typography variant='subtitle1'>
-                            Total Score: {scores?.total.user} / {scores?.total.solution}
-                        </Typography>
-                        <Typography variant='subtitle1'>
-                            Time Used: {formatTime(elapsedTime || 0)}
-                        </Typography>
-                    </Stack>
-                )}
+                <CountdownTimer {...countdown} />
+                <Button variant='contained' onClick={() => setIsFinishEarly(true)}>
+                    Finish Early
+                </Button>
             </Stack>
 
             <List sx={{ mt: 2 }}>
@@ -89,6 +104,7 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                         <ListItemButton
                             selected={i === selected}
                             onClick={() => onSelect(i)}
+                            onContextMenu={(e) => handleOpenStatusMenu(i, e)}
                         >
                             <ListItemIcon sx={{ minWidth: '40px' }}>
                                 <Stack alignItems='center' width={1}>
@@ -107,27 +123,31 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                                 width={1}
                                 spacing={1}
                             >
-                                <Typography>Problem {i + 1}</Typography>
+                                <Typography>
+                                    {pgnNames?.[i] || `Problem ${i + 1}`}
+                                </Typography>
 
-                                {scores && (
-                                    <Typography>
-                                        {scores.problems[i].user} /{' '}
-                                        {scores.problems[i].solution}
+                                <Stack direction='row' spacing={2}>
+                                    {problemStatus?.[i] === ProblemStatus.Complete && (
+                                        <Tooltip title='You marked this problem as complete. Right click to change.'>
+                                            <Check color='success' />
+                                        </Tooltip>
+                                    )}
+                                    {problemStatus?.[i] === ProblemStatus.NeedsReview && (
+                                        <Tooltip title='You marked this problem as needs review. Right click to change.'>
+                                            <Warning color='warning' />
+                                        </Tooltip>
+                                    )}
+                                    <Typography color='text.secondary'>
+                                        {orientations[i][0].toUpperCase()}
+                                        {orientations[i].slice(1)}
                                     </Typography>
-                                )}
+                                </Stack>
                             </Stack>
                         </ListItemButton>
                     </ListItem>
                 ))}
             </List>
-
-            {onReset && (
-                <Stack alignItems='center' mt={3}>
-                    <Button variant='contained' onClick={onReset}>
-                        Reset Sample
-                    </Button>
-                </Stack>
-            )}
 
             <Dialog
                 open={isFinishEarly}
@@ -150,13 +170,50 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                     <Button onClick={onComplete}>Finish</Button>
                 </DialogActions>
             </Dialog>
+
+            <Menu
+                anchorEl={statusAnchorEl}
+                open={Boolean(statusAnchorEl)}
+                onClose={handleCloseStatusMenu}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+            >
+                <MenuItem
+                    onClick={() => markStatus(ProblemStatus.Complete)}
+                    disabled={
+                        problemStatus?.[openStatusProblem] === ProblemStatus.Complete
+                    }
+                >
+                    Mark as Completed
+                </MenuItem>
+                <MenuItem
+                    onClick={() => markStatus(ProblemStatus.NeedsReview)}
+                    disabled={
+                        problemStatus?.[openStatusProblem] === ProblemStatus.NeedsReview
+                    }
+                >
+                    Mark as Needs Review
+                </MenuItem>
+                <MenuItem
+                    onClick={() => markStatus(ProblemStatus.Unknown)}
+                    disabled={!problemStatus?.[openStatusProblem]}
+                >
+                    Clear Status
+                </MenuItem>
+            </Menu>
         </CardContent>
     );
 };
 
 export default TacticsExamPgnSelector;
 
-const formatTime = (time: number) => {
+export const formatTime = (time: number) => {
     time = Math.round(time);
     const minutes = `0${Math.floor(time / 60)}`.slice(-2);
     const seconds = `0${time % 60}`.slice(-2);

@@ -54,7 +54,6 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
           - dynamodb:UpdateItem
         Resource: !GetAtt ExamsTable.Arn
   

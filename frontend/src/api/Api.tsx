@@ -4,7 +4,7 @@ import { useAuth } from '../auth/Auth';
 import { Club, ClubJoinRequestStatus } from '../database/club';
 import { Course } from '../database/course';
 import { Event } from '../database/event';
-import { ExamAnswer, ExamType } from '../database/exam';
+import { ExamAttempt, ExamType } from '../database/exam';
 import { GameReviewType, PositionComment } from '../database/game';
 import { Requirement } from '../database/requirement';
 import { TimelineEntry } from '../database/timeline';
@@ -46,7 +46,7 @@ import {
     listEvents,
     setEvent,
 } from './eventApi';
-import { ExamApiContextType, getExamAnswer, listExams, putExamAnswer } from './examApi';
+import { ExamApiContextType, getExamAnswer, listExams, putExamAttempt } from './examApi';
 import {
     ExplorerApiContextType,
     followPosition,
@@ -421,7 +421,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             listExams: (type: ExamType, startKey?: string) =>
                 listExams(idToken, type, startKey),
-            putExamAnswer: (answer: ExamAnswer) => putExamAnswer(idToken, answer),
+            putExamAttempt: (examType: ExamType, examId: string, attempt: ExamAttempt) =>
+                putExamAttempt(idToken, examType, examId, attempt),
             getExamAnswer: (id: string) => getExamAnswer(idToken, id),
 
             createSupportTicket: (request: SupportTicketRequest) =>

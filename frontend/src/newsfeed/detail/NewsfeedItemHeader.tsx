@@ -1,12 +1,12 @@
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-
 import { useAuth } from '../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
-import { TimelineEntry } from '../../database/timeline';
-import { CategoryColors } from '../../profile/activity/activity';
+import { RequirementCategory } from '../../database/requirement';
+import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
 import Avatar from '../../profile/Avatar';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
+import { CategoryColors } from '../../profile/activity/activity';
+import CohortIcon from '../../scoreboard/CohortIcon';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;
@@ -27,6 +27,11 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
         hour: 'numeric',
         minute: '2-digit',
     });
+
+    const category =
+        entry.requirementId === TimelineSpecialRequirementId.GameSubmission
+            ? RequirementCategory.Games
+            : entry.requirementCategory;
 
     return (
         <Stack
@@ -49,6 +54,12 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
                         <Link component={RouterLink} to={`/profile/${entry.owner}`}>
                             {entry.ownerDisplayName}
                         </Link>
+                        <CohortIcon
+                            cohort={entry.graduationInfo?.newCohort || entry.cohort}
+                            size={25}
+                            sx={{ marginLeft: '0.6rem', verticalAlign: 'middle' }}
+                            tooltip={`Member of the ${entry.graduationInfo?.newCohort || entry.cohort} cohort`}
+                        />
                     </Typography>
 
                     <Typography variant='body2' color='text.secondary'>
@@ -59,15 +70,13 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
 
             {entry.requirementId === 'Graduation' ? (
                 <Box sx={{ display: { xs: 'none', sm: 'initial' } }}>
-                    <GraduationIcon cohort={entry.cohort} size={50} />
+                    <CohortIcon cohort={entry.cohort} size={50} />
                 </Box>
             ) : (
                 <Stack direction='row' spacing={1} alignItems='center'>
-                    <Stack alignItems={{ xs: 'start', sm: 'end' }}>
-                        <Typography
-                            sx={{ color: CategoryColors[entry.requirementCategory] }}
-                        >
-                            {entry.requirementCategory}
+                    <Stack alignItems='end'>
+                        <Typography sx={{ color: CategoryColors[category] }}>
+                            {category}
                         </Typography>
                         <Typography variant='body2' color='text.secondary'>
                             {entry.cohort}

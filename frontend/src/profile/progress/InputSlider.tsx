@@ -1,4 +1,5 @@
-import { Grid, Slider, Input, Typography } from '@mui/material';
+import { FormControl, InputLabel, OutlinedInput, Slider } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 interface InputSliderProps {
     value: number;
@@ -34,14 +35,16 @@ const InputSlider: React.FC<InputSliderProps> = ({
     };
 
     return (
-        <Grid
+        <Grid2
             container
             width={1}
-            spacing={2}
+            columnGap={4}
+            rowGap={2}
             alignItems='center'
             justifyContent='space-between'
+            pt={1}
         >
-            <Grid item xs={12} sm={9.5}>
+            <Grid2 xs={12} sm>
                 <Slider
                     value={typeof value === 'number' ? value : 0}
                     onChange={handleSliderChange}
@@ -50,35 +53,30 @@ const InputSlider: React.FC<InputSliderProps> = ({
                     max={max}
                     min={min}
                 />
-            </Grid>
-            <Grid item xs={12} sm={2} sx={{ position: 'relative' }}>
-                {suffix && (
-                    <Typography
-                        sx={{
-                            position: 'absolute',
-                            left: { xs: '130px', sm: '45px', md: '90px' },
-                            bottom: '4px',
+            </Grid2>
+            <Grid2 xs={12} sm={3} md={2}>
+                <FormControl sx={{ width: 1 }}>
+                    {suffix && <InputLabel htmlFor='input-slider'>{suffix}</InputLabel>}
+                    <OutlinedInput
+                        id='input-slider'
+                        value={value}
+                        size='small'
+                        onChange={handleInputChange}
+                        onBlur={handleBlur}
+                        inputProps={{
+                            step: 1,
+                            min: min,
+                            max: max,
+                            type: 'number',
+                            'aria-labelledby': 'input-slider',
+                            style: { width: '100%' },
                         }}
-                    >
-                        {suffix}
-                    </Typography>
-                )}
-                <Input
-                    value={value}
-                    size='small'
-                    onChange={handleInputChange}
-                    onBlur={handleBlur}
-                    inputProps={{
-                        step: 1,
-                        min: min,
-                        max: max,
-                        type: 'number',
-                        'aria-labelledby': 'input-slider',
-                    }}
-                    sx={{ minWidth: '60px' }}
-                />
-            </Grid>
-        </Grid>
+                        label={suffix}
+                        sx={{ width: 1 }}
+                    />
+                </FormControl>
+            </Grid2>
+        </Grid2>
     );
 };
 

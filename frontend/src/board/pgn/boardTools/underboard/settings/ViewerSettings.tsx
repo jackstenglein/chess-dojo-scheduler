@@ -9,10 +9,41 @@ import {
 import { useLocalStorage } from 'usehooks-ts';
 import KeyboardShortcuts from './KeyboardShortcuts';
 
+export const BoardStyleKey = 'boardStyle';
+export const PieceStyleKey = 'pieceStyle';
+export const CoordinateStyleKey = 'coordinateStyle';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
+export const ShowLegalMovesKey = 'showLegalMoves';
 export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
+
+export enum BoardStyle {
+    Standard = 'STANDARD',
+    Moon = 'MOON',
+    Summer = 'SUMMER',
+    Wood = 'WOOD',
+    Walnut = 'WALNUT',
+    CherryBlossom = 'CHERRY_BLOSSOM',
+    Ocean = 'OCEAN',
+}
+
+export enum PieceStyle {
+    Standard = 'STANDARD',
+    Pixel = 'PIXEL',
+    Spatial = 'WOOD',
+    Celtic = 'CELTIC',
+    Fantasy = 'FANTASY',
+    Chessnut = 'CHERRY',
+    Cburnett = 'WALNUT',
+    ThreeD = 'THREE_D',
+}
+
+export enum CoordinateStyle {
+    None = 'NONE',
+    RankFileOnly = 'RANK_FILE',
+    AllSquares = 'ALL_SQUARES',
+}
 
 export enum GoToEndButtonBehavior {
     SingleClick = 'SINGLE_CLICK',
@@ -32,6 +63,18 @@ export enum CapturedMaterialBehavior {
 }
 
 const ViewerSettings = () => {
+    const [boardStyle, setBoardStyle] = useLocalStorage<string>(
+        BoardStyleKey,
+        BoardStyle.Standard,
+    );
+    const [pieceStyle, setPieceStyle] = useLocalStorage<string>(
+        PieceStyleKey,
+        PieceStyle.Standard,
+    );
+    const [coordinateStyle, setCoordinateStyle] = useLocalStorage<CoordinateStyle>(
+        CoordinateStyleKey,
+        CoordinateStyle.RankFileOnly,
+    );
     const [goToEndBehavior, setGoToEndBehavior] = useLocalStorage<string>(
         GoToEndButtonBehaviorKey,
         GoToEndButtonBehavior.SingleClick,
@@ -49,10 +92,55 @@ const ViewerSettings = () => {
             CapturedMaterialBehaviorKey,
             CapturedMaterialBehavior.Difference,
         );
+    const [showLegalMoves, setShowLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
 
     return (
         <Stack spacing={3}>
             <Typography variant='h5'>Viewer Settings</Typography>
+
+            <TextField
+                select
+                label='Board Style'
+                value={boardStyle}
+                onChange={(e) => setBoardStyle(e.target.value)}
+            >
+                <MenuItem value={BoardStyle.Standard}>Standard</MenuItem>
+                <MenuItem value={BoardStyle.CherryBlossom}>Cherry Blossom</MenuItem>
+                <MenuItem value={BoardStyle.Moon}>Moon</MenuItem>
+                <MenuItem value={BoardStyle.Ocean}>Ocean</MenuItem>
+                <MenuItem value={BoardStyle.Summer}>Summer</MenuItem>
+                <MenuItem value={BoardStyle.Walnut}>Walnut</MenuItem>
+                <MenuItem value={BoardStyle.Wood}>Wood</MenuItem>
+            </TextField>
+
+            <TextField
+                select
+                label='Piece Style'
+                value={pieceStyle}
+                onChange={(e) => setPieceStyle(e.target.value)}
+            >
+                <MenuItem value={PieceStyle.Standard}>Standard</MenuItem>
+                <MenuItem value={PieceStyle.Cburnett}>Cburnett</MenuItem>
+                <MenuItem value={PieceStyle.Celtic}>Celtic</MenuItem>
+                <MenuItem value={PieceStyle.Chessnut}>Chessnut</MenuItem>
+                <MenuItem value={PieceStyle.Fantasy}>Fantasy</MenuItem>
+                <MenuItem value={PieceStyle.Pixel}>Pixel</MenuItem>
+                <MenuItem value={PieceStyle.Spatial}>Spatial</MenuItem>
+                <MenuItem value={PieceStyle.ThreeD}>3D</MenuItem>
+            </TextField>
+
+            <TextField
+                select
+                label='Coordinate Style'
+                value={coordinateStyle}
+                onChange={(e) => setCoordinateStyle(e.target.value as CoordinateStyle)}
+            >
+                <MenuItem value={CoordinateStyle.None}>None</MenuItem>
+                <MenuItem value={CoordinateStyle.RankFileOnly}>
+                    Rank and File Only
+                </MenuItem>
+                <MenuItem value={CoordinateStyle.AllSquares}>Every Square</MenuItem>
+            </TextField>
 
             <TextField
                 select
@@ -95,6 +183,16 @@ const ViewerSettings = () => {
             </TextField>
 
             <Stack>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={showLegalMoves}
+                            onChange={(e) => setShowLegalMoves(e.target.checked)}
+                        />
+                    }
+                    label='Show legal moves'
+                />
+
                 <FormControlLabel
                     control={
                         <Checkbox

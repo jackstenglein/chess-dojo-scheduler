@@ -14,13 +14,7 @@ describe('Books Tab', () => {
         cy.contains('Endgames');
     });
 
-    it('should have sections collapsed by default', () => {
-        cy.contains('Laszlo Polgar').should('not.be.visible');
-    });
-
-    it('should allow expanding sections', () => {
-        cy.contains('Main Recommendations').click();
-
-        cy.contains('Laszlo Polgar').should('be.visible');
+    it('should have cohort selector', () => {
+        cy.getBySel('cohort-selector').should('be.visible');
     });
 });

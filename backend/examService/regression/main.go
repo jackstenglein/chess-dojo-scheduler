@@ -42,7 +42,7 @@ func handler(ctx context.Context, event events.DynamoDBEvent) error {
 // those ratings on each user object.
 func processExam(record events.DynamoDBEventRecord) error {
 	examType := record.Change.Keys["type"].String()
-	if examType != string(database.ExamType_Tactics) {
+	if !database.IsValidExamType(database.ExamType(examType)) {
 		log.Info("Not an exam")
 		return nil
 	}

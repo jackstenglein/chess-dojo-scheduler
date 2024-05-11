@@ -19,14 +19,14 @@ import {
 import React, { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../../../../../api/Api';
-import { UpdateCommentRequest } from '../../../../../api/gameApi';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
+import { UpdateCommentRequest } from '../../../../../api/gameApi';
 import { useAuth } from '../../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
 import { PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import Avatar from '../../../../../profile/Avatar';
-import GraduationIcon from '../../../../../scoreboard/GraduationIcon';
+import CohortIcon from '../../../../../scoreboard/CohortIcon';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
 import Replies from './Replies';
 import ReplyEditor from './ReplyEditor';
@@ -356,7 +356,7 @@ const CommentInfo: React.FC<CommentProps> = ({ comment }) => {
                         {comment.owner.displayName} ({comment.owner.cohort})
                     </Typography>
                 </Link>
-                <GraduationIcon cohort={comment.owner.previousCohort} size={20} />
+                <CohortIcon cohort={comment.owner.previousCohort} size={20} />
                 <Typography variant='caption' color='text.secondary'>
                     • {createdAtDate} {createdAtTime}
                 </Typography>

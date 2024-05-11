@@ -1,10 +1,14 @@
 import {
+    AutoStories,
     ChevronRight,
     ContactSupport,
     ExpandLess,
     ExpandMore,
+    ImportContacts,
+    MenuBook,
     Menu as MenuIcon,
     Sell,
+    SignalCellularAlt,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
 import {
@@ -56,6 +60,28 @@ function unauthenticatedStartItems(
             ],
         },
         {
+            name: 'Material',
+            icon: <MenuBook />,
+            onClick: () => toggleExpansion('Material'),
+            children: [
+                {
+                    name: 'Courses',
+                    icon: <ImportContacts />,
+                    onClick: () => navigate('/courses'),
+                },
+                {
+                    name: 'Books',
+                    icon: <AutoStories />,
+                    onClick: () => navigate('/material/books'),
+                },
+                {
+                    name: 'Rating Conversions',
+                    icon: <SignalCellularAlt />,
+                    onClick: () => navigate('/material/ratings'),
+                },
+            ],
+        },
+        {
             name: 'Shop',
             icon: <Sell />,
             onClick: () => toggleExpansion('Shop'),
@@ -87,8 +113,9 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
     const navigate = useNavigate();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
-    const showAll = useMediaQuery('(min-width:725px)');
-    const hide2 = useMediaQuery('(min-width:600px)');
+    const showAll = useMediaQuery('(min-width:873px)');
+    const hide2 = useMediaQuery('(min-width:668px)');
+    const hide3 = useMediaQuery('(min-width:600px)');
 
     const startItems = unauthenticatedStartItems(navigate, (item: string) =>
         setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
@@ -99,6 +126,8 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
         startItemCount = startItems.length;
     } else if (hide2) {
         startItemCount = startItems.length - 2;
+    } else if (hide3) {
+        startItemCount = startItems.length - 3;
     }
 
     const shownStartItems: JSX.Element[] = startItems

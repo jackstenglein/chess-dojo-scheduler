@@ -70,14 +70,14 @@ const icons = [
 ];
 
 const SocialIcons = () => {
-    const showAll = useMediaQuery('(min-width:1059px)');
-    const hide1 = useMediaQuery('(min-width:1014px)');
-    const hide2 = useMediaQuery('(min-width:975px)');
-    const hide3 = useMediaQuery('(min-width:938px)');
-    const hide4 = useMediaQuery('(min-width:901px)');
-    const hide5 = useMediaQuery('(min-width:862px)');
-    const hide6 = useMediaQuery('(min-width:832px)');
-    const hide7 = useMediaQuery('(min-width:773px)');
+    const showAll = useMediaQuery('(min-width:1183px)');
+    const hide1 = useMediaQuery('(min-width:1144px)');
+    const hide2 = useMediaQuery('(min-width:1103px)');
+    const hide3 = useMediaQuery('(min-width:1067px)');
+    const hide4 = useMediaQuery('(min-width:1031px)');
+    const hide5 = useMediaQuery('(min-width:991px)');
+    const hide6 = useMediaQuery('(min-width:955px)');
+    const hide7 = useMediaQuery('(min-width:914px)');
 
     let displayedIcons: JSX.Element[] = [];
 

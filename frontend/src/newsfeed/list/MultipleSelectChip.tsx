@@ -1,3 +1,4 @@
+import { ListItemIcon, ListItemText } from '@mui/material';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
@@ -27,14 +28,21 @@ function getStyles(value: string, selected: readonly string[], theme: Theme) {
     };
 }
 
+export interface MultipleSelectChipOption {
+    value: string;
+    label: string;
+    icon?: JSX.Element;
+}
+
 interface MultipleSelectChipProps {
     selected: string[];
     setSelected: (v: string[]) => void;
-    options: Record<string, string>;
+    options: MultipleSelectChipOption[];
     label: string;
     size?: 'small' | 'medium';
     sx?: SxProps;
     error?: boolean;
+    'data-cy'?: string;
 }
 
 export default function MultipleSelectChip({
@@ -45,6 +53,7 @@ export default function MultipleSelectChip({
     size,
     sx,
     error,
+    ...others
 }: MultipleSelectChipProps) {
     const theme = useTheme();
 
@@ -59,7 +68,7 @@ export default function MultipleSelectChip({
     };
 
     return (
-        <FormControl sx={sx} error={error}>
+        <FormControl {...others} sx={sx} error={error}>
             <InputLabel>{label}</InputLabel>
             <Select
                 multiple
@@ -69,15 +78,24 @@ export default function MultipleSelectChip({
                 renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {selected.map((value) => (
-                            <Chip key={value} label={options[value]} size={size} />
+                            <Chip
+                                key={value}
+                                label={options.find((o) => o.value === value)?.label}
+                                size={size}
+                            />
                         ))}
                     </Box>
                 )}
                 MenuProps={MenuProps}
             >
-                {Object.entries(options).map(([v, l]) => (
-                    <MenuItem key={v} value={v} style={getStyles(v, selected, theme)}>
-                        {l}
+                {options.map((option) => (
+                    <MenuItem
+                        key={option.value}
+                        value={option.value}
+                        style={getStyles(option.value, selected, theme)}
+                    >
+                        <ListItemIcon>{option.icon}</ListItemIcon>
+                        <ListItemText>{option.label}</ListItemText>
                     </MenuItem>
                 ))}
             </Select>

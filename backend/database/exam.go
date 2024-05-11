@@ -27,9 +27,13 @@ const (
 	// Indicates the item is a tactics exam.
 	ExamType_Tactics ExamType = "TACTICS_EXAM"
 
-	// Indicates the item is the recorded scores for a single exam.
-	ExamType_Scores ExamType = "SCORES"
+	// Indicates the item is a Polgar mates exam.
+	ExamType_Polgar ExamType = "POLGAR_EXAM"
 )
+
+func IsValidExamType(examType ExamType) bool {
+	return examType == ExamType_Tactics || examType == ExamType_Polgar
+}
 
 // A summary of a single user's answer to an exam. Stored on the exam
 // to facilitate calculating the exam's linear regression.
@@ -66,6 +70,9 @@ type Exam struct {
 
 	// A map from username to ExamAnswerSummary.
 	Answers map[string]ExamAnswerSummary `dynamodbav:"answers" json:"answers"`
+
+	// Whether takebacks for the side to move are disabled.
+	TakebacksDisabled bool `dynamodbav:"takebacksDisabled" json:"takebacksDisabled"`
 }
 
 // A single user's answer to an exam problem.
@@ -80,6 +87,25 @@ type ExamProblemAnswer struct {
 	Total int `dynamodbav:"total" json:"total"`
 }
 
+// A single user's attempt on an exam. Users can retake an exam,
+// but only the first attempt is scored.
+type ExamAttempt struct {
+	// The user's answers to the problems included in the exam.
+	Answers []ExamProblemAnswer `dynamodbav:"answers" json:"answers"`
+
+	// The user's cohort, at the time of the attempt.
+	Cohort string `dynamodbav:"cohort" json:"cohort"`
+
+	// The user's normalized rating, at the time of the attempt.
+	Rating float32 `dynamodbav:"rating" json:"rating"`
+
+	// The amount of time used during the attempt.
+	TimeUsedSeconds int `dynamodbav:"timeUsedSeconds" json:"timeUsedSeconds"`
+
+	// The date the user took the exam, in time.RFC3339 format.
+	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+}
+
 // A single user's answer to a full exam.
 type ExamAnswer struct {
 	// The database table key of the exam. Type will be the user's username
@@ -89,19 +115,27 @@ type ExamAnswer struct {
 	// The type of the exam this answer refers to.
 	ExamType ExamType `dynamodbav:"examType" json:"examType"`
 
+	// The user's attempts on the exam.
+	Attempts []ExamAttempt `dynamodbav:"attempts" json:"attempts"`
+
 	// The user's answers to the problems included in the exam.
+	// Deprecated
 	Answers []ExamProblemAnswer `dynamodbav:"answers" json:"answers"`
 
 	// The user's cohort, at the time they took the exam.
+	// Deprecated
 	Cohort string `dynamodbav:"cohort" json:"cohort"`
 
 	// The user's normalized rating, at the time they took the exam.
+	// Deprecated
 	Rating float32 `dynamodbav:"rating" json:"rating"`
 
 	// The amount of time used while taking the exam.
+	// Deprecated
 	TimeUsedSeconds int `dynamodbav:"timeUsedSeconds" json:"timeUsedSeconds"`
 
 	// The date the user took the exam, in time.RFC3339 format
+	// Deprecated
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
 }
 
@@ -126,18 +160,23 @@ func (repo *dynamoRepository) ListExams(examType ExamType, startKey string, out 
 }
 
 // PutExamAnswerSummary creates and saves an ExamAnswerSummary using the provided ExamAnswer.
-// The updated Exam is returned
+// The updated Exam is returned. If the ExamAnswer does not require updating the Exam, then nil is returned.
 func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) (*Exam, error) {
+	if len(answer.Attempts) > 1 {
+		// We've already saved the first attempt on the Exam, and don't need to do anything with this update.
+		return nil, nil
+	}
+
 	score := 0
-	for _, a := range answer.Answers {
+	for _, a := range answer.Attempts[0].Answers {
 		score += a.Score
 	}
 
 	summary := ExamAnswerSummary{
-		Cohort:    answer.Cohort,
-		Rating:    answer.Rating,
+		Cohort:    answer.Attempts[0].Cohort,
+		Rating:    answer.Attempts[0].Rating,
 		Score:     score,
-		CreatedAt: answer.CreatedAt,
+		CreatedAt: answer.Attempts[0].CreatedAt,
 	}
 	item, err := dynamodbattribute.MarshalMap(summary)
 	if err != nil {
@@ -172,19 +211,38 @@ func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) (*Exam, e
 	return exam, nil
 }
 
-// PutExamAnswer inserts the provided answer into the database.
-func (repo *dynamoRepository) PutExamAnswer(answer *ExamAnswer) error {
-	item, err := dynamodbattribute.MarshalMap(answer)
+// PutExamAttempt inserts the provided exam attempt into the database. It is appended to the
+// existing list of attempts. The updated ExamAnswer is returned.
+func (repo *dynamoRepository) PutExamAttempt(username string, examId string, examType ExamType, attempt *ExamAttempt) (*ExamAnswer, error) {
+	item, err := dynamodbattribute.MarshalMap(attempt)
 	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Unable to marshal answer", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal attempt", err)
 	}
 
-	input := &dynamodb.PutItemInput{
-		Item:      item,
-		TableName: aws.String(examsTable),
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type": {S: aws.String(username)},
+			"id":   {S: aws.String(examId)},
+		},
+		UpdateExpression: aws.String("SET #et = :et, #a = list_append(if_not_exists(#a, :empty_list), :a)"),
+		ExpressionAttributeNames: map[string]*string{
+			"#et": aws.String("examType"),
+			"#a":  aws.String("attempts"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":et":         {S: aws.String(string(examType))},
+			":empty_list": {L: []*dynamodb.AttributeValue{}},
+			":a":          {L: []*dynamodb.AttributeValue{{M: item}}},
+		},
+		TableName:    aws.String(examsTable),
+		ReturnValues: aws.String("ALL_NEW"),
 	}
-	_, err = repo.svc.PutItem(input)
-	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+
+	answer := &ExamAnswer{}
+	if err := repo.updateItem(input, answer); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed updateItem call", err)
+	}
+	return answer, nil
 }
 
 // GetExamAnswer fetches the provided exam answer from the database.

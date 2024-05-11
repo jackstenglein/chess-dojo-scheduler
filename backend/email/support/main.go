@@ -68,7 +68,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 			ToAddresses: []*string{aws.String(supportEmail)},
 			CcAddresses: []*string{aws.String(request.Email)},
 		},
-		Source:       aws.String("ChessDojo Support <no-reply@mail.dojoscoreboard.com>"),
+		Source:       aws.String("ChessDojo Support <no-reply@mail.chessdojo.club>"),
 		Template:     aws.String("supportTicket"),
 		TemplateData: aws.String(string(templateDataStr)),
 	}

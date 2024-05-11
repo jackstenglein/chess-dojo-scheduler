@@ -1,20 +1,22 @@
-import { Card, CardContent, Grid, Stack, Typography } from '@mui/material';
-
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import { Card, CardContent, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import React from 'react';
+import { useRequirements } from '../../api/cache/requirements';
 import {
     getCategoryScore,
     getCohortScore,
     getTotalCategoryScore,
+    getTotalScore,
 } from '../../database/requirement';
 import {
+    RatingSystem,
     User,
     getCurrentRating,
     getMinRatingBoundary,
     getRatingBoundary,
+    normalizeToFide,
 } from '../../database/user';
-import { useRequirements } from '../../api/cache/requirements';
-import { getTotalScore } from '../../database/requirement';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
-import React from 'react';
 
 const categories = [
     'Games + Analysis',
@@ -51,7 +53,7 @@ const DojoScoreCardProgressBar: React.FC<DojoScoreCardProgressBarProps> = ({
                 sm: 'center',
             }}
         >
-            <Stack alignItems='start' width={{ xs: 1, sm: '154px' }}>
+            <Stack alignItems='start' width={{ xs: 1 }}>
                 <Typography variant='subtitle2' color='text.secondary'>
                     {title}
                 </Typography>
@@ -73,24 +75,45 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     const cohortScore = getCohortScore(user, cohort, requirements);
     const percentComplete = Math.round((100 * cohortScore) / totalScore);
 
-    const graduationBoundary = getRatingBoundary(cohort, user.ratingSystem);
-    const minRatingBoundary = getMinRatingBoundary(cohort, user.ratingSystem);
+    const graduationBoundary = getRatingBoundary(cohort, RatingSystem.Fide);
+    const minRatingBoundary = getMinRatingBoundary(cohort, RatingSystem.Fide);
+    const normalizedRating = normalizeToFide(getCurrentRating(user), user.ratingSystem);
+
+    const showRatingProgress = graduationBoundary && normalizedRating > 0;
 
     return (
         <Card variant='outlined' id='cohort-score-card'>
             <CardContent>
-                <Stack mb={2}>
-                    <Typography variant='h6'>Cohort Score</Typography>
-                </Stack>
+                <Grid container rowGap={2} columnSpacing={3} alignItems='center'>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={showRatingProgress ? 5 : 12}
+                        md={showRatingProgress ? 3 : 12}
+                        mb={{ xs: 0, sm: 3 }}
+                    >
+                        <Stack direction='row' spacing={0.5} alignItems='center'>
+                            <EqualizerIcon
+                                color='primary'
+                                sx={{ position: 'relative', bottom: '3px' }}
+                            />
+                            <Typography variant='h6'>Cohort&nbsp;Progress</Typography>
+                        </Stack>
+                    </Grid>
 
-                <Grid container rowGap={2}>
-                    {graduationBoundary && (
-                        <DojoScoreCardProgressBar
-                            title='Graduation'
-                            value={getCurrentRating(user)}
-                            min={minRatingBoundary}
-                            max={graduationBoundary}
-                        />
+                    {showRatingProgress && (
+                        <Tooltip title='The normalized Dojo rating, compared to the graduation rating for this cohort'>
+                            <Grid item xs={12} sm={7} md={9} mb={{ xs: 3, sm: 3 }}>
+                                <ScoreboardProgress
+                                    value={normalizedRating}
+                                    min={minRatingBoundary}
+                                    max={graduationBoundary}
+                                    color='success'
+                                    sx={{ height: '8px', borderRadius: '2px' }}
+                                    label={`${normalizedRating} / ${graduationBoundary}`}
+                                />
+                            </Grid>
+                        </Tooltip>
                     )}
 
                     <DojoScoreCardProgressBar
@@ -113,11 +136,11 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                             key={idx}
                             title={c}
                             value={Math.round(
-                                getCategoryScore(user, cohort, c, requirements)
+                                getCategoryScore(user, cohort, c, requirements),
                             )}
                             min={0}
                             max={Math.round(
-                                getTotalCategoryScore(cohort, c, requirements)
+                                getTotalCategoryScore(cohort, c, requirements),
                             )}
                         />
                     ))}

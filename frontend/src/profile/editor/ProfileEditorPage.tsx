@@ -1,4 +1,11 @@
 import DeleteIcon from '@mui/icons-material/Delete';
+import InfoIcon from '@mui/icons-material/Info';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SaveIcon from '@mui/icons-material/Save';
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import UploadIcon from '@mui/icons-material/Upload';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -23,16 +30,16 @@ import React, { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
-import { useCache } from '../../api/cache/Cache';
 import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
+import { useCache } from '../../api/cache/Cache';
 import { useAuth } from '../../auth/Auth';
 import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 import {
-    dojoCohorts,
-    formatRatingSystem,
     Rating,
     RatingSystem,
     User,
+    dojoCohorts,
+    formatRatingSystem,
 } from '../../database/user';
 import Avatar from '../Avatar';
 import NotificationSettingsEditor from './NotificationSettingsEditor';
@@ -447,27 +454,62 @@ const ProfileEditorPage = () => {
                         <CardContent>
                             <Stack>
                                 <Link href='#personal' onClick={scrollToId('personal')}>
+                                    <InfoIcon
+                                        fontSize='small'
+                                        sx={{
+                                            verticalAlign: 'middle',
+                                            marginRight: '0.2em',
+                                        }}
+                                    />
                                     Personal Info
                                 </Link>
                                 <Link href='#ratings' onClick={scrollToId('ratings')}>
+                                    <TimelineIcon
+                                        fontSize='small'
+                                        sx={{
+                                            verticalAlign: 'middle',
+                                            marginRight: '0.2em',
+                                        }}
+                                    />
                                     Ratings
                                 </Link>
                                 <Link
                                     href='#notifications'
                                     onClick={scrollToId('notifications')}
                                 >
+                                    <NotificationsIcon
+                                        fontSize='small'
+                                        sx={{
+                                            verticalAlign: 'middle',
+                                            marginRight: '0.2em',
+                                        }}
+                                    />
                                     Notifications
                                 </Link>
                                 <Link
                                     href='#user-interface'
                                     onClick={scrollToId('user-interface')}
                                 >
-                                    UI
+                                    <SettingsSuggestIcon
+                                        fontSize='small'
+                                        sx={{
+                                            verticalAlign: 'middle',
+                                            marginRight: '0.2em',
+                                        }}
+                                    />
+                                    UI Setting
                                 </Link>
                                 <Link
                                     href='#subscription'
                                     onClick={scrollToId('subscription')}
                                 >
+                                    <MonetizationOnIcon
+                                        fontSize='small'
+                                        sx={{
+                                            verticalAlign: 'middle',
+                                            marginRight: '0.2em',
+                                        }}
+                                    />
                                     Subscription/Billing
                                 </Link>
                             </Stack>
@@ -504,6 +546,7 @@ const ProfileEditorPage = () => {
                                     onClick={onSave}
                                     loading={request.status === RequestStatus.Loading}
                                     disabled={!changesMade}
+                                    startIcon={<SaveIcon />}
                                 >
                                     Save
                                 </LoadingButton>
@@ -513,6 +556,7 @@ const ProfileEditorPage = () => {
                                     color='error'
                                     disableElevation
                                     onClick={() => navigate('..')}
+                                    startIcon={<NotInterestedIcon />}
                                 >
                                     Cancel
                                 </Button>
@@ -532,7 +576,15 @@ const ProfileEditorPage = () => {
                                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                                 }}
                             >
-                                <Typography variant='h5'>Personal</Typography>
+                                <Typography variant='h5'>
+                                    <InfoIcon
+                                        style={{
+                                            verticalAlign: 'middle',
+                                            marginRight: '0.1em',
+                                        }}
+                                    />{' '}
+                                    Personal Info
+                                </Typography>
                                 <Divider />
                             </Stack>
 
@@ -637,7 +689,15 @@ const ProfileEditorPage = () => {
                                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                                 }}
                             >
-                                <Typography variant='h5'>Ratings</Typography>
+                                <Typography variant='h5'>
+                                    <TimelineIcon
+                                        style={{
+                                            verticalAlign: 'middle',
+                                            marginRight: '0.1em',
+                                        }}
+                                    />{' '}
+                                    Ratings
+                                </Typography>
                                 <Divider />
                             </Stack>
 
@@ -819,7 +879,15 @@ const ProfileEditorPage = () => {
                                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                                 }}
                             >
-                                <Typography variant='h5'>UI</Typography>
+                                <Typography variant='h5'>
+                                    <SettingsSuggestIcon
+                                        style={{
+                                            verticalAlign: 'middle',
+                                            marginRight: '0.1em',
+                                        }}
+                                    />{' '}
+                                    UI Setting
+                                </Typography>
                                 <Divider />
                             </Stack>
 

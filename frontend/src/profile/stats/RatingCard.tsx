@@ -13,7 +13,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';
@@ -216,12 +215,11 @@ const RatingCard: React.FC<RatingCardProps> = ({
 
                 <Grid container justifyContent='space-around' rowGap={2}>
                     <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
-                        <Stack direction='row' alignItems='end' width='82px'>
-                            <Stack alignItems='end'>
-                                <Typography variant='subtitle2' color='text.secondary'>
-                                    Current
-                                </Typography>
-
+                        <Stack alignItems='center'>
+                            <Typography variant='subtitle2' color='text.secondary'>
+                                Current
+                            </Typography>
+                            <Stack direction='row' alignItems='end'>
                                 <Typography
                                     sx={{
                                         fontSize: '2.25rem',
@@ -231,21 +229,21 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 >
                                     {currentRating}
                                 </Typography>
+                                <Tooltip title='Ratings are updated every 24 hours'>
+                                    <HelpIcon
+                                        sx={{
+                                            mb: '5px',
+                                            ml: '3px',
+                                            color: 'text.secondary',
+                                        }}
+                                    />
+                                </Tooltip>
                             </Stack>
-                            <Tooltip title='Ratings are updated every 24 hours'>
-                                <HelpIcon
-                                    sx={{
-                                        mb: '5px',
-                                        ml: '3px',
-                                        color: 'text.secondary',
-                                    }}
-                                />
-                            </Tooltip>
                         </Stack>
                     </Grid>
 
                     <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
-                        <Stack alignItems='end' width='82px'>
+                        <Stack alignItems='center'>
                             <Typography variant='subtitle2' color='text.secondary'>
                                 Start
                             </Typography>
@@ -263,7 +261,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                     </Grid>
 
                     <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
-                        <Stack alignItems='end' width='82px'>
+                        <Stack alignItems='center'>
                             <Typography variant='subtitle2' color='text.secondary'>
                                 Change
                             </Typography>
@@ -314,15 +312,11 @@ const RatingCard: React.FC<RatingCardProps> = ({
                             display='flex'
                             justifyContent='center'
                         >
-                            <Stack direction='row' alignItems='end' width='82px'>
-                                <Stack alignItems='end'>
-                                    <Typography
-                                        variant='subtitle2'
-                                        color='text.secondary'
-                                    >
-                                        Normalized
-                                    </Typography>
-
+                            <Stack alignItems='center'>
+                                <Typography variant='subtitle2' color='text.secondary'>
+                                    Normalized
+                                </Typography>
+                                <Stack direction='row' alignItems='end'>
                                     <Typography
                                         sx={{
                                             fontSize: '2.25rem',
@@ -334,22 +328,22 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                             normalizeToFide(currentRating, system),
                                         )}
                                     </Typography>
+                                    <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
+                                        <HelpIcon
+                                            sx={{
+                                                mb: '5px',
+                                                ml: '3px',
+                                                color: 'text.secondary',
+                                            }}
+                                        />
+                                    </Tooltip>
                                 </Stack>
-                                <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
-                                    <HelpIcon
-                                        sx={{
-                                            mb: '5px',
-                                            ml: '3px',
-                                            color: 'text.secondary',
-                                        }}
-                                    />
-                                </Tooltip>
                             </Stack>
                         </Grid>
                     )}
 
                     <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
-                        <Stack alignItems='end' width='82px'>
+                        <Stack alignItems='center'>
                             <Typography
                                 variant='subtitle2'
                                 color='text.secondary'

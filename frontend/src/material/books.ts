@@ -22,14 +22,14 @@ export const sections: BookSection[] = [
                 cohort: '0-300',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: "Everyone's First Chess Workbook Part 1",
                         author: 'Peter Giannatos',
                         link: 'https://amzn.to/3ZQSRVa',
+                    },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                 ],
             },
@@ -37,14 +37,14 @@ export const sections: BookSection[] = [
                 cohort: '300-400',
                 books: [
                     {
+                        title: "Everyone's First Chess Workbook through Exercise 218 (end of Skewer chapter)",
+                        author: 'Peter Giannatos',
+                        link: 'https://amzn.to/3ZQSRVa',
+                    },
+                    {
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook Part 1",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
                     },
                 ],
             },
@@ -52,14 +52,14 @@ export const sections: BookSection[] = [
                 cohort: '400-500',
                 books: [
                     {
+                        title: "Everyone's First Chess Workbook through Exercise 323 (end of Decoy chapter)",
+                        author: 'Peter Giannatos',
+                        link: 'https://amzn.to/3ZQSRVa',
+                    },
+                    {
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook Parts 1-2",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
                     },
                 ],
             },
@@ -67,14 +67,14 @@ export const sections: BookSection[] = [
                 cohort: '500-600',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: "Everyone's First Chess Workbook Parts 1-2",
                         author: 'Peter Giannatos',
                         link: 'https://amzn.to/3ZQSRVa',
+                    },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                 ],
             },
@@ -82,14 +82,14 @@ export const sections: BookSection[] = [
                 cohort: '600-700',
                 books: [
                     {
+                        title: "Everyone's First Chess Workbook",
+                        author: 'Peter Giannatos',
+                        link: 'https://amzn.to/3ZQSRVa',
+                    },
+                    {
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook Parts 1-3",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
                     },
                 ],
             },
@@ -97,14 +97,14 @@ export const sections: BookSection[] = [
                 cohort: '700-800',
                 books: [
                     {
+                        title: 'Chess Tactics for Kids',
+                        author: 'Murray Chandler',
+                        link: 'https://amzn.to/3UFp7Le',
+                    },
+                    {
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: "Everyone's First Chess Workbook Parts 1-3",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
                     },
                 ],
             },
@@ -112,14 +112,19 @@ export const sections: BookSection[] = [
                 cohort: '800-900',
                 books: [
                     {
+                        title: 'How to Beat Your Dad at Chess',
+                        author: 'Murray Chandler',
+                        link: 'https://amzn.to/44lLZlX',
+                    },
+                    {
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Learn Chess the Right Way: Book 3',
-                        author: 'Susan Polgar',
-                        link: 'https://amzn.to/41BiF8n',
+                        title: "It's About Time",
+                        author: 'Jesse Kraai',
+                        link: 'https://www.chessable.com/its-about-time-a-beginners-guide-to-time-in-chess/course/194972/',
                     },
                 ],
             },
@@ -127,19 +132,19 @@ export const sections: BookSection[] = [
                 cohort: '900-1000',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: 'Learn Chess the Right Way: Book 3',
                         author: 'Susan Polgar',
-                        link: 'https://amzn.to/41BiF8n',
+                        link: 'https://amzn.to/49WWVYt',
                     },
                     {
                         title: 'First Book of Morphy',
                         author: 'Frisco Del Rosario',
                         link: 'https://amzn.to/3mpoG8X',
+                    },
+                    {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                 ],
             },
@@ -147,35 +152,15 @@ export const sections: BookSection[] = [
                 cohort: '1000-1100',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Learn Chess the Right Way: Book 3',
-                        author: 'Susan Polgar',
-                        link: 'https://amzn.to/41BiF8n',
-                    },
-                    {
-                        title: 'First Book of Morphy',
-                        author: 'Frisco Del Rosario',
-                        link: 'https://amzn.to/3mpoG8X',
+                        title: 'Logical Chess: Move by Move',
+                        author: 'Irving Chernev',
+                        link: 'https://amzn.to/41XE8ta',
                     },
                 ],
             },
             {
                 cohort: '1100-1200',
                 books: [
-                    {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Logical Chess: Move by Move',
-                        author: 'Irving Chernev',
-                        link: 'https://amzn.to/41XE8ta',
-                    },
                     {
                         title: 'Most Instructive Games',
                         author: 'Irving Chernev',
@@ -187,19 +172,9 @@ export const sections: BookSection[] = [
                 cohort: '1200-1300',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Logical Chess: Move by Move',
-                        author: 'Irving Chernev',
-                        link: 'https://amzn.to/41XE8ta',
-                    },
-                    {
-                        title: 'Most Instructive Games',
-                        author: 'Irving Chernev',
-                        link: 'https://amzn.to/3ymxorn',
+                        title: 'Modern Ideas in Chess',
+                        author: 'Richard Reti',
+                        link: 'https://amzn.to/3SVRan7',
                     },
                 ],
             },
@@ -207,19 +182,9 @@ export const sections: BookSection[] = [
                 cohort: '1300-1400',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: 'Winning Chess Strategies',
                         author: 'Yasser Seirawan',
                         link: 'https://amzn.to/3mD1ynK',
-                    },
-                    {
-                        title: 'Modern Ideas in Chess',
-                        author: 'Richard Reti',
-                        link: 'https://amzn.to/3SVRan7',
                     },
                 ],
             },
@@ -227,19 +192,9 @@ export const sections: BookSection[] = [
                 cohort: '1400-1500',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Winning Chess Strategies',
-                        author: 'Yasser Seirawan',
-                        link: 'https://amzn.to/3mD1ynK',
-                    },
-                    {
-                        title: 'Modern Ideas in Chess',
-                        author: 'Richard Reti',
-                        link: 'https://amzn.to/3SVRan7',
+                        title: 'Simple Chess',
+                        author: 'Michael Stean',
+                        link: 'https://amzn.to/3SYGgge',
                     },
                 ],
             },
@@ -247,19 +202,9 @@ export const sections: BookSection[] = [
                 cohort: '1500-1600',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: 'Simple Chess',
                         author: 'Michael Stean',
                         link: 'https://amzn.to/3SYGgge',
-                    },
-                    {
-                        title: 'Evaluate Like a Grandmaster',
-                        author: 'Eugene Perelshteyn',
-                        link: 'https://amzn.to/3IZZk9w',
                     },
                     {
                         title: 'How to Reassess Your Chess',
@@ -272,21 +217,6 @@ export const sections: BookSection[] = [
                 cohort: '1600-1700',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Simple Chess',
-                        author: 'Michael Stean',
-                        link: 'https://amzn.to/3SYGgge',
-                    },
-                    {
-                        title: 'Evaluate Like a Grandmaster',
-                        author: 'Eugene Perelshteyn',
-                        link: 'https://amzn.to/3IZZk9w',
-                    },
-                    {
                         title: 'How to Reassess Your Chess',
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Lfqfk6',
@@ -297,24 +227,19 @@ export const sections: BookSection[] = [
                 cohort: '1700-1800',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: 'Evaluate Like a Grandmaster',
                         author: 'Eugene Perelshteyn',
                         link: 'https://amzn.to/3IZZk9w',
                     },
                     {
-                        title: 'How to Reassess Your Chess',
-                        author: 'Jeremy Silman',
-                        link: 'https://amzn.to/3Lfqfk6',
-                    },
-                    {
                         title: 'Art of Attack in Chess',
                         author: 'Vladimir Vukovic',
                         link: 'https://amzn.to/3SYIw7c',
+                    },
+                    {
+                        title: 'Techniques of Positional Play',
+                        author: 'Valeri Bronznik',
+                        link: 'https://amzn.to/44hhwWm',
                     },
                 ],
             },
@@ -322,24 +247,19 @@ export const sections: BookSection[] = [
                 cohort: '1800-1900',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
+                        title: 'Evaluate Like a Grandmaster',
+                        author: 'Eugene Perelshteyn',
+                        link: 'https://amzn.to/3IZZk9w',
                     },
                     {
-                        title: 'Art of Attack in Chess',
-                        author: 'Vladimir Vukovic',
-                        link: 'https://amzn.to/3SYIw7c',
+                        title: 'Techniques of Positional Play',
+                        author: 'Valeri Bronznik',
+                        link: 'https://amzn.to/44hhwWm',
                     },
                     {
                         title: 'New York 1924',
                         author: 'Alexander Alekhine',
                         link: 'https://amzn.to/3yjYY8C',
-                    },
-                    {
-                        title: 'Zurich 1953',
-                        author: 'David Bronstein',
-                        link: 'https://amzn.to/3ZxMB4I',
                     },
                 ],
             },
@@ -347,24 +267,14 @@ export const sections: BookSection[] = [
                 cohort: '1900-2000',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
-                        title: 'Art of Attack in Chess',
-                        author: 'Vladimir Vukovic',
-                        link: 'https://amzn.to/3SYIw7c',
+                        title: 'Techniques of Positional Play',
+                        author: 'Valeri Bronznik',
+                        link: 'https://amzn.to/44hhwWm',
                     },
                     {
                         title: 'New York 1924',
                         author: 'Alexander Alekhine',
                         link: 'https://amzn.to/3yjYY8C',
-                    },
-                    {
-                        title: 'Zurich 1953',
-                        author: 'David Bronstein',
-                        link: 'https://amzn.to/3ZxMB4I',
                     },
                     {
                         title: 'Tal-Botvinnik 1960',
@@ -377,9 +287,14 @@ export const sections: BookSection[] = [
                 cohort: '2000-2100',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
+                        title: 'New York 1924',
+                        author: 'Alexander Alekhine',
+                        link: 'https://amzn.to/3yjYY8C',
+                    },
+                    {
+                        title: 'Strategic Chess Exercises',
+                        author: 'Emmanuel Bricard',
+                        link: 'https://amzn.to/3JBr44U',
                     },
                     {
                         title: 'Tal-Botvinnik 1960',
@@ -410,11 +325,6 @@ export const sections: BookSection[] = [
                         title: 'Mastering Chess Strategy',
                         author: 'Johan Hellsten',
                         link: 'https://amzn.to/3kZ4ria',
-                    },
-                    {
-                        title: 'New York 1924',
-                        author: 'Alexander Alekhine',
-                        link: 'https://amzn.to/3yjYY8C',
                     },
                 ],
             },
@@ -422,9 +332,9 @@ export const sections: BookSection[] = [
                 cohort: '2100-2200',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
+                        title: 'Strategic Chess Exercises',
+                        author: 'Emmanuel Bricard',
+                        link: 'https://amzn.to/3JBr44U',
                     },
                     {
                         title: 'Tal-Botvinnik 1960',
@@ -455,11 +365,6 @@ export const sections: BookSection[] = [
                         title: 'Mastering Chess Strategy',
                         author: 'Johan Hellsten',
                         link: 'https://amzn.to/3kZ4ria',
-                    },
-                    {
-                        title: 'New York 1924',
-                        author: 'Alexander Alekhine',
-                        link: 'https://amzn.to/3yjYY8C',
                     },
                     {
                         title: 'Chess Structures: A Grandmaster Guide',
@@ -472,24 +377,9 @@ export const sections: BookSection[] = [
                 cohort: '2200-2300',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: 'Tal-Botvinnik 1960',
                         author: 'Mikhail Tal',
                         link: 'https://amzn.to/3F7taHI',
-                    },
-                    {
-                        title: 'Seven Deadly Chess Sins',
-                        author: 'Jonathan Rowson',
-                        link: 'https://amzn.to/3F8P39T',
-                    },
-                    {
-                        title: 'Secrets of Grandmaster Chess',
-                        author: 'John Nunn',
-                        link: 'https://amzn.to/3YAtS7k',
                     },
                     {
                         title: 'My 60 Memorable Games',
@@ -500,6 +390,16 @@ export const sections: BookSection[] = [
                         title: 'Life & Games of Mikhail Tal',
                         author: 'Mikhail Tal',
                         link: 'https://amzn.to/3mCnOOz',
+                    },
+                    {
+                        title: 'Secrets of Grandmaster Chess',
+                        author: 'John Nunn',
+                        link: 'https://amzn.to/3YAtS7k',
+                    },
+                    {
+                        title: 'Seven Deadly Chess Sins',
+                        author: 'Jonathan Rowson',
+                        link: 'https://amzn.to/3F8P39T',
                     },
                     {
                         title: 'Mastering Chess Strategy',
@@ -521,19 +421,18 @@ export const sections: BookSection[] = [
                 cohort: '2300-2400',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: 'My 60 Memorable Games',
                         author: 'Bobby Fischer',
                         link: 'https://amzn.to/3Yv6058',
                     },
                     {
-                        title: 'Tal-Botvinnik 1960',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3F7taHI',
+                        title: 'Seven Deadly Chess Sins',
+                        author: 'Jonathan Rowson',
+                        link: 'https://amzn.to/3F8P39T',
+                    },
+                    {
+                        title: 'Test of Time',
+                        author: 'Garry Kasparov',
                     },
                     {
                         title: 'Fire on Board',
@@ -551,13 +450,9 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3L7S0LB',
                     },
                     {
-                        title: 'Test of Time',
-                        author: 'Garry Kasparov',
-                    },
-                    {
-                        title: 'Life & Games of Mikhail Tal',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3mCnOOz',
+                        title: `Alekhine's Best Games`,
+                        author: 'Alexander Alekhine',
+                        link: 'https://amzn.to/3HPCMbF',
                     },
                 ],
             },
@@ -565,14 +460,13 @@ export const sections: BookSection[] = [
                 cohort: '2400+',
                 books: [
                     {
-                        title: 'Chess: 5334 Problems, Combinations & Games',
-                        author: 'Laszlo Polgar',
-                        link: 'https://amzn.to/3lwCsGN',
-                    },
-                    {
                         title: 'My 60 Memorable Games',
                         author: 'Bobby Fischer',
                         link: 'https://amzn.to/3Yv6058',
+                    },
+                    {
+                        title: 'Test of Time',
+                        author: 'Garry Kasparov',
                     },
                     {
                         title: 'Fire on Board',
@@ -590,23 +484,14 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3L7S0LB',
                     },
                     {
-                        title: 'Test of Time',
-                        author: 'Garry Kasparov',
-                    },
-                    {
                         title: 'My Great Predecessors',
                         author: 'Garry Kasparov',
                         link: 'https://amzn.to/3kZ9OOm',
                     },
                     {
-                        title: 'Life & Games of Mikhail Tal',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3mCnOOz',
-                    },
-                    {
-                        title: 'Tal-Botvinnik 1960',
-                        author: 'Mikhail Tal',
-                        link: 'https://amzn.to/3F7taHI',
+                        title: `Alekhine's Best Games`,
+                        author: 'Alexander Alekhine',
+                        link: 'https://amzn.to/3HPCMbF',
                     },
                 ],
             },
@@ -616,7 +501,7 @@ export const sections: BookSection[] = [
         title: 'Tactics',
         cohorts: [
             {
-                cohort: '0-1000',
+                cohort: '1000-1100',
                 books: [
                     {
                         title: 'Chess: 5334 Problems, Combinations & Games',
@@ -624,19 +509,9 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: "Everyone's First Chess Workbook",
-                        author: 'Peter Giannatos',
-                        link: 'https://amzn.to/3ZQSRVa',
-                    },
-                ],
-            },
-            {
-                cohort: '1000-1100',
-                books: [
-                    {
-                        title: 'Tactics Time',
-                        author: 'Tim Brennan & Anthea Carson',
-                        link: 'https://amzn.to/41ZZjeb',
+                        title: 'Winning Chess Tactics',
+                        author: 'Yasser Seirawan',
+                        link: 'https://amzn.to/49Z3oCc',
                     },
                 ],
             },
@@ -644,9 +519,14 @@ export const sections: BookSection[] = [
                 cohort: '1100-1200',
                 books: [
                     {
-                        title: 'Tactics Time',
-                        author: 'Tim Brennan & Anthea Carson',
-                        link: 'https://amzn.to/41ZZjeb',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: '1001 Chess Exercises for Beginners',
+                        author: 'Franco Masetti',
+                        link: 'https://amzn.to/3wpO5ol',
                     },
                 ],
             },
@@ -654,9 +534,14 @@ export const sections: BookSection[] = [
                 cohort: '1200-1300',
                 books: [
                     {
-                        title: 'Winning Chess Tactics',
-                        author: 'Yasser Seirawan',
-                        link: 'https://amzn.to/41UFsNs',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Visualize 1 on Chessable',
+                        author: 'Benedictine',
+                        link: 'https://www.chessable.com/visualise-1/course/25695/',
                     },
                 ],
             },
@@ -664,9 +549,14 @@ export const sections: BookSection[] = [
                 cohort: '1300-1400',
                 books: [
                     {
-                        title: 'Winning Chess Tactics',
-                        author: 'Yasser Seirawan',
-                        link: 'https://amzn.to/41UFsNs',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Common Chess Patterns',
+                        author: 'Benedictine',
+                        link: 'https://www.chessable.com/common-chess-patterns/course/13348/',
                     },
                 ],
             },
@@ -674,9 +564,14 @@ export const sections: BookSection[] = [
                 cohort: '1400-1500',
                 books: [
                     {
-                        title: 'Winning Chess Tactics',
-                        author: 'Yasser Seirawan',
-                        link: 'https://amzn.to/41UFsNs',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: '1001 Chess Exercises for Club Players',
+                        author: 'Frank Erwich',
+                        link: 'https://amzn.to/3Ue8AMA',
                     },
                 ],
             },
@@ -684,7 +579,12 @@ export const sections: BookSection[] = [
                 cohort: '1500-1600',
                 books: [
                     {
-                        title: 'Chess Tactics from Scratch',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Chess Tactics From Scratch',
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
                     },
@@ -694,9 +594,19 @@ export const sections: BookSection[] = [
                 cohort: '1600-1700',
                 books: [
                     {
-                        title: 'Chess Tactics from Scratch',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Chess Tactics From Scratch',
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
+                    },
+                    {
+                        title: 'Checkmate Patterns Manual',
+                        author: 'CraftyRaf',
+                        link: 'https://www.chessable.com/the-checkmate-patterns-manual/course/17841/',
                     },
                 ],
             },
@@ -704,9 +614,19 @@ export const sections: BookSection[] = [
                 cohort: '1700-1800',
                 books: [
                     {
-                        title: 'Chess Tactics from Scratch',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Chess Tactics From Scratch',
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
+                    },
+                    {
+                        title: 'Endgame Studies 101',
+                        author: 'Kostya Kavutskiy',
+                        link: 'https://www.chessable.com/endgame-studies-101/course/81472/',
                     },
                 ],
             },
@@ -714,14 +634,19 @@ export const sections: BookSection[] = [
                 cohort: '1800-1900',
                 books: [
                     {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Endgame Studies 101',
+                        author: 'Kostya Kavutskiy',
+                        link: 'https://www.chessable.com/endgame-studies-101/course/81472/',
+                    },
+                    {
                         title: 'Woodpecker Method',
                         author: 'Axel Smith & Hans Tikkanen',
                         link: 'https://amzn.to/3FuI0bR',
-                    },
-                    {
-                        title: 'Think Like a Super-GM',
-                        author: 'Michael Adams & Philip Hurtado',
-                        link: 'https://amzn.to/3Fbr61x',
                     },
                 ],
             },
@@ -729,14 +654,19 @@ export const sections: BookSection[] = [
                 cohort: '1900-2000',
                 books: [
                     {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
                         title: 'Woodpecker Method',
                         author: 'Axel Smith & Hans Tikkanen',
                         link: 'https://amzn.to/3FuI0bR',
                     },
                     {
-                        title: 'Think Like a Super-GM',
-                        author: 'Michael Adams & Philip Hurtado',
-                        link: 'https://amzn.to/3Fbr61x',
+                        title: 'Grandmaster Preparation: Calculation',
+                        author: 'Jacob Aagaard',
+                        link: 'https://amzn.to/3xVl6t3',
                     },
                 ],
             },
@@ -744,9 +674,19 @@ export const sections: BookSection[] = [
                 cohort: '2000-2100',
                 books: [
                     {
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
                         title: 'Woodpecker Method',
                         author: 'Axel Smith & Hans Tikkanen',
                         link: 'https://amzn.to/3FuI0bR',
+                    },
+                    {
+                        title: 'Grandmaster Preparation: Calculation',
+                        author: 'Jacob Aagaard',
+                        link: 'https://amzn.to/3xVl6t3',
                     },
                     {
                         title: 'Think Like a Super-GM',
@@ -759,14 +699,24 @@ export const sections: BookSection[] = [
                 cohort: '2100-2200',
                 books: [
                     {
-                        title: 'Woodpecker Method',
-                        author: 'Axel Smith & Hans Tikkanen',
-                        link: 'https://amzn.to/3FuI0bR',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                     {
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
+                    },
+                    {
+                        title: 'Tactical Play',
+                        author: 'Mark Dvoretsky',
+                        link: 'https://amzn.to/3QpA15k',
+                    },
+                    {
+                        title: 'Perfect Your Chess',
+                        author: 'Andrei Volokitin',
+                        link: 'https://amzn.to/3mA75eP',
                     },
                 ],
             },
@@ -774,14 +724,29 @@ export const sections: BookSection[] = [
                 cohort: '2200-2300',
                 books: [
                     {
-                        title: 'Perfect Your Chess',
-                        author: 'Andrei Volokitin & Vladimir Grabinsky',
-                        link: 'https://amzn.to/3mA75eP',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                     {
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
+                    },
+                    {
+                        title: 'Tactical Play',
+                        author: 'Mark Dvoretsky',
+                        link: 'https://amzn.to/3QpA15k',
+                    },
+                    {
+                        title: 'Perfect Your Chess',
+                        author: 'Andrei Volokitin',
+                        link: 'https://amzn.to/3mA75eP',
+                    },
+                    {
+                        title: 'The Best Move',
+                        author: 'Vlastimil Hort',
+                        link: 'https://amzn.to/3F3Fyc4',
                     },
                 ],
             },
@@ -789,19 +754,34 @@ export const sections: BookSection[] = [
                 cohort: '2300-2400',
                 books: [
                     {
-                        title: 'The Best Move',
-                        author: 'Vlastimil Hort & Vlastimil Jansa',
-                        link: 'https://amzn.to/3F3Fyc4',
-                    },
-                    {
-                        title: 'Perfect Your Chess',
-                        author: 'Andrei Volokitin & Vladimir Grabinsky',
-                        link: 'https://amzn.to/3mA75eP',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                     {
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
+                    },
+                    {
+                        title: 'Tactical Play',
+                        author: 'Mark Dvoretsky',
+                        link: 'https://amzn.to/3QpA15k',
+                    },
+                    {
+                        title: 'Perfect Your Chess',
+                        author: 'Andrei Volokitin',
+                        link: 'https://amzn.to/3mA75eP',
+                    },
+                    {
+                        title: 'The Best Move',
+                        author: 'Vlastimil Hort',
+                        link: 'https://amzn.to/3F3Fyc4',
+                    },
+                    {
+                        title: "Recognizing Your Opponent's Resources",
+                        author: 'Mark Dvoretsky',
+                        link: 'https://amzn.to/4aUmMl3',
                     },
                 ],
             },
@@ -809,24 +789,39 @@ export const sections: BookSection[] = [
                 cohort: '2400+',
                 books: [
                     {
-                        title: 'The Best Move',
-                        author: 'Vlastimil Hort & Vlastimil Jansa',
-                        link: 'https://amzn.to/3F3Fyc4',
-                    },
-                    {
-                        title: 'Perfect Your Chess',
-                        author: 'Andrei Volokitin & Vladimir Grabinsky',
-                        link: 'https://amzn.to/3mA75eP',
-                    },
-                    {
-                        title: 'Grandmaster Preparation - Positional Play',
-                        author: 'Jacob Aagaard',
-                        link: 'https://amzn.to/3Yt2BUl',
+                        title: 'Chess: 5334 Problems, Combinations & Games',
+                        author: 'Laszlo Polgar',
+                        link: 'https://amzn.to/3lwCsGN',
                     },
                     {
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
+                    },
+                    {
+                        title: 'Tactical Play',
+                        author: 'Mark Dvoretsky',
+                        link: 'https://amzn.to/3QpA15k',
+                    },
+                    {
+                        title: 'Perfect Your Chess',
+                        author: 'Andrei Volokitin',
+                        link: 'https://amzn.to/3mA75eP',
+                    },
+                    {
+                        title: 'The Best Move',
+                        author: 'Vlastimil Hort',
+                        link: 'https://amzn.to/3F3Fyc4',
+                    },
+                    {
+                        title: "Recognizing Your Opponent's Resources",
+                        author: 'Mark Dvoretsky',
+                        link: 'https://amzn.to/4aUmMl3',
+                    },
+                    {
+                        title: 'Advanced Chess Tactics',
+                        author: 'Lev Psakhis',
+                        link: 'https://amzn.to/4aVaTeV',
                     },
                 ],
             },
@@ -847,7 +842,7 @@ export const sections: BookSection[] = [
                 cohort: '1000-1100',
                 books: [
                     {
-                        title: "Silman's Complete Endgame Course Parts 1-3",
+                        title: "Silman's Complete Endgame Course Parts 1-2",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
@@ -936,6 +931,11 @@ export const sections: BookSection[] = [
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
+                    {
+                        title: 'Endgame Strategy (original version)',
+                        author: 'Mikhail Shereshevsky',
+                        link: 'https://amzn.to/3J3K2k3',
+                    },
                 ],
             },
             {
@@ -957,25 +957,20 @@ export const sections: BookSection[] = [
                 cohort: '1900-2000',
                 books: [
                     {
-                        title: 'Endgame Strategy',
-                        author: 'Mikhail Shereshevsky',
-                        link: 'https://amzn.to/3J3K2k3',
-                    },
-                    {
                         title: "Silman's Complete Endgame Course Part 6",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
+                    },
+                    {
+                        title: 'Endgame Virtuoso',
+                        author: 'Vasily Smyslov',
+                        link: 'https://amzn.to/3yobRyE',
                     },
                 ],
             },
             {
                 cohort: '2000-2100',
                 books: [
-                    {
-                        title: 'Endgame Strategy',
-                        author: 'Mikhail Shereshevsky',
-                        link: 'https://amzn.to/3J3K2k3',
-                    },
                     {
                         title: '100 Endgames You Must Know',
                         author: 'Jesus de la Villa',
@@ -1001,6 +996,11 @@ export const sections: BookSection[] = [
                         author: 'Vasily Smyslov',
                         link: 'https://amzn.to/3yobRyE',
                     },
+                    {
+                        title: 'Endgame Virtuoso (Karpov)',
+                        author: 'Tibor Karolyi',
+                        link: 'https://amzn.to/44mSXr8',
+                    },
                 ],
             },
             {
@@ -1012,13 +1012,19 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3J2hSpo',
                     },
                     {
-                        title: 'Endgame Virtuoso',
-                        author: 'Vasily Smyslov',
-                        link: 'https://amzn.to/3yobRyE',
+                        title: 'Endgame Virtuoso (Karpov)',
+                        author: 'Tibor Karolyi',
+                        link: 'https://amzn.to/44mSXr8',
                     },
                     {
                         title: 'Mastering Endgame Strategy',
                         author: 'Johan Hellsten',
+                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
+                    },
+                    {
+                        title: 'Rook Endings',
+                        author: 'Grigory Levenfish & Vasily Smyslov',
+                        link: 'https://amzn.to/3ZIYmW0',
                     },
                 ],
             },
@@ -1028,6 +1034,7 @@ export const sections: BookSection[] = [
                     {
                         title: 'Mastering Endgame Strategy',
                         author: 'Johan Hellsten',
+                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
                     },
                     {
                         title: 'Rook Endings',
@@ -1052,6 +1059,7 @@ export const sections: BookSection[] = [
                     {
                         title: 'Mastering Endgame Strategy',
                         author: 'Johan Hellsten',
+                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
                     },
                     {
                         title: 'Rook Endings',

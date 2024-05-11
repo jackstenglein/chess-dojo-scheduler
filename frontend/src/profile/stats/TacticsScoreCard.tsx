@@ -17,6 +17,8 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
             ? parseInt(user.dojoCohort.split('-')[1])
             : minCohort;
 
+    const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
+
     return (
         <Card variant='outlined'>
             <CardContent>
@@ -29,13 +31,12 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                 >
                     <Typography variant='h6'>Tactics Rating </Typography>
                     <Tooltip
-                        title={
-                            tacticsRating.overall < minCohort
-                                ? 'Your tactics rating is low for your cohort. It is calculated as the average of the below components.'
-                                : tacticsRating.overall > maxCohort
-                                  ? 'Your tactics rating is at the next level! It is calculated as the average of the below components.'
-                                  : 'Your tactics rating is even with your cohort. It is calculated as the average of the below components.'
-                        }
+                        title={getTooltip(
+                            tacticsRating.overall,
+                            minCohort,
+                            maxCohort,
+                            isProvisional,
+                        )}
                     >
                         <Typography
                             variant='h6'
@@ -52,6 +53,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             }
                         >
                             {Math.round(tacticsRating.overall)}
+                            {isProvisional && '?'}
                         </Typography>
                     </Tooltip>
                 </Stack>
@@ -79,7 +81,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {Math.round(c.rating)}
+                                        {c.rating > 0 ? Math.round(c.rating) : '?'}
                                     </Typography>
                                 </Stack>
                             </Tooltip>
@@ -92,3 +94,29 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
 };
 
 export default TacticsScoreCard;
+
+function getTooltip(
+    rating: number,
+    minCohort: number,
+    maxCohort: number,
+    isProvisional: boolean,
+): string {
+    let tooltip = '';
+    if (rating < minCohort) {
+        tooltip =
+            'Your tactics rating is low for your cohort. It is calculated as the average of the below components.';
+    } else if (rating > maxCohort) {
+        tooltip =
+            'Your tactics rating is at the next level! It is calculated as the average of the below components.';
+    } else {
+        tooltip =
+            'Your tactics rating is even with your cohort. It is calculated as the average of the below components.';
+    }
+
+    if (isProvisional) {
+        tooltip +=
+            " Your rating is provisional because one or more components hasn't been started or could not be calculated.";
+    }
+
+    return tooltip;
+}

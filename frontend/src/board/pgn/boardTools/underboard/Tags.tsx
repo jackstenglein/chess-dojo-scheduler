@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Game } from '../../../../database/game';
 import Avatar from '../../../../profile/Avatar';
-import GraduationIcon from '../../../../scoreboard/GraduationIcon';
+import CohortIcon from '../../../../scoreboard/CohortIcon';
 import { useChess } from '../../PgnBoard';
 
 interface TagRow {
@@ -52,10 +52,7 @@ const columns: GridColDef<TagRow>[] = [
                                 {params.row.value.displayName}
                             </Typography>
                         </Link>
-                        <GraduationIcon
-                            cohort={params.row.value.previousCohort}
-                            size={20}
-                        />
+                        <CohortIcon cohort={params.row.value.previousCohort} size={20} />
                     </Stack>
                 );
             }

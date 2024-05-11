@@ -1,13 +1,5 @@
-import { Help, Lock } from '@mui/icons-material';
-import {
-    Alert,
-    Container,
-    Link,
-    Snackbar,
-    Stack,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { Check, Close, Help, Lock } from '@mui/icons-material';
+import { Alert, Link, Snackbar, Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -17,83 +9,13 @@ import {
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import { SimpleLinearRegression } from 'ml-regression-simple-linear';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import { toDojoDateString } from '../calendar/displayDate';
-import { Exam, ExamType } from '../database/exam';
-import LoadingPage from '../loading/LoadingPage';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import { getTotalScore } from './tactics';
-
-const RANGES = ['1500-2000', '2000+'];
-
-interface CohortRangeExams {
-    cohortRange: string;
-    exams: Exam[];
-}
-
-const ListTacticsExamsPage = () => {
-    const api = useApi();
-    const request = useRequest<Exam[]>();
-
-    useEffect(() => {
-        if (!request.isSent()) {
-            request.onStart();
-
-            api.listExams(ExamType.Tactics)
-                .then((exams) => {
-                    console.log('Exams: ', exams);
-                    request.onSuccess(exams);
-                })
-                .catch((err) => {
-                    console.error('listExams: ', err);
-                    request.onFailure(err);
-                });
-        }
-    }, [request, api]);
-
-    const cohortRanges = useMemo(() => {
-        const cohortRanges: CohortRangeExams[] = [];
-        if (request.data) {
-            for (const range of RANGES) {
-                const exams = request.data
-                    .filter((c) => c.cohortRange === range)
-                    .sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
-                cohortRanges.push({
-                    cohortRange: range,
-                    exams,
-                });
-            }
-        }
-        return cohortRanges;
-    }, [request]);
-
-    if (!request.isSent() || request.isLoading()) {
-        return <LoadingPage />;
-    }
-
-    return (
-        <Container sx={{ py: 4 }}>
-            <Stack spacing={4}>
-                <Typography variant='h5'>Tactics Exams</Typography>
-
-                {cohortRanges.map((range) => (
-                    <Stack key={range.cohortRange}>
-                        <Typography variant='h6'>{range.cohortRange}</Typography>
-
-                        <ExamsTable exams={range.exams} />
-                    </Stack>
-                ))}
-            </Stack>
-            <RequestSnackbar request={request} />
-        </Container>
-    );
-};
-
-export default ListTacticsExamsPage;
+import { useAuth, useFreeTier } from '../../auth/Auth';
+import { toDojoDateString } from '../../calendar/displayDate';
+import { Exam } from '../../database/exam';
+import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import { getTotalScore } from '../tactics';
 
 /**
  * Returns the linear regression for this exam. If the exam has not been taken
@@ -132,6 +54,26 @@ const columns: GridColDef<Exam>[] = [
         headerAlign: 'center',
         align: 'center',
         flex: 1,
+    },
+    {
+        field: 'takebacksDisabled',
+        headerName: 'Takebacks',
+        headerAlign: 'center',
+        align: 'center',
+        width: 88,
+        renderCell(params) {
+            return (
+                <Tooltip
+                    title={
+                        params.value
+                            ? 'Takebacks are disabled for this exam. Once you make a move, it is locked in.'
+                            : 'Takebacks are enabled for this exam. After making a move, you can promote another move instead.'
+                    }
+                >
+                    {params.value ? <Close color='error' /> : <Check color='success' />}
+                </Tooltip>
+            );
+        },
     },
     {
         field: 'avgScore',
@@ -200,8 +142,14 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 field: 'name',
                 headerName: 'Name',
                 renderCell(params: GridRenderCellParams<Exam, string>) {
+                    const hasAnswered = Boolean(params.row.answers[user?.username || '']);
+
                     const i = exams.findIndex((e) => e.id === params.row.id);
-                    if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
+                    if (
+                        !hasAnswered &&
+                        i >= 1 &&
+                        !Boolean(exams[i - 1].answers[user?.username || ''])
+                    ) {
                         return (
                             <Tooltip title='This exam is locked until you complete the previous exam'>
                                 <Stack direction='row' spacing={0.5} alignItems='center'>
@@ -236,7 +184,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                         (sum, pgn) => sum + getTotalScore(pgn),
                         0,
                     );
-                    if (!params.value || params.value < 0) {
+                    if (params.value === undefined || params.value < 0) {
                         return `- / ${totalScore}`;
                     }
                     return `${params.value} / ${totalScore}`;
@@ -309,7 +257,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         const i = exams.findIndex((e) => e.id === params.row.id);
         if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
             setSnackbarOpen(true);
-        } else if (isFreeTier) {
+        } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);
         } else {
             navigate(`/tactics/instructions`, { state: { exam: params.row } });
@@ -328,11 +276,14 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         <>
             <DataGridPro
                 autoHeight
+                autoPageSize
                 columns={examColumns}
                 rows={exams}
                 hideFooter
                 onRowClick={onClickRow}
                 disableRowSelectionOnClick
+                disableColumnMenu
+                disableColumnSelector
             />
             <Snackbar
                 open={snackbarOpen}
@@ -351,3 +302,5 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         </>
     );
 };
+
+export default ExamsTable;

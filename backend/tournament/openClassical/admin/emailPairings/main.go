@@ -152,7 +152,7 @@ func sendPairingEmail(section *database.OpenClassicalSection, pairing *database.
 		Destination: &ses.Destination{
 			BccAddresses: emails,
 		},
-		Source:       aws.String("ChessDojo Open Classical <openclassical@mail.dojoscoreboard.com>"),
+		Source:       aws.String("ChessDojo Open Classical <openclassical@mail.chessdojo.club>"),
 		Template:     aws.String("openClassicalPairing"),
 		TemplateData: aws.String(string(templateDataStr)),
 	}

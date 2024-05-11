@@ -2,8 +2,8 @@ import { Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
 import { Event } from '../../database/event';
-import GraduationIcon from '../../scoreboard/GraduationIcon';
 import Avatar from '../../profile/Avatar';
+import CohortIcon from '../../scoreboard/CohortIcon';
 
 interface OwnerFieldProps {
     title: string;
@@ -27,7 +27,7 @@ const OwnerField: React.FC<OwnerFieldProps> = ({ title, event }) => {
                         {event.ownerDisplayName} ({event.ownerCohort})
                     </Typography>
                 </Link>
-                <GraduationIcon cohort={event.ownerPreviousCohort} size={22} />
+                <CohortIcon cohort={event.ownerPreviousCohort} size={22} />
             </Stack>
         </Stack>
     );

@@ -78,9 +78,9 @@ func main() {
 		}
 
 		msg := gomail.NewMessage()
-		msg.SetHeader("From", "ChessDojo Digest <digest@mail.dojoscoreboard.com>")
+		msg.SetHeader("From", "ChessDojo Digest <digest@mail.chessdojo.club>")
 		msg.SetHeader("To", email)
-		msg.SetHeader("Subject", "Training Program News - Dojo Digest Vol. 7")
+		msg.SetHeader("Subject", "Welcome to Dojo 3.0 | Dojo Digest Vol. 8")
 		msg.SetHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
 		msg.SetHeader("List-Unsubscribe", fmt.Sprintf("<https://g4shdaq6ug.execute-api.us-east-1.amazonaws.com/public/dojodigest/unsubscribe?email=%s>", email))
 		msg.SetBody("text/html", content)
@@ -95,7 +95,7 @@ func main() {
 
 		input := &ses.SendRawEmailInput{
 			Destinations: []*string{aws.String(email)},
-			Source:       aws.String("digest@mail.dojoscoreboard.com"),
+			Source:       aws.String("digest@mail.chessdojo.club"),
 			RawMessage:   &ses.RawMessage{Data: rawEmail.Bytes()},
 		}
 
@@ -108,7 +108,7 @@ func main() {
 		}
 	}
 
-	log.Printf("Finished. Success: %d, Failed: %d, Skipped: %d\n", success, failed, skipped)
+	log.Printf("Finished. Success: %d, Failed: %d, Unsubscribed: %d\n", success, failed, skipped)
 }
 
 func getUnsubscribers() map[string]bool {
