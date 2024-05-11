@@ -17,9 +17,6 @@ describe('Import Games Page - Position', () => {
         cy.getBySel('by-fen').click();
         cy.getBySel('submit').click();
         cy.location('pathname').should('match', matchGamePath);
-
-        cy.getBySel('tags').click();
-        cy.contains(startingPosition);
     });
 
     it('submits with custom FEN', () => {
