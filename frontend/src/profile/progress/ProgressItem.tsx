@@ -15,15 +15,15 @@ import { useRequirements } from '../../api/cache/requirements';
 import { useFreeTier } from '../../auth/Auth';
 import {
     CustomTask,
+    Requirement,
+    RequirementProgress,
+    ScoreboardDisplay,
     formatTime,
     getCurrentCount,
     getTotalTime,
     isComplete,
     isExpired,
     isRequirement,
-    Requirement,
-    RequirementProgress,
-    ScoreboardDisplay,
 } from '../../database/requirement';
 import { ALL_COHORTS, User } from '../../database/user';
 import RequirementModal from '../../requirements/RequirementModal';
@@ -178,126 +178,125 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     }
 
     if (blocker.isBlocked) {
-        UpdateElement = (
-            <Tooltip title={blocker.reason}>
-                <Lock />
-            </Tooltip>
-        );
+        UpdateElement = <Lock />;
     }
 
     return (
-        <Stack spacing={2} mt={2}>
-            {showUpdateDialog && (
-                <ProgressDialog
-                    open={showUpdateDialog}
-                    onClose={() => setShowUpdateDialog(false)}
-                    requirement={requirement}
-                    cohort={cohort}
-                    progress={progress}
-                />
-            )}
-            <Grid
-                container
-                columnGap={0.5}
-                alignItems='center'
-                justifyContent='space-between'
-                position='relative'
-            >
-                <Grid
-                    item
-                    xs={9}
-                    xl={
-                        requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo
-                            ? 9
-                            : 10
-                    }
-                    onClick={() => setShowReqModal(true)}
-                    sx={{ cursor: 'pointer', position: 'relative' }}
-                    id='task-details'
-                >
-                    <Stack
-                        direction='row'
-                        justifyContent='space-between'
-                        flexWrap='wrap'
-                        alignItems='center'
-                    >
-                        <Typography sx={{ opacity: blocker.isBlocked ? 0.5 : 1 }}>
-                            {requirementName}
-                        </Typography>
-                    </Stack>
-
-                    <Typography
-                        color='text.secondary'
-                        dangerouslySetInnerHTML={{
-                            __html: isFreeTier
-                                ? requirement.freeDescription || requirement.description
-                                : requirement.description,
-                        }}
-                        sx={{
-                            WebkitLineClamp: 3,
-                            display: '-webkit-box',
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            whiteSpace: 'pre-wrap',
-                            '& ul': {
-                                display: 'none',
-                            },
-                            '& ol': {
-                                display: 'none',
-                            },
-                            opacity: blocker.isBlocked ? 0.7 : 1,
-                        }}
+        <Tooltip title={blocker.reason} followCursor>
+            <Stack spacing={2} mt={2}>
+                {showUpdateDialog && (
+                    <ProgressDialog
+                        open={showUpdateDialog}
+                        onClose={() => setShowUpdateDialog(false)}
+                        requirement={requirement}
+                        cohort={cohort}
+                        progress={progress}
                     />
-                    <Typography
-                        color='primary'
-                        variant='caption'
-                        sx={{ opacity: blocker.isBlocked ? 0.7 : 1 }}
-                    >
-                        View More
-                    </Typography>
-                    {DescriptionElement}
-                </Grid>
-                <Grid item xs={2} sm='auto' id='task-status'>
-                    <Stack
-                        direction='row'
-                        alignItems='center'
-                        justifyContent='end'
-                        spacing={1}
-                    >
-                        {!blocker.isBlocked && (
-                            <Typography
-                                color='text.secondary'
-                                sx={{ display: { xs: 'none', sm: 'initial' } }}
-                                noWrap
-                                textOverflow='unset'
-                            >
-                                {time}
-                            </Typography>
-                        )}
-                        {UpdateElement}
-                    </Stack>
-                </Grid>
-
-                {expired && (
-                    <Tooltip title='Your progress on this task has expired and it must be recompleted'>
-                        <Chip
-                            variant='outlined'
-                            color='error'
-                            label='Expired'
-                            sx={{ position: 'absolute', right: 0, top: 0 }}
-                        />
-                    </Tooltip>
                 )}
-            </Grid>
-            <Divider />
+                <Grid
+                    container
+                    columnGap={0.5}
+                    alignItems='center'
+                    justifyContent='space-between'
+                    position='relative'
+                >
+                    <Grid
+                        item
+                        xs={9}
+                        xl={
+                            requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo
+                                ? 9
+                                : 10
+                        }
+                        onClick={() => setShowReqModal(true)}
+                        sx={{ cursor: 'pointer', position: 'relative' }}
+                        id='task-details'
+                    >
+                        <Stack
+                            direction='row'
+                            justifyContent='space-between'
+                            flexWrap='wrap'
+                            alignItems='center'
+                        >
+                            <Typography sx={{ opacity: blocker.isBlocked ? 0.5 : 1 }}>
+                                {requirementName}
+                            </Typography>
+                        </Stack>
 
-            {showReqModal && (
-                <RequirementModal
-                    open={showReqModal}
-                    onClose={() => setShowReqModal(false)}
-                    requirement={requirement}
-                />
-            )}
-        </Stack>
+                        <Typography
+                            color='text.secondary'
+                            dangerouslySetInnerHTML={{
+                                __html: isFreeTier
+                                    ? requirement.freeDescription ||
+                                      requirement.description
+                                    : requirement.description,
+                            }}
+                            sx={{
+                                WebkitLineClamp: 3,
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                whiteSpace: 'pre-wrap',
+                                '& ul': {
+                                    display: 'none',
+                                },
+                                '& ol': {
+                                    display: 'none',
+                                },
+                                opacity: blocker.isBlocked ? 0.7 : 1,
+                            }}
+                        />
+                        <Typography
+                            color='primary'
+                            variant='caption'
+                            sx={{ opacity: blocker.isBlocked ? 0.7 : 1 }}
+                        >
+                            View More
+                        </Typography>
+                        {DescriptionElement}
+                    </Grid>
+                    <Grid item xs={2} sm='auto' id='task-status'>
+                        <Stack
+                            direction='row'
+                            alignItems='center'
+                            justifyContent='end'
+                            spacing={1}
+                        >
+                            {!blocker.isBlocked && (
+                                <Typography
+                                    color='text.secondary'
+                                    sx={{ display: { xs: 'none', sm: 'initial' } }}
+                                    noWrap
+                                    textOverflow='unset'
+                                >
+                                    {time}
+                                </Typography>
+                            )}
+                            {UpdateElement}
+                        </Stack>
+                    </Grid>
+
+                    {expired && (
+                        <Tooltip title='Your progress on this task has expired and it must be recompleted'>
+                            <Chip
+                                variant='outlined'
+                                color='error'
+                                label='Expired'
+                                sx={{ position: 'absolute', right: 0, top: 0 }}
+                            />
+                        </Tooltip>
+                    )}
+                </Grid>
+                <Divider />
+
+                {showReqModal && (
+                    <RequirementModal
+                        open={showReqModal}
+                        onClose={() => setShowReqModal(false)}
+                        requirement={requirement}
+                    />
+                )}
+            </Stack>
+        </Tooltip>
     );
 };
