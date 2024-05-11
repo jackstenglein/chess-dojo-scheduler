@@ -14,6 +14,7 @@ describe('Import Games Page - Position', () => {
     });
 
     it('submits with default FEN', () => {
+        cy.getBySel('by-fen').click();
         cy.getBySel('submit').click();
         cy.location('pathname').should('match', matchGamePath);
 
@@ -24,6 +25,7 @@ describe('Import Games Page - Position', () => {
     it('submits with custom FEN', () => {
         const fen = 'r1b2r1k/4qp1p/p1Nppb1Q/4nP2/1p2P3/2N5/PPP4P/2KR1BR1 b - - 5 18';
 
+        cy.getBySel('by-fen').click();
         cy.getBySel('fen-entry').clear().type(fen);
         cy.getBySel('submit').click();
 
@@ -36,6 +38,7 @@ describe('Import Games Page - Position', () => {
     it('requires supported FEN', () => {
         const fen = 'super invalid';
 
+        cy.getBySel('by-fen').click();
         cy.getBySel('fen-entry').clear().type(fen);
         cy.getBySel('submit').click();
 

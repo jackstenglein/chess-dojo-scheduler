@@ -197,7 +197,6 @@ export enum GameSubmissionType {
     ChesscomGame = 'chesscomGame',
     ChesscomAnalysis = 'chesscomAnalysis',
     Manual = 'manual',
-    FEN = 'fen',
 }
 
 export interface RemoteGame {

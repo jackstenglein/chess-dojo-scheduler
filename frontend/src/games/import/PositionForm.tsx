@@ -1,7 +1,18 @@
-import { Chess } from '@jackstenglein/chess';
-import { Box, Stack, TextField } from '@mui/material';
 import { useState } from 'react';
+
+import { Chess } from '@jackstenglein/chess';
+import {
+    Autocomplete,
+    Box,
+    FormControlLabel,
+    Radio,
+    RadioGroup,
+    Stack,
+    TextField,
+} from '@mui/material';
+import { useRequirements } from '../../api/cache/requirements';
 import { GameSubmissionType, RemoteGame } from '../../api/gameApi';
+import { useAuth } from '../../auth/Auth';
 import Board from '../../board/Board';
 import { ImportButton } from './ImportButton';
 
@@ -24,49 +35,136 @@ function FENField({ fen, changeFen, error }: FENFieldProps) {
             error={!!error}
             helperText={error}
             placeholder={startingPositionFen}
+            onFocus={(e) => {
+                e.target.select();
+            }}
         />
     );
 }
 
+interface RequirementPositionFieldProps {
+    changeFen: (fen: string) => void;
+    cohort: string;
+}
+
+const RequirementPositionField: React.FC<RequirementPositionFieldProps> = ({
+    changeFen,
+    cohort,
+}) => {
+    const { requirements } = useRequirements(cohort, true);
+
+    const positions = requirements.flatMap((requirement) => {
+        const reqPositions = requirement.positions;
+        if (!reqPositions) {
+            return [];
+        }
+
+        // For now skip requirmeents with mltiple positions
+        if (reqPositions.length > 1) {
+            return [];
+        }
+
+        const position = reqPositions[0];
+        const label = `${requirement.name} - ${position.title}`;
+        return {
+            label,
+            fen: position.fen,
+            id: requirement.id,
+        };
+    });
+
+    return (
+        <Autocomplete
+            sx={{ flexGrow: 1 }}
+            disablePortal
+            getOptionLabel={(option) => option.label}
+            options={positions}
+            renderInput={(params) => <TextField {...params} label='Position' />}
+            isOptionEqualToValue={(a, b) => a.id === b.id}
+            onChange={(_, value) => changeFen(value?.fen ?? '')}
+        />
+    );
+};
+
 interface PositionFormProps {
     loading: boolean;
-    by: 'fen' | 'starting' | 'sparring';
     onSubmit: (game: RemoteGame) => void;
 }
 
-export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit, by }) => {
-    const [fen, setFen] = useState('');
+export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit }) => {
+    const [game, setGame] = useState<Chess>(new Chess(startingPositionFen));
     const [error, setError] = useState<string | null>(null);
+    const [by, setBy] = useState('starting');
+    const auth = useAuth();
+
+    const cohort = auth.user?.dojoCohort;
 
     const changeFen = (fen: string) => {
         setError(null);
-        setFen(fen);
+
+        try {
+            setGame(new Chess(fen));
+        } catch {
+            setError('Invalid FEN');
+        }
     };
 
     const handleSubmit = () => {
-        const adjustedFen = fen === '' ? startingPositionFen : fen.trim();
-
-        try {
-            new Chess(adjustedFen);
-        } catch {
-            setError('Invalid FEN');
-            return;
-        }
-
         onSubmit({
-            fen: adjustedFen,
-            type: GameSubmissionType.FEN,
+            pgnText: game.pgn.render(),
+            type: GameSubmissionType.Manual,
         });
     };
 
     return (
         <Box>
             <Stack spacing={1}>
+                <Box>
+                    <RadioGroup
+                        row
+                        name='select-position-by'
+                        onChange={(_, value) => setBy(value)}
+                        value={by}
+                    >
+                        <FormControlLabel
+                            value='starting'
+                            control={<Radio />}
+                            label='Starting Position'
+                            data-cy='by-starting'
+                            onClick={() => changeFen(startingPositionFen)}
+                        />
+                        {cohort && (
+                            <FormControlLabel
+                                value='requirement'
+                                control={<Radio />}
+                                label='Requirement'
+                                data-cy='by-requirement'
+                            />
+                        )}
+                        <FormControlLabel
+                            value='fen'
+                            control={<Radio />}
+                            label='FEN'
+                            data-cy='by-fen'
+                        />
+                    </RadioGroup>
+                </Box>
                 <Box display='flex' gap={1} sx={{ flexGrow: 1, maxWidth: '500px' }}>
                     {by === 'fen' && (
-                        <FENField changeFen={changeFen} fen={fen} error={error} />
+                        <FENField
+                            key='by-fen'
+                            changeFen={changeFen}
+                            fen={game.fen()}
+                            error={error}
+                        />
                     )}
-
+                    {by === 'requirement' && cohort && (
+                        <RequirementPositionField
+                            key='by-position'
+                            cohort={cohort}
+                            changeFen={changeFen}
+                        />
+                    )}
                     <ImportButton
                         sx={{ alignSelf: 'flex-start' }}
                         loading={loading}
@@ -76,7 +174,7 @@ export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit, b
                 <Box sx={{ aspectRatio: '1 / 1', maxWidth: '500px', height: 'auto' }}>
                     <Board
                         config={{
-                            fen,
+                            fen: game.fen(),
                             viewOnly: true,
                         }}
                     />

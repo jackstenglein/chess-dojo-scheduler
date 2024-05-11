@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import axios from 'axios';
+import CheckIcon from '@mui/icons-material/Check';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Card,
@@ -9,16 +10,15 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import CheckIcon from '@mui/icons-material/Check';
-import CopyToClipboard from 'react-copy-to-clipboard';
+import axios from 'axios';
 import copy from 'copy-to-clipboard';
+import { useState } from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
-import { Position as PositionModel } from '../database/requirement';
-import { RequestSnackbar, useRequest } from '../api/Request';
 import { EventType, trackEvent } from '../analytics/events';
+import { RequestSnackbar, useRequest } from '../api/Request';
 import Board from '../board/Board';
+import { Position as PositionModel } from '../database/requirement';
 
 function turnColor(fen: string): 'white' | 'black' {
     const turn = fen.split(' ')[1];

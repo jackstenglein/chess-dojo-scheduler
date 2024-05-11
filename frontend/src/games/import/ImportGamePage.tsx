@@ -13,9 +13,7 @@ import { PositionForm } from './PositionForm';
 
 enum ImportSource {
     URL = 'url',
-    FEN = 'fen',
-    Empty = 'empty',
-    Sparring = 'sparring',
+    Position = 'position',
     PGNText = 'pgn-text',
 }
 
@@ -110,14 +108,14 @@ const ImportGamePage = () => {
                                         data-cy={'import-url'}
                                     />
                                     <Tab
+                                        value={ImportSource.Position}
+                                        label='Position'
+                                        data-cy={'import-position'}
+                                    />
+                                    <Tab
                                         value={ImportSource.PGNText}
                                         label='PGN'
                                         data-cy={'import-pgn-text'}
-                                    />
-                                    <Tab
-                                        value={ImportSource.FEN}
-                                        label='FEN'
-                                        data-cy={'import-position'}
                                     />
                                 </Tabs>
                             </Box>
@@ -127,12 +125,8 @@ const ImportGamePage = () => {
                             <ImportTabPanel source={ImportSource.PGNText}>
                                 <PGNForm onSubmit={onImport} loading={loading} />
                             </ImportTabPanel>
-                            <ImportTabPanel source={ImportSource.FEN}>
-                                <PositionForm
-                                    by='fen'
-                                    onSubmit={onImport}
-                                    loading={loading}
-                                />
+                            <ImportTabPanel source={ImportSource.Position}>
+                                <PositionForm onSubmit={onImport} loading={loading} />
                             </ImportTabPanel>
                         </TabContext>
                     </Box>
