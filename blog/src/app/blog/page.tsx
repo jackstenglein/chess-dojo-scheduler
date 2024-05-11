@@ -1,5 +1,4 @@
 import {
-    Button,
     Card,
     CardActionArea,
     CardActions,
@@ -12,6 +11,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import items from './items';
+import ShareButton from './shareButton/ShareButton';
 
 /**
  * Renders the main homepage of the blog.
@@ -36,7 +36,7 @@ export default function Blog() {
                             </CardContent>
                         </CardActionArea>
                         <CardActions>
-                            <Button>Share</Button>
+                            <ShareButton title={item.title} href={item.href} />
                         </CardActions>
                     </Card>
                 ))}
