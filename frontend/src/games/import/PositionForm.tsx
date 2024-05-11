@@ -100,7 +100,7 @@ export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit })
 
     const auth = useAuth();
 
-    const cohort = auth.user?.dojoCohort;
+    const cohort = auth?.user?.dojoCohort;
 
     const changeFen = (fen: string) => {
         setError(null);
