@@ -68,8 +68,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 });
             }
             pgnTexts = [cleanupChessbasePgn(request.pgnText)];
-        } else if (request.type === GameImportType.StartingPosition) {
-            pgnTexts = [''];
         } else {
             throw new ApiError({
                 statusCode: 400,
@@ -233,6 +231,7 @@ export function getGame(
     pgnText: string,
     headers: GameImportHeaders | undefined,
     orientation: GameOrientation,
+    unlisted?: boolean,
 ): [Game, GameImportHeaders] {
     // We do not support variants due to current limitations with
     // @JackStenglein/pgn-parser
@@ -259,8 +258,8 @@ export function getGame(
             chess.setHeader('Result', headers.result);
         }
 
-        chess.setHeader('White', chess.header().White?.trim() || '???');
-        chess.setHeader('Black', chess.header().Black?.trim() || '???');
+        chess.setHeader('White', chess.header().White?.trim() || '?');
+        chess.setHeader('Black', chess.header().Black?.trim() || '??');
         chess.setHeader('Date', chess.header().Date?.trim().replaceAll('-', '.') || '');
         chess.setHeader('Result', chess.header().Result?.trim() || '*');
         chess.setHeader('PlyCount', `${chess.plyCount()}`);
@@ -294,7 +293,7 @@ export function getGame(
                 orientation,
                 comments: [],
                 positionComments: {},
-                unlisted: true,
+                unlisted: unlisted ?? false,
             },
             {
                 white: chess.header().White,

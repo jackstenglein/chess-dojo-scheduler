@@ -1,29 +1,19 @@
 'use strict';
 
 import {
-    APIGatewayProxyEventV2,
-    APIGatewayProxyHandlerV2,
-    APIGatewayProxyResultV2,
-} from 'aws-lambda';
-import { v4 as uuidv4 } from 'uuid';
-import {
     ConditionalCheckFailedException,
     DeleteItemCommand,
     UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-
-import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
 import {
-    CreateGameRequest,
-    Game,
-    GameImportHeaders,
-    GameImportType,
-    GameOrientation,
-    GameUpdate,
-    UpdateGameRequest,
-} from './types';
-import { getLichessChapter, getLichessGame } from './lichess';
+    APIGatewayProxyEventV2,
+    APIGatewayProxyHandlerV2,
+    APIGatewayProxyResultV2,
+} from 'aws-lambda';
+import { v4 as uuidv4 } from 'uuid';
+
+import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import {
     cleanupChessbasePgn,
     createTimelineEntry,
@@ -34,7 +24,17 @@ import {
     success,
     timelineTable,
 } from './create';
-import { getChesscomAnalysis, getChesscomGame } from './chesscom';
+import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
+import { getLichessChapter, getLichessGame } from './lichess';
+import {
+    CreateGameRequest,
+    Game,
+    GameImportHeaders,
+    GameImportType,
+    GameOrientation,
+    GameUpdate,
+    UpdateGameRequest,
+} from './types';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -46,7 +46,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 };
 
 async function updateGame(
-    event: APIGatewayProxyEventV2
+    event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> {
     const userInfo = getUserInfo(event);
     if (!userInfo.username) {
@@ -139,7 +139,7 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
 }
 
 async function getGameUpdate(
-    request: UpdateGameRequest
+    request: UpdateGameRequest,
 ): Promise<[GameUpdate | null, GameImportHeaders | null]> {
     const update: GameUpdate = {
         updatedAt: new Date().toISOString(),
@@ -175,8 +175,6 @@ async function getGameUpdate(
                 });
             }
             pgnText = cleanupChessbasePgn(request.pgnText);
-        } else if (request.type === GameImportType.StartingPosition) {
-            pgnText = '';
         } else {
             throw new ApiError({
                 statusCode: 400,
@@ -189,7 +187,7 @@ async function getGameUpdate(
             pgnText,
             request.headers?.[0],
             request.orientation || GameOrientation.White,
-            request.unlisted
+            request.unlisted,
         );
         if (!game) {
             return [null, headers];
@@ -209,7 +207,7 @@ async function applyUpdate(
     owner: string,
     cohort: string,
     id: string,
-    update: GameUpdate
+    update: GameUpdate,
 ): Promise<Game> {
     const updateParams = getUpdateParams(update);
     updateParams.ExpressionAttributeNames['#owner'] = 'owner';
@@ -264,14 +262,14 @@ function getUpdateParams(params: { [key: string]: any }) {
             .slice(0, -2)}`,
         ExpressionAttributeNames: Object.keys(params).reduce(
             (acc, key) => ({ ...acc, [`#${key}`]: key }),
-            {} as Record<string, string>
+            {} as Record<string, string>,
         ),
         ExpressionAttributeValues: marshall(
             Object.entries(params).reduce(
                 (acc, [key, value]) => ({ ...acc, [`:${key}`]: value }),
-                {}
+                {},
             ),
-            { removeUndefinedValues: true }
+            { removeUndefinedValues: true },
         ),
     };
 }
@@ -285,7 +283,7 @@ export async function deleteTimelineEntry(game: Game, id: string) {
                     id: { S: id },
                 },
                 TableName: timelineTable,
-            })
+            }),
         );
     } catch (err) {
         console.error('Failed to delete timeline entry: ', err);

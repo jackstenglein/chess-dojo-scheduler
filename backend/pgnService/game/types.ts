@@ -78,6 +78,7 @@ export interface UpdateGameRequest extends CreateGameRequest {
     cohort: string;
     id: string;
     timelineId?: string;
+    unlisted?: boolean;
 }
 
 export interface GameUpdate {
@@ -119,7 +120,6 @@ export enum GameImportType {
     ChesscomGame = 'chesscomGame',
     ChesscomAnalysis = 'chesscomAnalysis',
     Manual = 'manual',
-    StartingPosition = 'startingPosition',
 }
 
 export interface GameImportHeaders {
