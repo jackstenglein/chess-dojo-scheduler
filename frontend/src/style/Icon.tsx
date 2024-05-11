@@ -10,6 +10,14 @@ import {
     SportsScore,
     ThumbUp,
     WavingHand,
+    Search,
+    Explore,
+    Group,
+    Person,
+    Backup,
+    PeopleOutline,
+    Download,
+    Visibility
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -28,6 +36,14 @@ export const icons: Record<string, typeof WavingHand> = {
     followers: ThumbUp,
     'All Categories': AllInclusive,
     clubs: Groups,
+    'search': Search,
+    'explore': Explore,
+    'cohort': Group,
+    'player': Person,
+    'upload': Backup,
+    'line': PeopleOutline,
+    'download': Download,
+    'eye': Visibility
 };
 
 export const Icon: React.FC<SvgIconProps> = ({ name, ...props }) => {

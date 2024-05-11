@@ -1,11 +1,11 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-
-import { Course, CoursePurchaseOption } from '../../database/course';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import { LoadingButton } from '@mui/lab';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { useApi } from '../../api/Api';
 import { useRequest } from '../../api/Request';
+import { Course, CoursePurchaseOption } from '../../database/course';
 import { displayPrice } from '../list/CourseListItem';
 
 interface PurchaseOptionProps {
@@ -101,6 +101,8 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({
                         variant='contained'
                         onClick={onBuy}
                         loading={request.isLoading()}
+                        color='success'
+                        startIcon={<RocketLaunchIcon />}
                         fullWidth
                     >
                         Buy

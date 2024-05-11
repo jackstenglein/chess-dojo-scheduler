@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { CourseType, displayCourseType } from '../../database/course';
 import {
     Checkbox,
     FormControlLabel,
@@ -9,12 +7,15 @@ import {
     Typography,
     useMediaQuery,
 } from '@mui/material';
+import { useState } from 'react';
 import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
 } from '../../calendar/filters/CalendarFilters';
+import { CourseType, displayCourseType } from '../../database/course';
 import { dojoCohorts } from '../../database/user';
+import CohortIcon from '../../scoreboard/CohortIcon';
 import { getCategoryColor } from './CourseListItem';
 
 export interface CourseFilters {
@@ -112,7 +113,7 @@ export const CourseFilterEditor: React.FC<CourseFilterEditorProps> = ({ filters 
                                         onChange={(event) =>
                                             onChangeCategories(
                                                 category,
-                                                event.target.checked
+                                                event.target.checked,
                                             )
                                         }
                                         color={getCategoryColor(category)}
@@ -145,6 +146,17 @@ export const CourseFilterEditor: React.FC<CourseFilterEditorProps> = ({ filters 
                         >
                             {dojoCohorts.map((cohort) => (
                                 <MenuItem key={cohort} value={cohort}>
+                                    <CohortIcon
+                                        cohort={cohort}
+                                        size={40}
+                                        sx={{
+                                            marginRight: '0.6rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                        tooltip=''
+                                        color='primary'
+                                    />
+
                                     {cohort}
                                 </MenuItem>
                             ))}
@@ -166,6 +178,16 @@ export const CourseFilterEditor: React.FC<CourseFilterEditorProps> = ({ filters 
                                         dojoCohorts.indexOf(filters.minCohort) > i
                                     }
                                 >
+                                    <CohortIcon
+                                        cohort={cohort}
+                                        size={40}
+                                        sx={{
+                                            marginRight: '0.6rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                        tooltip=''
+                                        color='primary'
+                                    />{' '}
                                     {cohort}
                                 </MenuItem>
                             ))}

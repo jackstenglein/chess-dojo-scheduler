@@ -1,3 +1,4 @@
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Button, Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
@@ -9,14 +10,13 @@ import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar } from '../api/Request';
-
+import { useAuth, useFreeTier } from '../auth/Auth';
 import { GameInfo } from '../database/game';
 import { User } from '../database/user';
 import { CustomPagination, gameTableColumns } from '../games/list/ListGamesPage';
 import { usePagination } from '../games/list/pagination';
-import { useAuth, useFreeTier } from '../auth/Auth';
+import Icon from '../style/Icon';
 import UpsellAlert from '../upsell/UpsellAlert';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface GamesTabProps {
     user: User;
@@ -58,7 +58,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user.username, startKey),
-        [api, user.username]
+        [api, user.username],
     );
 
     const { request, data, rowCount, page, pageSize, hasMore, setPage, setPageSize } =
@@ -68,8 +68,8 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         navigate(
             `/games/${params.row.cohort.replaceAll(
                 '+',
-                '%2B'
-            )}/${params.row.id.replaceAll('?', '%3F')}`
+                '%2B',
+            )}/${params.row.id.replaceAll('?', '%3F')}`,
         );
     };
 
@@ -87,8 +87,13 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
             {currentUser.username === user.username && (
-                <Button variant='contained' onClick={onSubmit}>
-                    Submit a Game
+                <Button
+                    variant='contained'
+                    onClick={onSubmit}
+                    color='success'
+                    startIcon={<Icon name='upload' />}
+                >
+                    Upload Game
                 </Button>
             )}
 

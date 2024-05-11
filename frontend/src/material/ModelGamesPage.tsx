@@ -10,6 +10,7 @@ import { Game, GameInfo } from '../database/game';
 import { compareCohorts, dojoCohorts } from '../database/user';
 import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
 import LoadingPage from '../loading/LoadingPage';
+import CohortIcon from '../scoreboard/CohortIcon';
 
 const ModelGamesPage = () => {
     const user = useAuth().user!;
@@ -111,6 +112,16 @@ const ModelGamesPage = () => {
                                         >
                                             {dojoCohorts.map((option) => (
                                                 <MenuItem key={option} value={option}>
+                                                    <CohortIcon
+                                                        cohort={option}
+                                                        size={40}
+                                                        sx={{
+                                                            marginRight: '0.6rem',
+                                                            verticalAlign: 'middle',
+                                                        }}
+                                                        tooltip=''
+                                                        color='primary'
+                                                    />
                                                     {option}
                                                 </MenuItem>
                                             ))}

@@ -12,7 +12,7 @@ import { LoadingButton } from '@mui/lab';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import React from 'react';
-
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { Course, CoursePurchaseOption } from '../../database/course';
 import { getCohortRange } from '../../database/user';
 import { CourseFilters } from './CourseFilters';
@@ -186,9 +186,11 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
             {!isAccessible && purchaseOption && (
                 <CardActions>
                     <LoadingButton
-                        size='small'
+                        size='medium'
                         loading={request.isLoading()}
                         onClick={preview ? undefined : onBuy}
+                        color='success'
+                        startIcon={<RocketLaunchIcon/>}
                     >
                         Buy
                     </LoadingButton>
