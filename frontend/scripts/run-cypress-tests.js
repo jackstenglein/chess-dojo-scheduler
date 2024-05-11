@@ -58,8 +58,14 @@ if (watch) {
     nodemon({
         script: scriptPath,
         args: ['--spec', spec],
-        ext: 'js,jsx,ts,tsx,css,scss',
-        watch: ['cypress.config.ts', './.env.test.local', spec, watch],
+        ext: 'js,jsx,ts,tsx,css,scss,json',
+        watch: [
+            'cypress.config.ts',
+            './.env.test.local',
+            './cypress/fixtures',
+            spec,
+            watch,
+        ],
     });
 } else {
     const config = {};
