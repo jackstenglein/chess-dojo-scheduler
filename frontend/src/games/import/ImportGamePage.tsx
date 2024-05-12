@@ -1,44 +1,20 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { TabContext, TabPanel } from '@mui/lab';
-import { Box, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Container, Stack, Typography } from '@mui/material';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { CreateGameRequest, RemoteGame, isGame } from '../../api/gameApi';
-import { OnlineGameForm } from './OnlineGameForm';
-import { PGNForm } from './PGNForm';
-import { PositionForm } from './PositionForm';
-
-enum ImportSource {
-    URL = 'url',
-    Position = 'position',
-    PGNText = 'pgn-text',
-}
-
-interface ImportTabPanelProps {
-    children: React.ReactNode;
-    source: ImportSource;
-}
-
-const ImportTabPanel: React.FC<ImportTabPanelProps> = ({ children, source }) => {
-    return (
-        <TabPanel value={source} sx={{ px: { xs: 0, sm: 3 } }}>
-            {children}
-        </TabPanel>
-    );
-};
+import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
     const api = useApi();
     const request = useRequest();
     const navigate = useNavigate();
-    const [source, setSource] = useState<ImportSource>(ImportSource.URL);
 
     const loading = request.isLoading();
 
-    const onImport = (remoteGame: RemoteGame) => {
+    const onCreate = (remoteGame: RemoteGame) => {
         const req: CreateGameRequest = {
             ...remoteGame,
             orientation: 'white',
@@ -46,11 +22,11 @@ const ImportGamePage = () => {
         request.onStart();
         api.createGame(req)
             .then((response) => {
-                console.log(response);
                 if (isGame(response.data)) {
                     const game = response.data;
                     trackEvent(EventType.SubmitGame, {
                         count: 1,
+                        // TODO: before merge, be more fine grained than this, now that starting position etc. is Manual
                         source: req.type,
                     });
                     navigate(
@@ -77,10 +53,6 @@ const ImportGamePage = () => {
             });
     };
 
-    const handleTabChange = (_event: React.SyntheticEvent, source: ImportSource) => {
-        setSource(source);
-    };
-
     return (
         <>
             <RequestSnackbar request={request} showSuccess />
@@ -94,41 +66,7 @@ const ImportGamePage = () => {
                         can view and comment.
                     </Typography>
                     <Box sx={{ typography: 'body1' }}>
-                        <TabContext value={source}>
-                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                <Tabs
-                                    onChange={handleTabChange}
-                                    value={source}
-                                    aria-label='import sources tabs'
-                                    variant='scrollable'
-                                >
-                                    <Tab
-                                        value={ImportSource.URL}
-                                        label={'Lichess & Chess.com'}
-                                        data-cy={'import-url'}
-                                    />
-                                    <Tab
-                                        value={ImportSource.Position}
-                                        label='Position'
-                                        data-cy={'import-position'}
-                                    />
-                                    <Tab
-                                        value={ImportSource.PGNText}
-                                        label='PGN'
-                                        data-cy={'import-pgn-text'}
-                                    />
-                                </Tabs>
-                            </Box>
-                            <ImportTabPanel source={ImportSource.URL}>
-                                <OnlineGameForm onSubmit={onImport} loading={loading} />
-                            </ImportTabPanel>
-                            <ImportTabPanel source={ImportSource.PGNText}>
-                                <PGNForm onSubmit={onImport} loading={loading} />
-                            </ImportTabPanel>
-                            <ImportTabPanel source={ImportSource.Position}>
-                                <PositionForm onSubmit={onImport} loading={loading} />
-                            </ImportTabPanel>
-                        </TabContext>
+                        <ImportWizard onSubmit={onCreate} loading={loading} />
                     </Box>
                 </Stack>
             </Container>

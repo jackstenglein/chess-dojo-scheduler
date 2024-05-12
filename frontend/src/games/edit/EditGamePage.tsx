@@ -1,9 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { Box, Container, Stack, Typography } from '@mui/material';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { UpdateGameRequest, isGame } from '../../api/gameApi';
+import { RemoteGame, UpdateGameRequest, isGame } from '../../api/gameApi';
+import ImportWizard from '../import/ImportWizard';
 
 const EditGamePage = () => {
     const api = useApi();
@@ -11,10 +13,18 @@ const EditGamePage = () => {
     const { cohort, id } = useParams();
     const navigate = useNavigate();
 
-    const onEdit = (req: UpdateGameRequest) => {
+    const loading = request.isLoading();
+
+    const onEdit = (remoteGame: RemoteGame) => {
         if (!cohort || !id) {
             return;
         }
+
+        const req: UpdateGameRequest = {
+            ...remoteGame,
+            unlisted: true,
+        };
+
         request.onStart();
         api.updateGame(cohort, id, req)
             .then((response) => {
@@ -34,17 +44,22 @@ const EditGamePage = () => {
             });
     };
 
-    const title = cohort && id ? 'Edit Game' : 'Submit Game';
-    const description =
-        cohort && id
-            ? "Overwrite this game's PGN data? Any comments will remain."
-            : undefined;
-
     return (
         <>
-            <div>TODO</div>
-
             <RequestSnackbar request={request} showSuccess />
+            <Container maxWidth='md' sx={{ py: 5 }}>
+                <Stack spacing={2}>
+                    <Typography variant='h6'>Replace Game's PGN</Typography>
+                    <Typography variant='body1'>
+                        Overwrite this game's PGN data? Any comments will remain. Your
+                        game will return to unlisted if it is published.
+                        {/* TODO before merge include a Cancel link */}
+                    </Typography>
+                    <Box sx={{ typography: 'body1' }}>
+                        <ImportWizard onSubmit={onEdit} loading={loading} />
+                    </Box>
+                </Stack>
+            </Container>
         </>
     );
 };
