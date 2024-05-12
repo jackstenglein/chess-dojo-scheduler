@@ -1,5 +1,5 @@
 import { EventType, TAGS } from '@jackstenglein/chess';
-import { Box, Link, Stack, Typography } from '@mui/material';
+import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -10,6 +10,7 @@ import {
 } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { isValidDate, stripTagValue } from '../../../../api/gameApi';
 import { Game } from '../../../../database/game';
 import Avatar from '../../../../profile/Avatar';
 import CohortIcon from '../../../../scoreboard/CohortIcon';
@@ -96,7 +97,6 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
             />
         );
     }
-
     return <GridEditInputCell {...props} />;
 }
 
@@ -124,6 +124,7 @@ interface TagsProps {
 const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
     const chess = useChess().chess;
     const [, setForceRender] = useState(0);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         if (chess) {
@@ -178,6 +179,19 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     Double click a cell to edit
                 </Typography>
             )}
+            {error && (
+                <Snackbar
+                    data-cy='error-snackbar'
+                    open={error !== ''}
+                    autoHideDuration={6000}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    onClose={() => setError('')}
+                >
+                    <Alert variant='filled' severity='error' sx={{ width: '100%' }}>
+                        {error}
+                    </Alert>
+                </Snackbar>
+            )}
 
             <DataGridPro
                 autoHeight
@@ -201,9 +215,30 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     }
                     return !uneditableTags.includes(params.row.name);
                 }}
-                processRowUpdate={(newRow) => {
+                processRowUpdate={(newRow, oldRow) => {
+                    const value = newRow.value as string;
+                    const name = newRow.name;
+
+                    if (
+                        [TAGS.White, TAGS.Date, TAGS.Black].includes(name) &&
+                        stripTagValue(value) === ''
+                    ) {
+                        setError('This tag is required');
+
+                        return oldRow;
+                    }
+
+                    if ([TAGS.Date].includes(name) && !isValidDate(value)) {
+                        setError('Invalid date for a PGN');
+
+                        return oldRow;
+                    }
+
                     chess.setHeader(newRow.name, newRow.value as string);
                     return newRow;
+                }}
+                onProcessRowUpdateError={(err: Error) => {
+                    setError(err.message);
                 }}
             />
         </Box>

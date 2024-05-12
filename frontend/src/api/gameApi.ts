@@ -696,7 +696,7 @@ export function isValidDate(date?: string) {
     );
 }
 
-export function stripPlayerTag(header: string) {
+export function stripTagValue(header: string) {
     header = header.trim();
     return header.replaceAll('?', '') === '' ? '' : header;
 }
@@ -705,8 +705,8 @@ export function isMissingData(game: Game) {
     const h = game.headers;
     return (
         !isGameResult(h.Result) ||
-        stripPlayerTag(h.White) === '' ||
-        stripPlayerTag(h.Black) === '' ||
+        stripTagValue(h.White) === '' ||
+        stripTagValue(h.Black) === '' ||
         !isValidDate(h.Date)
     );
 }

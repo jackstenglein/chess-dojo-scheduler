@@ -11,7 +11,6 @@ import {
     Typography,
 } from '@mui/material';
 
-import { Chess } from '@jackstenglein/chess';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../../../../analytics/events';
@@ -20,7 +19,6 @@ import { useRequest } from '../../../../../api/Request';
 import {
     BoardOrientation,
     GameHeader,
-    GameSubmissionType,
     UpdateGameRequest,
     isGame,
     isMissingData,
@@ -29,6 +27,7 @@ import { useFreeTier } from '../../../../../auth/Auth';
 import { Game } from '../../../../../database/game';
 import PublishGamePreflight from '../../../../../games/edit/PublishGamePreflight';
 import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
+import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
 
@@ -132,6 +131,7 @@ const SaveGameButton = ({
     orientation,
     onSaveGame,
 }: SaveGameButtonProps) => {
+    const { chess } = useChess();
     const isFreeTier = useFreeTier();
     const api = useApi();
     const request = useRequest();
@@ -154,7 +154,7 @@ const SaveGameButton = ({
         setShowPublishingModal(true);
     };
 
-    const onSave = (headers: GameHeader) => {
+    const onSave = (headers?: GameHeader) => {
         request.onStart();
 
         const updates: UpdateGameRequest = {
@@ -166,17 +166,11 @@ const SaveGameButton = ({
             timelineId: game.timelineId,
         };
 
-        if (headers) {
-            const chess = new Chess();
-            chess.loadPgn(game.pgn);
-
+        if (headers && chess) {
             chess.setHeader('White', headers.white);
             chess.setHeader('Black', headers.black);
             chess.setHeader('Result', headers.result);
             chess.setHeader('Date', headers.date);
-
-            updates.type = GameSubmissionType.Manual;
-            updates.pgnText = chess.renderPgn();
         }
 
         api.updateGame(game.cohort, game.id, updates)

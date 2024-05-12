@@ -14,7 +14,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import { GameHeader, stripPlayerTag } from '../../api/gameApi';
+import { GameHeader, stripTagValue } from '../../api/gameApi';
 import { GameResult, isGameResult } from '../../database/game';
 
 interface FormHeader {
@@ -41,8 +41,8 @@ function getFormHeader(h: GameHeader): FormHeader {
     return {
         date,
         result,
-        white: stripPlayerTag(h.white),
-        black: stripPlayerTag(h.black),
+        white: stripTagValue(h.white),
+        black: stripTagValue(h.black),
     };
 }
 
