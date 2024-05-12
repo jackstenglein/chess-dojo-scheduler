@@ -17,7 +17,8 @@ import {
     Backup,
     PeopleOutline,
     Download,
-    Visibility
+    Visibility,
+    QueryBuilder
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -43,7 +44,8 @@ export const icons: Record<string, typeof WavingHand> = {
     'upload': Backup,
     'line': PeopleOutline,
     'download': Download,
-    'eye': Visibility
+    'eye': Visibility,
+    'clock': QueryBuilder
 };
 
 export const Icon: React.FC<SvgIconProps> = ({ name, ...props }) => {

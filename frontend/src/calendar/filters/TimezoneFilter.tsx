@@ -14,6 +14,7 @@ import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
 import { TimeFormat } from '../../database/user';
 import { DefaultTimezone, Filters } from './CalendarFilters';
+import Icon from '../../style/Icon';
 
 function getTimezoneOptions() {
     const options = [];
@@ -74,7 +75,8 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
     return (
         <Stack spacing={2.5}>
             <FormControl data-cy='time-format'>
-                <FormLabel sx={{ fontSize: '0.85rem' }}>Time Format</FormLabel>
+                
+                <FormLabel sx={{ fontSize: '1rem' }} > Time Format </FormLabel>
                 <RadioGroup
                     row
                     value={timeFormat}
@@ -82,7 +84,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
                 >
                     <FormControlLabel
                         value={TimeFormat.TwelveHour}
-                        control={<Radio sx={{ py: 0.25 }} size='small' />}
+                        control={<Radio sx={{ py: 0.50 }} size='small' />}
                         label='12 Hour'
                         slotProps={{
                             typography: {
