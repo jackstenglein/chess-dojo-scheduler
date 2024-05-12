@@ -273,7 +273,7 @@ const ListGamesPage = () => {
                             variant='contained'
                             onClick={onImport}
                         >
-                            Import a Game
+                            Analyze a Game
                         </Button>
 
                         <Divider />

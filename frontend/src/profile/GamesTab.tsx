@@ -10,13 +10,13 @@ import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar } from '../api/Request';
 
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import { GameInfo } from '../database/game';
 import { User } from '../database/user';
 import { CustomPagination, gameTableColumns } from '../games/list/ListGamesPage';
 import { usePagination } from '../games/list/pagination';
-import { useAuth, useFreeTier } from '../auth/Auth';
 import UpsellAlert from '../upsell/UpsellAlert';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface GamesTabProps {
     user: User;
@@ -58,7 +58,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user.username, startKey),
-        [api, user.username]
+        [api, user.username],
     );
 
     const { request, data, rowCount, page, pageSize, hasMore, setPage, setPageSize } =
@@ -68,8 +68,8 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         navigate(
             `/games/${params.row.cohort.replaceAll(
                 '+',
-                '%2B'
-            )}/${params.row.id.replaceAll('?', '%3F')}`
+                '%2B',
+            )}/${params.row.id.replaceAll('?', '%3F')}`,
         );
     };
 
@@ -88,7 +88,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
             <RequestSnackbar request={request} />
             {currentUser.username === user.username && (
                 <Button variant='contained' onClick={onSubmit}>
-                    Submit a Game
+                    Analyze a Game
                 </Button>
             )}
 
