@@ -293,7 +293,7 @@ export function getGame(
                 orientation,
                 comments: [],
                 positionComments: {},
-                unlisted: unlisted ?? false,
+                unlisted: unlisted ?? true,
             },
             {
                 white: chess.header().White,
