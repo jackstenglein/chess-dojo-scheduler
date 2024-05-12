@@ -9,13 +9,13 @@ import {
     MenuItem,
     Stack,
     TextField,
-    Typography,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import { GameHeader } from '../../api/gameApi';
+import { GameHeader, stripPlayerTag } from '../../api/gameApi';
+import { GameResult, isGameResult } from '../../database/game';
 
 interface FormHeader {
     white: string;
@@ -32,22 +32,29 @@ function getFormHeader(h: GameHeader): FormHeader {
             date = null;
         }
     }
+
+    let result = h.result;
+    if (!isGameResult(result)) {
+        result = '';
+    }
+
     return {
-        white: h.white,
-        black: h.black,
         date,
-        result: h.result,
+        result,
+        white: stripPlayerTag(h.white),
+        black: stripPlayerTag(h.black),
     };
 }
 
-export function getGameHeader(h: FormHeader): GameHeader {
+export function getGameHeaders(h: FormHeader): GameHeader {
     let date = h.date!.toUTC().toISO()!;
     date = date.substring(0, date.indexOf('T'));
     date = date.replaceAll('-', '.');
+
     return {
+        date: date,
         white: h.white,
         black: h.black,
-        date,
         result: h.result,
     };
 }
@@ -62,9 +69,9 @@ interface FormError {
 interface PublishGamePreflightProps {
     open: boolean;
     onClose: () => void;
-    initHeaders: GameHeader[];
+    initHeaders: GameHeader;
     loading: boolean;
-    onSubmit: (headers: GameHeader[]) => void;
+    onSubmit: (headers: GameHeader) => void;
 }
 
 const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
@@ -74,57 +81,36 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
     loading,
     onSubmit,
 }) => {
-    const multiple = initHeaders.length > 1;
-    const [headers, setHeaders] = useState<FormHeader[]>(
-        initHeaders.map((h) => getFormHeader(h)),
-    );
-    const [errors, setErrors] = useState<Record<number, FormError>>({});
+    const [headers, setHeaders] = useState<FormHeader>(getFormHeader(initHeaders));
+    const [errors, setErrors] = useState<Partial<FormError>>({});
 
-    const onChangeHeader = (
-        i: number,
-        key: keyof GameHeader,
-        value: string | DateTime | null,
-    ) => {
-        setHeaders([
-            ...headers.slice(0, i),
-            {
-                ...headers[i],
-                [key]: value,
-            },
-            ...headers.slice(i + 1),
-        ]);
+    const onChangeHeader = (key: keyof GameHeader, value: string | DateTime | null) => {
+        setHeaders((oldHeaders) => ({ ...oldHeaders, [key]: value }));
     };
 
     const submit = () => {
-        let errors: Record<number, FormError> = {};
-        headers.forEach((h, i) => {
-            const error: FormError = { white: '', black: '', result: '', date: '' };
-            if (h.white.trim() === '') {
-                error.white = 'This field is required';
-                errors[i] = error;
-            }
-            if (h.black.trim() === '') {
-                error.black = 'This field is required';
-                errors[i] = error;
-            }
-            if (h.result.trim() === '') {
-                error.result = 'This field is required';
-                errors[i] = error;
-            }
-            console.log('h.date: ', h.date);
-            if (h.date === null || !h.date.isValid) {
-                error.date = 'This field is required';
-                errors[i] = error;
-            }
-        });
-        setErrors(errors);
+        const newErrors: Partial<FormError> = {};
 
-        if (Object.values(errors).length > 0) {
+        if (headers.white.trim() === '') {
+            newErrors.white = 'This field is required';
+        }
+        if (headers.black.trim() === '') {
+            newErrors.black = 'This field is required';
+        }
+        if (headers.result.trim() === '') {
+            newErrors.result = 'This field is required';
+        }
+
+        if (headers.date === null || !headers.date.isValid) {
+            newErrors.date = 'This field is required';
+        }
+        setErrors(newErrors);
+
+        if (Object.values(newErrors).length > 0) {
             return;
         }
 
-        const gameHeaders = headers.map((h) => getGameHeader(h));
-        onSubmit(gameHeaders);
+        onSubmit(getGameHeaders(headers));
     };
 
     return (
@@ -132,92 +118,71 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
             <DialogTitle>Almost done</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    More data is needed to publish your game.
+                    More data is needed to publish your analysis.
                 </DialogContentText>
 
                 <Stack spacing={3} mt={3}>
-                    {headers.map((h, i) => (
-                        <Grid2 key={i} container columnSpacing={1} rowSpacing={2}>
-                            {multiple && (
-                                <Grid2
-                                    xs={12}
-                                    sm='auto'
-                                    display='flex'
-                                    alignItems='center'
-                                >
-                                    <Typography variant='caption'>
-                                        Chapter {i + 1}
-                                    </Typography>
-                                </Grid2>
-                            )}
-
-                            <Grid2 xs={12} sm={true}>
-                                <TextField
-                                    fullWidth
-                                    data-cy={`white-${i}`}
-                                    label='White'
-                                    value={h.white}
-                                    onChange={(e) =>
-                                        onChangeHeader(i, 'white', e.target.value)
-                                    }
-                                    error={!!errors[i]?.white}
-                                    helperText={errors[i]?.white}
-                                />
-                            </Grid2>
-
-                            <Grid2 xs={12} sm={true}>
-                                <TextField
-                                    fullWidth
-                                    data-cy={`black-${i}`}
-                                    label='Black'
-                                    value={h.black}
-                                    onChange={(e) =>
-                                        onChangeHeader(i, 'black', e.target.value)
-                                    }
-                                    error={!!errors[i]?.black}
-                                    helperText={errors[i]?.black}
-                                />
-                            </Grid2>
-
-                            <Grid2 xs={12} sm={true}>
-                                <TextField
-                                    select
-                                    data-cy={`result-${i}`}
-                                    label='Result'
-                                    value={h.result}
-                                    onChange={(e) =>
-                                        onChangeHeader(i, 'result', e.target.value)
-                                    }
-                                    error={!!errors[i]?.result}
-                                    helperText={errors[i]?.result}
-                                    fullWidth
-                                >
-                                    <MenuItem value='1-0'>White Won</MenuItem>
-                                    <MenuItem value='1/2-1/2'>Draw</MenuItem>
-                                    <MenuItem value='0-1'>Black Won</MenuItem>
-                                </TextField>
-                            </Grid2>
-
-                            <Grid2 xs={12} sm={true}>
-                                <DatePicker
-                                    label='Date'
-                                    disableFuture
-                                    value={h.date}
-                                    onChange={(newValue) => {
-                                        onChangeHeader(i, 'date', newValue);
-                                    }}
-                                    slotProps={{
-                                        textField: {
-                                            id: `date-${i}`,
-                                            error: !!errors[i]?.date,
-                                            helperText: errors[i]?.date,
-                                            fullWidth: true,
-                                        },
-                                    }}
-                                />
-                            </Grid2>
+                    <Grid2 container columnSpacing={1} rowSpacing={2}>
+                        <Grid2 xs={12} sm={true}>
+                            <TextField
+                                fullWidth
+                                data-cy='white'
+                                label='White'
+                                value={headers.white}
+                                onChange={(e) => onChangeHeader('white', e.target.value)}
+                                error={!!errors.white}
+                                helperText={errors.white}
+                            />
                         </Grid2>
-                    ))}
+
+                        <Grid2 xs={12} sm={true}>
+                            <TextField
+                                fullWidth
+                                data-cy='black'
+                                label='Black'
+                                value={headers.black}
+                                onChange={(e) => onChangeHeader('black', e.target.value)}
+                                error={!!errors.black}
+                                helperText={errors.black}
+                            />
+                        </Grid2>
+
+                        <Grid2 xs={12} sm={true}>
+                            <TextField
+                                select
+                                data-cy='result'
+                                label='Result'
+                                value={headers.result}
+                                onChange={(e) => onChangeHeader('result', e.target.value)}
+                                error={!!errors.result}
+                                helperText={errors.result}
+                                fullWidth
+                            >
+                                <MenuItem value={GameResult.White}>White Won</MenuItem>
+                                <MenuItem value={GameResult.Draw}>Draw</MenuItem>
+                                <MenuItem value={GameResult.Black}>Black Won</MenuItem>
+                            </TextField>
+                        </Grid2>
+
+                        <Grid2 xs={12} sm={true}>
+                            <DatePicker
+                                label='Date'
+                                disableFuture
+                                value={headers.date}
+                                onChange={(newValue) => {
+                                    onChangeHeader('date', newValue);
+                                }}
+                                slotProps={{
+                                    textField: {
+                                        id: 'date',
+                                        error: !!errors.date,
+                                        helperText: errors.date,
+                                        fullWidth: true,
+                                    },
+                                }}
+                            />
+                        </Grid2>
+                    </Grid2>
                 </Stack>
             </DialogContent>
             <DialogActions>

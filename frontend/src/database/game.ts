@@ -4,6 +4,10 @@ export enum GameResult {
     Draw = '1/2-1/2',
 }
 
+export function isGameResult(result?: string): result is GameResult {
+    return result !== undefined && !!Object.values(GameResult).find((r) => r === result);
+}
+
 export enum GameReviewStatus {
     Pending = 'PENDING',
     None = '',

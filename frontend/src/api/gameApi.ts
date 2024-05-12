@@ -1,7 +1,14 @@
 import axios, { AxiosResponse } from 'axios';
 
+import { DateTime } from 'luxon';
 import { getConfig } from '../config';
-import { Game, GameInfo, GameReviewType, PositionComment } from '../database/game';
+import {
+    Game,
+    GameInfo,
+    GameReviewType,
+    PositionComment,
+    isGameResult,
+} from '../database/game';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -203,7 +210,6 @@ export interface RemoteGame {
     url?: string;
     pgnText?: string;
     type?: GameSubmissionType;
-    fen?: string;
 }
 
 export type BoardOrientation = 'white' | 'black';
@@ -214,9 +220,8 @@ export type CreateGameRequest = {
 
 export type UpdateGameRequest = {
     timelineId?: string;
-    orientation: BoardOrientation;
+    orientation?: BoardOrientation;
     unlisted?: boolean;
-    headers?: GameHeader[];
 } & RemoteGame;
 
 export interface GameHeader {
@@ -682,3 +687,26 @@ export const isChesscomAnalysisURL = (url: string) =>
         hostname: 'www.chess.com',
         pathParts: [/^a$/, matchChesscomId],
     });
+
+export function isValidDate(date?: string) {
+    return (
+        date !== undefined &&
+        date !== '' &&
+        !!DateTime.fromISO(date.replaceAll('.', '-'))?.isValid
+    );
+}
+
+export function stripPlayerTag(header: string) {
+    header = header.trim();
+    return header.replaceAll('?', '') === '' ? '' : header;
+}
+
+export function isMissingData(game: Game) {
+    const h = game.headers;
+    return (
+        !isGameResult(h.Result) ||
+        stripPlayerTag(h.White) === '' ||
+        stripPlayerTag(h.Black) === '' ||
+        !isValidDate(h.Date)
+    );
+}

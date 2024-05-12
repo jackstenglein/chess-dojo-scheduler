@@ -11,12 +11,20 @@ import {
     Typography,
 } from '@mui/material';
 
+import { Chess } from '@jackstenglein/chess';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../../../../analytics/events';
 import { useApi } from '../../../../../api/Api';
 import { useRequest } from '../../../../../api/Request';
-import { BoardOrientation, GameHeader, isGame } from '../../../../../api/gameApi';
+import {
+    BoardOrientation,
+    GameHeader,
+    GameSubmissionType,
+    UpdateGameRequest,
+    isGame,
+    isMissingData,
+} from '../../../../../api/gameApi';
 import { useFreeTier } from '../../../../../auth/Auth';
 import { Game } from '../../../../../database/game';
 import PublishGamePreflight from '../../../../../games/edit/PublishGamePreflight';
@@ -127,19 +135,17 @@ const SaveGameButton = ({
     const isFreeTier = useFreeTier();
     const api = useApi();
     const request = useRequest();
-    const initHeaders = {
-        white: game.headers.White,
-        black: game.headers.Black,
-        date: game.headers.Date,
-        result: game.headers.Result,
-    };
     const [showPublishingModal, setShowPublishingModal] = useState<boolean>(false);
     const loading = request.isLoading();
 
     const isPublishing = (game.unlisted ?? true) && visibility == 'public';
-    // TODO: detect missing or incorrect data
-    const isMissingData = isPublishing;
-    const needsPreflight = isPublishing && isMissingData;
+    const needsPreflight = isPublishing && isMissingData(game);
+    const initHeaders: GameHeader = {
+        white: game.headers.White,
+        black: game.headers.Black,
+        result: game.headers.Result,
+        date: game.headers.Date,
+    };
 
     const saveDisabled =
         (visibility === 'unlisted') === game.unlisted && orientation === game.orientation;
@@ -148,26 +154,44 @@ const SaveGameButton = ({
         setShowPublishingModal(true);
     };
 
-    const onSave = (headers?: GameHeader[]) => {
+    const onSave = (headers: GameHeader) => {
         request.onStart();
-        api.updateGame(game.cohort, game.id, {
+
+        const updates: UpdateGameRequest = {
             orientation,
-            headers: headers,
             unlisted:
                 (visibility === 'unlisted') === game.unlisted
                     ? undefined
                     : isFreeTier || visibility === 'unlisted',
             timelineId: game.timelineId,
-        })
+        };
+
+        if (headers) {
+            const chess = new Chess();
+            chess.loadPgn(game.pgn);
+
+            chess.setHeader('White', headers.white);
+            chess.setHeader('Black', headers.black);
+            chess.setHeader('Result', headers.result);
+            chess.setHeader('Date', headers.date);
+
+            updates.type = GameSubmissionType.Manual;
+            updates.pgnText = chess.renderPgn();
+        }
+
+        api.updateGame(game.cohort, game.id, updates)
             .then((resp) => {
                 trackEvent(EventType.UpdateGame, {
                     method: 'settings',
                     dojo_cohort: game.cohort,
                 });
+
                 request.onSuccess();
                 if (isGame(resp.data)) {
                     onSaveGame?.(resp.data);
                 }
+
+                setShowPublishingModal(false);
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
@@ -193,7 +217,7 @@ const SaveGameButton = ({
             <PublishGamePreflight
                 open={showPublishingModal}
                 onClose={onClose}
-                initHeaders={[initHeaders]}
+                initHeaders={initHeaders}
                 onSubmit={onSave}
                 loading={loading}
             />
