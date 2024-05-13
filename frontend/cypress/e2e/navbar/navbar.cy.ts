@@ -7,7 +7,7 @@ const navbarStartItems = [
     'Calendar',
     'Material',
     'Clubs',
-    'Chat',
+    'Blog',
     'Shop',
 ];
 
@@ -33,6 +33,7 @@ describe('Navbar', () => {
 
         cy.getBySel('navbar').contains('Tournaments');
         cy.getBySel('navbar').contains('Material');
+        cy.getBySel('navbar').contains('Blog');
         cy.getBySel('navbar').contains('Shop');
         cy.getBySel('navbar').contains('Contact Us');
         cy.getBySel('navbar').contains('Sign In');

@@ -83,8 +83,9 @@ interface MenuProps {
 export interface NavbarItem {
     name: string;
     icon?: JSX.Element;
-    onClick: () => void;
+    onClick?: () => void;
     children?: NavbarItem[];
+    href?: string;
 }
 
 function allStartItems(
@@ -209,9 +210,9 @@ function allStartItems(
             onClick: () => navigate('/clubs'),
         },
         {
-            name: 'Chat',
+            name: 'Blog',
             icon: <Forum />,
-            onClick: () => navigate('/chat'),
+            href: '/blog',
         },
         {
             name: 'Shop',
@@ -321,6 +322,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                 sx={{ color: 'white', whiteSpace: 'nowrap' }}
                 startIcon={item.icon}
                 endIcon={item.children ? <ExpandMore /> : undefined}
+                href={item.href}
             >
                 {item.name}
             </Button>
@@ -332,7 +334,12 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                     onClose={handleClose}
                 >
                     {item.children.map((child) => (
-                        <MenuItem key={child.name} onClick={handleClick(child.onClick)}>
+                        <MenuItem
+                            key={child.name}
+                            onClick={
+                                child.onClick ? handleClick(child.onClick) : undefined
+                            }
+                        >
                             {child.icon && <ListItemIcon>{child.icon}</ListItemIcon>}
                             <Typography textAlign='center'>{child.name}</Typography>
                         </MenuItem>
@@ -353,7 +360,15 @@ export const NavMenuItem: React.FC<{
         <>
             <MenuItem
                 key={item.name}
-                onClick={item.children ? item.onClick : handleClick(item.onClick)}
+                onClick={
+                    item.children
+                        ? item.onClick
+                        : item.onClick
+                          ? handleClick(item.onClick)
+                          : undefined
+                }
+                component={item.href ? 'a' : 'li'}
+                href={item.href}
             >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <Typography textAlign='center'>
@@ -377,7 +392,9 @@ export const NavMenuItem: React.FC<{
                         {item.children.map((child) => (
                             <MenuItem
                                 key={child.name}
-                                onClick={handleClick(child.onClick)}
+                                onClick={
+                                    child.onClick ? handleClick(child.onClick) : undefined
+                                }
                                 sx={{ pl: 3 }}
                             >
                                 {child.icon ? (

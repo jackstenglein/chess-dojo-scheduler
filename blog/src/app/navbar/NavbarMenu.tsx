@@ -200,9 +200,9 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
             href: '/clubs',
         },
         {
-            name: 'Chat',
+            name: 'Blog',
             icon: <Forum />,
-            href: '/chat',
+            href: '/blog',
         },
         {
             name: 'Shop',
