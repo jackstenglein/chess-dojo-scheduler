@@ -1,5 +1,5 @@
 import { Stack, TextField, Typography } from '@mui/material';
-
+import Icon from '../../../style/Icon';
 interface LocationFormSectionProps {
     subtitle: string;
     location: string;
@@ -19,7 +19,15 @@ const LocationFormSection: React.FC<LocationFormSectionProps> = ({
 }) => {
     return (
         <Stack>
-            <Typography variant='h6'>Location {!required && '(Optional)'}</Typography>
+            <Typography variant='h6'>
+                <Icon
+                    name='location'
+                    color='primary'
+                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                    fontSize='medium'
+                />
+                Location {!required && '(Optional)'}
+            </Typography>
             <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 1.5 }}>
                 {subtitle}
             </Typography>

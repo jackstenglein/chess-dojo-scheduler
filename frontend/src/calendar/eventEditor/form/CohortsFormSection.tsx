@@ -1,14 +1,15 @@
 import {
+    Checkbox,
+    FormControl,
+    FormControlLabel,
+    FormHelperText,
     Stack,
     Typography,
-    FormControlLabel,
-    Checkbox,
-    FormHelperText,
-    FormControl,
 } from '@mui/material';
 
 import { dojoCohorts } from '../../../database/user';
-
+import CohortIcon from '../../../scoreboard/CohortIcon';
+import Icon from '../../../style/Icon';
 interface CohortsFormSectionProps {
     description: string;
     allCohorts: boolean;
@@ -28,7 +29,15 @@ const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
 }) => {
     return (
         <Stack>
-            <Typography variant='h6'>Cohorts</Typography>
+            <Typography variant='h6'>
+                <Icon
+                    name='cohort'
+                    color='primary'
+                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                    fontSize='medium'
+                />
+                Cohorts
+            </Typography>
             <Typography variant='subtitle1' color='text.secondary'>
                 {description}
             </Typography>
@@ -41,7 +50,19 @@ const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
                             onChange={(event) => setAllCohorts(event.target.checked)}
                         />
                     }
-                    label='All Cohorts'
+                    //label='All Cohorts'
+                    label={
+                        <>
+                            {' '}
+                            <Icon
+                                name='all'
+                                color='primary'
+                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                                fontSize='medium'
+                            />
+                            All Cohorts
+                        </>
+                    }
                 />
                 <Stack direction='row' sx={{ flexWrap: 'wrap', columnGap: 2.5 }}>
                     {dojoCohorts.map((cohort) => (
@@ -57,7 +78,18 @@ const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
                                 />
                             }
                             disabled={allCohorts}
-                            label={cohort}
+                            //label={cohort}
+                            label={
+                                <>
+                                    {' '}
+                                    <CohortIcon
+                                        cohort={cohort}
+                                        size={25}
+                                        sx={{ verticalAlign: 'middle' }}
+                                    />{' '}
+                                    {cohort}{' '}
+                                </>
+                            }
                         />
                     ))}
                 </Stack>

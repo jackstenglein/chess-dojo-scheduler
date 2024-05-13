@@ -22,7 +22,7 @@ import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
 import TimesFormSection from './form/TimesFormSection';
 import { getMinEnd, UseEventEditorResponse } from './useEventEditor';
-
+import Icon from '../../style/Icon';
 function getDefaultMaxParticipants(
     allAvailabilityTypes: boolean,
     availabilityTypes: Record<string, boolean>,
@@ -204,7 +204,14 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
             />
 
             <Stack data-cy='availability-types-section'>
-                <Typography variant='h6'>Availability Types</Typography>
+                <Typography variant='h6'>
+                <Icon
+                    name='meet'
+                    color='primary'
+                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                    fontSize='medium'
+                />
+                    Availability Types</Typography>
                 <Typography variant='subtitle1' color='text.secondary'>
                     Choose the meeting types you are available for.
                 </Typography>
@@ -218,7 +225,16 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                                 }
                             />
                         }
-                        label='All Types'
+                        //label='All Types'
+                        label={<> <Icon
+                            name='all'
+                            color='primary'
+                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            fontSize='medium'
+                        /> 
+                        
+                        All Types
+                        </>}
                     />
                     <Stack direction='row' sx={{ flexWrap: 'wrap', columnGap: 2.5 }}>
                         {Object.values(AvailabilityType).map((type) => (
@@ -239,7 +255,16 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                                     />
                                 }
                                 disabled={allAvailabilityTypes}
-                                label={getDisplayString(type)}
+                                //label={getDisplayString(type)}
+                                label={<> <Icon
+                                    name={getDisplayString(type)}
+                                    color='primary'
+                                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                                    fontSize='medium'
+                                /> 
+                                
+                                {getDisplayString(type)}
+                                </>}
                             />
                         ))}
                     </Stack>

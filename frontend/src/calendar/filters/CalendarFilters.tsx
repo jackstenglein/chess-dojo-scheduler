@@ -1,3 +1,5 @@
+import { DayHours } from '@aldabil/react-scheduler/types';
+import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import {
     Button,
@@ -15,28 +17,26 @@ import MuiAccordionSummary, {
     AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
+import { DateTime } from 'luxon';
 import React, { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
-import { DayHours } from '@aldabil/react-scheduler/types';
-import { WeekDays } from '@aldabil/react-scheduler/views/Month';
-import { DateTime } from 'luxon';
 import { useLocalStorage } from 'usehooks-ts';
 import { useEvents } from '../../api/cache/Cache';
 import { useAuth } from '../../auth/Auth';
 import {
     AvailabilityType,
-    displayTimeControlType,
     Event,
     EventStatus,
-    getDisplayString,
     PositionType,
     TimeControlType,
     TournamentType,
+    displayTimeControlType,
+    getDisplayString,
 } from '../../database/event';
-import { dojoCohorts, TimeFormat } from '../../database/user';
+import { TimeFormat, dojoCohorts } from '../../database/user';
+import CohortIcon from '../../scoreboard/CohortIcon';
+import Icon from '../../style/Icon';
 import TimezoneFilter from './TimezoneFilter';
-
 export const DefaultTimezone = 'DEFAULT';
 
 export const Accordion = styled((props: AccordionProps) => (
@@ -417,7 +417,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                 </Link>
             )}
 
-            <Button variant='outlined' onClick={onReset} sx={{ alignSelf: 'start' }}>
+            <Button
+                variant='outlined'
+                onClick={onReset}
+                sx={{ alignSelf: 'start' }}
+                startIcon={<Icon name='reset' />}
+            >
                 Reset Filters
             </Button>
 
@@ -432,6 +437,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     forceExpansion={forceExpansion}
                 >
                     <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name='eventCheck'
+                            color='inherit'
+                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            fontSize='medium'
+                        />
                         My Calendar
                     </Typography>
                 </AccordionSummary>
@@ -446,7 +457,22 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     }
                                 />
                             }
-                            label='Availabilities'
+                            //label='Availabilities'
+                            label={
+                                <>
+                                    {' '}
+                                    <Icon
+                                        name='avilb'
+                                        color='inherit'
+                                        sx={{
+                                            marginRight: '0.4rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                        fontSize='medium'
+                                    />
+                                    Availabilities
+                                </>
+                            }
                         />
                         <FormControlLabel
                             control={
@@ -457,7 +483,22 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     }
                                 />
                             }
-                            label='Meetings'
+                            //label='Meetings'
+                            label={
+                                <>
+                                    {' '}
+                                    <Icon
+                                        name='meet'
+                                        color='inherit'
+                                        sx={{
+                                            marginRight: '0.4rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                        fontSize='medium'
+                                    />
+                                    Meetings
+                                </>
+                            }
                         />
                     </Stack>
                 </AccordionDetails>
@@ -473,6 +514,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     forceExpansion={forceExpansion}
                 >
                     <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name='eventCheck'
+                            color='inherit'
+                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            fontSize='medium'
+                        />
                         Dojo Calendar
                     </Typography>
                 </AccordionSummary>
@@ -487,7 +534,22 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 color='success'
                             />
                         }
-                        label='Dojo Events'
+                        //label='Dojo Events'
+                        label={
+                            <>
+                                {' '}
+                                <Icon
+                                    name='Dojo Events'
+                                    color='inherit'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                />
+                                Dojo Events
+                            </>
+                        }
                     />
                     <FormControlLabel
                         control={
@@ -499,7 +561,22 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 color='coaching'
                             />
                         }
-                        label='Coaching Sessions'
+                        //label='Coaching Sessions'
+                        label={
+                            <>
+                                {' '}
+                                <Icon
+                                    name='Coaching Sessions'
+                                    color='inherit'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                />
+                                Coaching Sessions
+                            </>
+                        }
                     />
 
                     <Tooltip
@@ -511,7 +588,16 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                         }
                     >
                         <Stack pt={2}>
-                            <Typography variant='subtitle2' color='text.secondary'>
+                            <Typography variant='h6' color='text.secondary'>
+                                <Icon
+                                    name='liga'
+                                    color='inherit'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                />
                                 Tournaments
                             </Typography>
 
@@ -534,7 +620,21 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                             color='warning'
                                         />
                                     }
-                                    label={displayTimeControlType(type)}
+                                    label={
+                                        <>
+                                            {' '}
+                                            <Icon
+                                                name={displayTimeControlType(type)}
+                                                color='inherit'
+                                                sx={{
+                                                    marginRight: '0.4rem',
+                                                    verticalAlign: 'middle',
+                                                }}
+                                                fontSize='medium'
+                                            />
+                                            {displayTimeControlType(type)}
+                                        </>
+                                    }
                                 />
                             ))}
                         </Stack>
@@ -542,6 +642,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
 
                     <Stack pt={2}>
                         <Typography variant='h6' color='text.secondary'>
+                            <Icon
+                                name='meet'
+                                color='inherit'
+                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                                fontSize='medium'
+                            />
                             Meetings
                         </Typography>
                         <FormControlLabel
@@ -559,7 +665,21 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     }}
                                 />
                             }
-                            label='All Types'
+                            label={
+                                <>
+                                    {' '}
+                                    <Icon
+                                        name='all'
+                                        color='inherit'
+                                        sx={{
+                                            marginRight: '0.4rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                        fontSize='medium'
+                                    />
+                                    All Types
+                                </>
+                            }
                         />
                         {Object.values(AvailabilityType).map((type) => (
                             <FormControlLabel
@@ -579,12 +699,33 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     />
                                 }
                                 disabled={filters.allTypes}
-                                label={getDisplayString(type)}
+                                //label={getDisplayString(type)}
+                                label={
+                                    <>
+                                        {' '}
+                                        <Icon
+                                            name={getDisplayString(type)}
+                                            color='inherit'
+                                            sx={{
+                                                marginRight: '0.4rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                            fontSize='medium'
+                                        />
+                                        {getDisplayString(type)}
+                                    </>
+                                }
                             />
                         ))}
                     </Stack>
                     <Stack pt={2}>
-                        <Typography variant='subtitle2' color='text.secondary'>
+                        <Typography variant='h6' color='text.secondary'>
+                            <Icon
+                                name='cohort'
+                                color='inherit'
+                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                                fontSize='medium'
+                            />
                             Cohorts
                         </Typography>
                         <FormControlLabel
@@ -602,7 +743,21 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     }}
                                 />
                             }
-                            label='All Cohorts'
+                            label={
+                                <>
+                                    {' '}
+                                    <Icon
+                                        name='all'
+                                        color='inherit'
+                                        sx={{
+                                            marginRight: '0.4rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                        fontSize='medium'
+                                    />
+                                    All Cohorts
+                                </>
+                            }
                         />
                         {dojoCohorts.map((cohort) => (
                             <FormControlLabel
@@ -624,7 +779,17 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     />
                                 }
                                 disabled={filters.allCohorts}
-                                label={cohort}
+                                label={
+                                    <>
+                                        {' '}
+                                        <CohortIcon
+                                            cohort={cohort}
+                                            size={25}
+                                            sx={{ verticalAlign: 'middle' }}
+                                        />{' '}
+                                        {cohort}{' '}
+                                    </>
+                                }
                             />
                         ))}
                     </Stack>
