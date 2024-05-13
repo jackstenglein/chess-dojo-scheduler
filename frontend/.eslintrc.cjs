@@ -11,6 +11,10 @@ module.exports = {
         'plugin:eqeqeq-fix/recommended',
         'plugin:cypress/recommended',
     ],
+    rules: {
+        'react/react-in-jsx-scope': 'off',
+        'react/jsx-uses-react': 'off',
+    },
     plugins: ['@typescript-eslint'],
     parser: '@typescript-eslint/parser',
     parserOptions: {
