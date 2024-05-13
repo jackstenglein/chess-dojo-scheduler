@@ -6,7 +6,7 @@ type FontAwesomeSvgIconProps = {
     icon: any;
 };
 
-const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
+export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
     (props, ref) => {
         const { icon, ...others } = props;
 

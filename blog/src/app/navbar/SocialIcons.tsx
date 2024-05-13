@@ -1,12 +1,18 @@
 'use client';
 
-import { faPatreon, faSpotify, faTwitch } from '@fortawesome/free-brands-svg-icons';
+import {
+    faDiscord,
+    faPatreon,
+    faSpotify,
+    faTwitch,
+} from '@fortawesome/free-brands-svg-icons';
 import { FacebookOutlined, Instagram, Twitter, YouTube } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip, useMediaQuery } from '@mui/material';
-import {
-    DiscordIcon,
-    FontAwesomeSvgIcon,
-} from '../../../../frontend/src/profile/info/DiscordChip';
+import { FontAwesomeSvgIcon } from './PawnIcon';
+
+export function DiscordIcon() {
+    return <FontAwesomeSvgIcon icon={faDiscord} />;
+}
 
 const icons = [
     <Tooltip key='twitch' title='Twitch'>
