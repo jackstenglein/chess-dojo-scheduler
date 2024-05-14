@@ -16,8 +16,8 @@ describe('List Games Page', () => {
         cy.getBySel('games-table').contains('Date');
     });
 
-    it('has submit game button', () => {
-        cy.getBySel('submit-game-button').contains('Submit a Game');
+    it('has upload game button', () => {
+        cy.getBySel('submit-game-button').contains('Upload Game');
         cy.getBySel('submit-game-button').click();
 
         cy.location('pathname').should('equal', '/games/submit');
@@ -109,7 +109,7 @@ describe('List Games Page', () => {
     });
 
     it('allows searching by eco', () => {
-        cy.contains('Search By ECO').click();
+        cy.contains('Search By Opening').click();
         cy.getBySel('cohort-select').should('not.be.visible');
         cy.getBySel('search-by-opening').within(() => {
             cy.getBySel('opening-eco').should('be.visible');
