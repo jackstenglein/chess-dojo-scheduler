@@ -13,6 +13,9 @@ declare module '@mui/material/styles' {
         dojoOrange: Palette['primary'];
         subscribe: Palette['primary'];
         coaching: Palette['primary'];
+        liga: Palette['primary'];
+        book: Palette['primary'];
+        meet: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
@@ -20,6 +23,9 @@ declare module '@mui/material/styles' {
         dojoOrange?: PaletteOptions['primary'];
         subscribe?: PaletteOptions['primary'];
         coaching?: PaletteOptions['primary'];
+        liga?: PaletteOptions['primary'];
+        book?: Palette['primary'];
+        meet?: Palette['primary'];
     }
 }
 
@@ -72,6 +78,24 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
             createTheme({
                 palette: {
                     mode: colorMode as PaletteMode,
+                    meet: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#93a84f',
+                        },
+                        name: 'meet',
+                    }),
+                    book: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#d95dc6',
+                        },
+                        name: 'book',
+                    }),
+                    liga: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#d46f5b',
+                        },
+                        name: 'liga',
+                    }),
                     dojoOrange: defaultTheme.palette.augmentColor({
                         color: {
                             main: '#F7941F',

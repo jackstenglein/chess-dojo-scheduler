@@ -110,6 +110,8 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                 <Button
                     variant='contained'
                     onClick={() => navigate(`/meeting/${event.id}`)}
+                    color='success'
+                    startIcon={<Icon name='eye' color='inherit'/>}
                 >
                     View Details
                 </Button>

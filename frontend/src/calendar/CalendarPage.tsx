@@ -60,11 +60,13 @@ function processAvailability(
             title,
             start: new Date(event.bookedStartTime || event.startTime),
             end: new Date(event.endTime),
+            color: "meet.main",
             isOwner,
             editable,
             deletable: false,
             draggable: false,
             event,
+            sx: { fontWeight: "bold", fontFamily: "Times New Roman" },
         };
     }
 
@@ -81,11 +83,13 @@ function processAvailability(
             title: title,
             start: new Date(event.startTime),
             end: new Date(event.endTime),
+            color: "info.main",
             draggable: true,
             isOwner: true,
             editable: true,
             deletable: true,
             event,
+            sx: { fontWeight: "bold", fontFamily: "Times New Roman" },
         };
     }
 
@@ -116,12 +120,13 @@ function processAvailability(
                 : `Bookable - ${event.ownerDisplayName}`,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'error.dark',
+        color: 'book.main',
         editable: false,
         deletable: false,
         draggable: false,
         isOwner: false,
         event,
+        sx: { fontWeight: "bold", fontFamily: "Times New Roman" },
     };
 }
 
@@ -150,12 +155,13 @@ function processDojoEvent(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'success.main',
+        color: 'dojoOrange.main',
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
         draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
+        sx: { fontWeight: "bold", fontFamily: "Times New Roman" },
     };
 }
 
@@ -182,12 +188,14 @@ function processLigaTournament(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'warning.main',
+        color: 'liga.main',
+        //textColor: 'primary.light',
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
         draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
+        sx: { fontWeight: "bold", fontFamily: "Times New Roman" },
     };
 }
 
@@ -228,12 +236,13 @@ export function processCoachingEvent(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'coaching.main',
+        color: 'secondary.main',
         editable: isOwner,
         deletable: isOwner && Object.values(event.participants).length === 0,
         draggable: isOwner,
         isOwner,
         event,
+        sx: { fontWeight: "bold", fontFamily: "Times New Roman" },
     };
 }
 
@@ -503,6 +512,8 @@ export default function CalendarPage() {
                                     : filters.timezone
                             }
                             hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
+
+                           
                         />
                     </Stack>
                 </Grid>

@@ -58,7 +58,7 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
                 )}
             </Stack>
 
-            <Button variant='contained' onClick={() => navigate(`/meeting/${event.id}`)}>
+            <Button variant='contained' onClick={() => navigate(`/meeting/${event.id}`)} startIcon={<Icon name='eye' color='inherit'/>}>
                 View Details
             </Button>
         </Stack>
