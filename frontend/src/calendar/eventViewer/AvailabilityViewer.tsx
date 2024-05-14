@@ -1,13 +1,13 @@
-import React from 'react';
-import { Stack, Button } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { Button, Stack } from '@mui/material';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Event, AvailabilityType, getDisplayString } from '../../database/event';
-import OwnerField from './OwnerField';
-import Field from './Field';
+import { AvailabilityType, Event, getDisplayString } from '../../database/event';
 import { dojoCohorts } from '../../database/user';
 import Icon from '../../style/Icon';
+import Field from './Field';
+import OwnerField from './OwnerField';
 interface AvailabilityViewerProps {
     processedEvent: ProcessedEvent;
 }
@@ -59,7 +59,13 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
             />
 
             {!isOwner && (
-                <Button data-cy='book-button' variant='contained' color='success' onClick={startBooking} startIcon={<Icon name='join'/>}>
+                <Button
+                    data-cy='book-button'
+                    variant='contained'
+                    color='success'
+                    onClick={startBooking}
+                    startIcon={<Icon name='join' />}
+                >
                     Book
                 </Button>
             )}

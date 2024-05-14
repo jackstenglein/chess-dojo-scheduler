@@ -1,5 +1,5 @@
 import { LoadingButton } from '@mui/lab';
-import Box, {
+import {
     AppBar,
     Button,
     Dialog,
@@ -31,7 +31,6 @@ import { TimeFormat } from '../database/user';
 import Avatar from '../profile/Avatar';
 import CohortIcon from '../scoreboard/CohortIcon';
 import Icon from '../style/Icon';
-import Container from '@mui/material';
 import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from './displayDate';
 import Field from './eventViewer/Field';
 import OwnerField from './eventViewer/OwnerField';
@@ -242,10 +241,9 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                             <Field
                                 IconName='cohort'
                                 title='Cohorts'
-                                body={availability.cohorts.join(', ') }
+                                body={availability.cohorts.join(', ')}
                             />
 
-                    
                             <Field
                                 IconName='line'
                                 title='Max Participants'

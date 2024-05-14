@@ -14,10 +14,13 @@ const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, IconName }) =
 
     return (
         <Stack>
-            
-            <Typography variant='h6' color='text.secondary' >
-               <Icon name={IconName} color='primary' sx={{marginRight: "0.3rem", verticalAlign: "middle"}}/> 
-               {title}
+            <Typography variant='h6' color='text.secondary'>
+                <Icon
+                    name={IconName}
+                    color='primary'
+                    sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}
+                />
+                {title}
             </Typography>
             <Typography variant='body1'>{body}</Typography>
         </Stack>

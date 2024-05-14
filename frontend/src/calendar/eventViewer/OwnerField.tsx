@@ -14,7 +14,11 @@ const OwnerField: React.FC<OwnerFieldProps> = ({ title, event }) => {
     return (
         <Stack>
             <Typography variant='h6' color='text.secondary'>
-            <Icon name='player' color='primary' sx={{marginRight: "0.5rem", verticalAlign: "middle"}}/>
+                <Icon
+                    name='player'
+                    color='primary'
+                    sx={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+                />
                 {title}
             </Typography>
             <Stack direction='row' spacing={1} alignItems='center'>

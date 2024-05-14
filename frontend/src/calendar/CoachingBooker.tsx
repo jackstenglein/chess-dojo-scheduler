@@ -16,7 +16,7 @@ import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { displayPrice } from '../courses/list/CourseListItem';
 import { Event } from '../database/event';
-import { dojoCohorts, TimeFormat } from '../database/user';
+import { TimeFormat, dojoCohorts } from '../database/user';
 import { Transition } from './AvailabilityBooker';
 import { toDojoDateString, toDojoTimeString } from './displayDate';
 import Field from './eventViewer/Field';

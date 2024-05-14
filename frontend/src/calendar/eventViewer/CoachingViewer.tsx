@@ -9,11 +9,11 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import { Event, EventStatus } from '../../database/event';
 import { dojoCohorts } from '../../database/user';
+import Icon from '../../style/Icon';
 import Field from './Field';
 import OwnerField from './OwnerField';
 import ParticipantsList from './ParticipantsList';
 import PriceField from './PriceField';
-import Icon from '../../style/Icon';
 interface CoachingViewerProps {
     processedEvent: ProcessedEvent;
 }
@@ -69,7 +69,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             <OwnerField title='Coach' event={event} />
 
-            <Field title='Description' body={event.description} IconName='notes'/>
+            <Field title='Description' body={event.description} IconName='notes' />
 
             <Field
                 title='Cohorts'
@@ -121,8 +121,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                         loading={request.isLoading()}
                         onClick={onBook}
                         color='success'
-                        startIcon={<Icon name='join' color='inherit'/> }
-
+                        startIcon={<Icon name='join' color='inherit' />}
                     >
                         Book
                     </LoadingButton>
