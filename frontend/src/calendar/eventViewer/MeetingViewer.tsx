@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Event, getDisplayString } from '../../database/event';
 import Field from './Field';
 import ParticipantsList from './ParticipantsList';
-
+import Icon from '../../style/Icon';
 const maxDisplayParticipants = 4;
 
 interface MeetingViewerProps {
@@ -20,20 +20,22 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
 
     return (
         <Stack sx={{ pt: 2 }} spacing={2}>
-            <Field title='Description' body={event.description} />
-            <Field title='Location' body={event.location || 'Discord'} />
+            <Field title='Description' body={event.description} IconName='notes'/>
+            <Field title='Location' body={event.location || 'Discord'} IconName='location' />
 
             {event.bookedType ? (
-                <Field title='Meeting Type' body={getDisplayString(event.bookedType)} />
+                <Field title='Meeting Type' body={getDisplayString(event.bookedType)} IconName='meet'/>
             ) : (
                 <Field
                     title='Meeting Types'
+                    IconName='meet'
                     body={event.types?.map((t) => getDisplayString(t)).join(', ') || ''}
                 />
             )}
 
             <Stack spacing={0.5}>
-                <Typography variant='subtitle2' color='text.secondary'>
+                <Typography variant='h6' color='text.secondary'>
+                <Icon name='participant' color='primary' sx={{marginRight: "0.5rem", verticalAlign: "middle"}}/>   
                     Particpants
                 </Typography>
                 <ParticipantsList event={event} maxItems={maxDisplayParticipants} />

@@ -7,7 +7,7 @@ import { Event, AvailabilityType, getDisplayString } from '../../database/event'
 import OwnerField from './OwnerField';
 import Field from './Field';
 import { dojoCohorts } from '../../database/user';
-
+import Icon from '../../style/Icon';
 interface AvailabilityViewerProps {
     processedEvent: ProcessedEvent;
 }
@@ -28,6 +28,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
 
             {event.maxParticipants > 1 && (
                 <Field
+                    IconName='participant'
                     title='Number of Participants'
                     body={`${Object.values(event.participants).length} / ${
                         event.maxParticipants
@@ -36,6 +37,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
             )}
 
             <Field
+                IconName='meet'
                 title='Available Types'
                 body={event.types
                     ?.map((t: AvailabilityType) => getDisplayString(t))
@@ -43,10 +45,11 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
             />
 
             {event.description.length > 0 && (
-                <Field title='Description' body={event.description} />
+                <Field title='Description' body={event.description} IconName='notes' />
             )}
 
             <Field
+                IconName='cohort'
                 title='Cohorts'
                 body={
                     dojoCohorts.length === event.cohorts.length
@@ -56,7 +59,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
             />
 
             {!isOwner && (
-                <Button data-cy='book-button' variant='contained' onClick={startBooking}>
+                <Button data-cy='book-button' variant='contained' color='success' onClick={startBooking} startIcon={<Icon name='join'/>}>
                     Book
                 </Button>
             )}

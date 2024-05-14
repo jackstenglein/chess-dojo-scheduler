@@ -202,7 +202,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                                 {' '}
                                                 <Icon
                                                     name='meet'
-                                                    color='inherit'
+                                                    color='primary'
                                                     sx={{
                                                         marginRight: '0.4rem',
                                                         verticalAlign: 'middle',
@@ -223,7 +223,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                                     {' '}
                                                     <Icon
                                                         name='Dojo Events'
-                                                        color='inherit'
+                                                        color='info'
                                                         sx={{
                                                             marginRight: '0.4rem',
                                                             verticalAlign: 'middle',
@@ -245,7 +245,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                                     {' '}
                                                     <Icon
                                                         name='Coaching Sessions'
-                                                        color='inherit'
+                                                        color='success'
                                                         sx={{
                                                             marginRight: '0.4rem',
                                                             verticalAlign: 'middle',

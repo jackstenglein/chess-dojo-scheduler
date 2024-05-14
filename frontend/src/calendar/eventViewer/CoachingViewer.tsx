@@ -13,7 +13,7 @@ import Field from './Field';
 import OwnerField from './OwnerField';
 import ParticipantsList from './ParticipantsList';
 import PriceField from './PriceField';
-
+import Icon from '../../style/Icon';
 interface CoachingViewerProps {
     processedEvent: ProcessedEvent;
 }
@@ -69,10 +69,11 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             <OwnerField title='Coach' event={event} />
 
-            <Field title='Description' body={event.description} />
+            <Field title='Description' body={event.description} IconName='notes'/>
 
             <Field
                 title='Cohorts'
+                IconName='cohort'
                 body={
                     dojoCohorts.length === event.cohorts.length ||
                     event.cohorts.length === 0
@@ -85,6 +86,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             <Stack spacing={0.5}>
                 <Field
+                    IconName='participant'
                     showEmptyBody
                     title={`Participants (${Object.values(event.participants).length} / ${
                         event.maxParticipants
@@ -118,6 +120,9 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                         variant='contained'
                         loading={request.isLoading()}
                         onClick={onBook}
+                        color='success'
+                        startIcon={<Icon name='join' color='inherit'/> }
+
                     >
                         Book
                     </LoadingButton>

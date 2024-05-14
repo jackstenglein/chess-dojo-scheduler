@@ -36,6 +36,9 @@ import {
     Visibility,
     WavingHand,
     Whatshot,
+    Login,
+    Notes,
+    PersonOutline
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -86,6 +89,9 @@ export const icons: Record<string, typeof WavingHand> = {
     save: Save,
     location: LocationOn,
     write: Create,
+    join: Login,
+    notes: Notes,
+    participant: PersonOutline
 };
 
 export const Icon: React.FC<SvgIconProps> = ({ name, ...props }) => {
