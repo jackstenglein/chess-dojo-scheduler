@@ -99,9 +99,9 @@ export default function DojoDigestVol8() {
                     mt={0.5}
                     mb={2}
                 >
-                    In this chart, the x-axis is the score on the test and the y-axis is
-                    the calculated rating for the test. Different colors represent
-                    different cohorts.
+                    Data for the first 1500-2000 test. In this chart, the x-axis is the
+                    score on the test and the y-axis is the calculated rating for the
+                    test. Different colors represent different cohorts.
                 </Typography>
 
                 <Typography mt={2}>

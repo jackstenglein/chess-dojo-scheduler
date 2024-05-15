@@ -16,8 +16,8 @@ export interface BlogItem {
 const items: BlogItem[] = [
     {
         title: 'Introducing Dojo Tactics Tests – A New Way to Assess Your Skills',
-        subtitle: 'Kostya Kavutskiy • May 14, 2024',
-        body: `The Dojo is releasing a new form of “online tactics test,” one that attempts to improve on the most popular existing trainers (Chess.com, Lichess, ChessTempo, etc.) and provide players a much more realistic tactics rating...`,
+        subtitle: 'Kostya Kavutskiy • May 15, 2024',
+        body: `The Dojo has released a new training skill designed to test tactical skill, attempting to improve on the most popular existing "tactics trainers" and provide players a much more realistic "tactics rating"...`,
         href: '/blog/tactics-test',
         image: {
             src: tacticsTestImage,
