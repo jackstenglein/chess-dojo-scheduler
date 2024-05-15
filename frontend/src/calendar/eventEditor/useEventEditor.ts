@@ -222,12 +222,12 @@ export default function useEventEditor(
     const [availabilityTypes, setAvailabilityTypes] = useState<
         Record<AvailabilityType, boolean>
     >(
-        Object.values(AvailabilityType).reduce(
+        Object.values(AvailabilityType).reduce<Record<AvailabilityType, boolean>>(
             (map, type) => {
                 map[type] = false;
                 return map;
             },
-            {} as Record<AvailabilityType, boolean>,
+            {},
         ),
     );
     const setAvailabilityType = useCallback(
@@ -243,13 +243,13 @@ export default function useEventEditor(
     const userCohortIndex = dojoCohorts.findIndex((c) => c === user.dojoCohort);
     const [allCohorts, setAllCohorts] = useState(false);
     const [cohorts, setCohorts] = useState<Record<string, boolean>>(
-        dojoCohorts.reduce(
+        dojoCohorts.reduce<Record<string, boolean>>(
             (map, cohort, index) => {
                 map[cohort] =
                     userCohortIndex >= 0 && Math.abs(index - userCohortIndex) <= 1;
                 return map;
             },
-            {} as Record<string, boolean>,
+            {},
         ),
     );
     const setCohort = useCallback(
@@ -287,12 +287,12 @@ export default function useEventEditor(
 
     const onChangeEventType = useCallback(
         (value: EventType) => {
-            const allFalseCohorts = dojoCohorts.reduce(
+            const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>(
                 (map, cohort) => {
                     map[cohort] = false;
                     return map;
                 },
-                {} as Record<string, boolean>,
+                {},
             );
 
             setType(value);
@@ -312,14 +312,14 @@ export default function useEventEditor(
                     );
                 } else {
                     setCohorts(
-                        dojoCohorts.reduce(
+                        dojoCohorts.reduce<Record<string, boolean>>(
                             (map, cohort, index) => {
                                 map[cohort] =
                                     userCohortIndex >= 0 &&
                                     Math.abs(index - userCohortIndex) <= 1;
                                 return map;
                             },
-                            {} as Record<string, boolean>,
+                            {},
                         ),
                     );
                 }
@@ -347,12 +347,12 @@ export default function useEventEditor(
 
         const originalCohorts: string[] = initialEvent?.cohorts || [];
         if (originalCohorts.length > 0) {
-            const allFalseCohorts = dojoCohorts.reduce(
+            const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>(
                 (map, cohort) => {
                     map[cohort] = false;
                     return map;
                 },
-                {} as Record<string, boolean>,
+                {},
             );
             setCohorts(() =>
                 originalCohorts.reduce(

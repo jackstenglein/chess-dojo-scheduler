@@ -8,7 +8,7 @@ const BASE_URL = getConfig().api.baseUrl;
 /**
  * CourseApiContextType provides an API for interacting with Courses.
  */
-export type CourseApiContextType = {
+export interface CourseApiContextType {
     /**
      * getCourse returns the course with the provided type and id.
      * @param type The type of the course.
@@ -57,8 +57,8 @@ export type CourseApiContextType = {
      * @param course The Course to save.
      * @returns An AxiosResponse containing the Course as saved in the database.
      */
-    setCourse: (course: Course) => Promise<AxiosResponse<Course, any>>;
-};
+    setCourse: (course: Course) => Promise<AxiosResponse<Course>>;
+}
 
 /** A response to a getCourse request. */
 export interface GetCourseResponse {
@@ -172,11 +172,11 @@ export function purchaseCourse(
     purchaseOption?: string,
     cancelUrl?: string
 ) {
-    let url = idToken
+    const url = idToken
         ? `${BASE_URL}/courses/${type}/${id}/purchase`
         : `${BASE_URL}/public/courses/${type}/${id}/purchase`;
 
-    let headers = idToken
+    const headers = idToken
         ? {
               Authorization: 'Bearer ' + idToken,
           }

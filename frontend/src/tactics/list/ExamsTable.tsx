@@ -85,12 +85,12 @@ const columns: GridColDef<Exam>[] = [
             const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
             return Math.round(10 * avg) / 10;
         },
-        renderCell(params) {
+        renderCell: (params: GridRenderCellParams<Exam, number>) => {
             const totalScore = params.row.pgns.reduce(
                 (sum, pgn) => sum + getTotalScore(pgn),
                 0,
             );
-            if (isNaN(params.value)) {
+            if (params.value === undefined || isNaN(params.value)) {
                 return `- / ${totalScore}`;
             }
             return `${params.value} / ${totalScore}`;
@@ -116,8 +116,8 @@ const avgRatingColumn: GridColDef<Exam> = {
 
         return Math.round((10 * sum) / Object.values(params.row.answers).length) / 10;
     },
-    renderCell(params) {
-        if (params.value < 0 || isNaN(params.value)) {
+    renderCell: (params: GridRenderCellParams<Exam, number>) => {
+        if (params.value === undefined || params.value < 0 || isNaN(params.value)) {
             return (
                 <Tooltip title='Avg rating is not calculated until at least 10 people have taken the exam.'>
                     <Help sx={{ color: 'text.secondary' }} />
@@ -148,7 +148,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     if (
                         !hasAnswered &&
                         i >= 1 &&
-                        !Boolean(exams[i - 1].answers[user?.username || ''])
+                        !exams[i - 1].answers[user?.username || '']
                     ) {
                         return (
                             <Tooltip title='This exam is locked until you complete the previous exam'>
@@ -246,7 +246,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
             },
         ];
         return examColumns;
-    }, [user]);
+    }, [user, exams]);
 
     const onClickRow = (params: GridRowParams<Exam>) => {
         if (params.row.answers[user?.username || '']) {
@@ -255,7 +255,7 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         }
 
         const i = exams.findIndex((e) => e.id === params.row.id);
-        if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
+        if (i >= 1 && !exams[i - 1].answers[user?.username || '']) {
             setSnackbarOpen(true);
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);

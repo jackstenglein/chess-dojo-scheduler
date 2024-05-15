@@ -9,11 +9,11 @@ import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Unde
 import { Game } from '../../database/game';
 import PgnErrorBoundary from './PgnErrorBoundary';
 
-type GameContextType = {
+interface GameContextType {
     game?: Game;
     onUpdateGame?: (g: Game) => void;
     isOwner?: boolean;
-};
+}
 
 const GameContext = createContext<GameContextType>({});
 

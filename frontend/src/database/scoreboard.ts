@@ -4,8 +4,7 @@ import { User } from './user';
  * Represents a single row of data in the summary scoreboards
  * (IE: full dojo and follower scoreboards).
  */
-export interface ScoreboardSummary
-    extends Pick<
+export type ScoreboardSummary = Pick<
         User,
         | 'username'
         | 'displayName'
@@ -16,7 +15,7 @@ export interface ScoreboardSummary
         | 'dojoCohort'
         | 'totalDojoScore'
         | 'minutesSpent'
-    > {}
+    >
 
 /**
  * Returns true if the provided object is a ScoreboardSummary.

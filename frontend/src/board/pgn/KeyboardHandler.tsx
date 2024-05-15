@@ -63,7 +63,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             event.preventDefault();
             event.stopPropagation();
 
-            keyboardShortcutHandlers[matchedAction]?.(chess, board, {
+            keyboardShortcutHandlers[matchedAction](chess, board, {
                 underboardApi: underboardRef.current,
                 toggleOrientation,
                 setVariationDialogMove:

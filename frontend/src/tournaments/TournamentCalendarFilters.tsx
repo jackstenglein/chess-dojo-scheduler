@@ -2,11 +2,11 @@ import {
     Checkbox,
     FormControlLabel,
     Stack,
+    Theme,
     Typography,
     useMediaQuery,
 } from '@mui/material';
 import { useState } from 'react';
-
 import {
     Accordion,
     AccordionDetails,
@@ -15,11 +15,11 @@ import {
 } from '../calendar/filters/CalendarFilters';
 import TimezoneFilter from '../calendar/filters/TimezoneFilter';
 import {
-    displayTimeControlType,
-    displayTournamentType,
     PositionType,
     TimeControlType,
     TournamentType,
+    displayTimeControlType,
+    displayTournamentType,
 } from '../database/event';
 
 function getColor(timeControlType: TimeControlType) {
@@ -50,10 +50,10 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
     filters,
 }) => {
     const [expanded, setExpanded] = useState<string | boolean>(false);
-    const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+    const forceExpansion = useMediaQuery<Theme>((theme) => theme.breakpoints.up('md'));
 
     const handleChange =
-        (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+        (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
             if (!forceExpansion) {
                 setExpanded(newExpanded ? panel : false);
             }

@@ -82,7 +82,7 @@ const ExamListSection: React.FC<ExamListSectionProps> = ({
                     request.onFailure(err);
                 });
         }
-    }, [request, api]);
+    }, [request, api, examType]);
 
     const ranges = useMemo(() => {
         const ranges: CohortRangeExams[] = [];
@@ -106,7 +106,7 @@ const ExamListSection: React.FC<ExamListSectionProps> = ({
             }
         }
         return ranges;
-    }, [request]);
+    }, [request, cohortRanges]);
 
     return (
         <Stack spacing={2}>

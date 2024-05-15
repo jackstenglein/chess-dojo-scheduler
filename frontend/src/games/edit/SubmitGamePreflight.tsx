@@ -96,7 +96,7 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
     };
 
     const submit = () => {
-        let errors: Record<number, FormError> = {};
+        const errors: Record<number, FormError> = {};
         headers.forEach((h, i) => {
             const error: FormError = { white: '', black: '', result: '', date: '' };
             if (h.white.trim() === '') {
@@ -112,7 +112,7 @@ const SubmitGamePreflight: React.FC<SubmitGamePreflightProps> = ({
                 errors[i] = error;
             }
             console.log('h.date: ', h.date);
-            if (h.date === null || !h.date.isValid) {
+            if (!h.date?.isValid) {
                 error.date = 'This field is required';
                 errors[i] = error;
             }

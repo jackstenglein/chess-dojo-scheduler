@@ -2,9 +2,9 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 import { Chip, SvgIcon, Tooltip } from '@mui/material';
 import { forwardRef } from 'react';
 
-type FontAwesomeSvgIconProps = {
+interface FontAwesomeSvgIconProps {
     icon: any;
-};
+}
 
 export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
     (props, ref) => {

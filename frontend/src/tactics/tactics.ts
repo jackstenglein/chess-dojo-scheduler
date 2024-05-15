@@ -113,10 +113,10 @@ export function getSolutionScore(
 ): number {
     let score = 0;
 
-    for (let move of solution) {
+    for (const move of solution) {
         // Recursively check variations
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 score += getSolutionScore(playAs, variation, chess, isUnscored);
             }
         }
@@ -152,7 +152,7 @@ export function getSolutionScore(
             }
         }
 
-        score += move.userData?.score || 0;
+        score += (move.userData?.score as number) || 0;
 
         const eolSearch = endOfLineRegex.exec(move.commentAfter || '');
         if (eolSearch) {
@@ -182,12 +182,12 @@ export function scoreVariation(
     let score = 0;
     let altFound = false;
 
-    for (let move of solution) {
+    for (const move of solution) {
         // The user may not have found the mainline solution,
         // but may have found a variation, which can also have a score associated, or can be an alternate solution
         // for this move
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 const [variationScore, alt] = scoreVariation(
                     playAs,
                     variation,
@@ -225,7 +225,7 @@ export function scoreVariation(
             found: Boolean(answerMove),
             altFound: variationAlt,
         };
-        score += move.userData.score || 0;
+        score += (move.userData.score as number) || 0;
         currentAnswerMove = answerMove;
 
         if (move.userData.isAlt) {
@@ -248,9 +248,9 @@ export function addExtraVariation(
     currentSolutionMove: Move | null,
     solution: Chess,
 ) {
-    for (let move of answer) {
+    for (const move of answer) {
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 addExtraVariation(variation, currentSolutionMove, solution);
             }
         }
@@ -285,8 +285,6 @@ export function addExtraVariation(
     }
 }
 
-const PolgarM1ReqId = '917be358-e6d9-47e6-9cad-66fc2fdb5da6';
-const PolgarM2ReqId = 'f815084f-b9bc-408d-9db9-ba9b1c260ff3';
 const PuzzleRush5MinReqId = '42804d40-3651-438c-a8ae-e2200fe23b4c';
 const PuzzleSurvivalReqId = 'fa98ad32-219a-4ee9-ae02-2cda69efce06';
 

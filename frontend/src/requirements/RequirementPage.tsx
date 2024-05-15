@@ -9,9 +9,9 @@ import LoadingPage from '../loading/LoadingPage';
 import NotFoundPage from '../NotFoundPage';
 import RequirementDisplay from './RequirementDisplay';
 
-type RequirementPageProps = {
+interface RequirementPageProps {
     id: string;
-};
+}
 
 const RequirementPage = () => {
     const { id } = useParams<RequirementPageProps>();

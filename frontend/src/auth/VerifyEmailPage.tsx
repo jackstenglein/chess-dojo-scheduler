@@ -10,7 +10,7 @@ const VerifyEmailPage = () => {
     const auth = useAuth();
 
     const navigate = useNavigate();
-    const locationState = useLocation().state as any;
+    const locationState = useLocation().state;
 
     const username: string = locationState?.username;
     const email: string = locationState?.email;

@@ -23,7 +23,7 @@ function getPgnName(header: Record<string, string> | PgnHeaders): string {
 
 interface PgnSelectorProps {
     pgns?: string[];
-    headers?: Array<Record<string, string> | PgnHeaders>;
+    headers?: (Record<string, string> | PgnHeaders)[];
     selectedIndex: number;
     setSelectedIndex: (i: number) => void;
     completed?: boolean[];
@@ -42,7 +42,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
     hiddenCount,
     noCard,
 }) => {
-    let selectedHeaders: Array<Record<string, string> | PgnHeaders> = [];
+    let selectedHeaders: (Record<string, string> | PgnHeaders)[] = [];
     if (headers) {
         selectedHeaders = headers;
     } else if (pgns) {

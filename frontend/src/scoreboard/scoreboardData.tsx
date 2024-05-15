@@ -174,7 +174,6 @@ export function getTotalTime(
     let result = 0;
     for (const progress of Object.values(getProgress(params.row))) {
         if (
-            progress.minutesSpent &&
             progress.minutesSpent[cohort] &&
             requirementIds.has(progress.requirementId)
         ) {
@@ -228,7 +227,7 @@ export function getRatingSystem(params: GridValueGetterParams<ScoreboardRow>) {
         !isGraduation(params.row) &&
         params.row.ratings[RatingSystem.Custom]?.name
     ) {
-        return `Custom (${params.row.ratings[RatingSystem.Custom]?.name})`;
+        return `Custom (${params.row.ratings[RatingSystem.Custom].name})`;
     }
     return formatRatingSystem(params.row.ratingSystem);
 }

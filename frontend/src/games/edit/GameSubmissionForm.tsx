@@ -93,7 +93,7 @@ const GameSubmissionForm: React.FC<GameSubmissionFormProps> = ({
             if (black.trim() === '') {
                 errors.black = 'This field is required';
             }
-            if (!date || !date.isValid) {
+            if (!date?.isValid) {
                 errors.date = 'This field is required';
             }
             if (result.trim() === '') {

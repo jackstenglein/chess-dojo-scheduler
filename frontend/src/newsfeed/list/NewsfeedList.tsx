@@ -68,7 +68,7 @@ function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) 
             setNewsfeedIds(newValue);
 
             const removedIds = initialNewsfeedIds.filter(
-                (id) => newValue.indexOf(id) === -1,
+                (id) => !newValue.includes(id),
             );
 
             for (const id of removedIds) {

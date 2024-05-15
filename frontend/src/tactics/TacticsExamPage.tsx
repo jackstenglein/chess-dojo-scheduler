@@ -50,6 +50,10 @@ import {
     scoreVariation,
 } from './tactics';
 
+export interface ExamLocationState {
+    exam?: Exam;
+}
+
 export interface Scores {
     total: {
         user: number;
@@ -76,15 +80,17 @@ function getColorsTime(limitSeconds?: number): { 0: number } & { 1: number } & n
 }
 
 const TacticsExamPage = () => {
-    const user = useAuth().user!;
+    const user = useAuth().user;
     const api = useApi();
-    const [exam, setExam] = useState<Exam>(useLocation().state?.exam);
+    const [exam, setExam] = useState<Exam | undefined>(
+        (useLocation().state as ExamLocationState)?.exam,
+    );
     const answerRequest = useRequest<ExamAnswer>();
     const [isRetaking, setIsRetaking] = useState(false);
     const [showRetakeDialog, setShowRetakeDialog] = useState(false);
     const [showLatestAttempt, setShowLatestAttempt] = useState(false);
 
-    const hasTakenExam = Boolean(exam?.answers[user.username]);
+    const hasTakenExam = Boolean(exam?.answers[user?.username || '']);
 
     useEffect(() => {
         if (!answerRequest.isSent() && exam && hasTakenExam) {
@@ -182,11 +188,11 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
     disableClock,
     disableSave,
 }) => {
-    const user = useAuth().user!;
+    const user = useAuth().user;
     const api = useApi();
     const pgnApi = useRef<PgnBoardApi>(null);
     const [selectedProblem, setSelectedProblem] = useState(0);
-    const answerPgns = useRef<string[]>((exam?.pgns || []).map(() => ''));
+    const answerPgns = useRef<string[]>((exam.pgns || []).map(() => ''));
     const [isTimeOver, setIsTimeOver] = useState(false);
     const [problemStatus, setProblemStatus] = useState<Record<number, ProblemStatus>>({});
 
@@ -198,12 +204,16 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
         isPlaying: !disableClock,
         size: 80,
         strokeWidth: 6,
-        duration: exam?.timeLimitSeconds || 3600,
+        duration: exam.timeLimitSeconds || 3600,
         colors: ['#66bb6a', '#29b6f6', '#ce93d8', '#ffa726', '#f44336'],
-        colorsTime: getColorsTime(exam?.timeLimitSeconds),
+        colorsTime: getColorsTime(exam.timeLimitSeconds),
         trailColor: 'rgba(0,0,0,0)',
         onComplete: onCountdownComplete,
     });
+
+    if (!user) {
+        return null;
+    }
 
     const onChangeProblem = (index: number) => {
         answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
@@ -512,8 +522,17 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
     );
 };
 
+interface ExamMoveUserData {
+    score?: number;
+    found?: boolean;
+    extra?: boolean;
+    isAlt?: boolean;
+    altFound?: boolean;
+}
+
 const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) => {
-    const { score, found, extra, isAlt, altFound } = move.userData || {};
+    const { score, found, extra, isAlt, altFound } =
+        (move.userData as ExamMoveUserData) || {};
 
     if (extra) {
         return (
@@ -546,7 +565,7 @@ const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) 
         );
     }
 
-    if (score > 0) {
+    if (score && score > 0) {
         return (
             <Tooltip title={getMoveDescription({ found, score, altFound })}>
                 <Box

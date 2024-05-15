@@ -101,7 +101,7 @@ export interface User {
     ratings: Partial<Record<RatingSystem, Rating>>;
     ratingHistories?: Record<RatingSystem, RatingHistory[]>;
 
-    progress: { [requirementId: string]: RequirementProgress };
+    progress: Record<string, RequirementProgress>;
     disableBookingNotifications: boolean;
     disableCancellationNotifications: boolean;
     isAdmin: boolean;
@@ -124,11 +124,9 @@ export interface User {
 
     customTasks?: CustomTask[];
 
-    openingProgress?: {
-        [moduleId: string]: {
+    openingProgress?: Record<string, {
             exercises?: boolean[];
-        };
-    };
+        }>;
 
     tutorials?: Record<string, boolean>;
     minutesSpent?: Record<MinutesSpentKey, number>;
@@ -707,7 +705,7 @@ export function normalizeToFide(rating: number, ratingSystem: RatingSystem): num
 }
 
 export function shouldPromptGraduation(user?: User): boolean {
-    if (!user || !user.dojoCohort || !user.ratingSystem) {
+    if (!user?.dojoCohort || !user.ratingSystem) {
         return false;
     }
     if (user.ratingSystem === RatingSystem.Custom) {
@@ -735,7 +733,7 @@ const THREE_MONTHS = 1000 * 60 * 60 * 24 * 90;
  * @returns True if the user should be prompted to demote.
  */
 export function shouldPromptDemotion(user?: User): boolean {
-    if (!user || !user.dojoCohort || !user.ratingSystem) {
+    if (!user?.dojoCohort || !user.ratingSystem) {
         return false;
     }
     if (user.ratingSystem === RatingSystem.Custom) {

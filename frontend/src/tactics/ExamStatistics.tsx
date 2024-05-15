@@ -37,7 +37,7 @@ interface ExamStatisticsProps {
  */
 const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
     const [cohorts, setCohorts] = useState([ALL_COHORTS]);
-    const user = useAuth().user!;
+    const user = useAuth().user;
     const isLight = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
     const [legendMargin, setLegendMargin] = useState(100);
@@ -46,7 +46,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
         const cohortToSeries: Record<string, ScatterSeriesType> = {};
 
         Object.entries(exam.answers).forEach(([username, answer]) => {
-            if (answer.rating <= 0 || username === user.username) {
+            if (answer.rating <= 0 || username === user?.username) {
                 return;
             }
 
@@ -61,7 +61,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 valueFormatter: (value) => `Score: ${value.x}, Rating: ${value.y}`,
                 color: cohortColors[answer.cohort],
             };
-            series.data?.push({ x: answer.score, y: answer.rating, id: username });
+            series.data.push({ x: answer.score, y: answer.rating, id: username });
             cohortToSeries[answer.cohort] = series;
         });
 
@@ -103,7 +103,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 color: isLight ? '#000' : '#fff',
             },
         ] as LineSeriesType[];
-    }, [exam, totalScore]);
+    }, [exam, totalScore, isLight]);
 
     useEffect(() => {
         if (!ref.current) {
@@ -121,6 +121,10 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
 
         return () => observer.disconnect();
     }, [ref, series, setLegendMargin]);
+
+    if (!user) {
+        return null;
+    }
 
     const onChangeCohort = (newCohorts: string[]) => {
         const addedCohorts = newCohorts.filter((c) => !cohorts.includes(c));

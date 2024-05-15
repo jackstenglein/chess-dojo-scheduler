@@ -555,7 +555,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     let endDateStr: string | undefined = undefined;
     if (isValid(new Date(paramsStartDate || ''))) {
         startDateStr = new Date(paramsStartDate || '')
-            ?.toISOString()
+            .toISOString()
             .substring(0, 10)
             .replaceAll('-', '.');
     }
@@ -569,7 +569,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     // Functions that actually perform the search
     const searchByCohort = useCallback(
         (startKey: string) =>
-            api.listGamesByCohort(cohort!, startKey, startDateStr, endDateStr),
+            api.listGamesByCohort(cohort, startKey, startDateStr, endDateStr),
         [cohort, api, startDateStr, endDateStr],
     );
 
@@ -580,8 +580,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 startKey,
                 startDateStr,
                 endDateStr,
-                player!,
-                color!,
+                player,
+                color,
             ),
         [api, startDateStr, endDateStr, player, color],
     );

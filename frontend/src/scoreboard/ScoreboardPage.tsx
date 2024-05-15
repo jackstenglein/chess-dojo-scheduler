@@ -16,9 +16,9 @@ import { ScoreboardRow } from './scoreboardData';
 import ScoreboardTutorial from './ScoreboardTutorial';
 import ScoreboardViewSelector from './ScoreboardViewSelector';
 
-type ScoreboardPageParams = {
+interface ScoreboardPageParams {
     type: string;
-};
+}
 
 const ScoreboardPage = () => {
     const user = useAuth().user!;

@@ -8,7 +8,7 @@ import { ReportCallback } from 'web-vitals';
 
 ReactGA.initialize('G-9VPNTDELD2');
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
     <React.StrictMode>
         <App />

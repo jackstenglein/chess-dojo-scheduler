@@ -45,7 +45,7 @@ function setSettingValue(
 
 interface NotificationSettingsSection {
     label: string;
-    settings: Array<{ label: string; path: string }>;
+    settings: { label: string; path: string }[];
     icon: React.ReactNode;
 }
 

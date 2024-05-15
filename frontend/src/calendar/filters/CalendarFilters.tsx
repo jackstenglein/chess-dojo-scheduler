@@ -82,44 +82,44 @@ export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     paddingLeft: theme.spacing(1),
 }));
 
-const initialFilterTypes = Object.values(AvailabilityType).reduce(
+const initialFilterTypes = Object.values(AvailabilityType).reduce<Record<AvailabilityType, boolean>>(
     (map, type) => {
         map[type] = false;
         return map;
     },
-    {} as Record<AvailabilityType, boolean>,
+    {},
 );
 
-const initialFilterCohorts = dojoCohorts.reduce(
+const initialFilterCohorts = dojoCohorts.reduce<Record<string, boolean>>(
     (map, cohort) => {
         map[cohort] = false;
         return map;
     },
-    {} as Record<string, boolean>,
+    {},
 );
 
-const initialFilterTournamentTypes = Object.values(TournamentType).reduce(
+const initialFilterTournamentTypes = Object.values(TournamentType).reduce<Record<TournamentType, boolean>>(
     (map, type) => {
         map[type] = true;
         return map;
     },
-    {} as Record<TournamentType, boolean>,
+    {},
 );
 
-const initialFilterTournamentTimeControls = Object.values(TimeControlType).reduce(
+const initialFilterTournamentTimeControls = Object.values(TimeControlType).reduce<Record<TimeControlType, boolean>>(
     (map, type) => {
         map[type] = true;
         return map;
     },
-    {} as Record<TimeControlType, boolean>,
+    {},
 );
 
-const initialFilterTournamentPositions = Object.values(PositionType).reduce(
+const initialFilterTournamentPositions = Object.values(PositionType).reduce<Record<PositionType, boolean>>(
     (m, t) => {
         m[t] = true;
         return m;
     },
-    {} as Record<PositionType, boolean>,
+    {},
 );
 
 export interface Filters {

@@ -7,9 +7,9 @@ import { EventType } from '../database/event';
 import AvailabilityBooker from './AvailabilityBooker';
 import CoachingBooker from './CoachingBooker';
 
-type EventBookerProps = {
+interface EventBookerProps {
     id: string;
-};
+}
 
 const EventBooker = () => {
     const navigate = useNavigate();

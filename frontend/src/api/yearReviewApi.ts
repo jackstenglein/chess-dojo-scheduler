@@ -7,7 +7,7 @@ const BASE_URL = getConfig().api.baseUrl;
 /**
  * Provides an API for interacting with year reviews.
  */
-export type YearReviewApiContextType = {
+export interface YearReviewApiContextType {
     /**
      * Fetches the year review for the provided user and year.
      * @param username The username to fetch.
@@ -15,7 +15,7 @@ export type YearReviewApiContextType = {
      * @returns The year review for the given user and year.
      */
     getYearReview: (username: string, year: string) => Promise<AxiosResponse<YearReview>>;
-};
+}
 
 /**
  * Fetches the year review for the provided user and year.

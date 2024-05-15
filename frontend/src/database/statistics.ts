@@ -13,12 +13,8 @@ export interface CohortStatistics {
     activeRatingChanges: number;
     inactiveRatingChanges: number;
 
-    activeRatingSystems: {
-        [system: string]: number;
-    };
-    inactiveRatingSystems: {
-        [system: string]: number;
-    };
+    activeRatingSystems: Record<string, number>;
+    inactiveRatingSystems: Record<string, number>;
 
     activeMinutesSpent: number;
     inactiveMinutesSpent: number;
@@ -33,7 +29,5 @@ export interface CohortStatistics {
 }
 
 export interface UserStatistics {
-    cohorts: {
-        [cohort: string]: CohortStatistics;
-    };
+    cohorts: Record<string, CohortStatistics>;
 }

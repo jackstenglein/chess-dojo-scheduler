@@ -81,10 +81,10 @@ interface CourseEditorErrors {
     };
 }
 
-type CourseEditorPageParams = {
+interface CourseEditorPageParams {
     type: CourseType;
     id: string;
-};
+}
 
 const CourseEditorPage = () => {
     const params = useParams<CourseEditorPageParams>();

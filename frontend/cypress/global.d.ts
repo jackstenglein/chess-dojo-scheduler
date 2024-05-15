@@ -10,7 +10,7 @@ declare global {
              * @param dataCyAttribute The value of the data-cy attribute to get.
              * @param args Optional args to pass to cy.get()
              */
-            getBySel(dataCyAttribute: string, args?: any): Chainable<JQuery<HTMLElement>>;
+            getBySel(dataCyAttribute: string, args?: any): Chainable<JQuery>;
 
             /**
              * Finds an element based on its data-cy attribute.
@@ -20,7 +20,7 @@ declare global {
             findBySel(
                 dataCyAttribute: string,
                 args?: any
-            ): Chainable<JQuery<HTMLElement>>;
+            ): Chainable<JQuery>;
 
             /**
              * Logs into AWS Cognito via the Amplify Auth API, bypassing the login screen.
@@ -32,7 +32,7 @@ declare global {
                 sessionId: string,
                 email: string,
                 password: string
-            ): Chainable<any>;
+            ): Chainable;
 
             /**
              * Intercepts a request to the site's API.

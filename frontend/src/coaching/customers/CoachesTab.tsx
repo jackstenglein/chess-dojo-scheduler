@@ -80,7 +80,7 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
         event.preventDefault();
         event.stopPropagation();
 
-        if (!currentUser || currentUser?.username === coach.username) {
+        if (!currentUser || currentUser.username === coach.username) {
             return;
         }
 

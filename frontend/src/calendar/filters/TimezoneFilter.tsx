@@ -68,8 +68,8 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
     const browserDefaultLabel =
         timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
 
-    let minHourNum = minHour?.hour || 0;
-    let maxHourNum = (maxHour?.hour || 23) + 1;
+    const minHourNum = minHour?.hour || 0;
+    const maxHourNum = (maxHour?.hour || 23) + 1;
 
     return (
         <Stack spacing={2.5}>

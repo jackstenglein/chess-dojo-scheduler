@@ -74,7 +74,7 @@ export function toShapes(chess?: Chess): DrawShape[] {
     }
 
     const commentDiag = currentMove.commentDiag;
-    let result: DrawShape[] = [];
+    const result: DrawShape[] = [];
     if (commentDiag) {
         if (commentDiag.colorArrows) {
             for (const comm of commentDiag.colorArrows) {
@@ -347,7 +347,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                                         backgroundSize: 'cover',
                                         backgroundImage: `url(${
                                             promotion
-                                                ? `https://www.chess.com/chess-themes/pieces/bases/150/${promotion?.color[0]}${piece}.png`
+                                                ? `https://www.chess.com/chess-themes/pieces/bases/150/${promotion.color[0]}${piece}.png`
                                                 : ''
                                         })`,
                                     }}

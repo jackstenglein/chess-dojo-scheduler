@@ -8,10 +8,10 @@ import NewsfeedItem from './NewsfeedItem';
 import LoadingPage from '../../loading/LoadingPage';
 import NotFoundPage from '../../NotFoundPage';
 
-type NewsfeedDetailPageParams = {
+interface NewsfeedDetailPageParams {
     owner: string;
     id: string;
-};
+}
 
 const NewsfeedDetailPage = () => {
     const { owner, id } = useParams<NewsfeedDetailPageParams>();

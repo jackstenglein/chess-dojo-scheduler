@@ -56,17 +56,17 @@ const ExtraRatingSystemsForm: React.FC<ProfileCreatorFormProps> = ({
     const request = useRequest();
 
     const [usernames, setUsernames] = useState<Record<RatingSystem, string>>(
-        Object.values(RatingSystems).reduce((map, rs) => {
+        Object.values(RatingSystems).reduce<Record<RatingSystem, string>>((map, rs) => {
             map[rs] = getRatingUsername(user, rs);
             return map;
-        }, {} as Record<RatingSystem, string>)
+        }, {})
     );
 
     const [hideUsernames, setHideUsernames] = useState<Record<RatingSystem, boolean>>(
-        Object.values(RatingSystems).reduce((map, rs) => {
+        Object.values(RatingSystems).reduce<Record<RatingSystem, boolean>>((map, rs) => {
             map[rs] = hideRatingUsername(user, rs);
             return map;
-        }, {} as Record<RatingSystem, boolean>)
+        }, {})
     );
 
     const setUsername = (rs: RatingSystem, value: string) => {

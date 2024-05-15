@@ -201,7 +201,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
             return;
         }
 
-        let itemErrors: HistoryItemError = {};
+        const itemErrors: HistoryItemError = {};
         if (item.date === null) {
             itemErrors.date = 'This field is required';
         }

@@ -97,7 +97,7 @@ interface LinesProps {
 const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove, handleScroll }) => {
     const [expanded, setExpanded] = useState(true);
     const expandRef = useRef<HTMLHRElement>(null);
-    let d = depth || 0;
+    const d = depth || 0;
 
     const onCollapse = () => {
         setExpanded(false);

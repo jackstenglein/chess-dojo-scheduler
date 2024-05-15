@@ -58,7 +58,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEdit
             parentIds: '',
             replies: {},
         };
-        const existingComments = Boolean(game.positionComments?.[positionComment.fen]);
+        const existingComments = Boolean(game.positionComments[positionComment.fen]);
 
         request.onStart();
         api.createComment(game.cohort, game.id, positionComment, existingComments)

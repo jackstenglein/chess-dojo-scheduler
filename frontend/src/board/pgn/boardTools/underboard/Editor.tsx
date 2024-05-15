@@ -182,10 +182,10 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     label='Comments'
                     id={BlockBoardKeyboardShortcuts}
                     multiline
-                    minRows={Boolean(move) ? (isMainline ? 3 : 7) : 15}
-                    maxRows={Boolean(move) ? 9 : 15}
+                    minRows={move ? (isMainline ? 3 : 7) : 15}
+                    maxRows={move ? 9 : 15}
                     value={comment}
-                    onChange={(event) => chess?.setComment(event.target.value)}
+                    onChange={(event) => chess.setComment(event.target.value)}
                     fullWidth
                 />
 
@@ -194,7 +194,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         <Stack spacing={1}>
                             <ToggleButtonGroup
                                 exclusive
-                                value={getNagInSet(moveNags, chess?.currentMove()?.nags)}
+                                value={getNagInSet(moveNags, chess.currentMove()?.nags)}
                                 onChange={handleExclusiveNag(moveNags)}
                             >
                                 {moveNags.map((nag) => (
@@ -209,7 +209,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
 
                             <ToggleButtonGroup
                                 exclusive
-                                value={getNagInSet(evalNags, chess?.currentMove()?.nags)}
+                                value={getNagInSet(evalNags, chess.currentMove()?.nags)}
                                 onChange={handleExclusiveNag(evalNags)}
                             >
                                 {evalNags.map((nag) => (
@@ -225,7 +225,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             <ToggleButtonGroup
                                 value={getNagsInSet(
                                     positionalNags,
-                                    chess?.currentMove()?.nags,
+                                    chess.currentMove()?.nags,
                                 )}
                                 onChange={handleMultiNags(positionalNags)}
                             >
@@ -244,8 +244,8 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             <Button
                                 startIcon={<CheckIcon />}
                                 variant='outlined'
-                                disabled={chess?.isInMainline(move) || takebacksDisabled}
-                                onClick={() => chess?.promoteVariation(move, true)}
+                                disabled={chess.isInMainline(move) || takebacksDisabled}
+                                onClick={() => chess.promoteVariation(move, true)}
                             >
                                 Make main line
                             </Button>
@@ -253,16 +253,16 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                                 startIcon={<ArrowUpwardIcon />}
                                 variant='outlined'
                                 disabled={
-                                    !chess?.canPromoteVariation(move) || takebacksDisabled
+                                    !chess.canPromoteVariation(move) || takebacksDisabled
                                 }
-                                onClick={() => chess?.promoteVariation(move)}
+                                onClick={() => chess.promoteVariation(move)}
                             >
                                 Move variation up
                             </Button>
                             <Button
                                 startIcon={<DeleteIcon />}
                                 variant='outlined'
-                                onClick={() => chess?.delete(move)}
+                                onClick={() => chess.delete(move)}
                                 disabled={!config?.allowMoveDeletion || takebacksDisabled}
                             >
                                 Delete from here

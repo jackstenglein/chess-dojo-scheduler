@@ -95,12 +95,12 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
             return { isBlocked: false };
         }
 
-        const requirementMap = requirements.reduce(
+        const requirementMap = requirements.reduce<Record<string, Requirement>>(
             (acc, r) => {
                 acc[r.id] = r;
                 return acc;
             },
-            {} as Record<string, Requirement>,
+            {},
         );
         for (const blockerId of requirement.blockers) {
             const blocker = requirementMap[blockerId];

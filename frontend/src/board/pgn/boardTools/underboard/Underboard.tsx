@@ -117,7 +117,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                 ? initialTab
                 : isOwner
                   ? DefaultUnderboardTab.Editor
-                  : Boolean(game)
+                  : game
                     ? DefaultUnderboardTab.Comments
                     : DefaultUnderboardTab.Explorer,
         );

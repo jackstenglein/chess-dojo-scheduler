@@ -9,7 +9,7 @@ const BASE_URL = getConfig().api.baseUrl;
 /**
  * EventApiContextType provides an API for interacting with Events.
  */
-export type EventApiContextType = {
+export interface EventApiContextType {
     /**
      * bookEvent books the provided Event. If the Event is 1 on 1, then startTime
      * and type can also be included in the request.
@@ -22,35 +22,35 @@ export type EventApiContextType = {
         id: string,
         startTime?: Date,
         type?: string
-    ) => Promise<AxiosResponse<BookEventResponse, any>>;
+    ) => Promise<AxiosResponse<BookEventResponse>>;
 
     /**
      * Returns a Stripe Checkout URL for the given Event. The caller must already be a particpiant of the Event.
      * @param id The id of the Event to get the Checkout URL for.
      * @returns The Stripe Checkout URL for the Event.
      */
-    getEventCheckout: (id: string) => Promise<AxiosResponse<CheckoutEventResponse, any>>;
+    getEventCheckout: (id: string) => Promise<AxiosResponse<CheckoutEventResponse>>;
 
     /**
      * cancelEvent cancels the Event with the provided id.
      * @param id The Event id to cancel.
      * @returns An AxiosReponse containing the updated Event.
      */
-    cancelEvent: (id: string) => Promise<AxiosResponse<Event, any>>;
+    cancelEvent: (id: string) => Promise<AxiosResponse<Event>>;
 
     /**
      * deleteEvent deletes the provided Event from the database.
      * @param id The id of the Event to delete.
      * @returns An AxiosResponse containing the deleted Event.
      */
-    deleteEvent: (id: string) => Promise<AxiosResponse<Event, any>>;
+    deleteEvent: (id: string) => Promise<AxiosResponse<Event>>;
 
     /**
      * getEvent returns the Event with the provided id.
      * @param id The Event id to fetch.
      * @returns An AxiosResponse containing the Event.
      */
-    getEvent: (id: string) => Promise<AxiosResponse<Event, any>>;
+    getEvent: (id: string) => Promise<AxiosResponse<Event>>;
 
     /**
      * listEvents returns a list of all upcoming Events. If the current user is not logged in,
@@ -65,7 +65,7 @@ export type EventApiContextType = {
      * @param event The Event to save.
      * @returns An AxiosResponse containing the Event as saved in the database.
      */
-    setEvent: (event: Event) => Promise<AxiosResponse<Event, any>>;
+    setEvent: (event: Event) => Promise<AxiosResponse<Event>>;
 
     /**
      * Adds the given message to the given event.
@@ -73,8 +73,8 @@ export type EventApiContextType = {
      * @param content The text content of the message.
      * @returns An AxiosResponse containing the updated Event.
      */
-    createMessage: (id: string, content: string) => Promise<AxiosResponse<Event, any>>;
-};
+    createMessage: (id: string, content: string) => Promise<AxiosResponse<Event>>;
+}
 
 export interface BookEventResponse {
     event: Event;
@@ -177,7 +177,7 @@ interface ListEventsResponse {
  * @returns A list of Events.
  */
 export async function listEvents(idToken: string, startKey?: string) {
-    let params = { startKey };
+    const params = { startKey };
     const result: Event[] = [];
 
     do {

@@ -4,11 +4,11 @@ import { getConfig } from '../config';
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type EmailApiContextType = {
+export interface EmailApiContextType {
     createSupportTicket: (
         request: SupportTicketRequest,
     ) => Promise<AxiosResponse<SupportTicketResponse>>;
-};
+}
 
 export interface SupportTicketRequest {
     name: string;

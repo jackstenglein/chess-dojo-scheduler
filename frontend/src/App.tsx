@@ -253,7 +253,7 @@ function App() {
             <ThemeProvider>
                 <LocalizationProvider
                     dateAdapter={AdapterLuxon}
-                    adapterLocale={navigator.languages?.[0]}
+                    adapterLocale={navigator.languages[0]}
                 >
                     <RouterProvider router={router} />
                 </LocalizationProvider>

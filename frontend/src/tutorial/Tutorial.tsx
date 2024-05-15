@@ -14,16 +14,13 @@ interface TutorialProps {
 }
 
 const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
-    const user = useAuth().user!;
+    const user = useAuth().user;
     const api = useApi();
-    const darkMode = !user.enableLightMode;
+    const darkMode = !user?.enableLightMode;
     const { tutorialState, setTutorialState } = useTutorial();
 
     useEffect(() => {
-        if (
-            (!user.tutorials || !user.tutorials[name]) &&
-            tutorialState.activeTutorial !== name
-        ) {
+        if (!user?.tutorials?.[name] && tutorialState.activeTutorial !== name) {
             console.log('Starting tutorial: ', name);
             setTutorialState({ activeTutorial: name });
         }
@@ -34,17 +31,17 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
             if (state.status === 'finished') {
                 api.updateUser({
                     tutorials: {
-                        ...user.tutorials,
+                        ...user?.tutorials,
                         [name]: true,
                     },
                 })
                     .then(() => {
                         setTutorialState({});
                     })
-                    .catch((err) => console.error('completeTutorial: ', err));
+                    .catch((err: unknown) => console.error('completeTutorial: ', err));
             }
         },
-        [setTutorialState, api, user.tutorials, name]
+        [setTutorialState, api, user?.tutorials, name],
     );
 
     const activeTutorial = tutorialState.activeTutorial;
@@ -68,7 +65,7 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
                 callback={callback}
             />
         ),
-        [activeTutorial, callback, darkMode, steps, name, zIndex]
+        [activeTutorial, callback, darkMode, steps, name, zIndex],
     );
 
     return <>{Joyride}</>;

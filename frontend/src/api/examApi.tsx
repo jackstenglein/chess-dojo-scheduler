@@ -4,7 +4,7 @@ import { Exam, ExamAnswer, ExamAttempt, ExamType } from '../database/exam';
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type ExamApiContextType = {
+export interface ExamApiContextType {
     /**
      * Fetches a list of exams with the provided type.
      * @param type The type of exam to fetch.
@@ -33,7 +33,7 @@ export type ExamApiContextType = {
      * @returns An AxiosResponse containing the requested ExamAnswer.
      */
     getExamAnswer: (id: string) => Promise<AxiosResponse<ExamAnswer>>;
-};
+}
 
 interface ListExamsResponse {
     exams: Exam[];

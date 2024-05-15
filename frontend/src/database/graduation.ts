@@ -11,9 +11,7 @@ export interface Graduation {
     startRating: number;
     currentRating: number;
     comments: string;
-    progress: {
-        [id: string]: RequirementProgress;
-    };
+    progress: Record<string, RequirementProgress>;
     graduationCohorts: string[];
     startedAt: string;
     createdAt: string;

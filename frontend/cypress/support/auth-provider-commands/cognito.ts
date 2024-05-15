@@ -60,7 +60,7 @@ Cypress.Commands.add('loginByCognitoApi', (sessionId, email, password) => {
     cy.session(
         `${sessionId}-${email}`,
         () => {
-            return loginToCognito(email, password);
+            loginToCognito(email, password);
         },
         {
             validate() {

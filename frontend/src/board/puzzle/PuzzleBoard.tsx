@@ -112,7 +112,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     chess.lastMove() === chess.currentMove() ||
                     chess.hasNagInRange(10, 140)
                 ) {
-                    return onComplete(board, chess);
+                    onComplete(board, chess); return;
                 }
                 setStatus(Status.CorrectMove);
                 setLastCorrectMove(chess.currentMove());
@@ -141,11 +141,11 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     const onNext = (board: BoardApi | undefined, chess: Chess) => {
         const nextMove = chess.nextMove();
         if (!nextMove) {
-            return onComplete(board, chess);
+            onComplete(board, chess); return;
         }
         chess.seek(nextMove);
         if (chess.lastMove() === nextMove || chess.hasNagInRange(10, 140, nextMove)) {
-            return onComplete(board, chess);
+            onComplete(board, chess); return;
         }
 
         board?.move(nextMove.from, nextMove.to);
