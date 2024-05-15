@@ -1,5 +1,6 @@
 import { StaticImageData } from 'next/image';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
+import tacticsTestImage from './tactics-test/image.png';
 
 export interface BlogItem {
     title: string;
@@ -13,16 +14,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
-    // {
-    //     title: 'Introducing Dojo Tactics Tests - A New Way to Assess Your Skills',
-    //     subtitle: 'May 9, 2024',
-    //     body: `The Dojo is releasing a new form of “online tactics trainer,” one that attempts to improve on the most popular existing trainers (Chess.com, Lichess, ChessTempo, etc.) and provide players a much more realistic tactics rating...`,
-    //     href: '/blog/tactics-test',
-    //     image: {
-    //         src: tacticsTestImage,
-    //         alt: 'Graph of tactics test results',
-    //     },
-    // },
+    {
+        title: 'Introducing Dojo Tactics Tests – A New Way to Assess Your Skills',
+        subtitle: 'Kostya Kavutskiy • May 14, 2024',
+        body: `The Dojo is releasing a new form of “online tactics test,” one that attempts to improve on the most popular existing trainers (Chess.com, Lichess, ChessTempo, etc.) and provide players a much more realistic tactics rating...`,
+        href: '/blog/tactics-test',
+        image: {
+            src: tacticsTestImage,
+            alt: 'Graph of tactics test results',
+        },
+    },
     {
         title: 'Welcome to Dojo 3.0!',
         subtitle: 'Dojo Digest Vol 8 • May 1, 2024',
