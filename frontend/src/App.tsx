@@ -41,6 +41,7 @@ import ExplorerPage from './games/explorer/ExplorerPage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
+import GraduationPage from './graduation/GraduationPage';
 import HelpPage from './help/HelpPage';
 import LandingPage from './landing/LandingPage';
 import BooksPage from './material/BooksPage';
@@ -187,6 +188,10 @@ const router = createBrowserRouter(
                             <Route path='edit' element={<EditGamePage />} />
                         </Route>
                         <Route path='review-queue' element={<ReviewQueuePage />} />
+                    </Route>
+
+                    <Route path='graduation'>
+                        <Route index element={<GraduationPage />} />
                     </Route>
 
                     <Route path='scoreboard'>
