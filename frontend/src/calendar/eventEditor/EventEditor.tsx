@@ -202,7 +202,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                                 {' '}
                                                 <Icon
                                                     name='meet'
-                                                    color='primary'
+                                                    color='book'
                                                     sx={{
                                                         marginRight: '0.4rem',
                                                         verticalAlign: 'middle',
@@ -223,7 +223,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                                     {' '}
                                                     <Icon
                                                         name='Dojo Events'
-                                                        color='info'
+                                                        color='dojoOrange'
                                                         sx={{
                                                             marginRight: '0.4rem',
                                                             verticalAlign: 'middle',

@@ -455,6 +455,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     onChange={(event) =>
                                         filters.setAvailabilities(event.target.checked)
                                     }
+                                    color='info'
                                 />
                             }
                             //label='Availabilities'
@@ -481,6 +482,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     onChange={(event) =>
                                         filters.setMeetings(event.target.checked)
                                     }
+                                    color='meet'
                                 />
                             }
                             //label='Meetings'
@@ -531,7 +533,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 onChange={(event) =>
                                     filters.setDojoEvents(event.target.checked)
                                 }
-                                color='success'
+                                color='dojoOrange'
                             />
                         }
                         //label='Dojo Events'
@@ -617,7 +619,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                                 )
                                             }
                                             disabled={!filters.dojoEvents}
-                                            color='warning'
+                                            color='liga'
                                         />
                                     }
                                     label={
@@ -657,10 +659,11 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     onChange={(event) =>
                                         filters.setAllTypes(event.target.checked)
                                     }
+                                    
                                     sx={{
-                                        color: 'error.dark',
+                                        color: 'meet.main',
                                         '&.Mui-checked': {
-                                            color: 'error.dark',
+                                            color: 'meet.main',
                                         },
                                     }}
                                 />

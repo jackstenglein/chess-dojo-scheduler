@@ -236,7 +236,7 @@ export function processCoachingEvent(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'secondary.main',
+        color: 'coaching.main',
         editable: isOwner,
         deletable: isOwner && Object.values(event.participants).length === 0,
         draggable: isOwner,

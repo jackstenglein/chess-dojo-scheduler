@@ -92,7 +92,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
                     }),
                     liga: defaultTheme.palette.augmentColor({
                         color: {
-                            main: '#d46f5b',
+                            main: '#45b579',
                         },
                         name: 'liga',
                     }),
@@ -122,7 +122,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
                     }),
                     coaching: defaultTheme.palette.augmentColor({
                         color: {
-                            main: deepPurple[400],
+                            main: deepPurple[200],
                         },
                         name: 'coaching',
                     }),
