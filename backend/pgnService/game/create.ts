@@ -14,7 +14,6 @@ import {
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
-
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
 import { getLichessChapter, getLichessGame, getLichessStudy } from './lichess';
@@ -75,9 +74,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             });
         }
         console.log('PGN texts length: ', pgnTexts.length);
-
-        // TODO: Remove before merge
-        console.log('First PGN contents', pgnTexts[0]);
 
         const [games, headers] = getGames(
             user,
@@ -219,6 +215,12 @@ function getGames(
     return [games, []];
 }
 
+/**
+ * Returns true if the given PGN text has a Variant header containing a value other than 
+ * `Standard`.
+ * @param pgnText The PGN to test.
+ * @returns True if the PGN is a variant.
+ */
 export function isFairyChess(pgnText: string) {
     return (
         /^\[Variant .*\]$/gim.test(pgnText) &&
@@ -231,7 +233,6 @@ export function getGame(
     pgnText: string,
     headers: GameImportHeaders | undefined,
     orientation: GameOrientation,
-    unlisted?: boolean,
 ): [Game, GameImportHeaders] {
     // We do not support variants due to current limitations with
     // @JackStenglein/pgn-parser
@@ -264,17 +265,15 @@ export function getGame(
         chess.setHeader('Result', chess.header().Result?.trim() || '*');
         chess.setHeader('PlyCount', `${chess.plyCount()}`);
 
+        if (!isValidDate(chess.header().Date)) {
+            chess.setHeader('Date', '');
+        }
+        if (!isValidResult(chess.header().Result)) {
+            chess.setHeader('Result', '*');
+        }
+
         const now = new Date();
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
-
-        const resultHeader = chess.header().Result;
-        if (resultHeader && !isValidResult(resultHeader)) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'PGN has an invalid Result header',
-                privateMessage: `Unsupported result header. After transformation: ${resultHeader}`,
-            });
-        }
 
         return [
             {
@@ -293,7 +292,7 @@ export function getGame(
                 orientation,
                 comments: [],
                 positionComments: {},
-                unlisted: unlisted ?? true,
+                unlisted: true,
             },
             {
                 white: chess.header().White,
@@ -312,10 +311,45 @@ export function getGame(
     }
 }
 
-function isValidResult(result?: string): boolean {
-    if (!result) {
+const dateRegex = /^\d{4}\.\d{2}\.\d{2}$/;
+
+/**
+ * Returns true if the given date string is a valid PGN date.
+ * PGN dates are considered valid if they are in the form 2024.12.31
+ * and are in the past (we allow dates up to 2 days in the future to 
+ * avoid time zone issues).
+ * @param date The PGN date to check.
+ * @returns True if date is a valid PGN date.
+ */
+function isValidDate(date?: string): boolean {
+    if (!date) {
         return false;
     }
+    if (!dateRegex.test(date)) {
+        return false;
+    }
+
+    const d = Date.parse(date.replaceAll('.', '-'));
+    if (isNaN(d)) {
+        return false;
+    }
+
+    const now = new Date();
+    now.setDate(now.getDate() + 2);
+
+    if (d > now.getTime()) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Returns true if the given result is a valid PGN result.
+ * @param result The result to check.
+ * @returns True if the given result is valid.
+ */
+function isValidResult(result?: string): boolean {
     return result === '1-0' || result === '0-1' || result === '1/2-1/2' || result === '*';
 }
 

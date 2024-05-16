@@ -12,7 +12,6 @@ import {
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
-
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import {
     cleanupChessbasePgn,
@@ -119,7 +118,7 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage:
-                    'Invalid request: orientation must be `white` or `black` if provided',
+                    `Invalid request: orientation must be "${GameOrientation.White}" or "${GameOrientation.Black}" if provided`,
             });
         }
 
@@ -138,6 +137,11 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
     }
 }
 
+/**
+ * Returns a GameUpdate based on the given request.
+ * @param request The UpdateGameRequest to process.
+ * @returns A GameUpdate based on the given request.
+ */
 async function getGameUpdate(
     request: UpdateGameRequest,
 ): Promise<[GameUpdate | null, GameImportHeaders | null]> {
@@ -187,7 +191,6 @@ async function getGameUpdate(
             pgnText,
             request.headers?.[0],
             request.orientation || GameOrientation.White,
-            request.unlisted,
         );
         if (!game) {
             return [null, headers];
@@ -203,6 +206,14 @@ async function getGameUpdate(
     return [update, null];
 }
 
+/**
+ * Saves the provided GameUpdate in the database.
+ * @param owner The user making the update request.
+ * @param cohort The cohort the Game is in.
+ * @param id The id of the Game.
+ * @param update The update to apply.
+ * @returns The updated Game.
+ */
 async function applyUpdate(
     owner: string,
     cohort: string,
@@ -274,6 +285,11 @@ function getUpdateParams(params: { [key: string]: any }) {
     };
 }
 
+/**
+ * Deletes the timeline entry associated with the given Game.
+ * @param game The Game to delete the timeline entry for.
+ * @param id The id of the timeline entry.
+ */
 export async function deleteTimelineEntry(game: Game, id: string) {
     try {
         await dynamo.send(

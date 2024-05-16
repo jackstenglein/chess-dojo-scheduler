@@ -61,23 +61,42 @@ export interface Game {
     timelineId?: string;
 }
 
+/** The default orientation of the game when it is first opened. */
 export enum GameOrientation {
     White = 'white',
     Black = 'black',
 }
 
+/** A request to create a new Game. */
 export interface CreateGameRequest {
+    /** The import type of the Game. */
     type?: GameImportType;
+
+    /** The URL to import from, if supported by type. */
     url?: string;
+
+    /** The raw PGN text of the Game, if supported by type. */
     pgnText?: string;
+
+    /** The import headers of the Game. */
     headers?: GameImportHeaders[];
+
+    /** The default orientation of the Game. */
     orientation?: GameOrientation;
 }
 
+/** A request to update an existing Game. */
 export interface UpdateGameRequest extends CreateGameRequest {
+    /** The cohort the Game is in. */
     cohort: string;
+
+    /** The id of the Game. */
     id: string;
+
+    /** The existing timeline id of the Game. */
     timelineId?: string;
+
+    /** Whether the Game should be unlisted. */
     unlisted?: boolean;
 }
 

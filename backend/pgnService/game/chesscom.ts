@@ -5,6 +5,11 @@ import { Browser, BrowserErrorCaptureEnum } from 'happy-dom';
 import moment from 'moment';
 import { ApiError } from './errors';
 
+/**
+ * Converts the given epoch milliseconds to the H:mm:ss format.
+ * @param ms The epoch time in milliseconds.
+ * @returns The given time converted to H:mm:ss format.
+ */
 function msToClk(ms: number) {
     return moment.utc(ms).format('H:mm:ss');
 }
@@ -19,6 +24,11 @@ type GetGameByIdResponse = {
     };
 };
 
+/**
+ * Extracts the PGN from a Chess.com saved analysis.
+ * @param url The URL of the analysis.
+ * @returns The PGN of the analysis.
+ */
 export async function getChesscomAnalysis(url?: string) {
     if (!url) {
         throw new ApiError({
@@ -80,6 +90,11 @@ export async function getChesscomAnalysis(url?: string) {
     return pgnText;
 }
 
+/**
+ * Extracts the PGN from a Chess.com game.
+ * @param gameURL The URL of the game.
+ * @returns The PGN of the game.
+ */
 export async function getChesscomGame(gameURL?: string) {
     const [, gameType, gameId] = (gameURL ?? '').match(chesscomGameRegex) ?? [];
     if (!gameType || !gameId) {
@@ -106,22 +121,17 @@ export async function getChesscomGame(gameURL?: string) {
         });
     }
 
-    if (gameData?.moveList.length % 2 !== 0) {
+    if (gameData.moveList.length % 2 !== 0) {
         throw new ApiError({
             statusCode: 500,
-            publicMessage: 'Chess.com API changed; unexpected moveList format.',
+            publicMessage: 'Chess.com API changed; unexpected moveList format',
         });
     }
 
-    const encodedMoves = gameData?.moveList.split('').reduce((acc, chr) => {
-        if (acc.length === 0 || acc[acc.length - 1].length === 2) {
-            acc.push(chr);
-        } else {
-            acc[acc.length - 1] += chr;
-        }
-
-        return acc;
-    }, [] as string[]);
+    const encodedMoves = [];
+    for (let i = 0; i < gameData.moveList.length; i += 2) {
+        encodedMoves.push(gameData.moveList.slice(i, i + 2));
+    }
 
     // Convert to milliseconds
     const moveTimestamps = gameData.moveTimestamps.split(',').map((n) => Number(n) * 100);

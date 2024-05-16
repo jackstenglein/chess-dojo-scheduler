@@ -1,5 +1,11 @@
 import { ApiError } from './errors';
 
+/**
+ * Returns the specified pathname segment from the given URL.
+ * @param url The URL to extract the pathname segment from.
+ * @param idx The index of the pathname segment to extract.
+ * @returns The specified pathname segment from the URL.
+ */
 export function getPathSegment(url: string | undefined, idx: number) {
     if (!url) {
         throw new ApiError({
@@ -18,15 +24,14 @@ export function getPathSegment(url: string | undefined, idx: number) {
             publicMessage: 'Invalid url',
             privateMessage: `Was unable to parse this URL: ${url}`,
         });
-        // ...
     }
 
     const parts = urlObj.pathname.split('/').filter((part) => part);
-    if (parts.length <= idx) {
+    if (idx >= parts.length) {
         throw new ApiError({
             statusCode: 400,
             publicMessage: 'Invalid url',
-            privateMessage: `Expected more path segments than existed when extracting url fields: ${url}`,
+            privateMessage: `Attempted to extract path segment index ${idx}, but only ${parts.length} segments found in url: ${url}`,
         });
     }
 

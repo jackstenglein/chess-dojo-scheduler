@@ -3,6 +3,11 @@ import axios from 'axios';
 import { ApiError } from './errors';
 import { getPathSegment } from './helpers';
 
+/**
+ * Fetches the PGN of the given Lichess game.
+ * @param url The URL of the Lichess game.
+ * @returns The PGN of the Lichess game.
+ */
 export async function getLichessGame(url?: string): Promise<string> {
     const gameId = getPathSegment(url, 0);
 
@@ -13,11 +18,16 @@ export async function getLichessGame(url?: string): Promise<string> {
         });
         return response.data;
     } catch (err: unknown) {
-        handleError('Lichess game', err);
+        handleError('Lichess Game', err);
         throw err;
     }
 }
 
+/**
+ * Fetches the PGN of the given Lichess study chapter.
+ * @param url The URL of the Lichess study chapter.
+ * @returns The PGN of the chapter.
+ */
 export async function getLichessChapter(url?: string): Promise<string> {
     const studyId = getPathSegment(url, 1);
     const chapterId = getPathSegment(url, 2);
@@ -33,6 +43,11 @@ export async function getLichessChapter(url?: string): Promise<string> {
     }
 }
 
+/**
+ * Fetches a list of the PGNs in the given Lichess study.
+ * @param url The URL of the Lichess study.
+ * @returns A list of the PGNs in the study.
+ */
 export async function getLichessStudy(url?: string): Promise<string[]> {
     const studyId = getPathSegment(url, 1);
 
@@ -58,16 +73,16 @@ export async function getLichessStudy(url?: string): Promise<string[]> {
     }
 }
 
+/**
+ * Throws a descriptive ApiError based on the error received when fetching
+ * data from Lichess.
+ * @param requested A description of the requested Lichess entity.
+ * @param err The error thrown when fetching the Lichess entity.
+ */
 function handleError(requested: string, err: unknown) {
     if (axios.isAxiosError(err) && err.response !== undefined) {
         const status = err.response.status;
-        if (status === 401) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: '',
-                cause: err,
-            });
-        } else if (status === 403 || status == 401) {
+        if (status === 403 || status == 401) {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage: `${requested} settings forbid exporting.`,
