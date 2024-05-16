@@ -194,7 +194,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
             <DialogContent>
                 <Stack sx={{ pt: 2 }} spacing={3}>
                     <Field
-                        IconName='clock'
+                        iconName='clock'
                         title={isGroup ? 'Time' : 'Available Start Times'}
                         body={`${minStartDate} ${minStartStr} - ${maxStartStr}`}
                     />
@@ -203,7 +203,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                     <Field
                         title='Location'
                         body={availability.location || 'Discord'}
-                        IconName='location'
+                        iconName='location'
                     />
 
                     {availability.description && (
@@ -231,7 +231,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                     {isGroup && (
                         <>
                             <Field
-                                IconName='meet'
+                                iconName='meet'
                                 title='Meeting Types'
                                 body={availability.types
                                     ?.map((t) => getDisplayString(t))
@@ -239,13 +239,13 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                             />
 
                             <Field
-                                IconName='cohort'
+                                iconName='cohort'
                                 title='Cohorts'
                                 body={availability.cohorts.join(', ')}
                             />
 
                             <Field
-                                IconName='line'
+                                iconName='line'
                                 title='Max Participants'
                                 body={`${availability.maxParticipants}`}
                             />

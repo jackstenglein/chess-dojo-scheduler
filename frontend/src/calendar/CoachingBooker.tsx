@@ -9,7 +9,6 @@ import {
     Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
 import { EventType, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
@@ -17,13 +16,13 @@ import { useAuth } from '../auth/Auth';
 import { displayPrice } from '../courses/list/CourseListItem';
 import { Event } from '../database/event';
 import { TimeFormat, dojoCohorts } from '../database/user';
+import Icon from '../style/Icon';
 import { Transition } from './AvailabilityBooker';
 import { toDojoDateString, toDojoTimeString } from './displayDate';
 import Field from './eventViewer/Field';
 import OwnerField from './eventViewer/OwnerField';
 import ParticipantsList from './eventViewer/ParticipantsList';
 
-import Icon from '../style/Icon';
 interface CoachingBookerProps {
     event: Event;
 }
@@ -88,7 +87,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                         color='error'
                         onClick={() => navigate('/calendar')}
                         disabled={request.status === RequestStatus.Loading}
-                        startIcon={<Icon name='cancel' color='inherit'/>}
+                        startIcon={<Icon name='cancel' color='inherit' />}
                     >
                         Cancel
                     </Button>
@@ -98,9 +97,8 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                         disabled={isParticipant}
                         loading={request.status === RequestStatus.Loading}
                         onClick={onBook}
-                        startIcon={<Icon name='join' color='inherit'/>}
+                        startIcon={<Icon name='join' color='inherit' />}
                     >
-
                         Book
                     </LoadingButton>
                 </Toolbar>
@@ -110,7 +108,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     <Typography variant='h6'>{event.title}</Typography>
 
                     <Field
-                        IconName='clock'
+                        iconName='clock'
                         title='Time'
                         body={`${startDate} ${startTimeStr} - ${endTimeStr}`}
                     />
@@ -168,9 +166,13 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     </Stack>
 
                     <OwnerField title='Coach' event={event} />
-                    <Field title='Description' body={event.description} IconName='notes'/>
                     <Field
-                        IconName='cohort'
+                        title='Description'
+                        body={event.description}
+                        iconName='notes'
+                    />
+                    <Field
+                        iconName='cohort'
                         title='Cohorts'
                         body={
                             dojoCohorts.length === event.cohorts.length ||
@@ -181,7 +183,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     />
                     <Stack spacing={0.5}>
                         <Field
-                            IconName='participant'
+                            iconName='participant'
                             showEmptyBody
                             title={`Participants (${Object.values(event.participants).length} / ${
                                 event.maxParticipants

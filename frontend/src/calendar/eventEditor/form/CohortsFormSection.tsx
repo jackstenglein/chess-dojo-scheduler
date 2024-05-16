@@ -1,15 +1,9 @@
-import {
-    Checkbox,
-    FormControl,
-    FormControlLabel,
-    FormHelperText,
-    Stack,
-    Typography,
-} from '@mui/material';
-
-import { dojoCohorts } from '../../../database/user';
+import { Stack, Typography } from '@mui/material';
+import { ALL_COHORTS, dojoCohorts } from '../../../database/user';
+import MultipleSelectChip from '../../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../../scoreboard/CohortIcon';
 import Icon from '../../../style/Icon';
+
 interface CohortsFormSectionProps {
     description: string;
     allCohorts: boolean;
@@ -27,6 +21,26 @@ const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
     setCohort,
     error,
 }) => {
+    const selectedCohorts = allCohorts
+        ? [ALL_COHORTS]
+        : Object.keys(cohorts).filter((c) => cohorts[c]);
+
+    const onChangeCohort = (newCohorts: string[]) => {
+        const addedCohorts = newCohorts.filter((c) => !selectedCohorts.includes(c));
+        if (addedCohorts.includes(ALL_COHORTS)) {
+            setAllCohorts(true);
+            dojoCohorts.forEach((c) => setCohort(c, false));
+        } else {
+            setAllCohorts(false);
+            dojoCohorts.forEach((c) => setCohort(c, false));
+            newCohorts.forEach((c) => {
+                if (c !== ALL_COHORTS) {
+                    setCohort(c, true);
+                }
+            });
+        }
+    };
+
     return (
         <Stack>
             <Typography variant='h6'>
@@ -38,63 +52,29 @@ const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
                 />
                 Cohorts
             </Typography>
-            <Typography variant='subtitle1' color='text.secondary'>
+            <Typography variant='subtitle1' color='text.secondary' mb={0.5}>
                 {description}
             </Typography>
 
-            <FormControl error={!!error}>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={allCohorts}
-                            onChange={(event) => setAllCohorts(event.target.checked)}
+            <MultipleSelectChip
+                selected={selectedCohorts}
+                setSelected={onChangeCohort}
+                options={[ALL_COHORTS, ...dojoCohorts].map((opt) => ({
+                    value: opt,
+                    label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
+                    icon: (
+                        <CohortIcon
+                            cohort={opt}
+                            size={25}
+                            sx={{ marginRight: '0.6rem' }}
+                            tooltip=''
+                            color='primary'
                         />
-                    }
-                    //label='All Cohorts'
-                    label={
-                        <>
-                            {' '}
-                            <Icon
-                                name='all'
-                                color='primary'
-                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                                fontSize='medium'
-                            />
-                            All Cohorts
-                        </>
-                    }
-                />
-                <Stack direction='row' sx={{ flexWrap: 'wrap', columnGap: 2.5 }}>
-                    {dojoCohorts.map((cohort) => (
-                        <FormControlLabel
-                            key={cohort}
-                            control={
-                                <Checkbox
-                                    data-cy={`cohort-checkbox-${cohort}`}
-                                    checked={allCohorts || cohorts[cohort]}
-                                    onChange={(event) =>
-                                        setCohort(cohort, event.target.checked)
-                                    }
-                                />
-                            }
-                            disabled={allCohorts}
-                            //label={cohort}
-                            label={
-                                <>
-                                    {' '}
-                                    <CohortIcon
-                                        cohort={cohort}
-                                        size={25}
-                                        sx={{ verticalAlign: 'middle' }}
-                                    />{' '}
-                                    {cohort}{' '}
-                                </>
-                            }
-                        />
-                    ))}
-                </Stack>
-                <FormHelperText>{error}</FormHelperText>
-            </FormControl>
+                    ),
+                }))}
+                sx={{ mb: 3, width: 1 }}
+                errorHelper={error}
+            />
         </Stack>
     );
 };

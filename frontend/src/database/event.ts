@@ -130,6 +130,7 @@ export enum EventStatus {
 }
 
 export enum AvailabilityType {
+    AllTypes = 'ALL_TYPES',
     ClassicalGame = 'CLASSICAL_GAME',
     OpeningSparring = 'OPENING_SPARRING',
     MiddlegameSparring = 'MIDDLEGAME_SPARRING',
@@ -146,6 +147,8 @@ export function getDisplayString(type: AvailabilityType | null | undefined): str
     }
 
     switch (type) {
+        case AvailabilityType.AllTypes:
+            return 'All Types';
         case AvailabilityType.ClassicalGame:
             return 'Classical Game';
         case AvailabilityType.OpeningSparring:
@@ -167,6 +170,8 @@ export function getDisplayString(type: AvailabilityType | null | undefined): str
 
 export function getDefaultNumberOfParticipants(type: AvailabilityType): number {
     switch (type) {
+        case AvailabilityType.AllTypes:
+            return 100;
         case AvailabilityType.ClassicalGame:
             return 1;
         case AvailabilityType.OpeningSparring:
@@ -197,7 +202,9 @@ export function displayTournamentType(type: TournamentType | null | undefined): 
     }
 }
 
-export function displayTimeControlType(type: TimeControlType | null | undefined): string {
+export function displayTimeControlType(
+    type: TimeControlType | null | undefined,
+): '' | 'Blitz' | 'Classical' | 'Rapid' {
     if (!type) return '';
 
     switch (type) {

@@ -1,13 +1,14 @@
 import { Stack, Typography } from '@mui/material';
 import Icon from '../../style/Icon';
+
 interface FieldProps {
     title?: string;
     body?: string;
     showEmptyBody?: boolean;
-    IconName?: string;
+    iconName?: string;
 }
 
-const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, IconName }) => {
+const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, iconName }) => {
     if (!title || (!showEmptyBody && !body)) {
         return null;
     }
@@ -16,7 +17,7 @@ const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, IconName }) =
         <Stack>
             <Typography variant='h6' color='text.secondary'>
                 <Icon
-                    name={IconName}
+                    name={iconName}
                     color='primary'
                     sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}
                 />

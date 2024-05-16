@@ -47,18 +47,6 @@ export enum RequirementCategory {
     NonDojo = 'Non-Dojo',
 }
 
-export enum RequirementCalenderCategory{
-    AllTypes = 'All Types',
-    ClassicalGame = 'Classical Game',
-    OpeningSparring = 'Opening Sparring',
-    MiddlegameSparring = 'Middlegame Sparring',
-    EndgameSparring = 'Endgame Sparring',
-    RookEndgameProgress = 'Rook Endgame Progression',
-    AnalyzeClassicGame = 'Analyze Classic Game',
-    AnalyzeOwnGame = 'Analyze Own Game',
-    BookStudy = 'Book Study'
-}
-
 export interface Requirement {
     id: string;
     status: RequirementStatus;

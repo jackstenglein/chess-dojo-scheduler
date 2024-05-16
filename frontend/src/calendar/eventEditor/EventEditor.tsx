@@ -17,7 +17,6 @@ import {
 } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import { forwardRef } from 'react';
-
 import { EventType as AnalyticsEventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -29,6 +28,7 @@ import AvailabilityEditor, { validateAvailabilityEditor } from './AvailabilityEd
 import CoachingEditor, { validateCoachingEditor } from './CoachingEditor';
 import DojoEventEditor, { validateDojoEventEditor } from './DojoEventEditor';
 import useEventEditor from './useEventEditor';
+
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
         children: React.ReactElement;
@@ -124,7 +124,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                         <Icon
                             name='avilb'
                             color='primary'
-                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            sx={{ marginRight: '0.8rem', verticalAlign: 'middle' }}
                         />
                         Edit Event
                     </Typography>
@@ -175,7 +175,6 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                     {(user.isAdmin || user.isCalendarAdmin || user.isCoach) && (
                         <Stack>
                             <Typography variant='h6'>
-                                {' '}
                                 <Icon
                                     name='avilb'
                                     color='primary'
@@ -196,10 +195,8 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                     <FormControlLabel
                                         value={EventType.Availability}
                                         control={<Radio />}
-                                        //label='Bookable Availability'
                                         label={
                                             <>
-                                                {' '}
                                                 <Icon
                                                     name='meet'
                                                     color='book'
@@ -217,10 +214,8 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                         <FormControlLabel
                                             value={EventType.Dojo}
                                             control={<Radio />}
-                                            //label='Dojo-Wide Event'
                                             label={
                                                 <>
-                                                    {' '}
                                                     <Icon
                                                         name='Dojo Events'
                                                         color='dojoOrange'
@@ -239,10 +234,8 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                         <FormControlLabel
                                             value={EventType.Coaching}
                                             control={<Radio />}
-                                            //label='Coaching Session'
                                             label={
                                                 <>
-                                                    {' '}
                                                     <Icon
                                                         name='Coaching Sessions'
                                                         color='success'

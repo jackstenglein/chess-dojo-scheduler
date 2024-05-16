@@ -2,7 +2,6 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { LoadingButton } from '@mui/lab';
 import { Alert, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -14,6 +13,7 @@ import Field from './Field';
 import OwnerField from './OwnerField';
 import ParticipantsList from './ParticipantsList';
 import PriceField from './PriceField';
+
 interface CoachingViewerProps {
     processedEvent: ProcessedEvent;
 }
@@ -69,11 +69,11 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             <OwnerField title='Coach' event={event} />
 
-            <Field title='Description' body={event.description} IconName='notes' />
+            <Field title='Description' body={event.description} iconName='notes' />
 
             <Field
                 title='Cohorts'
-                IconName='cohort'
+                iconName='cohort'
                 body={
                     dojoCohorts.length === event.cohorts.length ||
                     event.cohorts.length === 0
@@ -86,7 +86,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             <Stack spacing={0.5}>
                 <Field
-                    IconName='participant'
+                    iconName='participant'
                     showEmptyBody
                     title={`Participants (${Object.values(event.participants).length} / ${
                         event.maxParticipants
@@ -111,7 +111,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                     variant='contained'
                     onClick={() => navigate(`/meeting/${event.id}`)}
                     color='success'
-                    startIcon={<Icon name='eye' color='inherit'/>}
+                    startIcon={<Icon name='eye' color='inherit' />}
                 >
                     View Details
                 </Button>

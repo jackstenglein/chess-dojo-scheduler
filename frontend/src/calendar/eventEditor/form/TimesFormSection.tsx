@@ -4,6 +4,7 @@ import { DateTime } from 'luxon';
 import { useAuth } from '../../../auth/Auth';
 import { TimeFormat } from '../../../database/user';
 import Icon from '../../../style/Icon';
+
 interface TimesFormSectionProps {
     description?: string;
 

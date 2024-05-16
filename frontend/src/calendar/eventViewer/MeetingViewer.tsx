@@ -1,11 +1,11 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
 import { Event, getDisplayString } from '../../database/event';
 import Icon from '../../style/Icon';
 import Field from './Field';
 import ParticipantsList from './ParticipantsList';
+
 const maxDisplayParticipants = 4;
 
 interface MeetingViewerProps {
@@ -20,23 +20,23 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
 
     return (
         <Stack sx={{ pt: 2 }} spacing={2}>
-            <Field title='Description' body={event.description} IconName='notes' />
+            <Field title='Description' body={event.description} iconName='notes' />
             <Field
                 title='Location'
                 body={event.location || 'Discord'}
-                IconName='location'
+                iconName='location'
             />
 
             {event.bookedType ? (
                 <Field
                     title='Meeting Type'
                     body={getDisplayString(event.bookedType)}
-                    IconName='meet'
+                    iconName='meet'
                 />
             ) : (
                 <Field
                     title='Meeting Types'
-                    IconName='meet'
+                    iconName='meet'
                     body={event.types?.map((t) => getDisplayString(t)).join(', ') || ''}
                 />
             )}
@@ -58,7 +58,11 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
                 )}
             </Stack>
 
-            <Button variant='contained' onClick={() => navigate(`/meeting/${event.id}`)} startIcon={<Icon name='eye' color='inherit'/>}>
+            <Button
+                variant='contained'
+                onClick={() => navigate(`/meeting/${event.id}`)}
+                startIcon={<Icon name='eye' color='inherit' />}
+            >
                 View Details
             </Button>
         </Stack>

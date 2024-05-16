@@ -1,4 +1,4 @@
-import { ListItemIcon, ListItemText } from '@mui/material';
+import { FormHelperText, ListItemIcon, ListItemText } from '@mui/material';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
@@ -38,10 +38,11 @@ interface MultipleSelectChipProps {
     selected: string[];
     setSelected: (v: string[]) => void;
     options: MultipleSelectChipOption[];
-    label: string;
+    label?: string;
     size?: 'small' | 'medium';
     sx?: SxProps;
     error?: boolean;
+    errorHelper?: string;
     'data-cy'?: string;
 }
 
@@ -53,6 +54,7 @@ export default function MultipleSelectChip({
     size,
     sx,
     error,
+    errorHelper,
     ...others
 }: MultipleSelectChipProps) {
     const theme = useTheme();
@@ -68,8 +70,8 @@ export default function MultipleSelectChip({
     };
 
     return (
-        <FormControl {...others} sx={sx} error={error}>
-            <InputLabel>{label}</InputLabel>
+        <FormControl {...others} sx={sx} error={error || Boolean(errorHelper)}>
+            {label && <InputLabel>{label}</InputLabel>}
             <Select
                 multiple
                 value={selected}
@@ -99,6 +101,7 @@ export default function MultipleSelectChip({
                     </MenuItem>
                 ))}
             </Select>
+            {errorHelper && <FormHelperText>{errorHelper}</FormHelperText>}
         </FormControl>
     );
 }

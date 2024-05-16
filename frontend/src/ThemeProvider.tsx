@@ -33,17 +33,45 @@ declare module '@mui/material' {
     interface ChipPropsColorOverrides {
         opening: true;
         endgame: true;
+        dojoOrange: true;
+        subscribe: true;
+        coaching: true;
+        liga: true;
+        book: true;
+        meet: true;
     }
 
     interface CheckboxPropsColorOverrides {
         opening: true;
         endgame: true;
+        dojoOrange: true;
+        subscribe: true;
         coaching: true;
+        liga: true;
+        book: true;
+        meet: true;
     }
 
     interface ButtonPropsColorOverrides {
+        opening: true;
+        endgame: true;
         dojoOrange: true;
         subscribe: true;
+        coaching: true;
+        liga: true;
+        book: true;
+        meet: true;
+    }
+
+    interface SvgIconPropsColorOverrides {
+        opening: true;
+        endgame: true;
+        dojoOrange: true;
+        subscribe: true;
+        coaching: true;
+        liga: true;
+        book: true;
+        meet: true;
     }
 }
 

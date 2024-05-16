@@ -33,12 +33,17 @@ import {
     displayTimeControlType,
     getDisplayString,
 } from '../../database/event';
-import { TimeFormat, ALL_COHORTS, compareCohorts, dojoCohorts} from '../../database/user';
+import {
+    ALL_COHORTS,
+    TimeFormat,
+    compareCohorts,
+    dojoCohorts,
+} from '../../database/user';
+import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import MultipleSelectChip, { MultipleSelectChipOption }from '../../newsfeed/list/MultipleSelectChip';
-import { RequirementCalenderCategory } from '../../database/requirement';
 import Icon from '../../style/Icon';
 import TimezoneFilter from './TimezoneFilter';
+
 export const DefaultTimezone = 'DEFAULT';
 
 export const Accordion = styled((props: AccordionProps) => (
@@ -83,22 +88,6 @@ export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     padding: 0,
     paddingLeft: theme.spacing(1),
 }));
-
-const initialFilterTypes = Object.values(AvailabilityType).reduce(
-    (map, type) => {
-        map[type] = false;
-        return map;
-    },
-    {} as Record<AvailabilityType, boolean>,
-);
-
-const initialFilterCohorts = dojoCohorts.reduce(
-    (map, cohort) => {
-        map[cohort] = false;
-        return map;
-    },
-    {} as Record<string, boolean>,
-);
 
 const initialFilterTournamentTypes = Object.values(TournamentType).reduce(
     (map, type) => {
@@ -149,14 +138,8 @@ export interface Filters {
     dojoEvents: boolean;
     setDojoEvents: (v: boolean) => void;
 
-    allTypes: boolean;
-    setAllTypes: (v: boolean) => void;
-
-    types: Record<AvailabilityType, boolean>;
-    setTypes: (v: Record<AvailabilityType, boolean>) => void;
-
-    allCohorts: boolean;
-    setAllCohorts: (v: boolean) => void;
+    types: AvailabilityType[];
+    setTypes: (v: AvailabilityType[]) => void;
 
     cohorts: string[];
     setCohorts: (v: string[]) => void;
@@ -206,20 +189,13 @@ export function useFilters(): Filters {
         true,
     );
 
-    const [allTypes, setAllTypes] = useLocalStorage('calendarFilters.allTypes', true);
-    const [types, setTypes] = useLocalStorage(
-        'calendarFilters.types',
-        initialFilterTypes,
-    );
+    const [types, setTypes] = useLocalStorage('calendarFilters.types.2', [
+        AvailabilityType.AllTypes,
+    ]);
 
-    const [allCohorts, setAllCohorts] = useLocalStorage(
-        'calendarFilters.allCohorts',
-        true,
-    );
-    const [cohorts, setCohorts] = useLocalStorage(
-        'calendarFilters.cohorts',
-        initialFilterCohorts,
-    );
+    const [cohorts, setCohorts] = useLocalStorage('calendarFilters.cohorts.2', [
+        ALL_COHORTS,
+    ]);
 
     const [tournamentTypes, setTournamentTypes] = useLocalStorage(
         'calendarFilters.tournamentTypes',
@@ -256,12 +232,8 @@ export function useFilters(): Filters {
             setMeetings,
             dojoEvents,
             setDojoEvents,
-            allTypes,
-            setAllTypes,
             types,
             setTypes,
-            allCohorts,
-            setAllCohorts,
             cohorts,
             setCohorts,
             tournamentTypes,
@@ -290,12 +262,8 @@ export function useFilters(): Filters {
             setMeetings,
             dojoEvents,
             setDojoEvents,
-            allTypes,
-            setAllTypes,
             types,
             setTypes,
-            allCohorts,
-            setAllCohorts,
             cohorts,
             setCohorts,
             tournamentTypes,
@@ -343,24 +311,11 @@ interface CalendarFiltersProps {
     filters: Filters;
 }
 
-const requirementCalendarOptions: MultipleSelectChipOption[] = Object.values(RequirementCalenderCategory).map((category) => ({
-    value: category,
-    label: category,
-    icon: <Icon name={category} color='primary' />,
-}));
-
-function getRequirementCalendarCategoryValues(): string[] {
-    return Object.values(RequirementCalenderCategory);
-}
-
 export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => {
     const auth = useAuth();
-    const user = useAuth().user;
     const [expanded, setExpanded] = useState<string | boolean>(false);
     const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
-    const [cohorts, setCohorts] = useState([user?.dojoCohort || ALL_COHORTS]);
-    const [meet, setMeet] = useState<string[]>([]);
-    
+
     const { events } = useEvents();
     const filterTime = new Date(new Date().getTime()).toISOString();
     const meetingCount = events.filter((e: Event) => {
@@ -377,33 +332,28 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
     }).length;
 
     const handleChange =
-        (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+        (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
             if (!forceExpansion) {
                 setExpanded(newExpanded ? panel : false);
             }
         };
 
-    const onMeetChange = (v: string[]) => {
-        const vals = getRequirementCalendarCategoryValues();
-        setMeet(vals);
-    }    
+    const onChangeType = (newTypes: string[]) => {
+        const addedTypes = newTypes.filter(
+            (t) => !filters.types.includes(t as AvailabilityType),
+        );
+        let finalTypes = [];
+        if (addedTypes.includes(AvailabilityType.AllTypes)) {
+            finalTypes = [AvailabilityType.AllTypes];
+        } else {
+            finalTypes = newTypes.filter((t) => t !== AvailabilityType.AllTypes);
+        }
 
-    const onChangeType = (type: AvailabilityType, value: boolean) => {
-        filters.setTypes({
-            ...filters.types,
-            [type]: value,
-        });
+        filters.setTypes(finalTypes as AvailabilityType[]);
     };
 
-    // const onChangeCohort = (cohort: string, value: boolean) => {
-    //     filters.setCohorts({
-    //         ...filters.cohorts,
-    //         [cohort]: value,
-    //     });
-    // };
-
     const onChangeCohort = (newCohorts: string[]) => {
-        const addedCohorts = newCohorts.filter((c) => !cohorts.includes(c));
+        const addedCohorts = newCohorts.filter((c) => !filters.cohorts.includes(c));
         let finalCohorts = [];
         if (addedCohorts.includes(ALL_COHORTS)) {
             finalCohorts = [ALL_COHORTS];
@@ -413,10 +363,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                 .sort(compareCohorts);
         }
 
-        setCohorts(finalCohorts);
-        filters.setCohorts(
-            finalCohorts
-        )
+        filters.setCohorts(finalCohorts);
     };
 
     const onChangeTournamentTimeControls = (type: TimeControlType, value: boolean) => {
@@ -430,10 +377,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         filters.setAvailabilities(true);
         filters.setMeetings(true);
         filters.setDojoEvents(true);
-        filters.setAllTypes(true);
-        filters.setTypes(initialFilterTypes);
-        filters.setAllCohorts(true);
-        filters.setCohorts(dojoCohorts);
+        filters.setTypes([AvailabilityType.AllTypes]);
+        filters.setCohorts([ALL_COHORTS]);
         filters.setTournamentTypes(initialFilterTournamentTypes);
         filters.setTournamentTimeControls(initialFilterTournamentTimeControls);
         filters.setTournamentPositions(initialFilterTournamentPositions);
@@ -446,13 +391,13 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
             sx={{ pt: 0.5, pb: 2 }}
             spacing={{ xs: 3, sm: 4 }}
         >
-            <TimezoneFilter filters={filters} />
-
             {meetingCount > 0 && (
                 <Link component={RouterLink} to='/meeting'>
                     View {meetingCount} upcoming meeting{meetingCount !== 1 ? 's' : ''}
                 </Link>
             )}
+
+            <TimezoneFilter filters={filters} />
 
             <Button
                 variant='outlined'
@@ -495,10 +440,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     color='info'
                                 />
                             }
-                            //label='Availabilities'
                             label={
                                 <>
-                                    {' '}
                                     <Icon
                                         name='avilb'
                                         color='inherit'
@@ -522,10 +465,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     color='meet'
                                 />
                             }
-                            //label='Meetings'
                             label={
                                 <>
-                                    {' '}
                                     <Icon
                                         name='meet'
                                         color='inherit'
@@ -573,10 +514,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 color='dojoOrange'
                             />
                         }
-                        //label='Dojo Events'
                         label={
                             <>
-                                {' '}
                                 <Icon
                                     name='Dojo Events'
                                     color='inherit'
@@ -600,10 +539,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 color='coaching'
                             />
                         }
-                        //label='Coaching Sessions'
                         label={
                             <>
-                                {' '}
                                 <Icon
                                     name='Coaching Sessions'
                                     color='inherit'
@@ -661,7 +598,6 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     }
                                     label={
                                         <>
-                                            {' '}
                                             <Icon
                                                 name={displayTimeControlType(type)}
                                                 color='inherit'
@@ -678,118 +614,41 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             ))}
                         </Stack>
                     </Tooltip>
-                    <Stack pt={2} spacing={3}>
-                    <Typography variant='h6' color='text.secondary'>
+                    <Stack pt={2} spacing={0.5}>
+                        <Typography variant='h6' color='text.secondary'>
                             <Icon
                                 name='meet'
-                                color='inherit'
+                                color='book'
                                 sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
                                 fontSize='medium'
                             />
-                            Meetings
+                            Bookable Meetings
                         </Typography>
                         <MultipleSelectChip
-                            selected={meet}
-                            setSelected={onMeetChange}
-                            options={requirementCalendarOptions}
-                            label="Meetings"
-                            size="small" // or 'small'
-                            error={false}
-                            // Add other props as needed
+                            selected={filters.types}
+                            setSelected={onChangeType}
+                            options={Object.values(AvailabilityType).map((t) => ({
+                                value: t,
+                                label: getDisplayString(t),
+                                icon: <Icon name={t} />,
+                            }))}
+                            size='small'
                         />
                     </Stack>
 
-                    {/* <Stack pt={2}>
+                    <Stack mt={3} spacing={0.5}>
                         <Typography variant='h6' color='text.secondary'>
                             <Icon
-                                name='meet'
-                                color='inherit'
+                                name='cohort'
+                                color='book'
                                 sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
                                 fontSize='medium'
                             />
-                            Meetings
+                            Cohorts
                         </Typography>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.allTypes}
-                                    onChange={(event) =>
-                                        filters.setAllTypes(event.target.checked)
-                                    }
-                                    sx={{
-                                        color: 'meet.main',
-                                        '&.Mui-checked': {
-                                            color: 'meet.main',
-                                        },
-                                    }}
-                                />
-                            }
-                            label={
-                                <>
-                                    {' '}
-                                    <Icon
-                                        name='all'
-                                        color='inherit'
-                                        sx={{
-                                            marginRight: '0.4rem',
-                                            verticalAlign: 'middle',
-                                        }}
-                                        fontSize='medium'
-                                    />
-                                    All Types
-                                </>
-                            }
-                        />
-                        {Object.values(AvailabilityType).map((type) => (
-                            <FormControlLabel
-                                key={type}
-                                control={
-                                    <Checkbox
-                                        checked={filters.allTypes || filters.types[type]}
-                                        onChange={(event) =>
-                                            onChangeType(type, event.target.checked)
-                                        }
-                                        sx={{
-                                            color: 'error.dark',
-                                            '&.Mui-checked:not(.Mui-disabled)': {
-                                                color: 'error.dark',
-                                            },
-                                        }}
-                                    />
-                                }
-                                disabled={filters.allTypes}
-                                //label={getDisplayString(type)}
-                                label={
-                                    <>
-                                        {' '}
-                                        <Icon
-                                            name={getDisplayString(type)}
-                                            color='inherit'
-                                            sx={{
-                                                marginRight: '0.4rem',
-                                                verticalAlign: 'middle',
-                                            }}
-                                            fontSize='medium'
-                                        />
-                                        {getDisplayString(type)}
-                                    </>
-                                }
-                            />
-                        ))}
-                    </Stack> */}
-                    <Stack mt={3} spacing={3}>
-                        <Typography variant='h6' color='text.secondary'>
-                                <Icon
-                                    name='cohort'
-                                    color='inherit'
-                                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                                    fontSize='medium'
-                                />
-                                Cohorts
-                            </Typography>
                         <MultipleSelectChip
                             data-cy='cohort-selector'
-                            selected={cohorts}
+                            selected={filters.cohorts}
                             setSelected={onChangeCohort}
                             options={[ALL_COHORTS, ...dojoCohorts].map((opt) => ({
                                 value: opt,
@@ -804,87 +663,10 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     />
                                 ),
                             }))}
-                            label='Cohorts'
                             sx={{ mb: 3, width: 1 }}
                             size='small'
-                            error={cohorts.length === 0}
                         />
-                 </Stack>
-                    {/* <Stack pt={2}>
-                        <Typography variant='h6' color='text.secondary'>
-                            <Icon
-                                name='cohort'
-                                color='inherit'
-                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                                fontSize='medium'
-                            />
-                            Cohorts
-                        </Typography>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.allCohorts}
-                                    onChange={(event) =>
-                                        filters.setAllCohorts(event.target.checked)
-                                    }
-                                    sx={{
-                                        color: 'error.dark',
-                                        '&.Mui-checked:not(.Mui-disabled)': {
-                                            color: 'error.dark',
-                                        },
-                                    }}
-                                />
-                            }
-                            label={
-                                <>
-                                    {' '}
-                                    <Icon
-                                        name='all'
-                                        color='inherit'
-                                        sx={{
-                                            marginRight: '0.4rem',
-                                            verticalAlign: 'middle',
-                                        }}
-                                        fontSize='medium'
-                                    />
-                                    All Cohorts
-                                </>
-                            }
-                        />
-                        {dojoCohorts.map((cohort) => (
-                            <FormControlLabel
-                                key={cohort}
-                                control={
-                                    <Checkbox
-                                        checked={
-                                            filters.allCohorts || filters.cohorts[cohort]
-                                        }
-                                        onChange={(event) =>
-                                            onChangeCohort(cohort, event.target.checked)
-                                        }
-                                        sx={{
-                                            color: 'error.dark',
-                                            '&.Mui-checked:not(.Mui-disabled)': {
-                                                color: 'error.dark',
-                                            },
-                                        }}
-                                    />
-                                }
-                                disabled={filters.allCohorts}
-                                label={
-                                    <>
-                                        {' '}
-                                        <CohortIcon
-                                            cohort={cohort}
-                                            size={25}
-                                            sx={{ verticalAlign: 'middle' }}
-                                        />{' '}
-                                        {cohort}{' '}
-                                    </>
-                                }
-                            />
-                        ))}
-                    </Stack> */}
+                    </Stack>
                 </AccordionDetails>
             </Accordion>
         </Stack>

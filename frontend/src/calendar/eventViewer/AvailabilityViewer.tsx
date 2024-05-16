@@ -2,12 +2,12 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Button, Stack } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { AvailabilityType, Event, getDisplayString } from '../../database/event';
 import { dojoCohorts } from '../../database/user';
 import Icon from '../../style/Icon';
 import Field from './Field';
 import OwnerField from './OwnerField';
+
 interface AvailabilityViewerProps {
     processedEvent: ProcessedEvent;
 }
@@ -28,7 +28,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
 
             {event.maxParticipants > 1 && (
                 <Field
-                    IconName='participant'
+                    iconName='participant'
                     title='Number of Participants'
                     body={`${Object.values(event.participants).length} / ${
                         event.maxParticipants
@@ -37,7 +37,7 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
             )}
 
             <Field
-                IconName='meet'
+                iconName='meet'
                 title='Available Types'
                 body={event.types
                     ?.map((t: AvailabilityType) => getDisplayString(t))
@@ -45,11 +45,11 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
             />
 
             {event.description.length > 0 && (
-                <Field title='Description' body={event.description} IconName='notes' />
+                <Field title='Description' body={event.description} iconName='notes' />
             )}
 
             <Field
-                IconName='cohort'
+                iconName='cohort'
                 title='Cohorts'
                 body={
                     dojoCohorts.length === event.cohorts.length

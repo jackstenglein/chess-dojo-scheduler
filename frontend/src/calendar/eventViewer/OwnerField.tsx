@@ -1,10 +1,10 @@
 import { Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-
 import { Event } from '../../database/event';
 import Avatar from '../../profile/Avatar';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
+
 interface OwnerFieldProps {
     title: string;
     event: Event;
