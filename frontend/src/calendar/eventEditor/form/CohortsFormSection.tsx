@@ -42,7 +42,7 @@ const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
     };
 
     return (
-        <Stack>
+        <Stack data-cy='cohort-section'>
             <Typography variant='h6'>
                 <Icon
                     name='cohort'
@@ -74,6 +74,7 @@ const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
                 }))}
                 sx={{ mb: 3, width: 1 }}
                 errorHelper={error}
+                data-cy='cohort-selector'
             />
         </Stack>
     );

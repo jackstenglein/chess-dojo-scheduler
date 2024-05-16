@@ -6,7 +6,7 @@ describe('Calendar Page', () => {
         cy.loginByCognitoApi(
             'calendar',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
         cy.clock(tournamentsClock);
 
@@ -69,9 +69,10 @@ describe('Calendar Page', () => {
         cy.get('.rs__event__item').should('have.length', 26);
 
         cy.getBySel('calendar-filters').contains('All Types').click();
+        cy.get('.MuiPopover-root').contains('All Types').click();
         cy.get('.rs__event__item').should('have.length', 24);
 
-        cy.getBySel('calendar-filters').contains('Classical Game').click();
+        cy.get('.MuiPopover-root').contains('Classical Game').click();
         cy.get('.rs__event__item').should('have.length', 26);
     });
 
@@ -79,9 +80,10 @@ describe('Calendar Page', () => {
         cy.get('.rs__event__item').should('have.length', 26);
 
         cy.getBySel('calendar-filters').contains('All Cohorts').click();
+        cy.get('.MuiPopover-root').contains('All Cohorts').click();
         cy.get('.rs__event__item').should('have.length', 24);
 
-        cy.getBySel('calendar-filters').contains('1500-1600').click();
+        cy.get('.MuiPopover-root').contains('1500-1600').click();
         cy.get('.rs__event__item').should('have.length', 26);
     });
 
@@ -125,7 +127,7 @@ describe('Calendar Page', () => {
         cy.contains('Ricardo Alves (1500-1600)').should(
             'have.attr',
             'href',
-            '/profile/c6f63283-044e-49db-b1ba-5b23556a0349'
+            '/profile/c6f63283-044e-49db-b1ba-5b23556a0349',
         );
         cy.getBySel('graduation-icon');
 

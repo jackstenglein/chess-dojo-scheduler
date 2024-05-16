@@ -63,7 +63,7 @@ export function validateAvailabilityEditor(
     }
 
     const selectedTypes: AvailabilityType[] = editor.allAvailabilityTypes
-        ? Object.values(AvailabilityType)
+        ? Object.values(AvailabilityTypes)
         : (Object.keys(editor.availabilityTypes).filter(
               (t) => editor.availabilityTypes[t as AvailabilityType],
           ) as AvailabilityType[]);
@@ -249,6 +249,7 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                         icon: <Icon name={t} color='primary' />,
                     }))}
                     errorHelper={errors.types}
+                    data-cy='availability-type-selector'
                 />
             </Stack>
 
