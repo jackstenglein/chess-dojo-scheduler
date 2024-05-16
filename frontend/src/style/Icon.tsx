@@ -70,6 +70,7 @@ export const icons: Record<string, typeof WavingHand> = {
     liga: MilitaryTech,
     meet: Event,
     all: AllInclusiveRounded,
+    'All Types': AllInclusiveRounded,
     Blitz: Whatshot,
     Rapid: FlashOn,
     Classical: PunchClock,

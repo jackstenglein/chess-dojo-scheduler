@@ -33,8 +33,10 @@ import {
     displayTimeControlType,
     getDisplayString,
 } from '../../database/event';
-import { TimeFormat, dojoCohorts } from '../../database/user';
+import { TimeFormat, ALL_COHORTS, compareCohorts, dojoCohorts} from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
+import MultipleSelectChip, { MultipleSelectChipOption }from '../../newsfeed/list/MultipleSelectChip';
+import { RequirementCalenderCategory } from '../../database/requirement';
 import Icon from '../../style/Icon';
 import TimezoneFilter from './TimezoneFilter';
 export const DefaultTimezone = 'DEFAULT';
@@ -156,8 +158,8 @@ export interface Filters {
     allCohorts: boolean;
     setAllCohorts: (v: boolean) => void;
 
-    cohorts: Record<string, boolean>;
-    setCohorts: (v: Record<string, boolean>) => void;
+    cohorts: string[];
+    setCohorts: (v: string[]) => void;
 
     tournamentTypes: Record<TournamentType, boolean>;
     setTournamentTypes: (v: Record<TournamentType, boolean>) => void;
@@ -341,11 +343,24 @@ interface CalendarFiltersProps {
     filters: Filters;
 }
 
+const requirementCalendarOptions: MultipleSelectChipOption[] = Object.values(RequirementCalenderCategory).map((category) => ({
+    value: category,
+    label: category,
+    icon: <Icon name={category} color='primary' />,
+}));
+
+function getRequirementCalendarCategoryValues(): string[] {
+    return Object.values(RequirementCalenderCategory);
+}
+
 export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => {
     const auth = useAuth();
+    const user = useAuth().user;
     const [expanded, setExpanded] = useState<string | boolean>(false);
     const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
-
+    const [cohorts, setCohorts] = useState([user?.dojoCohort || ALL_COHORTS]);
+    const [meet, setMeet] = useState<string[]>([]);
+    
     const { events } = useEvents();
     const filterTime = new Date(new Date().getTime()).toISOString();
     const meetingCount = events.filter((e: Event) => {
@@ -368,6 +383,11 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
             }
         };
 
+    const onMeetChange = (v: string[]) => {
+        const vals = getRequirementCalendarCategoryValues();
+        setMeet(vals);
+    }    
+
     const onChangeType = (type: AvailabilityType, value: boolean) => {
         filters.setTypes({
             ...filters.types,
@@ -375,11 +395,28 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         });
     };
 
-    const onChangeCohort = (cohort: string, value: boolean) => {
-        filters.setCohorts({
-            ...filters.cohorts,
-            [cohort]: value,
-        });
+    // const onChangeCohort = (cohort: string, value: boolean) => {
+    //     filters.setCohorts({
+    //         ...filters.cohorts,
+    //         [cohort]: value,
+    //     });
+    // };
+
+    const onChangeCohort = (newCohorts: string[]) => {
+        const addedCohorts = newCohorts.filter((c) => !cohorts.includes(c));
+        let finalCohorts = [];
+        if (addedCohorts.includes(ALL_COHORTS)) {
+            finalCohorts = [ALL_COHORTS];
+        } else {
+            finalCohorts = newCohorts
+                .filter((c) => c !== ALL_COHORTS)
+                .sort(compareCohorts);
+        }
+
+        setCohorts(finalCohorts);
+        filters.setCohorts(
+            finalCohorts
+        )
     };
 
     const onChangeTournamentTimeControls = (type: TimeControlType, value: boolean) => {
@@ -396,7 +433,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         filters.setAllTypes(true);
         filters.setTypes(initialFilterTypes);
         filters.setAllCohorts(true);
-        filters.setCohorts(initialFilterCohorts);
+        filters.setCohorts(dojoCohorts);
         filters.setTournamentTypes(initialFilterTournamentTypes);
         filters.setTournamentTimeControls(initialFilterTournamentTimeControls);
         filters.setTournamentPositions(initialFilterTournamentPositions);
@@ -641,8 +678,28 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             ))}
                         </Stack>
                     </Tooltip>
+                    <Stack pt={2} spacing={3}>
+                    <Typography variant='h6' color='text.secondary'>
+                            <Icon
+                                name='meet'
+                                color='inherit'
+                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                                fontSize='medium'
+                            />
+                            Meetings
+                        </Typography>
+                        <MultipleSelectChip
+                            selected={meet}
+                            setSelected={onMeetChange}
+                            options={requirementCalendarOptions}
+                            label="Meetings"
+                            size="small" // or 'small'
+                            error={false}
+                            // Add other props as needed
+                        />
+                    </Stack>
 
-                    <Stack pt={2}>
+                    {/* <Stack pt={2}>
                         <Typography variant='h6' color='text.secondary'>
                             <Icon
                                 name='meet'
@@ -659,7 +716,6 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     onChange={(event) =>
                                         filters.setAllTypes(event.target.checked)
                                     }
-                                    
                                     sx={{
                                         color: 'meet.main',
                                         '&.Mui-checked': {
@@ -720,8 +776,41 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 }
                             />
                         ))}
-                    </Stack>
-                    <Stack pt={2}>
+                    </Stack> */}
+                    <Stack mt={3} spacing={3}>
+                        <Typography variant='h6' color='text.secondary'>
+                                <Icon
+                                    name='cohort'
+                                    color='inherit'
+                                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                                    fontSize='medium'
+                                />
+                                Cohorts
+                            </Typography>
+                        <MultipleSelectChip
+                            data-cy='cohort-selector'
+                            selected={cohorts}
+                            setSelected={onChangeCohort}
+                            options={[ALL_COHORTS, ...dojoCohorts].map((opt) => ({
+                                value: opt,
+                                label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
+                                icon: (
+                                    <CohortIcon
+                                        cohort={opt}
+                                        size={25}
+                                        sx={{ marginRight: '0.6rem' }}
+                                        tooltip=''
+                                        color='primary'
+                                    />
+                                ),
+                            }))}
+                            label='Cohorts'
+                            sx={{ mb: 3, width: 1 }}
+                            size='small'
+                            error={cohorts.length === 0}
+                        />
+                 </Stack>
+                    {/* <Stack pt={2}>
                         <Typography variant='h6' color='text.secondary'>
                             <Icon
                                 name='cohort'
@@ -795,7 +884,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 }
                             />
                         ))}
-                    </Stack>
+                    </Stack> */}
                 </AccordionDetails>
             </Accordion>
         </Stack>
