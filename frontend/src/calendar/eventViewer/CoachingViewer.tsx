@@ -111,7 +111,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                     variant='contained'
                     onClick={() => navigate(`/meeting/${event.id}`)}
                     color='success'
-                    startIcon={<Icon name='eye' color='inherit' />}
+                    startIcon={<Icon name='eye' />}
                 >
                     View Details
                 </Button>
@@ -123,7 +123,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                         loading={request.isLoading()}
                         onClick={onBook}
                         color='success'
-                        startIcon={<Icon name='join' color='inherit' />}
+                        startIcon={<Icon name='join' />}
                     >
                         Book
                     </LoadingButton>

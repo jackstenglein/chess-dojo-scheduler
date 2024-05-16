@@ -176,7 +176,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                         color='error'
                         onClick={() => navigate('/calendar')}
                         disabled={request.status === RequestStatus.Loading}
-                        startIcon={<Icon name='cancel' color='inherit' />}
+                        startIcon={<Icon name='cancel' />}
                     >
                         Cancel
                     </Button>
@@ -185,7 +185,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                         color='success'
                         loading={request.status === RequestStatus.Loading}
                         onClick={confirmBooking}
-                        startIcon={<Icon name='join' color='inherit' />}
+                        startIcon={<Icon name='join' />}
                     >
                         {isGroup ? 'Join' : 'Book'}
                     </LoadingButton>

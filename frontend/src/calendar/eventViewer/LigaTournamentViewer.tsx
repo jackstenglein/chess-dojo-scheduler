@@ -5,7 +5,7 @@ import Board from '../../board/Board';
 import { LigaTournament, displayTournamentType } from '../../database/event';
 import Icon from '../../style/Icon';
 
-function getLigaIconBasedOnTimeControl(timeControl: number): string {
+function getLigaIconBasedOnTimeControl(timeControl: number) {
     const tc = timeControl / 60;
 
     if (tc >= 3 && tc <= 9) {
@@ -16,7 +16,7 @@ function getLigaIconBasedOnTimeControl(timeControl: number): string {
         return 'Classical';
     }
 
-    return 'error';
+    return '';
 }
 
 interface LigaTournamentViewerProps {

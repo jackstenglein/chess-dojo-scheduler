@@ -133,12 +133,8 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                         color='error'
                         onClick={scheduler.close}
                         disabled={request.isLoading()}
+                        startIcon={<Icon name='cancel' />}
                     >
-                        <Icon
-                            name='cancel'
-                            color='error'
-                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                        />
                         Cancel
                     </Button>
                     <LoadingButton
@@ -146,12 +142,8 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                         color='success'
                         loading={request.isLoading()}
                         onClick={onSubmit}
+                        startIcon={<Icon name='save' />}
                     >
-                        <Icon
-                            name='save'
-                            color='success'
-                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                        />
                         Save
                     </LoadingButton>
                 </Toolbar>

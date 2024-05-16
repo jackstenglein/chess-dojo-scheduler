@@ -87,7 +87,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                         color='error'
                         onClick={() => navigate('/calendar')}
                         disabled={request.status === RequestStatus.Loading}
-                        startIcon={<Icon name='cancel' color='inherit' />}
+                        startIcon={<Icon name='cancel' />}
                     >
                         Cancel
                     </Button>
@@ -97,7 +97,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                         disabled={isParticipant}
                         loading={request.status === RequestStatus.Loading}
                         onClick={onBook}
-                        startIcon={<Icon name='join' color='inherit' />}
+                        startIcon={<Icon name='join' />}
                     >
                         Book
                     </LoadingButton>

@@ -65,7 +65,6 @@ function processAvailability(
             deletable: false,
             draggable: false,
             event,
-            sx: { fontWeight: 'bold', fontFamily: 'Times New Roman' },
         };
     }
 
@@ -88,7 +87,6 @@ function processAvailability(
             editable: true,
             deletable: true,
             event,
-            sx: { fontWeight: 'bold', fontFamily: 'Times New Roman' },
         };
     }
 
@@ -133,7 +131,6 @@ function processAvailability(
         draggable: false,
         isOwner: false,
         event,
-        sx: { fontWeight: 'bold', fontFamily: 'Times New Roman' },
     };
 }
 
@@ -168,7 +165,6 @@ function processDojoEvent(
         draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
-        sx: { fontWeight: 'bold', fontFamily: 'Times New Roman' },
     };
 }
 
@@ -201,7 +197,6 @@ function processLigaTournament(
         draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
-        sx: { fontWeight: 'bold', fontFamily: 'Times New Roman' },
     };
 }
 
@@ -248,7 +243,6 @@ export function processCoachingEvent(
         draggable: isOwner,
         isOwner,
         event,
-        sx: { fontWeight: 'bold', fontFamily: 'Times New Roman' },
     };
 }
 
