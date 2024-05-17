@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 
 import react from '@vitejs/plugin-react';
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig(() => {
     return {
@@ -15,7 +16,7 @@ export default defineConfig(() => {
             // https://github.com/aws-amplify/amplify-js/issues/11175
             global: {},
         },
-        plugins: [react()],
+        plugins: [react(), svgr()],
         test: {
             environment: 'happy-dom',
             include: ['./src/**/*.test.ts', './src/**/*.test.tsx'],

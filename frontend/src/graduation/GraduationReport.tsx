@@ -1,23 +1,20 @@
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
 
-import { useRef } from 'react';
+import { Fragment, useRef } from 'react';
 import { Graduation } from '../database/graduation';
 import { RatingSystem, formatRatingSystem } from '../database/user';
 
 import { Button } from '@mui/base';
-import { toJpeg } from 'html-to-image';
+import { toPng } from 'html-to-image';
+import { cohortIcons } from '../scoreboard/CohortIcon';
 
 const ratingLogos: Record<string, React.ReactNode> = {
     [RatingSystem.Chesscom]: <SiChessdotcom />,
     [RatingSystem.Lichess]: <SiLichess />,
 };
-
-function getCohortIcon(band: string) {
-    return `https://chess-dojo-images.s3.amazonaws.com/icons/v3/${band}.png`;
-}
 
 interface StatsBreakdownProps {
     graduation: Graduation;
@@ -44,17 +41,11 @@ const StatsBreakdown: React.FC<StatsBreakdownProps> = ({ graduation }) => {
             columnGap='0.50rem'
         >
             {Object.entries(stats).map(([system, stat]) => (
-                <>
-                    <div
-                        style={{ display: 'flex', alignItems: 'center' }}
-                        key={`logo-${system}`}
-                    >
+                <Fragment key={system}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                         {ratingLogos[system] ?? ''}
                     </div>
-                    <div
-                        style={{ display: 'flex', alignItems: 'center' }}
-                        key={`system-${system}`}
-                    >
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Typography>{formatRatingSystem(system)}</Typography>
                     </div>
                     <Typography
@@ -70,7 +61,7 @@ const StatsBreakdown: React.FC<StatsBreakdownProps> = ({ graduation }) => {
                         />
                         {stat.value}
                     </Typography>
-                </>
+                </Fragment>
             ))}
         </Box>
     );
@@ -85,31 +76,46 @@ const GraduationReport: React.FC<GraduationReportProps> = ({ graduation }) => {
     const header = `Welcome to ${newCohort} cohort!`;
     const reportRef = useRef<HTMLElement>();
 
-    const onExport = () => {
-        const node = reportRef?.current;
+    const theme = useTheme();
+    // TODO: Before merge, only access the darkmode pallette
+    const backgroundColor = theme.palette.background.default;
+
+    const onDownload = () => {
+        const node = reportRef.current;
         if (!node) {
             return;
         }
-        console.log(node);
 
-        toJpeg(node, { cacheBust: true })
+        // There are potentials CORS issues with AWS
+        // https://github.com/bubkoo/html-to-image/issues/40
+        // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
+        // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
+
+        // TODO before merge, higher resolution, 1080x566 would e ideal for 16/9.
+        //      setting width/height here does not expand the element. We may need to
+        //      manually increase the resolution.
+        toPng(node, {
+            backgroundColor,
+            width: 1080,
+            height: 566,
+            cacheBust: true,
+        })
             .then((dataUrl) => {
-                console.log(dataUrl);
-                /*var img = new Image();
-                img.src = dataUrl;
-                document.body.appendChild(img);*/
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `graduation-${newCohort}.png`;
+                link.click();
             })
             .catch((error) => {
-                // If this is happening unexpectedly, maybe related to this:
-                // https://github.com/tsayen/dom-to-image/issues/243
                 console.error('error :-(', error.type);
             });
     };
 
     return (
         <>
-            <Button onClick={onExport}>Export</Button>
+            <Button onClick={onDownload}>Download</Button>
             <Box
+                id={`graduation-report-${Date.parse(graduation.createdAt)}`}
                 ref={reportRef}
                 display='grid'
                 gap='0.75rem'
@@ -133,7 +139,7 @@ const GraduationReport: React.FC<GraduationReportProps> = ({ graduation }) => {
                         maxHeight: '100%',
                     }}
                     gridArea='newCohortImage'
-                    src={getCohortIcon(newCohort)}
+                    src={cohortIcons[newCohort]}
                 />
                 <Typography
                     gridArea='newCohortBand'
