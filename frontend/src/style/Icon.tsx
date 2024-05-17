@@ -38,14 +38,14 @@ import {
     WavingHand,
     Whatshot,
     Leaderboard,
-    Castle,
     Alarm,
     GridView,
     DashboardCustomize,
     CalendarMonth,
-    Anchor,
     Info,
-    Stadium
+    Stadium,
+    LocalHospital
+
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -111,8 +111,8 @@ export const icons = {
     join: Login,
     notes: Notes,
     participant: PersonOutline,
-    Swiss: Stadium,
-    Arena: Castle,
+    Swiss: LocalHospital,
+    Arena: Stadium,
     tc: Alarm,
     Standard: GridView,
     Custom: DashboardCustomize,
