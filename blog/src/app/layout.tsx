@@ -2,7 +2,9 @@ import theme from '@/theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import type { Metadata } from 'next';
+import { AuthProvider } from './auth/Auth';
 import './globals.css';
+import Navbar from './navbar/Navbar';
 
 export const metadata: Metadata = {
     title: 'ChessDojo Blog',
@@ -21,7 +23,10 @@ export default function RootLayout({
                 <AppRouterCacheProvider>
                     <ThemeProvider theme={theme}>
                         <CssBaseline enableColorScheme />
-                        {children}
+                        <AuthProvider>
+                            <Navbar />
+                            {children}
+                        </AuthProvider>
                     </ThemeProvider>
                 </AppRouterCacheProvider>
             </body>

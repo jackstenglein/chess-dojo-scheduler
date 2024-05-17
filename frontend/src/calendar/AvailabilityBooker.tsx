@@ -30,6 +30,7 @@ import { AvailabilityType, Event, getDisplayString } from '../database/event';
 import { TimeFormat } from '../database/user';
 import Avatar from '../profile/Avatar';
 import CohortIcon from '../scoreboard/CohortIcon';
+import Icon from '../style/Icon';
 import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from './displayDate';
 import Field from './eventViewer/Field';
 import OwnerField from './eventViewer/OwnerField';
@@ -172,17 +173,19 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                     </Typography>
                     <Button
                         data-cy='cancel-button'
-                        color='inherit'
+                        color='error'
                         onClick={() => navigate('/calendar')}
                         disabled={request.status === RequestStatus.Loading}
+                        startIcon={<Icon name='cancel' />}
                     >
                         Cancel
                     </Button>
                     <LoadingButton
                         data-cy='book-button'
-                        color='inherit'
+                        color='success'
                         loading={request.status === RequestStatus.Loading}
                         onClick={confirmBooking}
+                        startIcon={<Icon name='join' />}
                     >
                         {isGroup ? 'Join' : 'Book'}
                     </LoadingButton>
@@ -191,15 +194,29 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
             <DialogContent>
                 <Stack sx={{ pt: 2 }} spacing={3}>
                     <Field
+                        iconName='clock'
                         title={isGroup ? 'Time' : 'Available Start Times'}
                         body={`${minStartDate} ${minStartStr} - ${maxStartStr}`}
                     />
                     <OwnerField title='Owner' event={availability} />
-                    <Field title='Location' body={availability.location || 'Discord'} />
+
+                    <Field
+                        title='Location'
+                        body={availability.location || 'Discord'}
+                        iconName='location'
+                    />
 
                     {availability.description && (
                         <Stack>
-                            <Typography variant='subtitle2' color='text.secondary'>
+                            <Typography variant='h6' color='text.secondary'>
+                                <Icon
+                                    name='notes'
+                                    color='primary'
+                                    sx={{
+                                        marginRight: '0.5rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                />
                                 Description
                             </Typography>
                             <Typography
@@ -214,6 +231,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                     {isGroup && (
                         <>
                             <Field
+                                iconName='meet'
                                 title='Meeting Types'
                                 body={availability.types
                                     ?.map((t) => getDisplayString(t))
@@ -221,16 +239,27 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                             />
 
                             <Field
+                                iconName='cohort'
                                 title='Cohorts'
                                 body={availability.cohorts.join(', ')}
                             />
+
                             <Field
+                                iconName='line'
                                 title='Max Participants'
                                 body={`${availability.maxParticipants}`}
                             />
 
                             <Stack>
-                                <Typography variant='subtitle2' color='text.secondary'>
+                                <Typography variant='h6' color='text.secondary'>
+                                    <Icon
+                                        name='participant'
+                                        color='primary'
+                                        sx={{
+                                            marginRight: '0.5rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                    />
                                     Current Participants
                                 </Typography>
 

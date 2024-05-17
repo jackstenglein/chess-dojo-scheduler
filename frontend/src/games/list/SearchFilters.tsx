@@ -1,16 +1,15 @@
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { LoadingButton } from '@mui/lab';
 import {
-    Accordion as MuiAccordion,
-    AccordionDetails as MuiAccordionDetails,
     AccordionProps,
-    AccordionSummary as MuiAccordionSummary,
     AccordionSummaryProps,
     FormControl,
     Grid,
     InputLabel,
-    Link,
     MenuItem,
+    Accordion as MuiAccordion,
+    AccordionDetails as MuiAccordionDetails,
+    AccordionSummary as MuiAccordionSummary,
     Select,
     Stack,
     TextField,
@@ -28,7 +27,10 @@ import {
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { useAuth, useFreeTier } from '../../auth/Auth';
+import { RequirementCategory } from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
+import CohortIcon from '../../scoreboard/CohortIcon';
+import Icon from '../../style/Icon';
 import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (
@@ -101,6 +103,13 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                 >
                     {dojoCohorts.map((c) => (
                         <MenuItem key={c} value={c}>
+                            <CohortIcon
+                                cohort={c}
+                                size={35}
+                                sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
+                                tooltip=''
+                                color='primary'
+                            />
                             {c}
                         </MenuItem>
                     ))}
@@ -140,6 +149,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                 variant='outlined'
                 loading={isLoading}
                 onClick={onSearch}
+                startIcon={<Icon name='search' color='primary' />}
             >
                 Search
             </LoadingButton>
@@ -195,6 +205,7 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                 variant='outlined'
                 loading={isLoading}
                 onClick={onSearch}
+                startIcon={<Icon name='search' color='primary' />}
             >
                 Search
             </LoadingButton>
@@ -298,6 +309,7 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                 loading={isLoading}
                 onClick={handleSearch}
                 disabled={isFreeTier}
+                startIcon={<Icon name='search' color='primary' />}
             >
                 Search
             </LoadingButton>
@@ -348,6 +360,9 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
     return (
         <Stack data-cy='search-by-opening' spacing={2}>
             <FormControl>
+                <Typography gutterBottom>
+                    Find games based on opening ECO Codes
+                </Typography>
                 <TextField
                     data-cy='opening-eco'
                     value={eco}
@@ -391,6 +406,7 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                 variant='outlined'
                 loading={isLoading}
                 onClick={handleSearch}
+                startIcon={<Icon name='search' color='primary' />}
             >
                 Search
             </LoadingButton>
@@ -445,6 +461,7 @@ const SearchByPosition: React.FC<SearchByPositionProps> = ({
                 loading={isLoading}
                 onClick={handleSearch}
                 disabled={isFreeTier}
+                startIcon={<Icon name='search' color='primary' />}
             >
                 Search
             </LoadingButton>
@@ -458,13 +475,15 @@ const SearchByPosition: React.FC<SearchByPositionProps> = ({
                     Free-tier users are not able to search by position
                 </Typography>
             ) : (
-                <Link
+                <LoadingButton
                     component={RouterLink}
                     to={`/games/explorer?fen=${fen}`}
-                    sx={{ alignSelf: 'center' }}
+                    disabled={isLoading}
+                    variant='outlined'
+                    startIcon={<Icon name='explore' color='primary' />}
                 >
-                    View in Explorer
-                </Link>
+                    Position Explorer
+                </LoadingButton>
             )}
         </Stack>
     );
@@ -675,7 +694,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 onChange={onChangePanel(SearchType.Cohort)}
             >
                 <AccordionSummary>
-                    <Typography>Search By Cohort</Typography>
+                    <Icon name='cohort' color='primary' sx={{ marginRight: '0.6rem' }} />
+                    <Typography> Search By Cohort </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <SearchByCohort
@@ -696,6 +716,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 onChange={onChangePanel(SearchType.Player)}
             >
                 <AccordionSummary>
+                    <Icon name='player' color='primary' sx={{ marginRight: '0.6rem' }} />
                     <Typography>Search By Player</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -714,32 +735,16 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 </AccordionDetails>
             </Accordion>
             <Accordion
-                id='search-by-opening'
-                expanded={expanded === SearchType.Opening}
-                onChange={onChangePanel(SearchType.Opening)}
-            >
-                <AccordionSummary>
-                    <Typography>Search By ECO</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <SearchByOpening
-                        eco={editEco}
-                        setEco={setEditEco}
-                        startDate={editStartDate}
-                        setStartDate={setStartDate}
-                        endDate={editEndDate}
-                        setEndDate={setEndDate}
-                        isLoading={isLoading}
-                        onSearch={onSearchByOpening}
-                    />
-                </AccordionDetails>
-            </Accordion>
-            <Accordion
                 id='search-by-position'
                 expanded={expanded === SearchType.Position}
                 onChange={onChangePanel(SearchType.Position)}
             >
                 <AccordionSummary>
+                    <Icon
+                        name={RequirementCategory.Endgame}
+                        color='primary'
+                        sx={{ marginRight: '0.6rem' }}
+                    />
                     <Typography>Search By Position</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -756,10 +761,37 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 </AccordionDetails>
             </Accordion>
             <Accordion
+                id='search-by-opening'
+                expanded={expanded === SearchType.Opening}
+                onChange={onChangePanel(SearchType.Opening)}
+            >
+                <AccordionSummary>
+                    <Icon
+                        name={RequirementCategory.Opening}
+                        color='primary'
+                        sx={{ marginRight: '0.6rem' }}
+                    />
+                    <Typography>Search By Opening </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <SearchByOpening
+                        eco={editEco}
+                        setEco={setEditEco}
+                        startDate={editStartDate}
+                        setStartDate={setStartDate}
+                        endDate={editEndDate}
+                        setEndDate={setEndDate}
+                        isLoading={isLoading}
+                        onSearch={onSearchByOpening}
+                    />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion
                 expanded={expanded === SearchType.Owner}
                 onChange={onChangePanel(SearchType.Owner)}
             >
                 <AccordionSummary>
+                    <Icon name='upload' color='primary' sx={{ marginRight: '0.6rem' }} />
                     <Typography>Search My Uploads</Typography>
                 </AccordionSummary>
                 <AccordionDetails>

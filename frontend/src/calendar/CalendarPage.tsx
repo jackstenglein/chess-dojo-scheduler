@@ -4,13 +4,12 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Container, Grid, Snackbar, Stack } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-
 import { useApi } from '../api/Api';
-import { useEvents } from '../api/cache/Cache';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { useEvents } from '../api/cache/Cache';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import { Event, EventStatus, EventType } from '../database/event';
-import { SubscriptionStatus, TimeFormat, User } from '../database/user';
+import { AvailabilityType, Event, EventStatus, EventType } from '../database/event';
+import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '../database/user';
 import UpsellAlert from '../upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import CalendarTutorial from './CalendarTutorial';
@@ -60,6 +59,7 @@ function processAvailability(
             title,
             start: new Date(event.bookedStartTime || event.startTime),
             end: new Date(event.endTime),
+            color: 'meet.main',
             isOwner,
             editable,
             deletable: false,
@@ -81,6 +81,7 @@ function processAvailability(
             title: title,
             start: new Date(event.startTime),
             end: new Date(event.endTime),
+            color: 'info.main',
             draggable: true,
             isOwner: true,
             editable: true,
@@ -98,11 +99,19 @@ function processAvailability(
         return null;
     }
 
-    if (filters && !filters.allTypes && event.types?.every((t) => !filters.types[t])) {
+    if (
+        filters &&
+        filters.types[0] !== AvailabilityType.AllTypes &&
+        event.types?.every((t) => !filters.types.includes(t))
+    ) {
         return null;
     }
 
-    if (filters && !filters.allCohorts && !filters.cohorts[event.ownerCohort]) {
+    if (
+        filters &&
+        filters.cohorts[0] !== ALL_COHORTS &&
+        !filters.cohorts.includes(event.ownerCohort)
+    ) {
         return null;
     }
 
@@ -116,7 +125,7 @@ function processAvailability(
                 : `Bookable - ${event.ownerDisplayName}`,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'error.dark',
+        color: 'book.main',
         editable: false,
         deletable: false,
         draggable: false,
@@ -150,7 +159,7 @@ function processDojoEvent(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'success.main',
+        color: 'dojoOrange.main',
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
         draggable: user?.isAdmin || user?.isCalendarAdmin,
@@ -182,7 +191,7 @@ function processLigaTournament(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'warning.main',
+        color: 'liga.main',
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
         draggable: user?.isAdmin || user?.isCalendarAdmin,

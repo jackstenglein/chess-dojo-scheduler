@@ -54,6 +54,7 @@ import GroupMeetingPage from './meeting/GroupMeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
+import MerchPage from './merch/MerchPage';
 import Navbar from './navbar/Navbar';
 import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
 import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
@@ -238,10 +239,12 @@ const router = createBrowserRouter(
 
             {/* Legacy routes from Wix */}
             <Route path='books-by-rating' element={<BooksPage />} />
+            <Route path='books' element={<BooksPage />} />
             <Route path='recommendations' element={<BooksPage />} />
             <Route path='training' element={<Navigate to='/' replace />} />
             <Route path='home' element={<Navigate to='/' replace />} />
             <Route path='plans-pricing' element={<PricingPage />} />
+            <Route path='shop' element={<MerchPage />} />
 
             <Route path='*' element={<NotFoundPage />} />
         </Route>,

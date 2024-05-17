@@ -1,3 +1,5 @@
+import { DayHours } from '@aldabil/react-scheduler/types';
+import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import {
     Button,
@@ -15,26 +17,31 @@ import MuiAccordionSummary, {
     AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
+import { DateTime } from 'luxon';
 import React, { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
-import { DayHours } from '@aldabil/react-scheduler/types';
-import { WeekDays } from '@aldabil/react-scheduler/views/Month';
-import { DateTime } from 'luxon';
 import { useLocalStorage } from 'usehooks-ts';
 import { useEvents } from '../../api/cache/Cache';
 import { useAuth } from '../../auth/Auth';
 import {
     AvailabilityType,
-    displayTimeControlType,
     Event,
     EventStatus,
-    getDisplayString,
     PositionType,
     TimeControlType,
     TournamentType,
+    displayTimeControlType,
+    getDisplayString,
 } from '../../database/event';
-import { dojoCohorts, TimeFormat } from '../../database/user';
+import {
+    ALL_COHORTS,
+    TimeFormat,
+    compareCohorts,
+    dojoCohorts,
+} from '../../database/user';
+import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
+import CohortIcon from '../../scoreboard/CohortIcon';
+import Icon from '../../style/Icon';
 import TimezoneFilter from './TimezoneFilter';
 
 export const DefaultTimezone = 'DEFAULT';
@@ -81,22 +88,6 @@ export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     padding: 0,
     paddingLeft: theme.spacing(1),
 }));
-
-const initialFilterTypes = Object.values(AvailabilityType).reduce(
-    (map, type) => {
-        map[type] = false;
-        return map;
-    },
-    {} as Record<AvailabilityType, boolean>,
-);
-
-const initialFilterCohorts = dojoCohorts.reduce(
-    (map, cohort) => {
-        map[cohort] = false;
-        return map;
-    },
-    {} as Record<string, boolean>,
-);
 
 const initialFilterTournamentTypes = Object.values(TournamentType).reduce(
     (map, type) => {
@@ -147,17 +138,11 @@ export interface Filters {
     dojoEvents: boolean;
     setDojoEvents: (v: boolean) => void;
 
-    allTypes: boolean;
-    setAllTypes: (v: boolean) => void;
+    types: AvailabilityType[];
+    setTypes: (v: AvailabilityType[]) => void;
 
-    types: Record<AvailabilityType, boolean>;
-    setTypes: (v: Record<AvailabilityType, boolean>) => void;
-
-    allCohorts: boolean;
-    setAllCohorts: (v: boolean) => void;
-
-    cohorts: Record<string, boolean>;
-    setCohorts: (v: Record<string, boolean>) => void;
+    cohorts: string[];
+    setCohorts: (v: string[]) => void;
 
     tournamentTypes: Record<TournamentType, boolean>;
     setTournamentTypes: (v: Record<TournamentType, boolean>) => void;
@@ -204,20 +189,13 @@ export function useFilters(): Filters {
         true,
     );
 
-    const [allTypes, setAllTypes] = useLocalStorage('calendarFilters.allTypes', true);
-    const [types, setTypes] = useLocalStorage(
-        'calendarFilters.types',
-        initialFilterTypes,
-    );
+    const [types, setTypes] = useLocalStorage('calendarFilters.types.2', [
+        AvailabilityType.AllTypes,
+    ]);
 
-    const [allCohorts, setAllCohorts] = useLocalStorage(
-        'calendarFilters.allCohorts',
-        true,
-    );
-    const [cohorts, setCohorts] = useLocalStorage(
-        'calendarFilters.cohorts',
-        initialFilterCohorts,
-    );
+    const [cohorts, setCohorts] = useLocalStorage('calendarFilters.cohorts.2', [
+        ALL_COHORTS,
+    ]);
 
     const [tournamentTypes, setTournamentTypes] = useLocalStorage(
         'calendarFilters.tournamentTypes',
@@ -254,12 +232,8 @@ export function useFilters(): Filters {
             setMeetings,
             dojoEvents,
             setDojoEvents,
-            allTypes,
-            setAllTypes,
             types,
             setTypes,
-            allCohorts,
-            setAllCohorts,
             cohorts,
             setCohorts,
             tournamentTypes,
@@ -288,12 +262,8 @@ export function useFilters(): Filters {
             setMeetings,
             dojoEvents,
             setDojoEvents,
-            allTypes,
-            setAllTypes,
             types,
             setTypes,
-            allCohorts,
-            setAllCohorts,
             cohorts,
             setCohorts,
             tournamentTypes,
@@ -362,24 +332,38 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
     }).length;
 
     const handleChange =
-        (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+        (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
             if (!forceExpansion) {
                 setExpanded(newExpanded ? panel : false);
             }
         };
 
-    const onChangeType = (type: AvailabilityType, value: boolean) => {
-        filters.setTypes({
-            ...filters.types,
-            [type]: value,
-        });
+    const onChangeType = (newTypes: string[]) => {
+        const addedTypes = newTypes.filter(
+            (t) => !filters.types.includes(t as AvailabilityType),
+        );
+        let finalTypes = [];
+        if (addedTypes.includes(AvailabilityType.AllTypes)) {
+            finalTypes = [AvailabilityType.AllTypes];
+        } else {
+            finalTypes = newTypes.filter((t) => t !== AvailabilityType.AllTypes);
+        }
+
+        filters.setTypes(finalTypes as AvailabilityType[]);
     };
 
-    const onChangeCohort = (cohort: string, value: boolean) => {
-        filters.setCohorts({
-            ...filters.cohorts,
-            [cohort]: value,
-        });
+    const onChangeCohort = (newCohorts: string[]) => {
+        const addedCohorts = newCohorts.filter((c) => !filters.cohorts.includes(c));
+        let finalCohorts = [];
+        if (addedCohorts.includes(ALL_COHORTS)) {
+            finalCohorts = [ALL_COHORTS];
+        } else {
+            finalCohorts = newCohorts
+                .filter((c) => c !== ALL_COHORTS)
+                .sort(compareCohorts);
+        }
+
+        filters.setCohorts(finalCohorts);
     };
 
     const onChangeTournamentTimeControls = (type: TimeControlType, value: boolean) => {
@@ -393,10 +377,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         filters.setAvailabilities(true);
         filters.setMeetings(true);
         filters.setDojoEvents(true);
-        filters.setAllTypes(true);
-        filters.setTypes(initialFilterTypes);
-        filters.setAllCohorts(true);
-        filters.setCohorts(initialFilterCohorts);
+        filters.setTypes([AvailabilityType.AllTypes]);
+        filters.setCohorts([ALL_COHORTS]);
         filters.setTournamentTypes(initialFilterTournamentTypes);
         filters.setTournamentTimeControls(initialFilterTournamentTimeControls);
         filters.setTournamentPositions(initialFilterTournamentPositions);
@@ -409,15 +391,20 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
             sx={{ pt: 0.5, pb: 2 }}
             spacing={{ xs: 3, sm: 4 }}
         >
-            <TimezoneFilter filters={filters} />
-
             {meetingCount > 0 && (
                 <Link component={RouterLink} to='/meeting'>
                     View {meetingCount} upcoming meeting{meetingCount !== 1 ? 's' : ''}
                 </Link>
             )}
 
-            <Button variant='outlined' onClick={onReset} sx={{ alignSelf: 'start' }}>
+            <TimezoneFilter filters={filters} />
+
+            <Button
+                variant='outlined'
+                onClick={onReset}
+                sx={{ alignSelf: 'start' }}
+                startIcon={<Icon name='reset' />}
+            >
                 Reset Filters
             </Button>
 
@@ -432,6 +419,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     forceExpansion={forceExpansion}
                 >
                     <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name='eventCheck'
+                            color='inherit'
+                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            fontSize='medium'
+                        />
                         My Calendar
                     </Typography>
                 </AccordionSummary>
@@ -444,9 +437,23 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     onChange={(event) =>
                                         filters.setAvailabilities(event.target.checked)
                                     }
+                                    color='info'
                                 />
                             }
-                            label='Availabilities'
+                            label={
+                                <>
+                                    <Icon
+                                        name='avilb'
+                                        color='inherit'
+                                        sx={{
+                                            marginRight: '0.4rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                        fontSize='medium'
+                                    />
+                                    Availabilities
+                                </>
+                            }
                         />
                         <FormControlLabel
                             control={
@@ -455,9 +462,23 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                     onChange={(event) =>
                                         filters.setMeetings(event.target.checked)
                                     }
+                                    color='meet'
                                 />
                             }
-                            label='Meetings'
+                            label={
+                                <>
+                                    <Icon
+                                        name='meet'
+                                        color='inherit'
+                                        sx={{
+                                            marginRight: '0.4rem',
+                                            verticalAlign: 'middle',
+                                        }}
+                                        fontSize='medium'
+                                    />
+                                    Meetings
+                                </>
+                            }
                         />
                     </Stack>
                 </AccordionDetails>
@@ -473,6 +494,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     forceExpansion={forceExpansion}
                 >
                     <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name='eventCheck'
+                            color='inherit'
+                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            fontSize='medium'
+                        />
                         Dojo Calendar
                     </Typography>
                 </AccordionSummary>
@@ -484,10 +511,23 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 onChange={(event) =>
                                     filters.setDojoEvents(event.target.checked)
                                 }
-                                color='success'
+                                color='dojoOrange'
                             />
                         }
-                        label='Dojo Events'
+                        label={
+                            <>
+                                <Icon
+                                    name='Dojo Events'
+                                    color='inherit'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                />
+                                Dojo Events
+                            </>
+                        }
                     />
                     <FormControlLabel
                         control={
@@ -499,7 +539,20 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 color='coaching'
                             />
                         }
-                        label='Coaching Sessions'
+                        label={
+                            <>
+                                <Icon
+                                    name='Coaching Sessions'
+                                    color='inherit'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                />
+                                Coaching Sessions
+                            </>
+                        }
                     />
 
                     <Tooltip
@@ -511,7 +564,16 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                         }
                     >
                         <Stack pt={2}>
-                            <Typography variant='subtitle2' color='text.secondary'>
+                            <Typography variant='h6' color='text.secondary'>
+                                <Icon
+                                    name='liga'
+                                    color='inherit'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                />
                                 Tournaments
                             </Typography>
 
@@ -531,102 +593,79 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                                 )
                                             }
                                             disabled={!filters.dojoEvents}
-                                            color='warning'
+                                            color='liga'
                                         />
                                     }
-                                    label={displayTimeControlType(type)}
+                                    label={
+                                        <>
+                                            <Icon
+                                                name={displayTimeControlType(type)}
+                                                color='inherit'
+                                                sx={{
+                                                    marginRight: '0.4rem',
+                                                    verticalAlign: 'middle',
+                                                }}
+                                                fontSize='medium'
+                                            />
+                                            {displayTimeControlType(type)}
+                                        </>
+                                    }
                                 />
                             ))}
                         </Stack>
                     </Tooltip>
-
-                    <Stack pt={2}>
+                    <Stack pt={2} spacing={0.5}>
                         <Typography variant='h6' color='text.secondary'>
-                            Meetings
-                        </Typography>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.allTypes}
-                                    onChange={(event) =>
-                                        filters.setAllTypes(event.target.checked)
-                                    }
-                                    sx={{
-                                        color: 'error.dark',
-                                        '&.Mui-checked': {
-                                            color: 'error.dark',
-                                        },
-                                    }}
-                                />
-                            }
-                            label='All Types'
-                        />
-                        {Object.values(AvailabilityType).map((type) => (
-                            <FormControlLabel
-                                key={type}
-                                control={
-                                    <Checkbox
-                                        checked={filters.allTypes || filters.types[type]}
-                                        onChange={(event) =>
-                                            onChangeType(type, event.target.checked)
-                                        }
-                                        sx={{
-                                            color: 'error.dark',
-                                            '&.Mui-checked:not(.Mui-disabled)': {
-                                                color: 'error.dark',
-                                            },
-                                        }}
-                                    />
-                                }
-                                disabled={filters.allTypes}
-                                label={getDisplayString(type)}
+                            <Icon
+                                name='meet'
+                                color='book'
+                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                                fontSize='medium'
                             />
-                        ))}
+                            Bookable Meetings
+                        </Typography>
+                        <MultipleSelectChip
+                            selected={filters.types}
+                            setSelected={onChangeType}
+                            options={Object.values(AvailabilityType).map((t) => ({
+                                value: t,
+                                label: getDisplayString(t),
+                                icon: <Icon name={t} />,
+                            }))}
+                            size='small'
+                        />
                     </Stack>
-                    <Stack pt={2}>
-                        <Typography variant='subtitle2' color='text.secondary'>
+
+                    <Stack mt={3} spacing={0.5}>
+                        <Typography variant='h6' color='text.secondary'>
+                            <Icon
+                                name='cohort'
+                                color='book'
+                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                                fontSize='medium'
+                            />
                             Cohorts
                         </Typography>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.allCohorts}
-                                    onChange={(event) =>
-                                        filters.setAllCohorts(event.target.checked)
-                                    }
-                                    sx={{
-                                        color: 'error.dark',
-                                        '&.Mui-checked:not(.Mui-disabled)': {
-                                            color: 'error.dark',
-                                        },
-                                    }}
-                                />
-                            }
-                            label='All Cohorts'
-                        />
-                        {dojoCohorts.map((cohort) => (
-                            <FormControlLabel
-                                key={cohort}
-                                control={
-                                    <Checkbox
-                                        checked={
-                                            filters.allCohorts || filters.cohorts[cohort]
-                                        }
-                                        onChange={(event) =>
-                                            onChangeCohort(cohort, event.target.checked)
-                                        }
-                                        sx={{
-                                            color: 'error.dark',
-                                            '&.Mui-checked:not(.Mui-disabled)': {
-                                                color: 'error.dark',
-                                            },
-                                        }}
+                        <MultipleSelectChip
+                            data-cy='cohort-selector'
+                            selected={filters.cohorts}
+                            setSelected={onChangeCohort}
+                            options={[ALL_COHORTS, ...dojoCohorts].map((opt) => ({
+                                value: opt,
+                                label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
+                                icon: (
+                                    <CohortIcon
+                                        cohort={opt}
+                                        size={25}
+                                        sx={{ marginRight: '0.6rem' }}
+                                        tooltip=''
+                                        color='primary'
                                     />
-                                }
-                                disabled={filters.allCohorts}
-                                label={cohort}
-                            />
-                        ))}
+                                ),
+                            }))}
+                            sx={{ mb: 3, width: 1 }}
+                            size='small'
+                        />
                     </Stack>
                 </AccordionDetails>
             </Accordion>

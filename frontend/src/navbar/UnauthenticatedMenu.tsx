@@ -4,6 +4,7 @@ import {
     ContactSupport,
     ExpandLess,
     ExpandMore,
+    Forum,
     ImportContacts,
     MenuBook,
     Menu as MenuIcon,
@@ -82,6 +83,11 @@ function unauthenticatedStartItems(
             ],
         },
         {
+            name: 'Blog',
+            icon: <Forum />,
+            href: '/blog',
+        },
+        {
             name: 'Shop',
             icon: <Sell />,
             onClick: () => toggleExpansion('Shop'),
@@ -113,9 +119,10 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
     const navigate = useNavigate();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
-    const showAll = useMediaQuery('(min-width:873px)');
-    const hide2 = useMediaQuery('(min-width:668px)');
-    const hide3 = useMediaQuery('(min-width:600px)');
+    const showAll = useMediaQuery('(min-width:963px)');
+    const hide2 = useMediaQuery('(min-width:758px)');
+    const hide3 = useMediaQuery('(min-width:665px)');
+    const hide4 = useMediaQuery('(min-width:600px)');
 
     const startItems = unauthenticatedStartItems(navigate, (item: string) =>
         setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
@@ -128,6 +135,8 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
         startItemCount = startItems.length - 2;
     } else if (hide3) {
         startItemCount = startItems.length - 3;
+    } else if (hide4) {
+        startItemCount = startItems.length - 4;
     }
 
     const shownStartItems: JSX.Element[] = startItems
@@ -276,7 +285,15 @@ export const ExtraSmallMenuUnauthenticated = () => {
                 {startItems.map((item) => [
                     <MenuItem
                         key={item.name}
-                        onClick={item.children ? item.onClick : handleClick(item.onClick)}
+                        onClick={
+                            item.children
+                                ? item.onClick
+                                : item.onClick
+                                  ? handleClick(item.onClick)
+                                  : undefined
+                        }
+                        component={item.href ? 'a' : 'li'}
+                        href={item.href}
                     >
                         <ListItemIcon>{item.icon}</ListItemIcon>
                         <Typography textAlign='center'>{item.name}</Typography>
@@ -297,7 +314,11 @@ export const ExtraSmallMenuUnauthenticated = () => {
                                 {item.children.map((child) => (
                                     <MenuItem
                                         key={child.name}
-                                        onClick={handleClick(child.onClick)}
+                                        onClick={
+                                            child.onClick
+                                                ? handleClick(child.onClick)
+                                                : undefined
+                                        }
                                         sx={{ pl: 3 }}
                                     >
                                         {child.icon ? (

@@ -109,7 +109,7 @@ describe('List Games Page', () => {
     });
 
     it('allows searching by eco', () => {
-        cy.contains('Search By ECO').click();
+        cy.contains('Search By Opening').click();
         cy.getBySel('cohort-select').should('not.be.visible');
         cy.getBySel('search-by-opening').within(() => {
             cy.getBySel('opening-eco').should('be.visible');

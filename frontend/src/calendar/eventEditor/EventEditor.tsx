@@ -1,39 +1,39 @@
-import { forwardRef } from 'react';
 import { SchedulerHelpers } from '@aldabil/react-scheduler/types';
-import {
-    DialogTitle,
-    DialogContent,
-    Stack,
-    Button,
-    FormControlLabel,
-    FormControl,
-    Typography,
-    Dialog,
-    Slide,
-    AppBar,
-    Toolbar,
-    RadioGroup,
-    Radio,
-} from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
+import {
+    AppBar,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    FormControlLabel,
+    Radio,
+    RadioGroup,
+    Slide,
+    Stack,
+    Toolbar,
+    Typography,
+} from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
-
+import { forwardRef } from 'react';
+import { EventType as AnalyticsEventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
 import { useCache } from '../../api/cache/Cache';
-import { EventType, Event } from '../../database/event';
-import { trackEvent, EventType as AnalyticsEventType } from '../../analytics/events';
-import useEventEditor from './useEventEditor';
+import { useAuth } from '../../auth/Auth';
+import { Event, EventType } from '../../database/event';
+import Icon from '../../style/Icon';
 import AvailabilityEditor, { validateAvailabilityEditor } from './AvailabilityEditor';
-import DojoEventEditor, { validateDojoEventEditor } from './DojoEventEditor';
 import CoachingEditor, { validateCoachingEditor } from './CoachingEditor';
+import DojoEventEditor, { validateDojoEventEditor } from './DojoEventEditor';
+import useEventEditor from './useEventEditor';
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
         children: React.ReactElement;
     },
-    ref: React.Ref<unknown>
+    ref: React.Ref<unknown>,
 ) {
     return <Slide direction='up' ref={ref} {...props} />;
 });
@@ -121,21 +121,28 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                         variant='h6'
                         component='div'
                     >
+                        <Icon
+                            name='avilb'
+                            color='primary'
+                            sx={{ marginRight: '0.8rem', verticalAlign: 'middle' }}
+                        />
                         Edit Event
                     </Typography>
                     <Button
                         data-cy='cancel-button'
-                        color='inherit'
+                        color='error'
                         onClick={scheduler.close}
                         disabled={request.isLoading()}
+                        startIcon={<Icon name='cancel' />}
                     >
                         Cancel
                     </Button>
                     <LoadingButton
                         data-cy='save-button'
-                        color='inherit'
+                        color='success'
                         loading={request.isLoading()}
                         onClick={onSubmit}
+                        startIcon={<Icon name='save' />}
                     >
                         Save
                     </LoadingButton>
@@ -159,7 +166,17 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                 >
                     {(user.isAdmin || user.isCalendarAdmin || user.isCoach) && (
                         <Stack>
-                            <Typography variant='h6'>Event Type</Typography>
+                            <Typography variant='h6'>
+                                <Icon
+                                    name='avilb'
+                                    color='primary'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                />{' '}
+                                Event Type
+                            </Typography>
                             <FormControl>
                                 <RadioGroup
                                     value={editor.type}
@@ -170,20 +187,59 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                     <FormControlLabel
                                         value={EventType.Availability}
                                         control={<Radio />}
-                                        label='Bookable Availability'
+                                        label={
+                                            <>
+                                                <Icon
+                                                    name='meet'
+                                                    color='book'
+                                                    sx={{
+                                                        marginRight: '0.4rem',
+                                                        verticalAlign: 'middle',
+                                                    }}
+                                                    fontSize='medium'
+                                                />
+                                                Bookable Availability
+                                            </>
+                                        }
                                     />
                                     {(user.isAdmin || user.isCalendarAdmin) && (
                                         <FormControlLabel
                                             value={EventType.Dojo}
                                             control={<Radio />}
-                                            label='Dojo-Wide Event'
+                                            label={
+                                                <>
+                                                    <Icon
+                                                        name='Dojo Events'
+                                                        color='dojoOrange'
+                                                        sx={{
+                                                            marginRight: '0.4rem',
+                                                            verticalAlign: 'middle',
+                                                        }}
+                                                        fontSize='medium'
+                                                    />
+                                                    Dojo-Wide Event
+                                                </>
+                                            }
                                         />
                                     )}
                                     {user.isCoach && (
                                         <FormControlLabel
                                             value={EventType.Coaching}
                                             control={<Radio />}
-                                            label='Coaching Session'
+                                            label={
+                                                <>
+                                                    <Icon
+                                                        name='Coaching Sessions'
+                                                        color='success'
+                                                        sx={{
+                                                            marginRight: '0.4rem',
+                                                            verticalAlign: 'middle',
+                                                        }}
+                                                        fontSize='medium'
+                                                    />
+                                                    Coaching Session
+                                                </>
+                                            }
                                         />
                                     )}
                                 </RadioGroup>
