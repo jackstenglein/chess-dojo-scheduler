@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from 'axios';
-
 import { DateTime } from 'luxon';
 import { getConfig } from '../config';
 import {
@@ -206,23 +205,21 @@ export enum GameSubmissionType {
     Manual = 'manual',
 }
 
-export interface RemoteGame {
+export interface CreateGameRequest {
     url?: string;
     pgnText?: string;
     type?: GameSubmissionType;
 }
 
+/** The orientation of the board. */
 export type BoardOrientation = 'white' | 'black';
 
-export type CreateGameRequest = {
-    orientation: BoardOrientation;
-} & RemoteGame;
-
-export type UpdateGameRequest = {
+export interface UpdateGameRequest extends CreateGameRequest {
     timelineId?: string;
     orientation?: BoardOrientation;
     unlisted?: boolean;
-} & RemoteGame;
+    headers?: GameHeader;
+}
 
 export interface GameHeader {
     white: string;
@@ -600,7 +597,14 @@ export function markReviewed(idToken: string, cohort: string, id: string) {
     );
 }
 
-function isURL(
+/**
+ * Returns true if the URL matches the given specification.
+ * @param url The URL to test.
+ * @param hostname The hostname to test against.
+ * @param pathParts A list of regular expressions to test each part of the URL against.
+ * @returns True if the URL matches the hostname and path parts.
+ */
+function urlMatches(
     url: string,
     {
         hostname,
@@ -617,12 +621,11 @@ function isURL(
         return false;
     }
 
-    if (urlObj === null || urlObj.hostname !== hostname) {
+    if (urlObj.hostname !== hostname) {
         return false;
     }
 
     const parts = urlObj.pathname.split('/').filter((part) => part);
-
     if (parts.length !== pathParts.length) {
         return false;
     }
@@ -640,67 +643,105 @@ function isURL(
 const matchLichessId = /^(\w{8}|\w{12})$/;
 const matchChesscomId = /^(\w{10,}|\d+)$/;
 
-// Example: https://lichess.org/study/JIPuIPVG/
+/**
+ * Returns true if the URL is a Lichess Study URL.
+ * Ex: https://lichess.org/study/JIPuIPVG/
+ * @param url The URL to test.
+ * @returns True if the URL is a Lichess Study URL.
+ */
 export const isLichessStudyURL = (url: string) =>
-    isURL(url, {
+    urlMatches(url, {
         hostname: 'lichess.org',
         pathParts: [/^study$/, matchLichessId],
     });
 
-// Example: https://lichess.org/mN1qj7pP/black
+/**
+ * Returns true if the URL is a Lichess Game URL.
+ * Ex: https://lichess.org/mN1qj7pP/black
+ * @param url The URL to test.
+ * @returns True if the URL is a Lichess Game URL.
+ */
 export const isLichessGameURL = (url: string) =>
-    isURL(url, {
+    urlMatches(url, {
         hostname: 'lichess.org',
         pathParts: [matchLichessId, /^(black|white)$/],
     }) ||
-    isURL(url, {
+    urlMatches(url, {
         hostname: 'lichess.org',
         pathParts: [matchLichessId],
     });
 
-// Example: https://lichess.org/study/y14Z6s3N/fqJZzUm8
+/**
+ * Returns true if the URL is a Lichess Study Chapter URL.
+ * Ex: https://lichess.org/study/y14Z6s3N/fqJZzUm8
+ * @param url The URL to test.
+ * @returns True if the URL is a Lichess Study Chapter URL.
+ */
 export const isLichessChapterURL = (url: string) =>
-    isURL(url, {
+    urlMatches(url, {
         hostname: 'lichess.org',
         pathParts: [/^study$/, matchLichessId, matchLichessId],
     });
 
-// Example: https://www.chess.com/game/live/107855985867
+/**
+ * Returns true if the URL is a Chess.com game URL.
+ * Ex: https://www.chess.com/game/live/107855985867
+ * @param url The URL to test.
+ * @returns True if the URL is a Chess.com game URL.
+ */
 export const isChesscomGameURL = (url: string) =>
-    isURL(url, {
+    urlMatches(url, {
         hostname: 'www.chess.com',
         pathParts: [/^game$/, /^(live|daily)$/, matchChesscomId],
     });
 
-// Example: https://www.chess.com/analysis/game/live/108036079387?tab=review
-// Example: https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis
+/**
+ * Returns true if the URL is a Chess.com analysis URL.
+ * Ex: https://www.chess.com/analysis/game/live/108036079387?tab=review
+ * Ex: https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis
+ * @param url The URL to test.
+ * @returns True if the URL is a Chess.com analysis URL.
+ */
 export const isChesscomAnalysisURL = (url: string) =>
-    isURL(url, {
+    urlMatches(url, {
         hostname: 'www.chess.com',
         pathParts: [/^analysis$/, /^game$/, /^(pgn|live)$/, matchChesscomId],
     }) ||
-    isURL(url, {
+    urlMatches(url, {
         hostname: 'www.chess.com',
         pathParts: [/^analysis$/, /^game$/, matchChesscomId],
     }) ||
-    isURL(url, {
+    urlMatches(url, {
         hostname: 'www.chess.com',
         pathParts: [/^a$/, matchChesscomId],
     });
 
+/**
+ * Returns true if the provided date string is a valid PGN date (IE: in the format
+ * 2024.12.31).
+ * @param date The date to test.
+ * @returns True if the date is valid.
+ */
 export function isValidDate(date?: string) {
-    return (
-        date !== undefined &&
-        date !== '' &&
-        !!DateTime.fromISO(date.replaceAll('.', '-'))?.isValid
-    );
+    return date && !!DateTime.fromISO(date.replaceAll('.', '-'))?.isValid;
 }
 
+/**
+ * Strips question marks from the given header value. If the header consists only of
+ * question marks, an empty string is returned. Otherwise, the header is returned unchanged.
+ * @param header The header to strip question marks from.
+ * @returns The stripped header value.
+ */
 export function stripTagValue(header: string) {
     header = header.trim();
     return header.replaceAll('?', '') === '' ? '' : header;
 }
 
+/**
+ * Returns true if the game has missing or invalid data required to publish.
+ * @param game The game to test.
+ * @returns True if the game has missing or invalid data required to publish.
+ */
 export function isMissingData(game: Game) {
     const h = game.headers;
     return (

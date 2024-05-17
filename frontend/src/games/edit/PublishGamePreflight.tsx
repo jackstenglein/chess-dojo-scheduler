@@ -24,16 +24,16 @@ interface FormHeader {
     result: string;
 }
 
-function getFormHeader(h: GameHeader): FormHeader {
+function getFormHeader(h?: GameHeader): FormHeader {
     let date = null;
-    if (h.date !== '') {
+    if (h?.date) {
         date = DateTime.fromISO(h.date.replaceAll('.', '-'));
         if (!date.isValid) {
             date = null;
         }
     }
 
-    let result = h.result;
+    let result = h?.result;
     if (!isGameResult(result)) {
         result = '';
     }
@@ -41,8 +41,8 @@ function getFormHeader(h: GameHeader): FormHeader {
     return {
         date,
         result,
-        white: stripTagValue(h.white),
-        black: stripTagValue(h.black),
+        white: stripTagValue(h?.white || ''),
+        black: stripTagValue(h?.black || ''),
     };
 }
 
@@ -69,7 +69,7 @@ interface FormError {
 interface PublishGamePreflightProps {
     open: boolean;
     onClose: () => void;
-    initHeaders: GameHeader;
+    initHeaders?: GameHeader;
     loading: boolean;
     onSubmit: (headers: GameHeader) => void;
 }
@@ -91,21 +91,20 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
     const submit = () => {
         const newErrors: Partial<FormError> = {};
 
-        if (headers.white.trim() === '') {
+        if (stripTagValue(headers.white) === '') {
             newErrors.white = 'This field is required';
         }
-        if (headers.black.trim() === '') {
+        if (stripTagValue(headers.black) === '') {
             newErrors.black = 'This field is required';
         }
-        if (headers.result.trim() === '') {
+        if (!isGameResult(headers.result)) {
             newErrors.result = 'This field is required';
         }
-
         if (headers.date === null || !headers.date.isValid) {
             newErrors.date = 'This field is required';
         }
-        setErrors(newErrors);
 
+        setErrors(newErrors);
         if (Object.values(newErrors).length > 0) {
             return;
         }
@@ -115,10 +114,11 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
 
     return (
         <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
-            <DialogTitle>Almost done</DialogTitle>
+            <DialogTitle>Missing Data</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    More data is needed to publish your analysis.
+                    Your game is missing data. Please fill out these fields to publish
+                    your analysis.
                 </DialogContentText>
 
                 <Stack spacing={3} mt={3}>

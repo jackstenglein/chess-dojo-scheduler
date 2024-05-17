@@ -1,10 +1,8 @@
-import { useState } from 'react';
-
 import { Box, TextField } from '@mui/material';
-
+import { useState } from 'react';
 import {
+    CreateGameRequest,
     GameSubmissionType,
-    RemoteGame,
     isChesscomAnalysisURL,
     isChesscomGameURL,
     isLichessChapterURL,
@@ -15,7 +13,7 @@ import { ImportButton } from './ImportButton';
 
 interface OnlineGameFormProps {
     loading: boolean;
-    onSubmit: (game: RemoteGame) => void;
+    onSubmit: (game: CreateGameRequest) => void;
 }
 
 export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmit }) => {
@@ -49,11 +47,11 @@ export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmi
             return;
         }
 
-        setError('The provided URL is unsupported. Is it correct?');
+        setError('The provided URL is unsupported. Please make sure it is correct.');
     };
 
     return (
-        <Box display='flex' gap={1}>
+        <Box display='flex' gap={1} alignItems='baseline'>
             <TextField
                 sx={{ flexGrow: 1 }}
                 data-cy='online-game-url'
@@ -64,11 +62,7 @@ export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmi
                 error={!!error}
                 helperText={error}
             />
-            <ImportButton
-                sx={{ alignSelf: 'flex-end' }}
-                loading={loading}
-                onClick={handleSubmit}
-            />
+            <ImportButton loading={loading} onClick={handleSubmit} />
         </Box>
     );
 };

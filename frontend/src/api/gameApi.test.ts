@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-
 import {
     GameSubmissionType,
     isChesscomAnalysisURL,
@@ -19,6 +18,7 @@ const testURLs: Record<string, string[]> = {
         'https://lichess.org/mN1qj7pP/black',
         'https://lichess.org/mN1qj7pP/',
         'https://lichess.org/mN1qj7pP',
+        'https://lichess.org/mN1qj7pP/white',
     ],
     [GameSubmissionType.LichessStudy]: ['https://lichess.org/study/JIPuIPVG/'],
     [GameSubmissionType.LichessChapter]: ['https://lichess.org/study/y14Z6s3N/fqJZzUm8'],

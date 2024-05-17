@@ -77,12 +77,6 @@ export interface CreateGameRequest {
 
     /** The raw PGN text of the Game, if supported by type. */
     pgnText?: string;
-
-    /** The import headers of the Game. */
-    headers?: GameImportHeaders[];
-
-    /** The default orientation of the Game. */
-    orientation?: GameOrientation;
 }
 
 /** A request to update an existing Game. */
@@ -98,6 +92,12 @@ export interface UpdateGameRequest extends CreateGameRequest {
 
     /** Whether the Game should be unlisted. */
     unlisted?: boolean;
+
+    /** The import headers of the Game. */
+    headers?: GameImportHeaders;
+
+    /** The default orientation of the Game. */
+    orientation?: GameOrientation;
 }
 
 export interface GameUpdate {
@@ -146,4 +146,57 @@ export interface GameImportHeaders {
     black: string;
     date: string;
     result: string;
+}
+
+const dateRegex = /^\d{4}\.\d{2}\.\d{2}$/;
+
+/**
+ * Returns true if the given date string is a valid PGN date.
+ * PGN dates are considered valid if they are in the form 2024.12.31
+ * and are in the past (we allow dates up to 2 days in the future to 
+ * avoid time zone issues).
+ * @param date The PGN date to check.
+ * @returns True if date is a valid PGN date.
+ */
+export function isValidDate(date?: string): boolean {
+    if (!date) {
+        return false;
+    }
+    if (!dateRegex.test(date)) {
+        return false;
+    }
+
+    const d = Date.parse(date.replaceAll('.', '-'));
+    if (isNaN(d)) {
+        return false;
+    }
+
+    const now = new Date();
+    now.setDate(now.getDate() + 2);
+
+    if (d > now.getTime()) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Returns true if the given result is a valid PGN result.
+ * 
+ * WARNING: do not confuse this function with isPublishableResult.
+ * @param result The result to check.
+ * @returns True if the given result is valid.
+ */
+export function isValidResult(result?: string): boolean {
+    return isPublishableResult(result) || result === '*';
+}
+
+/**
+ * Returns true if the given result can be published on a game.
+ * @param result The result to check.
+ * @returns True if the given result is publishable.
+ */
+export function isPublishableResult(result?: string): boolean {
+    return result === '1-0' || result === '0-1' || result === '1/2-1/2';
 }

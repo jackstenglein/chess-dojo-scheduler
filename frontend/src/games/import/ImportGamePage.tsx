@@ -1,10 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-
 import { Box, Container, Stack, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { CreateGameRequest, RemoteGame, isGame } from '../../api/gameApi';
+import { CreateGameRequest, isGame } from '../../api/gameApi';
 import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
@@ -12,13 +11,7 @@ const ImportGamePage = () => {
     const request = useRequest();
     const navigate = useNavigate();
 
-    const loading = request.isLoading();
-
-    const onCreate = (remoteGame: RemoteGame) => {
-        const req: CreateGameRequest = {
-            ...remoteGame,
-            orientation: 'white',
-        };
+    const onCreate = (req: CreateGameRequest) => {
         request.onStart();
         api.createGame(req)
             .then((response) => {
@@ -35,8 +28,6 @@ const ImportGamePage = () => {
                             '%3F',
                         )}`,
                     );
-                } else if (response.data.headers) {
-                    request.onSuccess();
                 } else {
                     const count = response.data.count;
                     trackEvent(EventType.SubmitGame, {
@@ -66,7 +57,7 @@ const ImportGamePage = () => {
                         can view and comment.
                     </Typography>
                     <Box sx={{ typography: 'body1' }}>
-                        <ImportWizard onSubmit={onCreate} loading={loading} />
+                        <ImportWizard onSubmit={onCreate} loading={request.isLoading()} />
                     </Box>
                 </Stack>
             </Container>

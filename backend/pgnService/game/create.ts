@@ -4,7 +4,6 @@ import {
     BatchWriteItemCommand,
     DynamoDBClient,
     GetItemCommand,
-    PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
@@ -23,6 +22,8 @@ import {
     GameImportHeaders,
     GameImportType,
     GameOrientation,
+    isValidDate,
+    isValidResult,
 } from './types';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
@@ -75,15 +76,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         }
         console.log('PGN texts length: ', pgnTexts.length);
 
-        const [games, headers] = getGames(
-            user,
+        const games = getGames(user,
             pgnTexts,
-            request.headers,
-            request.orientation!,
         );
-        if (headers.length > 0) {
-            return success({ count: headers.length, headers });
-        }
 
         if (games.length === 0) {
             throw new ApiError({
@@ -94,10 +89,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         const updated = await batchPutGames(games);
         if (games.length === 1) {
-            // TODO: create timeline entry
-            if (games[0].timelineId) {
-                await createTimelineEntry(games[0]);
-            }
             return success(games[0]);
         }
         return success({ count: updated });
@@ -162,16 +153,6 @@ function getRequest(event: APIGatewayProxyEventV2): CreateGameRequest {
         });
     }
 
-    if (
-        request.orientation !== GameOrientation.White &&
-        request.orientation !== GameOrientation.Black
-    ) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: orientation must be `white` or `black`',
-        });
-    }
-
     return request;
 }
 
@@ -189,30 +170,13 @@ export function cleanupChessbasePgn(pgn: string): string {
 function getGames(
     user: Record<string, any>,
     pgnTexts: string[],
-    reqHeaders: GameImportHeaders[] | undefined,
-    orientation: GameOrientation,
-): [Game[], GameImportHeaders[]] {
+): Game[] {
     const games: Game[] = [];
-    const headers: GameImportHeaders[] = [];
-    let missingData = false;
-
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
-
-        const [game, header] = getGame(user, pgnTexts[i], reqHeaders?.[i], orientation);
-
-        headers.push(header);
-        if (!game) {
-            missingData = true;
-        } else {
-            games.push(game);
-        }
+        games.push(getGame(user, pgnTexts[i]));
     }
-
-    if (missingData) {
-        return [[], headers];
-    }
-    return [games, []];
+    return games;
 }
 
 /**
@@ -231,9 +195,8 @@ export function isFairyChess(pgnText: string) {
 export function getGame(
     user: Record<string, any> | undefined,
     pgnText: string,
-    headers: GameImportHeaders | undefined,
-    orientation: GameOrientation,
-): [Game, GameImportHeaders] {
+    headers?: GameImportHeaders,
+): Game {
     // We do not support variants due to current limitations with
     // @JackStenglein/pgn-parser
     if (isFairyChess(pgnText)) {
@@ -275,8 +238,7 @@ export function getGame(
         const now = new Date();
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
 
-        return [
-            {
+        return {
                 cohort: user?.dojoCohort || '',
                 id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
                 white: chess.header().White.toLowerCase(),
@@ -289,18 +251,11 @@ export function getGame(
                 ownerPreviousCohort: user?.previousCohort || '',
                 headers: chess.header(),
                 pgn: chess.renderPgn(),
-                orientation,
+                orientation: GameOrientation.White,
                 comments: [],
                 positionComments: {},
                 unlisted: true,
-            },
-            {
-                white: chess.header().White,
-                black: chess.header().Black,
-                date: chess.header().Date,
-                result: chess.header().Result,
-            },
-        ];
+            }
     } catch (err) {
         throw new ApiError({
             statusCode: 400,
@@ -309,48 +264,6 @@ export function getGame(
             cause: err,
         });
     }
-}
-
-const dateRegex = /^\d{4}\.\d{2}\.\d{2}$/;
-
-/**
- * Returns true if the given date string is a valid PGN date.
- * PGN dates are considered valid if they are in the form 2024.12.31
- * and are in the past (we allow dates up to 2 days in the future to 
- * avoid time zone issues).
- * @param date The PGN date to check.
- * @returns True if date is a valid PGN date.
- */
-function isValidDate(date?: string): boolean {
-    if (!date) {
-        return false;
-    }
-    if (!dateRegex.test(date)) {
-        return false;
-    }
-
-    const d = Date.parse(date.replaceAll('.', '-'));
-    if (isNaN(d)) {
-        return false;
-    }
-
-    const now = new Date();
-    now.setDate(now.getDate() + 2);
-
-    if (d > now.getTime()) {
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * Returns true if the given result is a valid PGN result.
- * @param result The result to check.
- * @returns True if the given result is valid.
- */
-function isValidResult(result?: string): boolean {
-    return result === '1-0' || result === '0-1' || result === '1/2-1/2' || result === '*';
 }
 
 async function batchPutGames(games: Game[]): Promise<number> {
@@ -388,32 +301,4 @@ async function batchPutGames(games: Game[]): Promise<number> {
     }
 
     return updated;
-}
-
-export async function createTimelineEntry(game: Game) {
-    try {
-        await dynamo.send(
-            new PutItemCommand({
-                Item: marshall({
-                    owner: game.owner,
-                    id: game.timelineId,
-                    ownerDisplayName: game.ownerDisplayName,
-                    requirementId: 'GameSubmission',
-                    requirementName: 'GameSubmission',
-                    scoreboardDisplay: 'HIDDEN',
-                    cohort: game.cohort,
-                    createdAt: game.publishedAt,
-                    gameInfo: {
-                        id: game.id,
-                        headers: game.headers,
-                    },
-                    dojoPoints: 1,
-                    reactions: {},
-                }),
-                TableName: timelineTable,
-            }),
-        );
-    } catch (err) {
-        console.error('Failed to create timeline entry: ', err);
-    }
 }

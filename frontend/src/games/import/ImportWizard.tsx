@@ -1,8 +1,7 @@
-import { useState } from 'react';
-
 import { TabContext, TabPanel } from '@mui/lab';
 import { Box, Tab, Tabs } from '@mui/material';
-import { RemoteGame } from '../../api/gameApi';
+import { useState } from 'react';
+import { CreateGameRequest } from '../../api/gameApi';
 import { OnlineGameForm } from './OnlineGameForm';
 import { PGNForm } from './PGNForm';
 import { PositionForm } from './PositionForm';
@@ -28,7 +27,7 @@ const ImportTabPanel: React.FC<ImportTabPanelProps> = ({ children, source }) => 
 
 interface ImportWizardProps {
     loading: boolean;
-    onSubmit: (game: RemoteGame) => void;
+    onSubmit: (game: CreateGameRequest) => void;
 }
 
 export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading }) => {
@@ -52,16 +51,19 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading })
                             value={ImportSource.URL}
                             label={'Lichess & Chess.com'}
                             data-cy={'import-url'}
+                            disabled={loading}
                         />
                         <Tab
                             value={ImportSource.Position}
                             label='Position'
                             data-cy={'import-position'}
+                            disabled={loading}
                         />
                         <Tab
                             value={ImportSource.PGNText}
                             label='PGN'
                             data-cy={'import-pgn-text'}
+                            disabled={loading}
                         />
                     </Tabs>
                 </Box>

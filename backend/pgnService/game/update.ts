@@ -3,6 +3,7 @@
 import {
     ConditionalCheckFailedException,
     DeleteItemCommand,
+    PutItemCommand,
     UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
@@ -15,7 +16,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import {
     cleanupChessbasePgn,
-    createTimelineEntry,
     dynamo,
     gamesTable,
     getGame,
@@ -26,13 +26,14 @@ import {
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
 import { getLichessChapter, getLichessGame } from './lichess';
 import {
-    CreateGameRequest,
     Game,
     GameImportHeaders,
     GameImportType,
     GameOrientation,
     GameUpdate,
     UpdateGameRequest,
+    isPublishableResult,
+    isValidDate,
 } from './types';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -102,7 +103,7 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
     const id = atob(encodedId);
 
     try {
-        const request: CreateGameRequest = JSON.parse(event.body || '{}');
+        const request: UpdateGameRequest = JSON.parse(event.body || '{}');
         if (!request.type && !request.orientation) {
             throw new ApiError({
                 statusCode: 400,
@@ -186,13 +187,9 @@ async function getGameUpdate(
             });
         }
 
-        const [game, headers] = getGame(
-            undefined,
-            pgnText,
-            request.headers?.[0],
-            request.orientation || GameOrientation.White,
-        );
-        if (!game) {
+        const game = getGame(undefined, pgnText, request.headers);
+        const headers = getImportHeaders(game);
+        if (!request.unlisted && headers) {
             return [null, headers];
         }
 
@@ -204,6 +201,26 @@ async function getGameUpdate(
     }
 
     return [update, null];
+}
+
+/**
+ * Returns the import headers for the Game, if it is missing data. Otherwise returns null.
+ * @param game The game to get the import headers for.
+ * @returns The import headers, if the game is missing data. Null otherwise.
+ */
+function getImportHeaders(game: Game): GameImportHeaders | null {
+    const strippedWhite = game.white.trim().replaceAll('?', '');
+    const strippedBlack = game.black.trim().replaceAll('?', '');
+
+    if (!strippedWhite || !strippedBlack || !isValidDate(game.date) || !isPublishableResult(game.headers.Result)) {
+        return {
+            white: strippedWhite ? game.white : '',
+            black: strippedBlack ? game.black : '',
+            date: isValidDate(game.date) ? game.date : '',
+            result: isPublishableResult(game.headers.Result) ? game.headers.Result : ''
+        }
+    }
+    return null;
 }
 
 /**
@@ -286,11 +303,43 @@ function getUpdateParams(params: { [key: string]: any }) {
 }
 
 /**
+ * Creates a timeline entry for the given Game.
+ * @param game The game to create the timeline entry for.
+ */
+async function createTimelineEntry(game: Game) {
+    try {
+        await dynamo.send(
+            new PutItemCommand({
+                Item: marshall({
+                    owner: game.owner,
+                    id: game.timelineId,
+                    ownerDisplayName: game.ownerDisplayName,
+                    requirementId: 'GameSubmission',
+                    requirementName: 'GameSubmission',
+                    scoreboardDisplay: 'HIDDEN',
+                    cohort: game.cohort,
+                    createdAt: game.publishedAt,
+                    gameInfo: {
+                        id: game.id,
+                        headers: game.headers,
+                    },
+                    dojoPoints: 1,
+                    reactions: {},
+                }),
+                TableName: timelineTable,
+            }),
+        );
+    } catch (err) {
+        console.error('Failed to create timeline entry: ', err);
+    }
+}
+
+/**
  * Deletes the timeline entry associated with the given Game.
  * @param game The Game to delete the timeline entry for.
  * @param id The id of the timeline entry.
  */
-export async function deleteTimelineEntry(game: Game, id: string) {
+async function deleteTimelineEntry(game: Game, id: string) {
     try {
         await dynamo.send(
             new DeleteItemCommand({

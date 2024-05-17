@@ -10,7 +10,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../../../../analytics/events';
@@ -19,6 +18,7 @@ import { useRequest } from '../../../../../api/Request';
 import {
     BoardOrientation,
     GameHeader,
+    GameSubmissionType,
     UpdateGameRequest,
     isGame,
     isMissingData,
@@ -109,7 +109,10 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
                 <RequestReviewDialog game={game} />
 
-                <Button variant='outlined' onClick={() => navigate('edit')}>
+                <Button
+                    variant='outlined'
+                    onClick={() => navigate('edit', { state: { game } })}
+                >
                     Replace PGN
                 </Button>
                 <DeleteGameButton variant='contained' game={game} />
@@ -134,11 +137,11 @@ const SaveGameButton = ({
     const { chess } = useChess();
     const isFreeTier = useFreeTier();
     const api = useApi();
-    const request = useRequest();
-    const [showPublishingModal, setShowPublishingModal] = useState<boolean>(false);
+    const request = useRequest<GameHeader>();
+    const [showPreflight, setShowPreflight] = useState<boolean>(false);
     const loading = request.isLoading();
 
-    const isPublishing = (game.unlisted ?? true) && visibility == 'public';
+    const isPublishing = game.unlisted && visibility == 'public';
     const needsPreflight = isPublishing && isMissingData(game);
     const initHeaders: GameHeader = {
         white: game.headers.White,
@@ -151,13 +154,18 @@ const SaveGameButton = ({
         (visibility === 'unlisted') === game.unlisted && orientation === game.orientation;
 
     const onShowPreflight = () => {
-        setShowPublishingModal(true);
+        setShowPreflight(true);
+    };
+
+    const onClosePreflight = () => {
+        setShowPreflight(false);
+        request.reset();
     };
 
     const onSave = (headers?: GameHeader) => {
         request.onStart();
 
-        const updates: UpdateGameRequest = {
+        const update: UpdateGameRequest = {
             orientation,
             unlisted:
                 (visibility === 'unlisted') === game.unlisted
@@ -166,36 +174,30 @@ const SaveGameButton = ({
             timelineId: game.timelineId,
         };
 
-        if (headers && chess) {
-            chess.setHeader('White', headers.white);
-            chess.setHeader('Black', headers.black);
-            chess.setHeader('Result', headers.result);
-            chess.setHeader('Date', headers.date);
+        if (headers) {
+            update.headers = headers;
+            update.type = GameSubmissionType.Manual;
+            update.pgnText = chess?.renderPgn();
         }
 
-        api.updateGame(game.cohort, game.id, updates)
+        api.updateGame(game.cohort, game.id, update)
             .then((resp) => {
                 trackEvent(EventType.UpdateGame, {
                     method: 'settings',
                     dojo_cohort: game.cohort,
                 });
 
-                request.onSuccess();
                 if (isGame(resp.data)) {
                     onSaveGame?.(resp.data);
                 }
 
-                setShowPublishingModal(false);
+                request.onSuccess();
+                setShowPreflight(false);
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
                 request.onFailure(err);
             });
-    };
-
-    const onClose = () => {
-        setShowPublishingModal(false);
-        request.reset();
     };
 
     return (
@@ -209,8 +211,8 @@ const SaveGameButton = ({
                 {isPublishing ? 'Publish' : 'Save Changes'}
             </LoadingButton>
             <PublishGamePreflight
-                open={showPublishingModal}
-                onClose={onClose}
+                open={showPreflight}
+                onClose={onClosePreflight}
                 initHeaders={initHeaders}
                 onSubmit={onSave}
                 loading={loading}

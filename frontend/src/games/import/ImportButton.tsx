@@ -4,7 +4,7 @@ import { SxProps } from '@mui/material';
 export interface ImportButtonProps {
     onClick: () => void;
     loading: boolean;
-    sx: SxProps;
+    sx?: SxProps;
 }
 
 export const ImportButton: React.FC<ImportButtonProps> = ({ sx, onClick, loading }) => (

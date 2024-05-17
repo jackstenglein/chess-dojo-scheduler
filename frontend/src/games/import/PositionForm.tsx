@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { Chess } from '@jackstenglein/chess';
 import {
     Autocomplete,
@@ -10,8 +8,9 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
+import { useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
-import { GameSubmissionType, RemoteGame } from '../../api/gameApi';
+import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
 import { useAuth } from '../../auth/Auth';
 import Board from '../../board/Board';
 import { ChessContext } from '../../board/pgn/PgnBoard';
@@ -89,7 +88,7 @@ const RequirementPositionField: React.FC<RequirementPositionFieldProps> = ({
 
 interface PositionFormProps {
     loading: boolean;
-    onSubmit: (game: RemoteGame) => void;
+    onSubmit: (game: CreateGameRequest) => void;
 }
 
 export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit }) => {

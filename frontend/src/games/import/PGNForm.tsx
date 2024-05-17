@@ -1,8 +1,6 @@
-import { useState } from 'react';
-
 import { Stack, TextField } from '@mui/material';
-
-import { GameSubmissionType, RemoteGame } from '../../api/gameApi';
+import { useState } from 'react';
+import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
 import { ImportButton } from './ImportButton';
 
 const pgnTextPlaceholder = `[Event "Classical game"]
@@ -19,7 +17,7 @@ const pgnTextPlaceholder = `[Event "Classical game"]
 
 interface PGNFormProps {
     loading: boolean;
-    onSubmit: (game: RemoteGame) => void;
+    onSubmit: (game: CreateGameRequest) => void;
 }
 
 export const PGNForm: React.FC<PGNFormProps> = ({ onSubmit, loading }) => {
@@ -27,17 +25,12 @@ export const PGNForm: React.FC<PGNFormProps> = ({ onSubmit, loading }) => {
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = () => {
-        let newError = null;
-
         if (pgnText.trim() === '') {
-            newError = 'This field is required';
-        }
-
-        setError(newError);
-        if (newError) {
+            setError('This field is required');
             return;
         }
 
+        setError('');
         onSubmit({
             pgnText,
             type: GameSubmissionType.Manual,
@@ -45,7 +38,7 @@ export const PGNForm: React.FC<PGNFormProps> = ({ onSubmit, loading }) => {
     };
 
     return (
-        <Stack spacing={1}>
+        <Stack spacing={2} alignItems='start'>
             <TextField
                 data-cy='pgn-text'
                 label='Paste PGN'
@@ -56,12 +49,9 @@ export const PGNForm: React.FC<PGNFormProps> = ({ onSubmit, loading }) => {
                 minRows={5}
                 error={!!error}
                 helperText={error}
+                fullWidth
             />
-            <ImportButton
-                sx={{ alignSelf: 'flex-end' }}
-                loading={loading}
-                onClick={handleSubmit}
-            />
+            <ImportButton loading={loading} onClick={handleSubmit} />
         </Stack>
     );
 };

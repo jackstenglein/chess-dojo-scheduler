@@ -182,7 +182,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
             {error && (
                 <Snackbar
                     data-cy='error-snackbar'
-                    open={error !== ''}
+                    open={!!error}
                     autoHideDuration={6000}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                     onClose={() => setError('')}
@@ -223,14 +223,12 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                         [TAGS.White, TAGS.Date, TAGS.Black].includes(name) &&
                         stripTagValue(value) === ''
                     ) {
-                        setError('This tag is required');
-
+                        setError(`${name} tag is required`);
                         return oldRow;
                     }
 
                     if ([TAGS.Date].includes(name) && !isValidDate(value)) {
-                        setError('Invalid date for a PGN');
-
+                        setError('PGN dates must be in the format 2024.12.31');
                         return oldRow;
                     }
 

@@ -1,28 +1,39 @@
-import { useNavigate, useParams } from 'react-router-dom';
-
 import { Box, Container, Stack, Typography } from '@mui/material';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { RemoteGame, UpdateGameRequest, isGame } from '../../api/gameApi';
+import {
+    CreateGameRequest,
+    GameHeader,
+    UpdateGameRequest,
+    isGame,
+} from '../../api/gameApi';
+import { Game } from '../../database/game';
 import ImportWizard from '../import/ImportWizard';
+import PublishGamePreflight from './PublishGamePreflight';
+
+interface PreflightData {
+    req: CreateGameRequest;
+    headers: GameHeader;
+}
 
 const EditGamePage = () => {
     const api = useApi();
-    const request = useRequest();
+    const request = useRequest<PreflightData>();
     const { cohort, id } = useParams();
     const navigate = useNavigate();
+    const game: Game | undefined = useLocation().state?.game;
 
-    const loading = request.isLoading();
-
-    const onEdit = (remoteGame: RemoteGame) => {
-        if (!cohort || !id) {
+    const onEdit = (remoteGame?: CreateGameRequest, headers?: GameHeader) => {
+        if (!cohort || !id || !remoteGame) {
             return;
         }
 
         const req: UpdateGameRequest = {
             ...remoteGame,
-            unlisted: true,
+            unlisted: game?.unlisted,
+            headers,
         };
 
         request.onStart();
@@ -35,7 +46,10 @@ const EditGamePage = () => {
                     });
                     navigate(`/games/${cohort}/${id}`);
                 } else if (response.data.headers) {
-                    request.onSuccess();
+                    request.onSuccess({
+                        req: remoteGame,
+                        headers: response.data.headers[0],
+                    });
                 }
             })
             .catch((err) => {
@@ -44,23 +58,32 @@ const EditGamePage = () => {
             });
     };
 
+    if (!game) {
+        return <Navigate to='..' replace />;
+    }
+
     return (
-        <>
-            <RequestSnackbar request={request} showSuccess />
-            <Container maxWidth='md' sx={{ py: 5 }}>
-                <Stack spacing={2}>
-                    <Typography variant='h6'>Replace Game's PGN</Typography>
-                    <Typography variant='body1'>
-                        Overwrite this game's PGN data? Any comments will remain. Your
-                        game will return to unlisted if it is published.
-                        {/* TODO before merge include a Cancel link */}
-                    </Typography>
-                    <Box sx={{ typography: 'body1' }}>
-                        <ImportWizard onSubmit={onEdit} loading={loading} />
-                    </Box>
-                </Stack>
-            </Container>
-        </>
+        <Container maxWidth='md' sx={{ py: 5 }}>
+            <RequestSnackbar request={request} />
+
+            <Stack spacing={2}>
+                <Typography variant='h6'>Replace PGN</Typography>
+                <Typography variant='body1'>
+                    Overwrite this game's PGN data? Any comments will remain.
+                </Typography>
+                <Box sx={{ typography: 'body1' }}>
+                    <ImportWizard onSubmit={onEdit} loading={request.isLoading()} />
+                </Box>
+            </Stack>
+
+            <PublishGamePreflight
+                open={Boolean(request.data)}
+                onClose={request.reset}
+                initHeaders={request.data?.headers}
+                onSubmit={(headers) => onEdit(request.data?.req, headers)}
+                loading={request.isLoading()}
+            />
+        </Container>
     );
 };
 
