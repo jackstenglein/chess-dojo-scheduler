@@ -76,10 +76,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         }
         console.log('PGN texts length: ', pgnTexts.length);
 
-        const games = getGames(user,
-            pgnTexts,
-        );
-
+        const games = getGames(user, pgnTexts);
         if (games.length === 0) {
             throw new ApiError({
                 statusCode: 400,

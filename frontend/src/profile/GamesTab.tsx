@@ -80,7 +80,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     };
 
     const onSubmit = () => {
-        navigate('/games/submit');
+        navigate('/games/import');
     };
 
     return (
