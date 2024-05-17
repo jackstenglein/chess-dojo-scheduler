@@ -5,7 +5,7 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import LeaderboardTab from './LeaderboardTab';
 import InfoTab from './InfoTab';
 import CalendarTab from './CalendarTab';
-
+import Icon from '../style/Icon';
 const TournamentsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({
         type: 'calendar',
@@ -20,9 +20,9 @@ const TournamentsPage = () => {
                         onChange={(_, t) => setSearchParams({ type: t })}
                         variant='scrollable'
                     >
-                        <Tab label='Calendar' value='calendar' />
-                        <Tab label='Leaderboard' value='leaderboard' />
-                        <Tab label='Info' value='info' />
+                        <Tab label='Calendar' value='calendar' icon={<Icon name='ligaCalendar' color='primary'/>} iconPosition='start'/>
+                        <Tab label='Leaderboard' value='leaderboard' icon={<Icon name='leaderboard' color='primary'/>} iconPosition='start' />
+                        <Tab label='Info' value='info' icon={<Icon name='info' color='primary'/>} iconPosition='start'/>
                     </TabList>
                 </Box>
 

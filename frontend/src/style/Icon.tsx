@@ -37,6 +37,14 @@ import {
     Visibility,
     WavingHand,
     Whatshot,
+    Leaderboard,
+    Castle,
+    Alarm,
+    GridView,
+    DashboardCustomize,
+    CalendarMonth,
+    Anchor,
+    Info
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -102,6 +110,14 @@ export const icons = {
     join: Login,
     notes: Notes,
     participant: PersonOutline,
+    Swiss: Anchor,
+    Arena: Castle,
+    tc: Alarm,
+    Standard: GridView,
+    Custom: DashboardCustomize,
+    ligaCalendar: CalendarMonth,
+    leaderboard: Leaderboard,
+    info: Info
 };
 
 export interface IconProps extends SvgIconProps {

@@ -6,7 +6,6 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import { useState } from 'react';
-
 import {
     Accordion,
     AccordionDetails,
@@ -15,12 +14,14 @@ import {
 } from '../calendar/filters/CalendarFilters';
 import TimezoneFilter from '../calendar/filters/TimezoneFilter';
 import {
-    displayTimeControlType,
-    displayTournamentType,
     PositionType,
     TimeControlType,
     TournamentType,
+    displayTimeControlType,
+    displayTournamentType,
 } from '../database/event';
+import Icon from '../style/Icon';
+import { RequirementCategory } from '../database/requirement';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
@@ -94,6 +95,12 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             >
                 <AccordionSummary forceExpansion={forceExpansion}>
                     <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name='liga'
+                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            fontSize='medium'
+                            color='primary'
+                        />
                         Types
                     </Typography>
                 </AccordionSummary>
@@ -111,9 +118,24 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                                 event.target.checked,
                                             )
                                         }
+                                        color='secondary'
                                     />
                                 }
-                                label={displayTournamentType(type)}
+                                label={
+                                    <>
+                                        <Icon
+                                            name={displayTournamentType(type)}
+                                            sx={{
+                                                marginRight: '0.5rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                            fontSize='small'
+                                            color='primary'
+                                        />
+
+                                        {displayTournamentType(type)}
+                                    </>
+                                }
                             />
                         ))}
                     </Stack>
@@ -126,6 +148,12 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             >
                 <AccordionSummary forceExpansion={forceExpansion}>
                     <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name='tc'
+                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            fontSize='medium'
+                            color='primary'
+                        />
                         Time Controls
                     </Typography>
                 </AccordionSummary>
@@ -146,7 +174,21 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                         color={getColor(type)}
                                     />
                                 }
-                                label={displayTimeControlType(type)}
+                                label={
+                                    <>
+                                        <Icon
+                                            name={displayTimeControlType(type)}
+                                            sx={{
+                                                marginRight: '0.5rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                            fontSize='small'
+                                            color='primary'
+                                        />
+
+                                        {displayTimeControlType(type)}
+                                    </>
+                                }
                             />
                         ))}
                     </Stack>
@@ -159,6 +201,12 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             >
                 <AccordionSummary forceExpansion={forceExpansion}>
                     <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name={RequirementCategory.Endgame}
+                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                            fontSize='medium'
+                            color='primary'
+                        />
                         Starting Position
                     </Typography>
                 </AccordionSummary>
@@ -176,9 +224,24 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                                 event.target.checked,
                                             )
                                         }
+                                        color='error'
                                     />
                                 }
-                                label={displayPositionType(type)}
+                                label={
+                                    <>
+                                        <Icon
+                                            name={displayPositionType(type)}
+                                            sx={{
+                                                marginRight: '0.5rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                            fontSize='small'
+                                            color='primary'
+                                        />
+
+                                        {displayPositionType(type)}
+                                    </>
+                                }
                             />
                         ))}
                     </Stack>
