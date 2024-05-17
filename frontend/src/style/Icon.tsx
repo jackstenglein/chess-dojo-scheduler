@@ -44,7 +44,8 @@ import {
     DashboardCustomize,
     CalendarMonth,
     Anchor,
-    Info
+    Info,
+    Stadium
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -110,7 +111,7 @@ export const icons = {
     join: Login,
     notes: Notes,
     participant: PersonOutline,
-    Swiss: Anchor,
+    Swiss: Stadium,
     Arena: Castle,
     tc: Alarm,
     Standard: GridView,
