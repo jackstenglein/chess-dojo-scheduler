@@ -17,7 +17,7 @@ describe('List Games Page', () => {
     });
 
     it('has import game button', () => {
-        cy.getBySel('import-game-button').contains('Import a Game');
+        cy.getBySel('import-game-button').contains('Analyze a Game');
         cy.getBySel('import-game-button').click();
 
         cy.location('pathname').should('equal', '/games/import');

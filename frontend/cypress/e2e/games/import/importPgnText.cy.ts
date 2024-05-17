@@ -1,34 +1,10 @@
-function deleteCurrentGame() {
-    cy.getBySel('settings').click();
-    cy.getBySel('delete-game-button').click();
-    cy.getBySel('delete-game-confirm-button').click();
-    cy.location('pathname').should('equal', '/profile');
-}
+import { deleteCurrentGame, gameUrlRegex, verifyGame } from './helpers';
 
-function testImportPGNText(
-    pgn: string,
-    lastMove?: string,
-    playerHeader?: string,
-    playerFooter?: string,
-) {
+function importPgnText(pgn: string) {
     cy.contains('PGN').click();
     cy.getBySel('pgn-text').type(pgn);
     cy.getBySel('submit').click();
-
-    cy.location('pathname').should('match', /^\/games\/\d{3,4}-\d{3,4}\/.+$/);
-
-    if (playerHeader) {
-        cy.getBySel('player-header-header').contains(playerHeader);
-    }
-    if (playerFooter) {
-        cy.getBySel('player-header-footer').contains(playerFooter);
-    }
-
-    if (lastMove) {
-        cy.getBySel('pgn-text-move-button').last().should('have.text', lastMove).click();
-    }
-
-    deleteCurrentGame();
+    cy.location('pathname').should('match', gameUrlRegex);
 }
 
 describe('Import Games Page - PGN Text', () => {
@@ -51,7 +27,25 @@ describe('Import Games Page - PGN Text', () => {
 
     it('submits from manual entry (full)', () => {
         cy.fixture('games/pgns/valid.txt').then((pgn) => {
-            testImportPGNText(pgn, 'e4', 'Test2', 'Test1');
+            importPgnText(pgn);
+            verifyGame({ white: 'Test1', black: 'Test2', lastMove: 'e4' });
+            deleteCurrentGame();
+        });
+    });
+
+    it('submits from manual entry (headers only)', () => {
+        cy.fixture('games/pgns/headers-only.txt').then((pgn) => {
+            importPgnText(pgn);
+            verifyGame({ white: 'bestieboots', black: 'test2' });
+            deleteCurrentGame();
+        });
+    });
+
+    it('submits from manual entry (moves only)', () => {
+        cy.fixture('games/pgns/moves-only.txt').then((pgn) => {
+            importPgnText(pgn);
+            verifyGame({ lastMove: 'a4' });
+            deleteCurrentGame();
         });
     });
 

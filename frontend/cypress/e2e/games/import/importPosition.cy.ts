@@ -1,6 +1,4 @@
-const matchGamePath = /^\/games\/\d{3,4}-\d{3,4}\/\d{4}\.\d{2}\.\d{2}_.+$/;
-
-const startingPosition = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+import { deleteCurrentGame, gameUrlRegex } from './helpers';
 
 describe('Import Games Page - Position', () => {
     beforeEach(() => {
@@ -16,7 +14,10 @@ describe('Import Games Page - Position', () => {
     it('submits with default FEN', () => {
         cy.getBySel('by-fen').click();
         cy.getBySel('submit').click();
-        cy.location('pathname').should('match', matchGamePath);
+
+        cy.location('pathname').should('match', gameUrlRegex);
+
+        deleteCurrentGame();
     });
 
     it('submits with custom FEN', () => {
@@ -26,10 +27,11 @@ describe('Import Games Page - Position', () => {
         cy.getBySel('fen-entry').clear().type(fen);
         cy.getBySel('submit').click();
 
-        cy.location('pathname').should('match', matchGamePath);
-
+        cy.location('pathname').should('match', gameUrlRegex);
         cy.getBySel('tags').click();
         cy.contains(fen);
+
+        deleteCurrentGame();
     });
 
     it('requires supported FEN', () => {

@@ -1,3 +1,5 @@
+import { deleteCurrentGame } from '../import/helpers';
+
 const LICHESS_CHAPTER_URL = 'https://lichess.org/study/W67VW7nM/3wugVXBW';
 const LICHESS_STUDY_URL = 'https://lichess.org/study/W67VW7nM';
 const LICHESS_CHAPTER_MISSING_DATA_URL = 'https://lichess.org/study/W67VW7nM/lsJkNwwR';
@@ -42,19 +44,12 @@ const INVALID_PGN = `[Event "DojoScoreboard Cypress Study: Chapter 1"]
 
 `;
 
-function deleteCurrentGame() {
-    cy.getBySel('settings').click();
-    cy.getBySel('delete-game-button').click();
-    cy.getBySel('delete-game-confirm-button').click();
-    cy.location('pathname').should('equal', '/profile');
-}
-
 describe('Edit Games Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'games',
             Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            Cypress.env('cognito_password'),
         );
         cy.visit('/games/submit');
     });
@@ -83,7 +78,7 @@ describe('Edit Games Page', () => {
 
         cy.location('pathname').should(
             'match',
-            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/,
         );
         cy.getBySel('player-header-header').contains('Test2');
         cy.getBySel('player-header-footer').contains('Test1');
@@ -180,7 +175,7 @@ describe('Edit Games Page', () => {
 
         cy.location('pathname').should(
             'match',
-            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/,
         );
         cy.getBySel('player-header-header').contains('Test1');
         cy.getBySel('player-header-footer').contains('Test2');
@@ -229,7 +224,7 @@ describe('Edit Games Page', () => {
 
         cy.location('pathname').should(
             'match',
-            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/,
         );
         cy.getBySel('player-header-header').contains('Test4');
         cy.getBySel('player-header-footer').contains('Test3');
@@ -275,14 +270,14 @@ describe('Edit Games Page', () => {
         cy.get('.MuiDataGrid-row').first().click();
         cy.location('pathname').should(
             'match',
-            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/,
         );
         deleteCurrentGame();
 
         cy.get('.MuiDataGrid-row').first().click();
         cy.location('pathname').should(
             'match',
-            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/
+            /^\/games\/\d{4}-\d{4}\/\d{4}\.\d{2}\.\d{2}_.+$/,
         );
         deleteCurrentGame();
     });
