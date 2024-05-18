@@ -1,29 +1,23 @@
-import { TabContext, TabPanel } from '@mui/lab';
-import { Box, Tab, Tabs } from '@mui/material';
+import { DesktopMacOutlined, UploadFile } from '@mui/icons-material';
+import {
+    Card,
+    CardActionArea,
+    CardContent,
+    CircularProgress,
+    Dialog,
+    Stack,
+    SvgIconProps,
+    SvgIconTypeMap,
+    Typography,
+} from '@mui/material';
+import { OverridableComponent } from '@mui/material/OverridableComponent';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
-import { CreateGameRequest } from '../../api/gameApi';
+import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
+import BoardIcon from '../../style/BoardIcon';
+import KingRookIcon from '../../style/KingRookIcon';
 import { OnlineGameForm } from './OnlineGameForm';
 import { PGNForm } from './PGNForm';
-import { PositionForm } from './PositionForm';
-
-enum ImportSource {
-    URL = 'url',
-    Position = 'position',
-    PGNText = 'pgn-text',
-}
-
-interface ImportTabPanelProps {
-    children: React.ReactNode;
-    source: ImportSource;
-}
-
-const ImportTabPanel: React.FC<ImportTabPanelProps> = ({ children, source }) => {
-    return (
-        <TabPanel value={source} sx={{ px: { xs: 0, sm: 3 } }}>
-            {children}
-        </TabPanel>
-    );
-};
 
 interface ImportWizardProps {
     loading: boolean;
@@ -31,54 +25,133 @@ interface ImportWizardProps {
 }
 
 export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading }) => {
-    const [source, setSource] = useState<ImportSource>(ImportSource.URL);
+    const [selected, setSelected] = useState<GameSubmissionType>();
+    const [dialog, setDialog] = useState<string>();
 
-    const handleTabChange = (_event: React.SyntheticEvent, source: ImportSource) => {
-        setSource(source);
+    const onSelect = (req: CreateGameRequest) => {
+        setSelected(req.type);
+        onSubmit(req);
     };
 
+    const onCloseDialog = () => setDialog('');
+
     return (
-        <>
-            <TabContext value={source}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs
-                        onChange={handleTabChange}
-                        value={source}
-                        aria-label='import sources tabs'
-                        variant='scrollable'
-                    >
-                        <Tab
-                            value={ImportSource.URL}
-                            label={'Lichess & Chess.com'}
-                            data-cy={'import-url'}
-                            disabled={loading}
-                        />
-                        <Tab
-                            value={ImportSource.Position}
-                            label='Position'
-                            data-cy={'import-position'}
-                            disabled={loading}
-                        />
-                        <Tab
-                            value={ImportSource.PGNText}
-                            label='PGN'
-                            data-cy={'import-pgn-text'}
-                            disabled={loading}
-                        />
-                    </Tabs>
-                </Box>
-                <ImportTabPanel source={ImportSource.URL}>
-                    <OnlineGameForm onSubmit={onSubmit} loading={loading} />
-                </ImportTabPanel>
-                <ImportTabPanel source={ImportSource.PGNText}>
-                    <PGNForm onSubmit={onSubmit} loading={loading} />
-                </ImportTabPanel>
-                <ImportTabPanel source={ImportSource.Position}>
-                    <PositionForm onSubmit={onSubmit} loading={loading} />
-                </ImportTabPanel>
-            </TabContext>
-        </>
+        <Grid2 container rowSpacing={2} columnSpacing={2}>
+            <ImportSourceCard
+                name='Starting Position'
+                description='Annotate a blank game'
+                icon={KingRookIcon}
+                loading={selected === GameSubmissionType.StartingPosition && loading}
+                disabled={loading}
+                onClick={() =>
+                    onSelect({ type: GameSubmissionType.StartingPosition, pgnText: '' })
+                }
+            />
+
+            <ImportSourceCard
+                name='Online Game'
+                description='Import from Chess.com or Lichess'
+                icon={DesktopMacOutlined}
+                loading={dialog === 'online' && loading}
+                disabled={loading}
+                onClick={() => setDialog('online')}
+            />
+
+            <ImportSourceCard
+                name='PGN'
+                description='Import from PGN file'
+                icon={UploadFile}
+                loading={dialog === 'pgn' && loading}
+                disabled={loading}
+                onClick={() => setDialog('pgn')}
+            />
+
+            <ImportSourceCard
+                name='Custom Position'
+                description='Annotate from a custom position'
+                icon={BoardIcon}
+                disabled={loading}
+            />
+
+            <Dialog open={!!dialog} onClose={onCloseDialog} fullWidth>
+                {dialog === 'online' && (
+                    <OnlineGameForm
+                        loading={loading}
+                        onSubmit={onSelect}
+                        onClose={onCloseDialog}
+                    />
+                )}
+                {dialog === 'pgn' && (
+                    <PGNForm
+                        loading={loading}
+                        onSubmit={onSelect}
+                        onClose={onCloseDialog}
+                    />
+                )}
+            </Dialog>
+        </Grid2>
     );
 };
 
 export default ImportWizard;
+
+export interface ImportDialogProps {
+    loading: boolean;
+    onSubmit: (game: CreateGameRequest) => void;
+    onClose: () => void;
+}
+
+interface ImportSourceCardProps {
+    name: string;
+    description: string;
+    icon:
+        | ((props: SvgIconProps) => JSX.Element)
+        | (OverridableComponent<SvgIconTypeMap<{}, 'svg'>> & { muiName: string });
+    onClick?: () => void;
+    loading?: boolean;
+    disabled?: boolean;
+}
+
+const ImportSourceCard: React.FC<ImportSourceCardProps> = ({
+    name,
+    description,
+    icon,
+    onClick,
+    loading,
+    disabled,
+}) => {
+    const Icon = icon;
+    return (
+        <Grid2 xs={12} sm={6}>
+            <Card sx={{ height: 1 }}>
+                <CardActionArea sx={{ height: 1 }} onClick={onClick} disabled={disabled}>
+                    <CardContent>
+                        <Stack
+                            height={1}
+                            justifyContent='center'
+                            alignItems='center'
+                            textAlign='center'
+                            sx={{ opacity: !loading && disabled ? 0.8 : 1 }}
+                        >
+                            {loading ? (
+                                <CircularProgress size='5rem' sx={{ mb: 2 }} />
+                            ) : (
+                                <Icon sx={{ fontSize: '5rem', mb: 2 }} color='primary' />
+                            )}
+                            <Typography variant='h5' mb={0.5}>
+                                {name}
+                            </Typography>
+                            <Typography
+                                variant='subtitle1'
+                                color='text.secondary'
+                                lineHeight='1.3'
+                            >
+                                {description}
+                            </Typography>
+                        </Stack>
+                    </CardContent>
+                </CardActionArea>
+            </Card>
+        </Grid2>
+    );
+};

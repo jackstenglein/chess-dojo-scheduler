@@ -139,6 +139,7 @@ export enum GameImportType {
     ChesscomGame = 'chesscomGame',
     ChesscomAnalysis = 'chesscomAnalysis',
     Manual = 'manual',
+    StartingPosition = 'startingPosition',
 }
 
 export interface GameImportHeaders {

@@ -19,6 +19,7 @@ import {
     dynamo,
     gamesTable,
     getGame,
+    getPgnTexts,
     getUserInfo,
     success,
     timelineTable,
@@ -162,31 +163,7 @@ async function getGameUpdate(
     }
 
     if (request.type) {
-        let pgnText = '';
-        if (request.type === GameImportType.LichessChapter) {
-            pgnText = await getLichessChapter(request.url);
-        } else if (request.type === GameImportType.LichessGame) {
-            pgnText = await getLichessGame(request.url);
-        } else if (request.type === GameImportType.ChesscomGame) {
-            pgnText = await getChesscomGame(request.url);
-        } else if (request.type === GameImportType.ChesscomAnalysis) {
-            pgnText = await getChesscomAnalysis(request.url);
-        } else if (request.type === GameImportType.Manual) {
-            if (!request.pgnText) {
-                throw new ApiError({
-                    statusCode: 400,
-                    publicMessage:
-                        'Invalid request: PGN is required when using manual import type',
-                });
-            }
-            pgnText = cleanupChessbasePgn(request.pgnText);
-        } else {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: `Invalid request: type '${request.type}' not supported`,
-            });
-        }
-
+        const pgnText = (await getPgnTexts(request))[0];
         const game = getGame(undefined, pgnText, request.headers);
         const headers = getImportHeaders(game);
         if (!request.unlisted && headers) {

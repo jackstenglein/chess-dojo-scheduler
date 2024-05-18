@@ -1,7 +1,13 @@
-import { Box, TextField } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import {
+    Button,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+} from '@mui/material';
 import { useState } from 'react';
 import {
-    CreateGameRequest,
     GameSubmissionType,
     isChesscomAnalysisURL,
     isChesscomGameURL,
@@ -9,20 +15,19 @@ import {
     isLichessGameURL,
     isLichessStudyURL,
 } from '../../api/gameApi';
-import { ImportButton } from './ImportButton';
+import { ImportDialogProps } from './ImportWizard';
 
-interface OnlineGameFormProps {
-    loading: boolean;
-    onSubmit: (game: CreateGameRequest) => void;
-}
-
-export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmit }) => {
+export const OnlineGameForm: React.FC<ImportDialogProps> = ({
+    loading,
+    onSubmit,
+    onClose,
+}) => {
     const [url, setUrl] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = () => {
         if (url.trim() === '') {
-            setError('URL is required.');
+            setError('URL is required');
             return;
         }
 
@@ -51,18 +56,27 @@ export const OnlineGameForm: React.FC<OnlineGameFormProps> = ({ loading, onSubmi
     };
 
     return (
-        <Box display='flex' gap={1} alignItems='baseline'>
-            <TextField
-                sx={{ flexGrow: 1 }}
-                data-cy='online-game-url'
-                label='Lichess or Chess.com URL'
-                placeholder='https://lichess.org/study/abcd1234/abcd1234'
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                error={!!error}
-                helperText={error}
-            />
-            <ImportButton loading={loading} onClick={handleSubmit} />
-        </Box>
+        <>
+            <DialogTitle>Import Online Game</DialogTitle>
+            <DialogContent>
+                <TextField
+                    data-cy='online-game-url'
+                    label='Lichess or Chess.com URL'
+                    placeholder='https://lichess.org/study/abcd1234/abcd1234'
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    error={!!error}
+                    helperText={error}
+                    fullWidth
+                    sx={{ mt: 0.8 }}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose}>Cancel</Button>
+                <LoadingButton loading={loading} onClick={handleSubmit}>
+                    Import
+                </LoadingButton>
+            </DialogActions>
+        </>
     );
 };

@@ -48,32 +48,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const user = await getUser(event);
         const request = getRequest(event);
 
-        let pgnTexts: string[] = [];
-        if (request.type === GameImportType.LichessChapter) {
-            pgnTexts = [await getLichessChapter(request.url)];
-        } else if (request.type === GameImportType.LichessGame) {
-            pgnTexts = [await getLichessGame(request.url)];
-        } else if (request.type === GameImportType.LichessStudy) {
-            pgnTexts = await getLichessStudy(request.url);
-        } else if (request.type === GameImportType.ChesscomGame) {
-            pgnTexts = [await getChesscomGame(request.url)];
-        } else if (request.type === GameImportType.ChesscomAnalysis) {
-            pgnTexts = [await getChesscomAnalysis(request.url)];
-        } else if (request.type === GameImportType.Manual) {
-            if (!request.pgnText) {
-                throw new ApiError({
-                    statusCode: 400,
-                    publicMessage:
-                        'Invalid request: pgnText is required when importing manual entry',
-                });
-            }
-            pgnTexts = [cleanupChessbasePgn(request.pgnText)];
-        } else {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: `Invalid request: type ${request.type} not supported`,
-            });
-        }
+        const pgnTexts = await getPgnTexts(request);
         console.log('PGN texts length: ', pgnTexts.length);
 
         const games = getGames(user, pgnTexts);
@@ -151,6 +126,42 @@ function getRequest(event: APIGatewayProxyEventV2): CreateGameRequest {
     }
 
     return request;
+}
+
+/**
+ * Returns a list of PGN texts for the given request.
+ * @param request The request to get the PGN texts for.
+ * @returns A list of PGN texts.
+ */
+export async function getPgnTexts(request: CreateGameRequest): Promise<string[]> {
+    switch (request.type) {
+        case GameImportType.LichessChapter:
+            return [await getLichessChapter(request.url)];
+        case GameImportType.LichessGame:
+            return [await getLichessGame(request.url)];
+        case GameImportType.LichessStudy:
+            return await getLichessStudy(request.url);
+        case GameImportType.ChesscomGame:
+            return [await getChesscomGame(request.url)];
+        case GameImportType.ChesscomAnalysis:
+            return [await getChesscomAnalysis(request.url)];
+
+        case GameImportType.Manual:
+        case GameImportType.StartingPosition:
+            if (request.pgnText === undefined) {
+                throw new ApiError({
+                    statusCode: 400,
+                    publicMessage:
+                        'Invalid request: pgnText is required for this import method',
+                });
+            }
+            return [cleanupChessbasePgn(request.pgnText)];
+    }
+
+    throw new ApiError({
+        statusCode: 400,
+        publicMessage: `Invalid request: type ${request.type} not supported`,
+    });
 }
 
 export function cleanupChessbasePgn(pgn: string): string {

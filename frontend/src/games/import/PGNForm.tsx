@@ -1,7 +1,20 @@
-import { Stack, TextField } from '@mui/material';
-import { useState } from 'react';
-import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
-import { ImportButton } from './ImportButton';
+import { Clear } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
+import {
+    Button,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    FormControl,
+    FormHelperText,
+    IconButton,
+    OutlinedInput,
+    TextField,
+} from '@mui/material';
+import React, { useRef, useState } from 'react';
+import { GameSubmissionType } from '../../api/gameApi';
+import { ImportDialogProps } from './ImportWizard';
 
 const pgnTextPlaceholder = `[Event "Classical game"]
 [Site "https://lichess.org"]
@@ -15,43 +28,113 @@ const pgnTextPlaceholder = `[Event "Classical game"]
 { Before the game, I did some quick prep and saw that my opponent plays the Sicilian. I usually play the Alapin against the Sicilian and didn't see any reason to change that, so I rewatched a GothamChess video on the opening right before the game. }
 1. e4 { [%clk 1:30:00] } 1... c5 { [%clk 1:30:00] } 2. c3 { [%clk 1:30:21] } 2... Nf6 { [%clk 1:30:18] }`;
 
-interface PGNFormProps {
-    loading: boolean;
-    onSubmit: (game: CreateGameRequest) => void;
-}
-
-export const PGNForm: React.FC<PGNFormProps> = ({ onSubmit, loading }) => {
+export const PGNForm: React.FC<ImportDialogProps> = ({ onSubmit, loading, onClose }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
     const [pgnText, setPgnText] = useState('');
+    const [file, setFile] = useState<File>();
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = () => {
-        if (pgnText.trim() === '') {
-            setError('This field is required');
+        if (!file && pgnText.trim() === '') {
+            setError('One field is required');
             return;
         }
 
         setError('');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const text = e.target?.result?.toString();
+                onSubmit({ pgnText: text, type: GameSubmissionType.Manual });
+            };
+            reader.readAsText(file);
+            return;
+        }
+
         onSubmit({
             pgnText,
             type: GameSubmissionType.Manual,
         });
     };
 
+    const handleFileClick = (e: React.MouseEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        inputRef.current?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files?.[0]) {
+            setFile(e.target.files?.[0]);
+            setPgnText('');
+        }
+    };
+
+    const clearFile = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setFile(undefined);
+    };
+
+    const handlePgnTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setPgnText(e.target.value);
+        setFile(undefined);
+    };
+
     return (
-        <Stack spacing={2} alignItems='start'>
-            <TextField
-                data-cy='pgn-text'
-                label='Paste PGN'
-                placeholder={pgnTextPlaceholder}
-                value={pgnText}
-                onChange={(e) => setPgnText(e.target.value)}
-                multiline
-                minRows={5}
-                error={!!error}
-                helperText={error}
-                fullWidth
-            />
-            <ImportButton loading={loading} onClick={handleSubmit} />
-        </Stack>
+        <>
+            <DialogTitle>Import PGN</DialogTitle>
+            <DialogContent>
+                <FormControl error={!!error} fullWidth>
+                    <OutlinedInput
+                        onClick={handleFileClick}
+                        value={file?.name || ''}
+                        placeholder='Select a File'
+                        fullWidth
+                        size='small'
+                        endAdornment={
+                            file?.name ? (
+                                <IconButton size='small' onClick={clearFile}>
+                                    <Clear fontSize='inherit' />
+                                </IconButton>
+                            ) : undefined
+                        }
+                        sx={{ caretColor: 'transparent' }}
+                        inputProps={{ style: { cursor: 'pointer' } }}
+                    />
+                    <FormHelperText>{error}</FormHelperText>
+                </FormControl>
+                <input
+                    ref={inputRef}
+                    type='file'
+                    hidden
+                    accept='.pgn'
+                    onChange={handleFileChange}
+                />
+
+                <Divider sx={{ color: 'text.secondary', mt: 2, mb: 2 }}>OR</Divider>
+
+                <TextField
+                    data-cy='pgn-text'
+                    label='Paste PGN'
+                    placeholder={pgnTextPlaceholder}
+                    value={pgnText}
+                    onChange={handlePgnTextChange}
+                    multiline
+                    minRows={5}
+                    maxRows={5}
+                    error={!!error}
+                    helperText={error}
+                    fullWidth
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose}>Cancel</Button>
+                <LoadingButton loading={loading} onClick={handleSubmit}>
+                    Import
+                </LoadingButton>
+            </DialogActions>
+        </>
     );
 };

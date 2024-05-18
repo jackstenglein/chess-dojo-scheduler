@@ -1,4 +1,4 @@
-import { Box, Container, Stack, Typography } from '@mui/material';
+import { Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
@@ -47,19 +47,8 @@ const ImportGamePage = () => {
     return (
         <>
             <RequestSnackbar request={request} showSuccess />
-            <Container maxWidth='md' sx={{ py: 5 }}>
-                <Stack spacing={2}>
-                    <Typography variant='h6'>Import Game</Typography>
-                    <Typography variant='body1'>
-                        Specify a source of the game, study, or annotations you would like
-                        to import. After importing, you can publish them to make them
-                        public. Before then, you can still share a link to them so others
-                        can view and comment.
-                    </Typography>
-                    <Box sx={{ typography: 'body1' }}>
-                        <ImportWizard onSubmit={onCreate} loading={request.isLoading()} />
-                    </Box>
-                </Stack>
+            <Container maxWidth='lg' sx={{ py: 5 }}>
+                <ImportWizard onSubmit={onCreate} loading={request.isLoading()} />
             </Container>
         </>
     );
