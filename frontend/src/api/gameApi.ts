@@ -204,6 +204,7 @@ export enum GameSubmissionType {
     ChesscomAnalysis = 'chesscomAnalysis',
     Manual = 'manual',
     StartingPosition = 'startingPosition',
+    Fen = 'fen',
 }
 
 export interface CreateGameRequest {

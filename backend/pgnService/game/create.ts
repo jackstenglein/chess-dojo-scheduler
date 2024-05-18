@@ -148,6 +148,7 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
 
         case GameImportType.Manual:
         case GameImportType.StartingPosition:
+        case GameImportType.Fen:
             if (request.pgnText === undefined) {
                 throw new ApiError({
                     statusCode: 400,

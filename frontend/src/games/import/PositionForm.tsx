@@ -1,189 +1,136 @@
 import { Chess } from '@jackstenglein/chess';
+import { LoadingButton } from '@mui/lab';
 import {
     Autocomplete,
     Box,
-    FormControlLabel,
-    Radio,
-    RadioGroup,
+    Button,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Stack,
     TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
-import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
-import { useAuth } from '../../auth/Auth';
+import { GameSubmissionType } from '../../api/gameApi';
+import { useFreeTier } from '../../auth/Auth';
 import Board from '../../board/Board';
-import { ChessContext } from '../../board/pgn/PgnBoard';
-import { ImportButton } from './ImportButton';
+import { ALL_COHORTS } from '../../database/user';
+import { ImportDialogProps } from './ImportWizard';
 
-const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
-interface FENFieldProps {
+interface PositionFormOption {
+    label: string;
     fen: string;
-    changeFen: (fen: string) => void;
-    error: string | null;
+    id: string;
+    category: string;
+    sortPriority: string;
 }
 
-function FENField({ fen, changeFen, error }: FENFieldProps) {
-    return (
-        <TextField
-            sx={{ flexGrow: 1 }}
-            data-cy='fen-entry'
-            label='FEN'
-            value={fen}
-            onChange={(e) => changeFen(e.target.value)}
-            error={!!error}
-            helperText={error}
-            placeholder={startingPositionFen}
-            onFocus={(e) => {
-                e.target.select();
-            }}
-        />
-    );
-}
-
-interface RequirementPositionFieldProps {
-    changeFen: (fen: string) => void;
-    cohort: string;
-}
-
-const RequirementPositionField: React.FC<RequirementPositionFieldProps> = ({
-    changeFen,
-    cohort,
+export const PositionForm: React.FC<ImportDialogProps> = ({
+    loading,
+    onSubmit,
+    onClose,
 }) => {
-    const { requirements } = useRequirements(cohort, true);
+    const [fen, setFen] = useState<string>('');
+    const [error, setError] = useState<string>('');
 
-    const positions = requirements.flatMap((requirement) => {
-        const reqPositions = requirement.positions;
-        if (!reqPositions) {
-            return [];
+    const isFreeTier = useFreeTier();
+    const { requirements } = useRequirements(ALL_COHORTS, true);
+    const positions = useMemo(() => {
+        return requirements.flatMap((requirement) => {
+            if (isFreeTier && !requirement.isFree) {
+                return [];
+            }
+            return (
+                requirement.positions?.map((position) => ({
+                    label: `${requirement.name} - ${position.title}`,
+                    fen: position.fen,
+                    id: `${requirement.id}-${position.title}`,
+                    category: requirement.category,
+                    sortPriority: requirement.sortPriority,
+                })) || []
+            );
+        });
+    }, [requirements]);
+
+    const getOptionLabel = (option: string | PositionFormOption) => {
+        if (typeof option === 'string') {
+            return option;
         }
+        return option.label;
+    };
 
-        // For now skip requirmeents with mltiple positions
-        if (reqPositions.length > 1) {
-            return [];
-        }
+    const changeFen = (
+        _: React.SyntheticEvent,
+        value: string | PositionFormOption | null,
+    ) => {
+        setError('');
 
-        const position = reqPositions[0];
-        const label = `${requirement.name} - ${position.title}`;
-        return {
-            label,
-            fen: position.fen,
-            id: requirement.id,
-        };
-    });
-
-    return (
-        <Autocomplete
-            sx={{ flexGrow: 1 }}
-            disablePortal
-            getOptionLabel={(option) => option.label}
-            options={positions}
-            renderInput={(params) => <TextField {...params} label='Position' />}
-            isOptionEqualToValue={(a, b) => a.id === b.id}
-            onChange={(_, value) => changeFen(value?.fen ?? '')}
-        />
-    );
-};
-
-interface PositionFormProps {
-    loading: boolean;
-    onSubmit: (game: CreateGameRequest) => void;
-}
-
-export const PositionForm: React.FC<PositionFormProps> = ({ loading, onSubmit }) => {
-    const [fen, setFen] = useState<string>(startingPositionFen);
-    const [error, setError] = useState<string | null>(null);
-    const [by, setBy] = useState('starting');
-    const [chess] = useState(new Chess());
-
-    const auth = useAuth();
-
-    const cohort = auth?.user?.dojoCohort;
-
-    const changeFen = (fen: string) => {
-        setError(null);
-        setFen(fen);
-
-        try {
-            chess.load(fen);
-        } catch {
-            setError('Invalid FEN');
+        if (!value) {
+            setFen('');
+        } else if (typeof value === 'string') {
+            setFen(value);
+        } else {
+            setFen(value.fen);
         }
     };
 
     const handleSubmit = () => {
-        onSubmit({
-            pgnText: chess.pgn.render(),
-            type: GameSubmissionType.Manual,
-        });
+        try {
+            const chess = new Chess({ fen });
+            onSubmit({
+                pgnText: chess.pgn.render(),
+                type: GameSubmissionType.Fen,
+            });
+        } catch (err) {
+            setError('Invalid FEN');
+        }
     };
 
     return (
-        <Box>
-            <Stack spacing={1}>
-                <Box>
-                    <RadioGroup
-                        row
-                        name='select-position-by'
-                        onChange={(_, value) => setBy(value)}
-                        value={by}
-                    >
-                        <FormControlLabel
-                            value='starting'
-                            control={<Radio />}
-                            label='Starting Position'
-                            data-cy='by-starting'
-                            onClick={() => changeFen(startingPositionFen)}
-                        />
-                        {cohort && (
-                            <FormControlLabel
-                                value='requirement'
-                                control={<Radio />}
-                                label='Requirement'
-                                data-cy='by-requirement'
+        <>
+            <DialogTitle>Custom Position</DialogTitle>
+            <DialogContent>
+                <Stack mt={0.8} spacing={2} alignItems='center'>
+                    <Autocomplete
+                        sx={{ width: 1 }}
+                        options={positions}
+                        getOptionLabel={getOptionLabel}
+                        groupBy={(option) => option.category}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label='Choose Position or Paste FEN'
+                                error={!!error}
+                                helperText={error}
                             />
                         )}
-                        <FormControlLabel
-                            value='fen'
-                            control={<Radio />}
-                            label='FEN'
-                            data-cy='by-fen'
-                        />
-                    </RadioGroup>
-                </Box>
-                <Box display='flex' gap={1} sx={{ flexGrow: 1, maxWidth: '500px' }}>
-                    {by === 'fen' && (
-                        <FENField
-                            key='by-fen'
-                            changeFen={changeFen}
-                            fen={fen}
-                            error={error}
-                        />
-                    )}
-                    {by === 'requirement' && cohort && (
-                        <RequirementPositionField
-                            key='by-position'
-                            cohort={cohort}
-                            changeFen={changeFen}
-                        />
-                    )}
-                    <ImportButton
-                        sx={{ alignSelf: 'flex-start' }}
-                        loading={loading}
-                        onClick={handleSubmit}
+                        isOptionEqualToValue={(a, b) => a.id === b.id}
+                        onChange={changeFen}
+                        onInputChange={(_e, value) => setFen(value)}
+                        freeSolo
+                        selectOnFocus
+                        blurOnSelect
                     />
-                </Box>
-                <Box sx={{ aspectRatio: '1 / 1', maxWidth: '500px', height: 'auto' }}>
-                    <ChessContext.Provider value={{ chess }}>
+
+                    <Box sx={{ width: '336px', aspectRatio: 1 }}>
                         <Board
+                            key={fen}
                             config={{
-                                fen: chess.fen(),
+                                fen,
+                                viewOnly: true,
                             }}
                         />
-                    </ChessContext.Provider>
-                </Box>
-            </Stack>
-        </Box>
+                    </Box>
+                </Stack>
+            </DialogContent>
+
+            <DialogActions>
+                <Button onClick={onClose}>Cancel</Button>
+                <LoadingButton loading={loading} onClick={handleSubmit}>
+                    Import
+                </LoadingButton>
+            </DialogActions>
+        </>
     );
 };

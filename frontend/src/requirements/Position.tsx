@@ -20,7 +20,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import Board from '../board/Board';
 import { Position as PositionModel } from '../database/requirement';
 
-function turnColor(fen: string): 'white' | 'black' {
+export function turnColor(fen: string): 'white' | 'black' {
     const turn = fen.split(' ')[1];
     if (turn === 'b') {
         return 'black';

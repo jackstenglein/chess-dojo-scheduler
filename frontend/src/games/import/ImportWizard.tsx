@@ -18,6 +18,7 @@ import BoardIcon from '../../style/BoardIcon';
 import KingRookIcon from '../../style/KingRookIcon';
 import { OnlineGameForm } from './OnlineGameForm';
 import { PGNForm } from './PGNForm';
+import { PositionForm } from './PositionForm';
 
 interface ImportWizardProps {
     loading: boolean;
@@ -70,7 +71,9 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading })
                 name='Custom Position'
                 description='Annotate from a custom position'
                 icon={BoardIcon}
+                loading={dialog === 'position' && loading}
                 disabled={loading}
+                onClick={() => setDialog('position')}
             />
 
             <Dialog open={!!dialog} onClose={onCloseDialog} fullWidth>
@@ -83,6 +86,13 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading })
                 )}
                 {dialog === 'pgn' && (
                     <PGNForm
+                        loading={loading}
+                        onSubmit={onSelect}
+                        onClose={onCloseDialog}
+                    />
+                )}
+                {dialog === 'position' && (
+                    <PositionForm
                         loading={loading}
                         onSubmit={onSelect}
                         onClose={onCloseDialog}
