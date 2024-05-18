@@ -48,7 +48,7 @@ import {
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
-import { AvailabilityType, EventType, TimeControlType } from '../database/event';
+import { AvailabilityType, EventType, TimeControlType, TournamentType } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import RookIcon from './RookIcon';
 export const icons = {
@@ -112,6 +112,8 @@ export const icons = {
     join: Login,
     notes: Notes,
     participant: PersonOutline,
+    [TournamentType.Arena]: Stadium,
+    [TournamentType.Swiss]: LocalHospital,
     Swiss: LocalHospital,
     Arena: Stadium,
     tc: Alarm,

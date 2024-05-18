@@ -1,19 +1,19 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Scheduler } from '@aldabil/react-scheduler';
-import { Grid } from '@mui/material';
-
+import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
+import { Box, Grid } from '@mui/material';
+import { useEffect, useMemo, useRef } from 'react';
+import { useEvents } from '../api/cache/Cache';
 import ProcessedEventViewer from '../calendar/eventViewer/ProcessedEventViewer';
 import {
     DefaultTimezone,
-    useFilters,
     Filters,
     getHours,
+    useFilters,
 } from '../calendar/filters/CalendarFilters';
-import TournamentCalendarFilters from './TournamentCalendarFilters';
-import { useEvents } from '../api/cache/Cache';
 import { Event, EventType, PositionType, TimeControlType } from '../database/event';
 import { TimeFormat } from '../database/user';
+import Icon from '../style/Icon';
+import TournamentCalendarFilters from './TournamentCalendarFilters';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
@@ -103,7 +103,7 @@ const CalendarTab = () => {
                 endHour: maxHour,
                 navigation: true,
             },
-            'month'
+            'month',
         );
         calendarRef.current?.scheduler.handleState(
             {
@@ -114,7 +114,7 @@ const CalendarTab = () => {
                 step: 60,
                 navigation: true,
             },
-            'week'
+            'week',
         );
         calendarRef.current?.scheduler.handleState(
             {
@@ -123,7 +123,7 @@ const CalendarTab = () => {
                 step: 60,
                 navigation: true,
             },
-            'day'
+            'day',
         );
     }, [calendarRef, minHour, maxHour]);
 
@@ -170,6 +170,69 @@ const CalendarTab = () => {
                             : filters.timezone
                     }
                     hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
+                    eventRenderer={({ event, ...props }) => {
+                        return (
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    height: '100%',
+                                    backgroundColor: event.color,
+                                    color: 'cblack.main',
+                                    fontSize: '0.775em',
+                                }}
+                                {...props}
+                            >
+                                <Box
+                                    sx={{
+                                        height: 90,
+                                        background: event.color,
+                                        color: 'cblack',
+                                    }}
+                                >
+                                    <>
+                                        <Icon
+                                            name={
+                                                event.event?.ligaTournament
+                                                    ?.timeControlType
+                                            }
+                                            sx={{
+                                                marginLeft: '0.3rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                            color='cblack'
+                                            fontSize='small'
+                                        />
+
+                                        <Icon
+                                            name={
+                                                event.event?.ligaTournament
+                                                    ?.type
+                                            }
+                                            sx={{
+                                                marginRight: '0.3rem',
+                                                marginLeft: '0.3rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                            color='cblack'
+                                            fontSize='small'
+                                        />
+                                        {event.title}  <br />{' '}
+                                        {event.start.toLocaleTimeString('en-US', {
+                                            timeStyle: 'short',
+                                        })}{' '}
+                                        -{' '}
+                                        {event.end.toLocaleTimeString('en-US', {
+                                            timeStyle: 'short',
+                                        })}
+
+                                        
+                                    </>
+                                </Box>
+                            </Box>
+                        );
+                    }}
                 />
             </Grid>
         </Grid>
