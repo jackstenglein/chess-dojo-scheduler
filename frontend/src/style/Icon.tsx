@@ -1,11 +1,14 @@
 import {
+    Alarm,
     AllInclusiveRounded,
     AutoStories,
     Backup,
     Biotech,
     BorderColor,
+    CalendarMonth,
     Create,
     CrisisAlert,
+    DashboardCustomize,
     DoDisturb,
     Download,
     EditCalendar,
@@ -13,9 +16,13 @@ import {
     EventAvailable,
     Explore,
     FlashOn,
+    GridView,
     Group,
     Groups,
+    Info,
+    Leaderboard,
     LiveTv,
+    LocalHospital,
     LocationOn,
     Login,
     MenuBook,
@@ -33,27 +40,17 @@ import {
     Search,
     Speed,
     SportsScore,
+    Stadium,
     ThumbUp,
     Visibility,
     WavingHand,
     Whatshot,
-    Leaderboard,
-    Alarm,
-    GridView,
-    DashboardCustomize,
-    CalendarMonth,
-    Info,
-    Stadium,
-    LocalHospital
-
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
-import { AvailabilityType } from '../database/event';
+import { AvailabilityType, EventType, TimeControlType } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import RookIcon from './RookIcon';
-import { EventType } from '../database/event';
-import { TimeControlType } from '../database/event';
 export const icons = {
     [RequirementCategory.Welcome]: WavingHand,
     [RequirementCategory.Games]: Biotech,
@@ -126,7 +123,7 @@ export const icons = {
     [EventType.Availability]: Event,
     [EventType.Coaching]: RocketLaunch,
     [EventType.Dojo]: LiveTv,
-    [EventType.LigaTournament]: MilitaryTech
+    [EventType.LigaTournament]: MilitaryTech,
 };
 
 export interface IconProps extends SvgIconProps {

@@ -1,7 +1,7 @@
 import { Scheduler } from '@aldabil/react-scheduler';
 import type { SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Container, Grid, Snackbar, Stack, Typography, colors } from '@mui/material';
+import { Box, Container, Grid, Snackbar, Stack } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -10,12 +10,13 @@ import { useEvents } from '../api/cache/Cache';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import { AvailabilityType, Event, EventStatus, EventType } from '../database/event';
 import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '../database/user';
+import Icon from '../style/Icon';
 import UpsellAlert from '../upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import CalendarTutorial from './CalendarTutorial';
 import { getTimeZonedDate } from './displayDate';
 import EventEditor from './eventEditor/EventEditor';
-import ProcessedEventViewer from './eventViewer/ProcessedEventViewer'
+import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
 import {
     CalendarFilters,
     DefaultTimezone,
@@ -23,9 +24,6 @@ import {
     getHours,
     useFilters,
 } from './filters/CalendarFilters';
-import {Box} from '@mui/material';
-import { RequirementCategory } from '../database/requirement';
-import Icon from '../style/Icon';
 function processAvailability(
     user: User | undefined,
     filters: Filters | undefined,
@@ -515,58 +513,86 @@ export default function CalendarPage() {
                             }
                             hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                             eventRenderer={({ event, ...props }) => {
-                                  return (
-                                    
+                                return (
                                     <Box
-                                      sx={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "space-between",
-                                        height: "100%",
-                                        backgroundColor: event.color,
-                                        color: "cblack.main",
-                                        fontSize: "0.775em",
-                                        
-                                      }}
-                                      {...props}
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'space-between',
+                                            height: '100%',
+                                            backgroundColor: event.color,
+                                            color: 'cblack.main',
+                                            fontSize: '0.775em',
+                                        }}
+                                        {...props}
                                     >
-                                      {/* <Box
-                                        sx={{ height: 20, background: event.color, color: event.textColor}}
-                                      >
-                                        
-                                      </Box> */}
-                                      <Box sx={{ height: 90, background: event.color, color: "cblack"}}> 
-                                        
-                                        <>
-                                        {event.event?.type !== EventType.LigaTournament ? (
-                                         <>   
-                                         <Icon name={event.event?.type} sx={{marginRight: "0.5rem", verticalAlign: "middle"}} color='cblack' />{event.title} <br /> {event.start.toLocaleTimeString("en-US", {
-                                            timeStyle: "short",
-                                          })} -  {event.end.toLocaleTimeString("en-US", { timeStyle: "short" })} 
-                                          </>
-                                        )
-                                        :
-                                        (
-                                          <>  
-                                        <Icon name={event.event?.ligaTournament?.timeControlType} sx={{marginRight: "0.5rem", verticalAlign: "middle"}} color='cblack' />{event.title} <br /> {event.start.toLocaleTimeString("en-US", {
-                                            timeStyle: "short",
-                                          })} -  {event.end.toLocaleTimeString("en-US", { timeStyle: "short" })} 
-                                          </>
-                                        )}
-                                        
-                                        
-                                        
-                                        </>
-
-                        
+                                        <Box
+                                            sx={{
+                                                height: 90,
+                                                background: event.color,
+                                                color: 'cblack',
+                                            }}
+                                        >
+                                            <>
+                                                {event.event?.type !==
+                                                EventType.LigaTournament ? (
+                                                    <>
+                                                        <Icon
+                                                            name={event.event?.type}
+                                                            sx={{
+                                                                marginRight: '0.5rem',
+                                                                verticalAlign: 'middle',
+                                                            }}
+                                                            fontSize='small'
+                                                            color='cblack'
+                                                        />
+                                                        {event.title} <br />{' '}
+                                                        {event.start.toLocaleTimeString(
+                                                            'en-US',
+                                                            {
+                                                                timeStyle: 'short',
+                                                            },
+                                                        )}{' '}
+                                                        -{' '}
+                                                        {event.end.toLocaleTimeString(
+                                                            'en-US',
+                                                            { timeStyle: 'short' },
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Icon
+                                                            name={
+                                                                event.event
+                                                                    ?.ligaTournament
+                                                                    ?.timeControlType
+                                                            }
+                                                            sx={{
+                                                                marginRight: '0.5rem',
+                                                                verticalAlign: 'middle',
+                                                            }}
+                                                            color='cblack'
+                                                            fontSize='small'
+                                                        />
+                                                        {event.title} <br />{' '}
+                                                        {event.start.toLocaleTimeString(
+                                                            'en-US',
+                                                            {
+                                                                timeStyle: 'short',
+                                                            },
+                                                        )}{' '}
+                                                        -{' '}
+                                                        {event.end.toLocaleTimeString(
+                                                            'en-US',
+                                                            { timeStyle: 'short' },
+                                                        )}
+                                                    </>
+                                                )}
+                                            </>
                                         </Box>
-                        
                                     </Box>
-                                    
-                                  );
-                               
-                      
-                              }}
+                                );
+                            }}
                         />
                     </Stack>
                 </Grid>
