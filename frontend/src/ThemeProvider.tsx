@@ -16,6 +16,7 @@ declare module '@mui/material/styles' {
         liga: Palette['primary'];
         book: Palette['primary'];
         meet: Palette['primary'];
+        cblack?: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
@@ -26,6 +27,7 @@ declare module '@mui/material/styles' {
         liga?: PaletteOptions['primary'];
         book?: Palette['primary'];
         meet?: Palette['primary'];
+        cblack?: Palette['primary'];
     }
 }
 
@@ -39,6 +41,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        cblack: true;
     }
 
     interface CheckboxPropsColorOverrides {
@@ -50,6 +53,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        cblack: true;
     }
 
     interface ButtonPropsColorOverrides {
@@ -61,6 +65,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        cblack: true;
     }
 
     interface SvgIconPropsColorOverrides {
@@ -72,6 +77,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        cblack: true;
     }
 }
 
@@ -106,6 +112,12 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
             createTheme({
                 palette: {
                     mode: colorMode as PaletteMode,
+                    cblack: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#050a06',
+                        },
+                        name: 'cblack',
+                    }),
                     meet: defaultTheme.palette.augmentColor({
                         color: {
                             main: '#93a84f',

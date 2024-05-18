@@ -52,7 +52,8 @@ import React from 'react';
 import { AvailabilityType } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import RookIcon from './RookIcon';
-
+import { EventType } from '../database/event';
+import { TimeControlType } from '../database/event';
 export const icons = {
     [RequirementCategory.Welcome]: WavingHand,
     [RequirementCategory.Games]: Biotech,
@@ -83,6 +84,9 @@ export const icons = {
     Blitz: Whatshot,
     Rapid: FlashOn,
     Classical: PunchClock,
+    [TimeControlType.Blitz]: Whatshot,
+    [TimeControlType.Rapid]: FlashOn,
+    [TimeControlType.Classical]: PunchClock,
     'Classical Game': PunchClock,
     'Dojo Events': LiveTv,
     'Coaching Sessions': RocketLaunch,
@@ -118,7 +122,11 @@ export const icons = {
     Custom: DashboardCustomize,
     ligaCalendar: CalendarMonth,
     leaderboard: Leaderboard,
-    info: Info
+    info: Info,
+    [EventType.Availability]: Event,
+    [EventType.Coaching]: RocketLaunch,
+    [EventType.Dojo]: LiveTv,
+    [EventType.LigaTournament]: MilitaryTech
 };
 
 export interface IconProps extends SvgIconProps {
