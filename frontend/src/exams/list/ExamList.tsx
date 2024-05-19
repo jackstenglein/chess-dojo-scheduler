@@ -27,8 +27,8 @@ import { toDojoDateString } from '../../calendar/displayDate';
 import { Exam, ExamType } from '../../database/exam';
 import { isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import { getTotalScore } from '../../tactics/tactics';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import { getTotalScore } from '../view/exam';
 
 interface CohortRangeExams {
     name: string;
@@ -367,7 +367,9 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
 
     const onClickRow = (params: GridRowParams<Exam>) => {
         if (params.row.answers[user?.username || '']) {
-            navigate('/tactics/exam', { state: { exam: params.row } });
+            navigate(`/tests/${params.row.type}/${params.row.id}/exam`, {
+                state: { exam: params.row },
+            });
             return;
         }
 
@@ -377,7 +379,9 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);
         } else {
-            navigate(`/tactics/instructions`, { state: { exam: params.row } });
+            navigate(`/tests/${params.row.type}/${params.row.id}`, {
+                state: { exam: params.row },
+            });
         }
     };
 

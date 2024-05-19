@@ -1,5 +1,5 @@
-// Implements a Lambda handler which saves an ExamAttempt in the database.
-// The updated Exam is returned.
+// Implements a Lambda handler which saves an ExamAttempt in the database. The
+// ExamAnswer is always returned. The Exam is only returned if it was updated.
 package main
 
 import (
@@ -20,6 +20,12 @@ type PutExamAttemptRequest struct {
 	ExamType database.ExamType    `json:"examType"`
 	ExamId   string               `json:"examId"`
 	Attempt  database.ExamAttempt `json:"attempt"`
+	Index    *int                 `json:"index,omitempty"`
+}
+
+type PutExamAnswerResponse struct {
+	Exam   *database.Exam       `json:"exam,omitempty"`
+	Answer *database.ExamAnswer `json:"answer,omitempty"`
 }
 
 func main() {
@@ -55,7 +61,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	request.Attempt.CreatedAt = time.Now().Format(time.RFC3339)
 
-	answer, err := repository.PutExamAttempt(info.Username, request.ExamId, request.ExamType, &request.Attempt)
+	answer, err := repository.PutExamAttempt(info.Username, request.ExamId, request.ExamType, &request.Attempt, request.Index)
 	if err != nil {
 		return api.Failure(err), nil
 	}
@@ -65,5 +71,5 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	return api.Success(exam), nil
+	return api.Success(PutExamAnswerResponse{Answer: answer, Exam: exam}), nil
 }

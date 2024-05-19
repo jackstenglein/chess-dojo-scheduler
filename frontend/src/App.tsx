@@ -37,8 +37,10 @@ import ListCoursesPage from './courses/list/ListCoursesPage';
 import CoursePage from './courses/view/CoursePage';
 import UnsubscribePage from './dojoDigest/UnsubscribePage';
 import { ExamLandingPage } from './exams/ExamLandingPage';
+import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
 import { ListTacticsExamsPage } from './exams/list/ListTacticsExamsPage';
+import ExamPage from './exams/view/ExamPage';
 import EditGamePage from './games/edit/EditGamePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
 import ListGamesPage from './games/list/ListGamesPage';
@@ -73,8 +75,6 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
-import TacticsExamPage from './tactics/TacticsExamPage';
-import TacticsInstructionsPage from './tactics/instructions/TacticsInstructionsPage';
 import TournamentsPage from './tournaments/TournamentsPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import InfoPage from './tournaments/openClassical/InfoPage';
@@ -163,15 +163,19 @@ const router = createBrowserRouter(
                         <Route index element={<ExamLandingPage />} />
                         <Route path='tactics' element={<ListTacticsExamsPage />} />
                         <Route path='checkmate' element={<ListCheckmateExamsPage />} />
+
+                        <Route path=':type/:id'>
+                            <Route index element={<ExamInstructionsPage />} />
+                            <Route path='exam' element={<ExamPage />} />
+                        </Route>
                     </Route>
 
                     <Route path='tactics'>
-                        <Route index element={<ListTacticsExamsPage />} />
+                        <Route index element={<Navigate to='/tests/tactics' replace />} />
                         <Route
-                            path='instructions'
-                            element={<TacticsInstructionsPage />}
+                            path='*'
+                            element={<Navigate to='/tests/tactics' replace />}
                         />
-                        <Route path='exam' element={<TacticsExamPage />} />
                     </Route>
 
                     <Route path='chat' element={<ChatPage />} />

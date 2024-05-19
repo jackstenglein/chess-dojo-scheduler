@@ -1,6 +1,10 @@
 import { Chess, COLOR, Move } from '@jackstenglein/chess';
-import { ExamType } from '../database/exam';
-import { Requirement } from '../database/requirement';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useApi } from '../../api/Api';
+import { useRequest } from '../../api/Request';
+import { Exam, ExamAnswer, ExamType } from '../../database/exam';
+import { Requirement } from '../../database/requirement';
 import {
     ALL_COHORTS,
     compareCohorts,
@@ -8,7 +12,41 @@ import {
     isCohortInRange,
     isCohortLess,
     User,
-} from '../database/user';
+} from '../../database/user';
+
+/**
+ * Fetches the exam and current user's answer based on the current page's
+ * params. The page is expected to have type and id params.
+ * @returns The type, id, request, exam and answer.
+ */
+export function useExam() {
+    const { type, id } = useParams<{ type: ExamType; id: string }>();
+    const api = useApi();
+    const request = useRequest<{ exam: Exam; answer?: ExamAnswer }>();
+
+    useEffect(() => {
+        if (!request.isSent() && type && id) {
+            request.onStart();
+            api.getExam(type, id)
+                .then((resp) => {
+                    console.log('getExam: ', resp);
+                    request.onSuccess(resp.data);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    request.onFailure(err);
+                });
+        }
+    }, [request, type, id, api]);
+
+    return {
+        request,
+        type,
+        id,
+        exam: request.data?.exam,
+        answer: request.data?.answer,
+    };
+}
 
 export function getMoveDescription({
     found,

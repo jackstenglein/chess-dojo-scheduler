@@ -27,6 +27,21 @@ custom:
     buildProvidedRuntimeAsBootstrap: true
 
 functions:
+  get:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /exams/{type}/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt ExamsTable.Arn
+
   list:
     handler: list/main.go
     events:

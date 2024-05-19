@@ -17,14 +17,14 @@ import {
     lineElementClasses,
 } from '@mui/x-charts';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLightMode } from '../ThemeProvider';
-import { useAuth } from '../auth/Auth';
-import { Exam } from '../database/exam';
-import { ALL_COHORTS, cohortColors, compareCohorts } from '../database/user';
-import { getRegression } from '../exams/list/ExamList';
-import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
-import CohortIcon from '../scoreboard/CohortIcon';
-import { getTotalScore } from './tactics';
+import { useLightMode } from '../../ThemeProvider';
+import { useAuth } from '../../auth/Auth';
+import { Exam } from '../../database/exam';
+import { ALL_COHORTS, cohortColors, compareCohorts } from '../../database/user';
+import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
+import CohortIcon from '../../scoreboard/CohortIcon';
+import { getRegression } from '../list/ExamList';
+import { getTotalScore } from './exam';
 
 interface ExamStatisticsProps {
     /** The exam to display statistics for. */

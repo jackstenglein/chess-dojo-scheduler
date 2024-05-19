@@ -1,30 +1,49 @@
 import { Button, Container, Stack, Typography } from '@mui/material';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { RequestStatus, useRequest } from '../../api/Request';
-import { Exam, ExamAnswer, ExamType } from '../../database/exam';
-import { CompletedTacticsExam, InProgressTacticsExam } from '../TacticsExamPage';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { Exam, ExamAnswer, ExamType, displayExamType } from '../../database/exam';
+import LoadingPage from '../../loading/LoadingPage';
+import { CompletedExam, InProgressExam } from '../view/ExamPage';
+import { useExam } from '../view/exam';
 import Instructions from './Instructions';
 
-const TacticsInstructionsPage = () => {
+const ExamInstructionsPage = () => {
     const navigate = useNavigate();
-    const locationState = useLocation().state;
-    const request = useRequest<ExamAnswer>();
 
-    const onStart = () => {
-        navigate('/tactics/exam', { state: locationState });
-    };
+    const { type, id, request, exam } = useExam();
+    const answerRequest = useRequest<ExamAnswer>();
 
-    if (!locationState || !locationState.exam) {
-        return <Navigate to='/tactics/' />;
+    if (request.isLoading() || !request.isSent()) {
+        return <LoadingPage />;
     }
 
-    const exam: Exam = locationState.exam;
+    if (request.isFailure()) {
+        return (
+            <Container sx={{ py: 4 }}>
+                <RequestSnackbar request={request} />
+            </Container>
+        );
+    }
+
+    if (!type || !id || !exam) {
+        return <Navigate to='/tests' />;
+    }
+
+    const onStart = () => {
+        navigate('exam');
+    };
+
     const sample = getSampleExam(exam);
 
     return (
         <Container sx={{ py: 4 }} maxWidth={false}>
             <Container>
                 <Stack alignItems='start'>
+                    <Typography variant='h4'>{displayExamType(exam.type)}</Typography>
+                    <Typography variant='h5'>
+                        {exam.cohortRange} {exam.name}
+                    </Typography>
+
                     <Instructions
                         length={exam.pgns.length}
                         timeLimitSeconds={exam.timeLimitSeconds}
@@ -45,17 +64,17 @@ const TacticsInstructionsPage = () => {
                 </Stack>
             </Container>
 
-            {request.status === RequestStatus.Success ? (
-                <CompletedTacticsExam
+            {answerRequest.data ? (
+                <CompletedExam
                     exam={sample}
-                    answerRequest={request}
-                    onReset={request.reset}
+                    answer={answerRequest.data}
+                    onReset={answerRequest.reset}
                 />
             ) : (
-                <InProgressTacticsExam
+                <InProgressExam
                     exam={sample}
                     setExam={() => null}
-                    answerRequest={request}
+                    setAnswer={answerRequest.onSuccess}
                     setIsRetaking={() => null}
                     disableClock
                     disableSave
@@ -81,7 +100,7 @@ const TacticsInstructionsPage = () => {
     );
 };
 
-export default TacticsInstructionsPage;
+export default ExamInstructionsPage;
 
 const tacticsSampleProblems = [
     `[FEN "r5k1/pp2bppp/2p1pn2/3rN2q/5QP1/2BP4/PP2PP1P/R4RK1 b - - 0 1"]
