@@ -118,4 +118,10 @@ resources:
             - true
             - false
         StreamSpecification:
-          StreamViewType: NEW_IMAGE
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+  Outputs:
+    ExamsTableArn:
+      Value: !GetAtt ExamsTable.Arn
+    ExamsTableStreamArn:
+      Value: !GetAtt ExamsTable.StreamArn

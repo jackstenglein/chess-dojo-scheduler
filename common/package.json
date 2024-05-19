@@ -1,0 +1,17 @@
+{
+  "name": "@jackstenglein/chess-dojo-common",
+  "version": "1.0.0",
+  "description": "Common code shared between ChessDojo website, mobile app and backend",
+  "main": "index.ts",
+  "scripts": {
+    "test": "jest --config jestconfig.json"
+  },
+  "author": "jackstenglein",
+  "license": "MIT",
+  "dependencies": {
+    "@jackstenglein/chess": "^1.0.64"
+  },
+  "devDependencies": {
+    "prettier-plugin-organize-imports": "^3.2.4"
+  }
+}

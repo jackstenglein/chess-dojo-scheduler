@@ -1,6 +1,9 @@
 {
     "compilerOptions": {
         "lib": ["es2021"],
-        "strict": true
+        "strict": true,
+        "target": "ES2015",
+        "moduleResolution": "NodeNext",
+        "module": "NodeNext"
     }
 }
