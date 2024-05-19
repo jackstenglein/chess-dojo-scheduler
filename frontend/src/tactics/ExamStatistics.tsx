@@ -21,9 +21,9 @@ import { useLightMode } from '../ThemeProvider';
 import { useAuth } from '../auth/Auth';
 import { Exam } from '../database/exam';
 import { ALL_COHORTS, cohortColors, compareCohorts } from '../database/user';
+import { getRegression } from '../exams/list/ExamList';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../scoreboard/CohortIcon';
-import { getRegression } from './list/ExamsTable';
 import { getTotalScore } from './tactics';
 
 interface ExamStatisticsProps {

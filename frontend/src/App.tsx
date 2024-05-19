@@ -36,6 +36,9 @@ import { getConfig } from './config';
 import ListCoursesPage from './courses/list/ListCoursesPage';
 import CoursePage from './courses/view/CoursePage';
 import UnsubscribePage from './dojoDigest/UnsubscribePage';
+import { ExamLandingPage } from './exams/ExamLandingPage';
+import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
+import { ListTacticsExamsPage } from './exams/list/ListTacticsExamsPage';
 import EditGamePage from './games/edit/EditGamePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
 import ListGamesPage from './games/list/ListGamesPage';
@@ -72,7 +75,6 @@ import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import TacticsExamPage from './tactics/TacticsExamPage';
 import TacticsInstructionsPage from './tactics/instructions/TacticsInstructionsPage';
-import ListTacticsExamsPage from './tactics/list/ListTacticsExamsPage';
 import TournamentsPage from './tournaments/TournamentsPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import InfoPage from './tournaments/openClassical/InfoPage';
@@ -155,6 +157,12 @@ const router = createBrowserRouter(
                             <Route path='followers' element={<FollowersPage />} />
                             <Route path='following' element={<FollowersPage />} />
                         </Route>
+                    </Route>
+
+                    <Route path='tests'>
+                        <Route index element={<ExamLandingPage />} />
+                        <Route path='tactics' element={<ListTacticsExamsPage />} />
+                        <Route path='checkmate' element={<ListCheckmateExamsPage />} />
                     </Route>
 
                     <Route path='tactics'>

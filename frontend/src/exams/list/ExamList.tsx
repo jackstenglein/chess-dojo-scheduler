@@ -1,5 +1,14 @@
-import { Check, Close, Help, Lock } from '@mui/icons-material';
-import { Alert, Link, Snackbar, Stack, Tooltip } from '@mui/material';
+import { Check, Close, ExpandLess, ExpandMore, Help, Lock } from '@mui/icons-material';
+import {
+    Alert,
+    Collapse,
+    IconButton,
+    Link,
+    Snackbar,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -9,13 +18,121 @@ import {
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import { SimpleLinearRegression } from 'ml-regression-simple-linear';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth, useFreeTier } from '../../auth/Auth';
 import { toDojoDateString } from '../../calendar/displayDate';
-import { Exam } from '../../database/exam';
+import { Exam, ExamType } from '../../database/exam';
+import { isCohortInRange } from '../../database/user';
+import LoadingPage from '../../loading/LoadingPage';
+import { getTotalScore } from '../../tactics/tactics';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
-import { getTotalScore } from '../tactics';
+
+interface CohortRangeExams {
+    name: string;
+    exams: Exam[];
+}
+
+interface ExamListProps {
+    cohortRanges: string[];
+    examType: ExamType;
+}
+
+/**
+ * Renders a set of exams in different cohort ranges. Each cohort range is
+ * collapsible, and the user's current cohort range is expanded by default.
+ * @param cohortRanges The cohort ranges that apply to this section
+ * @param examType The type of exam shown in this section
+ */
+export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) => {
+    const api = useApi();
+    const request = useRequest<Exam[]>();
+    const user = useAuth().user;
+    const [expanded, setExpanded] = useState(
+        cohortRanges.map((c) => isCohortInRange(user?.dojoCohort, c)),
+    );
+
+    useEffect(() => {
+        if (!request.isSent()) {
+            request.onStart();
+
+            api.listExams(examType)
+                .then((exams) => {
+                    console.log('Exams: ', exams);
+                    request.onSuccess(exams);
+                })
+                .catch((err) => {
+                    console.error('listExams: ', err);
+                    request.onFailure(err);
+                });
+        }
+    }, [request, api]);
+
+    const ranges = useMemo(() => {
+        const ranges: CohortRangeExams[] = [];
+        if (request.data) {
+            for (const range of cohortRanges) {
+                const exams = request.data
+                    .filter((c) => c.cohortRange === range)
+                    .sort((lhs, rhs) => {
+                        if (
+                            parseInt(lhs.name.replace('Test #', '')) <
+                            parseInt(rhs.name.replace('Test #', ''))
+                        ) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                ranges.push({
+                    name: range,
+                    exams,
+                });
+            }
+        }
+        return ranges;
+    }, [request]);
+
+    const onChangeExpanded = (i: number) => {
+        setExpanded([...expanded.slice(0, i), !expanded[i], ...expanded.slice(i + 1)]);
+    };
+
+    return (
+        <Stack spacing={2}>
+            {!request.isSent() || request.isLoading() ? (
+                <LoadingPage />
+            ) : (
+                <Stack spacing={3}>
+                    {ranges.map((range, i) => (
+                        <Stack key={range.name}>
+                            <Stack spacing={1} direction='row' alignItems='center'>
+                                <Tooltip
+                                    title={
+                                        expanded[i]
+                                            ? 'Collapse Section'
+                                            : 'Expand Section'
+                                    }
+                                >
+                                    <IconButton onClick={() => onChangeExpanded(i)}>
+                                        {expanded[i] ? <ExpandLess /> : <ExpandMore />}
+                                    </IconButton>
+                                </Tooltip>
+                                <Typography variant='h6'>{range.name}</Typography>
+                            </Stack>
+
+                            <Collapse in={expanded[i]}>
+                                <ExamsTable exams={range.exams} />
+                            </Collapse>
+                        </Stack>
+                    ))}
+                </Stack>
+            )}
+
+            <RequestSnackbar request={request} />
+        </Stack>
+    );
+};
 
 /**
  * Returns the linear regression for this exam. If the exam has not been taken
@@ -129,7 +246,7 @@ const avgRatingColumn: GridColDef<Exam> = {
     flex: 1,
 };
 
-const ExamsTable = ({ exams }: { exams: Exam[] }) => {
+export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
     const user = useAuth().user;
     const navigate = useNavigate();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -302,5 +419,3 @@ const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         </>
     );
 };
-
-export default ExamsTable;
