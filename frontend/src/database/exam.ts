@@ -62,12 +62,6 @@ export interface Exam {
 export interface ExamProblemAnswer {
     /** The user's final result PGN. */
     pgn: string;
-
-    /** The user's score for the problem. */
-    score: number;
-
-    /** The total score available for the problem. */
-    total: number;
 }
 
 /**

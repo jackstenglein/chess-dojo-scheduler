@@ -80,10 +80,18 @@ function getColorsTime(limitSeconds?: number): { 0: number } & { 1: number } & n
 
 const ExamPage = () => {
     const { request, exam, answer } = useExam();
+    const inProgress = !answer || answer.attempts.slice(-1)[0].inProgress;
 
     const [isRetaking, setIsRetaking] = useState(false);
     const [showRetakeDialog, setShowRetakeDialog] = useState(false);
-    const [showLatestAttempt, setShowLatestAttempt] = useState(false);
+    const [showLatestAttempt, setShowLatestAttempt] = useState(isRetaking);
+
+    useEffect(() => {
+        if (inProgress && (answer?.attempts.length ?? 0) > 1) {
+            setIsRetaking(true);
+            setShowLatestAttempt(true);
+        }
+    }, [inProgress, answer]);
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
@@ -100,7 +108,6 @@ const ExamPage = () => {
         return <Navigate to='/tests' />;
     }
 
-    const inProgress = !answer || answer.attempts.slice(-1)[0].inProgress;
     if (inProgress || isRetaking) {
         const setExam = (e: Exam) => {
             request.onSuccess({ ...request.data, exam: e });
@@ -212,9 +219,6 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
         const attempt: ExamAttempt = {
             answers: answerPgns.current.map((pgn, i) => ({
                 pgn: selectedProblem === i ? pgnApi.current?.getPgn() || '' : pgn,
-                // TODO: remove this
-                score: 0,
-                total: 0,
             })),
             cohort: user.dojoCohort,
             rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
@@ -259,7 +263,10 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                 },
             };
             pgnApi.current?.addObserver(observer);
-            return () => pgnApi.current?.removeObserver(observer);
+            return () => {
+                debouncedOnSave.cancel();
+                pgnApi.current?.removeObserver(observer);
+            };
         }
     }, [disableSave, pgnApi, debouncedOnSave]);
 
@@ -269,6 +276,8 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
     };
 
     const onPause = () => {
+        debouncedOnSave.cancel();
+        answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
         saveProgress(true)
             .then((resp) => {
                 console.log('putExamAttempt: ', resp);
@@ -281,6 +290,9 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
     };
 
     const onComplete = () => {
+        debouncedOnSave.cancel();
+        answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
+
         if (!disableSave) {
             saveProgress(false)
                 .then((resp) => {
@@ -299,15 +311,11 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
             return;
         }
 
-        answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
         const scores = getScores(exam, answerPgns.current);
 
         const attempt: ExamAttempt = {
-            answers: answerPgns.current.map((pgn, i) => ({
+            answers: answerPgns.current.map((pgn) => ({
                 pgn,
-                // TODO: remove this
-                score: scores.problems[i].user,
-                total: scores.problems[i].solution,
             })),
             cohort: user.dojoCohort,
             rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
@@ -533,13 +541,10 @@ export const CompletedExam: React.FC<CompletedExamProps> = ({
         return null;
     }
 
-    const scores: Scores = {
-        problems: attempt.answers.map((a) => ({ user: a.score, solution: a.total })),
-        total: {
-            user: attempt.answers.reduce((sum, a) => sum + a.score, 0) || 0,
-            solution: attempt.answers.reduce((sum, a) => sum + a.total, 0) || 0,
-        },
-    };
+    const scores = getScores(
+        exam,
+        attempt.answers.map((a) => a.pgn),
+    );
 
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>

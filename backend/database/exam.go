@@ -81,9 +81,11 @@ type ExamProblemAnswer struct {
 	Pgn string `dynamodbav:"pgn" json:"pgn"`
 
 	// The user's score for the problem.
+	// DEPRECATED
 	Score int `dynamodbav:"score" json:"score"`
 
 	// The total score available for the problem.
+	// DEPRECATED
 	Total int `dynamodbav:"total" json:"total"`
 }
 
