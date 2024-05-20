@@ -8,7 +8,7 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useEvents } from '../api/cache/Cache';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import { AvailabilityType, Event, EventStatus, EventType } from '../database/event';
+import { AvailabilityType, Event, EventStatus, EventType, TimeControlType } from '../database/event';
 import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '../database/user';
 import Icon from '../style/Icon';
 import UpsellAlert from '../upsell/UpsellAlert';
@@ -179,9 +179,13 @@ function processLigaTournament(
     if (!event.ligaTournament) {
         return null;
     }
+
+    // event.types?.every((t) => !filters.types.includes(t))
     if (
         filters &&
-        !filters.tournamentTimeControls[event.ligaTournament.timeControlType]
+        filters.tournamentTimeControls[0] !== TimeControlType.AllTimeContols
+        && !event.ligaTournament.timeControlType.includes(event.ligaTournament.timeControlType)
+        
     ) {
         return null;
     }

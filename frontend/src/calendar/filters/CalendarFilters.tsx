@@ -97,13 +97,13 @@ const initialFilterTournamentTypes = Object.values(TournamentType).reduce(
     {} as Record<TournamentType, boolean>,
 );
 
-const initialFilterTournamentTimeControls = Object.values(TimeControlType).reduce(
-    (map, type) => {
-        map[type] = true;
-        return map;
-    },
-    {} as Record<TimeControlType, boolean>,
-);
+// const initialFilterTournamentTimeControls = Object.values(TimeControlType).reduce(
+//     (map, type) => {
+//         map[type] = true;
+//         return map;
+//     },
+//     {} as Record<TimeControlType, boolean>,
+// );
 
 const initialFilterTournamentPositions = Object.values(PositionType).reduce(
     (m, t) => {
@@ -147,8 +147,8 @@ export interface Filters {
     tournamentTypes: Record<TournamentType, boolean>;
     setTournamentTypes: (v: Record<TournamentType, boolean>) => void;
 
-    tournamentTimeControls: Record<TimeControlType, boolean>;
-    setTournamentTimeControls: (v: Record<TimeControlType, boolean>) => void;
+    tournamentTimeControls: TimeControlType[]; // I'm here
+    setTournamentTimeControls: (v: TimeControlType[]) => void;
 
     tournamentPositions: Record<PositionType, boolean>;
     setTournamentPositions: (v: Record<PositionType, boolean>) => void;
@@ -204,7 +204,7 @@ export function useFilters(): Filters {
 
     const [tournamentTimeControls, setTournamentTimeControls] = useLocalStorage(
         'calendarFilters.tournamentTimeControls',
-        initialFilterTournamentTimeControls,
+        [TimeControlType.AllTimeContols],
     );
 
     const [tournamentPositions, setTournamentPositions] = useLocalStorage(
@@ -366,11 +366,24 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         filters.setCohorts(finalCohorts);
     };
 
-    const onChangeTournamentTimeControls = (type: TimeControlType, value: boolean) => {
-        filters.setTournamentTimeControls({
-            ...filters.tournamentTimeControls,
-            [type]: value,
-        });
+    const onChangeTournamentTimeControls = (tcTypes: string[]) => {
+
+        const addedTcTypes = tcTypes.filter(
+            (tc) => !filters.tournamentTimeControls.includes(tc as TimeControlType),
+        );
+ 
+        let findTcTypes = [];
+        if(addedTcTypes.includes(TimeControlType.AllTimeContols)){
+            findTcTypes = [TimeControlType.AllTimeContols];
+        }else{
+            findTcTypes = tcTypes.filter((tc) => tc !== TimeControlType.AllTimeContols);
+        }
+
+        filters.setTournamentTimeControls(findTcTypes as TimeControlType[]);
+        // filters.setTournamentTimeControls({
+        //     ...filters.tournamentTimeControls,
+        //     [type]: value,
+        // });
     };
 
     const onReset = () => {
@@ -380,7 +393,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         filters.setTypes([AvailabilityType.AllTypes]);
         filters.setCohorts([ALL_COHORTS]);
         filters.setTournamentTypes(initialFilterTournamentTypes);
-        filters.setTournamentTimeControls(initialFilterTournamentTimeControls);
+        filters.setTournamentTimeControls([TimeControlType.AllTimeContols]);
         filters.setTournamentPositions(initialFilterTournamentPositions);
         filters.setCoaching(true);
     };
@@ -567,17 +580,27 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             <Typography variant='h6' color='text.secondary'>
                                 <Icon
                                     name='liga'
-                                    color='inherit'
+                                    color='liga'
                                     sx={{
                                         marginRight: '0.4rem',
                                         verticalAlign: 'middle',
                                     }}
                                     fontSize='medium'
                                 />
-                                Tournaments
+                                DojoLiga Tournaments
                             </Typography>
+                            <MultipleSelectChip
+                            selected={filters.tournamentTimeControls}
+                            setSelected={onChangeTournamentTimeControls}
+                            options={Object.values(TimeControlType).map((t) => ({
+                                value: t,
+                                label: displayTimeControlType(t),
+                                icon: <Icon name={t} color='liga' />,
+                            }))}
+                            size='small'
+                        />
 
-                            {Object.values(TimeControlType).map((type) => (
+                            {/* {Object.values(TimeControlType).map((type) => (
                                 <FormControlLabel
                                     key={type}
                                     control={
@@ -611,7 +634,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                         </>
                                     }
                                 />
-                            ))}
+                            ))} */}
                         </Stack>
                     </Tooltip>
                     <Stack pt={2} spacing={0.5}>

@@ -36,7 +36,7 @@ function getProcessedEvents(filters: Filters, events: Event[]): ProcessedEvent[]
 
         if (
             !filters.tournamentTypes[event.ligaTournament.type] ||
-            !filters.tournamentTimeControls[event.ligaTournament.timeControlType]
+            !filters.tournamentTimeControls[0]
         ) {
             continue;
         }

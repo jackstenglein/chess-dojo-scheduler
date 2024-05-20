@@ -51,6 +51,7 @@ export enum TournamentType {
 }
 
 export enum TimeControlType {
+    AllTimeContols = 'ALL_TIME_CONTROLS',
     Blitz = 'BLITZ',
     Rapid = 'RAPID',
     Classical = 'CLASSICAL',
@@ -204,8 +205,8 @@ export function displayTournamentType(type: TournamentType | null | undefined): 
 
 export function displayTimeControlType(
     type: TimeControlType | null | undefined,
-): '' | 'Blitz' | 'Classical' | 'Rapid' {
-    if (!type) return '';
+): 'All Time Controls' | 'Blitz' | 'Classical' | 'Rapid' {
+    if (!type) return 'All Time Controls';
 
     switch (type) {
         case TimeControlType.Blitz:
@@ -214,5 +215,7 @@ export function displayTimeControlType(
             return 'Classical';
         case TimeControlType.Rapid:
             return 'Rapid';
+        case TimeControlType.AllTimeContols:
+            return 'All Time Controls';   
     }
 }
