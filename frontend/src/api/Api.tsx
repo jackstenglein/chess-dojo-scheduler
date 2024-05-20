@@ -433,7 +433,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 examId: string,
                 attempt: ExamAttempt,
                 index?: number,
-            ) => putExamAttempt(idToken, examType, examId, attempt, index),
+                totalScore?: number,
+            ) => putExamAttempt(idToken, examType, examId, attempt, index, totalScore),
             getExamAnswer: (id: string) => getExamAnswer(idToken, id),
 
             createSupportTicket: (request: SupportTicketRequest) =>

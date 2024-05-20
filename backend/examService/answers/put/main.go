@@ -17,10 +17,11 @@ import (
 var repository = database.DynamoDB
 
 type PutExamAttemptRequest struct {
-	ExamType database.ExamType    `json:"examType"`
-	ExamId   string               `json:"examId"`
-	Attempt  database.ExamAttempt `json:"attempt"`
-	Index    *int                 `json:"index,omitempty"`
+	ExamType   database.ExamType    `json:"examType"`
+	ExamId     string               `json:"examId"`
+	Attempt    database.ExamAttempt `json:"attempt"`
+	Index      *int                 `json:"index,omitempty"`
+	TotalScore int                  `json:"totalScore"`
 }
 
 type PutExamAnswerResponse struct {
@@ -66,7 +67,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	exam, err := repository.PutExamAnswerSummary(answer)
+	exam, err := repository.PutExamAnswerSummary(answer, request.TotalScore)
 	if err != nil {
 		return api.Failure(err), nil
 	}

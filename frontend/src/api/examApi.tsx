@@ -30,6 +30,7 @@ export type ExamApiContextType = {
      * @param examId The id of the exam attempted.
      * @param attempt The attempt to save.
      * @param index The index of the attempt, if it already exists.
+     * @param totalScore The user's total score on the attempt, if it is completed.
      * @returns An AxiosResponse containing the updated Exam or null if this
      * ExamAttempt did not generate an update to the Exam.
      */
@@ -38,6 +39,7 @@ export type ExamApiContextType = {
         examId: string,
         attempt: ExamAttempt,
         index?: number,
+        totalScore?: number,
     ) => Promise<AxiosResponse<{ exam?: Exam; answer: ExamAnswer }>>;
 
     /**
@@ -100,6 +102,7 @@ export async function listExams(idToken: string, type: ExamType, startKey?: stri
  * @param examId The id of the exam attempted.
  * @param attempt The attempt to save.
  * @param index The index of the attempt, if it already exists.
+ * @param totalScore The user's total score on the attempt, if it is completed.
  * @returns An AxiosResponse containing the updated Exam or null if this
  * ExamAttempt did not generate an update to the Exam.
  */
@@ -109,11 +112,11 @@ export function putExamAttempt(
     examId: string,
     attempt: ExamAttempt,
     index?: number,
+    totalScore?: number,
 ) {
-    console.log('Exam attempt index: ', index);
     return axios.put<{ exam?: Exam; answer: ExamAnswer }>(
         `${BASE_URL}/exams/answers`,
-        { examType, examId, attempt, index },
+        { examType, examId, attempt, index, totalScore },
         {
             headers: { Authorization: `Bearer ${idToken}` },
         },

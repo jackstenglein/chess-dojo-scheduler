@@ -161,15 +161,10 @@ func (repo *dynamoRepository) ListExams(examType ExamType, startKey string, out 
 
 // PutExamAnswerSummary creates and saves an ExamAnswerSummary using the provided ExamAnswer.
 // The updated Exam is returned. If the ExamAnswer does not require updating the Exam, then nil is returned.
-func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) (*Exam, error) {
+func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer, score int) (*Exam, error) {
 	if len(answer.Attempts) != 1 || answer.Attempts[0].InProgress {
 		// We've either already saved the first attempt on the Exam or the attempt is still on-going
 		return nil, nil
-	}
-
-	score := 0
-	for _, a := range answer.Attempts[0].Answers {
-		score += a.Score
 	}
 
 	summary := ExamAnswerSummary{

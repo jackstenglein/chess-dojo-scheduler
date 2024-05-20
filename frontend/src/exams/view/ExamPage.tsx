@@ -109,19 +109,19 @@ const ExamPage = () => {
     }
 
     if (inProgress || isRetaking) {
-        const setExam = (e: Exam) => {
-            request.onSuccess({ ...request.data, exam: e });
-        };
         const setAnswer = (a: ExamAnswer) => {
             request.onSuccess({ ...request.data!, answer: a });
+        };
+        const updateData = (e: Exam, a: ExamAnswer) => {
+            request.onSuccess({ exam: e, answer: a });
         };
 
         return (
             <InProgressExam
                 exam={exam}
                 answer={answer}
-                setExam={setExam}
                 setAnswer={setAnswer}
+                setExamAndAnswer={updateData}
                 setIsRetaking={setIsRetaking}
             />
         );
@@ -165,8 +165,8 @@ export default ExamPage;
 interface InProgressExamProps {
     exam: Exam;
     answer?: ExamAnswer;
-    setExam: (e: Exam) => void;
     setAnswer: (a: ExamAnswer) => void;
+    setExamAndAnswer: (e: Exam, a: ExamAnswer) => void;
     setIsRetaking: (v: boolean) => void;
     disableClock?: boolean;
     disableSave?: boolean;
@@ -175,8 +175,8 @@ interface InProgressExamProps {
 export const InProgressExam: React.FC<InProgressExamProps> = ({
     exam,
     answer,
-    setExam,
     setAnswer,
+    setExamAndAnswer,
     setIsRetaking,
     disableClock,
     disableSave,
@@ -214,7 +214,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
         onComplete: onCountdownComplete,
     });
 
-    const saveProgress = (inProgress: boolean) => {
+    const saveProgress = (inProgress: boolean, totalScore?: number) => {
         answerRequest.onStart();
         const attempt: ExamAttempt = {
             answers: answerPgns.current.map((pgn, i) => ({
@@ -228,7 +228,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
         };
 
         const attemptIndex = currentAttempt ? answer!.attempts.length - 1 : undefined;
-        return api.putExamAttempt(exam.type, exam.id, attempt, attemptIndex);
+        return api.putExamAttempt(exam.type, exam.id, attempt, attemptIndex, totalScore);
     };
 
     const autoSave = () => {
@@ -247,7 +247,6 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
 
     useEffect(() => {
         if (!disableSave) {
-            console.log('Use effect');
             const observer = {
                 types: [
                     EventType.NewVariation,
@@ -292,15 +291,17 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
     const onComplete = () => {
         debouncedOnSave.cancel();
         answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
+        const scores = getScores(exam, answerPgns.current);
 
         if (!disableSave) {
-            saveProgress(false)
+            saveProgress(false, scores.total.user)
                 .then((resp) => {
                     console.log('putExamAttempt: ', resp);
                     if (resp.data.exam) {
-                        setExam(resp.data.exam);
+                        setExamAndAnswer(resp.data.exam, resp.data.answer);
+                    } else {
+                        setAnswer(resp.data.answer);
                     }
-                    setAnswer(resp.data.answer);
                     setIsRetaking(false);
                 })
                 .catch((err) => {
@@ -310,8 +311,6 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
 
             return;
         }
-
-        const scores = getScores(exam, answerPgns.current);
 
         const attempt: ExamAttempt = {
             answers: answerPgns.current.map((pgn) => ({
@@ -330,19 +329,21 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
             attempts: [...(answer?.attempts || []), attempt],
         };
 
-        setAnswer(newAnswer);
-        setExam({
-            ...exam,
-            answers: {
-                [user.username]: {
-                    cohort: user.dojoCohort,
-                    rating: attempt.rating,
-                    score: scores.total.user,
-                    createdAt: attempt.createdAt,
+        setExamAndAnswer(
+            {
+                ...exam,
+                answers: {
+                    [user.username]: {
+                        cohort: user.dojoCohort,
+                        rating: attempt.rating,
+                        score: scores.total.user,
+                        createdAt: attempt.createdAt,
+                    },
+                    ...exam.answers,
                 },
-                ...exam.answers,
             },
-        });
+            newAnswer,
+        );
         setIsRetaking(false);
     };
 

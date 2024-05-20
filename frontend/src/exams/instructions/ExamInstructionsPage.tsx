@@ -73,8 +73,8 @@ const ExamInstructionsPage = () => {
             ) : (
                 <InProgressExam
                     exam={sample}
-                    setExam={() => null}
                     setAnswer={answerRequest.onSuccess}
+                    setExamAndAnswer={(_e, a) => answerRequest.onSuccess(a)}
                     setIsRetaking={() => null}
                     disableClock
                     disableSave
