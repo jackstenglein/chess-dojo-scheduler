@@ -23,8 +23,7 @@ import { Exam } from '../../database/exam';
 import { ALL_COHORTS, cohortColors, compareCohorts } from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import { getRegression } from '../list/ExamList';
-import { getTotalScore } from './exam';
+import { getCohortRangeInt, getRegression, getTotalScore } from './exam';
 
 interface ExamStatisticsProps {
     /** The exam to display statistics for. */
@@ -178,6 +177,10 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
         series.reduce((sum, s) => sum + s.data.reduce((ds, d) => ds + d.x, 0), 0) /
         userCount;
 
+    let [minCohort, maxCohort] = getCohortRangeInt(exam.cohortRange);
+    minCohort = Math.max(minCohort - 100, 0);
+    maxCohort += 100;
+
     return (
         <CardContent sx={{ height: 1 }}>
             <Stack ref={ref} height={1}>
@@ -204,26 +207,37 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     error={cohorts.length === 0}
                 />
 
-                <Stack direction='row' spacing={2} justifyContent='center' mt={1} mb={1}>
-                    <Typography variant='body2'>
-                        <Typography
-                            variant='body2'
-                            component='span'
-                            color='text.secondary'
-                        >
-                            Users:
-                        </Typography>{' '}
-                        {userCount}
-                    </Typography>
-                    <Typography variant='body2'>
-                        <Typography
-                            variant='body2'
-                            component='span'
-                            color='text.secondary'
-                        >
-                            Avg Score:
-                        </Typography>{' '}
-                        {Math.round(10 * avgScore) / 10}
+                <Stack alignItems='center' mt={1} mb={1} spacing={0.5}>
+                    <Stack direction='row' spacing={2} justifyContent='center'>
+                        <Typography variant='body2'>
+                            <Typography
+                                variant='body2'
+                                component='span'
+                                color='text.secondary'
+                            >
+                                Users:
+                            </Typography>{' '}
+                            {userCount}
+                        </Typography>
+                        <Typography variant='body2'>
+                            <Typography
+                                variant='body2'
+                                component='span'
+                                color='text.secondary'
+                            >
+                                Avg Score:
+                            </Typography>{' '}
+                            {Math.round(10 * avgScore) / 10}
+                        </Typography>
+                    </Stack>
+                    <Typography
+                        variant='caption'
+                        color='text.secondary'
+                        textAlign='center'
+                    >
+                        Best fit is calculated as a linear regression over all users{' '}
+                        {minCohort}
+                        {maxCohort === Infinity ? '+' : `–${maxCohort}`}
                     </Typography>
                 </Stack>
 

@@ -17,7 +17,6 @@ import {
     GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
-import { SimpleLinearRegression } from 'ml-regression-simple-linear';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../api/Api';
@@ -28,7 +27,7 @@ import { Exam, ExamType } from '../../database/exam';
 import { isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
-import { getTotalScore } from '../view/exam';
+import { getRegression, getTotalScore } from '../view/exam';
 
 interface CohortRangeExams {
     name: string;
@@ -133,23 +132,6 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
         </Stack>
     );
 };
-
-/**
- * Returns the linear regression for this exam. If the exam has not been taken
- * by enough people, null is returned.
- * @param exam The exam to get the linear regression for.
- * @returns The linear regression, or null if the exam does not have enough answers.
- */
-export function getRegression(exam: Exam): SimpleLinearRegression | null {
-    const answers = Object.values(exam.answers).filter((a) => a.rating > 0);
-    if (answers.length < 10) {
-        return null;
-    }
-
-    const x = answers.map((a) => a.score);
-    const y = answers.map((a) => a.rating);
-    return new SimpleLinearRegression(x, y);
-}
 
 const columns: GridColDef<Exam>[] = [
     {
