@@ -1,4 +1,4 @@
-import { Event, EventType } from '@jackstenglein/chess';
+import { EventType } from '@jackstenglein/chess';
 import {
     Assessment,
     Info,
@@ -258,7 +258,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                     EventType.DeleteMove,
                     EventType.PromoteVariation,
                 ],
-                handler: (event: Event) => {
+                handler: () => {
                     debouncedOnSave();
                 },
             };
