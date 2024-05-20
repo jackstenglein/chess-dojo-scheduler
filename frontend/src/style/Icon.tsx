@@ -14,6 +14,7 @@ import {
     EditCalendar,
     Event,
     EventAvailable,
+    EventAvailableOutlined,
     Explore,
     FlashOn,
     GridView,
@@ -48,7 +49,7 @@ import {
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
-import { AvailabilityType, EventType, TimeControlType, TournamentType } from '../database/event';
+import { AvailabilityType, CalendarSessionType, EventType, TimeControlType, TournamentType } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import RookIcon from './RookIcon';
 export const icons = {
@@ -127,6 +128,11 @@ export const icons = {
     [EventType.Coaching]: RocketLaunch,
     [EventType.Dojo]: LiveTv,
     [EventType.LigaTournament]: MilitaryTech,
+    [CalendarSessionType.AllSessions]: AllInclusiveRounded,
+    [CalendarSessionType.Availabilities]: Event,
+    [CalendarSessionType.CoachingSessions]: RocketLaunch,
+    [CalendarSessionType.DojoEvents]: LiveTv,
+    [CalendarSessionType.Meetings]: EventAvailableOutlined
 };
 
 export interface IconProps extends SvgIconProps {
@@ -138,7 +144,25 @@ export const Icon: React.FC<IconProps> = ({ name, ...props }) => {
         return null;
     }
 
+   
+
     const InternalIcon = icons[name];
+
+
+    switch(name){
+        case CalendarSessionType.AllSessions:
+            return <InternalIcon {...props} color='primary'/>;
+        case CalendarSessionType.Availabilities:
+            return <InternalIcon {...props} color='info'/>;
+        case CalendarSessionType.CoachingSessions:
+            return  <InternalIcon {...props} color='coaching'/>;
+        case CalendarSessionType.DojoEvents:
+            return  <InternalIcon {...props} color='dojoOrange'/>;  
+        case CalendarSessionType.Meetings:
+            return  <InternalIcon {...props} color='meet'/>;            
+       
+    }
+
     return <InternalIcon {...props} />;
 };
 

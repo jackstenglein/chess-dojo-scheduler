@@ -32,6 +32,8 @@ import {
     TournamentType,
     displayTimeControlType,
     getDisplayString,
+    CalendarSessionType,
+    getDisplaySessionString
 } from '../../database/event';
 import {
     ALL_COHORTS,
@@ -129,14 +131,17 @@ export interface Filters {
     maxHour: DateTime | null;
     setMaxHour: (d: DateTime | null) => void;
 
-    availabilities: boolean;
-    setAvailabilities: (v: boolean) => void;
+    // availabilities: boolean;
+    // setAvailabilities: (v: boolean) => void;
 
-    meetings: boolean;
-    setMeetings: (v: boolean) => void;
+    // meetings: boolean;
+    // setMeetings: (v: boolean) => void;
 
-    dojoEvents: boolean;
-    setDojoEvents: (v: boolean) => void;
+    // dojoEvents: boolean;
+    // setDojoEvents: (v: boolean) => void;
+
+    sessions: CalendarSessionType[];
+    setSessions: (v: CalendarSessionType[]) => void;
 
     types: AvailabilityType[];
     setTypes: (v: AvailabilityType[]) => void;
@@ -153,8 +158,8 @@ export interface Filters {
     tournamentPositions: Record<PositionType, boolean>;
     setTournamentPositions: (v: Record<PositionType, boolean>) => void;
 
-    coaching: boolean;
-    setCoaching: (v: boolean) => void;
+    // coaching: boolean;
+    // setCoaching: (v: boolean) => void;
 }
 
 export function useFilters(): Filters {
@@ -179,15 +184,21 @@ export function useFilters(): Filters {
         { deserializer: (v) => DateTime.fromISO(JSON.parse(v)) },
     );
 
-    const [availabilities, setAvailabilities] = useLocalStorage(
-        'calendarFilters.availabilties',
-        true,
-    );
-    const [meetings, setMeetings] = useLocalStorage('calendarFilters.meetings', true);
-    const [dojoEvents, setDojoEvents] = useLocalStorage(
-        'calendarFilters.dojoEvents',
-        true,
-    );
+
+    const [sessions, setSessions] = useLocalStorage(
+        'calendarFilters.sessions', 
+        [CalendarSessionType.AllSessions]
+    )
+
+    // const [availabilities, setAvailabilities] = useLocalStorage(
+    //     'calendarFilters.availabilties',
+    //     true,
+    // );
+    // const [meetings, setMeetings] = useLocalStorage('calendarFilters.meetings', true);
+    // const [dojoEvents, setDojoEvents] = useLocalStorage(
+    //     'calendarFilters.dojoEvents',
+    //     true,
+    // );
 
     const [types, setTypes] = useLocalStorage('calendarFilters.types.2', [
         AvailabilityType.AllTypes,
@@ -203,7 +214,7 @@ export function useFilters(): Filters {
     );
 
     const [tournamentTimeControls, setTournamentTimeControls] = useLocalStorage(
-        'calendarFilters.tournamentTimeControls',
+        'calendarFilters.tournamentTimeControls.2',
         [TimeControlType.AllTimeContols],
     );
 
@@ -212,7 +223,7 @@ export function useFilters(): Filters {
         initialFilterTournamentPositions,
     );
 
-    const [coaching, setCoaching] = useLocalStorage('calendarFilters.coaching', true);
+    // const [coaching, setCoaching] = useLocalStorage('calendarFilters.coaching', true);
 
     const result = useMemo(
         () => ({
@@ -226,12 +237,8 @@ export function useFilters(): Filters {
             setMinHour,
             maxHour,
             setMaxHour,
-            availabilities,
-            setAvailabilities,
-            meetings,
-            setMeetings,
-            dojoEvents,
-            setDojoEvents,
+            sessions,
+            setSessions,
             types,
             setTypes,
             cohorts,
@@ -242,8 +249,6 @@ export function useFilters(): Filters {
             setTournamentTimeControls,
             tournamentPositions,
             setTournamentPositions,
-            coaching,
-            setCoaching,
         }),
         [
             timezone,
@@ -256,12 +261,8 @@ export function useFilters(): Filters {
             setMinHour,
             maxHour,
             setMaxHour,
-            availabilities,
-            setAvailabilities,
-            meetings,
-            setMeetings,
-            dojoEvents,
-            setDojoEvents,
+            sessions,
+            setSessions,
             types,
             setTypes,
             cohorts,
@@ -272,8 +273,6 @@ export function useFilters(): Filters {
             setTournamentTimeControls,
             tournamentPositions,
             setTournamentPositions,
-            coaching,
-            setCoaching,
         ],
     );
 
@@ -380,22 +379,29 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         }
 
         filters.setTournamentTimeControls(findTcTypes as TimeControlType[]);
-        // filters.setTournamentTimeControls({
-        //     ...filters.tournamentTimeControls,
-        //     [type]: value,
-        // });
     };
 
+    const onChangeSessions = (sessionTypes: string[]) => {
+        const addedSessions = sessionTypes.filter(
+            (ss) => !filters.sessions.includes(ss as CalendarSessionType),
+        );
+
+        let findss = [];
+        if(addedSessions.includes(CalendarSessionType.AllSessions)){
+            findss = [CalendarSessionType.AllSessions];
+        }else{
+            findss = sessionTypes.filter((ss) => ss !== CalendarSessionType.AllSessions);
+        }
+        filters.setSessions(findss as CalendarSessionType[]);
+    }
+
     const onReset = () => {
-        filters.setAvailabilities(true);
-        filters.setMeetings(true);
-        filters.setDojoEvents(true);
         filters.setTypes([AvailabilityType.AllTypes]);
         filters.setCohorts([ALL_COHORTS]);
         filters.setTournamentTypes(initialFilterTournamentTypes);
         filters.setTournamentTimeControls([TimeControlType.AllTimeContols]);
         filters.setTournamentPositions(initialFilterTournamentPositions);
-        filters.setCoaching(true);
+        filters.setSessions([CalendarSessionType.AllSessions]);
     };
 
     return (
@@ -421,7 +427,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                 Reset Filters
             </Button>
 
-            <Accordion
+            {/* <Accordion
                 expanded={forceExpansion || expanded === 'myCalendar'}
                 onChange={handleChange('myCalendar')}
                 id='my-calendar-filters'
@@ -438,7 +444,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
                             fontSize='medium'
                         />
-                        My Calendar
+                        My Dojo Calendar
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -495,7 +501,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                         />
                     </Stack>
                 </AccordionDetails>
-            </Accordion>
+            </Accordion> */}
 
             <Accordion
                 expanded={forceExpansion || expanded === 'dojoCalendar'}
@@ -509,15 +515,30 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                     <Typography variant='h6' color='text.secondary'>
                         <Icon
                             name='eventCheck'
-                            color='inherit'
+                            color='primary'
                             sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
                             fontSize='medium'
                         />
-                        Dojo Calendar
+                       My Dojo Calendar
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <FormControlLabel
+                <Stack pt={2}> 
+                    <MultipleSelectChip
+                            selected={filters.sessions}
+                            setSelected={onChangeSessions}
+                            options={Object.values(CalendarSessionType).map((t) => ({
+                                value: t,
+                                label: getDisplaySessionString(t),
+                                icon: <Icon name={t}  />,
+                            }))}
+                            size='small'
+                            />
+
+
+                </Stack>
+
+                    {/* <FormControlLabel
                         control={
                             <Checkbox
                                 checked={filters.dojoEvents}
@@ -566,16 +587,16 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 Coaching Sessions
                             </>
                         }
-                    />
+                    /> */}
 
-                    <Tooltip
+                    {/* <Tooltip
                         arrow
                         title={
                             filters.dojoEvents
                                 ? ''
                                 : 'Dojo Events must be enabled to view tournaments'
                         }
-                    >
+                    > */}
                         <Stack pt={2}>
                             <Typography variant='h6' color='text.secondary'>
                                 <Icon
@@ -598,7 +619,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 icon: <Icon name={t} color='liga' />,
                             }))}
                             size='small'
-                        />
+                            />
+                        
 
                             {/* {Object.values(TimeControlType).map((type) => (
                                 <FormControlLabel
@@ -636,7 +658,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 />
                             ))} */}
                         </Stack>
-                    </Tooltip>
+                    {/* </Tooltip> */}
                     <Stack pt={2} spacing={0.5}>
                         <Typography variant='h6' color='text.secondary'>
                             <Icon
@@ -653,7 +675,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             options={Object.values(AvailabilityType).map((t) => ({
                                 value: t,
                                 label: getDisplayString(t),
-                                icon: <Icon name={t} />,
+                                icon: <Icon name={t} color='book'/>,
                             }))}
                             size='small'
                         />

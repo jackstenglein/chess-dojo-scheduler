@@ -39,9 +39,9 @@ function processAvailability(
         (event.owner === user.username || event.participants[user.username]) &&
         Object.values(event.participants).length > 0
     ) {
-        if (filters && !filters.meetings) {
-            return null;
-        }
+        // if (filters && !filters.meetings) {
+        //     return null;
+        // }
 
         const title =
             event.maxParticipants === 1
@@ -70,9 +70,9 @@ function processAvailability(
 
     // This user's created availabilities
     if (event.owner === user?.username) {
-        if (filters && !filters.availabilities) {
-            return null;
-        }
+        // if (filters && !filters.availabilities) {
+        //     return null;
+        // }
 
         const title =
             event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group';
@@ -139,9 +139,9 @@ function processDojoEvent(
     filters: Filters | undefined,
     event: Event,
 ): ProcessedEvent | null {
-    if (filters && !filters.dojoEvents) {
-        return null;
-    }
+    // if (filters && !filters.dojoEvents) {
+    //     return null;
+    // }
 
     if (
         user &&
@@ -173,9 +173,9 @@ function processLigaTournament(
     filters: Filters | undefined,
     event: Event,
 ): ProcessedEvent | null {
-    if (filters && !filters.dojoEvents) {
-        return null;
-    }
+    // if (filters && !filters.dojoEvents) {
+    //     return null;
+    // }
     if (!event.ligaTournament) {
         return null;
     }
@@ -209,9 +209,9 @@ export function processCoachingEvent(
     filters: Filters | undefined,
     event: Event,
 ): ProcessedEvent | null {
-    if (filters && !filters.coaching) {
-        return null;
-    }
+    // if (filters && !filters.coaching) {
+    //     return null;
+    // }
 
     const isOwner = event.owner === user?.username;
     if (

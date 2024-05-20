@@ -7,6 +7,14 @@ export enum EventType {
     Coaching = 'COACHING',
 }
 
+export enum CalendarSessionType{
+    AllSessions = 'ALL_SESSIONS',
+    Availabilities = 'AVAILABILITIES',
+    Meetings = 'MEETINGS',
+    DojoEvents = 'DOJO_EVENTS',
+    CoachingSessions = 'COACHING_SESSIONS'
+}
+
 export interface Event {
     id: string;
     type: EventType;
@@ -141,6 +149,28 @@ export enum AvailabilityType {
     AnalyzeOwnGame = 'ANALYZE_OWN_GAME',
     BookStudy = 'BOOK_STUDY',
 }
+
+export function getDisplaySessionString(type: CalendarSessionType | null | undefined): string {
+    if(!type){
+        return '';
+    }
+
+    switch(type){
+        case CalendarSessionType.AllSessions:
+            return 'All Events';
+        case CalendarSessionType.Availabilities:
+            return 'Availabilities';
+        case CalendarSessionType.CoachingSessions:
+            return 'Coaching Sessions';
+        case CalendarSessionType.DojoEvents:
+            return 'Dojo Events';  
+        case CalendarSessionType.Meetings:
+            return 'Meetings';            
+       
+    }
+
+}
+
 
 export function getDisplayString(type: AvailabilityType | null | undefined): string {
     if (!type) {
