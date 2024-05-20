@@ -13,7 +13,7 @@ import {
     ScatterPlot,
     ScatterSeriesType,
     axisClasses,
-    cheerfulFiestaPalette,
+    legendClasses,
     lineElementClasses,
 } from '@mui/x-charts';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -58,7 +58,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     highlighted: 'item',
                     faded: 'global',
                 },
-                valueFormatter: (value) => `Score: ${value.x}, Rating: ${value.y}`,
+                valueFormatter: (value) => `Score: ${value?.x}, Rating: ${value?.y}`,
                 color: cohortColors[answer.cohort],
             };
             series.data?.push({ x: answer.score, y: answer.rating, id: username });
@@ -96,13 +96,26 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
             {
                 id: 'best-fit',
                 type: 'line',
-                label: 'Best Fit',
+                label: '',
                 data: Array.from(Array(totalScore + 2)).map((_, i) =>
                     regression.predict(i),
                 ),
                 color: isLight ? '#000' : '#fff',
             },
-        ] as LineSeriesType[];
+            {
+                id: 'best-fit-scatter',
+                type: 'scatter',
+                label: 'Best Fit',
+                color: isLight ? '#000' : '#fff',
+                data: Array.from(Array(totalScore + 2)).map((_, i) => ({
+                    x: i,
+                    y: Math.round(regression.predict(i)),
+                    id: i,
+                })),
+                markerSize: 0,
+                valueFormatter: (value) => `Score: ${value?.x}, Rating: ${value?.y}`,
+            },
+        ] as [LineSeriesType, ScatterSeriesType];
     }, [exam, totalScore]);
 
     useEffect(() => {
@@ -150,7 +163,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                       highlighted: 'item',
                       faded: 'global',
                   },
-                  valueFormatter: (value) => `Score: ${value.x},\nRating: ${value.y}`,
+                  valueFormatter: (value) => `Score: ${value?.x},\nRating: ${value?.y}`,
                   color: isLight ? '#000' : '#fff',
               },
           ]
@@ -230,7 +243,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                             min: 0,
                         },
                     ]}
-                    series={[...series, ...lineSeries, ...yourScoreSeries]}
+                    series={[...series, ...yourScoreSeries, ...lineSeries]}
                     margin={{ left: 60, right: 8, top: legendMargin }}
                     sx={{
                         [`& .${axisClasses.left} .${axisClasses.label}`]: {
@@ -242,8 +255,17 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                         '.MuiLineElement-series-best-fit': {
                             strokeDasharray: '5 5',
                         },
+
+                        [`& .${legendClasses.series}`]: {
+                            '&:last-of-type': {
+                                display: 'none',
+                            },
+                            [`:nth-last-child(2) .${legendClasses.mark}`]: {
+                                height: '3px',
+                                transform: 'translateY(3px)',
+                            },
+                        },
                     }}
-                    colors={cheerfulFiestaPalette}
                 >
                     <ChartsLegend
                         slotProps={{
