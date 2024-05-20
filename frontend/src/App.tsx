@@ -40,6 +40,7 @@ import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
 import { ListTacticsExamsPage } from './exams/list/ListTacticsExamsPage';
+import { AdminStatsPage } from './exams/view/AdminStatsPage';
 import ExamPage from './exams/view/ExamPage';
 import EditGamePage from './games/edit/EditGamePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
@@ -167,6 +168,7 @@ const router = createBrowserRouter(
                         <Route path=':type/:id'>
                             <Route index element={<ExamInstructionsPage />} />
                             <Route path='exam' element={<ExamPage />} />
+                            <Route path='stats' element={<AdminStatsPage />} />
                         </Route>
                     </Route>
 

@@ -1,6 +1,7 @@
 import { Button, Container, Stack, Typography } from '@mui/material';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
 import { Exam, ExamAnswer, ExamType, displayExamType } from '../../database/exam';
 import LoadingPage from '../../loading/LoadingPage';
 import { CompletedExam, InProgressExam } from '../view/ExamPage';
@@ -8,7 +9,7 @@ import { useExam } from '../view/exam';
 import Instructions from './Instructions';
 
 const ExamInstructionsPage = () => {
-    const navigate = useNavigate();
+    const user = useAuth().user;
 
     const { type, id, request, exam } = useExam();
     const answerRequest = useRequest<ExamAnswer>();
@@ -28,10 +29,6 @@ const ExamInstructionsPage = () => {
     if (!type || !id || !exam) {
         return <Navigate to='/tests' />;
     }
-
-    const onStart = () => {
-        navigate('exam');
-    };
 
     const sample = getSampleExam(exam);
 
@@ -91,9 +88,17 @@ const ExamInstructionsPage = () => {
                         click the button.
                     </Typography>
 
-                    <Button variant='contained' sx={{ mt: 3 }} onClick={onStart}>
-                        Begin Test
-                    </Button>
+                    <Stack direction='row' spacing={2} mt={3}>
+                        <Button variant='contained' component={Link} to='exam'>
+                            Begin Test
+                        </Button>
+
+                        {user?.isAdmin && (
+                            <Button variant='outlined' component={Link} to='stats'>
+                                View Stats
+                            </Button>
+                        )}
+                    </Stack>
                 </Stack>
             </Container>
         </Container>
