@@ -1,6 +1,7 @@
 import { Check, Close, ExpandLess, ExpandMore, Help, Lock } from '@mui/icons-material';
 import {
     Alert,
+    ButtonBase,
     Collapse,
     IconButton,
     Link,
@@ -113,11 +114,17 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                                             : 'Expand Section'
                                     }
                                 >
-                                    <IconButton onClick={() => onChangeExpanded(i)}>
-                                        {expanded[i] ? <ExpandLess /> : <ExpandMore />}
-                                    </IconButton>
+                                    <ButtonBase onClick={() => onChangeExpanded(i)}>
+                                        <IconButton>
+                                            {expanded[i] ? (
+                                                <ExpandLess />
+                                            ) : (
+                                                <ExpandMore />
+                                            )}
+                                        </IconButton>
+                                        <Typography variant='h6'>{range.name}</Typography>
+                                    </ButtonBase>
                                 </Tooltip>
-                                <Typography variant='h6'>{range.name}</Typography>
                             </Stack>
 
                             <Collapse in={expanded[i]}>
