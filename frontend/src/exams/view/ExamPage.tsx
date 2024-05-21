@@ -216,8 +216,8 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
     const saveProgress = (inProgress: boolean, totalScore?: number) => {
         answerRequest.onStart();
         const attempt: ExamAttempt = {
-            answers: answerPgns.current.map((pgn) => ({
-                pgn,
+            answers: answerPgns.current.map((pgn, i) => ({
+                pgn: selectedProblem === i ? pgnApi.current?.getPgn() || '' : pgn,
             })),
             cohort: user.dojoCohort,
             rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
@@ -231,7 +231,6 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
     };
 
     const autoSave = () => {
-        answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
         saveProgress(true)
             .then((resp) => {
                 setAnswer(resp.data.answer);
