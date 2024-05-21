@@ -47,3 +47,10 @@ export function verifyGame({
         }
     }
 }
+/**
+ * Finds the import button (ImportButton) and clicks it.
+ * All import forms use this for consistency and ease of testing.
+ */
+export function clickImport() {
+    return cy.getBySel('import-button').click();
+}

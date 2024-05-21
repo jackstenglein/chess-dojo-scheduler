@@ -1,13 +1,13 @@
 import testURLs from '../../../fixtures/games/urls.json';
-import { deleteCurrentGame, gameUrlRegex, verifyGame } from './helpers';
+import { clickImport, deleteCurrentGame, gameUrlRegex, verifyGame } from './helpers';
 
 function importUrl(url: string) {
     cy.getBySel('online-game-url').type(url);
-    cy.getBySel('submit').click();
+    clickImport();
     cy.location('pathname').should('match', gameUrlRegex);
 }
 
-describe('Import Games Page - Import by URLs', () => {
+describe('Import Games Page - Import Online Games', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'games',
@@ -15,57 +15,26 @@ describe('Import Games Page - Import by URLs', () => {
             Cypress.env('cognito_password'),
         );
         cy.visit('/games/import');
+        cy.getBySel('import-online-game').click();
     });
 
     it('Requires valid URL', () => {
         cy.interceptApi('POST', '/game', { statusCode: 403 });
 
-        cy.getBySel('submit').click();
-        cy.contains('URL is required.');
+        clickImport();
+        cy.contains('URL is required');
 
         cy.getBySel('online-game-url')
             .clear()
             .type('hello, world!')
             .type(testURLs.lichess_chapter);
-        cy.getBySel('submit').click();
+        clickImport();
         cy.contains('The provided URL is unsupported');
     });
 
     it('submits from Lichess chapter URL', () => {
         importUrl(testURLs.lichess_chapter);
         verifyGame({ white: 'Test1', black: 'Test2', lastMove: 'e4' });
-        deleteCurrentGame();
-    });
-
-    it.skip('bulk submits studies', () => {
-        cy.getBySel('online-game-url').type(testURLs.lichess_study);
-        cy.getBySel('submit').click();
-
-        cy.getBySel('white-1').type('Test3');
-        cy.getBySel('black-1').type('Test4');
-        cy.getBySel('result-1').click();
-        cy.contains('Black Won').click();
-        cy.get('#date-1').type('01072024');
-        cy.getBySel('submit-preflight').click();
-        cy.location('pathname').should('equal', '/profile');
-
-        cy.contains('Test1 (1300)');
-        cy.contains('Test2 (1400)');
-        cy.contains('Test3 (??)');
-        cy.contains('Test4 (??)');
-
-        cy.get('.MuiDataGrid-row').first().click();
-        cy.location('pathname').should(
-            'match',
-            /^\/games\/\d{3,4}-\d{3,4}\/\d{4}\.\d{2}\.\d{2}_.+$/,
-        );
-        deleteCurrentGame();
-
-        cy.get('.MuiDataGrid-row').first().click();
-        cy.location('pathname').should(
-            'match',
-            /^\/games\/\d{3,4}-\d{3,4}\/\d{4}\.\d{2}\.\d{2}_.+$/,
-        );
         deleteCurrentGame();
     });
 

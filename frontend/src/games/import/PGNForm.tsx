@@ -1,5 +1,4 @@
 import { Clear } from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
 import {
     Button,
     DialogActions,
@@ -14,6 +13,7 @@ import {
 } from '@mui/material';
 import React, { useRef, useState } from 'react';
 import { GameSubmissionType } from '../../api/gameApi';
+import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 
 const pgnTextPlaceholder = `[Event "Classical game"]
@@ -131,9 +131,7 @@ export const PGNForm: React.FC<ImportDialogProps> = ({ onSubmit, loading, onClos
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <LoadingButton loading={loading} onClick={handleSubmit}>
-                    Import
-                </LoadingButton>
+                <ImportButton loading={loading} onClick={handleSubmit} />
             </DialogActions>
         </>
     );

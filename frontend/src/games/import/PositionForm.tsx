@@ -1,5 +1,4 @@
 import { Chess } from '@jackstenglein/chess';
-import { LoadingButton } from '@mui/lab';
 import {
     Autocomplete,
     Box,
@@ -16,21 +15,15 @@ import { GameSubmissionType } from '../../api/gameApi';
 import { useFreeTier } from '../../auth/Auth';
 import Board from '../../board/Board';
 import { ALL_COHORTS } from '../../database/user';
+import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 
 interface PositionFormOption {
-    label: string;
     fen: string;
-    id: string;
-    category: string;
-    sortPriority: string;
+    label: string;
 }
 
-export const PositionForm: React.FC<ImportDialogProps> = ({
-    loading,
-    onSubmit,
-    onClose,
-}) => {
+export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) => {
     const [fen, setFen] = useState<string>('');
     const [error, setError] = useState<string>('');
 
@@ -48,15 +41,16 @@ export const PositionForm: React.FC<ImportDialogProps> = ({
                     id: `${requirement.id}-${position.title}`,
                     category: requirement.category,
                     sortPriority: requirement.sortPriority,
-                })) || []
+                })) ?? []
             );
         });
-    }, [requirements]);
+    }, [requirements, isFreeTier]);
 
     const getOptionLabel = (option: string | PositionFormOption) => {
         if (typeof option === 'string') {
             return option;
         }
+
         return option.label;
     };
 
@@ -107,7 +101,10 @@ export const PositionForm: React.FC<ImportDialogProps> = ({
                         )}
                         isOptionEqualToValue={(a, b) => a.id === b.id}
                         onChange={changeFen}
-                        onInputChange={(_e, value) => setFen(value)}
+                        onInputChange={(_e, value) => {
+                            setFen(value);
+                        }}
+                        data-cy='position-entry'
                         freeSolo
                         selectOnFocus
                         blurOnSelect
@@ -127,9 +124,7 @@ export const PositionForm: React.FC<ImportDialogProps> = ({
 
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <LoadingButton loading={loading} onClick={handleSubmit}>
-                    Import
-                </LoadingButton>
+                <ImportButton loading={loading} onClick={handleSubmit} />
             </DialogActions>
         </>
     );

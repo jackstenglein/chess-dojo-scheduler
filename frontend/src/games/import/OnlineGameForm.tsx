@@ -1,4 +1,3 @@
-import { LoadingButton } from '@mui/lab';
 import {
     Button,
     DialogActions,
@@ -15,13 +14,10 @@ import {
     isLichessGameURL,
     isLichessStudyURL,
 } from '../../api/gameApi';
+import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 
-export const OnlineGameForm: React.FC<ImportDialogProps> = ({
-    loading,
-    onSubmit,
-    onClose,
-}) => {
+export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps) => {
     const [url, setUrl] = useState('');
     const [error, setError] = useState<string | null>(null);
 
@@ -64,7 +60,9 @@ export const OnlineGameForm: React.FC<ImportDialogProps> = ({
                     label='Lichess or Chess.com URL'
                     placeholder='https://lichess.org/study/abcd1234/abcd1234'
                     value={url}
-                    onChange={(e) => setUrl(e.target.value)}
+                    onChange={(e) => {
+                        setUrl(e.target.value);
+                    }}
                     error={!!error}
                     helperText={error}
                     fullWidth
@@ -73,9 +71,7 @@ export const OnlineGameForm: React.FC<ImportDialogProps> = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <LoadingButton loading={loading} onClick={handleSubmit}>
-                    Import
-                </LoadingButton>
+                <ImportButton loading={loading} onClick={handleSubmit} />
             </DialogActions>
         </>
     );

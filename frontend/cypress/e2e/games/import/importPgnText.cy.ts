@@ -1,9 +1,8 @@
-import { deleteCurrentGame, gameUrlRegex, verifyGame } from './helpers';
+import { clickImport, deleteCurrentGame, gameUrlRegex, verifyGame } from './helpers';
 
 function importPgnText(pgn: string) {
-    cy.contains('PGN').click();
     cy.getBySel('pgn-text').type(pgn);
-    cy.getBySel('submit').click();
+    clickImport();
     cy.location('pathname').should('match', gameUrlRegex);
 }
 
@@ -19,10 +18,9 @@ describe('Import Games Page - PGN Text', () => {
     });
 
     it('requires PGN to submit manual entry', () => {
-        cy.contains('PGN').click();
-        cy.getBySel('submit').click();
+        clickImport();
 
-        cy.contains('This field is required');
+        cy.contains('One field is required');
     });
 
     it('submits from manual entry (full)', () => {
@@ -51,9 +49,8 @@ describe('Import Games Page - PGN Text', () => {
 
     it('displays error snackbar on invalid PGN', () => {
         cy.fixture('games/pgns/invalid.txt').then((pgn) => {
-            cy.contains('PGN').click();
             cy.getBySel('pgn-text').type(pgn);
-            cy.getBySel('submit').click();
+            clickImport();
 
             cy.location('pathname').should('equal', '/games/import');
             cy.getBySel('error-snackbar').contains('Invalid PGN');

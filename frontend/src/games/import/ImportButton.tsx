@@ -1,19 +1,15 @@
 import { LoadingButton } from '@mui/lab';
-import { SxProps } from '@mui/material';
 
 export interface ImportButtonProps {
     onClick: () => void;
     loading: boolean;
-    sx?: SxProps;
 }
 
-export const ImportButton: React.FC<ImportButtonProps> = ({ sx, onClick, loading }) => (
+export const ImportButton = ({ onClick, loading }: ImportButtonProps) => (
     <LoadingButton
-        sx={sx}
-        data-cy='submit'
-        variant='contained'
-        loading={loading}
+        data-cy='import-button'
         name='import'
+        loading={loading}
         onClick={onClick}
     >
         Import

@@ -25,7 +25,7 @@ interface ImportWizardProps {
     onSubmit: (game: CreateGameRequest) => void;
 }
 
-export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading }) => {
+export const ImportWizard = ({ onSubmit, loading }: ImportWizardProps) => {
     const [selected, setSelected] = useState<GameSubmissionType>();
     const [dialog, setDialog] = useState<string>();
 
@@ -34,7 +34,9 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading })
         onSubmit(req);
     };
 
-    const onCloseDialog = () => setDialog('');
+    const onCloseDialog = () => {
+        setDialog('');
+    };
 
     return (
         <Grid2 container rowSpacing={2} columnSpacing={2}>
@@ -44,9 +46,10 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading })
                 icon={KingRookIcon}
                 loading={selected === GameSubmissionType.StartingPosition && loading}
                 disabled={loading}
-                onClick={() =>
-                    onSelect({ type: GameSubmissionType.StartingPosition, pgnText: '' })
-                }
+                onClick={() => {
+                    onSelect({ type: GameSubmissionType.StartingPosition, pgnText: '' });
+                }}
+                id='import-starting-position'
             />
 
             <ImportSourceCard
@@ -55,7 +58,10 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading })
                 icon={DesktopMacOutlined}
                 loading={dialog === 'online' && loading}
                 disabled={loading}
-                onClick={() => setDialog('online')}
+                onClick={() => {
+                    setDialog('online');
+                }}
+                id='import-online-game'
             />
 
             <ImportSourceCard
@@ -64,7 +70,10 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading })
                 icon={UploadFile}
                 loading={dialog === 'pgn' && loading}
                 disabled={loading}
-                onClick={() => setDialog('pgn')}
+                onClick={() => {
+                    setDialog('pgn');
+                }}
+                id='import-pgn-text'
             />
 
             <ImportSourceCard
@@ -73,7 +82,10 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({ onSubmit, loading })
                 icon={BoardIcon}
                 loading={dialog === 'position' && loading}
                 disabled={loading}
-                onClick={() => setDialog('position')}
+                onClick={() => {
+                    setDialog('position');
+                }}
+                id='import-custom-position'
             />
 
             <Dialog open={!!dialog} onClose={onCloseDialog} fullWidth>
@@ -113,6 +125,7 @@ export interface ImportDialogProps {
 
 interface ImportSourceCardProps {
     name: string;
+    id: string;
     description: string;
     icon:
         | ((props: SvgIconProps) => JSX.Element)
@@ -122,19 +135,25 @@ interface ImportSourceCardProps {
     disabled?: boolean;
 }
 
-const ImportSourceCard: React.FC<ImportSourceCardProps> = ({
+const ImportSourceCard = ({
     name,
+    id,
     description,
     icon,
     onClick,
     loading,
     disabled,
-}) => {
+}: ImportSourceCardProps) => {
     const Icon = icon;
     return (
         <Grid2 xs={12} sm={6}>
             <Card sx={{ height: 1 }}>
-                <CardActionArea sx={{ height: 1 }} onClick={onClick} disabled={disabled}>
+                <CardActionArea
+                    sx={{ height: 1 }}
+                    onClick={onClick}
+                    data-cy={id}
+                    disabled={disabled}
+                >
                     <CardContent>
                         <Stack
                             height={1}
