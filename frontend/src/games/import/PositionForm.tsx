@@ -19,8 +19,11 @@ import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 
 interface PositionFormOption {
-    fen: string;
     label: string;
+    fen: string;
+    id: string;
+    category: string;
+    sortPriority: string;
 }
 
 export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) => {
@@ -34,6 +37,7 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
             if (isFreeTier && !requirement.isFree) {
                 return [];
             }
+
             return (
                 requirement.positions?.map((position) => ({
                     label: `${requirement.name} - ${position.title}`,
