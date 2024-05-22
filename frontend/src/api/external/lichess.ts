@@ -1,5 +1,4 @@
 import axios, { Method } from 'axios';
-import { Request } from '../Request';
 
 type GamePlayers = Record<
     'white' | 'black',
@@ -27,12 +26,12 @@ interface Clock {
     totalTime: number;
 }
 
-interface GameData {
+export interface LichessGame {
     id: string;
     rated: boolean;
     variant: string;
-    speed: string;
-    perf: string;
+    speed: LichessSpeedType;
+    perf: LichessPerfType;
     createdAt: number;
     lastMoveAt: number;
     status: string;
@@ -43,7 +42,7 @@ interface GameData {
     pgn: string;
 }
 
-export enum PerfType {
+export enum LichessPerfType {
     UltraBullet = 'ultraBullet',
     Bullet = 'bullet',
     Blitz = 'blitz',
@@ -60,7 +59,7 @@ export enum PerfType {
     ThreeCheck = 'threeCheck',
 }
 
-export enum SpeedType {
+export enum LichessSpeedType {
     UltraBullet = 'ultraBullet',
     Bullet = 'bullet',
     Blitz = 'blitz',
@@ -209,18 +208,17 @@ interface ExportGamesParams {
 }
 
 export interface LichessApi {
-    exportGames: (params: ExportGamesParams) => Promise<unknown>;
+    exportGames: (params: ExportGamesParams) => Promise<LichessExportGamesResponse>;
 }
 
-export interface ExportGamesResponse {
-    data: GameData[];
+export interface LichessExportGamesResponse {
+    data: LichessGame[];
 }
 
-export function useLichessApi<T>(request?: Request<T>): LichessApi {
+export function useLichessApi(): LichessApi {
     const api = {
         exportGames: (params: ExportGamesParams) =>
-            requestLichessNDJson<ExportGamesParams, unknown>({
-                request,
+            requestLichessNDJson<ExportGamesParams, LichessExportGamesResponse>({
                 params: {
                     clocks: true,
                     evals: false,
@@ -238,20 +236,17 @@ export function useLichessApi<T>(request?: Request<T>): LichessApi {
 }
 
 function requestLichessNDJson<T, R>({
-    request,
     endpoint,
     data,
     params,
     method,
 }: {
-    request?: Request;
     endpoint: string;
     method: Method;
     params?: T;
     data?: T;
 }): Promise<R> {
     return new Promise<R>((resolve, reject) => {
-        request?.onStart();
         axios
             .request<T, { data: string }>({
                 method,
@@ -263,8 +258,6 @@ function requestLichessNDJson<T, R>({
                 },
             })
             .then((resp) => {
-                request?.onSuccess();
-
                 // Here be dragons - type-safety out the window.
                 const parsedResp = {
                     data: resp.data
@@ -285,8 +278,6 @@ function requestLichessNDJson<T, R>({
                 const helpfulError = new Error(
                     `Failed to contact Lichess API: ${message}`,
                 );
-
-                request?.onFailure(helpfulError);
 
                 reject(helpfulError);
             });
