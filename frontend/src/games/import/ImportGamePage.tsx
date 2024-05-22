@@ -19,7 +19,6 @@ const ImportGamePage = () => {
                     const game = response.data;
                     trackEvent(EventType.SubmitGame, {
                         count: 1,
-                        // TODO: before merge, be more fine grained than this, now that starting position etc. is Manual
                         source: req.type,
                     });
                     navigate(
