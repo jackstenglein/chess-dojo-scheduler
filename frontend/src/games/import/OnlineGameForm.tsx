@@ -1,25 +1,21 @@
 import {
     Button,
+    Card,
+    CardActionArea,
+    CardContent,
     DialogActions,
     DialogContent,
     DialogTitle,
+    Grid,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
+import { useState } from 'react';
 import {
-    DataGridPro,
-    GridColDef,
-    GridRenderCellParams,
-    GridRowParams,
-} from '@mui/x-data-grid-pro';
-import { useEffect, useState } from 'react';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import {
-    LichessExportGamesResponse,
     LichessGame,
     LichessPerfType,
-    useLichessApi,
+    useLichessUserGames,
 } from '../../api/external/lichess';
 import {
     GameSubmissionType,
@@ -33,133 +29,102 @@ import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 
 import { SiLichess } from 'react-icons/si';
+import { RequestSnackbar } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
+import LoadingPage from '../../loading/LoadingPage';
 import { OrDivider } from './OrDivider';
 
 // Type union of supported game objects.
 type RecentGame = LichessGame;
 
-const RecentGamesList = () => {
+const RecentGameCell = ({
+    game,
+    onClick,
+}: {
+    game: RecentGame;
+    onClick: (game: RecentGame) => void;
+}) => {
     const auth = useAuth();
-    const request = useRequest<LichessExportGamesResponse>();
-    const lichessApi = useLichessApi();
-    const [games, setGames] = useState<LichessGame[]>();
 
-    const columns: GridColDef<RecentGame>[] = [
-        {
-            field: 'createdAt',
-            headerName: 'Date Played',
-            flex: 1,
-            renderCell: (params: GridRenderCellParams<RecentGame>) => {
-                const createdAt = new Date(params.row.createdAt);
+    const PlayerRow = ({ color }: { color: 'white' | 'black' }) => {
+        const player = game.players[color];
+        return (
+            <Stack direction='row' spacing={1}>
+                <Typography variant='body2' fontWeight='bold'>
+                    {player.user.name}
+                </Typography>
+                <Typography variant='body2'>({player.rating})</Typography>
+            </Stack>
+        );
+    };
 
-                const dateStr = toDojoDateString(createdAt, auth.user?.timezoneOverride);
+    const createdAt = new Date(game.createdAt);
+    const dateStr = toDojoDateString(createdAt, auth.user?.timezoneOverride);
+    const timeStr = toDojoTimeString(
+        createdAt,
+        auth.user?.timezoneOverride,
+        auth.user?.timeFormat,
+    );
 
-                const timeStr = toDojoTimeString(
-                    createdAt,
-                    auth.user?.timezoneOverride,
-                    auth.user?.timeFormat,
-                );
-
-                return (
-                    <Stack direction='row' spacing={1} alignItems='center'>
-                        <SiLichess />
-                        <Typography variant='body2'>
-                            {dateStr} {timeStr}
-                        </Typography>
-                    </Stack>
-                );
-            },
-        },
-        {
-            field: 'players',
-            headerName: 'Players',
-            sortable: false,
-            flex: 1,
-            renderCell: (params: GridRenderCellParams<RecentGame, string>) => {
-                const PlayerRow = ({ color }: { color: 'white' | 'black' }) => {
-                    const player = params.row.players[color];
-                    return (
+    return (
+        <Card sx={{ height: 1 }}>
+            <CardActionArea
+                sx={{ height: 1 }}
+                onClick={() => {
+                    onClick(game);
+                }}
+            >
+                <CardContent>
+                    <Stack
+                        sx={{ borderColor: 'primary.main' }}
+                        onClick={() => {
+                            onClick(game);
+                        }}
+                    >
                         <Stack direction='row' spacing={1}>
-                            <Typography variant='body2' fontWeight='bold'>
-                                {player.user.name}
+                            <SiLichess />
+                            <Typography variant='body2'>
+                                {dateStr} {timeStr}
                             </Typography>
-                            <Typography variant='body2'>({player.rating})</Typography>
+                            <Typography variant='body2'>
+                                ({game.clock.initial / 60} | {game.clock.increment})
+                            </Typography>
                         </Stack>
-                    );
-                };
-                return (
-                    <Stack>
                         <PlayerRow color='white' />
                         <PlayerRow color='black' />
                     </Stack>
-                );
-            },
-        },
-    ];
+                </CardContent>
+            </CardActionArea>
+        </Card>
+    );
+};
 
-    useEffect(() => {
-        console.log(request.isLoading());
-        if (request.isLoading() || request.data !== undefined || games !== undefined) {
-            return;
-        }
-
-        request.onStart();
-
-        lichessApi
-            .exportGames({
-                // TODO: before merge, param this
-                username: 'bestieboots',
-                max: 20,
-                perfType: [LichessPerfType.Rapid, LichessPerfType.Classical].join(','),
-            })
-            .then((resp) => {
-                request.onSuccess();
-                setGames(resp.data);
-            })
-            .catch((err: unknown) => {
-                request.onFailure(err);
-                console.error(err);
-            });
-    }, [lichessApi, request, games]);
-
-    const onClickGame = (params: GridRowParams<LichessGame>) => {
-        console.log(params.row);
-    };
-
-    if (request.isLoading()) {
-        return 'Loading';
-    }
-
+const RecentGameGrid = ({
+    games,
+    onClickGame,
+}: {
+    games: RecentGame[];
+    onClickGame: (game: RecentGame) => void;
+}) => {
     return (
-        <Stack>
-            <DataGridPro
-                data-cy='recent-games-table'
-                columns={columns}
-                rows={games ?? []}
-                loading={request.isLoading()}
-                onRowClick={onClickGame}
-                initialState={{
-                    sorting: {
-                        sortModel: [
-                            {
-                                field: 'createdAt',
-                                sort: 'desc',
-                            },
-                        ],
-                    },
-                }}
-                hideFooter
-            />
-            <RequestSnackbar request={request} showError={true} />
-        </Stack>
+        <Grid container spacing={{ xs: 1, sm: 3 }}>
+            {games.map((game) => (
+                <Grid item xs={12} sm={6} key={game.id}>
+                    <RecentGameCell onClick={onClickGame} game={game} />
+                </Grid>
+            ))}
+        </Grid>
     );
 };
 
 export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps) => {
+    const { user } = useAuth();
     const [url, setUrl] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [lichessGames, requestLichessGames, lichessRequest] = useLichessUserGames();
+
+    const lichessUsername = user?.ratings.LICHESS?.username;
 
     const handleSubmit = () => {
         if (url.trim() === '') {
@@ -191,6 +156,22 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
         setError('The provided URL is unsupported. Please make sure it is correct.');
     };
 
+    const onClickGame = (game: RecentGame) => {
+        onSubmit({ pgnText: game.pgn, type: GameSubmissionType.Manual });
+    };
+
+    const onLoadLichessGames = () => {
+        if (!lichessUsername) {
+            return;
+        }
+
+        requestLichessGames({
+            username: lichessUsername,
+            max: 20,
+            perfType: [LichessPerfType.Rapid, LichessPerfType.Classical].join(','),
+        });
+    };
+
     return (
         <>
             <DialogTitle>Import Online Game</DialogTitle>
@@ -209,9 +190,35 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                         fullWidth
                         sx={{ mt: 0.8 }}
                     />
-                    <OrDivider />
-                    <RecentGamesList />
+                    {lichessUsername && (
+                        <>
+                            <OrDivider />
+                            {!lichessGames &&
+                                (lichessRequest.isLoading() ? (
+                                    <LoadingPage />
+                                ) : (
+                                    <Button
+                                        onClick={() => {
+                                            onLoadLichessGames();
+                                        }}
+                                    >
+                                        Load Lichess Games
+                                    </Button>
+                                ))}
+                            {lichessGames && (
+                                <RecentGameGrid
+                                    games={lichessGames}
+                                    onClickGame={onClickGame}
+                                />
+                            )}
+                        </>
+                    )}
                 </Stack>
+                <RequestSnackbar
+                    showError={true}
+                    showSuccess={false}
+                    request={lichessRequest}
+                />
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>

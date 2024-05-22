@@ -1,4 +1,6 @@
 import axios, { Method } from 'axios';
+import { useCallback, useState } from 'react';
+import { Request, useRequest } from '../Request';
 
 type GamePlayers = Record<
     'white' | 'black',
@@ -71,7 +73,7 @@ export enum LichessSpeedType {
 /**
  * Settings for exporting games.
  */
-interface ExportGamesParams {
+interface ExportUserGamesParams {
     /**
      * Username of the player whose games you should export.
      */
@@ -207,33 +209,60 @@ interface ExportGamesParams {
     sort?: 'dateAsc' | 'dateDesc';
 }
 
-export interface LichessApi {
-    exportGames: (params: ExportGamesParams) => Promise<LichessExportGamesResponse>;
-}
-
 export interface LichessExportGamesResponse {
     data: LichessGame[];
 }
 
-export function useLichessApi(): LichessApi {
-    const api = {
-        exportGames: (params: ExportGamesParams) =>
-            requestLichessNDJson<ExportGamesParams, LichessExportGamesResponse>({
-                params: {
-                    clocks: true,
-                    evals: false,
-                    pgnInJson: true,
-                    opening: true,
-                    accuracy: false,
-                    ...params,
-                },
-                method: 'GET',
-                endpoint: `/api/games/user/${params.username}`,
-            }),
-    };
+export function useLichessUserGames(): [
+    LichessGame[] | undefined,
+    (params: ExportUserGamesParams, force?: boolean) => void,
+    Request<LichessExportGamesResponse>,
+] {
+    const request = useRequest<LichessExportGamesResponse>();
+    const [games, setGames] = useState<LichessGame[]>();
 
-    return api;
+    const requestGames = useCallback(
+        (params: ExportUserGamesParams, force?: boolean) => {
+            if (
+                !force &&
+                (request.isLoading() || request.data !== undefined || games !== undefined)
+            ) {
+                return;
+            }
+
+            request.onStart();
+
+            lichessApi
+                .exportUserGames(params)
+                .then((resp) => {
+                    request.onSuccess();
+                    setGames(resp.data);
+                })
+                .catch((err: unknown) => {
+                    request.onFailure(err);
+                });
+        },
+        [request, games],
+    );
+
+    return [games, requestGames, request];
 }
+
+export const lichessApi = {
+    exportUserGames: (params: ExportUserGamesParams) =>
+        requestLichessNDJson<ExportUserGamesParams, LichessExportGamesResponse>({
+            params: {
+                clocks: true,
+                evals: false,
+                pgnInJson: true,
+                opening: true,
+                accuracy: false,
+                ...params,
+            },
+            method: 'GET',
+            endpoint: `/api/games/user/${params.username}`,
+        }),
+};
 
 function requestLichessNDJson<T, R>({
     endpoint,

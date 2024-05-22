@@ -4,7 +4,6 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Divider,
     FormControl,
     FormHelperText,
     IconButton,
@@ -15,6 +14,7 @@ import React, { useRef, useState } from 'react';
 import { GameSubmissionType } from '../../api/gameApi';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
+import { OrDivider } from './OrDivider';
 
 const pgnTextPlaceholder = `[Event "Classical game"]
 [Site "https://lichess.org"]
@@ -113,7 +113,7 @@ export const PGNForm: React.FC<ImportDialogProps> = ({ onSubmit, loading, onClos
                     onChange={handleFileChange}
                 />
 
-                <Divider sx={{ color: 'text.secondary', mt: 2, mb: 2 }}>OR</Divider>
+                <OrDivider />
 
                 <TextField
                     data-cy='pgn-text'
