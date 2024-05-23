@@ -1,5 +1,6 @@
 import { LoadingButton } from '@mui/lab';
 import {
+    Button,
     FormControl,
     FormControlLabel,
     FormHelperText,
@@ -107,6 +108,13 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                 />
 
                 <RequestReviewDialog game={game} />
+
+                <Button
+                    variant='outlined'
+                    onClick={() => navigate('edit', { state: { game } })}
+                >
+                    Replace PGN
+                </Button>
                 <DeleteGameButton variant='contained' game={game} />
             </Stack>
         </Stack>
