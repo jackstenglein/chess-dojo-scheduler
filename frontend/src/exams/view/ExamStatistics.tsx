@@ -13,18 +13,17 @@ import {
     ScatterPlot,
     ScatterSeriesType,
     axisClasses,
-    cheerfulFiestaPalette,
+    legendClasses,
     lineElementClasses,
 } from '@mui/x-charts';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLightMode } from '../ThemeProvider';
-import { useAuth } from '../auth/Auth';
-import { Exam } from '../database/exam';
-import { ALL_COHORTS, cohortColors, compareCohorts } from '../database/user';
-import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
-import CohortIcon from '../scoreboard/CohortIcon';
-import { getRegression } from './list/ExamsTable';
-import { getTotalScore } from './tactics';
+import { useLightMode } from '../../ThemeProvider';
+import { useAuth } from '../../auth/Auth';
+import { Exam } from '../../database/exam';
+import { ALL_COHORTS, cohortColors, compareCohorts } from '../../database/user';
+import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
+import CohortIcon from '../../scoreboard/CohortIcon';
+import { getCohortRangeInt, getRegression, getTotalScore } from './exam';
 
 interface ExamStatisticsProps {
     /** The exam to display statistics for. */
@@ -58,7 +57,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     highlighted: 'item',
                     faded: 'global',
                 },
-                valueFormatter: (value) => `Score: ${value.x}, Rating: ${value.y}`,
+                valueFormatter: (value) => `Score: ${value?.x}, Rating: ${value?.y}`,
                 color: cohortColors[answer.cohort],
             };
             series.data?.push({ x: answer.score, y: answer.rating, id: username });
@@ -96,13 +95,26 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
             {
                 id: 'best-fit',
                 type: 'line',
-                label: 'Best Fit',
+                label: '',
                 data: Array.from(Array(totalScore + 2)).map((_, i) =>
                     regression.predict(i),
                 ),
                 color: isLight ? '#000' : '#fff',
             },
-        ] as LineSeriesType[];
+            {
+                id: 'best-fit-scatter',
+                type: 'scatter',
+                label: 'Best Fit',
+                color: isLight ? '#000' : '#fff',
+                data: Array.from(Array(totalScore + 2)).map((_, i) => ({
+                    x: i,
+                    y: Math.round(regression.predict(i)),
+                    id: i,
+                })),
+                markerSize: 0,
+                valueFormatter: (value) => `Score: ${value?.x}, Rating: ${value?.y}`,
+            },
+        ] as [LineSeriesType, ScatterSeriesType];
     }, [exam, totalScore]);
 
     useEffect(() => {
@@ -150,7 +162,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                       highlighted: 'item',
                       faded: 'global',
                   },
-                  valueFormatter: (value) => `Score: ${value.x},\nRating: ${value.y}`,
+                  valueFormatter: (value) => `Score: ${value?.x},\nRating: ${value?.y}`,
                   color: isLight ? '#000' : '#fff',
               },
           ]
@@ -164,6 +176,10 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
     const avgScore =
         series.reduce((sum, s) => sum + s.data.reduce((ds, d) => ds + d.x, 0), 0) /
         userCount;
+
+    let [minCohort, maxCohort] = getCohortRangeInt(exam.cohortRange);
+    minCohort = Math.max(minCohort - 100, 0);
+    maxCohort += 100;
 
     return (
         <CardContent sx={{ height: 1 }}>
@@ -191,26 +207,37 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     error={cohorts.length === 0}
                 />
 
-                <Stack direction='row' spacing={2} justifyContent='center' mt={1} mb={1}>
-                    <Typography variant='body2'>
-                        <Typography
-                            variant='body2'
-                            component='span'
-                            color='text.secondary'
-                        >
-                            Users:
-                        </Typography>{' '}
-                        {userCount}
-                    </Typography>
-                    <Typography variant='body2'>
-                        <Typography
-                            variant='body2'
-                            component='span'
-                            color='text.secondary'
-                        >
-                            Avg Score:
-                        </Typography>{' '}
-                        {Math.round(10 * avgScore) / 10}
+                <Stack alignItems='center' mt={1} mb={1} spacing={0.5}>
+                    <Stack direction='row' spacing={2} justifyContent='center'>
+                        <Typography variant='body2'>
+                            <Typography
+                                variant='body2'
+                                component='span'
+                                color='text.secondary'
+                            >
+                                Users:
+                            </Typography>{' '}
+                            {userCount}
+                        </Typography>
+                        <Typography variant='body2'>
+                            <Typography
+                                variant='body2'
+                                component='span'
+                                color='text.secondary'
+                            >
+                                Avg Score:
+                            </Typography>{' '}
+                            {Math.round(10 * avgScore) / 10}
+                        </Typography>
+                    </Stack>
+                    <Typography
+                        variant='caption'
+                        color='text.secondary'
+                        textAlign='center'
+                    >
+                        Best fit is calculated as a linear regression over all users{' '}
+                        {minCohort}
+                        {maxCohort === Infinity ? '+' : `–${maxCohort}`}
                     </Typography>
                 </Stack>
 
@@ -230,7 +257,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                             min: 0,
                         },
                     ]}
-                    series={[...series, ...lineSeries, ...yourScoreSeries]}
+                    series={[...series, ...yourScoreSeries, ...lineSeries]}
                     margin={{ left: 60, right: 8, top: legendMargin }}
                     sx={{
                         [`& .${axisClasses.left} .${axisClasses.label}`]: {
@@ -242,8 +269,17 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                         '.MuiLineElement-series-best-fit': {
                             strokeDasharray: '5 5',
                         },
+
+                        [`& .${legendClasses.series}`]: {
+                            '&:last-of-type': {
+                                display: 'none',
+                            },
+                            [`:nth-last-child(2) .${legendClasses.mark}`]: {
+                                height: '3px',
+                                transform: 'translateY(3px)',
+                            },
+                        },
                     }}
-                    colors={cheerfulFiestaPalette}
                 >
                     <ChartsLegend
                         slotProps={{

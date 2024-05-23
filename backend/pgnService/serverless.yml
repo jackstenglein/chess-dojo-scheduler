@@ -161,6 +161,26 @@ functions:
         Resource:
           - ${param:TimelineTableArn}
 
+  recalculateExamScores:
+    handler: exam/recalculateScores.handler
+    timeout: 30
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${param:ExamsTableStreamArn}
+          batchWindow: 20
+          batchSize: 2
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          filterPatterns:
+            - eventName: [MODIFY]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:ExamsTableArn}
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

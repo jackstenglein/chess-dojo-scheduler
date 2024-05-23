@@ -1,6 +1,12 @@
 import { Chess, COLOR, Move } from '@jackstenglein/chess';
-import { ExamType } from '../database/exam';
-import { Requirement } from '../database/requirement';
+import { getSolutionScore } from '@jackstenglein/chess-dojo-common';
+import { SimpleLinearRegression } from 'ml-regression-simple-linear';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useApi } from '../../api/Api';
+import { useRequest } from '../../api/Request';
+import { Exam, ExamAnswer, ExamType } from '../../database/exam';
+import { Requirement } from '../../database/requirement';
 import {
     ALL_COHORTS,
     compareCohorts,
@@ -8,7 +14,93 @@ import {
     isCohortInRange,
     isCohortLess,
     User,
-} from '../database/user';
+} from '../../database/user';
+
+/**
+ * Fetches the exam and current user's answer based on the current page's
+ * params. The page is expected to have type and id params.
+ * @returns The type, id, request, exam and answer.
+ */
+export function useExam() {
+    const { type, id } = useParams<{ type: ExamType; id: string }>();
+    const api = useApi();
+    const request = useRequest<{ exam: Exam; answer?: ExamAnswer }>();
+
+    useEffect(() => {
+        if (!request.isSent() && type && id) {
+            request.onStart();
+            api.getExam(type, id)
+                .then((resp) => {
+                    console.log('getExam: ', resp);
+                    request.onSuccess(resp.data);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    request.onFailure(err);
+                });
+        }
+    }, [request, type, id, api]);
+
+    return {
+        request,
+        type,
+        id,
+        exam: request.data?.exam,
+        answer: request.data?.answer,
+    };
+}
+
+/**
+ * Returns the given cohort range as an array of 2 numbers. Ex: 0-1500
+ * would return [0, 1500]. For ranges like 2000+, the max cohort is set to Infinity
+ * (IE: [2000, Infinity]). If range is not provided or the min cohort is NaN, [-1, -1]
+ * is returned.
+ * @param range The cohort range to convert.
+ * @returns The min and max cohort as numbers.
+ */
+export function getCohortRangeInt(range?: string): [number, number] {
+    if (!range) {
+        return [-1, -1];
+    }
+
+    const minCohort = parseInt(range);
+    if (isNaN(minCohort)) {
+        return [-1, -1];
+    }
+
+    let maxCohort =
+        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
+    if (isNaN(maxCohort)) {
+        maxCohort = Infinity;
+    }
+
+    return [minCohort, maxCohort];
+}
+
+/**
+ * Returns the linear regression for this exam. If the exam has not been taken
+ * by enough people, null is returned.
+ * @param exam The exam to get the linear regression for.
+ * @returns The linear regression, or null if the exam does not have enough answers.
+ */
+export function getRegression(exam: Exam): SimpleLinearRegression | null {
+    const [minCohort, maxCohort] = getCohortRangeInt(exam.cohortRange);
+    const answers = Object.values(exam.answers).filter((a) => {
+        return (
+            a.rating > 0 &&
+            a.score > 0 &&
+            a.rating >= minCohort - 100 &&
+            a.rating < maxCohort + 100
+        );
+    });
+    if (answers.length < 10) {
+        return null;
+    }
+
+    const x = answers.map((a) => a.score);
+    const y = answers.map((a) => a.rating);
+    return new SimpleLinearRegression(x, y);
+}
 
 export function getMoveDescription({
     found,
@@ -79,10 +171,6 @@ export function getEventHeader(pgn: string): string {
     return pgn.substring(eventIndex, endEventIndex).replace('[Event "', '');
 }
 
-const scoreRegex = /^\[(\d+)\]/;
-const alternateSolutionRegex = /^\[ALT\]/;
-const endOfLineRegex = /^\[EOL\]/;
-
 /**
  * Gets the total score for the given PGN problem in an exam.
  * @param pgn The PGN to get the score for.
@@ -96,144 +184,6 @@ export function getTotalScore(pgn: string): number {
         chess,
         false,
     );
-}
-
-/**
- * Recursively calculates the total score for the given solution to the tactics test.
- * Each move in the solution counts as one point toward the total score. Each move
- * also has its userData.score field set.
- * @param solution The Move history for the solution to a tactics problem.
- * @returns The total score for the given solution.
- */
-export function getSolutionScore(
-    playAs: 'white' | 'black',
-    solution: Move[],
-    chess: Chess,
-    isUnscored: boolean,
-): number {
-    let score = 0;
-
-    for (let move of solution) {
-        // Recursively check variations
-        if (move.variations.length > 0) {
-            for (let variation of move.variations) {
-                score += getSolutionScore(playAs, variation, chess, isUnscored);
-            }
-        }
-
-        if (move.color === playAs[0] && !chess.isMainline(move.san, move.previous)) {
-            // If this is the color the test has us playing as and this isn't the mainline,
-            // we give them no points for this variation
-            isUnscored = true;
-        }
-
-        if (!isUnscored) {
-            const scoreSearch = scoreRegex.exec(move.commentAfter || '');
-            if (scoreSearch && scoreSearch.length > 1) {
-                move.userData = {
-                    score: parseInt(scoreSearch[1]),
-                };
-                move.commentAfter = move.commentAfter
-                    ?.replace(scoreSearch[0], '')
-                    .trimStart();
-            } else {
-                move.userData = { score: 1 };
-            }
-        } else {
-            const altSearch = alternateSolutionRegex.exec(move.commentAfter || '');
-            if (altSearch) {
-                move.userData = {
-                    ...move.userData,
-                    isAlt: true,
-                };
-                move.commentAfter = move.commentAfter
-                    ?.replace(altSearch[0], '')
-                    .trimStart();
-            }
-        }
-
-        score += move.userData?.score || 0;
-
-        const eolSearch = endOfLineRegex.exec(move.commentAfter || '');
-        if (eolSearch) {
-            // We give no more points after an EOL marker, so can break here.
-            move.commentAfter = move.commentAfter?.replace(eolSearch[0], '').trimStart();
-            break;
-        }
-    }
-
-    return score;
-}
-
-/**
- * Recursively calculates the user's score for a given variation in a tactics test.
- * @param solution The variation in the solution to the problem.
- * @param currentAnswerMove The current move to start from in the user's answer.
- * @param answer The user's answer Chess instance.
- * @returns The user's score for the given variation.
- */
-export function scoreVariation(
-    playAs: 'white' | 'black',
-    solution: Move[],
-    currentAnswerMove: Move | null,
-    answer: Chess,
-    variationAlt: boolean,
-): [number, boolean] {
-    let score = 0;
-    let altFound = false;
-
-    for (let move of solution) {
-        // The user may not have found the mainline solution,
-        // but may have found a variation, which can also have a score associated, or can be an alternate solution
-        // for this move
-        if (move.variations.length > 0) {
-            for (let variation of move.variations) {
-                const [variationScore, alt] = scoreVariation(
-                    playAs,
-                    variation,
-                    currentAnswerMove,
-                    answer,
-                    variationAlt,
-                );
-                score += variationScore;
-                if (alt) {
-                    variationAlt = true;
-                }
-            }
-        }
-
-        if (
-            !variationAlt &&
-            move.color === playAs[0] &&
-            !answer.isMainline(move.san, currentAnswerMove)
-        ) {
-            // If this is the color the test has us playing as and the user didn't have this
-            // move as their mainline and didn't find an alternate solution, we give them no
-            // points for the variation, so we can break from the loop
-            break;
-        }
-
-        const answerMove = answer.move(move.san, currentAnswerMove, false, true, true);
-        if (!answerMove && !variationAlt) {
-            // The user didn't find this move at all (mainline or variation), so they couldn't
-            // have found any subsequent moves and we can break
-            break;
-        }
-
-        move.userData = {
-            ...move.userData,
-            found: Boolean(answerMove),
-            altFound: variationAlt,
-        };
-        score += move.userData.score || 0;
-        currentAnswerMove = answerMove;
-
-        if (move.userData.isAlt) {
-            altFound = true;
-        }
-    }
-
-    return [score, altFound];
 }
 
 /**
@@ -285,8 +235,6 @@ export function addExtraVariation(
     }
 }
 
-const PolgarM1ReqId = '917be358-e6d9-47e6-9cad-66fc2fdb5da6';
-const PolgarM2ReqId = 'f815084f-b9bc-408d-9db9-ba9b1c260ff3';
 const PuzzleRush5MinReqId = '42804d40-3651-438c-a8ae-e2200fe23b4c';
 const PuzzleSurvivalReqId = 'fa98ad32-219a-4ee9-ae02-2cda69efce06';
 

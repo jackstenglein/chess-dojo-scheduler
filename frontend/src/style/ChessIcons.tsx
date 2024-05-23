@@ -16,4 +16,6 @@ export function QueenIcon(props: SvgIconProps) {
 
 export function KingIcon(props: SvgIconProps) {
     return <FontAwesomeSvgIcon icon={faChessKing} {...props} />;
+
 }
+

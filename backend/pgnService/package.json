@@ -4,7 +4,8 @@
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.436.0",
         "@aws-sdk/util-dynamodb": "^3.436.0",
-        "@jackstenglein/chess": "^1.0.57",
+        "@jackstenglein/chess": "^1.0.64",
+        "@jackstenglein/chess-dojo-common": "file:../../common",
         "deep-equal": "^2.2.3",
         "uuid": "^9.0.1"
     },
@@ -14,6 +15,7 @@
         "@types/node": "^18.18.7",
         "@types/uuid": "^9.0.7",
         "esbuild": "^0.19.5",
+        "prettier-plugin-organize-imports": "^3.2.4",
         "serverless": "^3.22.0",
         "serverless-esbuild": "^1.48.5"
     }
