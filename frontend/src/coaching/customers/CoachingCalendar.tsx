@@ -3,7 +3,6 @@ import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Stack } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
 import { useApi } from '../../api/Api';
 import { Request, RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
@@ -100,7 +99,8 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
     const view = calendarRef.current?.scheduler.view;
     const copyAvailability = useCallback(
         async (
-            startDate: Date,
+            _event: React.DragEvent<HTMLButtonElement>,
+            _droppedOn: Date,
             newEvent: ProcessedEvent,
             originalEvent: ProcessedEvent,
         ) => {
