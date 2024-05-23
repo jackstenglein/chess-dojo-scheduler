@@ -43,6 +43,7 @@ export interface LichessGame {
     moves: string;
     clock: Clock;
     pgn: string;
+    winner?: string;
 }
 
 export enum LichessPerfType {
@@ -208,6 +209,45 @@ interface ExportUserGamesParams {
      * Sort order of the games. Default: "dateDesc". Enum: "dateAsc" "dateDesc".
      */
     sort?: 'dateAsc' | 'dateDesc';
+}
+
+export function getLichessWinner(game: LichessGame) {
+    if (game.winner !== 'white' && game.winner !== 'black') {
+        return;
+    }
+
+    return game.players[game.winner];
+}
+
+export function getLichessGameResult(game: LichessGame) {
+    const { winner, status } = game;
+    if (status === 'noStart') {
+        return 'aborted';
+    }
+
+    if (!winner) {
+        if (status === 'draw') {
+            return '½–½';
+        }
+
+        return 'unknown outcome';
+    }
+
+    const result = winner === 'white' ? '1–0' : '0–1';
+
+    if (status === 'resign') {
+        return `${result} by resignation`;
+    }
+
+    if (status === 'outoftime') {
+        return `${result} on time`;
+    }
+
+    if (status === 'mate') {
+        return `${result} by mate`;
+    }
+
+    return result;
 }
 
 export interface LichessExportGamesResponse {

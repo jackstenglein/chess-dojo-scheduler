@@ -1,4 +1,5 @@
 import {
+    Backdrop,
     Button,
     Card,
     CardActionArea,
@@ -15,6 +16,8 @@ import { useState } from 'react';
 import {
     LichessGame,
     LichessPerfType,
+    getLichessGameResult,
+    getLichessWinner,
     useLichessUserGames,
 } from '../../api/external/lichess';
 import {
@@ -39,6 +42,12 @@ import { OrDivider } from './OrDivider';
 
 type RecentGame = LichessGame;
 
+const GameResult = ({ game }: { game: RecentGame }) => {
+    const result = getLichessGameResult(game);
+
+    return <Typography variant='body2'>{result}</Typography>;
+};
+
 const RecentGameCell = ({
     game,
     onClick,
@@ -47,19 +56,24 @@ const RecentGameCell = ({
     onClick: (game: RecentGame) => void;
 }) => {
     const auth = useAuth();
+    const { user } = useAuth();
+    const lichessUsername = user?.ratings.LICHESS?.username;
 
     const createdAt = new Date(game.createdAt);
-    const dateStr = toDojoDateString(createdAt, auth.user?.timezoneOverride);
+    const dateStr = toDojoDateString(createdAt, user?.timezoneOverride);
     const timeStr = toDojoTimeString(
         createdAt,
         auth.user?.timezoneOverride,
         auth.user?.timeFormat,
     );
 
+    const userWon =
+        getLichessWinner(game)?.user.name.toLowerCase() ===
+        lichessUsername?.toLowerCase().trim();
+
     return (
-        <Card sx={{ height: 1 }}>
+        <Card>
             <CardActionArea
-                sx={{ height: 1 }}
                 onClick={() => {
                     onClick(game);
                 }}
@@ -80,7 +94,7 @@ const RecentGameCell = ({
                             justifyContent='space-between'
                         >
                             <Stack direction='row' alignItems='center' spacing={1}>
-                                <SiLichess />
+                                <SiLichess color={userWon ? 'orange' : undefined} />
                                 <Typography variant='body2'>
                                     {dateStr} {timeStr}
                                 </Typography>
@@ -98,6 +112,7 @@ const RecentGameCell = ({
                                 blackElo={game.players.black.rating?.toString()}
                             />
                         </Stack>
+                        <GameResult perspectiveWon={userWon} game={game} />
                     </Stack>
                 </CardContent>
             </CardActionArea>
@@ -133,7 +148,12 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
 
     const handleSubmit = () => {
         if (url.trim() === '') {
-            setError('URL is required');
+            let err = 'URL is required';
+            if (lichessGames !== undefined) {
+                err += ' or select a game below';
+            }
+
+            setError(err);
             return;
         }
 
@@ -211,10 +231,21 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                                     </Button>
                                 ))}
                             {lichessGames && (
-                                <RecentGameGrid
-                                    games={lichessGames}
-                                    onClickGame={onClickGame}
-                                />
+                                <>
+                                    <Backdrop
+                                        open={loading}
+                                        sx={{
+                                            color: '#fff',
+                                            zIndex: (theme) => theme.zIndex.tooltip + 1,
+                                        }}
+                                    >
+                                        <LoadingPage />
+                                    </Backdrop>
+                                    <RecentGameGrid
+                                        games={lichessGames}
+                                        onClickGame={onClickGame}
+                                    />
+                                </>
                             )}
                         </>
                     ) : (
