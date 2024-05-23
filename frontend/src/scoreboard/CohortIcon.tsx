@@ -62,7 +62,6 @@ const CohortIcon: React.FC<CohortIconProps & SvgIconProps> = ({
     }
 
     if (cohort === ALL_COHORTS) {
-        console.log('Returning all inclusive with sx and svgProps', sx, svgProps);
         return <AllInclusive sx={sx} {...svgProps} />;
     }
 

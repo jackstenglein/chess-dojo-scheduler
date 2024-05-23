@@ -6,6 +6,17 @@ const BASE_URL = getConfig().api.baseUrl;
 
 export type ExamApiContextType = {
     /**
+     * Fetches the requested exam, as well as the calling user's answer for it.
+     * @param type The type of the exam.
+     * @param id The id of the exam.
+     * @returns The requested exam and answer, if it exists.
+     */
+    getExam: (
+        type: ExamType,
+        id: string,
+    ) => Promise<AxiosResponse<{ exam: Exam; answer?: ExamAnswer }>>;
+
+    /**
      * Fetches a list of exams with the provided type.
      * @param type The type of exam to fetch.
      * @param startKey The start key to use when fetching.
@@ -18,6 +29,8 @@ export type ExamApiContextType = {
      * @param examType The type of the exam attempted.
      * @param examId The id of the exam attempted.
      * @param attempt The attempt to save.
+     * @param index The index of the attempt, if it already exists.
+     * @param totalScore The user's total score on the attempt, if it is completed.
      * @returns An AxiosResponse containing the updated Exam or null if this
      * ExamAttempt did not generate an update to the Exam.
      */
@@ -25,7 +38,9 @@ export type ExamApiContextType = {
         examType: ExamType,
         examId: string,
         attempt: ExamAttempt,
-    ) => Promise<AxiosResponse<Exam | null>>;
+        index?: number,
+        totalScore?: number,
+    ) => Promise<AxiosResponse<{ exam?: Exam; answer: ExamAnswer }>>;
 
     /**
      * Fetches an exam answer created by the calling user.
@@ -34,6 +49,20 @@ export type ExamApiContextType = {
      */
     getExamAnswer: (id: string) => Promise<AxiosResponse<ExamAnswer>>;
 };
+
+/**
+ * Fetches the requested exam, as well as the calling user's answer for it.
+ * @param idToken The id token of the current signed-in user.
+ * @param type The type of the exam.
+ * @param id The id of the exam.
+ * @returns The requested exam and answer, if it exists.
+ */
+export function getExam(idToken: string, type: ExamType, id: string) {
+    return axios.get<{ exam: Exam; answer?: ExamAnswer }>(
+        `${BASE_URL}/exams/${type}/${id}`,
+        { headers: { Authorization: `Bearer ${idToken}` } },
+    );
+}
 
 interface ListExamsResponse {
     exams: Exam[];
@@ -72,6 +101,8 @@ export async function listExams(idToken: string, type: ExamType, startKey?: stri
  * @param examType The type of the exam attempted.
  * @param examId The id of the exam attempted.
  * @param attempt The attempt to save.
+ * @param index The index of the attempt, if it already exists.
+ * @param totalScore The user's total score on the attempt, if it is completed.
  * @returns An AxiosResponse containing the updated Exam or null if this
  * ExamAttempt did not generate an update to the Exam.
  */
@@ -80,10 +111,12 @@ export function putExamAttempt(
     examType: ExamType,
     examId: string,
     attempt: ExamAttempt,
+    index?: number,
+    totalScore?: number,
 ) {
-    return axios.put<Exam>(
+    return axios.put<{ exam?: Exam; answer: ExamAnswer }>(
         `${BASE_URL}/exams/answers`,
-        { examType, examId, attempt },
+        { examType, examId, attempt, index, totalScore },
         {
             headers: { Authorization: `Bearer ${idToken}` },
         },

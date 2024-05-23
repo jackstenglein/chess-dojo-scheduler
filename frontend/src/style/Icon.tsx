@@ -42,7 +42,7 @@ import { SvgIconProps } from '@mui/material';
 import React from 'react';
 import { AvailabilityType } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
-import RookIcon from './RookIcon';
+import { RookIcon } from './ChessIcons';
 
 export const icons = {
     [RequirementCategory.Welcome]: WavingHand,

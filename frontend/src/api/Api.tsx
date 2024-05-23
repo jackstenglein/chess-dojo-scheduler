@@ -46,7 +46,13 @@ import {
     listEvents,
     setEvent,
 } from './eventApi';
-import { ExamApiContextType, getExamAnswer, listExams, putExamAttempt } from './examApi';
+import {
+    ExamApiContextType,
+    getExam,
+    getExamAnswer,
+    listExams,
+    putExamAttempt,
+} from './examApi';
 import {
     ExplorerApiContextType,
     followPosition,
@@ -419,10 +425,16 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             ) => processJoinRequest(idToken, clubId, username, status),
             leaveClub: (clubId: string) => leaveClub(idToken, clubId),
 
+            getExam: (type: ExamType, id: string) => getExam(idToken, type, id),
             listExams: (type: ExamType, startKey?: string) =>
                 listExams(idToken, type, startKey),
-            putExamAttempt: (examType: ExamType, examId: string, attempt: ExamAttempt) =>
-                putExamAttempt(idToken, examType, examId, attempt),
+            putExamAttempt: (
+                examType: ExamType,
+                examId: string,
+                attempt: ExamAttempt,
+                index?: number,
+                totalScore?: number,
+            ) => putExamAttempt(idToken, examType, examId, attempt, index, totalScore),
             getExamAnswer: (id: string) => getExamAnswer(idToken, id),
 
             createSupportTicket: (request: SupportTicketRequest) =>

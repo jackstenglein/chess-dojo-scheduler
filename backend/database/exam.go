@@ -81,9 +81,11 @@ type ExamProblemAnswer struct {
 	Pgn string `dynamodbav:"pgn" json:"pgn"`
 
 	// The user's score for the problem.
+	// DEPRECATED
 	Score int `dynamodbav:"score" json:"score"`
 
 	// The total score available for the problem.
+	// DEPRECATED
 	Total int `dynamodbav:"total" json:"total"`
 }
 
@@ -99,11 +101,14 @@ type ExamAttempt struct {
 	// The user's normalized rating, at the time of the attempt.
 	Rating float32 `dynamodbav:"rating" json:"rating"`
 
-	// The amount of time used during the attempt.
+	// The amount of time used during the attempt, so far.
 	TimeUsedSeconds int `dynamodbav:"timeUsedSeconds" json:"timeUsedSeconds"`
 
 	// The date the user took the exam, in time.RFC3339 format.
 	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+
+	// Whether the attempt is currently in progress
+	InProgress bool `dynamodbav:"inProgress,omitempty" json:"inProgress,omitempty"`
 }
 
 // A single user's answer to a full exam.
@@ -117,26 +122,21 @@ type ExamAnswer struct {
 
 	// The user's attempts on the exam.
 	Attempts []ExamAttempt `dynamodbav:"attempts" json:"attempts"`
+}
 
-	// The user's answers to the problems included in the exam.
-	// Deprecated
-	Answers []ExamProblemAnswer `dynamodbav:"answers" json:"answers"`
+// GetExam returns the requested exam.
+func (repo *dynamoRepository) GetExam(examType string, id string) (*Exam, error) {
+	input := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type": {S: aws.String(examType)},
+			"id":   {S: aws.String(id)},
+		},
+		TableName: aws.String(examsTable),
+	}
 
-	// The user's cohort, at the time they took the exam.
-	// Deprecated
-	Cohort string `dynamodbav:"cohort" json:"cohort"`
-
-	// The user's normalized rating, at the time they took the exam.
-	// Deprecated
-	Rating float32 `dynamodbav:"rating" json:"rating"`
-
-	// The amount of time used while taking the exam.
-	// Deprecated
-	TimeUsedSeconds int `dynamodbav:"timeUsedSeconds" json:"timeUsedSeconds"`
-
-	// The date the user took the exam, in time.RFC3339 format
-	// Deprecated
-	CreatedAt string `dynamodbav:"createdAt" json:"createdAt"`
+	exam := Exam{}
+	err := repo.getItem(input, &exam)
+	return &exam, err
 }
 
 // ListExams returns a paginated list of exams with the provided type.
@@ -161,15 +161,10 @@ func (repo *dynamoRepository) ListExams(examType ExamType, startKey string, out 
 
 // PutExamAnswerSummary creates and saves an ExamAnswerSummary using the provided ExamAnswer.
 // The updated Exam is returned. If the ExamAnswer does not require updating the Exam, then nil is returned.
-func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) (*Exam, error) {
-	if len(answer.Attempts) > 1 {
-		// We've already saved the first attempt on the Exam, and don't need to do anything with this update.
+func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer, score int) (*Exam, error) {
+	if len(answer.Attempts) != 1 || answer.Attempts[0].InProgress {
+		// We've either already saved the first attempt on the Exam or the attempt is still on-going
 		return nil, nil
-	}
-
-	score := 0
-	for _, a := range answer.Attempts[0].Answers {
-		score += a.Score
 	}
 
 	summary := ExamAnswerSummary{
@@ -211,12 +206,31 @@ func (repo *dynamoRepository) PutExamAnswerSummary(answer *ExamAnswer) (*Exam, e
 	return exam, nil
 }
 
-// PutExamAttempt inserts the provided exam attempt into the database. It is appended to the
-// existing list of attempts. The updated ExamAnswer is returned.
-func (repo *dynamoRepository) PutExamAttempt(username string, examId string, examType ExamType, attempt *ExamAttempt) (*ExamAnswer, error) {
+// PutExamAttempt inserts the provided exam attempt into the database. If index is non-nil,
+// the exam attempt is assumed to already exist and overwrites the current item at the index
+// in the attempts list. If index is nil, the attempt is appended to the existing list of attempts.
+// The updated ExamAnswer is returned.
+func (repo *dynamoRepository) PutExamAttempt(username string, examId string, examType ExamType, attempt *ExamAttempt, index *int) (*ExamAnswer, error) {
 	item, err := dynamodbattribute.MarshalMap(attempt)
 	if err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Unable to marshal attempt", err)
+	}
+
+	var updateExpr string
+	exprAttrNames := map[string]*string{
+		"#a": aws.String("attempts"),
+	}
+	exprAttrValues := map[string]*dynamodb.AttributeValue{}
+
+	if index == nil {
+		updateExpr = "SET #et = :et, #a = list_append(if_not_exists(#a, :empty_list), :a)"
+		exprAttrNames["#et"] = aws.String("examType")
+		exprAttrValues[":et"] = &dynamodb.AttributeValue{S: aws.String(string(examType))}
+		exprAttrValues[":empty_list"] = &dynamodb.AttributeValue{L: []*dynamodb.AttributeValue{}}
+		exprAttrValues[":a"] = &dynamodb.AttributeValue{L: []*dynamodb.AttributeValue{{M: item}}}
+	} else {
+		updateExpr = fmt.Sprintf("SET #a[%d] = :a", *index)
+		exprAttrValues[":a"] = &dynamodb.AttributeValue{M: item}
 	}
 
 	input := &dynamodb.UpdateItemInput{
@@ -224,18 +238,11 @@ func (repo *dynamoRepository) PutExamAttempt(username string, examId string, exa
 			"type": {S: aws.String(username)},
 			"id":   {S: aws.String(examId)},
 		},
-		UpdateExpression: aws.String("SET #et = :et, #a = list_append(if_not_exists(#a, :empty_list), :a)"),
-		ExpressionAttributeNames: map[string]*string{
-			"#et": aws.String("examType"),
-			"#a":  aws.String("attempts"),
-		},
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":et":         {S: aws.String(string(examType))},
-			":empty_list": {L: []*dynamodb.AttributeValue{}},
-			":a":          {L: []*dynamodb.AttributeValue{{M: item}}},
-		},
-		TableName:    aws.String(examsTable),
-		ReturnValues: aws.String("ALL_NEW"),
+		UpdateExpression:          aws.String(updateExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		TableName:                 aws.String(examsTable),
+		ReturnValues:              aws.String("ALL_NEW"),
 	}
 
 	answer := &ExamAnswer{}
@@ -257,7 +264,10 @@ func (repo *dynamoRepository) GetExamAnswer(username, id string) (*ExamAnswer, e
 
 	answer := ExamAnswer{}
 	err := repo.getItem(input, &answer)
-	return &answer, err
+	if err != nil {
+		return nil, err
+	}
+	return &answer, nil
 }
 
 // Represents an update to a single UserExamSummary.

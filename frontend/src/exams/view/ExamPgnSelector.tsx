@@ -1,4 +1,5 @@
 import { Check, Warning } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     CardContent,
@@ -19,7 +20,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { ColorFormat } from 'react-countdown-circle-timer';
-import { BlockBoardKeyboardShortcuts } from '../board/pgn/PgnBoard';
+import { BlockBoardKeyboardShortcuts } from '../../board/pgn/PgnBoard';
 
 export enum ProblemStatus {
     Unknown = '',
@@ -27,7 +28,7 @@ export enum ProblemStatus {
     NeedsReview = 'NEEDS_REVIEW',
 }
 
-export interface TacticsExamPgnSelectorProps {
+export interface ExamPgnSelectorProps {
     name: string;
     cohortRange: string;
     count: number;
@@ -39,9 +40,11 @@ export interface TacticsExamPgnSelectorProps {
     pgnNames?: string[];
     problemStatus?: Record<number, ProblemStatus>;
     setProblemStatus?: (status: Record<number, ProblemStatus>) => void;
+    onPause?: () => void;
+    pauseLoading?: boolean;
 }
 
-const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
+const ExamPgnSelector: React.FC<ExamPgnSelectorProps> = ({
     name,
     cohortRange,
     count,
@@ -53,6 +56,8 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
     pgnNames,
     problemStatus,
     setProblemStatus,
+    onPause,
+    pauseLoading,
 }) => {
     const [isFinishEarly, setIsFinishEarly] = useState(false);
     const [statusAnchorEl, setStatusAnchorEl] = useState<HTMLElement | null>(null);
@@ -93,9 +98,15 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                 justifyContent='center'
             >
                 <CountdownTimer {...countdown} />
-                <Button variant='contained' onClick={() => setIsFinishEarly(true)}>
-                    Finish Early
-                </Button>
+                {onPause && (
+                    <LoadingButton
+                        variant='contained'
+                        onClick={onPause}
+                        loading={pauseLoading}
+                    >
+                        {pauseLoading ? 'Saving...' : 'Pause'}
+                    </LoadingButton>
+                )}
             </Stack>
 
             <List sx={{ mt: 2 }}>
@@ -148,6 +159,16 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
                     </ListItem>
                 ))}
             </List>
+
+            <Stack alignItems='center' mt={3}>
+                <Button
+                    variant='contained'
+                    onClick={() => setIsFinishEarly(true)}
+                    sx={{ alignSelf: 'center' }}
+                >
+                    Finish Early
+                </Button>
+            </Stack>
 
             <Dialog
                 open={isFinishEarly}
@@ -211,7 +232,7 @@ const TacticsExamPgnSelector: React.FC<TacticsExamPgnSelectorProps> = ({
     );
 };
 
-export default TacticsExamPgnSelector;
+export default ExamPgnSelector;
 
 export const formatTime = (time: number) => {
     time = Math.round(time);

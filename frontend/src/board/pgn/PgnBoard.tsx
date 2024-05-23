@@ -1,4 +1,4 @@
-import { Chess, Move } from '@jackstenglein/chess';
+import { Chess, Move, Observer } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { Color } from 'chessground/types';
 import React, {
@@ -45,6 +45,8 @@ export function useChess() {
 
 export interface PgnBoardApi {
     getPgn: () => string;
+    addObserver: (observer: Observer) => void;
+    removeObserver: (observer: Observer) => void;
 }
 
 export interface PgnBoardSlots {
@@ -149,6 +151,12 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 return {
                     getPgn() {
                         return chess.renderPgn() || '';
+                    },
+                    addObserver(observer: Observer) {
+                        chess.addObserver(observer);
+                    },
+                    removeObserver(observer: Observer) {
+                        chess.removeObserver(observer);
                     },
                 };
             },

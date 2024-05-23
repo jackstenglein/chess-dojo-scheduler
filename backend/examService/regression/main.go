@@ -5,6 +5,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"strconv"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -56,13 +58,39 @@ func processExam(record events.DynamoDBEventRecord) error {
 	r.SetObserved("Normalized rating per score on exam")
 	r.SetVar(0, "ExamScore")
 
-	for _, answer := range exam.Answers {
-		if answer.Rating > 0 {
-			r.Train(regression.DataPoint(float64(answer.Rating), []float64{float64(answer.Score)}))
+	tokens := strings.Split(exam.CohortRange, "-")
+	minCohort := 0
+	maxCohort := 0
+
+	minCohort, err := strconv.Atoi(strings.ReplaceAll(tokens[0], "+", ""))
+	if err != nil {
+		return err
+	}
+
+	if len(tokens) > 1 {
+		maxCohort, err = strconv.Atoi(tokens[1])
+		if err != nil {
+			return err
 		}
 	}
-	err := r.Run()
-	if err != nil {
+
+	dataPoints := regression.DataPoints{}
+	for _, answer := range exam.Answers {
+		if answer.Rating > 0 &&
+			answer.Score > 0 &&
+			answer.Rating >= float32(minCohort-100) &&
+			(maxCohort == 0 || answer.Rating < float32(maxCohort+100)) {
+			dataPoints = append(dataPoints, regression.DataPoint(float64(answer.Rating), []float64{float64(answer.Score)}))
+		}
+	}
+
+	if len(dataPoints) < 10 {
+		log.Infof("Only %d data points", len(dataPoints))
+		return nil
+	}
+
+	r.Train(dataPoints...)
+	if err := r.Run(); err != nil {
 		return err
 	}
 	log.Infof("Regression coefficients: %v", r.GetCoeffs())
