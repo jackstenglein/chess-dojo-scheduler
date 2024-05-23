@@ -58,7 +58,7 @@ import {
     TournamentType,
 } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
-import RookIcon from './RookIcon';
+import { RookIcon } from './ChessIcons';
 export const icons = {
     [RequirementCategory.Welcome]: WavingHand,
     [RequirementCategory.Games]: Biotech,
