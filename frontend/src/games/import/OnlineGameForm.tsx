@@ -29,6 +29,7 @@ import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 
 import { SiLichess } from 'react-icons/si';
+import { Link } from 'react-router-dom';
 import { RequestSnackbar } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
@@ -36,7 +37,6 @@ import LoadingPage from '../../loading/LoadingPage';
 import { RenderPlayers } from '../list/GameListItem';
 import { OrDivider } from './OrDivider';
 
-// Type union of supported game objects.
 type RecentGame = LichessGame;
 
 const RecentGameCell = ({
@@ -195,9 +195,9 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                         fullWidth
                         sx={{ mt: 0.8 }}
                     />
-                    {lichessUsername && (
+                    <OrDivider />
+                    {lichessUsername ? (
                         <>
-                            <OrDivider />
                             {!lichessGames &&
                                 (lichessRequest.isLoading() ? (
                                     <LoadingPage />
@@ -217,6 +217,12 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                                 />
                             )}
                         </>
+                    ) : (
+                        <Typography variant='body2'>
+                            To list recent games, add your Lichess username to the{' '}
+                            <Link to='/profile/edit#ratings'>Ratings section</Link> of
+                            your profile settings then scroll to the topand save.
+                        </Typography>
                     )}
                 </Stack>
                 <RequestSnackbar
