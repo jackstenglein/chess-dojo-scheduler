@@ -7,12 +7,12 @@ export enum EventType {
     Coaching = 'COACHING',
 }
 
-export enum CalendarSessionType{
+export enum CalendarSessionType {
     AllSessions = 'ALL_SESSIONS',
     Availabilities = 'AVAILABILITIES',
     Meetings = 'MEETINGS',
     DojoEvents = 'DOJO_EVENTS',
-    CoachingSessions = 'COACHING_SESSIONS'
+    CoachingSessions = 'COACHING_SESSIONS',
 }
 
 export interface Event {
@@ -54,7 +54,7 @@ export interface Event {
 }
 
 export enum TournamentType {
-    ALLTournamentTypes = 'ALL_TOURNAMENT_TYPES',
+    AllTournamentTypes = 'ALL_TOURNAMENT_TYPES',
     Swiss = 'SWISS',
     Arena = 'ARENA',
 }
@@ -67,7 +67,7 @@ export enum TimeControlType {
 }
 
 export enum PositionType {
-    AllPositions = 'ALL_POSITION_TYPE',
+    AllPositions = 'ALL_POSITION_TYPES',
     Standard = 'STANDARD',
     Custom = 'CUSTOM',
 }
@@ -152,12 +152,14 @@ export enum AvailabilityType {
     BookStudy = 'BOOK_STUDY',
 }
 
-export function getDisplaySessionString(type: CalendarSessionType | null | undefined): string {
-    if(!type){
+export function getDisplaySessionString(
+    type: CalendarSessionType | null | undefined,
+): string {
+    if (!type) {
         return '';
     }
 
-    switch(type){
+    switch (type) {
         case CalendarSessionType.AllSessions:
             return 'All Events';
         case CalendarSessionType.Availabilities:
@@ -165,14 +167,11 @@ export function getDisplaySessionString(type: CalendarSessionType | null | undef
         case CalendarSessionType.CoachingSessions:
             return 'Coaching Sessions';
         case CalendarSessionType.DojoEvents:
-            return 'Dojo Events';  
+            return 'Dojo Events';
         case CalendarSessionType.Meetings:
-            return 'Meetings';            
-       
+            return 'Meetings';
     }
-
 }
-
 
 export function getDisplayString(type: AvailabilityType | null | undefined): string {
     if (!type) {
@@ -228,7 +227,7 @@ export function displayTournamentType(type: TournamentType | null | undefined): 
     if (!type) return '';
 
     switch (type) {
-        case TournamentType.ALLTournamentTypes:
+        case TournamentType.AllTournamentTypes:
             return 'All Tournament Types';
         case TournamentType.Arena:
             return 'Arena';
@@ -250,12 +249,12 @@ export function displayTimeControlType(
         case TimeControlType.Rapid:
             return 'Rapid';
         case TimeControlType.AllTimeContols:
-            return 'All Time Controls';   
+            return 'All Time Controls';
     }
 }
 
 export function displayPositionType(type: PositionType | null | undefined): string {
-    if(!type) return '';
+    if (!type) return '';
 
     switch (type) {
         case PositionType.AllPositions:

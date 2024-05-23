@@ -59,6 +59,7 @@ import {
 } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import { RookIcon } from './ChessIcons';
+
 export const icons = {
     [RequirementCategory.Welcome]: WavingHand,
     [RequirementCategory.Games]: Biotech,
@@ -123,7 +124,7 @@ export const icons = {
     participant: PersonOutline,
     [TournamentType.Arena]: Stadium,
     [TournamentType.Swiss]: LocalHospital,
-    [TournamentType.ALLTournamentTypes]: AllInclusiveRounded,
+    [TournamentType.AllTournamentTypes]: AllInclusiveRounded,
     Swiss: LocalHospital,
     Arena: Stadium,
     tc: Alarm,
@@ -154,20 +155,6 @@ export const Icon: React.FC<IconProps> = ({ name, ...props }) => {
     }
 
     const InternalIcon = icons[name];
-
-    switch (name) {
-        case CalendarSessionType.AllSessions:
-            return <InternalIcon {...props} color='primary' />;
-        case CalendarSessionType.Availabilities:
-            return <InternalIcon {...props} color='info' />;
-        case CalendarSessionType.CoachingSessions:
-            return <InternalIcon {...props} color='coaching' />;
-        case CalendarSessionType.DojoEvents:
-            return <InternalIcon {...props} color='dojoOrange' />;
-        case CalendarSessionType.Meetings:
-            return <InternalIcon {...props} color='meet' />;
-    }
-
     return <InternalIcon {...props} />;
 };
 

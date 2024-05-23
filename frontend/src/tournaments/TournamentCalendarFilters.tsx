@@ -39,29 +39,22 @@ interface TournamentCalendarFiltersProps {
 export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps> = ({
     filters,
 }) => {
-    const [expanded, setExpanded] = useState<string | boolean>(false);
+    const [expanded, setExpanded] = useState<boolean>(false);
     const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
-
-    const handleChange =
-        (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-            if (!forceExpansion) {
-                setExpanded(newExpanded ? panel : false);
-            }
-        };
 
     const onChangeTournamentTimeControls = (tcTypes: string[]) => {
         const addedTcTypes = tcTypes.filter(
             (tc) => !filters.tournamentTimeControls.includes(tc as TimeControlType),
         );
 
-        let findTcTypes = [];
+        let finalTcTypes = [];
         if (addedTcTypes.includes(TimeControlType.AllTimeContols)) {
-            findTcTypes = [TimeControlType.AllTimeContols];
+            finalTcTypes = [TimeControlType.AllTimeContols];
         } else {
-            findTcTypes = tcTypes.filter((tc) => tc !== TimeControlType.AllTimeContols);
+            finalTcTypes = tcTypes.filter((tc) => tc !== TimeControlType.AllTimeContols);
         }
 
-        filters.setTournamentTimeControls(findTcTypes as TimeControlType[]);
+        filters.setTournamentTimeControls(finalTcTypes as TimeControlType[]);
     };
 
     const onChangeTournamentType = (tourneyTypes: string[]) => {
@@ -69,16 +62,16 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             (tu) => !filters.tournamentTypes.includes(tu as TournamentType),
         );
 
-        let findTourneyTypes = [];
-        if (addedTourney.includes(TournamentType.ALLTournamentTypes)) {
-            findTourneyTypes = [TournamentType.ALLTournamentTypes];
+        let finalTourneyTypes = [];
+        if (addedTourney.includes(TournamentType.AllTournamentTypes)) {
+            finalTourneyTypes = [TournamentType.AllTournamentTypes];
         } else {
-            findTourneyTypes = tourneyTypes.filter(
-                (tu) => tu !== TournamentType.ALLTournamentTypes,
+            finalTourneyTypes = tourneyTypes.filter(
+                (tu) => tu !== TournamentType.AllTournamentTypes,
             );
         }
 
-        filters.setTournamentTypes(findTourneyTypes as TournamentType[]);
+        filters.setTournamentTypes(finalTourneyTypes as TournamentType[]);
     };
 
     const onChangeTournamentPositions = (posTypes: string[]) => {
@@ -86,145 +79,114 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             (pos) => !filters.tournamentPositions.includes(pos as PositionType),
         );
 
-        let findPosTypes = [];
+        let finalPosTypes = [];
         if (addedpos.includes(PositionType.AllPositions)) {
-            findPosTypes = [PositionType.AllPositions];
+            finalPosTypes = [PositionType.AllPositions];
         } else {
-            findPosTypes = posTypes.filter((pos) => pos !== PositionType.AllPositions);
+            finalPosTypes = posTypes.filter((pos) => pos !== PositionType.AllPositions);
         }
 
-        filters.setTournamentPositions(findPosTypes as PositionType[]);
+        filters.setTournamentPositions(finalPosTypes as PositionType[]);
     };
 
     return (
         <Stack
             data-cy='calendar-filters'
             sx={{ pt: 0.5, pb: 2, position: { md: 'sticky' }, top: { md: '88px' } }}
-            spacing={{ xs: 3, sm: 4 }}
         >
-            <TimezoneFilter filters={filters} />
-
             <Accordion
-                expanded={forceExpansion || expanded === 'tournamentTypes'}
-                onChange={handleChange('tournamentTypes')}
+                expanded={forceExpansion || expanded}
+                onChange={(_, e) => setExpanded(e)}
             >
-                <AccordionSummary forceExpansion={forceExpansion}>
-                    <Typography variant='h6' color='text.secondary'>
-                        <Icon
-                            name='liga'
-                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                            fontSize='medium'
-                            color='liga'
-                        />
-                        Types
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Stack>
-                        <MultipleSelectChip
-                            selected={filters.tournamentTypes}
-                            setSelected={onChangeTournamentType}
-                            options={Object.values(TournamentType).map((t) => ({
-                                value: t,
-                                label: displayTournamentType(t),
-                                icon: <Icon name={t} color='liga' />,
-                            }))}
-                            size='small'
-                        />
-                    </Stack>
-                </AccordionDetails>
-            </Accordion>
+                {!forceExpansion && (
+                    <AccordionSummary forceExpansion={forceExpansion}>
+                        <Typography variant='h6' color='text.secondary'>
+                            Filters
+                        </Typography>
+                    </AccordionSummary>
+                )}
 
-            <Accordion
-                expanded={forceExpansion || expanded === 'timeControls'}
-                onChange={handleChange('timeControls')}
-            >
-                <AccordionSummary forceExpansion={forceExpansion}>
-                    <Typography variant='h6' color='text.secondary'>
-                        <Icon
-                            name='tc'
-                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                            fontSize='medium'
-                            color='primary'
-                        />
-                        Time Controls
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Stack>
-                        <MultipleSelectChip
-                            selected={filters.tournamentTimeControls}
-                            setSelected={onChangeTournamentTimeControls}
-                            options={Object.values(TimeControlType).map((t) => ({
-                                value: t,
-                                label: displayTimeControlType(t),
-                                icon: <Icon name={t} color={getColor(t)} />,
-                            }))}
-                            size='small'
-                        />
-                    </Stack>
-                </AccordionDetails>
-            </Accordion>
+                <AccordionDetails sx={{ border: 'none' }}>
+                    <Stack sx={{ mt: 2, pb: 2 }} spacing={3}>
+                        <TimezoneFilter filters={filters} />
 
-            <Accordion
-                expanded={forceExpansion || expanded === 'positions'}
-                onChange={handleChange('positions')}
-            >
-                <AccordionSummary forceExpansion={forceExpansion}>
-                    <Typography variant='h6' color='text.secondary'>
-                        <Icon
-                            name={RequirementCategory.Endgame}
-                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                            fontSize='medium'
-                            color='warning'
-                        />
-                        Starting Position
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Stack>
-                        <MultipleSelectChip
-                            selected={filters.tournamentPositions}
-                            setSelected={onChangeTournamentPositions}
-                            options={Object.values(PositionType).map((t) => ({
-                                value: t,
-                                label: displayPositionType(t),
-                                icon: <Icon name={t} color='warning' />,
-                            }))}
-                            size='small'
-                        />
-                        {/* {Object.values(PositionType).map((type) => (
-                            <FormControlLabel
-                                key={type}
-                                control={
-                                    <Checkbox
-                                        checked={filters.tournamentPositions[type]}
-                                        onChange={(event) =>
-                                            onChangeTournamentPositions(
-                                                type,
-                                                event.target.checked,
-                                            )
-                                        }
-                                        color='error'
-                                    />
-                                }
-                                label={
-                                    <>
-                                        <Icon
-                                            name={displayPositionType(type)}
-                                            sx={{
-                                                marginRight: '0.5rem',
-                                                verticalAlign: 'middle',
-                                            }}
-                                            fontSize='small'
-                                            color='primary'
-                                        />
-
-                                        {displayPositionType(type)}
-                                    </>
-                                }
+                        <Stack>
+                            <Typography variant='h6' color='text.secondary'>
+                                <Icon
+                                    name='liga'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                    color='liga'
+                                />
+                                Types
+                            </Typography>
+                            <MultipleSelectChip
+                                selected={filters.tournamentTypes}
+                                setSelected={onChangeTournamentType}
+                                options={Object.values(TournamentType).map((t) => ({
+                                    value: t,
+                                    label: displayTournamentType(t),
+                                    icon: <Icon name={t} color='liga' />,
+                                }))}
+                                displayEmpty='None'
+                                size='small'
                             />
-                        ))} */}
+                        </Stack>
+
+                        <Stack>
+                            <Typography variant='h6' color='text.secondary'>
+                                <Icon
+                                    name='tc'
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                    color='primary'
+                                />
+                                Time Controls
+                            </Typography>
+                            <MultipleSelectChip
+                                selected={filters.tournamentTimeControls}
+                                setSelected={onChangeTournamentTimeControls}
+                                options={Object.values(TimeControlType).map((t) => ({
+                                    value: t,
+                                    label: displayTimeControlType(t),
+                                    icon: <Icon name={t} color={getColor(t)} />,
+                                }))}
+                                displayEmpty='None'
+                                size='small'
+                            />
+                        </Stack>
+
+                        <Stack>
+                            <Typography variant='h6' color='text.secondary'>
+                                <Icon
+                                    name={RequirementCategory.Endgame}
+                                    sx={{
+                                        marginRight: '0.4rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    fontSize='medium'
+                                    color='warning'
+                                />
+                                Starting Position
+                            </Typography>
+                            <MultipleSelectChip
+                                selected={filters.tournamentPositions}
+                                setSelected={onChangeTournamentPositions}
+                                options={Object.values(PositionType).map((t) => ({
+                                    value: t,
+                                    label: displayPositionType(t),
+                                    icon: <Icon name={t} color='warning' />,
+                                }))}
+                                displayEmpty='None'
+                                size='small'
+                            />
+                        </Stack>
                     </Stack>
                 </AccordionDetails>
             </Accordion>

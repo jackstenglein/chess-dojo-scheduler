@@ -1,4 +1,4 @@
-import { FormHelperText, ListItemIcon, ListItemText } from '@mui/material';
+import { FormHelperText, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
@@ -44,6 +44,7 @@ interface MultipleSelectChipProps {
     error?: boolean;
     errorHelper?: string;
     'data-cy'?: string;
+    displayEmpty?: string;
 }
 
 export default function MultipleSelectChip({
@@ -55,6 +56,7 @@ export default function MultipleSelectChip({
     sx,
     error,
     errorHelper,
+    displayEmpty,
     ...others
 }: MultipleSelectChipProps) {
     const theme = useTheme();
@@ -86,9 +88,15 @@ export default function MultipleSelectChip({
                                 size={size}
                             />
                         ))}
+                        {selected.length === 0 && !!displayEmpty && (
+                            <Typography color='text.secondary' fontStyle='italic'>
+                                {displayEmpty}
+                            </Typography>
+                        )}
                     </Box>
                 )}
                 MenuProps={MenuProps}
+                displayEmpty={!!displayEmpty}
             >
                 {options.map((option) => (
                     <MenuItem

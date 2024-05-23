@@ -1,8 +1,13 @@
 import { Scheduler } from '@aldabil/react-scheduler';
-import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
-import { Box, Grid } from '@mui/material';
+import {
+    EventRendererProps,
+    ProcessedEvent,
+    SchedulerRef,
+} from '@aldabil/react-scheduler/types';
+import { Grid } from '@mui/material';
 import { useEffect, useMemo, useRef } from 'react';
 import { useEvents } from '../api/cache/Cache';
+import { CustomEventRenderer } from '../calendar/CalendarPage';
 import ProcessedEventViewer from '../calendar/eventViewer/ProcessedEventViewer';
 import {
     DefaultTimezone,
@@ -10,9 +15,14 @@ import {
     getHours,
     useFilters,
 } from '../calendar/filters/CalendarFilters';
-import { Event, EventType, PositionType, TimeControlType } from '../database/event';
+import {
+    Event,
+    EventType,
+    PositionType,
+    TimeControlType,
+    TournamentType,
+} from '../database/event';
 import { TimeFormat } from '../database/user';
-import Icon from '../style/Icon';
 import TournamentCalendarFilters from './TournamentCalendarFilters';
 
 function getColor(timeControlType: TimeControlType) {
@@ -37,20 +47,29 @@ function getProcessedEvents(filters: Filters, events: Event[]): ProcessedEvent[]
         }
 
         if (
-            !filters.tournamentTypes[event.ligaTournament.type] ||
-            !filters.tournamentTimeControls[0]
+            filters.tournamentTypes[0] !== TournamentType.AllTournamentTypes &&
+            !filters.tournamentTypes.includes(event.ligaTournament.type)
         ) {
             continue;
         }
 
         if (
-            !filters.tournamentPositions[PositionType.Custom] &&
+            filters.tournamentTimeControls[0] !== TimeControlType.AllTimeContols &&
+            !filters.tournamentTimeControls.includes(event.ligaTournament.timeControlType)
+        ) {
+            continue;
+        }
+
+        if (
+            filters.tournamentPositions[0] !== PositionType.AllPositions &&
+            !filters.tournamentPositions.includes(PositionType.Custom) &&
             event.ligaTournament.fen
         ) {
             continue;
         }
         if (
-            !filters.tournamentPositions[PositionType.Standard] &&
+            filters.tournamentPositions[0] !== PositionType.AllPositions &&
+            !filters.tournamentPositions.includes(PositionType.Standard) &&
             !event.ligaTournament.fen
         ) {
             continue;
@@ -92,6 +111,14 @@ const CalendarTab = () => {
 
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
+        calendarRef.current?.scheduler.handleState(
+            (props: EventRendererProps) =>
+                CustomEventRenderer({
+                    ...props,
+                    timeFormat: filters.timeFormat,
+                }),
+            'eventRenderer',
+        );
     }, [calendarRef, filters.timeFormat]);
 
     const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
@@ -172,63 +199,9 @@ const CalendarTab = () => {
                             : filters.timezone
                     }
                     hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
-                    eventRenderer={({ event, ...props }) => {
-                        return (
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between',
-                                    height: '100%',
-                                    backgroundColor: event.color,
-                                    color: 'cblack.main',
-                                    fontSize: '0.775em',
-                                }}
-                                {...props}
-                            >
-                                <Box
-                                    sx={{
-                                        height: 90,
-                                        background: event.color,
-                                        color: 'cblack',
-                                    }}
-                                >
-                                    <>
-                                        <Icon
-                                            name={
-                                                event.event?.ligaTournament
-                                                    ?.timeControlType
-                                            }
-                                            sx={{
-                                                marginLeft: '0.3rem',
-                                                verticalAlign: 'middle',
-                                            }}
-                                            color='cblack'
-                                            fontSize='small'
-                                        />
-                                        <Icon
-                                            name={event.event?.ligaTournament?.type}
-                                            sx={{
-                                                marginRight: '0.3rem',
-                                                marginLeft: '0.3rem',
-                                                verticalAlign: 'middle',
-                                            }}
-                                            color='cblack'
-                                            fontSize='small'
-                                        />
-                                        {event.title} <br />{' '}
-                                        {event.start.toLocaleTimeString('en-US', {
-                                            timeStyle: 'short',
-                                        })}{' '}
-                                        -{' '}
-                                        {event.end.toLocaleTimeString('en-US', {
-                                            timeStyle: 'short',
-                                        })}
-                                    </>
-                                </Box>
-                            </Box>
-                        );
-                    }}
+                    eventRenderer={(props) =>
+                        CustomEventRenderer({ ...props, timeFormat: filters.timeFormat })
+                    }
                 />
             </Grid>
         </Grid>

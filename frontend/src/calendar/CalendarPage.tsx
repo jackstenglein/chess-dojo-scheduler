@@ -1,14 +1,21 @@
 import { Scheduler } from '@aldabil/react-scheduler';
-import type { SchedulerRef } from '@aldabil/react-scheduler/types';
+import type { EventRendererProps, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Box, Container, Grid, Snackbar, Stack } from '@mui/material';
+import { Container, Grid, Snackbar, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useEvents } from '../api/cache/Cache';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import { AvailabilityType, Event, EventStatus, EventType, TimeControlType } from '../database/event';
+import {
+    AvailabilityType,
+    CalendarSessionType,
+    Event,
+    EventStatus,
+    EventType,
+    TimeControlType,
+} from '../database/event';
 import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '../database/user';
 import Icon from '../style/Icon';
 import UpsellAlert from '../upsell/UpsellAlert';
@@ -26,7 +33,7 @@ import {
 } from './filters/CalendarFilters';
 function processAvailability(
     user: User | undefined,
-    filters: Filters | undefined,
+    filters: Filters,
     event: Event,
 ): ProcessedEvent | null {
     if (event.status === EventStatus.Canceled) {
@@ -39,9 +46,12 @@ function processAvailability(
         (event.owner === user.username || event.participants[user.username]) &&
         Object.values(event.participants).length > 0
     ) {
-        // if (filters && !filters.meetings) {
-        //     return null;
-        // }
+        if (
+            filters.sessions[0] !== CalendarSessionType.AllSessions &&
+            !filters.sessions.includes(CalendarSessionType.Meetings)
+        ) {
+            return null;
+        }
 
         const title =
             event.maxParticipants === 1
@@ -70,9 +80,12 @@ function processAvailability(
 
     // This user's created availabilities
     if (event.owner === user?.username) {
-        // if (filters && !filters.availabilities) {
-        //     return null;
-        // }
+        if (
+            filters.sessions[0] !== CalendarSessionType.AllSessions &&
+            !filters.sessions.includes(CalendarSessionType.Availabilities)
+        ) {
+            return null;
+        }
 
         const title =
             event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group';
@@ -136,12 +149,15 @@ function processAvailability(
 
 function processDojoEvent(
     user: User | undefined,
-    filters: Filters | undefined,
+    filters: Filters,
     event: Event,
 ): ProcessedEvent | null {
-    // if (filters && !filters.dojoEvents) {
-    //     return null;
-    // }
+    if (
+        filters.sessions[0] !== CalendarSessionType.AllSessions &&
+        !filters.sessions.includes(CalendarSessionType.DojoEvents)
+    ) {
+        return null;
+    }
 
     if (
         user &&
@@ -170,22 +186,17 @@ function processDojoEvent(
 
 function processLigaTournament(
     user: User | undefined,
-    filters: Filters | undefined,
+    filters: Filters,
     event: Event,
 ): ProcessedEvent | null {
-    // if (filters && !filters.dojoEvents) {
-    //     return null;
-    // }
     if (!event.ligaTournament) {
         return null;
     }
 
-    // event.types?.every((t) => !filters.types.includes(t))
     if (
         filters &&
-        filters.tournamentTimeControls[0] !== TimeControlType.AllTimeContols
-        && !event.ligaTournament.timeControlType.includes(event.ligaTournament.timeControlType)
-        
+        filters.tournamentTimeControls[0] !== TimeControlType.AllTimeContols &&
+        !filters.tournamentTimeControls.includes(event.ligaTournament.timeControlType)
     ) {
         return null;
     }
@@ -206,12 +217,15 @@ function processLigaTournament(
 
 export function processCoachingEvent(
     user: User | undefined,
-    filters: Filters | undefined,
+    filters: Filters,
     event: Event,
 ): ProcessedEvent | null {
-    // if (filters && !filters.coaching) {
-    //     return null;
-    // }
+    if (
+        filters.sessions[0] !== CalendarSessionType.AllSessions &&
+        !filters.sessions.includes(CalendarSessionType.CoachingSessions)
+    ) {
+        return null;
+    }
 
     const isOwner = event.owner === user?.username;
     if (
@@ -252,7 +266,7 @@ export function processCoachingEvent(
 
 export function getProcessedEvents(
     user: User | undefined,
-    filters: Filters | undefined,
+    filters: Filters,
     events: Event[],
 ): ProcessedEvent[] {
     const result: ProcessedEvent[] = [];
@@ -404,6 +418,14 @@ export default function CalendarPage() {
 
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
+        calendarRef.current?.scheduler.handleState(
+            (props: EventRendererProps) =>
+                CustomEventRenderer({
+                    ...props,
+                    timeFormat: filters.timeFormat,
+                }),
+            'eventRenderer',
+        );
     }, [calendarRef, filters.timeFormat]);
 
     const weekStartOn = filters.weekStartOn;
@@ -516,87 +538,12 @@ export default function CalendarPage() {
                                     : filters.timezone
                             }
                             hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
-                            eventRenderer={({ event, ...props }) => {
-                                return (
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'space-between',
-                                            height: '100%',
-                                            backgroundColor: event.color,
-                                            color: 'cblack.main',
-                                            fontSize: '0.775em',
-                                        }}
-                                        {...props}
-                                    >
-                                        <Box
-                                            sx={{
-                                                height: 90,
-                                                background: event.color,
-                                                color: 'cblack',
-                                            }}
-                                        >
-                                            <>
-                                                {event.event?.type !==
-                                                EventType.LigaTournament ? (
-                                                    <>
-                                                        <Icon
-                                                            name={event.event?.type}
-                                                            sx={{
-                                                                marginRight: '0.5rem',
-                                                                verticalAlign: 'middle',
-                                                            }}
-                                                            fontSize='small'
-                                                            color='cblack'
-                                                        />
-                                                        {event.title} <br />{' '}
-                                                        {event.start.toLocaleTimeString(
-                                                            'en-US',
-                                                            {
-                                                                timeStyle: 'short',
-                                                            },
-                                                        )}{' '}
-                                                        -{' '}
-                                                        {event.end.toLocaleTimeString(
-                                                            'en-US',
-                                                            { timeStyle: 'short' },
-                                                        )}
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Icon
-                                                            name={
-                                                                event.event
-                                                                    ?.ligaTournament
-                                                                    ?.timeControlType
-                                                            }
-                                                            sx={{
-                                                                marginRight: '0.5rem',
-                                                                verticalAlign: 'middle',
-                                                            }}
-                                                            color='cblack'
-                                                            fontSize='small'
-                                                        />
-                                                        {event.title} <br />{' '}
-                                                        {event.start.toLocaleTimeString(
-                                                            'en-US',
-                                                            {
-                                                                timeStyle: 'short',
-                                                            },
-                                                        )}{' '}
-                                                        -{' '}
-                                                        {event.end.toLocaleTimeString(
-                                                            'en-US',
-                                                            { timeStyle: 'short' },
-                                                        )}
-                                                    </>
-                                                )}
-                                            </>
-                                        </Box>
-                                    </Box>
-                                );
-                            }}
+                            eventRenderer={(props) =>
+                                CustomEventRenderer({
+                                    ...props,
+                                    timeFormat: filters.timeFormat,
+                                })
+                            }
                         />
                     </Stack>
                 </Grid>
@@ -607,4 +554,91 @@ export default function CalendarPage() {
             <Outlet />
         </Container>
     );
+}
+
+interface CustomEventRendererProps extends EventRendererProps {
+    timeFormat: TimeFormat | undefined;
+}
+
+export function CustomEventRenderer({
+    event,
+    timeFormat,
+    ...props
+}: CustomEventRendererProps) {
+    const textColor = event.color?.endsWith('.main')
+        ? event.color.replace('.main', '.contrastText')
+        : 'common.black';
+
+    let start = eventDateStr(event.start, timeFormat);
+    const end = eventDateStr(event.end, timeFormat);
+
+    if (
+        (start.endsWith('AM') && end.endsWith('AM')) ||
+        (start.endsWith('PM') && end.endsWith('PM'))
+    ) {
+        start = start.replace(' AM', '').replace(' PM', '');
+    }
+
+    const quarterHours = Math.abs(event.start.getTime() - event.end.getTime()) / 900000;
+    const maxLines = 2 + Math.max(0, quarterHours - 4);
+
+    return (
+        <Stack
+            sx={{
+                height: '100%',
+                backgroundColor: event.color,
+                color: textColor,
+                fontSize: '0.775em',
+                pl: 0.25,
+                pt: 0.25,
+            }}
+            {...props}
+        >
+            <Stack direction='row' alignItems='start' spacing={0.5}>
+                <Icon
+                    name={
+                        event.event?.ligaTournament?.timeControlType || event.event?.type
+                    }
+                    color='inherit'
+                    fontSize='inherit'
+                    sx={{
+                        // Makes the icon 0 width if the container is less than 80px wide
+                        '--container-min-width': '80px',
+                        maxWidth: 'calc((100% - var(--container-min-width)) * 9999)',
+                    }}
+                />
+
+                <Stack>
+                    <Typography
+                        fontSize='inherit'
+                        color='inherit'
+                        sx={{
+                            WebkitLineClamp: maxLines,
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            lineClamp: maxLines,
+                            fontWeight: 'bold',
+                            lineHeight: 1.3,
+                        }}
+                    >
+                        {event.title}
+                    </Typography>
+                    <Typography fontSize='inherit' color='inherit'>
+                        {start} – {end}
+                    </Typography>
+                </Stack>
+            </Stack>
+        </Stack>
+    );
+}
+
+function eventDateStr(date: Date, timeFormat: TimeFormat | undefined): string {
+    return date
+        .toLocaleTimeString(undefined, {
+            hour12: timeFormat === TimeFormat.TwelveHour,
+            hour: 'numeric',
+            minute: 'numeric',
+        })
+        .replace(':00', '');
 }

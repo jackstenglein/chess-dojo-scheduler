@@ -1,11 +1,11 @@
+import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Container, Tab } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
 
-import LeaderboardTab from './LeaderboardTab';
-import InfoTab from './InfoTab';
-import CalendarTab from './CalendarTab';
 import Icon from '../style/Icon';
+import CalendarTab from './CalendarTab';
+import InfoTab from './InfoTab';
+import LeaderboardTab from './LeaderboardTab';
 const TournamentsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({
         type: 'calendar',
@@ -20,9 +20,27 @@ const TournamentsPage = () => {
                         onChange={(_, t) => setSearchParams({ type: t })}
                         variant='scrollable'
                     >
-                        <Tab label='Calendar' value='calendar' icon={<Icon name='ligaCalendar' color='primary'/>} iconPosition='start'/>
-                        <Tab label='Leaderboard' value='leaderboard' icon={<Icon name='leaderboard' color='primary'/>} iconPosition='start' />
-                        <Tab label='Info' value='info' icon={<Icon name='info' color='primary'/>} iconPosition='start'/>
+                        <Tab
+                            label='Calendar'
+                            value='calendar'
+                            icon={<Icon name='ligaCalendar' color='primary' />}
+                            iconPosition='start'
+                            sx={{ minHeight: '48px' }}
+                        />
+                        <Tab
+                            label='Leaderboard'
+                            value='leaderboard'
+                            icon={<Icon name='leaderboard' color='primary' />}
+                            iconPosition='start'
+                            sx={{ minHeight: '48px' }}
+                        />
+                        <Tab
+                            label='Info'
+                            value='info'
+                            icon={<Icon name='info' color='primary' />}
+                            iconPosition='start'
+                            sx={{ minHeight: '48px' }}
+                        />
                     </TabList>
                 </Box>
 
