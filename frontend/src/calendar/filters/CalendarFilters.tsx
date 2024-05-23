@@ -1,16 +1,7 @@
 import { DayHours } from '@aldabil/react-scheduler/types';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
-import {
-    Button,
-    Checkbox,
-    FormControlLabel,
-    Link,
-    Stack,
-    Tooltip,
-    Typography,
-    useMediaQuery,
-} from '@mui/material';
+import { Button, Link, Stack, Typography, useMediaQuery } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary, {
@@ -25,15 +16,15 @@ import { useEvents } from '../../api/cache/Cache';
 import { useAuth } from '../../auth/Auth';
 import {
     AvailabilityType,
+    CalendarSessionType,
     Event,
     EventStatus,
     PositionType,
     TimeControlType,
     TournamentType,
     displayTimeControlType,
+    getDisplaySessionString,
     getDisplayString,
-    CalendarSessionType,
-    getDisplaySessionString
 } from '../../database/event';
 import {
     ALL_COHORTS,
@@ -91,29 +82,21 @@ export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     paddingLeft: theme.spacing(1),
 }));
 
-const initialFilterTournamentTypes = Object.values(TournamentType).reduce(
-    (map, type) => {
-        map[type] = true;
-        return map;
-    },
-    {} as Record<TournamentType, boolean>,
-);
-
-// const initialFilterTournamentTimeControls = Object.values(TimeControlType).reduce(
+// const initialFilterTournamentTypes = Object.values(TournamentType).reduce(
 //     (map, type) => {
 //         map[type] = true;
 //         return map;
 //     },
-//     {} as Record<TimeControlType, boolean>,
+//     {} as Record<TournamentType, boolean>,
 // );
 
-const initialFilterTournamentPositions = Object.values(PositionType).reduce(
-    (m, t) => {
-        m[t] = true;
-        return m;
-    },
-    {} as Record<PositionType, boolean>,
-);
+// const initialFilterTournamentPositions = Object.values(PositionType).reduce(
+//     (m, t) => {
+//         m[t] = true;
+//         return m;
+//     },
+//     {} as Record<PositionType, boolean>,
+// );
 
 export interface Filters {
     timezone: string;
@@ -131,15 +114,6 @@ export interface Filters {
     maxHour: DateTime | null;
     setMaxHour: (d: DateTime | null) => void;
 
-    // availabilities: boolean;
-    // setAvailabilities: (v: boolean) => void;
-
-    // meetings: boolean;
-    // setMeetings: (v: boolean) => void;
-
-    // dojoEvents: boolean;
-    // setDojoEvents: (v: boolean) => void;
-
     sessions: CalendarSessionType[];
     setSessions: (v: CalendarSessionType[]) => void;
 
@@ -149,17 +123,15 @@ export interface Filters {
     cohorts: string[];
     setCohorts: (v: string[]) => void;
 
-    tournamentTypes: Record<TournamentType, boolean>;
-    setTournamentTypes: (v: Record<TournamentType, boolean>) => void;
+    tournamentTypes: TournamentType[];
+    setTournamentTypes: (v: TournamentType[]) => void;
 
-    tournamentTimeControls: TimeControlType[]; // I'm here
+    tournamentTimeControls: TimeControlType[]; 
     setTournamentTimeControls: (v: TimeControlType[]) => void;
 
-    tournamentPositions: Record<PositionType, boolean>;
-    setTournamentPositions: (v: Record<PositionType, boolean>) => void;
+    tournamentPositions: PositionType[];
+    setTournamentPositions: (v: PositionType[]) => void;
 
-    // coaching: boolean;
-    // setCoaching: (v: boolean) => void;
 }
 
 export function useFilters(): Filters {
@@ -184,21 +156,9 @@ export function useFilters(): Filters {
         { deserializer: (v) => DateTime.fromISO(JSON.parse(v)) },
     );
 
-
-    const [sessions, setSessions] = useLocalStorage(
-        'calendarFilters.sessions', 
-        [CalendarSessionType.AllSessions]
-    )
-
-    // const [availabilities, setAvailabilities] = useLocalStorage(
-    //     'calendarFilters.availabilties',
-    //     true,
-    // );
-    // const [meetings, setMeetings] = useLocalStorage('calendarFilters.meetings', true);
-    // const [dojoEvents, setDojoEvents] = useLocalStorage(
-    //     'calendarFilters.dojoEvents',
-    //     true,
-    // );
+    const [sessions, setSessions] = useLocalStorage('calendarFilters.sessions.2', [
+        CalendarSessionType.AllSessions,
+    ]);
 
     const [types, setTypes] = useLocalStorage('calendarFilters.types.2', [
         AvailabilityType.AllTypes,
@@ -209,21 +169,19 @@ export function useFilters(): Filters {
     ]);
 
     const [tournamentTypes, setTournamentTypes] = useLocalStorage(
-        'calendarFilters.tournamentTypes',
-        initialFilterTournamentTypes,
+        'calendarFilters.tournamentTypes.2',
+        [TournamentType.ALLTournamentTypes],
     );
 
     const [tournamentTimeControls, setTournamentTimeControls] = useLocalStorage(
-        'calendarFilters.tournamentTimeControls.2',
+        'calendarFilters.tournamentTimeControls.3',
         [TimeControlType.AllTimeContols],
     );
 
     const [tournamentPositions, setTournamentPositions] = useLocalStorage(
-        'calendarFilters.tournamentPositions',
-        initialFilterTournamentPositions,
+        'calendarFilters.tournamentPositions.2',
+        [PositionType.AllPositions],
     );
-
-    // const [coaching, setCoaching] = useLocalStorage('calendarFilters.coaching', true);
 
     const result = useMemo(
         () => ({
@@ -366,15 +324,14 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
     };
 
     const onChangeTournamentTimeControls = (tcTypes: string[]) => {
-
         const addedTcTypes = tcTypes.filter(
             (tc) => !filters.tournamentTimeControls.includes(tc as TimeControlType),
         );
- 
+
         let findTcTypes = [];
-        if(addedTcTypes.includes(TimeControlType.AllTimeContols)){
+        if (addedTcTypes.includes(TimeControlType.AllTimeContols)) {
             findTcTypes = [TimeControlType.AllTimeContols];
-        }else{
+        } else {
             findTcTypes = tcTypes.filter((tc) => tc !== TimeControlType.AllTimeContols);
         }
 
@@ -387,20 +344,21 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         );
 
         let findss = [];
-        if(addedSessions.includes(CalendarSessionType.AllSessions)){
+        if (addedSessions.includes(CalendarSessionType.AllSessions)) {
             findss = [CalendarSessionType.AllSessions];
-        }else{
+        } else {
             findss = sessionTypes.filter((ss) => ss !== CalendarSessionType.AllSessions);
         }
         filters.setSessions(findss as CalendarSessionType[]);
-    }
+    };
+
 
     const onReset = () => {
         filters.setTypes([AvailabilityType.AllTypes]);
         filters.setCohorts([ALL_COHORTS]);
-        filters.setTournamentTypes(initialFilterTournamentTypes);
+        filters.setTournamentTypes([TournamentType.ALLTournamentTypes]);
         filters.setTournamentTimeControls([TimeControlType.AllTimeContols]);
-        filters.setTournamentPositions(initialFilterTournamentPositions);
+        filters.setTournamentPositions([PositionType.AllPositions]);
         filters.setSessions([CalendarSessionType.AllSessions]);
     };
 
@@ -427,82 +385,6 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                 Reset Filters
             </Button>
 
-            {/* <Accordion
-                expanded={forceExpansion || expanded === 'myCalendar'}
-                onChange={handleChange('myCalendar')}
-                id='my-calendar-filters'
-            >
-                <AccordionSummary
-                    aria-controls='mycalendar-content'
-                    id='mycalendar-header'
-                    forceExpansion={forceExpansion}
-                >
-                    <Typography variant='h6' color='text.secondary'>
-                        <Icon
-                            name='eventCheck'
-                            color='inherit'
-                            sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                            fontSize='medium'
-                        />
-                        My Dojo Calendar
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Stack>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.availabilities}
-                                    onChange={(event) =>
-                                        filters.setAvailabilities(event.target.checked)
-                                    }
-                                    color='info'
-                                />
-                            }
-                            label={
-                                <>
-                                    <Icon
-                                        name='avilb'
-                                        color='inherit'
-                                        sx={{
-                                            marginRight: '0.4rem',
-                                            verticalAlign: 'middle',
-                                        }}
-                                        fontSize='medium'
-                                    />
-                                    Availabilities
-                                </>
-                            }
-                        />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.meetings}
-                                    onChange={(event) =>
-                                        filters.setMeetings(event.target.checked)
-                                    }
-                                    color='meet'
-                                />
-                            }
-                            label={
-                                <>
-                                    <Icon
-                                        name='meet'
-                                        color='inherit'
-                                        sx={{
-                                            marginRight: '0.4rem',
-                                            verticalAlign: 'middle',
-                                        }}
-                                        fontSize='medium'
-                                    />
-                                    Meetings
-                                </>
-                            }
-                        />
-                    </Stack>
-                </AccordionDetails>
-            </Accordion> */}
-
             <Accordion
                 expanded={forceExpansion || expanded === 'dojoCalendar'}
                 onChange={handleChange('dojoCalendar')}
@@ -519,77 +401,25 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
                             fontSize='medium'
                         />
-                       My Dojo Calendar
+                        My Dojo Calendar
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                <Stack pt={2}> 
-                    <MultipleSelectChip
+                    <Stack pt={2}>
+                        <MultipleSelectChip
                             selected={filters.sessions}
                             setSelected={onChangeSessions}
                             options={Object.values(CalendarSessionType).map((t) => ({
                                 value: t,
                                 label: getDisplaySessionString(t),
-                                icon: <Icon name={t}  />,
+                                icon: <Icon name={t} />,
                             }))}
                             size='small'
-                            />
+                        />
+                    </Stack>
 
-
-                </Stack>
-
-                    {/* <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={filters.dojoEvents}
-                                onChange={(event) =>
-                                    filters.setDojoEvents(event.target.checked)
-                                }
-                                color='dojoOrange'
-                            />
-                        }
-                        label={
-                            <>
-                                <Icon
-                                    name='Dojo Events'
-                                    color='inherit'
-                                    sx={{
-                                        marginRight: '0.4rem',
-                                        verticalAlign: 'middle',
-                                    }}
-                                    fontSize='medium'
-                                />
-                                Dojo Events
-                            </>
-                        }
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={filters.coaching}
-                                onChange={(event) =>
-                                    filters.setCoaching(event.target.checked)
-                                }
-                                color='coaching'
-                            />
-                        }
-                        label={
-                            <>
-                                <Icon
-                                    name='Coaching Sessions'
-                                    color='inherit'
-                                    sx={{
-                                        marginRight: '0.4rem',
-                                        verticalAlign: 'middle',
-                                    }}
-                                    fontSize='medium'
-                                />
-                                Coaching Sessions
-                            </>
-                        }
-                    /> */}
-
-                    {/* <Tooltip
+                    
+                    {/* <Tooltip // I'm not so sure :(
                         arrow
                         title={
                             filters.dojoEvents
@@ -597,20 +427,20 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 : 'Dojo Events must be enabled to view tournaments'
                         }
                     > */}
-                        <Stack pt={2}>
-                            <Typography variant='h6' color='text.secondary'>
-                                <Icon
-                                    name='liga'
-                                    color='liga'
-                                    sx={{
-                                        marginRight: '0.4rem',
-                                        verticalAlign: 'middle',
-                                    }}
-                                    fontSize='medium'
-                                />
-                                DojoLiga Tournaments
-                            </Typography>
-                            <MultipleSelectChip
+                    <Stack pt={2}>
+                        <Typography variant='h6' color='text.secondary'>
+                            <Icon
+                                name='liga'
+                                color='liga'
+                                sx={{
+                                    marginRight: '0.4rem',
+                                    verticalAlign: 'middle',
+                                }}
+                                fontSize='medium'
+                            />
+                            DojoLiga Tournaments
+                        </Typography>
+                        <MultipleSelectChip
                             selected={filters.tournamentTimeControls}
                             setSelected={onChangeTournamentTimeControls}
                             options={Object.values(TimeControlType).map((t) => ({
@@ -619,45 +449,10 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 icon: <Icon name={t} color='liga' />,
                             }))}
                             size='small'
-                            />
-                        
+                        />
 
-                            {/* {Object.values(TimeControlType).map((type) => (
-                                <FormControlLabel
-                                    key={type}
-                                    control={
-                                        <Checkbox
-                                            checked={
-                                                filters.dojoEvents &&
-                                                filters.tournamentTimeControls[type]
-                                            }
-                                            onChange={(event) =>
-                                                onChangeTournamentTimeControls(
-                                                    type,
-                                                    event.target.checked,
-                                                )
-                                            }
-                                            disabled={!filters.dojoEvents}
-                                            color='liga'
-                                        />
-                                    }
-                                    label={
-                                        <>
-                                            <Icon
-                                                name={displayTimeControlType(type)}
-                                                color='inherit'
-                                                sx={{
-                                                    marginRight: '0.4rem',
-                                                    verticalAlign: 'middle',
-                                                }}
-                                                fontSize='medium'
-                                            />
-                                            {displayTimeControlType(type)}
-                                        </>
-                                    }
-                                />
-                            ))} */}
-                        </Stack>
+
+                    </Stack>
                     {/* </Tooltip> */}
                     <Stack pt={2} spacing={0.5}>
                         <Typography variant='h6' color='text.secondary'>
@@ -675,7 +470,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             options={Object.values(AvailabilityType).map((t) => ({
                                 value: t,
                                 label: getDisplayString(t),
-                                icon: <Icon name={t} color='book'/>,
+                                icon: <Icon name={t} color='book' />,
                             }))}
                             size='small'
                         />

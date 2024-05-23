@@ -49,7 +49,14 @@ import {
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
-import { AvailabilityType, CalendarSessionType, EventType, TimeControlType, TournamentType } from '../database/event';
+import {
+    AvailabilityType,
+    CalendarSessionType,
+    EventType,
+    PositionType,
+    TimeControlType,
+    TournamentType,
+} from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import RookIcon from './RookIcon';
 export const icons = {
@@ -116,11 +123,13 @@ export const icons = {
     participant: PersonOutline,
     [TournamentType.Arena]: Stadium,
     [TournamentType.Swiss]: LocalHospital,
+    [TournamentType.ALLTournamentTypes]: AllInclusiveRounded,
     Swiss: LocalHospital,
     Arena: Stadium,
     tc: Alarm,
-    Standard: GridView,
-    Custom: DashboardCustomize,
+    [PositionType.Standard]: GridView,
+    [PositionType.Custom]: DashboardCustomize,
+    [PositionType.AllPositions]: AllInclusiveRounded,
     ligaCalendar: CalendarMonth,
     leaderboard: Leaderboard,
     info: Info,
@@ -132,7 +141,7 @@ export const icons = {
     [CalendarSessionType.Availabilities]: Event,
     [CalendarSessionType.CoachingSessions]: RocketLaunch,
     [CalendarSessionType.DojoEvents]: LiveTv,
-    [CalendarSessionType.Meetings]: EventAvailableOutlined
+    [CalendarSessionType.Meetings]: EventAvailableOutlined,
 };
 
 export interface IconProps extends SvgIconProps {
@@ -144,23 +153,19 @@ export const Icon: React.FC<IconProps> = ({ name, ...props }) => {
         return null;
     }
 
-   
-
     const InternalIcon = icons[name];
 
-
-    switch(name){
+    switch (name) {
         case CalendarSessionType.AllSessions:
-            return <InternalIcon {...props} color='primary'/>;
+            return <InternalIcon {...props} color='primary' />;
         case CalendarSessionType.Availabilities:
-            return <InternalIcon {...props} color='info'/>;
+            return <InternalIcon {...props} color='info' />;
         case CalendarSessionType.CoachingSessions:
-            return  <InternalIcon {...props} color='coaching'/>;
+            return <InternalIcon {...props} color='coaching' />;
         case CalendarSessionType.DojoEvents:
-            return  <InternalIcon {...props} color='dojoOrange'/>;  
+            return <InternalIcon {...props} color='dojoOrange' />;
         case CalendarSessionType.Meetings:
-            return  <InternalIcon {...props} color='meet'/>;            
-       
+            return <InternalIcon {...props} color='meet' />;
     }
 
     return <InternalIcon {...props} />;

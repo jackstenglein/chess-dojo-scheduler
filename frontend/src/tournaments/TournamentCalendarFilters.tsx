@@ -1,10 +1,4 @@
-import {
-    Checkbox,
-    FormControlLabel,
-    Stack,
-    Typography,
-    useMediaQuery,
-} from '@mui/material';
+import { Stack, Typography, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import {
     Accordion,
@@ -17,29 +11,24 @@ import {
     PositionType,
     TimeControlType,
     TournamentType,
+    displayPositionType,
     displayTimeControlType,
     displayTournamentType,
 } from '../database/event';
-import Icon from '../style/Icon';
 import { RequirementCategory } from '../database/requirement';
+import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
+import Icon from '../style/Icon';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
+        case TimeControlType.AllTimeContols:
+            return 'primary';
         case TimeControlType.Blitz:
             return 'warning';
         case TimeControlType.Rapid:
             return 'info';
         case TimeControlType.Classical:
             return 'success';
-    }
-}
-
-function displayPositionType(type: PositionType): string {
-    switch (type) {
-        case PositionType.Standard:
-            return 'Standard';
-        case PositionType.Custom:
-            return 'Custom';
     }
 }
 
@@ -60,25 +49,51 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             }
         };
 
-    const onChangeTournamentType = (type: TournamentType, value: boolean) => {
-        filters.setTournamentTypes({
-            ...filters.tournamentTypes,
-            [type]: value,
-        });
+    const onChangeTournamentTimeControls = (tcTypes: string[]) => {
+        const addedTcTypes = tcTypes.filter(
+            (tc) => !filters.tournamentTimeControls.includes(tc as TimeControlType),
+        );
+
+        let findTcTypes = [];
+        if (addedTcTypes.includes(TimeControlType.AllTimeContols)) {
+            findTcTypes = [TimeControlType.AllTimeContols];
+        } else {
+            findTcTypes = tcTypes.filter((tc) => tc !== TimeControlType.AllTimeContols);
+        }
+
+        filters.setTournamentTimeControls(findTcTypes as TimeControlType[]);
     };
 
-    const onChangeTournamentTimeControl = (type: TimeControlType, value: boolean) => {
-        filters.setTournamentTimeControls({
-            ...filters.tournamentTimeControls,
-            [type]: value,
-        });
+    const onChangeTournamentType = (tourneyTypes: string[]) => {
+        const addedTourney = tourneyTypes.filter(
+            (tu) => !filters.tournamentTypes.includes(tu as TournamentType),
+        );
+
+        let findTourneyTypes = [];
+        if (addedTourney.includes(TournamentType.ALLTournamentTypes)) {
+            findTourneyTypes = [TournamentType.ALLTournamentTypes];
+        } else {
+            findTourneyTypes = tourneyTypes.filter(
+                (tu) => tu !== TournamentType.ALLTournamentTypes,
+            );
+        }
+
+        filters.setTournamentTypes(findTourneyTypes as TournamentType[]);
     };
 
-    const onChangeTournamentPositions = (type: PositionType, value: boolean) => {
-        filters.setTournamentPositions({
-            ...filters.tournamentPositions,
-            [type]: value,
-        });
+    const onChangeTournamentPositions = (posTypes: string[]) => {
+        const addedpos = posTypes.filter(
+            (pos) => !filters.tournamentPositions.includes(pos as PositionType),
+        );
+
+        let findPosTypes = [];
+        if (addedpos.includes(PositionType.AllPositions)) {
+            findPosTypes = [PositionType.AllPositions];
+        } else {
+            findPosTypes = posTypes.filter((pos) => pos !== PositionType.AllPositions);
+        }
+
+        filters.setTournamentPositions(findPosTypes as PositionType[]);
     };
 
     return (
@@ -99,45 +114,23 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                             name='liga'
                             sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
                             fontSize='medium'
-                            color='primary'
+                            color='liga'
                         />
                         Types
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Stack>
-                        {Object.values(TournamentType).map((type) => (
-                            <FormControlLabel
-                                key={type}
-                                control={
-                                    <Checkbox
-                                        checked={filters.tournamentTypes[type]}
-                                        onChange={(event) =>
-                                            onChangeTournamentType(
-                                                type,
-                                                event.target.checked,
-                                            )
-                                        }
-                                        color='secondary'
-                                    />
-                                }
-                                label={
-                                    <>
-                                        <Icon
-                                            name={displayTournamentType(type)}
-                                            sx={{
-                                                marginRight: '0.5rem',
-                                                verticalAlign: 'middle',
-                                            }}
-                                            fontSize='small'
-                                            color='primary'
-                                        />
-
-                                        {displayTournamentType(type)}
-                                    </>
-                                }
-                            />
-                        ))}
+                        <MultipleSelectChip
+                            selected={filters.tournamentTypes}
+                            setSelected={onChangeTournamentType}
+                            options={Object.values(TournamentType).map((t) => ({
+                                value: t,
+                                label: displayTournamentType(t),
+                                icon: <Icon name={t} color='liga' />,
+                            }))}
+                            size='small'
+                        />
                     </Stack>
                 </AccordionDetails>
             </Accordion>
@@ -159,38 +152,16 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Stack>
-                        {Object.values(TimeControlType).map((type) => (
-                            <FormControlLabel
-                                key={type}
-                                control={
-                                    <Checkbox
-                                        checked={filters.tournamentTimeControls[type]}
-                                        onChange={(event) =>
-                                            onChangeTournamentTimeControl(
-                                                type,
-                                                event.target.checked,
-                                            )
-                                        }
-                                        color={getColor(type)}
-                                    />
-                                }
-                                label={
-                                    <>
-                                        <Icon
-                                            name={displayTimeControlType(type)}
-                                            sx={{
-                                                marginRight: '0.5rem',
-                                                verticalAlign: 'middle',
-                                            }}
-                                            fontSize='small'
-                                            color='primary'
-                                        />
-
-                                        {displayTimeControlType(type)}
-                                    </>
-                                }
-                            />
-                        ))}
+                        <MultipleSelectChip
+                            selected={filters.tournamentTimeControls}
+                            setSelected={onChangeTournamentTimeControls}
+                            options={Object.values(TimeControlType).map((t) => ({
+                                value: t,
+                                label: displayTimeControlType(t),
+                                icon: <Icon name={t} color={getColor(t)} />,
+                            }))}
+                            size='small'
+                        />
                     </Stack>
                 </AccordionDetails>
             </Accordion>
@@ -205,14 +176,24 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                             name={RequirementCategory.Endgame}
                             sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
                             fontSize='medium'
-                            color='primary'
+                            color='warning'
                         />
                         Starting Position
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Stack>
-                        {Object.values(PositionType).map((type) => (
+                        <MultipleSelectChip
+                            selected={filters.tournamentPositions}
+                            setSelected={onChangeTournamentPositions}
+                            options={Object.values(PositionType).map((t) => ({
+                                value: t,
+                                label: displayPositionType(t),
+                                icon: <Icon name={t} color='warning' />,
+                            }))}
+                            size='small'
+                        />
+                        {/* {Object.values(PositionType).map((type) => (
                             <FormControlLabel
                                 key={type}
                                 control={
@@ -243,7 +224,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                     </>
                                 }
                             />
-                        ))}
+                        ))} */}
                     </Stack>
                 </AccordionDetails>
             </Accordion>

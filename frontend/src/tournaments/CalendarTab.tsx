@@ -17,6 +17,8 @@ import TournamentCalendarFilters from './TournamentCalendarFilters';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
+        case TimeControlType.AllTimeContols:
+            return 'primary';
         case TimeControlType.Blitz:
             return 'warning.main';
         case TimeControlType.Rapid:
@@ -204,12 +206,8 @@ const CalendarTab = () => {
                                             color='cblack'
                                             fontSize='small'
                                         />
-
                                         <Icon
-                                            name={
-                                                event.event?.ligaTournament
-                                                    ?.type
-                                            }
+                                            name={event.event?.ligaTournament?.type}
                                             sx={{
                                                 marginRight: '0.3rem',
                                                 marginLeft: '0.3rem',
@@ -218,7 +216,7 @@ const CalendarTab = () => {
                                             color='cblack'
                                             fontSize='small'
                                         />
-                                        {event.title}  <br />{' '}
+                                        {event.title} <br />{' '}
                                         {event.start.toLocaleTimeString('en-US', {
                                             timeStyle: 'short',
                                         })}{' '}
@@ -226,8 +224,6 @@ const CalendarTab = () => {
                                         {event.end.toLocaleTimeString('en-US', {
                                             timeStyle: 'short',
                                         })}
-
-                                        
                                     </>
                                 </Box>
                             </Box>

@@ -54,6 +54,7 @@ export interface Event {
 }
 
 export enum TournamentType {
+    ALLTournamentTypes = 'ALL_TOURNAMENT_TYPES',
     Swiss = 'SWISS',
     Arena = 'ARENA',
 }
@@ -66,6 +67,7 @@ export enum TimeControlType {
 }
 
 export enum PositionType {
+    AllPositions = 'ALL_POSITION_TYPE',
     Standard = 'STANDARD',
     Custom = 'CUSTOM',
 }
@@ -226,6 +228,8 @@ export function displayTournamentType(type: TournamentType | null | undefined): 
     if (!type) return '';
 
     switch (type) {
+        case TournamentType.ALLTournamentTypes:
+            return 'All Tournament Types';
         case TournamentType.Arena:
             return 'Arena';
         case TournamentType.Swiss:
@@ -235,8 +239,8 @@ export function displayTournamentType(type: TournamentType | null | undefined): 
 
 export function displayTimeControlType(
     type: TimeControlType | null | undefined,
-): 'All Time Controls' | 'Blitz' | 'Classical' | 'Rapid' {
-    if (!type) return 'All Time Controls';
+): '' | 'Blitz' | 'Classical' | 'Rapid' | 'All Time Controls' {
+    if (!type) return '';
 
     switch (type) {
         case TimeControlType.Blitz:
@@ -247,5 +251,18 @@ export function displayTimeControlType(
             return 'Rapid';
         case TimeControlType.AllTimeContols:
             return 'All Time Controls';   
+    }
+}
+
+export function displayPositionType(type: PositionType | null | undefined): string {
+    if(!type) return '';
+
+    switch (type) {
+        case PositionType.AllPositions:
+            return 'All Position Types';
+        case PositionType.Standard:
+            return 'Standard';
+        case PositionType.Custom:
+            return 'Custom';
     }
 }
