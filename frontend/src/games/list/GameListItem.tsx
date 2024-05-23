@@ -2,11 +2,33 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { GameResult } from '../../database/game';
 import { useLightMode } from '../../ThemeProvider';
+import { GameInfo, GameResult } from '../../database/game';
 
-export function RenderPlayers(params: GridRenderCellParams) {
+interface RenderPlayersProps {
+    white: string;
+    whiteElo?: string;
+    black: string;
+    blackElo?: string;
+}
+
+export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
+    const headers = params.row.headers;
+
+    return (
+        <RenderPlayers
+            white={headers.White}
+            black={headers.Black}
+            whiteElo={headers.WhiteElo}
+            blackElo={headers.BlackElo}
+        />
+    );
+}
+
+export function RenderPlayers({ white, whiteElo, black, blackElo }: RenderPlayersProps) {
     const light = useLightMode();
+    const whiteStr = `${white} (${whiteElo ?? '??'})`;
+    const blackStr = `${black} (${blackElo ?? '??'})`;
 
     return (
         <Stack>
@@ -24,7 +46,7 @@ export function RenderPlayers(params: GridRenderCellParams) {
                     />
                 )}
                 <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
-                    {params.value.white}
+                    {whiteStr}
                 </Typography>
             </Stack>
 
@@ -36,7 +58,7 @@ export function RenderPlayers(params: GridRenderCellParams) {
                     }}
                 />
                 <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
-                    {params.value.black}
+                    {blackStr}
                 </Typography>
             </Stack>
         </Stack>

@@ -33,6 +33,7 @@ import { RequestSnackbar } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
 import LoadingPage from '../../loading/LoadingPage';
+import { RenderPlayers } from '../list/GameListItem';
 import { OrDivider } from './OrDivider';
 
 // Type union of supported game objects.
@@ -46,18 +47,6 @@ const RecentGameCell = ({
     onClick: (game: RecentGame) => void;
 }) => {
     const auth = useAuth();
-
-    const PlayerRow = ({ color }: { color: 'white' | 'black' }) => {
-        const player = game.players[color];
-        return (
-            <Stack direction='row' spacing={1}>
-                <Typography variant='body2' fontWeight='bold'>
-                    {player.user.name}
-                </Typography>
-                <Typography variant='body2'>({player.rating})</Typography>
-            </Stack>
-        );
-    };
 
     const createdAt = new Date(game.createdAt);
     const dateStr = toDojoDateString(createdAt, auth.user?.timezoneOverride);
@@ -77,22 +66,38 @@ const RecentGameCell = ({
             >
                 <CardContent>
                     <Stack
+                        spacing={1.125}
                         sx={{ borderColor: 'primary.main' }}
                         onClick={() => {
                             onClick(game);
                         }}
                     >
-                        <Stack direction='row' spacing={1}>
-                            <SiLichess />
-                            <Typography variant='body2'>
-                                {dateStr} {timeStr}
-                            </Typography>
+                        <Stack
+                            direction='row'
+                            spacing={1}
+                            alignItems='center'
+                            flexWrap='wrap'
+                            justifyContent='space-between'
+                        >
+                            <Stack direction='row' alignItems='center' spacing={1}>
+                                <SiLichess />
+                                <Typography variant='body2'>
+                                    {dateStr} {timeStr}
+                                </Typography>
+                            </Stack>
+
                             <Typography variant='body2'>
                                 ({game.clock.initial / 60} | {game.clock.increment})
                             </Typography>
                         </Stack>
-                        <PlayerRow color='white' />
-                        <PlayerRow color='black' />
+                        <Stack>
+                            <RenderPlayers
+                                white={game.players.white.user.name}
+                                whiteElo={game.players.white.rating?.toString()}
+                                black={game.players.black.user.name}
+                                blackElo={game.players.black.rating?.toString()}
+                            />
+                        </Stack>
                     </Stack>
                 </CardContent>
             </CardActionArea>

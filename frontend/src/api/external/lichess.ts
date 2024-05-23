@@ -11,8 +11,9 @@ type GamePlayers = Record<
             patron?: boolean;
             id: string;
         };
-        rating: number;
-        ratingDiff: number;
+        // Datatype of rating appears to be a number, but unsure of edge cases
+        rating?: number | string;
+        ratingDiff?: number;
     }
 >;
 

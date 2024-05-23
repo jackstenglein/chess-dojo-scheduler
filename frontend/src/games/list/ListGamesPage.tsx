@@ -30,7 +30,7 @@ import Icon from '../../style/Icon';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellPage from '../../upsell/UpsellPage';
-import { RenderPlayers, RenderResult } from './GameListItem';
+import { RenderPlayersCell, RenderResult } from './GameListItem';
 import ListGamesTutorial from './ListGamesTutorial';
 import SearchFilters from './SearchFilters';
 import { usePagination } from './pagination';
@@ -85,11 +85,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'players',
         headerName: 'Players',
-        valueGetter: (params) => ({
-            white: `${params.row.headers.White} (${params.row.headers.WhiteElo ?? '??'})`,
-            black: `${params.row.headers.Black} (${params.row.headers.BlackElo ?? '??'})`,
-        }),
-        renderCell: RenderPlayers,
+        renderCell: RenderPlayersCell,
         flex: 1,
         minWidth: 150,
     },
