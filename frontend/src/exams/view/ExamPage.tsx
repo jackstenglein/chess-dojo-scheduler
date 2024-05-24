@@ -1,3 +1,5 @@
+import { EventType } from '@jackstenglein/chess';
+import { getSolutionScore, scoreVariation } from '@jackstenglein/chess-dojo-common';
 import {
     Assessment,
     Info,
@@ -21,34 +23,34 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCountdown } from 'react-countdown-circle-timer';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { Request, RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
-import { BoardApi, Chess } from '../board/Board';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
+import { BoardApi, Chess } from '../../board/Board';
 import PgnBoard, {
     BlockBoardKeyboardShortcuts,
     PgnBoardApi,
     useChess,
-} from '../board/pgn/PgnBoard';
-import { DefaultUnderboardTab } from '../board/pgn/boardTools/underboard/Underboard';
-import { ButtonProps as MoveButtonProps } from '../board/pgn/pgnText/MoveButton';
-import { Exam, ExamAnswer, ExamAttempt } from '../database/exam';
-import { getCurrentRating, normalizeToFide } from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
-import CompletedTacticsExamPgnSelector from './CompletedTacticsExamPgnSelector';
+} from '../../board/pgn/PgnBoard';
+import { useDebounce } from '../../board/pgn/boardTools/boardButtons/StatusIcon';
+import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
+import { ButtonProps as MoveButtonProps } from '../../board/pgn/pgnText/MoveButton';
+import { Exam, ExamAnswer, ExamAttempt } from '../../database/exam';
+import { getCurrentRating, normalizeToFide } from '../../database/user';
+import LoadingPage from '../../loading/LoadingPage';
+import Instructions from '../instructions/Instructions';
+import CompletedExamPgnSelector from './CompletedExamPgnSelector';
+import ExamPgnSelector, { ProblemStatus } from './ExamPgnSelector';
 import ExamStatistics from './ExamStatistics';
-import TacticsExamPgnSelector, { ProblemStatus } from './TacticsExamPgnSelector';
-import Instructions from './instructions/Instructions';
 import {
     addExtraVariation,
     getEventHeader,
     getFen,
     getMoveDescription,
     getOrientation,
-    getSolutionScore,
-    scoreVariation,
-} from './tactics';
+    useExam,
+} from './exam';
 
 export interface Scores {
     total: {
@@ -75,41 +77,52 @@ function getColorsTime(limitSeconds?: number): { 0: number } & { 1: number } & n
     ];
 }
 
-const TacticsExamPage = () => {
-    const user = useAuth().user!;
-    const api = useApi();
-    const [exam, setExam] = useState<Exam>(useLocation().state?.exam);
-    const answerRequest = useRequest<ExamAnswer>();
+const ExamPage = () => {
+    const { request, exam, answer } = useExam();
+    const inProgress = !answer || answer.attempts.slice(-1)[0].inProgress;
+
     const [isRetaking, setIsRetaking] = useState(false);
     const [showRetakeDialog, setShowRetakeDialog] = useState(false);
-    const [showLatestAttempt, setShowLatestAttempt] = useState(false);
-
-    const hasTakenExam = Boolean(exam?.answers[user.username]);
+    const [showLatestAttempt, setShowLatestAttempt] = useState(isRetaking);
 
     useEffect(() => {
-        if (!answerRequest.isSent() && exam && hasTakenExam) {
-            answerRequest.onStart();
-            api.getExamAnswer(exam.id)
-                .then((resp) => {
-                    console.log('getExamAnswer: ', resp);
-                    answerRequest.onSuccess(resp.data);
-                })
-                .catch((err) => {
-                    console.error('getExamAnswer: ', err);
-                    answerRequest.onFailure(err);
-                });
+        if (inProgress && (answer?.attempts.length ?? 0) > 1) {
+            setIsRetaking(true);
+            setShowLatestAttempt(true);
         }
-    }, [answerRequest, api, exam, hasTakenExam]);
+    }, [inProgress, answer]);
 
-    if (!exam) {
-        return <Navigate to='/tactics' />;
+    if (!request.isSent() || request.isLoading()) {
+        return <LoadingPage />;
+    }
+    if (request.isFailure()) {
+        return (
+            <Container sx={{ py: 5 }}>
+                <RequestSnackbar request={request} />
+            </Container>
+        );
     }
 
-    if (answerRequest.isFailure()) {
+    if (!exam) {
+        return <Navigate to='/tests' />;
+    }
+
+    if (inProgress || isRetaking) {
+        const setAnswer = (a: ExamAnswer) => {
+            request.onSuccess({ ...request.data!, answer: a });
+        };
+        const updateData = (e: Exam, a: ExamAnswer) => {
+            request.onSuccess({ exam: e, answer: a });
+        };
+
         return (
-            <Container>
-                <RequestSnackbar request={answerRequest} />
-            </Container>
+            <InProgressExam
+                exam={exam}
+                answer={answer}
+                setAnswer={setAnswer}
+                setExamAndAnswer={updateData}
+                setIsRetaking={setIsRetaking}
+            />
         );
     }
 
@@ -119,65 +132,50 @@ const TacticsExamPage = () => {
         setShowLatestAttempt(true);
     };
 
-    if (hasTakenExam && !isRetaking) {
-        if (!answerRequest.isSent() || answerRequest.isLoading()) {
-            return <LoadingPage />;
-        }
-        return (
-            <>
-                <CompletedTacticsExam
-                    exam={exam}
-                    answerRequest={answerRequest}
-                    onReset={() => setShowRetakeDialog(true)}
-                    resetLabel='Retake Test'
-                    showLatestAttempt={showLatestAttempt}
-                />
-                <Dialog
-                    open={showRetakeDialog}
-                    onClose={() => setShowRetakeDialog(false)}
-                >
-                    <DialogTitle>Retake this test?</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            You can retake this test for practice, but your original score
-                            will still be used for your stats on this test and your Dojo
-                            Tactics rating.
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setShowRetakeDialog(false)}>Cancel</Button>
-                        <Button onClick={onRetake}>Retake</Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        );
-    }
-
     return (
-        <InProgressTacticsExam
-            exam={exam}
-            setExam={setExam}
-            answerRequest={answerRequest}
-            setIsRetaking={setIsRetaking}
-        />
+        <>
+            <CompletedExam
+                exam={exam}
+                answer={answer}
+                onReset={() => setShowRetakeDialog(true)}
+                resetLabel='Retake Test'
+                showLatestAttempt={showLatestAttempt}
+            />
+            <Dialog open={showRetakeDialog} onClose={() => setShowRetakeDialog(false)}>
+                <DialogTitle>Retake this test?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        You can retake this test for practice, but your original score
+                        will still be used for your stats on this test and your Dojo
+                        Tactics rating.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowRetakeDialog(false)}>Cancel</Button>
+                    <Button onClick={onRetake}>Retake</Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 };
 
-export default TacticsExamPage;
+export default ExamPage;
 
-interface InProgressTacticsExamProps {
+interface InProgressExamProps {
     exam: Exam;
-    setExam: (e: Exam) => void;
-    answerRequest: Request<ExamAnswer>;
+    answer?: ExamAnswer;
+    setAnswer: (a: ExamAnswer) => void;
+    setExamAndAnswer: (e: Exam, a: ExamAnswer) => void;
     setIsRetaking: (v: boolean) => void;
     disableClock?: boolean;
     disableSave?: boolean;
 }
 
-export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
+export const InProgressExam: React.FC<InProgressExamProps> = ({
     exam,
-    setExam,
-    answerRequest,
+    answer,
+    setAnswer,
+    setExamAndAnswer,
     setIsRetaking,
     disableClock,
     disableSave,
@@ -186,9 +184,17 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
     const api = useApi();
     const pgnApi = useRef<PgnBoardApi>(null);
     const [selectedProblem, setSelectedProblem] = useState(0);
-    const answerPgns = useRef<string[]>((exam?.pgns || []).map(() => ''));
     const [isTimeOver, setIsTimeOver] = useState(false);
     const [problemStatus, setProblemStatus] = useState<Record<number, ProblemStatus>>({});
+    const answerRequest = useRequest();
+    const navigate = useNavigate();
+
+    const currentAttempt = answer?.attempts.slice(-1)[0]?.inProgress
+        ? answer.attempts.slice(-1)[0]
+        : undefined;
+    const answerPgns = useRef<string[]>(
+        exam.pgns.map((_, i) => currentAttempt?.answers[i]?.pgn || ''),
+    );
 
     const onCountdownComplete = useCallback(() => {
         setIsTimeOver(true);
@@ -199,26 +205,116 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
         size: 80,
         strokeWidth: 6,
         duration: exam?.timeLimitSeconds || 3600,
+        initialRemainingTime:
+            (exam?.timeLimitSeconds || 3600) - (currentAttempt?.timeUsedSeconds || 0),
         colors: ['#66bb6a', '#29b6f6', '#ce93d8', '#ffa726', '#f44336'],
         colorsTime: getColorsTime(exam?.timeLimitSeconds),
         trailColor: 'rgba(0,0,0,0)',
         onComplete: onCountdownComplete,
     });
 
+    const saveProgress = (inProgress: boolean, totalScore?: number) => {
+        answerRequest.onStart();
+        const attempt: ExamAttempt = {
+            answers: answerPgns.current.map((pgn) => ({
+                pgn,
+            })),
+            cohort: user.dojoCohort,
+            rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
+            timeUsedSeconds: Math.round(countdown.elapsedTime),
+            createdAt: '',
+            inProgress,
+        };
+
+        const attemptIndex = currentAttempt ? answer!.attempts.length - 1 : undefined;
+        return api.putExamAttempt(exam.type, exam.id, attempt, attemptIndex, totalScore);
+    };
+
+    const autoSave = () => {
+        answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
+        saveProgress(true)
+            .then((resp) => {
+                setAnswer(resp.data.answer);
+                answerRequest.onSuccess();
+            })
+            .catch((err) => {
+                console.error(err);
+                answerRequest.onFailure(err);
+            });
+    };
+
+    const debouncedOnSave = useDebounce(autoSave);
+
+    useEffect(() => {
+        if (!disableSave) {
+            const observer = {
+                types: [
+                    EventType.NewVariation,
+                    EventType.UpdateComment,
+                    EventType.UpdateNags,
+                    EventType.Initialized,
+                    EventType.UpdateDrawables,
+                    EventType.DeleteMove,
+                    EventType.PromoteVariation,
+                ],
+                handler: () => {
+                    debouncedOnSave();
+                },
+            };
+            pgnApi.current?.addObserver(observer);
+            return () => {
+                debouncedOnSave.cancel();
+                pgnApi.current?.removeObserver(observer);
+            };
+        }
+    }, [disableSave, pgnApi, debouncedOnSave]);
+
     const onChangeProblem = (index: number) => {
         answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
         setSelectedProblem(index);
     };
 
+    const onPause = () => {
+        debouncedOnSave.cancel();
+        answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
+        saveProgress(true)
+            .then((resp) => {
+                console.log('putExamAttempt: ', resp);
+                navigate('..');
+            })
+            .catch((err) => {
+                console.error(err);
+                answerRequest.onFailure(err);
+            });
+    };
+
     const onComplete = () => {
+        debouncedOnSave.cancel();
         answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
         const scores = getScores(exam, answerPgns.current);
 
+        if (!disableSave) {
+            saveProgress(false, scores.total.user)
+                .then((resp) => {
+                    console.log('putExamAttempt: ', resp);
+                    if (resp.data.exam) {
+                        setExamAndAnswer(resp.data.exam, resp.data.answer);
+                    } else {
+                        setAnswer(resp.data.answer);
+                    }
+                    setIsRetaking(false);
+                })
+                .catch((err) => {
+                    console.error('putExamAttempt: ', err);
+                    answerRequest.onFailure(err);
+                });
+
+            return;
+        }
+
         const attempt: ExamAttempt = {
-            answers: answerPgns.current.map((pgn, i) => ({
+            answers: answerPgns.current.map((pgn) => ({
                 pgn,
-                score: scores.problems[i].user,
-                total: scores.problems[i].solution,
             })),
             cohort: user.dojoCohort,
             rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
@@ -226,44 +322,35 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
             createdAt: new Date().toISOString(),
         };
 
-        const answer: ExamAnswer = {
+        const newAnswer: ExamAnswer = {
             type: user.username,
             id: exam.id,
             examType: exam.type,
-            attempts: [...(answerRequest.data?.attempts || []), attempt],
+            attempts: [...(answer?.attempts || []), attempt],
         };
 
-        answerRequest.onSuccess(answer);
-        setExam({
-            ...exam,
-            answers: {
-                [user.username]: {
-                    cohort: user.dojoCohort,
-                    rating: attempt.rating,
-                    score: scores.total.user,
-                    createdAt: attempt.createdAt,
+        setExamAndAnswer(
+            {
+                ...exam,
+                answers: {
+                    [user.username]: {
+                        cohort: user.dojoCohort,
+                        rating: attempt.rating,
+                        score: scores.total.user,
+                        createdAt: attempt.createdAt,
+                    },
+                    ...exam.answers,
                 },
-                ...exam.answers,
             },
-        });
+            newAnswer,
+        );
         setIsRetaking(false);
-
-        if (!disableSave) {
-            api.putExamAttempt(exam.type, exam.id, attempt)
-                .then((resp) => {
-                    console.log('putExamAttempt: ', resp);
-                    if (resp.data) {
-                        setExam(resp.data);
-                    }
-                })
-                .catch((err) => {
-                    console.error('putExamAttempt: ', err);
-                });
-        }
     };
 
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
+            <RequestSnackbar request={answerRequest} />
+
             <PgnBoard
                 ref={pgnApi}
                 fen={getFen(exam.pgns[selectedProblem])}
@@ -290,7 +377,7 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                         tooltip: 'Test Info',
                         icon: <Quiz />,
                         element: (
-                            <TacticsExamPgnSelector
+                            <ExamPgnSelector
                                 name={exam.name}
                                 cohortRange={exam.cohortRange}
                                 count={exam.pgns.length}
@@ -302,6 +389,8 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                                 pgnNames={exam.pgns.map((pgn) => getEventHeader(pgn))}
                                 problemStatus={problemStatus}
                                 setProblemStatus={setProblemStatus}
+                                onPause={disableSave ? undefined : onPause}
+                                pauseLoading={answerRequest.isLoading()}
                             />
                         ),
                     },
@@ -316,7 +405,7 @@ export const InProgressTacticsExam: React.FC<InProgressTacticsExamProps> = ({
                         : undefined
                 }
                 slots={{
-                    moveButtonExtras: TacticsTestMoveButtonExtras,
+                    moveButtonExtras: ExamMoveButtonExtras,
                 }}
             />
 
@@ -376,7 +465,7 @@ export function getScores(exam: Exam, answerPgns: string[]): Scores {
     return scores;
 }
 
-export const TacticsTestMoveButtonExtras: React.FC<MoveButtonProps> = ({ move }) => {
+export const ExamMoveButtonExtras: React.FC<MoveButtonProps> = ({ move }) => {
     const { chess, config } = useChess();
 
     if (!chess) {
@@ -406,27 +495,27 @@ export const TacticsTestMoveButtonExtras: React.FC<MoveButtonProps> = ({ move })
     );
 };
 
-interface CompletedTacticsExamProps {
+interface CompletedExamProps {
     exam: Exam;
-    answerRequest: Request<ExamAnswer>;
+    answer: ExamAnswer;
     onReset: () => void;
     resetLabel?: string;
     showLatestAttempt?: boolean;
 }
 
-export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
+export const CompletedExam: React.FC<CompletedExamProps> = ({
     exam,
-    answerRequest,
+    answer,
     onReset,
     resetLabel,
     showLatestAttempt,
 }) => {
     const [selectedAttempt, setAttempt] = useState(
-        showLatestAttempt ? (answerRequest.data?.attempts.length || 1) - 1 : 0,
+        showLatestAttempt ? answer.attempts.length - 1 : 0,
     );
     const [selectedProblem, setSelectedProblem] = useState(0);
 
-    const attempt = answerRequest.data?.attempts[selectedAttempt];
+    const attempt = answer.attempts[selectedAttempt];
     const solutionPgn = exam.pgns[selectedProblem];
     const userPgn = attempt?.answers[selectedProblem].pgn || '';
 
@@ -453,13 +542,10 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
         return null;
     }
 
-    const scores: Scores = {
-        problems: attempt.answers.map((a) => ({ user: a.score, solution: a.total })),
-        total: {
-            user: attempt.answers.reduce((sum, a) => sum + a.score, 0) || 0,
-            solution: attempt.answers.reduce((sum, a) => sum + a.total, 0) || 0,
-        },
-    };
+    const scores = getScores(
+        exam,
+        attempt.answers.map((a) => a.pgn),
+    );
 
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
@@ -475,7 +561,7 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
                         tooltip: 'Test Info',
                         icon: <Quiz />,
                         element: (
-                            <CompletedTacticsExamPgnSelector
+                            <CompletedExamPgnSelector
                                 name={exam.name}
                                 cohortRange={exam.cohortRange}
                                 count={exam.pgns.length}
@@ -483,14 +569,13 @@ export const CompletedTacticsExam: React.FC<CompletedTacticsExamProps> = ({
                                 onSelect={setSelectedProblem}
                                 scores={scores}
                                 elapsedTime={
-                                    answerRequest.data?.attempts[selectedAttempt]
-                                        ?.timeUsedSeconds || 0
+                                    answer.attempts[selectedAttempt]?.timeUsedSeconds || 0
                                 }
                                 onReset={onReset}
                                 resetLabel={resetLabel}
                                 attempt={selectedAttempt}
                                 selectAttempt={setAttempt}
-                                maxAttempts={answerRequest.data?.attempts.length || 1}
+                                maxAttempts={answer.attempts.length || 1}
                                 pgnNames={exam.pgns.map((pgn) => getEventHeader(pgn))}
                             />
                         ),

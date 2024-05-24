@@ -367,7 +367,11 @@ export function isCohortLess(lhs: string, rhs: string): boolean {
  * @param cohort The cohort to check.
  * @param range The range to check. Does not have to be a real cohort (Ex: 1500-2000 or 2000+).
  */
-export function isCohortInRange(cohort: string, range: string): boolean {
+export function isCohortInRange(cohort: string | undefined, range: string): boolean {
+    if (!cohort) {
+        return false;
+    }
+
     const minCohort = parseInt(range);
     const maxCohort =
         range.split('-').length > 1 ? parseInt(range.split('-')[1]) : undefined;

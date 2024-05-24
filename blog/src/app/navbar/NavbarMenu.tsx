@@ -54,18 +54,24 @@ import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
 } from './UnauthenticatedMenu';
+import logo from './logo192.png';
 
 export const Logo = () => {
     return (
-        <a href='/'>
+        <a
+            href='/'
+            style={{
+                height: '100%',
+                paddingTop: '10px',
+                paddingBottom: '10px',
+                marginRight: '15px',
+            }}
+        >
             <Image
-                src='/logo192.png'
+                src={logo}
                 style={{
-                    paddingTop: '10px',
-                    paddingBottom: '10px',
                     height: '100%',
-                    marginRight: '15px',
-                    cursor: 'pointer',
+                    width: 'auto',
                 }}
                 alt=''
             />

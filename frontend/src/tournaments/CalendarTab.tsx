@@ -1,22 +1,34 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Scheduler } from '@aldabil/react-scheduler';
+import {
+    EventRendererProps,
+    ProcessedEvent,
+    SchedulerRef,
+} from '@aldabil/react-scheduler/types';
 import { Grid } from '@mui/material';
-
+import { useEffect, useMemo, useRef } from 'react';
+import { useEvents } from '../api/cache/Cache';
+import { CustomEventRenderer } from '../calendar/CalendarPage';
 import ProcessedEventViewer from '../calendar/eventViewer/ProcessedEventViewer';
 import {
     DefaultTimezone,
-    useFilters,
     Filters,
     getHours,
+    useFilters,
 } from '../calendar/filters/CalendarFilters';
-import TournamentCalendarFilters from './TournamentCalendarFilters';
-import { useEvents } from '../api/cache/Cache';
-import { Event, EventType, PositionType, TimeControlType } from '../database/event';
+import {
+    Event,
+    EventType,
+    PositionType,
+    TimeControlType,
+    TournamentType,
+} from '../database/event';
 import { TimeFormat } from '../database/user';
+import TournamentCalendarFilters from './TournamentCalendarFilters';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
+        case TimeControlType.AllTimeContols:
+            return 'primary';
         case TimeControlType.Blitz:
             return 'warning.main';
         case TimeControlType.Rapid:
@@ -35,20 +47,29 @@ function getProcessedEvents(filters: Filters, events: Event[]): ProcessedEvent[]
         }
 
         if (
-            !filters.tournamentTypes[event.ligaTournament.type] ||
-            !filters.tournamentTimeControls[event.ligaTournament.timeControlType]
+            filters.tournamentTypes[0] !== TournamentType.AllTournamentTypes &&
+            !filters.tournamentTypes.includes(event.ligaTournament.type)
         ) {
             continue;
         }
 
         if (
-            !filters.tournamentPositions[PositionType.Custom] &&
+            filters.tournamentTimeControls[0] !== TimeControlType.AllTimeContols &&
+            !filters.tournamentTimeControls.includes(event.ligaTournament.timeControlType)
+        ) {
+            continue;
+        }
+
+        if (
+            filters.tournamentPositions[0] !== PositionType.AllPositions &&
+            !filters.tournamentPositions.includes(PositionType.Custom) &&
             event.ligaTournament.fen
         ) {
             continue;
         }
         if (
-            !filters.tournamentPositions[PositionType.Standard] &&
+            filters.tournamentPositions[0] !== PositionType.AllPositions &&
+            !filters.tournamentPositions.includes(PositionType.Standard) &&
             !event.ligaTournament.fen
         ) {
             continue;
@@ -90,6 +111,14 @@ const CalendarTab = () => {
 
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(filters.timeFormat, 'hourFormat');
+        calendarRef.current?.scheduler.handleState(
+            (props: EventRendererProps) =>
+                CustomEventRenderer({
+                    ...props,
+                    timeFormat: filters.timeFormat,
+                }),
+            'eventRenderer',
+        );
     }, [calendarRef, filters.timeFormat]);
 
     const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
@@ -103,7 +132,7 @@ const CalendarTab = () => {
                 endHour: maxHour,
                 navigation: true,
             },
-            'month'
+            'month',
         );
         calendarRef.current?.scheduler.handleState(
             {
@@ -114,7 +143,7 @@ const CalendarTab = () => {
                 step: 60,
                 navigation: true,
             },
-            'week'
+            'week',
         );
         calendarRef.current?.scheduler.handleState(
             {
@@ -123,7 +152,7 @@ const CalendarTab = () => {
                 step: 60,
                 navigation: true,
             },
-            'day'
+            'day',
         );
     }, [calendarRef, minHour, maxHour]);
 
@@ -170,6 +199,9 @@ const CalendarTab = () => {
                             : filters.timezone
                     }
                     hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
+                    eventRenderer={(props) =>
+                        CustomEventRenderer({ ...props, timeFormat: filters.timeFormat })
+                    }
                 />
             </Grid>
         </Grid>

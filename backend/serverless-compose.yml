@@ -108,18 +108,6 @@ services:
       EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
 
-  pgnService:
-    path: pgnService
-    params:
-      httpApiId: ${chess-dojo-scheduler.HttpApiId}
-      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
-      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
-      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
-      GamesTableStreamArn: ${chess-dojo-scheduler.GamesTableStreamArn}
-      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
-      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
-      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
-
   emailService:
     path: email
     params:
@@ -147,3 +135,17 @@ services:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+
+  pgnService:
+    path: pgnService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+      GamesTableStreamArn: ${chess-dojo-scheduler.GamesTableStreamArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      ExamsTableArn: ${examService.ExamsTableArn}
+      ExamsTableStreamArn: ${examService.ExamsTableStreamArn}

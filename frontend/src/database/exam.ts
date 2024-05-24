@@ -4,6 +4,15 @@ export enum ExamType {
     Polgar = 'POLGAR_EXAM',
 }
 
+export function displayExamType(type: ExamType): string {
+    switch (type) {
+        case ExamType.Tactics:
+            return 'Tactics Test';
+        case ExamType.Polgar:
+            return 'Checkmate Test';
+    }
+}
+
 /**
  * A summary of a single user's answer to an exam. Stored on the exam to
  * facilitate calculating the exam's linear regression.
@@ -53,12 +62,6 @@ export interface Exam {
 export interface ExamProblemAnswer {
     /** The user's final result PGN. */
     pgn: string;
-
-    /** The user's score for the problem. */
-    score: number;
-
-    /** The total score available for the problem. */
-    total: number;
 }
 
 /**
@@ -81,6 +84,9 @@ export interface ExamAttempt {
 
     /** The date the user took the exam, in time.RFC3339 format. */
     createdAt: string;
+
+    /** Whether the attempt is currently in progress. */
+    inProgress?: boolean;
 }
 
 /** A single user's answer to a full exam. */

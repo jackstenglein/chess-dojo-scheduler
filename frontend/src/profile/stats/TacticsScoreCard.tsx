@@ -2,7 +2,7 @@ import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
-import { calculateTacticsRating } from '../../tactics/tactics';
+import { calculateTacticsRating } from '../../exams/view/exam';
 
 interface TacticsScoreCardProps {
     user: User;

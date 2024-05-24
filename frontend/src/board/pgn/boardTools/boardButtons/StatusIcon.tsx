@@ -1,4 +1,4 @@
-import { Event, EventType as ChessEventType } from '@jackstenglein/chess';
+import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
 import { CloudDone, CloudOff } from '@mui/icons-material';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import debounce from 'lodash.debounce';
@@ -13,7 +13,7 @@ import { toDojoDateString, toDojoTimeString } from '../../../../calendar/display
 import { Game } from '../../../../database/game';
 import { useChess } from '../../PgnBoard';
 
-const useDebounce = (callback: (...args: any) => void, delay: number = 6000) => {
+export const useDebounce = (callback: (...args: any) => void, delay: number = 6000) => {
     const ref = useRef<any>();
 
     useEffect(() => {

@@ -91,8 +91,9 @@ export const TacticsInstructions: React.FC<InstructionsProps> = ({
                         "Finish Early" button.
                     </li>
                     <li>
-                        Once the test starts, do not refresh or navigate away from the
-                        page. Your progress will be lost if you do so.
+                        The test autosaves as you work. If you need to stop during the
+                        test, click the Pause button. This will save your progress, and
+                        you can come back later to resume from where you left off.
                     </li>
                 </Box>
             </Typography>
@@ -158,8 +159,9 @@ export const PolgarMateInstructions: React.FC<InstructionsProps> = ({
                         "Finish Early" button.
                     </li>
                     <li>
-                        Once the test starts, do not refresh or navigate away from the
-                        page. Your progress will be lost if you do so.
+                        The test autosaves as you work. If you need to stop during the
+                        test, click the Pause button. This will save your progress, and
+                        you can come back later to resume from where you left off.
                     </li>
                 </Box>
             </Typography>

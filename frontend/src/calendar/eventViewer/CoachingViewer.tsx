@@ -2,13 +2,13 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { LoadingButton } from '@mui/lab';
 import { Alert, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import { Event, EventStatus } from '../../database/event';
 import { dojoCohorts } from '../../database/user';
+import Icon from '../../style/Icon';
 import Field from './Field';
 import OwnerField from './OwnerField';
 import ParticipantsList from './ParticipantsList';
@@ -69,10 +69,11 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             <OwnerField title='Coach' event={event} />
 
-            <Field title='Description' body={event.description} />
+            <Field title='Description' body={event.description} iconName='notes' />
 
             <Field
                 title='Cohorts'
+                iconName='cohort'
                 body={
                     dojoCohorts.length === event.cohorts.length ||
                     event.cohorts.length === 0
@@ -85,6 +86,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             <Stack spacing={0.5}>
                 <Field
+                    iconName='participant'
                     showEmptyBody
                     title={`Participants (${Object.values(event.participants).length} / ${
                         event.maxParticipants
@@ -108,6 +110,8 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                 <Button
                     variant='contained'
                     onClick={() => navigate(`/meeting/${event.id}`)}
+                    color='success'
+                    startIcon={<Icon name='eye' />}
                 >
                     View Details
                 </Button>
@@ -118,6 +122,8 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                         variant='contained'
                         loading={request.isLoading()}
                         onClick={onBook}
+                        color='success'
+                        startIcon={<Icon name='join' />}
                     >
                         Book
                     </LoadingButton>

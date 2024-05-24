@@ -1,4 +1,5 @@
 import { Stack, TextField, Typography } from '@mui/material';
+import Icon from '../../../style/Icon';
 
 interface MaxParticipantsFormSectionProps {
     maxParticipants: string;
@@ -17,7 +18,15 @@ const MaxParticipantsFormSection: React.FC<MaxParticipantsFormSectionProps> = ({
 }) => {
     return (
         <Stack>
-            <Typography variant='h6'>Max Participants</Typography>
+            <Typography variant='h6'>
+                <Icon
+                    name='player'
+                    color='primary'
+                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                    fontSize='medium'
+                />
+                Max Participants
+            </Typography>
             <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 1.5 }}>
                 {subtitle}
             </Typography>

@@ -1,8 +1,8 @@
-import { Stack, Button, Typography } from '@mui/material';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
 import { Event, getDisplayString } from '../../database/event';
+import Icon from '../../style/Icon';
 import Field from './Field';
 import ParticipantsList from './ParticipantsList';
 
@@ -20,20 +20,34 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
 
     return (
         <Stack sx={{ pt: 2 }} spacing={2}>
-            <Field title='Description' body={event.description} />
-            <Field title='Location' body={event.location || 'Discord'} />
+            <Field title='Description' body={event.description} iconName='notes' />
+            <Field
+                title='Location'
+                body={event.location || 'Discord'}
+                iconName='location'
+            />
 
             {event.bookedType ? (
-                <Field title='Meeting Type' body={getDisplayString(event.bookedType)} />
+                <Field
+                    title='Meeting Type'
+                    body={getDisplayString(event.bookedType)}
+                    iconName='meet'
+                />
             ) : (
                 <Field
                     title='Meeting Types'
+                    iconName='meet'
                     body={event.types?.map((t) => getDisplayString(t)).join(', ') || ''}
                 />
             )}
 
             <Stack spacing={0.5}>
-                <Typography variant='subtitle2' color='text.secondary'>
+                <Typography variant='h6' color='text.secondary'>
+                    <Icon
+                        name='participant'
+                        color='primary'
+                        sx={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+                    />
                     Particpants
                 </Typography>
                 <ParticipantsList event={event} maxItems={maxDisplayParticipants} />
@@ -44,7 +58,11 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
                 )}
             </Stack>
 
-            <Button variant='contained' onClick={() => navigate(`/meeting/${event.id}`)}>
+            <Button
+                variant='contained'
+                onClick={() => navigate(`/meeting/${event.id}`)}
+                startIcon={<Icon name='eye' />}
+            >
                 View Details
             </Button>
         </Stack>

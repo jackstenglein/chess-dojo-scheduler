@@ -1,18 +1,17 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 import ReactGA from 'react-ga4';
 import { ReportCallback } from 'web-vitals';
+import App from './App';
+import './index.css';
+import reportWebVitals from './reportWebVitals';
 
 ReactGA.initialize('G-9VPNTDELD2');
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>
+    // <React.StrictMode>
+    <App />,
+    // </React.StrictMode>
 );
 
 const sendToAnalytics: ReportCallback = ({ id, name, value }) => {

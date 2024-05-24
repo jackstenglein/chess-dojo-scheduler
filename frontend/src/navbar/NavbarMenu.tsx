@@ -173,9 +173,9 @@ function allStartItems(
                     onClick: () => navigate('/courses'),
                 },
                 {
-                    name: 'Tactics Tests',
+                    name: 'Tests',
                     icon: <Speed />,
-                    onClick: () => navigate('/tactics'),
+                    onClick: () => navigate('/tests'),
                 },
                 {
                     name: 'Books',

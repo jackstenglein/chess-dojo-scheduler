@@ -1,4 +1,4 @@
-import { ListItemIcon, ListItemText } from '@mui/material';
+import { FormHelperText, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
@@ -38,11 +38,13 @@ interface MultipleSelectChipProps {
     selected: string[];
     setSelected: (v: string[]) => void;
     options: MultipleSelectChipOption[];
-    label: string;
+    label?: string;
     size?: 'small' | 'medium';
     sx?: SxProps;
     error?: boolean;
+    errorHelper?: string;
     'data-cy'?: string;
+    displayEmpty?: string;
 }
 
 export default function MultipleSelectChip({
@@ -53,6 +55,8 @@ export default function MultipleSelectChip({
     size,
     sx,
     error,
+    errorHelper,
+    displayEmpty,
     ...others
 }: MultipleSelectChipProps) {
     const theme = useTheme();
@@ -68,8 +72,8 @@ export default function MultipleSelectChip({
     };
 
     return (
-        <FormControl {...others} sx={sx} error={error}>
-            <InputLabel>{label}</InputLabel>
+        <FormControl {...others} sx={sx} error={error || Boolean(errorHelper)}>
+            {label && <InputLabel>{label}</InputLabel>}
             <Select
                 multiple
                 value={selected}
@@ -84,9 +88,15 @@ export default function MultipleSelectChip({
                                 size={size}
                             />
                         ))}
+                        {selected.length === 0 && !!displayEmpty && (
+                            <Typography color='text.secondary' fontStyle='italic'>
+                                {displayEmpty}
+                            </Typography>
+                        )}
                     </Box>
                 )}
                 MenuProps={MenuProps}
+                displayEmpty={!!displayEmpty}
             >
                 {options.map((option) => (
                     <MenuItem
@@ -99,6 +109,7 @@ export default function MultipleSelectChip({
                     </MenuItem>
                 ))}
             </Select>
+            {errorHelper && <FormHelperText>{errorHelper}</FormHelperText>}
         </FormControl>
     );
 }

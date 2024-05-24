@@ -1,9 +1,9 @@
 import { Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-
 import { Event } from '../../database/event';
 import Avatar from '../../profile/Avatar';
 import CohortIcon from '../../scoreboard/CohortIcon';
+import Icon from '../../style/Icon';
 
 interface OwnerFieldProps {
     title: string;
@@ -13,7 +13,12 @@ interface OwnerFieldProps {
 const OwnerField: React.FC<OwnerFieldProps> = ({ title, event }) => {
     return (
         <Stack>
-            <Typography variant='subtitle2' color='text.secondary'>
+            <Typography variant='h6' color='text.secondary'>
+                <Icon
+                    name='player'
+                    color='primary'
+                    sx={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+                />
                 {title}
             </Typography>
             <Stack direction='row' spacing={1} alignItems='center'>

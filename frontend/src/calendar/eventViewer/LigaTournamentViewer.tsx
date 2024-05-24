@@ -1,9 +1,23 @@
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Box, Link, Stack, Typography } from '@mui/material';
-
-import { LigaTournament, displayTournamentType } from '../../database/event';
-import Board from '../../board/Board';
 import { useEffect, useState } from 'react';
+import Board from '../../board/Board';
+import { LigaTournament, displayTournamentType } from '../../database/event';
+import Icon from '../../style/Icon';
+
+function getLigaIconBasedOnTimeControl(timeControl: number) {
+    const tc = timeControl / 60;
+
+    if (tc >= 3 && tc <= 9) {
+        return 'Blitz';
+    } else if (tc >= 10 && tc < 60) {
+        return 'Rapid';
+    } else if (tc >= 60 && tc <= 180) {
+        return 'Classical';
+    }
+
+    return '';
+}
 
 interface LigaTournamentViewerProps {
     processedEvent: ProcessedEvent;
@@ -34,7 +48,12 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
 
             {processedEvent.event.location && (
                 <Stack>
-                    <Typography variant='subtitle2' color='text.secondary'>
+                    <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name='location'
+                            color='primary'
+                            sx={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+                        />
                         Location
                     </Typography>
                     <Link
@@ -50,7 +69,12 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
 
             {processedEvent.event.description && (
                 <Stack>
-                    <Typography variant='subtitle2' color='text.secondary'>
+                    <Typography variant='h6' color='text.secondary'>
+                        <Icon
+                            name='notes'
+                            color='primary'
+                            sx={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+                        />
                         Description
                     </Typography>
                     <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
@@ -60,7 +84,12 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
             )}
 
             <Stack>
-                <Typography variant='subtitle2' color='text.secondary'>
+                <Typography variant='h6' color='text.secondary'>
+                    <Icon
+                        name={getLigaIconBasedOnTimeControl(ligaTournament.limitSeconds)}
+                        color='primary'
+                        sx={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+                    />
                     Time Control
                 </Typography>
                 <Typography variant='body1'>

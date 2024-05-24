@@ -10,7 +10,7 @@ import tacticsTestImage from './tactics-test.png';
 export const metadata: Metadata = {
     title: 'Introducing Dojo 3.0 | ChessDojo Blog',
     description:
-        'New tactics tests, revamped training program and improved annotated games database',
+        'New tactics tests, 3.0 training program and revamped annotated games database',
     keywords: ['Chess', 'Dojo', 'Training'],
 };
 
@@ -43,20 +43,20 @@ export default function DojoDigestVol8() {
                     <ul>
                         <li>Tactics Tests</li>
                         <li>Tactics Rating & Player Dashboard</li>
-                        <li>Revamped Training Program</li>
+                        <li>3.0 Training Program</li>
+                        <li>Revamped Game Editor & Database</li>
                         <li>Sensei Profile Review</li>
-                        <li>Game Editor & Database</li>
                         <li>Clubs</li>
                     </ul>
                     Learn more below, or{' '}
-                    <Link href='https://www.chessdojo.club/signup'>signup</Link> now to
+                    <Link href='https://www.chessdojo.club/signup'>sign up</Link> now to
                     check it out for yourself! Use code DOJO30 at checkout for 30% off
                     your first month.
                 </Typography>
 
                 <Typography mt={2} mb={1}>
                     <strong>Tactics Tests</strong> - We&apos;ve developed a new style of
-                    tactics test! In normal tactics tests, you make your move and the
+                    tactics test! In normal tactics trainers, you make your move and the
                     computer plays a single line for your opponent. This can lead to bad
                     habits, as you don&apos;t always have to calculate all of your
                     opponent&apos;s resources. In the Dojo tests, you input moves for both
@@ -92,12 +92,23 @@ export default function DojoDigestVol8() {
                     alt='Graph of Dojo tactics test results'
                     style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                 />
+                <Typography
+                    variant='body2'
+                    color='text.secondary'
+                    textAlign='center'
+                    mt={0.5}
+                    mb={2}
+                >
+                    Data for the first 1500-2000 test. In this chart, the x-axis is the
+                    score on the test and the y-axis is the calculated rating for the
+                    test. Different colors represent different cohorts.
+                </Typography>
 
                 <Typography mt={2}>
                     The tests are available{' '}
                     <Link href='https://www.chessdojo.club/tactics'>here</Link> for 1500+,
-                    but we plan to expand to the lower rating levels by the end of the
-                    month.
+                    but we plan to expand to all rating levels by the end of the month.
+                    Free users can access the first test in their rating section as well.
                 </Typography>
 
                 <Typography mt={4}>
@@ -116,16 +127,16 @@ export default function DojoDigestVol8() {
                 </Typography>
 
                 <Typography mt={4}>
-                    <strong>Revamped Training Program</strong> - We evaluated feedback
-                    from users, performed statistical analysis (which tasks produce the
+                    <strong>3.0 Training Program</strong> - We evaluated feedback from
+                    users, performed statistical analysis (which tasks produce the
                     strongest gains?), argued amongst each other and used all this
                     information to dial in the Training Program requirements across the
-                    Dojo. As always, the Training Program can be viewed under your
+                    Dojo. As always, the Training Program can be viewed under your{' '}
                     <Link href='https://www.chessdojo.club/profile'>profile</Link>.
                 </Typography>
 
                 <Typography mt={4} component='div'>
-                    <strong>Game Editor & Database</strong> - Our{' '}
+                    <strong>Revamped Game Editor & Database</strong> - Our{' '}
                     <Link href='https://www.chessdojo.club/games'>
                         annotated games database
                     </Link>{' '}
@@ -234,11 +245,13 @@ export default function DojoDigestVol8() {
                     Achievements
                 </Typography>
                 <Typography mt={2}>
-                    <Link href='https://www.chessdojo.club/profile/google_105393645715208125191'></Link>{' '}
-                    David played the 2023-2024 season of the French National League for
-                    the team from St Lo, finishing with 4.5/5. In the final round he
-                    played a higher-rated opponent, producing his best game of the year.
-                    You can see that game, explained by David in a{' '}
+                    <Link href='https://www.chessdojo.club/profile/google_105393645715208125191'>
+                        Sensei David
+                    </Link>{' '}
+                    played the 2023-2024 season of the French National League for the team
+                    from St Lo, finishing with 4.5/5. In the final round he played a
+                    higher-rated opponent, producing his best game of the year. You can
+                    see that game, explained by David in a{' '}
                     <Link href='https://www.youtube.com/watch?v=DFnSAgiqPLY'>video</Link>{' '}
                     or in the{' '}
                     <Link href='https://www.chessdojo.club/games/2300-2400/2024.03.22_74ccb901-3023-4aef-8a2b-393f45bf3d54'>

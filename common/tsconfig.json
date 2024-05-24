@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "removeComments": false,
+        "sourceMap": false,
+        "strict": true,
+        "target": "ES2021"
+    },
+    "include": ["src", "index.ts"],
+    "exclude": ["node_modules", "**/__tests__/*"]
+}

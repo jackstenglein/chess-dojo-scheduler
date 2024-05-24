@@ -146,7 +146,7 @@ const WhatsIncluded = () => {
                         </Tabs>
                     </Box>
 
-                    {Object.entries(tabData).map(([name, data]) => (
+                    {Object.entries(tabData).map(([name, data], i) => (
                         <TabPanel key={name} value={name} sx={{ width: 1 }}>
                             <Card>
                                 <CardContent>
@@ -174,6 +174,9 @@ const WhatsIncluded = () => {
                                                             borderRadius: '4px',
                                                         }}
                                                         alt=''
+                                                        loading={
+                                                            i === 0 ? 'eager' : 'lazy'
+                                                        }
                                                     />
                                                 ))}
                                             </Stack>

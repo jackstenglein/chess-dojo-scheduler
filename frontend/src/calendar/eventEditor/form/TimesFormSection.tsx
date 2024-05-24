@@ -3,6 +3,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { useAuth } from '../../../auth/Auth';
 import { TimeFormat } from '../../../database/user';
+import Icon from '../../../style/Icon';
 
 interface TimesFormSectionProps {
     description?: string;
@@ -32,7 +33,15 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
 
     return (
         <Stack>
-            <Typography variant='h6'>Times</Typography>
+            <Typography variant='h6'>
+                <Icon
+                    name='clock'
+                    color='primary'
+                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                    fontSize='medium'
+                />
+                Times
+            </Typography>
             {description && (
                 <Typography variant='subtitle1' color='text.secondary'>
                     {description}

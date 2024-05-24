@@ -1,4 +1,5 @@
-import { Stack, Typography, TextField } from '@mui/material';
+import { Stack, TextField, Typography } from '@mui/material';
+import Icon from '../../../style/Icon';
 
 interface TitleFormSectionProps {
     title: string;
@@ -15,7 +16,15 @@ const TitleFormSection: React.FC<TitleFormSectionProps> = ({
 }) => {
     return (
         <Stack>
-            <Typography variant='h6'>Event Title</Typography>
+            <Typography variant='h6'>
+                <Icon
+                    name='write'
+                    color='primary'
+                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                    fontSize='medium'
+                />
+                Event Title
+            </Typography>
             {subtitle && (
                 <Typography variant='subtitle1' color='text.secondary'>
                     {subtitle}

@@ -9,14 +9,14 @@ import {
     Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
 import { EventType, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { displayPrice } from '../courses/list/CourseListItem';
 import { Event } from '../database/event';
-import { dojoCohorts, TimeFormat } from '../database/user';
+import { TimeFormat, dojoCohorts } from '../database/user';
+import Icon from '../style/Icon';
 import { Transition } from './AvailabilityBooker';
 import { toDojoDateString, toDojoTimeString } from './displayDate';
 import Field from './eventViewer/Field';
@@ -84,18 +84,20 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     </Typography>
                     <Button
                         data-cy='cancel-button'
-                        color='inherit'
+                        color='error'
                         onClick={() => navigate('/calendar')}
                         disabled={request.status === RequestStatus.Loading}
+                        startIcon={<Icon name='cancel' />}
                     >
                         Cancel
                     </Button>
                     <LoadingButton
                         data-cy='book-button'
-                        color='inherit'
+                        color='success'
                         disabled={isParticipant}
                         loading={request.status === RequestStatus.Loading}
                         onClick={onBook}
+                        startIcon={<Icon name='join' />}
                     >
                         Book
                     </LoadingButton>
@@ -106,6 +108,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     <Typography variant='h6'>{event.title}</Typography>
 
                     <Field
+                        iconName='clock'
                         title='Time'
                         body={`${startDate} ${startTimeStr} - ${endTimeStr}`}
                     />
@@ -163,8 +166,13 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     </Stack>
 
                     <OwnerField title='Coach' event={event} />
-                    <Field title='Description' body={event.description} />
                     <Field
+                        title='Description'
+                        body={event.description}
+                        iconName='notes'
+                    />
+                    <Field
+                        iconName='cohort'
                         title='Cohorts'
                         body={
                             dojoCohorts.length === event.cohorts.length ||
@@ -175,6 +183,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     />
                     <Stack spacing={0.5}>
                         <Field
+                            iconName='participant'
                             showEmptyBody
                             title={`Participants (${Object.values(event.participants).length} / ${
                                 event.maxParticipants

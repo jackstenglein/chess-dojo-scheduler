@@ -1,14 +1,5 @@
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
-import {
-    FormControl,
-    FormControlLabel,
-    FormLabel,
-    MenuItem,
-    Radio,
-    RadioGroup,
-    Stack,
-    TextField,
-} from '@mui/material';
+import { MenuItem, Stack, TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers';
 import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
@@ -73,35 +64,17 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
 
     return (
         <Stack spacing={2.5}>
-            <FormControl data-cy='time-format'>
-                <FormLabel sx={{ fontSize: '0.85rem' }}>Time Format</FormLabel>
-                <RadioGroup
-                    row
-                    value={timeFormat}
-                    onChange={(e) => onChangeTimeFormat(e.target.value as TimeFormat)}
-                >
-                    <FormControlLabel
-                        value={TimeFormat.TwelveHour}
-                        control={<Radio sx={{ py: 0.25 }} size='small' />}
-                        label='12 Hour'
-                        slotProps={{
-                            typography: {
-                                fontSize: '0.9rem',
-                            },
-                        }}
-                    />
-                    <FormControlLabel
-                        value={TimeFormat.TwentyFourHour}
-                        control={<Radio sx={{ py: 0.25 }} size='small' />}
-                        label='24 Hour'
-                        slotProps={{
-                            typography: {
-                                fontSize: '0.9rem',
-                            },
-                        }}
-                    />
-                </RadioGroup>
-            </FormControl>
+            <TextField
+                label='Time Format'
+                select
+                data-cy='time-format-selector'
+                value={timeFormat}
+                onChange={(e) => onChangeTimeFormat(e.target.value as TimeFormat)}
+                size='small'
+            >
+                <MenuItem value={TimeFormat.TwelveHour}>12 Hour</MenuItem>
+                <MenuItem value={TimeFormat.TwentyFourHour}>24 Hour</MenuItem>
+            </TextField>
 
             <TextField
                 label='Timezone'

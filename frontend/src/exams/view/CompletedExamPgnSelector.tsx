@@ -10,14 +10,11 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { Scores } from './TacticsExamPage';
-import { TacticsExamPgnSelectorProps, formatTime } from './TacticsExamPgnSelector';
+import { Scores } from './ExamPage';
+import { ExamPgnSelectorProps, formatTime } from './ExamPgnSelector';
 
-interface CompletedTacticsExamPgnSelectorProps
-    extends Omit<
-        TacticsExamPgnSelectorProps,
-        'countdown' | 'onComplete' | 'orientations'
-    > {
+interface CompletedExamPgnSelectorProps
+    extends Omit<ExamPgnSelectorProps, 'countdown' | 'onComplete' | 'orientations'> {
     elapsedTime: number;
     onReset: () => void;
     resetLabel?: string;
@@ -27,7 +24,7 @@ interface CompletedTacticsExamPgnSelectorProps
     maxAttempts: number;
 }
 
-const CompletedTacticsExamPgnSelector: React.FC<CompletedTacticsExamPgnSelectorProps> = ({
+const CompletedExamPgnSelector: React.FC<CompletedExamPgnSelectorProps> = ({
     name,
     cohortRange,
     count,
@@ -128,4 +125,4 @@ const CompletedTacticsExamPgnSelector: React.FC<CompletedTacticsExamPgnSelectorP
     );
 };
 
-export default CompletedTacticsExamPgnSelector;
+export default CompletedExamPgnSelector;

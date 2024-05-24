@@ -8,7 +8,7 @@ type FontAwesomeSvgIconProps = {
 
 export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
     (props, ref) => {
-        const { icon } = props;
+        const { icon, ...others } = props;
 
         const {
             icon: [width, height, , , svgPathData],
@@ -20,6 +20,7 @@ export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconPr
                 viewBox={`0 0 ${width} ${height}`}
                 fontSize='small'
                 className='MuiChip-icon'
+                {...others}
             >
                 {typeof svgPathData === 'string' ? (
                     <path d={svgPathData} />

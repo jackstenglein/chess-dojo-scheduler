@@ -1,6 +1,6 @@
 'use client';
 
-import { FacebookOutlined, Link, Reddit, Twitter } from '@mui/icons-material';
+import { FacebookOutlined, Link, Reddit, Share, Twitter } from '@mui/icons-material';
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 
@@ -29,7 +29,6 @@ const ShareButton: React.FC<ShareButtonProps> = ({ title, href }) => {
         const fullHref = `${window.location.protocol}//${window.location.host}${href}`;
         let link = '';
 
-        console.log('Title: ', title);
         switch (platform) {
             case 'facebook':
                 link =
@@ -60,7 +59,6 @@ const ShareButton: React.FC<ShareButtonProps> = ({ title, href }) => {
         }
 
         if (link) {
-            console.log('Opening link: ', link);
             window.open(link, '_blank', 'noopener');
         }
         setAnchorEl(null);
@@ -68,7 +66,12 @@ const ShareButton: React.FC<ShareButtonProps> = ({ title, href }) => {
 
     return (
         <>
-            <Button onClick={(e) => setAnchorEl(e.currentTarget)}>Share</Button>
+            <Button
+                startIcon={<Share fontSize='small' />}
+                onClick={(e) => setAnchorEl(e.currentTarget)}
+            >
+                Share
+            </Button>
             <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}

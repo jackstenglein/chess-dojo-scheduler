@@ -1,4 +1,5 @@
-import { Stack, Typography, TextField } from '@mui/material';
+import { Stack, TextField, Typography } from '@mui/material';
+import Icon from '../../../style/Icon';
 
 interface DescriptionFormSectionProps {
     subtitle: string;
@@ -17,7 +18,15 @@ const DescriptionFormSection: React.FC<DescriptionFormSectionProps> = ({
 }) => {
     return (
         <Stack>
-            <Typography variant='h6'>Description {!required && '(Optional)'}</Typography>
+            <Typography variant='h6'>
+                <Icon
+                    name='write'
+                    color='primary'
+                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                    fontSize='medium'
+                />
+                Description {!required && '(Optional)'}
+            </Typography>
             <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 1.5 }}>
                 {subtitle}
             </Typography>
