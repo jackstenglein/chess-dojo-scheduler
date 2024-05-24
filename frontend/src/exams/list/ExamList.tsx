@@ -363,7 +363,11 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         }
 
         const i = exams.findIndex((e) => e.id === params.row.id);
-        if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
+        if (
+            !user?.isAdmin &&
+            i >= 1 &&
+            !Boolean(exams[i - 1].answers[user?.username || ''])
+        ) {
             setSnackbarOpen(true);
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);

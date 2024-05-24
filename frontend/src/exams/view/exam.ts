@@ -78,6 +78,23 @@ export function getCohortRangeInt(range?: string): [number, number] {
 }
 
 /**
+ * Returns the cohort range that is used to calculate the best fit line
+ * of the exam. This is the exam's recommended cohort range +-100.
+ * @param examRange The exam cohort range.
+ * @returns The best fit cohort range.
+ */
+export function getBestFitCohortRange(examRange: string): string {
+    let [minCohort, maxCohort] = getCohortRangeInt(examRange);
+    minCohort = Math.max(0, minCohort - 100);
+    maxCohort += 100;
+
+    if (maxCohort === Infinity) {
+        return `${minCohort}+`;
+    }
+    return `${minCohort}-${maxCohort}`;
+}
+
+/**
  * Returns the linear regression for this exam. If the exam has not been taken
  * by enough people, null is returned.
  * @param exam The exam to get the linear regression for.
