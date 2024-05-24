@@ -2,7 +2,6 @@
 
 import { assert, test } from 'vitest';
 import { getGame, isFairyChess } from './create';
-import { GameOrientation } from './types';
 
 test('isFairyChess does not trigger on standard chess', () => {
     const pgnText =
@@ -21,10 +20,9 @@ test('isFairyChess triggers on variants', () => {
 test('getGame defaults gracefully', () => {
     const pgnText = '';
     const reqHeaders = undefined;
-    const orientation = GameOrientation.White;
     const user = undefined;
 
-    const [game] = getGame(user, pgnText, reqHeaders, orientation);
+    const game = getGame(user, pgnText, reqHeaders);
 
     assert.isNotNull(game, 'empty PGN should be supported');
     assert.isTrue(game?.unlisted);
@@ -32,7 +30,6 @@ test('getGame defaults gracefully', () => {
 
 test('getGame supports chess.com saved annotation default Date', () => {
     const reqHeaders = undefined;
-    const orientation = GameOrientation.White;
     const user = undefined;
 
     const pgnText = `
@@ -49,12 +46,11 @@ Qb6 {here Black threatens Qxf2 check mate!} 9. cxb7+ Kd8 10. Nxf7+ Kc7 {now if
 White plays bxa8+Q he loses to the Qxf2 check mate.} 11. bxa8=N+ Kb7 12. Nxb6
 {1-0 Black resigned} *`;
 
-    getGame(user, pgnText, reqHeaders, orientation);
+    getGame(user, pgnText, reqHeaders);
 });
 
 test('getGame handles incomplete pgn', () => {
     const reqHeaders = undefined;
-    const orientation = GameOrientation.White;
     const user = undefined;
 
     const pgnText = `
@@ -76,7 +72,7 @@ test('getGame handles incomplete pgn', () => {
 
 
 `;
-    const [game] = getGame(user, pgnText, reqHeaders, orientation);
+    const game = getGame(user, pgnText, reqHeaders);
 
     const pgn = game.pgn.trim();
     assert.equal(pgn[pgn.length - 1], '*');
