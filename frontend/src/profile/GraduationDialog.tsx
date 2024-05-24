@@ -1,3 +1,4 @@
+import SchoolIcon from '@mui/icons-material/School';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -15,9 +16,10 @@ import { EventType, setUserCohort, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
+import { Graduation } from '../database/graduation';
 import { RatingSystem, shouldPromptGraduation } from '../database/user';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import SchoolIcon from '@mui/icons-material/School';
+import { GraduationReportDialog } from './GraduationReportDialog';
 
 const GraduationDialog = () => {
     const [comments, setComments] = useState('');
@@ -27,6 +29,8 @@ const GraduationDialog = () => {
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
+    const [showGraduationReportDialog, setShowGraduationReportDialog] = useState(false);
+    const [graduation, setGraduation] = useState<Graduation>();
 
     const shouldGraduate = shouldPromptGraduation(user);
     const disableGraduation =
@@ -45,14 +49,19 @@ const GraduationDialog = () => {
         api.graduate(comments)
             .then((response) => {
                 console.log('graduate: ', response);
+                const { graduation, userUpdate } = response.data;
+
                 request.onSuccess('Congratulations! You have successfully graduated!');
                 trackEvent(EventType.Graduate, {
-                    previous_cohort: response.data.graduation.previousCohort,
-                    new_cohort: response.data.graduation.newCohort,
-                    dojo_score: response.data.graduation.score,
+                    previous_cohort: graduation.previousCohort,
+                    new_cohort: graduation.newCohort,
+                    dojo_score: graduation.score,
                 });
-                setUserCohort(response.data.userUpdate.dojoCohort);
+                setUserCohort(userUpdate.dojoCohort);
                 setShowGraduationDialog(false);
+                setShowGraduationReportDialog(true);
+
+                setGraduation(graduation);
             })
             .catch((err) => {
                 console.error('graduate: ', err);
@@ -84,6 +93,13 @@ const GraduationDialog = () => {
             </Tooltip>
 
             <RequestSnackbar request={request} showSuccess />
+            {graduation && (
+                <GraduationReportDialog
+                    open={showGraduationReportDialog}
+                    onClose={() => setShowGraduationReportDialog(false)}
+                    graduation={graduation}
+                />
+            )}
             <Dialog
                 open={showGraduationDialog}
                 onClose={
