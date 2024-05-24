@@ -133,6 +133,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                 }))}
                                 displayEmpty='None'
                                 size='small'
+                                data-cy='tournament-types'
                             />
                         </Stack>
 
@@ -159,6 +160,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                 }))}
                                 displayEmpty='None'
                                 size='small'
+                                data-cy='time-controls'
                             />
                         </Stack>
 
@@ -185,6 +187,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                 }))}
                                 displayEmpty='None'
                                 size='small'
+                                data-cy='starting-position'
                             />
                         </Stack>
                     </Stack>

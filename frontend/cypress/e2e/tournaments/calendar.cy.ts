@@ -27,57 +27,50 @@ describe('Calendar Tab', () => {
         cy.getBySel('calendar-filters').getBySel('timezone-selector');
 
         cy.getBySel('calendar-filters').contains('Types');
-        cy.getBySel('calendar-filters').contains('Swiss');
-        cy.getBySel('calendar-filters').contains('Arena');
-
         cy.getBySel('calendar-filters').contains('Time Controls');
-        cy.getBySel('calendar-filters').contains('Blitz');
-        cy.getBySel('calendar-filters').contains('Rapid');
-        cy.getBySel('calendar-filters').contains('Classical');
-
         cy.getBySel('calendar-filters').contains('Starting Position');
-        cy.getBySel('calendar-filters').contains('Standard');
-        cy.getBySel('calendar-filters').contains('Custom');
     });
 
     it('displays correct events for type filters', () => {
         cy.get('.rs__event__item').should('have.length', 22);
 
-        cy.getBySel('calendar-filters').contains('Swiss').click();
+        cy.getBySel('tournament-types').click();
+        cy.get('.MuiPopover-root').contains('Arena').click();
         cy.get('.rs__event__item').should('have.length', 8);
 
-        cy.getBySel('calendar-filters').contains('Swiss').click();
-        cy.getBySel('calendar-filters').contains('Arena').click();
+        cy.get('.MuiPopover-root').contains('Swiss').click();
+        cy.get('.MuiPopover-root').contains('Arena').click();
         cy.get('.rs__event__item').should('have.length', 14);
     });
 
     it('displays correct events for time control filters', () => {
         cy.get('.rs__event__item').should('have.length', 22);
 
-        cy.getBySel('calendar-filters').contains('Rapid').click();
-        cy.getBySel('calendar-filters').contains('Classical').click();
+        cy.getBySel('time-controls').click();
+        cy.get('.MuiPopover-root').contains('Blitz').click();
         cy.get('.rs__event__item').should('have.length', 13);
 
-        cy.getBySel('calendar-filters').contains('Blitz').click();
-        cy.getBySel('calendar-filters').contains('Rapid').click();
+        cy.get('.MuiPopover-root').contains('Blitz').click();
+        cy.get('.MuiPopover-root').contains('Rapid').click();
         cy.get('.rs__event__item').should('have.length', 4);
 
-        cy.getBySel('calendar-filters').contains('Rapid').click();
-        cy.getBySel('calendar-filters').contains('Classical').click();
+        cy.get('.MuiPopover-root').contains('Rapid').click();
+        cy.get('.MuiPopover-root').contains('Classical').click();
         cy.get('.rs__event__item').should('have.length', 5);
 
-        cy.getBySel('calendar-filters').contains('Rapid').click();
+        cy.get('.MuiPopover-root').contains('Rapid').click();
         cy.get('.rs__event__item').should('have.length', 9);
     });
 
     it('displays correct events for starting position filters', () => {
         cy.get('.rs__event__item').should('have.length', 22);
 
-        cy.getBySel('calendar-filters').contains('Standard').click();
+        cy.getBySel('starting-position').click();
+        cy.get('.MuiPopover-root').contains('Custom').click();
         cy.get('.rs__event__item').should('have.length', 1);
 
-        cy.getBySel('calendar-filters').contains('Standard').click();
-        cy.getBySel('calendar-filters').contains('Custom').click();
+        cy.get('.MuiPopover-root').contains('Standard').click();
+        cy.get('.MuiPopover-root').contains('Custom').click();
         cy.get('.rs__event__item').should('have.length', 21);
     });
 
@@ -99,8 +92,9 @@ describe('Calendar Tab', () => {
     });
 
     it('displays board in custom position event popups', () => {
-        cy.getBySel('calendar-filters').contains('Standard').click();
-        cy.get('.rs__event__item').first().click();
+        cy.get('.rs__event__item')
+            .contains('Endgame Sparring - Pos 9 Arena')
+            .click({ force: true });
 
         cy.get('.MuiPopover-root').contains('Endgame Sparring - Pos 9 Arena');
         cy.get('.MuiPopover-root').contains('Unrated Arena');

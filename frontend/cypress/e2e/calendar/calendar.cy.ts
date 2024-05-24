@@ -17,16 +17,9 @@ describe('Calendar Page', () => {
         cy.getBySel('calendar-filters').contains('Timezone');
         cy.getBySel('calendar-filters').getBySel('timezone-selector');
 
-        cy.getBySel('calendar-filters').contains('My Calendar');
-        cy.getBySel('calendar-filters').contains('Availabilities');
-        cy.getBySel('calendar-filters').contains('Meetings');
-
-        cy.getBySel('calendar-filters').contains('Dojo Events');
-        cy.getBySel('calendar-filters').contains('Blitz');
-        cy.getBySel('calendar-filters').contains('Rapid');
-        cy.getBySel('calendar-filters').contains('Classical');
-        cy.getBySel('calendar-filters').contains('Meetings');
-        cy.getBySel('calendar-filters').contains('My Calendar');
+        cy.getBySel('calendar-filters').contains('My Dojo Calendar');
+        cy.getBySel('calendar-filters').contains('DojoLiga Tournaments');
+        cy.getBySel('calendar-filters').contains('Bookable Meetings');
         cy.getBySel('calendar-filters').contains('Cohorts');
     });
 
@@ -34,7 +27,6 @@ describe('Calendar Page', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/calendar');
-        cy.getBySel('calendar-filters').contains('Dojo Events').click();
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
@@ -50,19 +42,24 @@ describe('Calendar Page', () => {
     it('displays correct events for tournament filters', () => {
         cy.get('.rs__event__item').should('have.length', 26);
 
-        cy.getBySel('calendar-filters').contains('Blitz').click();
+        cy.getBySel('dojoliga-tournaments').click();
+        cy.get('.MuiPopover-root').contains('Rapid').click();
+        cy.get('.MuiPopover-root').contains('Classical').click();
         cy.get('.rs__event__item').should('have.length', 12);
 
-        cy.getBySel('calendar-filters').contains('Rapid').click();
-        cy.getBySel('calendar-filters').contains('Classical').click();
+        cy.get('.MuiPopover-root').contains('Rapid').click();
+        cy.get('.MuiPopover-root').contains('Classical').click();
         cy.get('.rs__event__item').should('have.length', 3);
     });
 
     it('displays correct events for dojo events filter', () => {
         cy.get('.rs__event__item').should('have.length', 26);
 
-        cy.getBySel('calendar-filters').contains('Dojo Events').click();
-        cy.get('.rs__event__item').should('have.length', 2);
+        cy.getBySel('my-dojo-calendar').click();
+        cy.get('.MuiPopover-root').contains('Availabilities').click();
+        cy.get('.MuiPopover-root').contains('Meetings').click();
+        cy.get('.MuiPopover-root').contains('Coaching Sessions').click();
+        cy.get('.rs__event__item').should('have.length', 25);
     });
 
     it('displays correct events for meeting types filter', () => {
@@ -88,10 +85,7 @@ describe('Calendar Page', () => {
     });
 
     it('displays correct content for availability', () => {
-        cy.getBySel('calendar-filters').contains('Dojo Events').click();
-        cy.get('.rs__event__item').first().click();
-
-        cy.contains('Bookable - Ricardo Alves');
+        cy.contains('Bookable - Ricardo Alves').click({ force: true });
 
         cy.getBySel('availability-viewer').contains('Owner');
         cy.getBySel('availability-viewer')
@@ -112,8 +106,7 @@ describe('Calendar Page', () => {
     });
 
     it('shows availability booker', () => {
-        cy.getBySel('calendar-filters').contains('Dojo Events').click();
-        cy.get('.rs__event__item').first().click();
+        cy.contains('Bookable - Ricardo Alves').click({ force: true });
         cy.getBySel('book-button').click();
 
         cy.contains('Book Meeting');
@@ -143,8 +136,7 @@ describe('Calendar Page', () => {
     });
 
     it('cancels availability booker', () => {
-        cy.getBySel('calendar-filters').contains('Dojo Events').click();
-        cy.get('.rs__event__item').first().click();
+        cy.contains('Bookable - Ricardo Alves').click({ force: true });
         cy.getBySel('book-button').click();
 
         cy.getBySel('cancel-button').click();
