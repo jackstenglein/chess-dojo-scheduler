@@ -7,6 +7,14 @@ export enum EventType {
     Coaching = 'COACHING',
 }
 
+export enum CalendarSessionType {
+    AllSessions = 'ALL_SESSIONS',
+    Availabilities = 'AVAILABILITIES',
+    Meetings = 'MEETINGS',
+    DojoEvents = 'DOJO_EVENTS',
+    CoachingSessions = 'COACHING_SESSIONS',
+}
+
 export interface Event {
     id: string;
     type: EventType;
@@ -46,17 +54,20 @@ export interface Event {
 }
 
 export enum TournamentType {
+    AllTournamentTypes = 'ALL_TOURNAMENT_TYPES',
     Swiss = 'SWISS',
     Arena = 'ARENA',
 }
 
 export enum TimeControlType {
+    AllTimeContols = 'ALL_TIME_CONTROLS',
     Blitz = 'BLITZ',
     Rapid = 'RAPID',
     Classical = 'CLASSICAL',
 }
 
 export enum PositionType {
+    AllPositions = 'ALL_POSITION_TYPES',
     Standard = 'STANDARD',
     Custom = 'CUSTOM',
 }
@@ -141,6 +152,27 @@ export enum AvailabilityType {
     BookStudy = 'BOOK_STUDY',
 }
 
+export function getDisplaySessionString(
+    type: CalendarSessionType | null | undefined,
+): string {
+    if (!type) {
+        return '';
+    }
+
+    switch (type) {
+        case CalendarSessionType.AllSessions:
+            return 'All Events';
+        case CalendarSessionType.Availabilities:
+            return 'Availabilities';
+        case CalendarSessionType.CoachingSessions:
+            return 'Coaching Sessions';
+        case CalendarSessionType.DojoEvents:
+            return 'Dojo Events';
+        case CalendarSessionType.Meetings:
+            return 'Meetings';
+    }
+}
+
 export function getDisplayString(type: AvailabilityType | null | undefined): string {
     if (!type) {
         return '';
@@ -195,6 +227,8 @@ export function displayTournamentType(type: TournamentType | null | undefined): 
     if (!type) return '';
 
     switch (type) {
+        case TournamentType.AllTournamentTypes:
+            return 'All Tournament Types';
         case TournamentType.Arena:
             return 'Arena';
         case TournamentType.Swiss:
@@ -204,7 +238,7 @@ export function displayTournamentType(type: TournamentType | null | undefined): 
 
 export function displayTimeControlType(
     type: TimeControlType | null | undefined,
-): '' | 'Blitz' | 'Classical' | 'Rapid' {
+): '' | 'Blitz' | 'Classical' | 'Rapid' | 'All Time Controls' {
     if (!type) return '';
 
     switch (type) {
@@ -214,5 +248,20 @@ export function displayTimeControlType(
             return 'Classical';
         case TimeControlType.Rapid:
             return 'Rapid';
+        case TimeControlType.AllTimeContols:
+            return 'All Time Controls';
+    }
+}
+
+export function displayPositionType(type: PositionType | null | undefined): string {
+    if (!type) return '';
+
+    switch (type) {
+        case PositionType.AllPositions:
+            return 'All Position Types';
+        case PositionType.Standard:
+            return 'Standard';
+        case PositionType.Custom:
+            return 'Custom';
     }
 }
