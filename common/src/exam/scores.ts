@@ -1,8 +1,8 @@
 import { COLOR, Chess, Move } from '@jackstenglein/chess';
 
-const scoreRegex = /^\[(\d+)\]/;
-const alternateSolutionRegex = /^\[ALT\]/;
-const endOfLineRegex = /^\[EOL\]/;
+const scoreRegex = /\[(\d+)\]/;
+const alternateSolutionRegex = /\[ALT\]/;
+const endOfLineRegex = /\[EOL\]/;
 
 /**
  * Gets the exam orientation for the provided Chess instance. The exam
