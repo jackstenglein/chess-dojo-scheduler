@@ -1,21 +1,20 @@
 import axios, { Method } from 'axios';
 import { useCallback, useState } from 'react';
 import { Request, useRequest } from '../Request';
+import { OnlineGameTimeClass } from './onlineGame';
 
-type GamePlayers = Record<
-    'white' | 'black',
-    {
-        user: {
-            name: string;
-            title?: string;
-            patron?: boolean;
-            id: string;
-        };
-        // Datatype of rating appears to be a number, but unsure of edge cases
-        rating?: number;
-        ratingDiff?: number;
-    }
->;
+interface LichessPlayer {
+    user?: {
+        name: string;
+        title?: string;
+        patron?: boolean;
+        id: string;
+    };
+    rating?: number;
+    ratingDiff?: number;
+    aiLevel?: number;
+    provisional?: boolean;
+}
 
 interface Opening {
     eco: string;
@@ -33,12 +32,12 @@ export interface LichessGame {
     id: string;
     rated: boolean;
     variant: string;
-    speed: LichessSpeedType;
+    speed: OnlineGameTimeClass;
     perf: LichessPerfType;
     createdAt: number;
     lastMoveAt: number;
     status: string;
-    players: GamePlayers;
+    players: { white: LichessPlayer; black: LichessPlayer };
     opening: Opening;
     moves: string;
     clock: Clock;
@@ -61,15 +60,6 @@ export enum LichessPerfType {
     KingOfTheHill = 'kingOfTheHill',
     RacingKings = 'racingKings',
     ThreeCheck = 'threeCheck',
-}
-
-export enum LichessSpeedType {
-    UltraBullet = 'ultraBullet',
-    Bullet = 'bullet',
-    Blitz = 'blitz',
-    Rapid = 'rapid',
-    Classical = 'classical',
-    Correspondence = 'correspondence',
 }
 
 export enum LichessVariant {

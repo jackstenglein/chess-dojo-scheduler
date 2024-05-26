@@ -1,7 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { GameResult } from '../../database/game';
 import { GameSubmissionType } from '../gameApi';
-import { ChesscomGame, ChesscomGameResult, useChesscomGames } from './chesscom';
+import {
+    ChesscomGame,
+    ChesscomGameResult,
+    ChesscomTimeClass,
+    useChesscomGames,
+} from './chesscom';
 import { LichessGame, LichessPerfType, useLichessUserGames } from './lichess';
 
 /** A unified interface for online games from any source. */
@@ -41,6 +46,9 @@ export interface OnlineGame {
 
     /** The time control of the game. */
     timeControl: OnlineGameTimeControl;
+
+    /** The speed class of the game. */
+    timeClass: OnlineGameTimeClass;
 }
 
 /** The variant of the OnlineGame. */
@@ -66,6 +74,9 @@ export interface OnlineGamePlayer {
 
     /** The rating of the player on the original source. */
     rating?: number;
+
+    /** Whether the player's rating is provisional. */
+    provisional?: boolean;
 }
 
 export enum OnlineGameResultReason {
@@ -86,6 +97,15 @@ export interface OnlineGameTimeControl {
 
     /** The amount of time gained per move. */
     incrementSeconds: number;
+}
+
+export enum OnlineGameTimeClass {
+    UltraBullet = 'ultraBullet',
+    Bullet = 'bullet',
+    Blitz = 'blitz',
+    Rapid = 'rapid',
+    Classical = 'classical',
+    Correspondence = 'correspondence',
 }
 
 /**
@@ -129,6 +149,7 @@ export function chesscomOnlineGame(
             initialSeconds: parseInt(game.time_control),
             incrementSeconds: parseInt(game.time_control.split('+')[1] || '0'),
         },
+        timeClass: getTimeClass(game.time_class),
     };
 }
 
@@ -174,6 +195,24 @@ function chesscomGameResultReason(reason: ChesscomGameResult): OnlineGameResultR
 }
 
 /**
+ * Convers the given time class to an OnlineGameTimeClass, if it isn't one already.
+ * @param tc The time class to convert.
+ */
+function getTimeClass(tc: ChesscomTimeClass | OnlineGameTimeClass): OnlineGameTimeClass {
+    switch (tc) {
+        case ChesscomTimeClass.Rapid:
+            return OnlineGameTimeClass.Rapid;
+        case ChesscomTimeClass.Blitz:
+            return OnlineGameTimeClass.Blitz;
+        case ChesscomTimeClass.Bullet:
+            return OnlineGameTimeClass.Bullet;
+        case ChesscomTimeClass.Daily:
+            return OnlineGameTimeClass.Correspondence;
+    }
+    return tc;
+}
+
+/**
  * Converts the given LichessGame to an OnlineGame. Games played using variant rules will return null,
  * unless skipVariant is false.
  * @param game The game to convert.
@@ -193,6 +232,7 @@ export function lichessOnlineGame(
     }
 
     const [result, resultReason] = lichessGameResult(game);
+    const { white, black } = game.players;
 
     return {
         source: GameSubmissionType.LichessGame,
@@ -202,14 +242,20 @@ export function lichessOnlineGame(
         rated: game.rated,
         variant: game.variant,
         white: {
-            id: game.players.white.user.id,
-            username: game.players.white.user.name,
-            rating: game.players.white.rating,
+            id: white.user?.id || '',
+            username: white.aiLevel
+                ? `Stockfish Level ${white.aiLevel}`
+                : white.user?.name || 'Unknown Player',
+            rating: white.rating,
+            provisional: white.provisional,
         },
         black: {
-            id: game.players.black.user.id,
-            username: game.players.black.user.name,
-            rating: game.players.black.rating,
+            id: black.user?.id || '',
+            username: black.aiLevel
+                ? `Stockfish Level ${black.aiLevel}`
+                : black.user?.name || 'Unknown Player',
+            rating: black.aiLevel ? 0 : black.rating,
+            provisional: black.provisional,
         },
         result,
         resultReason,
@@ -218,6 +264,7 @@ export function lichessOnlineGame(
             initialSeconds: game.clock.initial,
             incrementSeconds: game.clock.increment,
         },
+        timeClass: game.speed,
     };
 }
 
@@ -309,6 +356,8 @@ export function useOnlineGames(params: UseOnlineGamesParams) {
     }, [chesscom, requestChesscomGames]);
 
     const games = useMemo(() => {
+        console.log('lichessGames: ', lichessGames);
+        console.log('chesscomGames: ', chesscomGames);
         return (lichessGames || [])
             .map((g) => lichessOnlineGame(g))
             .concat(chesscomGames?.map((g) => chesscomOnlineGame(g)) || [])

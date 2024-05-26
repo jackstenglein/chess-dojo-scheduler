@@ -20,6 +20,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import {
     OnlineGame,
     OnlineGameResultReason,
+    OnlineGameTimeClass,
     OnlineGameTimeControl,
     useOnlineGames,
 } from '../../api/external/onlineGame';
@@ -82,11 +83,12 @@ const RecentGameCell = ({
     const timeStr = toDojoTimeString(createdAt, user?.timezoneOverride, user?.timeFormat);
 
     return (
-        <Card>
+        <Card sx={{ height: 1 }}>
             <CardActionArea
                 onClick={() => {
                     onClick(game);
                 }}
+                sx={{ height: 1 }}
             >
                 <CardContent>
                     <Stack
@@ -122,16 +124,19 @@ const RecentGameCell = ({
                                         : undefined
                                 }
                             >
-                                ({game.timeControl.initialSeconds / 60} |{' '}
-                                {game.timeControl.incrementSeconds})
+                                {game.timeClass === OnlineGameTimeClass.Correspondence
+                                    ? 'daily'
+                                    : `${game.timeControl.initialSeconds / 60} | ${game.timeControl.incrementSeconds}`}
                             </Typography>
                         </Stack>
                         <Stack>
                             <RenderPlayers
                                 white={game.white.username}
-                                whiteElo={game.white.rating?.toString()}
+                                whiteElo={game.white.rating}
+                                whiteProvisional={game.white.provisional}
                                 black={game.black.username}
-                                blackElo={game.black.rating?.toString()}
+                                blackElo={game.black.rating}
+                                blackProvisional={game.black.provisional}
                             />
                         </Stack>
                         <Typography variant='body2'>

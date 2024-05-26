@@ -7,9 +7,11 @@ import { GameInfo, GameResult } from '../../database/game';
 
 interface RenderPlayersProps {
     white: string;
-    whiteElo?: string;
+    whiteElo?: string | number;
+    whiteProvisional?: boolean;
     black: string;
-    blackElo?: string;
+    blackElo?: string | number;
+    blackProvisional?: boolean;
 }
 
 export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
@@ -25,10 +27,17 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
     );
 }
 
-export function RenderPlayers({ white, whiteElo, black, blackElo }: RenderPlayersProps) {
+export function RenderPlayers({
+    white,
+    whiteElo,
+    whiteProvisional,
+    black,
+    blackElo,
+    blackProvisional,
+}: RenderPlayersProps) {
     const light = useLightMode();
-    const whiteStr = `${white} (${whiteElo ?? '??'})`;
-    const blackStr = `${black} (${blackElo ?? '??'})`;
+    const whiteStr = getPlayerName(white, whiteElo, whiteProvisional);
+    const blackStr = getPlayerName(black, blackElo, blackProvisional);
 
     return (
         <Stack>
@@ -80,4 +89,22 @@ export function RenderResult(params: GridRenderCellParams) {
             </Typography>
         </Stack>
     );
+}
+
+function getPlayerName(
+    username: string,
+    rating?: string | number,
+    provisional?: boolean,
+): string {
+    let str = `${username}`;
+    if (rating === undefined) {
+        str += ' (??)';
+    } else if (rating) {
+        str += ` (${rating}`;
+        if (provisional) {
+            str += `?`;
+        }
+        str += ')';
+    }
+    return str;
 }

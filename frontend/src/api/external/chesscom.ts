@@ -9,7 +9,7 @@ export interface ChesscomGame {
     end_time: number;
     rated: boolean;
     uuid: string;
-    time_class: string;
+    time_class: ChesscomTimeClass;
     rules: string;
     white: ChesscomGamePlayer;
     black: ChesscomGamePlayer;
@@ -26,6 +26,7 @@ export enum ChesscomTimeClass {
     Rapid = 'rapid',
     Blitz = 'blitz',
     Bullet = 'bullet',
+    Daily = 'daily',
 }
 
 export enum ChesscomGameResult {
