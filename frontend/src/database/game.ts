@@ -4,6 +4,14 @@ export enum GameResult {
     Draw = '1/2-1/2',
 }
 
+/**
+ * Verifies whether the given value is a GameResult.
+ * @param result The result to check.
+ */
+export function isGameResult(result?: any): result is GameResult {
+    return result !== undefined && !!Object.values(GameResult).find((r) => r === result);
+}
+
 export enum GameReviewStatus {
     Pending = 'PENDING',
     None = '',

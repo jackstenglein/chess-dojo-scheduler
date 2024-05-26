@@ -1,7 +1,13 @@
 import axios, { AxiosResponse } from 'axios';
-
+import { DateTime } from 'luxon';
 import { getConfig } from '../config';
-import { Game, GameInfo, GameReviewType, PositionComment } from '../database/game';
+import {
+    Game,
+    GameInfo,
+    GameReviewType,
+    PositionComment,
+    isGameResult,
+} from '../database/game';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -47,7 +53,7 @@ export type GameApiContextType = {
     updateGame: (
         cohort: string,
         id: string,
-        req: CreateGameRequest,
+        req: UpdateGameRequest,
     ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
 
     /**
@@ -193,18 +199,28 @@ export type GameApiContextType = {
 export enum GameSubmissionType {
     LichessChapter = 'lichessChapter',
     LichessStudy = 'lichessStudy',
+    LichessGame = 'lichessGame',
+    ChesscomGame = 'chesscomGame',
+    ChesscomAnalysis = 'chesscomAnalysis',
     Manual = 'manual',
     StartingPosition = 'startingPosition',
+    Fen = 'fen',
 }
 
 export interface CreateGameRequest {
-    type?: GameSubmissionType;
     url?: string;
     pgnText?: string;
-    headers?: GameHeader[];
-    orientation?: string;
-    unlisted?: boolean;
+    type?: GameSubmissionType;
+}
+
+/** The orientation of the board. */
+export type BoardOrientation = 'white' | 'black';
+
+export interface UpdateGameRequest extends CreateGameRequest {
     timelineId?: string;
+    orientation?: BoardOrientation;
+    unlisted?: boolean;
+    headers?: GameHeader;
 }
 
 export interface GameHeader {
@@ -291,7 +307,7 @@ export function updateGame(
     idToken: string,
     cohort: string,
     id: string,
-    req: CreateGameRequest,
+    req: UpdateGameRequest,
 ) {
     cohort = encodeURIComponent(cohort);
     // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded
@@ -580,5 +596,160 @@ export function markReviewed(idToken: string, cohort: string, id: string) {
         `${BASE_URL}/game/review/admin`,
         { cohort, id, reviewed: true },
         { headers: { Authorization: `Bearer ${idToken}` } },
+    );
+}
+
+/**
+ * Returns true if the URL matches the given specification.
+ * @param url The URL to test.
+ * @param hostname The hostname to test against.
+ * @param pathParts A list of regular expressions to test each part of the URL against.
+ * @returns True if the URL matches the hostname and path parts.
+ */
+function urlMatches(
+    url: string,
+    {
+        hostname,
+        pathParts,
+    }: {
+        hostname: string;
+        pathParts: RegExp[];
+    },
+): boolean {
+    let urlObj: URL | null = null;
+    try {
+        urlObj = new URL(url.trim());
+    } catch (error) {
+        return false;
+    }
+
+    if (urlObj.hostname !== hostname) {
+        return false;
+    }
+
+    const parts = urlObj.pathname.split('/').filter((part) => part);
+    if (parts.length !== pathParts.length) {
+        return false;
+    }
+
+    for (const [idx, part] of parts.entries()) {
+        const re = pathParts[idx];
+        if (!re.test(part)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+const matchLichessId = /^(\w{8}|\w{12})$/;
+const matchChesscomId = /^(\w{10,}|\d+)$/;
+
+/**
+ * Returns true if the URL is a Lichess Study URL.
+ * Ex: https://lichess.org/study/JIPuIPVG/
+ * @param url The URL to test.
+ * @returns True if the URL is a Lichess Study URL.
+ */
+export const isLichessStudyURL = (url: string) =>
+    urlMatches(url, {
+        hostname: 'lichess.org',
+        pathParts: [/^study$/, matchLichessId],
+    });
+
+/**
+ * Returns true if the URL is a Lichess Game URL.
+ * Ex: https://lichess.org/mN1qj7pP/black
+ * @param url The URL to test.
+ * @returns True if the URL is a Lichess Game URL.
+ */
+export const isLichessGameURL = (url: string) =>
+    urlMatches(url, {
+        hostname: 'lichess.org',
+        pathParts: [matchLichessId, /^(black|white)$/],
+    }) ||
+    urlMatches(url, {
+        hostname: 'lichess.org',
+        pathParts: [matchLichessId],
+    });
+
+/**
+ * Returns true if the URL is a Lichess Study Chapter URL.
+ * Ex: https://lichess.org/study/y14Z6s3N/fqJZzUm8
+ * @param url The URL to test.
+ * @returns True if the URL is a Lichess Study Chapter URL.
+ */
+export const isLichessChapterURL = (url: string) =>
+    urlMatches(url, {
+        hostname: 'lichess.org',
+        pathParts: [/^study$/, matchLichessId, matchLichessId],
+    });
+
+/**
+ * Returns true if the URL is a Chess.com game URL.
+ * Ex: https://www.chess.com/game/live/107855985867
+ * @param url The URL to test.
+ * @returns True if the URL is a Chess.com game URL.
+ */
+export const isChesscomGameURL = (url: string) =>
+    urlMatches(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^game$/, /^(live|daily)$/, matchChesscomId],
+    });
+
+/**
+ * Returns true if the URL is a Chess.com analysis URL.
+ * Ex: https://www.chess.com/analysis/game/live/108036079387?tab=review
+ * Ex: https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis
+ * @param url The URL to test.
+ * @returns True if the URL is a Chess.com analysis URL.
+ */
+export const isChesscomAnalysisURL = (url: string) =>
+    urlMatches(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^analysis$/, /^game$/, /^(pgn|live)$/, matchChesscomId],
+    }) ||
+    urlMatches(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^analysis$/, /^game$/, matchChesscomId],
+    }) ||
+    urlMatches(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^a$/, matchChesscomId],
+    });
+
+/**
+ * Returns true if the provided date string is a valid PGN date (IE: in the format
+ * 2024.12.31).
+ * @param date The date to test.
+ * @returns True if the date is valid.
+ */
+export function isValidDate(date?: string) {
+    return date && !!DateTime.fromISO(date.replaceAll('.', '-'))?.isValid;
+}
+
+/**
+ * Strips question marks from the given header value. If the header consists only of
+ * question marks, an empty string is returned. Otherwise, the header is returned unchanged.
+ * @param header The header to strip question marks from.
+ * @returns The stripped header value.
+ */
+export function stripTagValue(header: string) {
+    header = header.trim();
+    return header.replaceAll('?', '') === '' ? '' : header;
+}
+
+/**
+ * Returns true if the game has missing or invalid data required to publish.
+ * @param game The game to test.
+ * @returns True if the game has missing or invalid data required to publish.
+ */
+export function isMissingData(game: Game) {
+    const h = game.headers;
+    return (
+        !isGameResult(h.Result) ||
+        stripTagValue(h.White) === '' ||
+        stripTagValue(h.Black) === '' ||
+        !isValidDate(h.Date)
     );
 }

@@ -23,13 +23,14 @@ import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-d
 import { RequestSnackbar } from '../../api/Request';
 import { useFreeTier } from '../../auth/Auth';
 import { GameInfo } from '../../database/game';
+import { RequirementCategory } from '../../database/requirement';
 import Avatar from '../../profile/Avatar';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellPage from '../../upsell/UpsellPage';
-import { RenderPlayers, RenderResult } from './GameListItem';
+import { RenderPlayersCell, RenderResult } from './GameListItem';
 import ListGamesTutorial from './ListGamesTutorial';
 import SearchFilters from './SearchFilters';
 import { usePagination } from './pagination';
@@ -84,11 +85,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'players',
         headerName: 'Players',
-        valueGetter: (params) => ({
-            white: `${params.row.headers.White} (${params.row.headers.WhiteElo ?? '??'})`,
-            black: `${params.row.headers.Black} (${params.row.headers.BlackElo ?? '??'})`,
-        }),
-        renderCell: RenderPlayers,
+        renderCell: RenderPlayersCell,
         flex: 1,
         minWidth: 150,
     },
@@ -187,8 +184,8 @@ const ListGamesPage = () => {
         }
     };
 
-    const onSubmit = () => {
-        navigate('submit');
+    const onImport = () => {
+        navigate('import');
     };
 
     const onDownloadDatabase = () => {
@@ -281,20 +278,20 @@ const ListGamesPage = () => {
                 <Grid item xs={12} md={3} lg={4} pr={2}>
                     <Stack spacing={4}>
                         <Button
-                            data-cy='submit-game-button'
-                            id='submit-game-button'
+                            data-cy='import-game-button'
+                            id='import-game-button'
                             variant='contained'
-                            onClick={onSubmit}
+                            onClick={onImport}
                             color='success'
                             startIcon={
                                 <Icon
-                                    name='upload'
+                                    name={RequirementCategory.Games}
                                     color='inherit'
                                     sx={{ marginRight: '0.3rem' }}
                                 />
                             }
                         >
-                            Upload Game
+                            Analyze a Game
                         </Button>
 
                         <Divider />

@@ -12,6 +12,7 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import { GameInfo } from '../database/game';
+import { RequirementCategory } from '../database/requirement';
 import { User } from '../database/user';
 import { CustomPagination, gameTableColumns } from '../games/list/ListGamesPage';
 import { usePagination } from '../games/list/pagination';
@@ -80,7 +81,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     };
 
     const onSubmit = () => {
-        navigate('/games/submit');
+        navigate('/games/import');
     };
 
     return (
@@ -91,9 +92,9 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                     variant='contained'
                     onClick={onSubmit}
                     color='success'
-                    startIcon={<Icon name='upload' />}
+                    startIcon={<Icon name={RequirementCategory.Games} />}
                 >
-                    Upload Game
+                    Analyze a Game
                 </Button>
             )}
 

@@ -4,26 +4,27 @@ import {
     BatchWriteItemCommand,
     DynamoDBClient,
     GetItemCommand,
-    PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { Chess } from '@jackstenglein/chess';
 import {
     APIGatewayProxyEventV2,
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
-import { Chess } from '@jackstenglein/chess';
-
+import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
+import { getLichessChapter, getLichessGame, getLichessStudy } from './lichess';
 import {
     CreateGameRequest,
     Game,
     GameImportHeaders,
     GameImportType,
     GameOrientation,
+    isValidDate,
+    isValidResult,
 } from './types';
-import { getLichessChapter, getLichessStudy } from './lichess';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const usersTable = process.env.stage + '-users';
@@ -47,41 +48,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const user = await getUser(event);
         const request = getRequest(event);
 
-        let pgnTexts: string[] = [];
-        if (request.type === GameImportType.LichessChapter) {
-            pgnTexts = [await getLichessChapter(request.url)];
-        } else if (request.type === GameImportType.LichessStudy) {
-            pgnTexts = await getLichessStudy(request.url);
-        } else if (request.type === GameImportType.Manual) {
-            if (!request.pgnText) {
-                throw new ApiError({
-                    statusCode: 400,
-                    publicMessage:
-                        'Invalid request: pgnText is required when importing manual entry',
-                });
-            }
-            pgnTexts = [cleanupChessbasePgn(request.pgnText)];
-        } else if (request.type === GameImportType.StartingPosition) {
-            pgnTexts = [''];
-        } else {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: `Invalid request: type ${request.type} not supported`,
-            });
-        }
+        const pgnTexts = await getPgnTexts(request);
         console.log('PGN texts length: ', pgnTexts.length);
 
-        const [games, headers] = getGames(
-            user,
-            pgnTexts,
-            request.headers,
-            request.orientation!,
-            request.unlisted
-        );
-        if (headers.length > 0) {
-            return success({ count: headers.length, headers });
-        }
-
+        const games = getGames(user, pgnTexts);
         if (games.length === 0) {
             throw new ApiError({
                 statusCode: 400,
@@ -91,10 +61,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         const updated = await batchPutGames(games);
         if (games.length === 1) {
-            // TODO: create timeline entry
-            if (games[0].timelineId) {
-                await createTimelineEntry(games[0]);
-            }
             return success(games[0]);
         }
         return success({ count: updated });
@@ -118,7 +84,7 @@ async function getUser(event: APIGatewayProxyEventV2): Promise<Record<string, an
                 username: { S: userInfo.username },
             },
             TableName: usersTable,
-        })
+        }),
     );
     if (!getItemOutput.Item) {
         throw new ApiError({
@@ -159,17 +125,48 @@ function getRequest(event: APIGatewayProxyEventV2): CreateGameRequest {
         });
     }
 
-    if (
-        request.orientation !== GameOrientation.White &&
-        request.orientation !== GameOrientation.Black
-    ) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: orientation must be `white` or `black`',
-        });
+    return request;
+}
+
+/**
+ * Returns a list of PGN texts for the given request.
+ * @param request The request to get the PGN texts for.
+ * @returns A list of PGN texts.
+ */
+export async function getPgnTexts(request: CreateGameRequest): Promise<string[]> {
+    switch (request.type) {
+        case GameImportType.LichessChapter:
+            return [await getLichessChapter(request.url)];
+        case GameImportType.LichessGame:
+            return request.pgnText
+                ? [request.pgnText]
+                : [await getLichessGame(request.url)];
+        case GameImportType.LichessStudy:
+            return await getLichessStudy(request.url);
+        case GameImportType.ChesscomGame:
+            return request.pgnText
+                ? [request.pgnText]
+                : [await getChesscomGame(request.url)];
+        case GameImportType.ChesscomAnalysis:
+            return [await getChesscomAnalysis(request.url)];
+
+        case GameImportType.Manual:
+        case GameImportType.StartingPosition:
+        case GameImportType.Fen:
+            if (request.pgnText === undefined) {
+                throw new ApiError({
+                    statusCode: 400,
+                    publicMessage:
+                        'Invalid request: pgnText is required for this import method',
+                });
+            }
+            return [cleanupChessbasePgn(request.pgnText)];
     }
 
-    return request;
+    throw new ApiError({
+        statusCode: 400,
+        publicMessage: `Invalid request: type ${request.type} not supported`,
+    });
 }
 
 export function cleanupChessbasePgn(pgn: string): string {
@@ -183,49 +180,44 @@ export function cleanupChessbasePgn(pgn: string): string {
     );
 }
 
-function getGames(
-    user: Record<string, any>,
-    pgnTexts: string[],
-    reqHeaders: GameImportHeaders[] | undefined,
-    orientation: GameOrientation,
-    unlisted: boolean | undefined
-): [Game[], GameImportHeaders[]] {
+function getGames(user: Record<string, any>, pgnTexts: string[]): Game[] {
     const games: Game[] = [];
-    const headers: GameImportHeaders[] = [];
-    let missingData = false;
-
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
-
-        const [game, header] = getGame(
-            user,
-            pgnTexts[i],
-            reqHeaders?.[i],
-            orientation,
-            unlisted
-        );
-
-        headers.push(header);
-        if (!game) {
-            missingData = true;
-        } else {
-            games.push(game);
-        }
+        games.push(getGame(user, pgnTexts[i]));
     }
+    return games;
+}
 
-    if (missingData) {
-        return [[], headers];
-    }
-    return [games, []];
+/**
+ * Returns true if the given PGN text has a Variant header containing a value other than
+ * `Standard`.
+ * @param pgnText The PGN to test.
+ * @returns True if the PGN is a variant.
+ */
+export function isFairyChess(pgnText: string) {
+    return (
+        /^\[Variant .*\]$/gim.test(pgnText) &&
+        !/^\[Variant\s+['"]?Standard['"]?\s*\]$/gim.test(pgnText) &&
+        !/^\[Variant\s+['"]?From Position['"]?\s*\]$/gim.test(pgnText)
+    );
 }
 
 export function getGame(
     user: Record<string, any> | undefined,
     pgnText: string,
-    headers: GameImportHeaders | undefined,
-    orientation: GameOrientation,
-    unlisted: boolean | undefined
-): [Game | null, GameImportHeaders] {
+    headers?: GameImportHeaders,
+): Game {
+    // We do not support variants due to current limitations with
+    // @JackStenglein/pgn-parser
+    if (isFairyChess(pgnText)) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Chess variants are not supported',
+            privateMessage: 'Variant header found in PGN text',
+        });
+    }
+
     try {
         const chess = new Chess({ pgn: pgnText });
         if (headers?.white) {
@@ -241,63 +233,40 @@ export function getGame(
             chess.setHeader('Result', headers.result);
         }
 
-        chess.setHeader('White', chess.header().White?.trim() || '');
-        chess.setHeader('Black', chess.header().Black?.trim() || '');
-        chess.setHeader('Date', chess.header().Date?.replaceAll('-', '.') || '');
-        chess.setHeader('Result', chess.header().Result?.replace('*', '').trim() || '');
+        chess.setHeader('White', chess.header().White?.trim() || '?');
+        chess.setHeader('Black', chess.header().Black?.trim() || '??');
+        chess.setHeader('Date', chess.header().Date?.trim().replaceAll('-', '.') || '');
+        chess.setHeader('Result', chess.header().Result?.trim() || '*');
         chess.setHeader('PlyCount', `${chess.plyCount()}`);
 
-        if (
-            !chess.header().White ||
-            !chess.header().Black ||
-            !isValidDate(chess.header().Date) ||
-            !isValidResult(chess.header().Result)
-        ) {
-            return [
-                null,
-                {
-                    white: chess.header().White,
-                    black: chess.header().Black,
-                    date: isValidDate(chess.header().Date) ? chess.header().Date : '',
-                    result: isValidResult(chess.header().Result)
-                        ? chess.header().Result
-                        : '',
-                },
-            ];
+        if (!isValidDate(chess.header().Date)) {
+            chess.setHeader('Date', '');
+        }
+        if (!isValidResult(chess.header().Result)) {
+            chess.setHeader('Result', '*');
         }
 
         const now = new Date();
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
-        const timelineId = unlisted ? '' : `${uploadDate}_${uuidv4()}`;
 
-        return [
-            {
-                cohort: user?.dojoCohort || '',
-                id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
-                white: chess.header().White.toLowerCase(),
-                black: chess.header().Black.toLowerCase(),
-                date: chess.header().Date,
-                createdAt: now.toISOString(),
-                updatedAt: now.toISOString(),
-                ...(unlisted ? {} : { publishedAt: now.toISOString() }),
-                owner: user?.username || '',
-                ownerDisplayName: user?.displayName || '',
-                ownerPreviousCohort: user?.previousCohort || '',
-                headers: chess.header(),
-                pgn: chess.renderPgn(),
-                orientation,
-                comments: [],
-                positionComments: {},
-                unlisted: Boolean(unlisted),
-                timelineId,
-            },
-            {
-                white: chess.header().White,
-                black: chess.header().Black,
-                date: chess.header().Date,
-                result: chess.header().Result,
-            },
-        ];
+        return {
+            cohort: user?.dojoCohort || '',
+            id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
+            white: chess.header().White.toLowerCase(),
+            black: chess.header().Black.toLowerCase(),
+            date: chess.header().Date,
+            createdAt: now.toISOString(),
+            updatedAt: now.toISOString(),
+            owner: user?.username || '',
+            ownerDisplayName: user?.displayName || '',
+            ownerPreviousCohort: user?.previousCohort || '',
+            headers: chess.header(),
+            pgn: chess.renderPgn(),
+            orientation: GameOrientation.White,
+            comments: [],
+            positionComments: {},
+            unlisted: true,
+        };
     } catch (err) {
         throw new ApiError({
             statusCode: 400,
@@ -306,38 +275,6 @@ export function getGame(
             cause: err,
         });
     }
-}
-
-const dateRegex = /^\d{4}\.\d{2}\.\d{2}$/;
-
-function isValidDate(date?: string): boolean {
-    if (!date) {
-        return false;
-    }
-    if (!dateRegex.test(date)) {
-        return false;
-    }
-
-    const d = Date.parse(date.replaceAll('.', '-'));
-    if (isNaN(d)) {
-        return false;
-    }
-
-    const now = new Date();
-    now.setDate(now.getDate() + 2);
-
-    if (d > now.getTime()) {
-        return false;
-    }
-
-    return true;
-}
-
-function isValidResult(result?: string): boolean {
-    if (!result) {
-        return false;
-    }
-    return result === '1-0' || result === '0-1' || result === '1/2-1/2';
 }
 
 async function batchPutGames(games: Game[]): Promise<number> {
@@ -358,7 +295,7 @@ async function batchPutGames(games: Game[]): Promise<number> {
                     [gamesTable]: batch,
                 },
                 ReturnConsumedCapacity: 'NONE',
-            })
+            }),
         );
         if (
             result.UnprocessedItems &&
@@ -375,32 +312,4 @@ async function batchPutGames(games: Game[]): Promise<number> {
     }
 
     return updated;
-}
-
-export async function createTimelineEntry(game: Game) {
-    try {
-        await dynamo.send(
-            new PutItemCommand({
-                Item: marshall({
-                    owner: game.owner,
-                    id: game.timelineId,
-                    ownerDisplayName: game.ownerDisplayName,
-                    requirementId: 'GameSubmission',
-                    requirementName: 'GameSubmission',
-                    scoreboardDisplay: 'HIDDEN',
-                    cohort: game.cohort,
-                    createdAt: game.publishedAt,
-                    gameInfo: {
-                        id: game.id,
-                        headers: game.headers,
-                    },
-                    dojoPoints: 1,
-                    reactions: {},
-                }),
-                TableName: timelineTable,
-            })
-        );
-    } catch (err) {
-        console.error('Failed to create timeline entry: ', err);
-    }
 }

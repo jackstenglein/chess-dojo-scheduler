@@ -44,6 +44,7 @@ import { AdminStatsPage } from './exams/view/AdminStatsPage';
 import ExamPage from './exams/view/ExamPage';
 import EditGamePage from './games/edit/EditGamePage';
 import ExplorerPage from './games/explorer/ExplorerPage';
+import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
@@ -196,7 +197,7 @@ const router = createBrowserRouter(
                     <Route path='group/:availabilityId' element={<GroupMeetingPage />} />
                     <Route path='games'>
                         <Route index element={<ListGamesPage />} />
-                        <Route path='submit' element={<EditGamePage />} />
+                        <Route path='import' element={<ImportGamePage />} />
                         <Route path='explorer' element={<ExplorerPage />} />
                         <Route path=':cohort/:id'>
                             <Route path='edit' element={<EditGamePage />} />

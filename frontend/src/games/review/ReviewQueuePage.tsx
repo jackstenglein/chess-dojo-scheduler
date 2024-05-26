@@ -15,7 +15,7 @@ import { RequestSnackbar } from '../../api/Request';
 import { isValidDate } from '../../calendar/eventEditor/useEventEditor';
 import { GameInfo, GameReviewType } from '../../database/game';
 import Avatar from '../../profile/Avatar';
-import { RenderPlayers, RenderResult } from '../list/GameListItem';
+import { RenderPlayersCell, RenderResult } from '../list/GameListItem';
 import { CustomPagination } from '../list/ListGamesPage';
 import { usePagination } from '../list/pagination';
 
@@ -59,11 +59,7 @@ const columns: GridColDef<GameInfo>[] = [
     {
         field: 'players',
         headerName: 'Players',
-        valueGetter: (params) => ({
-            white: `${params.row.headers.White} (${params.row.headers.WhiteElo ?? '??'})`,
-            black: `${params.row.headers.Black} (${params.row.headers.BlackElo ?? '??'})`,
-        }),
-        renderCell: RenderPlayers,
+        renderCell: RenderPlayersCell,
         flex: 1,
         minWidth: 150,
     },

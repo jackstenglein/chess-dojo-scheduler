@@ -1,70 +1,41 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-
-import { useApi } from '../../api/Api';
-import { CreateGameRequest, GameHeader, isGame } from '../../api/gameApi';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import GameSubmissionForm from './GameSubmissionForm';
-import SubmitGamePreflight from './SubmitGamePreflight';
+import { Box, Container, Stack, Typography } from '@mui/material';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import {
+    CreateGameRequest,
+    GameHeader,
+    UpdateGameRequest,
+    isGame,
+} from '../../api/gameApi';
+import { Game } from '../../database/game';
+import ImportWizard from '../import/ImportWizard';
+import PublishGamePreflight from './PublishGamePreflight';
 
-interface Preflight {
+interface PreflightData {
     req: CreateGameRequest;
-    headers: GameHeader[];
-    function: 'create' | 'edit';
+    headers: GameHeader;
 }
 
 const EditGamePage = () => {
     const api = useApi();
-    const request = useRequest();
+    const request = useRequest<PreflightData>();
     const { cohort, id } = useParams();
     const navigate = useNavigate();
+    const game: Game | undefined = useLocation().state?.game;
 
-    const [preflight, setPreflight] = useState<Preflight>();
-
-    const onCreate = (req: CreateGameRequest) => {
-        request.onStart();
-        api.createGame(req)
-            .then((response) => {
-                if (isGame(response.data)) {
-                    const game = response.data;
-                    trackEvent(EventType.SubmitGame, {
-                        count: 1,
-                        method: req.type,
-                    });
-                    navigate(
-                        `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
-                            '?',
-                            '%3F'
-                        )}`
-                    );
-                } else if (response.data.headers) {
-                    request.onSuccess();
-                    setPreflight({
-                        function: 'create',
-                        req,
-                        headers: response.data.headers,
-                    });
-                } else {
-                    const count = response.data.count;
-                    trackEvent(EventType.SubmitGame, {
-                        count: count,
-                        method: req.type,
-                    });
-                    request.onSuccess(`Created ${count} games`);
-                    navigate('/profile?view=games');
-                }
-            })
-            .catch((err) => {
-                console.error('CreateGame ', err);
-                request.onFailure(err);
-            });
-    };
-
-    const onEdit = (req: CreateGameRequest) => {
-        if (!cohort || !id) {
+    const onEdit = (remoteGame?: CreateGameRequest, headers?: GameHeader) => {
+        if (!cohort || !id || !remoteGame) {
             return;
         }
+
+        const req: UpdateGameRequest = {
+            ...remoteGame,
+            unlisted: game?.unlisted,
+            headers,
+        };
+
         request.onStart();
         api.updateGame(cohort, id, req)
             .then((response) => {
@@ -75,11 +46,9 @@ const EditGamePage = () => {
                     });
                     navigate(`/games/${cohort}/${id}`);
                 } else if (response.data.headers) {
-                    request.onSuccess();
-                    setPreflight({
-                        function: 'edit',
-                        req,
-                        headers: response.data.headers,
+                    request.onSuccess({
+                        req: remoteGame,
+                        headers: response.data.headers[0],
                     });
                 }
             })
@@ -89,44 +58,32 @@ const EditGamePage = () => {
             });
     };
 
-    const onPreflight = (headers: GameHeader[]) => {
-        console.log('Headers: ', headers);
-        if (preflight?.function === 'create') {
-            onCreate({ ...preflight.req, headers });
-        } else if (preflight?.function === 'edit') {
-            onEdit({ ...preflight.req, headers });
-        }
-    };
-
-    const title = cohort && id ? 'Edit Game' : 'Submit Game';
-    const description =
-        cohort && id
-            ? "Overwrite this game's PGN data? Any comments will remain."
-            : undefined;
-    const onSubmit = cohort && id ? onEdit : onCreate;
+    if (!game) {
+        return <Navigate to='..' replace />;
+    }
 
     return (
-        <>
-            <GameSubmissionForm
-                title={title}
-                description={description}
+        <Container maxWidth='md' sx={{ py: 5 }}>
+            <RequestSnackbar request={request} />
+
+            <Stack spacing={2}>
+                <Typography variant='h6'>Replace PGN</Typography>
+                <Typography variant='body1'>
+                    Overwrite this game's PGN data? Any comments will remain.
+                </Typography>
+                <Box sx={{ typography: 'body1' }}>
+                    <ImportWizard onSubmit={onEdit} loading={request.isLoading()} />
+                </Box>
+            </Stack>
+
+            <PublishGamePreflight
+                open={Boolean(request.data)}
+                onClose={request.reset}
+                initHeaders={request.data?.headers}
+                onSubmit={(headers) => onEdit(request.data?.req, headers)}
                 loading={request.isLoading()}
-                isCreating={id === undefined}
-                onSubmit={onSubmit}
             />
-
-            <RequestSnackbar request={request} showSuccess />
-
-            {preflight && (
-                <SubmitGamePreflight
-                    open={true}
-                    onClose={() => setPreflight(undefined)}
-                    initHeaders={preflight.headers}
-                    loading={request.isLoading()}
-                    onSubmit={onPreflight}
-                />
-            )}
-        </>
+        </Container>
     );
 };
 
