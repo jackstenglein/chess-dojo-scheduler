@@ -11,7 +11,6 @@ describe('Event Editor', () => {
         cy.clock(tournamentsClock);
 
         cy.visit('/calendar');
-        cy.getBySel('calendar-filters').contains('Dojo Events').click();
     });
 
     it('shows and hides event editor', () => {

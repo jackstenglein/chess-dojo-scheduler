@@ -1,3 +1,4 @@
+import { getCohortRangeInt } from '../exams/view/exam';
 import { ExamType } from './exam';
 import { CustomTask, RequirementProgress } from './requirement';
 import { ScoreboardSummary } from './scoreboard';
@@ -384,6 +385,16 @@ export function isCohortInRange(cohort: string | undefined, range: string): bool
 }
 
 /**
+ * Returns true if rating is in the provided half-open range [inclusive, exclusive).
+ * @param rating The rating to check.
+ * @param range The range to check. Does not have to be a real cohort (Ex: 1500-2000 or 2000+).
+ */
+export function isRatingInRange(rating: number, range: string): boolean {
+    const [minCohort, maxCohort] = getCohortRangeInt(range);
+    return rating >= minCohort && rating < maxCohort;
+}
+
+/**
  * Returns a list of cohorts within the given cohort range (inclusive).
  * @param minCohort The minimum cohort to include. If not provided, start at 0-300.
  * @param maxCohort The maximum cohort to include. If not provided, end at 2400+.
@@ -399,6 +410,23 @@ export function getCohortRange(
         dojoCohorts.length,
     );
     return dojoCohorts.slice(min, max);
+}
+
+/**
+ * Returns the cohort that the normalized rating fits into.
+ * @param rating The normalized rating to convert to a cohort.
+ * @returns The cohort or undefined if the rating is invalid.
+ */
+export function normalizedRatingToCohort(rating: number): string | undefined {
+    if (rating < 0) {
+        return undefined;
+    }
+    for (const cohort of dojoCohorts) {
+        if (isRatingInRange(rating, cohort)) {
+            return cohort;
+        }
+    }
+    return undefined;
 }
 
 const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {

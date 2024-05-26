@@ -1,12 +1,4 @@
-import {
-    Box,
-    Button,
-    Container,
-    Stack,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from '@mui/material';
+import { Box, Button, Container, Stack, Typography, useTheme } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthStatus, useAuth } from '../auth/Auth';
@@ -21,7 +13,6 @@ const LandingPage = () => {
     const navigate = useNavigate();
     const locationState = useLocation().state;
     const theme = useTheme();
-    const isMd = useMediaQuery(theme.breakpoints.up('md'));
 
     if (auth.status === AuthStatus.Loading) {
         return <LoadingPage />;
@@ -33,7 +24,12 @@ const LandingPage = () => {
 
     return (
         <Container data-cy='landing-page' sx={{ py: 5 }} maxWidth='xl'>
-            <Box sx={{ height: 'calc(100vh - var(--navbar-height) - 200px)' }}>
+            <Box
+                sx={{
+                    height: { md: 'calc(100vh - var(--navbar-height) - 200px)' },
+                    mb: { xs: 4, md: 0 },
+                }}
+            >
                 <Grid2 container rowSpacing={4} columnSpacing={2}>
                     <Grid2 xs={12} md={6} justifyContent='center'>
                         <Stack
@@ -103,18 +99,19 @@ const LandingPage = () => {
                         </Stack>
                     </Grid2>
 
-                    {isMd && (
-                        <Grid2 xs={12} md={6}>
-                            <Stack height={1} justifyContent='center' alignItems='center'>
-                                <img
-                                    alt=''
-                                    src='https://static.wixstatic.com/media/cfd2ae_25636fbb6a6c4d07b3559de681014ec4~mv2.gif'
-                                    width='100%'
-                                    style={{ borderRadius: '6px' }}
-                                />
-                            </Stack>
-                        </Grid2>
-                    )}
+                    <Grid2 xs={12} md={6}>
+                        <Stack height={1} justifyContent='center' alignItems='center'>
+                            <iframe
+                                style={{ width: '100%', aspectRatio: '1.77' }}
+                                src='https://www.youtube.com/embed/7lF9Qwk9NmM?loop=1'
+                                title='YouTube video player'
+                                frameBorder='0'
+                                allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+                                referrerPolicy='strict-origin-when-cross-origin'
+                                allowFullScreen
+                            />
+                        </Stack>
+                    </Grid2>
                 </Grid2>
             </Box>
 

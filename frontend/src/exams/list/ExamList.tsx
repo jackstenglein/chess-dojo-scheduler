@@ -1,6 +1,7 @@
 import { Check, Close, ExpandLess, ExpandMore, Help, Lock } from '@mui/icons-material';
 import {
     Alert,
+    ButtonBase,
     Collapse,
     IconButton,
     Link,
@@ -113,11 +114,17 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                                             : 'Expand Section'
                                     }
                                 >
-                                    <IconButton onClick={() => onChangeExpanded(i)}>
-                                        {expanded[i] ? <ExpandLess /> : <ExpandMore />}
-                                    </IconButton>
+                                    <ButtonBase onClick={() => onChangeExpanded(i)}>
+                                        <IconButton>
+                                            {expanded[i] ? (
+                                                <ExpandLess />
+                                            ) : (
+                                                <ExpandMore />
+                                            )}
+                                        </IconButton>
+                                        <Typography variant='h6'>{range.name}</Typography>
+                                    </ButtonBase>
                                 </Tooltip>
-                                <Typography variant='h6'>{range.name}</Typography>
                             </Stack>
 
                             <Collapse in={expanded[i]}>
@@ -356,7 +363,11 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         }
 
         const i = exams.findIndex((e) => e.id === params.row.id);
-        if (i >= 1 && !Boolean(exams[i - 1].answers[user?.username || ''])) {
+        if (
+            !user?.isAdmin &&
+            i >= 1 &&
+            !Boolean(exams[i - 1].answers[user?.username || ''])
+        ) {
             setSnackbarOpen(true);
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);

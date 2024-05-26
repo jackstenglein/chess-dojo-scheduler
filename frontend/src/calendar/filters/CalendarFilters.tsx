@@ -428,6 +428,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 }))}
                                 displayEmpty='None'
                                 size='small'
+                                data-cy='my-dojo-calendar'
                             />
                         </Stack>
 
@@ -454,6 +455,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 }))}
                                 displayEmpty='None'
                                 size='small'
+                                data-cy='dojoliga-tournaments'
                             />
                         </Stack>
 

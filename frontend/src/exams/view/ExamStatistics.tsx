@@ -1,3 +1,4 @@
+import { Speed } from '@mui/icons-material';
 import { CardContent, Stack, Typography } from '@mui/material';
 import {
     ChartsClipPath,
@@ -20,10 +21,23 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLightMode } from '../../ThemeProvider';
 import { useAuth } from '../../auth/Auth';
 import { Exam } from '../../database/exam';
-import { ALL_COHORTS, cohortColors, compareCohorts } from '../../database/user';
+import {
+    ALL_COHORTS,
+    cohortColors,
+    compareCohorts,
+    isCohortInRange,
+    normalizedRatingToCohort,
+} from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import { getCohortRangeInt, getRegression, getTotalScore } from './exam';
+import {
+    getBestFitCohortRange,
+    getCohortRangeInt,
+    getRegression,
+    getTotalScore,
+} from './exam';
+
+export const BEST_FIT_RANGE = 'BEST_FIT_COHORTS';
 
 interface ExamStatisticsProps {
     /** The exam to display statistics for. */
@@ -35,7 +49,8 @@ interface ExamStatisticsProps {
  * @param param0 The exam to display statistics for.
  */
 const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
-    const [cohorts, setCohorts] = useState([ALL_COHORTS]);
+    const bestFitCohortRange = getBestFitCohortRange(exam.cohortRange);
+    const [cohorts, setCohorts] = useState([bestFitCohortRange]);
     const user = useAuth().user!;
     const isLight = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
@@ -49,19 +64,24 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 return;
             }
 
-            const series = cohortToSeries[answer.cohort] || {
+            const cohort = normalizedRatingToCohort(answer.rating);
+            if (!cohort) {
+                return;
+            }
+
+            const series = cohortToSeries[cohort] || {
                 type: 'scatter',
-                label: answer.cohort.replaceAll('00', ''),
+                label: cohort.replaceAll('00', ''),
                 data: [],
                 highlightScope: {
                     highlighted: 'item',
                     faded: 'global',
                 },
                 valueFormatter: (value) => `Score: ${value?.x}, Rating: ${value?.y}`,
-                color: cohortColors[answer.cohort],
+                color: cohortColors[cohort],
             };
             series.data?.push({ x: answer.score, y: answer.rating, id: username });
-            cohortToSeries[answer.cohort] = series;
+            cohortToSeries[cohort] = series;
         });
 
         return cohortToSeries;
@@ -75,7 +95,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
         }
 
         return Object.entries(cohortToSeries)
-            .filter(([cohort]) => cohorts.includes(cohort))
+            .filter(([cohort]) => cohorts.some((c) => isCohortInRange(cohort, c)))
             .sort((lhs, rhs) => compareCohorts(lhs[0], rhs[0]))
             .map((v) => v[1]);
     }, [cohortToSeries, cohorts]);
@@ -189,20 +209,29 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     selected={cohorts}
                     setSelected={onChangeCohort}
                     options={[
+                        bestFitCohortRange,
                         ALL_COHORTS,
                         ...Object.keys(cohortToSeries).sort(compareCohorts),
                     ].map((opt) => ({
                         value: opt,
-                        label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
-                        icon: (
-                            <CohortIcon
-                                cohort={opt}
-                                size={25}
-                                sx={{ marginRight: '0.6rem' }}
-                                tooltip=''
-                                color='primary'
-                            />
-                        ),
+                        label:
+                            opt === ALL_COHORTS
+                                ? 'All Cohorts'
+                                : opt === bestFitCohortRange
+                                  ? `Best Fit Cohort Range (${bestFitCohortRange})`
+                                  : opt,
+                        icon:
+                            opt === bestFitCohortRange ? (
+                                <Speed sx={{ marginRight: '0.6rem' }} color='primary' />
+                            ) : (
+                                <CohortIcon
+                                    cohort={opt}
+                                    size={25}
+                                    sx={{ marginRight: '0.6rem' }}
+                                    tooltip=''
+                                    color='secondary'
+                                />
+                            ),
                     }))}
                     error={cohorts.length === 0}
                 />
