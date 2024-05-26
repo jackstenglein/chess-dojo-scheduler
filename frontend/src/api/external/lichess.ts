@@ -12,7 +12,7 @@ type GamePlayers = Record<
             id: string;
         };
         // Datatype of rating appears to be a number, but unsure of edge cases
-        rating?: number | string;
+        rating?: number;
         ratingDiff?: number;
     }
 >;
@@ -70,6 +70,10 @@ export enum LichessSpeedType {
     Rapid = 'rapid',
     Classical = 'classical',
     Correspondence = 'correspondence',
+}
+
+export enum LichessVariant {
+    Standard = 'standard',
 }
 
 /**

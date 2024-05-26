@@ -138,11 +138,15 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
         case GameImportType.LichessChapter:
             return [await getLichessChapter(request.url)];
         case GameImportType.LichessGame:
-            return [await getLichessGame(request.url)];
+            return request.pgnText
+                ? [request.pgnText]
+                : [await getLichessGame(request.url)];
         case GameImportType.LichessStudy:
             return await getLichessStudy(request.url);
         case GameImportType.ChesscomGame:
-            return [await getChesscomGame(request.url)];
+            return request.pgnText
+                ? [request.pgnText]
+                : [await getChesscomGame(request.url)];
         case GameImportType.ChesscomAnalysis:
             return [await getChesscomAnalysis(request.url)];
 
@@ -176,10 +180,7 @@ export function cleanupChessbasePgn(pgn: string): string {
     );
 }
 
-function getGames(
-    user: Record<string, any>,
-    pgnTexts: string[],
-): Game[] {
+function getGames(user: Record<string, any>, pgnTexts: string[]): Game[] {
     const games: Game[] = [];
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
@@ -189,7 +190,7 @@ function getGames(
 }
 
 /**
- * Returns true if the given PGN text has a Variant header containing a value other than 
+ * Returns true if the given PGN text has a Variant header containing a value other than
  * `Standard`.
  * @param pgnText The PGN to test.
  * @returns True if the PGN is a variant.
@@ -197,7 +198,8 @@ function getGames(
 export function isFairyChess(pgnText: string) {
     return (
         /^\[Variant .*\]$/gim.test(pgnText) &&
-        !/^\[Variant\s+['"]?Standard['"]?\s*\]$/gim.test(pgnText)
+        !/^\[Variant\s+['"]?Standard['"]?\s*\]$/gim.test(pgnText) &&
+        !/^\[Variant\s+['"]?From Position['"]?\s*\]$/gim.test(pgnText)
     );
 }
 
@@ -248,23 +250,23 @@ export function getGame(
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
 
         return {
-                cohort: user?.dojoCohort || '',
-                id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
-                white: chess.header().White.toLowerCase(),
-                black: chess.header().Black.toLowerCase(),
-                date: chess.header().Date,
-                createdAt: now.toISOString(),
-                updatedAt: now.toISOString(),
-                owner: user?.username || '',
-                ownerDisplayName: user?.displayName || '',
-                ownerPreviousCohort: user?.previousCohort || '',
-                headers: chess.header(),
-                pgn: chess.renderPgn(),
-                orientation: GameOrientation.White,
-                comments: [],
-                positionComments: {},
-                unlisted: true,
-            }
+            cohort: user?.dojoCohort || '',
+            id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
+            white: chess.header().White.toLowerCase(),
+            black: chess.header().Black.toLowerCase(),
+            date: chess.header().Date,
+            createdAt: now.toISOString(),
+            updatedAt: now.toISOString(),
+            owner: user?.username || '',
+            ownerDisplayName: user?.displayName || '',
+            ownerPreviousCohort: user?.previousCohort || '',
+            headers: chess.header(),
+            pgn: chess.renderPgn(),
+            orientation: GameOrientation.White,
+            comments: [],
+            positionComments: {},
+            unlisted: true,
+        };
     } catch (err) {
         throw new ApiError({
             statusCode: 400,

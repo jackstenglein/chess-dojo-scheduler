@@ -7,22 +7,22 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Divider,
+    Link,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
-import { SiLichess } from 'react-icons/si';
-import { Link } from 'react-router-dom';
-import { RequestSnackbar } from '../../api/Request';
+import { SiChessdotcom, SiLichess } from 'react-icons/si';
+import { Link as RouterLink } from 'react-router-dom';
 import {
-    LichessGame,
-    LichessPerfType,
-    getLichessGameResult,
-    getLichessWinner,
-    useLichessUserGames,
-} from '../../api/external/lichess';
+    OnlineGame,
+    OnlineGameResultReason,
+    OnlineGameTimeControl,
+    useOnlineGames,
+} from '../../api/external/onlineGame';
 import {
     GameSubmissionType,
     isChesscomAnalysisURL,
@@ -33,38 +33,53 @@ import {
 } from '../../api/gameApi';
 import { useAuth } from '../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
-import { RatingSystem } from '../../database/user';
+import { RatingSystem, isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import { RenderPlayers } from '../list/GameListItem';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
-import { OrDivider } from './OrDivider';
 
-type RecentGame = LichessGame;
+function timeControlMatches(
+    cohort: string | undefined,
+    timeControl: OnlineGameTimeControl,
+): boolean {
+    if (!cohort) {
+        return false;
+    }
 
-const GameResult = ({ game }: { game: RecentGame }) => {
-    const result = getLichessGameResult(game);
+    const initialMinutes = timeControl.initialSeconds / 60;
+    if (initialMinutes < 30) {
+        return false;
+    }
+    const totalTime = initialMinutes + timeControl.incrementSeconds;
 
-    return <Typography variant='body2'>{result}</Typography>;
-};
+    if (isCohortInRange(cohort, '0-800')) {
+        return totalTime >= 30;
+    }
+    if (isCohortInRange(cohort, '800-1200')) {
+        return totalTime >= 60;
+    }
+    if (isCohortInRange(cohort, '1200-1600')) {
+        return totalTime >= 75;
+    }
+    if (isCohortInRange(cohort, '1600-2000')) {
+        return totalTime >= 90;
+    }
+    return totalTime >= 120;
+}
 
 const RecentGameCell = ({
     game,
     onClick,
 }: {
-    game: RecentGame;
-    onClick: (game: RecentGame) => void;
+    game: OnlineGame;
+    onClick: (game: OnlineGame) => void;
 }) => {
     const { user } = useAuth();
-    const lichessUsername = user?.ratings?.[RatingSystem.Lichess]?.username;
 
-    const createdAt = new Date(game.createdAt);
+    const createdAt = new Date(game.endTime);
     const dateStr = toDojoDateString(createdAt, user?.timezoneOverride);
     const timeStr = toDojoTimeString(createdAt, user?.timezoneOverride, user?.timeFormat);
-
-    const userWon =
-        getLichessWinner(game)?.user.name.toLowerCase() ===
-        lichessUsername?.toLowerCase().trim();
 
     return (
         <Card>
@@ -88,25 +103,42 @@ const RecentGameCell = ({
                             justifyContent='space-between'
                         >
                             <Stack direction='row' alignItems='center' spacing={1}>
-                                <SiLichess color={userWon ? 'orange' : undefined} />
+                                {game.source === GameSubmissionType.LichessGame ? (
+                                    <SiLichess />
+                                ) : (
+                                    <SiChessdotcom />
+                                )}
+
                                 <Typography variant='body2'>
                                     {dateStr} {timeStr}
                                 </Typography>
                             </Stack>
 
-                            <Typography variant='body2'>
-                                ({game.clock.initial / 60} | {game.clock.increment})
+                            <Typography
+                                variant='body2'
+                                color={
+                                    timeControlMatches(user?.dojoCohort, game.timeControl)
+                                        ? 'success.main'
+                                        : undefined
+                                }
+                            >
+                                ({game.timeControl.initialSeconds / 60} |{' '}
+                                {game.timeControl.incrementSeconds})
                             </Typography>
                         </Stack>
                         <Stack>
                             <RenderPlayers
-                                white={game.players.white.user.name}
-                                whiteElo={game.players.white.rating?.toString()}
-                                black={game.players.black.user.name}
-                                blackElo={game.players.black.rating?.toString()}
+                                white={game.white.username}
+                                whiteElo={game.white.rating?.toString()}
+                                black={game.black.username}
+                                blackElo={game.black.rating?.toString()}
                             />
                         </Stack>
-                        <GameResult game={game} />
+                        <Typography variant='body2'>
+                            {game.result}{' '}
+                            {game.resultReason !== OnlineGameResultReason.Unknown &&
+                                `by ${game.resultReason}`}
+                        </Typography>
                     </Stack>
                 </CardContent>
             </CardActionArea>
@@ -118,11 +150,11 @@ const RecentGameGrid = ({
     games,
     onClickGame,
 }: {
-    games: RecentGame[];
-    onClickGame: (game: RecentGame) => void;
+    games: OnlineGame[];
+    onClickGame: (game: OnlineGame) => void;
 }) => {
     return (
-        <Grid2 container spacing={{ xs: 1, sm: 3 }}>
+        <Grid2 container spacing={{ xs: 1, sm: 2 }}>
             {games.map((game) => (
                 <Grid2 xs={12} sm={6} key={game.id}>
                     <RecentGameCell onClick={onClickGame} game={game} />
@@ -136,14 +168,19 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
     const { user } = useAuth();
     const [url, setUrl] = useState('');
     const [error, setError] = useState<string | null>(null);
-    const [lichessGames, requestLichessGames, lichessRequest] = useLichessUserGames();
 
     const lichessUsername = user?.ratings?.[RatingSystem.Lichess]?.username;
+    const chesscomUsername = user?.ratings?.[RatingSystem.Chesscom]?.username;
+
+    const {
+        games,
+        requests: { lichess, chesscom },
+    } = useOnlineGames({ lichess: lichessUsername, chesscom: chesscomUsername });
 
     const handleSubmit = () => {
         if (url.trim() === '') {
             let err = 'URL is required';
-            if (lichessGames !== undefined) {
+            if (games.length > 0) {
                 err += ' or select a game below';
             }
 
@@ -175,20 +212,8 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
         setError('The provided URL is unsupported. Please make sure it is correct.');
     };
 
-    const onClickGame = (game: RecentGame) => {
-        onSubmit({ pgnText: game.pgn, type: GameSubmissionType.Manual });
-    };
-
-    const onLoadLichessGames = () => {
-        if (!lichessUsername) {
-            return;
-        }
-
-        requestLichessGames({
-            username: lichessUsername,
-            max: 20,
-            perfType: [LichessPerfType.Rapid, LichessPerfType.Classical].join(','),
-        });
+    const onClickGame = (game: OnlineGame) => {
+        onSubmit({ pgnText: game.pgn, type: game.source });
     };
 
     return (
@@ -209,52 +234,37 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                         fullWidth
                         sx={{ mt: 0.8 }}
                     />
-                    <OrDivider />
-                    {lichessUsername ? (
-                        <>
-                            {!lichessGames &&
-                                (lichessRequest.isLoading() ? (
+                    <Divider sx={{ color: 'text.secondary', my: 2 }}>
+                        Recent Games
+                    </Divider>
+                    {lichessUsername || chesscomUsername ? (
+                        chesscom.isLoading() || lichess.isLoading() ? (
+                            <LoadingPage />
+                        ) : (
+                            <>
+                                <Backdrop
+                                    open={loading}
+                                    sx={{
+                                        color: '#fff',
+                                        zIndex: (theme) => theme.zIndex.tooltip + 1,
+                                    }}
+                                >
                                     <LoadingPage />
-                                ) : (
-                                    <Button
-                                        onClick={() => {
-                                            onLoadLichessGames();
-                                        }}
-                                    >
-                                        Load Lichess Games
-                                    </Button>
-                                ))}
-                            {lichessGames && (
-                                <>
-                                    <Backdrop
-                                        open={loading}
-                                        sx={{
-                                            color: '#fff',
-                                            zIndex: (theme) => theme.zIndex.tooltip + 1,
-                                        }}
-                                    >
-                                        <LoadingPage />
-                                    </Backdrop>
-                                    <RecentGameGrid
-                                        games={lichessGames}
-                                        onClickGame={onClickGame}
-                                    />
-                                </>
-                            )}
-                        </>
+                                </Backdrop>
+                                <RecentGameGrid games={games} onClickGame={onClickGame} />
+                            </>
+                        )
                     ) : (
                         <Typography variant='body2'>
-                            To list recent games, add your Lichess username to the{' '}
-                            <Link to='/profile/edit#ratings'>Ratings section</Link> of
-                            your profile settings then scroll to the topand save.
+                            To list recent games, add your Chess.com or Lichess username
+                            to your{' '}
+                            <Link component={RouterLink} to='/profile/edit#ratings'>
+                                profile
+                            </Link>
+                            .
                         </Typography>
                     )}
                 </Stack>
-                <RequestSnackbar
-                    showError={true}
-                    showSuccess={false}
-                    request={lichessRequest}
-                />
             </DialogContent>
             <DialogActions>
                 <Button disabled={loading} onClick={onClose}>

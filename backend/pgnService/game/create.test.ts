@@ -6,8 +6,11 @@ import { getGame, isFairyChess } from './create';
 test('isFairyChess does not trigger on standard chess', () => {
     const pgnText =
         '[BlackRatingDiff "+53"]\n[Variant "Standard"]\n[TimeControl "900+15"]';
+    const pgnTextFromPosition =
+        '[BlackRatingDiff "+53"]\n[Variant "From Position"]\n[TimeControl "900+15"]';
 
     assert.isFalse(isFairyChess(pgnText));
+    assert.isFalse(isFairyChess(pgnTextFromPosition));
 });
 
 test('isFairyChess triggers on variants', () => {
