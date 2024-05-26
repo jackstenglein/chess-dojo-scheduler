@@ -211,6 +211,10 @@ interface ExportUserGamesParams {
     sort?: 'dateAsc' | 'dateDesc';
 }
 
+/**
+ * Returns the Lichess player object of the winner, or undefined if there was no winner.
+ * @param game The game to get the winner for.
+ */
 export function getLichessWinner(game: LichessGame) {
     if (game.winner !== 'white' && game.winner !== 'black') {
         return;
@@ -219,6 +223,10 @@ export function getLichessWinner(game: LichessGame) {
     return game.players[game.winner];
 }
 
+/**
+ * Returns a user-facing display string of the game's result.
+ * @param game The game to get the result for.
+ */
 export function getLichessGameResult(game: LichessGame) {
     const { winner, status } = game;
     if (status === 'noStart') {
@@ -254,6 +262,10 @@ export interface LichessExportGamesResponse {
     data: LichessGame[];
 }
 
+/**
+ * A hook to fetch Lichess games.
+ * @returns The list of games, a callback to fetch games and the request object.
+ */
 export function useLichessUserGames(): [
     LichessGame[] | undefined,
     (params: ExportUserGamesParams, force?: boolean) => void,
@@ -317,6 +329,7 @@ function requestLichessNDJson<T, R>({
     data?: T;
 }): Promise<R> {
     return new Promise<R>((resolve, reject) => {
+        // TODO: stream the response?
         axios
             .request<T, { data: string }>({
                 method,
@@ -328,7 +341,7 @@ function requestLichessNDJson<T, R>({
                 },
             })
             .then((resp) => {
-                // Here be dragons - type-safety out the window.
+                // Not type-safe
                 const parsedResp = {
                     data: resp.data
                         .split('\n')
@@ -341,8 +354,13 @@ function requestLichessNDJson<T, R>({
             .catch((err: unknown) => {
                 let message = 'Unknown reason';
 
-                if (err && typeof err === 'object' && 'message' in err) {
-                    message = err.message as string;
+                if (
+                    err &&
+                    typeof err === 'object' &&
+                    'message' in err &&
+                    typeof err.message === 'string'
+                ) {
+                    message = err.message;
                 }
 
                 const helpfulError = new Error(

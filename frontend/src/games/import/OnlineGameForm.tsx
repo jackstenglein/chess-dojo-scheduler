@@ -7,12 +7,15 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Grid,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
+import { SiLichess } from 'react-icons/si';
+import { Link } from 'react-router-dom';
+import { RequestSnackbar } from '../../api/Request';
 import {
     LichessGame,
     LichessPerfType,
@@ -28,16 +31,13 @@ import {
     isLichessGameURL,
     isLichessStudyURL,
 } from '../../api/gameApi';
-import { ImportButton } from './ImportButton';
-import { ImportDialogProps } from './ImportWizard';
-
-import { SiLichess } from 'react-icons/si';
-import { Link } from 'react-router-dom';
-import { RequestSnackbar } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
+import { RatingSystem } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import { RenderPlayers } from '../list/GameListItem';
+import { ImportButton } from './ImportButton';
+import { ImportDialogProps } from './ImportWizard';
 import { OrDivider } from './OrDivider';
 
 type RecentGame = LichessGame;
@@ -55,17 +55,12 @@ const RecentGameCell = ({
     game: RecentGame;
     onClick: (game: RecentGame) => void;
 }) => {
-    const auth = useAuth();
     const { user } = useAuth();
-    const lichessUsername = user?.ratings.LICHESS?.username;
+    const lichessUsername = user?.ratings?.[RatingSystem.Lichess]?.username;
 
     const createdAt = new Date(game.createdAt);
     const dateStr = toDojoDateString(createdAt, user?.timezoneOverride);
-    const timeStr = toDojoTimeString(
-        createdAt,
-        auth.user?.timezoneOverride,
-        auth.user?.timeFormat,
-    );
+    const timeStr = toDojoTimeString(createdAt, user?.timezoneOverride, user?.timeFormat);
 
     const userWon =
         getLichessWinner(game)?.user.name.toLowerCase() ===
@@ -81,7 +76,6 @@ const RecentGameCell = ({
                 <CardContent>
                     <Stack
                         spacing={1.125}
-                        sx={{ borderColor: 'primary.main' }}
                         onClick={() => {
                             onClick(game);
                         }}
@@ -112,7 +106,7 @@ const RecentGameCell = ({
                                 blackElo={game.players.black.rating?.toString()}
                             />
                         </Stack>
-                        <GameResult perspectiveWon={userWon} game={game} />
+                        <GameResult game={game} />
                     </Stack>
                 </CardContent>
             </CardActionArea>
@@ -128,13 +122,13 @@ const RecentGameGrid = ({
     onClickGame: (game: RecentGame) => void;
 }) => {
     return (
-        <Grid container spacing={{ xs: 1, sm: 3 }}>
+        <Grid2 container spacing={{ xs: 1, sm: 3 }}>
             {games.map((game) => (
-                <Grid item xs={12} sm={6} key={game.id}>
+                <Grid2 xs={12} sm={6} key={game.id}>
                     <RecentGameCell onClick={onClickGame} game={game} />
-                </Grid>
+                </Grid2>
             ))}
-        </Grid>
+        </Grid2>
     );
 };
 
@@ -144,7 +138,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
     const [error, setError] = useState<string | null>(null);
     const [lichessGames, requestLichessGames, lichessRequest] = useLichessUserGames();
 
-    const lichessUsername = user?.ratings.LICHESS?.username;
+    const lichessUsername = user?.ratings?.[RatingSystem.Lichess]?.username;
 
     const handleSubmit = () => {
         if (url.trim() === '') {
@@ -263,7 +257,9 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
+                <Button disabled={loading} onClick={onClose}>
+                    Cancel
+                </Button>
                 <ImportButton loading={loading} onClick={handleSubmit} />
             </DialogActions>
         </>
