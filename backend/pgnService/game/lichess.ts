@@ -9,7 +9,10 @@ import { getPathSegment } from './helpers';
  * @returns The PGN of the Lichess game.
  */
 export async function getLichessGame(url?: string): Promise<string> {
-    const gameId = getPathSegment(url, 0);
+    // Lichess has a weird URL format for games, where the players get a special game ID
+    // with extra characters at the end. Fetching this special game ID from the API results
+    // in a 404, whereas truncating to only the first 8 characters will return the game.
+    const gameId = getPathSegment(url, 0).substring(0, 8);
 
     try {
         const exportUrl = `https://lichess.org/game/export/${gameId}?evals=0&clocks=1`;
