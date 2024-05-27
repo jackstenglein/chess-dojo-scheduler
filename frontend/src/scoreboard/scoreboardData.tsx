@@ -7,21 +7,21 @@ import React, { useState } from 'react';
 
 import { Graduation, isGraduation } from '../database/graduation';
 import {
+    Requirement,
+    ScoreboardDisplay,
     getCurrentCount,
     getCurrentScore,
     getTotalScore,
-    Requirement,
-    ScoreboardDisplay,
 } from '../database/requirement';
-import { isScoreboardSummary, ScoreboardSummary } from '../database/scoreboard';
+import { ScoreboardSummary, isScoreboardSummary } from '../database/scoreboard';
 import {
+    MinutesSpentKey,
+    RatingSystem,
+    User,
     formatRatingSystem,
     getCurrentRating as getUserCurrentRating,
     getStartRating as getUserStartRating,
-    MinutesSpentKey,
     normalizeToFide,
-    RatingSystem,
-    User,
 } from '../database/user';
 import RequirementModal from '../requirements/RequirementModal';
 import ScoreboardCheck from './ScoreboardCheck';
@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ requirement, cohort }) => {
     const [showReqModal, setShowReqModal] = useState(false);
 
     const totalCount = requirement.counts[cohort] || 0;
-    let headerName = requirement.name;
+    let headerName = requirement.name.replaceAll('{{count}}', `${totalCount}`);
     if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
         headerName += ` (${totalCount})`;
     }
@@ -50,6 +50,7 @@ const Header: React.FC<HeaderProps> = ({ requirement, cohort }) => {
                 open={showReqModal}
                 onClose={() => setShowReqModal(false)}
                 requirement={requirement}
+                cohort={cohort}
             />
         </>
     );

@@ -172,10 +172,15 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
             break;
     }
 
-    let requirementName = requirement.name;
+    let requirementName = requirement.name.replaceAll('{{count}}', `${totalCount}`);
     if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
         requirementName += ` (${totalCount})`;
     }
+
+    let description = isFreeTier
+        ? requirement.freeDescription || requirement.description
+        : requirement.description;
+    description = description.replaceAll('{{count}}', `${totalCount}`);
 
     if (blocker.isBlocked) {
         UpdateElement = <Lock />;
@@ -225,12 +230,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
 
                         <Typography
                             color='text.secondary'
-                            dangerouslySetInnerHTML={{
-                                __html: isFreeTier
-                                    ? requirement.freeDescription ||
-                                      requirement.description
-                                    : requirement.description,
-                            }}
+                            dangerouslySetInnerHTML={{ __html: description }}
                             sx={{
                                 WebkitLineClamp: 3,
                                 display: '-webkit-box',
@@ -294,6 +294,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                         open={showReqModal}
                         onClose={() => setShowReqModal(false)}
                         requirement={requirement}
+                        cohort={cohort}
                     />
                 )}
             </Stack>

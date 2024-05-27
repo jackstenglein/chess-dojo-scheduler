@@ -126,6 +126,11 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 
 	newScore := requirement.CalculateScore(request.Cohort, progress)
 
+	name := requirement.ShortName
+	if name == "" {
+		name = requirement.Name
+	}
+
 	timelineEntry := &database.TimelineEntry{
 		TimelineEntryKey: database.TimelineEntryKey{
 			Owner: user.Username,
@@ -133,7 +138,7 @@ func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api
 		},
 		OwnerDisplayName:    user.DisplayName,
 		RequirementId:       request.RequirementId,
-		RequirementName:     requirement.Name,
+		RequirementName:     name,
 		RequirementCategory: requirement.Category,
 		ScoreboardDisplay:   requirement.ScoreboardDisplay,
 		ProgressBarSuffix:   requirement.ProgressBarSuffix,

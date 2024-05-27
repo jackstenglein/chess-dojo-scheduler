@@ -54,7 +54,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                         onClick={toggleOpen}
                         sx={{ cursor: 'pointer' }}
                     >
-                        {requirement.name}
+                        {requirement.shortName || requirement.name}
                     </Typography>
                 </Stack>
 
@@ -233,13 +233,13 @@ const sectionData = [
         title: 'Middlegame Sparring',
         selector: (r: Requirement) =>
             r.category === 'Middlegames + Strategy' &&
-            r.name.startsWith('Middlegame Sparring'),
+            r.name.startsWith('Spar Middlegame Position'),
     },
     {
         title: 'Endgame Algorithms',
         stacked: true,
         selector: (r: Requirement) =>
-            r.category === 'Endgame' && r.name.startsWith('Algorithm'),
+            r.category === 'Endgame' && r.name.startsWith('Complete Algorithm'),
     },
     {
         title: 'Endgame Win Conversions',
@@ -249,37 +249,15 @@ const sectionData = [
     {
         title: 'Endgame Sparring',
         selector: (r: Requirement) =>
-            r.category === 'Endgame' && r.name.startsWith('Positional Sparring'),
+            r.category === 'Endgame' && r.name.startsWith('Spar Position'),
     },
     {
         title: 'Rook Endgame Progression',
-        subsections: [
-            {
-                title: 'Match #1',
-                selector: (r: Requirement) =>
-                    r.category === 'Endgame' && r.name === 'REP Match #1',
-            },
-            {
-                title: 'Match #2',
-                selector: (r: Requirement) =>
-                    r.category === 'Endgame' && r.name === 'REP Match #2',
-            },
-            {
-                title: 'Match #3',
-                selector: (r: Requirement) =>
-                    r.category === 'Endgame' && r.name === 'REP Match #3',
-            },
-            {
-                title: 'Match #4',
-                selector: (r: Requirement) =>
-                    r.category === 'Endgame' && r.name === 'REP Match #4',
-            },
-            {
-                title: 'Match #5',
-                selector: (r: Requirement) =>
-                    r.category === 'Endgame' && r.name === 'REP Match #5',
-            },
-        ],
+        subsections: Array.from(Array(12)).map((_, i) => ({
+            title: `Match #${i + 1}`,
+            selector: (r: Requirement) =>
+                r.category === 'Endgame' && r.name === `Win REP Match #${i + 1}`,
+        })),
     },
 ];
 

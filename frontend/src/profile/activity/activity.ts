@@ -244,8 +244,6 @@ function getTimeframeScoreChartData(
     return Object.values(data);
 }
 
-const numberedReqRegex = / #\d+$/;
-
 /**
  * Calculates the Dojo score of a given category for the provided parameters.
  * @param user The user to calculate the dojo score for.
@@ -310,12 +308,7 @@ function getCategoryScoreChartData(
             continue;
         }
 
-        let name = requirement.name;
-        const result = numberedReqRegex.exec(name);
-        if (result) {
-            name = name.substring(0, result.index);
-        }
-
+        const name = requirement.shortName || requirement.name;
         if (data[name]) {
             data[name].value += score;
             data[name].count =
@@ -389,12 +382,7 @@ function getAllTimeCategoryScoreChartData(
             continue;
         }
 
-        let name = requirement.name;
-        const result = numberedReqRegex.exec(name);
-        if (result) {
-            name = name.substring(0, result.index);
-        }
-
+        const name = requirement.shortName || requirement.name;
         if (data[name]) {
             data[name].value += score;
             data[name].count = (data[name].count || 0) + count;
@@ -578,6 +566,15 @@ function getCategoryTimeChartData(
         return getAllTimeCategoryTimeChartData(user, cohorts, category, requirements);
     }
 
+    const requirementMap =
+        requirements.reduce(
+            (map, r) => {
+                map[r.id] = r;
+                return map;
+            },
+            {} as Record<string, Requirement>,
+        ) ?? {};
+
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
 
@@ -595,11 +592,8 @@ function getCategoryTimeChartData(
             break;
         }
 
-        let name = entry.requirementName;
-        const result = numberedReqRegex.exec(name);
-        if (result) {
-            name = name.substring(0, result.index);
-        }
+        const requirement = requirementMap[entry.requirementId];
+        const name = requirement?.shortName || requirement?.name || entry.requirementName;
 
         if (data[name]) {
             data[name].value += entry.minutesSpent;
@@ -647,11 +641,7 @@ function getAllTimeCategoryTimeChartData(
             reqCohorts = Object.keys(progress.minutesSpent);
         }
 
-        let name = requirement.name;
-        const result = numberedReqRegex.exec(name);
-        if (result) {
-            name = name.substring(0, result.index);
-        }
+        const name = requirement.shortName || requirement.name;
 
         for (const cohort of reqCohorts) {
             if (!progress.minutesSpent[cohort]) {

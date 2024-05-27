@@ -52,6 +52,7 @@ export interface Requirement {
     status: RequirementStatus;
     category: RequirementCategory;
     name: string;
+    shortName?: string;
     description: string;
     freeDescription: string;
     counts: {

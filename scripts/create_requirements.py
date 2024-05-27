@@ -145,6 +145,7 @@ def main():
                 'status': 'ACTIVE',
                 'category': row['Category'],
                 'name': row['Requirement Name'],
+                'shortName': row['Requirement Short Name'],
                 'description': row['Description'] if row['Description'] else '',
                 'freeDescription': row['Free Description'] if row['Free Description'] else '',
                 'counts': counts,

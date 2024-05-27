@@ -9,12 +9,12 @@ import { Lock, Loop } from '@mui/icons-material';
 import { useRequirements } from '../api/cache/requirements';
 import {
     CustomTask,
+    Requirement,
+    ScoreboardDisplay,
     getTotalCount,
     getUnitScore,
     isComplete,
     isRequirement,
-    Requirement,
-    ScoreboardDisplay,
 } from '../database/requirement';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import ProgressDialog from '../profile/progress/ProgressDialog';
@@ -170,26 +170,35 @@ const BlockerChips: React.FC<{ requirement: Requirement }> = ({ requirement }) =
 interface RequirementDisplayProps {
     requirement: Requirement | CustomTask;
     onClose?: () => void;
+    cohort?: string;
 }
 
 const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
     requirement,
     onClose,
+    cohort,
 }) => {
     const user = useAuth().user!;
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const isFreeTier = useFreeTier();
 
-    const cohort = useMemo(() => {
+    const selectedCohort = useMemo(() => {
         if (!requirement) {
+            return cohort || user.dojoCohort;
+        }
+
+        const cohortOptions = requirement.counts[ALL_COHORTS]
+            ? dojoCohorts
+            : Object.keys(requirement.counts);
+
+        if (cohort && cohortOptions.includes(cohort)) {
+            return cohort;
+        }
+        if (cohortOptions.includes(user.dojoCohort)) {
             return user.dojoCohort;
         }
-        const cohortOptions = requirement.counts.ALL_COHORTS
-            ? dojoCohorts
-            : Object.keys(requirement.counts).sort(compareCohorts);
-        return cohortOptions.includes(user.dojoCohort)
-            ? user.dojoCohort
-            : cohortOptions[0];
+
+        return cohortOptions.sort(compareCohorts)[0];
     }, [requirement, user.dojoCohort]);
 
     const { requirements } = useRequirements(ALL_COHORTS, false);
@@ -212,7 +221,10 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
         );
         for (const blockerId of requirement.blockers) {
             const blocker = requirementMap[blockerId];
-            if (blocker && !isComplete(cohort, blocker, user.progress[blockerId])) {
+            if (
+                blocker &&
+                !isComplete(selectedCohort, blocker, user.progress[blockerId])
+            ) {
                 return {
                     isBlocked: true,
                     reason: `This task is locked until you complete ${blocker.category} - ${blocker.name}.`,
@@ -220,7 +232,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
             }
         }
         return { isBlocked: false };
-    }, [requirement, requirements, cohort, user]);
+    }, [requirement, requirements, selectedCohort, user]);
 
     if (!isRequirement(requirement)) {
         return <CustomTaskDisplay task={requirement} onClose={onClose} />;
@@ -228,14 +240,21 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
 
     const progress = user.progress[requirement.id];
 
-    const totalCount = requirement.counts[cohort] || requirement.counts[ALL_COHORTS];
-    const currentCount = progress?.counts[cohort] || progress?.counts[ALL_COHORTS] || 0;
+    const totalCount =
+        requirement.counts[selectedCohort] || requirement.counts[ALL_COHORTS];
+    const currentCount =
+        progress?.counts[selectedCohort] || progress?.counts[ALL_COHORTS] || 0;
     const isCompleted = currentCount >= totalCount;
 
-    let requirementName = requirement.name;
+    let requirementName = requirement.name.replaceAll('{{count}}', `${totalCount}`);
     if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
         requirementName += ` (${totalCount})`;
     }
+
+    let description = isFreeTier
+        ? requirement.freeDescription || requirement.description
+        : requirement.description;
+    description = description.replaceAll('{{count}}', `${totalCount}`);
 
     return (
         <>
@@ -277,7 +296,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                 </Stack>
 
                 <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
-                    <DojoPointChip requirement={requirement} cohort={cohort} />
+                    <DojoPointChip requirement={requirement} cohort={selectedCohort} />
                     <ExpirationChip requirement={requirement} />
                     <RepeatChip requirement={requirement} />
                     {requirement.blockers && <BlockerChips requirement={requirement} />}
@@ -286,11 +305,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                 <Typography
                     variant='body1'
                     sx={{ whiteSpace: 'pre-line', mt: 3 }}
-                    dangerouslySetInnerHTML={{
-                        __html: isFreeTier
-                            ? requirement.freeDescription || requirement.description
-                            : requirement.description,
-                    }}
+                    dangerouslySetInnerHTML={{ __html: description }}
                 />
 
                 {requirement.positions && (
@@ -322,7 +337,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                 open={showUpdateDialog}
                 onClose={() => setShowUpdateDialog(false)}
                 requirement={requirement}
-                cohort={user.dojoCohort}
+                cohort={selectedCohort}
                 progress={progress}
                 selectCohort
             />

@@ -1,13 +1,14 @@
+import { Dialog, DialogContent, DialogTitle, MenuItem, TextField } from '@mui/material';
 import { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, TextField, MenuItem } from '@mui/material';
 
+import { useAuth } from '../../auth/Auth';
 import {
     CustomTask,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
 } from '../../database/requirement';
-import { compareCohorts, dojoCohorts } from '../../database/user';
+import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../../database/user';
 import ProgressHistory from './ProgressHistory';
 import ProgressUpdater from './ProgressUpdater';
 
@@ -33,18 +34,26 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
     cohort,
     selectCohort,
 }) => {
+    const { user } = useAuth();
     const [view, setView] = useState<ProgressDialogView>(ProgressDialogView.Updater);
 
-    const cohortOptions = requirement.counts.ALL_COHORTS
+    const cohortOptions = requirement.counts[ALL_COHORTS]
         ? dojoCohorts
         : Object.keys(requirement.counts).sort(compareCohorts);
-    const initialCohort = cohortOptions.includes(cohort) ? cohort : cohortOptions[0];
+
+    let initialCohort = cohortOptions[0];
+    if (cohort && cohortOptions.includes(cohort)) {
+        initialCohort = cohort;
+    } else if (user?.dojoCohort && cohortOptions.includes(user.dojoCohort)) {
+        initialCohort = user.dojoCohort;
+    }
+
     const [selectedCohort, setSelectedCohort] = useState(initialCohort);
 
     const totalCount = requirement.counts[selectedCohort] || 0;
     const isNonDojo = requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo;
 
-    let requirementName = requirement.name;
+    let requirementName = requirement.name.replaceAll('{{count}}', `${totalCount}`);
     if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
         requirementName += ` (${totalCount})`;
     }
