@@ -22,7 +22,7 @@ const items: BlogItem[] = [
         href: '/blog/dojo-talks-lose-mind',
         image: {
             src: talksLoseMind,
-            alt: 'Thumbnail',
+            alt: '',
         },
     },
     {
