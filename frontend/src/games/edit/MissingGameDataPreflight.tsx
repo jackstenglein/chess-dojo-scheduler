@@ -15,7 +15,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { GameHeader, stripTagValue } from '../../api/gameApi';
-import { GameResult, isGameResult } from '../../database/game';
+import { GameResult, PgnHeaders, isGameResult } from '../../database/game';
 
 interface FormHeader {
     white: string;
@@ -24,13 +24,16 @@ interface FormHeader {
     result: string;
 }
 
-function getFormHeader(h?: GameHeader): FormHeader {
-    let date = null;
-    if (h?.date) {
-        date = DateTime.fromISO(h.date.replaceAll('.', '-'));
+function getFormHeader(h?: PgnHeaders): FormHeader {
+    let dateTag = h?.Date;
+    let date: DateTime | null = null;
+    if (dateTag) {
+        date = DateTime.fromISO(dateTag.replaceAll('.', '-'));
         if (!date.isValid) {
             date = null;
         }
+    } else {
+        date = DateTime.now();
     }
 
     let result = h?.result;
@@ -41,18 +44,20 @@ function getFormHeader(h?: GameHeader): FormHeader {
     return {
         date,
         result,
-        white: stripTagValue(h?.white || ''),
-        black: stripTagValue(h?.black || ''),
+        white: stripTagValue(h?.White || ''),
+        black: stripTagValue(h?.Black || ''),
     };
 }
 
 export function getGameHeaders(h: FormHeader): GameHeader {
-    let date = h.date!.toUTC().toISO()!;
-    date = date.substring(0, date.indexOf('T'));
-    date = date.replaceAll('-', '.');
+    let date = h.date?.toUTC().toISO() ?? '';
+    if (date) {
+        date = date.substring(0, date.indexOf('T'));
+        date = date.replaceAll('-', '.');
+    }
 
     return {
-        date: date,
+        date,
         white: h.white,
         black: h.black,
         result: h.result,
@@ -69,7 +74,7 @@ interface FormError {
 interface MissingGameDataPreflightProps {
     open: boolean;
     onClose: () => void;
-    initHeaders?: GameHeader;
+    initHeaders?: PgnHeaders;
     loading: boolean;
     title?: string;
     skippable?: boolean;
@@ -149,7 +154,7 @@ export const MissingGameDataPreflight = ({
                             <TextField
                                 fullWidth
                                 data-cy='white'
-                                label='White'
+                                label="White's name"
                                 value={headers.white}
                                 onChange={(e) => onChangeHeader('white', e.target.value)}
                                 error={!!errors.white}
@@ -161,7 +166,7 @@ export const MissingGameDataPreflight = ({
                             <TextField
                                 fullWidth
                                 data-cy='black'
-                                label='Black'
+                                label="Black's name"
                                 value={headers.black}
                                 onChange={(e) => onChangeHeader('black', e.target.value)}
                                 error={!!errors.black}
@@ -173,7 +178,7 @@ export const MissingGameDataPreflight = ({
                             <TextField
                                 select
                                 data-cy='result'
-                                label='Result'
+                                label='Game Result'
                                 value={headers.result}
                                 onChange={(e) => onChangeHeader('result', e.target.value)}
                                 error={!!errors.result}
@@ -201,6 +206,9 @@ export const MissingGameDataPreflight = ({
                                         helperText: errors.date,
                                         fullWidth: true,
                                     },
+                                    field: {
+                                        clearable: true,
+                                    },
                                 }}
                             />
                         </Grid2>
@@ -209,7 +217,7 @@ export const MissingGameDataPreflight = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} disabled={loading}>
-                    Cancel
+                    {skippable ? 'Skip for now' : 'Cancel'}
                 </Button>
                 <LoadingButton
                     data-cy='submit-preflight'

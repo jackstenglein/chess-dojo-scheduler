@@ -25,7 +25,7 @@ const ImportGamePage = () => {
                         `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
                             '?',
                             '%3F',
-                        )}`,
+                        )}?firstLoad=true`,
                     );
                 } else {
                     const count = response.data.count;

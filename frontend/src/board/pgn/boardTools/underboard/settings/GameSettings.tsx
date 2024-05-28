@@ -143,12 +143,6 @@ const SaveGameButton = ({
 
     const isPublishing = game.unlisted && visibility == 'public';
     const needsPreflight = isPublishing && isMissingData(game);
-    const initHeaders: GameHeader = {
-        white: game.headers.White,
-        black: game.headers.Black,
-        result: game.headers.Result,
-        date: game.headers.Date,
-    };
 
     const saveDisabled =
         (visibility === 'unlisted') === game.unlisted && orientation === game.orientation;
@@ -213,7 +207,7 @@ const SaveGameButton = ({
             <PublishGamePreflight
                 open={showPreflight}
                 onClose={onClosePreflight}
-                initHeaders={initHeaders}
+                initHeaders={game.headers}
                 onSubmit={onSave}
                 loading={loading}
             />
