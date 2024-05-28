@@ -1,6 +1,7 @@
 import { StaticImageData } from 'next/image';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import tacticsTestImage from './tactics-test/image.png';
+import talksLoseMind from './dojo-talks-lose-mind/losemind.webp'
 
 export interface BlogItem {
     title: string;
@@ -14,6 +15,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Do World Champions Lose Their Minds? | Dojo Talks',
+        subtitle: 'Jesse, Kostya, and David • May 17, 2024',
+        body: `On today's episode of Dojo Talks, the ChessDojo podcast, GM Jesse Kraai, IM Kostya Kavutskiy, and IM David Pruess talk about the impact of the FIDE World Chess Championship circuit on mental health and the sanity of those who endure it.`,
+        href: '/blog/dojo-talks-lose-mind',
+        image: {
+            src: talksLoseMind,
+            alt: 'Thumbnail',
+        },
+    },
     {
         title: 'Introducing Dojo Tactics Tests – A New Way to Assess Your Skills',
         subtitle: 'Kostya Kavutskiy • May 15, 2024',
