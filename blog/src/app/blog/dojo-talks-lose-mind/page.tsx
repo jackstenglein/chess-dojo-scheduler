@@ -7,7 +7,7 @@ import sampleProblemImage from './losemind.webp';
 export const metadata: Metadata = {
     title: 'Do World Champions Lose Their Minds? | Dojo Talks',
     description:
-        'DojoTalks',
+        'GM Jesse Kraai, IM Kostya Kavutskiy, and IM David Pruess talk about the impact of the FIDE World Chess Championship circuit on mental health and the sanity of those who endure it.',
 };
 
 export default function LoseMind() {
