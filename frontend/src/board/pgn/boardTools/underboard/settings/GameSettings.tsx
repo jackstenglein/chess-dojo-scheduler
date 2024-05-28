@@ -25,7 +25,7 @@ import {
 } from '../../../../../api/gameApi';
 import { useFreeTier } from '../../../../../auth/Auth';
 import { Game } from '../../../../../database/game';
-import PublishGamePreflight from '../../../../../games/edit/PublishGamePreflight';
+import { PublishGamePreflight } from '../../../../../games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';

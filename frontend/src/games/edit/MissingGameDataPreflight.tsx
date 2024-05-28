@@ -66,23 +66,46 @@ interface FormError {
     result: string;
 }
 
-interface PublishGamePreflightProps {
+interface MissingGameDataPreflightProps {
     open: boolean;
     onClose: () => void;
     initHeaders?: GameHeader;
     loading: boolean;
+    title?: string;
+    skippable?: boolean;
+    children?: React.ReactNode;
     onSubmit: (headers: GameHeader) => void;
 }
 
-const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
+type PublishGamePreflightProps = Omit<MissingGameDataPreflightProps, 'children'>;
+
+export const PublishGamePreflight: React.FC<MissingGameDataPreflightProps> = (
+    props: PublishGamePreflightProps,
+) => (
+    <MissingGameDataPreflight {...props}>
+        Your game is missing data. Please fill out these fields to publish your analysis.
+    </MissingGameDataPreflight>
+);
+export const MissingGameDataPreflight = ({
     open,
     onClose,
     initHeaders,
     loading,
+    skippable,
+    title,
+    children,
     onSubmit,
-}) => {
+}: MissingGameDataPreflightProps) => {
     const [headers, setHeaders] = useState<FormHeader>(getFormHeader(initHeaders));
     const [errors, setErrors] = useState<Partial<FormError>>({});
+
+    if (skippable === undefined) {
+        skippable = false;
+    }
+
+    if (title === undefined) {
+        title = 'Missing Data';
+    }
 
     const onChangeHeader = (key: keyof GameHeader, value: string | DateTime | null) => {
         setHeaders((oldHeaders) => ({ ...oldHeaders, [key]: value }));
@@ -91,17 +114,19 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
     const submit = () => {
         const newErrors: Partial<FormError> = {};
 
-        if (stripTagValue(headers.white) === '') {
-            newErrors.white = 'This field is required';
-        }
-        if (stripTagValue(headers.black) === '') {
-            newErrors.black = 'This field is required';
-        }
-        if (!isGameResult(headers.result)) {
-            newErrors.result = 'This field is required';
-        }
-        if (headers.date === null || !headers.date.isValid) {
-            newErrors.date = 'This field is required';
+        if (!skippable) {
+            if (stripTagValue(headers.white) === '') {
+                newErrors.white = 'This field is required';
+            }
+            if (stripTagValue(headers.black) === '') {
+                newErrors.black = 'This field is required';
+            }
+            if (!isGameResult(headers.result)) {
+                newErrors.result = 'This field is required';
+            }
+            if (headers.date === null || !headers.date.isValid) {
+                newErrors.date = 'This field is required';
+            }
         }
 
         setErrors(newErrors);
@@ -114,12 +139,9 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
 
     return (
         <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
-            <DialogTitle>Missing Data</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <DialogContentText>
-                    Your game is missing data. Please fill out these fields to publish
-                    your analysis.
-                </DialogContentText>
+                {children && <DialogContentText>{children}</DialogContentText>}
 
                 <Stack spacing={3} mt={3}>
                     <Grid2 container columnSpacing={1} rowSpacing={2}>
@@ -200,5 +222,3 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
         </Dialog>
     );
 };
-
-export default PublishGamePreflight;
