@@ -11,7 +11,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-var roleIds = map[database.DojoCohort]string{
+var RoleIds = map[database.DojoCohort]string{
 	"0-300":     "1107651005547548742",
 	"300-400":   "951960545077100645",
 	"400-500":   "951995036487254026",
@@ -49,7 +49,7 @@ func SendBookingNotification(username string, meetingId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it [here](%s/meeting/%s).", frontendHost, meetingId)
+	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it [here](<%s/meeting/%s>).", frontendHost, meetingId)
 	return SendNotification(user, msg)
 }
 
@@ -65,7 +65,7 @@ func SendGroupJoinNotification(username string, availabilityId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it [here](%s/meeting/%s)", frontendHost, availabilityId)
+	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it [here](<%s/meeting/%s>)", frontendHost, availabilityId)
 	return SendNotification(user, msg)
 }
 
@@ -117,7 +117,7 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 
 	var sb strings.Builder
 
-	discordId, err := getDiscordIdByCognitoUsername(discord, event.Owner)
+	discordId, err := GetDiscordIdByCognitoUsername(discord, event.Owner)
 	if err != nil {
 		log.Errorf("Failed to get discordId: %v", err)
 		sb.WriteString(fmt.Sprintf("Availability posted by %s", event.OwnerDisplayName))
@@ -144,7 +144,7 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 	}
 
 	sb.WriteString(fmt.Sprintf("\nCurrent Participants: %d/%d", len(event.Participants), event.MaxParticipants))
-	sb.WriteString(fmt.Sprintf("\n[Click to Book](%s/calendar/availability/%s)", frontendHost, event.Id))
+	sb.WriteString(fmt.Sprintf("\n[Click to Book](<%s/calendar/availability/%s>)", frontendHost, event.Id))
 
 	if event.DiscordMessageId == "" {
 		msg, err := discord.ChannelMessageSend(findGameChannelId, sb.String())
@@ -185,7 +185,7 @@ func SendCoachingNotification(event *database.Event) (string, error) {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("## %s", event.Title))
 
-	discordId, err := getDiscordIdByCognitoUsername(discord, event.Owner)
+	discordId, err := GetDiscordIdByCognitoUsername(discord, event.Owner)
 	if err != nil {
 		log.Errorf("Failed to get discordId: %v", err)
 		sb.WriteString(fmt.Sprintf("\n**Coach:** %s", event.OwnerDisplayName))
@@ -205,7 +205,7 @@ func SendCoachingNotification(event *database.Event) (string, error) {
 
 	sb.WriteString("\n**Cohorts:** ")
 	for i, c := range event.Cohorts {
-		roleId := roleIds[c]
+		roleId := RoleIds[c]
 		if roleId == "" {
 			sb.WriteString(string(c))
 		} else {
@@ -217,7 +217,7 @@ func SendCoachingNotification(event *database.Event) (string, error) {
 	}
 
 	sb.WriteString(fmt.Sprintf("\n**Current Participants:** %d/%d", len(event.Participants), event.MaxParticipants))
-	sb.WriteString(fmt.Sprintf("\n[Click to Book](%s/calendar/availability/%s)", frontendHost, event.Id))
+	sb.WriteString(fmt.Sprintf("\n[Click to Book](<%s/calendar/availability/%s>)", frontendHost, event.Id))
 
 	if event.DiscordMessageId == "" {
 		msg, err := discord.ChannelMessageSend(coachingChannelId, sb.String())
@@ -310,4 +310,17 @@ func SendNotification(user *database.User, message string) error {
 
 	_, err = discord.ChannelMessageSend(channel.ID, message)
 	return errors.Wrap(500, "Temporary server error", "Failed to send discord message", err)
+}
+
+func SendMessageInChannel(message string, channelId string) (string, error) {
+	discord, err := discordgo.New("Bot " + authToken)
+	if err != nil {
+		return "", errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+	}
+
+	msg, err := discord.ChannelMessageSend(channelId, message)
+	if err != nil {
+		return "", errors.Wrap(500, "Temporary server error", "Failed to send discord channel message", err)
+	}
+	return msg.ID, nil
 }
