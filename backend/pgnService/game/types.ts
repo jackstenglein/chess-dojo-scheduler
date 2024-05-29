@@ -93,9 +93,6 @@ export interface UpdateGameRequest extends CreateGameRequest {
     /** Whether the Game is unlisted. */
     unlisted?: boolean;
 
-    /** Whether to attempt to publish this game */
-    publish?: boolean;
-
     /** The import headers of the Game. */
     headers?: GameImportHeaders;
 
