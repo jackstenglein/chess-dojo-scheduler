@@ -69,7 +69,7 @@ func handler(ctx context.Context, event Event) (Event, error) {
 
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("## Congrats to this week's %s Grads!\n", event.ID))
-	sb.WriteString(fmt.Sprintf("Join us on [Twitch](<https://twitch.tv/chessdojo>) at <t:%d:t> today when we go over your profiles and games!", twitchTime.Unix()))
+	sb.WriteString(fmt.Sprintf("Join us on [Twitch](<https://twitch.tv/chessdojo>) at <t:%d:t> today when we go over your profiles and games!\n", twitchTime.Unix()))
 
 	hasGrads := false
 	for _, cohort := range cohorts {
@@ -79,7 +79,7 @@ func handler(ctx context.Context, event Event) (Event, error) {
 		}
 
 		hasGrads = true
-		sb.WriteString(fmt.Sprintf("\n\n<@&%s>", discord.RoleIds[cohort]))
+		sb.WriteString(fmt.Sprintf("\n<@&%s>", discord.RoleIds[cohort]))
 		for _, grad := range cohortGrads {
 			discordId, err := discord.GetDiscordIdByCognitoUsername(nil, grad.Username)
 			if err != nil {
@@ -91,7 +91,18 @@ func handler(ctx context.Context, event Event) (Event, error) {
 				sb.WriteString(fmt.Sprintf("\n<@%s>", discordId))
 			}
 
-			sb.WriteString(fmt.Sprintf(" – [View Profile](<%s/profile/%s>)", frontendHost, grad.Username))
+			sb.WriteString(fmt.Sprintf(" – [View Profile](<%s/profile/%s>)\n", frontendHost, grad.Username))
+		}
+
+		if sb.Len() >= 1000 {
+			log.Infof("Sending message to ID %s: %s", achievementsChannelId, sb.String())
+			_, err = discord.SendMessageInChannel(sb.String(), achievementsChannelId)
+			if err != nil {
+				log.Errorf("Failed to post message in Discord: %v", err)
+				return event, err
+			}
+			sb.Reset()
+			sb.WriteString("_ _\n")
 		}
 	}
 
