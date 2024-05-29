@@ -25,10 +25,7 @@ interface FormHeader {
 }
 
 function getFormHeader(h?: PgnHeaders): FormHeader {
-    let result = h?.Result ?? '';
-    if (!isGameResult(result)) {
-        result = '';
-    }
+    const result = h?.Result ?? '';
 
     return {
         result,
