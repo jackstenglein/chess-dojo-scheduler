@@ -200,7 +200,7 @@ export const MissingGameDataPreflight = ({
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} disabled={loading}>
+                <Button data-cy='cancel-preflight' onClick={onClose} disabled={loading}>
                     {skippable ? 'Skip for now' : 'Cancel'}
                 </Button>
                 <LoadingButton

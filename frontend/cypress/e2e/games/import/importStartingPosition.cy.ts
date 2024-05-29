@@ -14,6 +14,7 @@ describe('Import Games Page - Position', () => {
         cy.getBySel('import-starting-position').click();
 
         cy.location('pathname').should('match', gameUrlRegex);
+        cy.getBySel('cancel-preflight').click();
 
         deleteCurrentGame();
     });

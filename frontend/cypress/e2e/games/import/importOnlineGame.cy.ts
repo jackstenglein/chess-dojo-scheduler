@@ -81,6 +81,8 @@ describe('Import Games Page - Import Online Games', () => {
 
     it('submits from a Lichess chapter URL with missing headers successfully', () => {
         importUrl(testUrls.lichessChapterMissingData);
+        cy.getBySel('cancel-preflight').click();
+
         verifyGame({
             lastMove: 'd4',
         });

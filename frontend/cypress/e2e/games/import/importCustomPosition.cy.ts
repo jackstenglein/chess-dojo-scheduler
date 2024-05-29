@@ -15,6 +15,7 @@ describe('Import Games Page - Custom Position', () => {
         clickImport();
 
         cy.location('pathname').should('match', gameUrlRegex);
+        cy.getBySel('cancel-preflight').click();
 
         deleteCurrentGame();
     });
@@ -26,6 +27,8 @@ describe('Import Games Page - Custom Position', () => {
         clickImport();
 
         cy.location('pathname').should('match', gameUrlRegex);
+        cy.getBySel('cancel-preflight').click();
+
         cy.getBySel('tags').click();
         cy.contains(fen);
 
