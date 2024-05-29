@@ -11,6 +11,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../../../../analytics/events';
@@ -23,6 +24,8 @@ import {
     UpdateGameRequest,
     isGame,
     isMissingData,
+    parsePgnDate,
+    toPgnDate,
 } from '../../../../../api/gameApi';
 import { useFreeTier } from '../../../../../auth/Auth';
 import { Game, PgnHeaders } from '../../../../../database/game';
@@ -140,6 +143,28 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                         onChange={(e) => onChangeHeader('Black', e.target.value)}
                     />
                 </Stack>
+
+                <FormControl>
+                    <Stack spacing={2}>
+                        <FormLabel>Date Played</FormLabel>
+                        <DatePicker
+                            label='Date'
+                            value={parsePgnDate(headers.Date)}
+                            onChange={(newValue) => {
+                                onChangeHeader('Date', toPgnDate(newValue) ?? '');
+                            }}
+                            slotProps={{
+                                textField: {
+                                    id: 'date',
+                                    fullWidth: true,
+                                },
+                                field: {
+                                    clearable: true,
+                                },
+                            }}
+                        />
+                    </Stack>
+                </FormControl>
             </Stack>
 
             <Stack spacing={2}>

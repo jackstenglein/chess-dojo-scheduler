@@ -14,7 +14,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
-import { GameHeader, stripTagValue } from '../../api/gameApi';
+import { GameHeader, parsePgnDate, stripTagValue, toPgnDate } from '../../api/gameApi';
 import { GameResult, PgnHeaders, isGameResult } from '../../database/game';
 
 interface FormHeader {
@@ -25,37 +25,22 @@ interface FormHeader {
 }
 
 function getFormHeader(h?: PgnHeaders): FormHeader {
-    const dateTag = h?.Date;
-    let date: DateTime | null = null;
-    if (dateTag) {
-        date = DateTime.fromISO(dateTag.replaceAll('.', '-'));
-        if (!date.isValid) {
-            date = null;
-        }
-    }
-
-    let result = h?.result;
+    let result = h?.Result ?? '';
     if (!isGameResult(result)) {
         result = '';
     }
 
     return {
-        date,
         result,
+        date: parsePgnDate(h?.Date),
         white: stripTagValue(h?.White || ''),
         black: stripTagValue(h?.Black || ''),
     };
 }
 
 export function getGameHeaders(h: FormHeader): GameHeader {
-    let date = h.date?.toUTC().toISO() ?? '';
-    if (date) {
-        date = date.substring(0, date.indexOf('T'));
-        date = date.replaceAll('-', '.');
-    }
-
     return {
-        date,
+        date: toPgnDate(h.date) ?? '',
         white: h.white,
         black: h.black,
         result: h.result,
