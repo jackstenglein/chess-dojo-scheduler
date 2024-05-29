@@ -32,6 +32,24 @@ var wednesdayCohorts = []database.DojoCohort{
 	"800-900",
 }
 
+var thursdayCohorts = []database.DojoCohort{
+	"900-1000",
+	"1000-1100",
+	"1100-1200",
+	"1200-1300",
+	"1300-1400",
+	"1400-1500",
+	"1500-1600",
+	"1600-1700",
+	"1700-1800",
+	"1800-1900",
+	"1900-2000",
+	"2000-2100",
+	"2100-2200",
+	"2200-2300",
+	"2300-2400",
+}
+
 func main() {
 	lambda.Start(handler)
 }
@@ -40,7 +58,7 @@ func handler(ctx context.Context, event Event) (Event, error) {
 	log.SetRequestId(event.ID)
 	log.Infof("Event: %#v", event)
 
-	grads, err := getData(event.ID)
+	cohorts, grads, err := getData(event.ID)
 	if err != nil {
 		log.Errorf("Failed to get graduations: %v", err)
 		return event, err
@@ -50,11 +68,11 @@ func handler(ctx context.Context, event Event) (Event, error) {
 	twitchTime = time.Date(twitchTime.Year(), twitchTime.Month(), twitchTime.Day(), 16, 0, 0, 0, twitchTime.Location())
 
 	var sb strings.Builder
-	sb.WriteString("## Congrats to this week's U1000 Grads!\n")
+	sb.WriteString(fmt.Sprintf("## Congrats to this week's %s Grads!\n", event.ID))
 	sb.WriteString(fmt.Sprintf("Join us on [Twitch](<https://twitch.tv/chessdojo>) at <t:%d:t> today when we go over your profiles and games!", twitchTime.Unix()))
 
 	hasGrads := false
-	for _, cohort := range wednesdayCohorts {
+	for _, cohort := range cohorts {
 		cohortGrads := grads[cohort]
 		if len(cohortGrads) == 0 {
 			continue
@@ -91,15 +109,16 @@ func handler(ctx context.Context, event Event) (Event, error) {
 	return event, nil
 }
 
-func getData(eventId string) (map[database.DojoCohort][]database.Graduation, error) {
+func getData(eventId string) ([]database.DojoCohort, map[database.DojoCohort][]database.Graduation, error) {
 	if eventId == "U1000" {
-		return listWednesdayGrads()
+		grads, err := listWednesdayGrads()
+		return wednesdayCohorts, grads, err
 
 	} else if eventId == "1000+" {
-		return listThursdayGrads()
-
+		grads, err := listThursdayGrads()
+		return thursdayCohorts, grads, err
 	}
-	return nil, fmt.Errorf("invalid event ID: %v", eventId)
+	return nil, nil, fmt.Errorf("invalid event ID: %v", eventId)
 }
 
 func listWednesdayGrads() (map[database.DojoCohort][]database.Graduation, error) {
@@ -113,23 +132,7 @@ func listThursdayGrads() (map[database.DojoCohort][]database.Graduation, error) 
 	startTime := time.Now().Add(-time.Hour * 24 * 8)
 	startTime = time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 17, 30, 0, 0, startTime.Location())
 	endTime := startTime.Add(time.Hour * 24 * 7)
-	return listGraduations(startTime.Format(time.RFC3339), endTime.Format(time.RFC3339), []database.DojoCohort{
-		"900-1000",
-		"1000-1100",
-		"1100-1200",
-		"1200-1300",
-		"1300-1400",
-		"1400-1500",
-		"1500-1600",
-		"1600-1700",
-		"1700-1800",
-		"1800-1900",
-		"1900-2000",
-		"2000-2100",
-		"2100-2200",
-		"2200-2300",
-		"2300-2400",
-	})
+	return listGraduations(startTime.Format(time.RFC3339), endTime.Format(time.RFC3339), thursdayCohorts)
 }
 
 func listGraduations(startTime, endTime string, cohorts []database.DojoCohort) (map[database.DojoCohort][]database.Graduation, error) {
