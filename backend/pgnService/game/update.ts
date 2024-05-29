@@ -109,17 +109,8 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
             });
         }
 
-        const unlisted = request.unlisted;
-        if (unlisted === undefined) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'Invalid request: unlisted is required',
-            });
-        }
-
         return {
             ...request,
-            unlisted,
             cohort,
             id,
         };
