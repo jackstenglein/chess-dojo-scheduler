@@ -219,7 +219,8 @@ export type BoardOrientation = 'white' | 'black';
 export interface UpdateGameRequest extends CreateGameRequest {
     timelineId?: string;
     orientation?: BoardOrientation;
-    unlisted?: boolean;
+    publish?: boolean;
+    unlisted: boolean;
     headers?: GameHeader;
 }
 
@@ -235,8 +236,8 @@ export interface EditGameResponse {
     count: number;
 }
 
-export function isGame(obj: any): obj is Game {
-    return obj.count === undefined;
+export function isGame(obj: Game | EditGameResponse): obj is Game {
+    return !('count' in obj);
 }
 
 /**

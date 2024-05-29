@@ -13,7 +13,7 @@ import {
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GameHeader, stripTagValue } from '../../api/gameApi';
 import { GameResult, PgnHeaders, isGameResult } from '../../database/game';
 
@@ -25,15 +25,13 @@ interface FormHeader {
 }
 
 function getFormHeader(h?: PgnHeaders): FormHeader {
-    let dateTag = h?.Date;
+    const dateTag = h?.Date;
     let date: DateTime | null = null;
     if (dateTag) {
         date = DateTime.fromISO(dateTag.replaceAll('.', '-'));
         if (!date.isValid) {
             date = null;
         }
-    } else {
-        date = DateTime.now();
     }
 
     let result = h?.result;
@@ -111,6 +109,10 @@ export const MissingGameDataPreflight = ({
     if (title === undefined) {
         title = 'Missing Data';
     }
+
+    useEffect(() => {
+        setHeaders(getFormHeader(initHeaders));
+    }, [initHeaders]);
 
     const onChangeHeader = (key: keyof GameHeader, value: string | DateTime | null) => {
         setHeaders((oldHeaders) => ({ ...oldHeaders, [key]: value }));

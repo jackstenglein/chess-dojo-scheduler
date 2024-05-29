@@ -8,13 +8,14 @@ import {
     Radio,
     RadioGroup,
     Stack,
+    TextField,
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../../../../analytics/events';
 import { useApi } from '../../../../../api/Api';
-import { useRequest } from '../../../../../api/Request';
+import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import {
     BoardOrientation,
     GameHeader,
@@ -24,7 +25,7 @@ import {
     isMissingData,
 } from '../../../../../api/gameApi';
 import { useFreeTier } from '../../../../../auth/Auth';
-import { Game } from '../../../../../database/game';
+import { Game, PgnHeaders } from '../../../../../database/game';
 import { PublishGamePreflight } from '../../../../../games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import { useChess } from '../../../PgnBoard';
@@ -38,11 +39,35 @@ interface GameSettingsProps {
 
 const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
     const isFreeTier = useFreeTier();
-    const [visibility, setVisibility] = useState(game.unlisted ? 'unlisted' : 'public');
+    const [visibility, setVisibility] = useState(
+        game.unlisted ?? true ? 'unlisted' : 'published',
+    );
     const [orientation, setOrientation] = useState<BoardOrientation>(
         game.orientation ?? 'white',
     );
+    const [dirty, setDirty] = useState(false);
+    const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
+
+    const headersChanged = Object.entries(game.headers).some(
+        ([name, value]) => value !== headers[name],
+    );
+
     const navigate = useNavigate();
+
+    const onChangeOrientation = (newOrientation: BoardOrientation) => {
+        setDirty(true);
+        setOrientation(newOrientation);
+    };
+
+    const onChangeVisibility = (visibility: string) => {
+        setDirty(true);
+        setVisibility(visibility);
+    };
+
+    const onChangeHeader = (name: string, value: string) => {
+        setDirty(true);
+        setHeaders((oldHeaders) => ({ ...oldHeaders, [name]: value }));
+    };
 
     return (
         <Stack spacing={5} mt={1}>
@@ -56,10 +81,10 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                     <RadioGroup
                         row
                         value={visibility}
-                        onChange={(e) => setVisibility(e.target.value)}
+                        onChange={(e) => onChangeVisibility(e.target.value)}
                     >
                         <FormControlLabel
-                            value='public'
+                            value='published'
                             control={<Radio disabled={isFreeTier} />}
                             label='Published'
                         />
@@ -82,7 +107,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                         row
                         value={orientation}
                         onChange={(e) =>
-                            setOrientation(e.target.value as BoardOrientation)
+                            onChangeOrientation(e.target.value as BoardOrientation)
                         }
                     >
                         <FormControlLabel
@@ -97,14 +122,39 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                         />
                     </RadioGroup>
                 </FormControl>
+
+                <Stack spacing={2}>
+                    <FormLabel>Player Names</FormLabel>
+                    <TextField
+                        fullWidth
+                        data-cy='white'
+                        label='White'
+                        value={headers.White}
+                        onChange={(e) => onChangeHeader('White', e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        data-cy='black'
+                        label='Black'
+                        value={headers.Black}
+                        onChange={(e) => onChangeHeader('Black', e.target.value)}
+                    />
+                </Stack>
             </Stack>
 
             <Stack spacing={2}>
                 <SaveGameButton
                     game={game}
+                    dirty={dirty}
+                    headersChanged={headersChanged}
+                    headers={headers}
                     orientation={orientation}
-                    visibility={visibility}
-                    onSaveGame={onSaveGame}
+                    unlisted={visibility === 'unlisted'}
+                    onSaveGame={(game) => {
+                        setDirty(false);
+                        setHeaders(game.headers);
+                        onSaveGame?.(game);
+                    }}
                 />
 
                 <RequestReviewDialog game={game} />
@@ -123,29 +173,31 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
 interface SaveGameButtonProps {
     game: Game;
-    visibility: string;
+    unlisted: boolean;
     orientation: BoardOrientation;
+    headers: PgnHeaders;
+    headersChanged: boolean;
+    dirty: boolean;
     onSaveGame?: (g: Game) => void;
 }
 
 const SaveGameButton = ({
     game,
-    visibility,
+    unlisted,
     orientation,
+    headers,
+    headersChanged,
+    dirty,
     onSaveGame,
 }: SaveGameButtonProps) => {
     const { chess } = useChess();
-    const isFreeTier = useFreeTier();
     const api = useApi();
     const request = useRequest<GameHeader>();
     const [showPreflight, setShowPreflight] = useState<boolean>(false);
     const loading = request.isLoading();
 
-    const isPublishing = game.unlisted && visibility == 'public';
-    const needsPreflight = isPublishing && isMissingData(game);
-
-    const saveDisabled =
-        (visibility === 'unlisted') === game.unlisted && orientation === game.orientation;
+    const isPublishing = (game.unlisted ?? true) && !unlisted;
+    const needsPreflight = !unlisted && isMissingData({ ...game, headers });
 
     const onShowPreflight = () => {
         setShowPreflight(true);
@@ -156,20 +208,31 @@ const SaveGameButton = ({
         request.reset();
     };
 
-    const onSave = (headers?: GameHeader) => {
+    const onSave = (newHeaders?: GameHeader) => {
         request.onStart();
+
+        if (!newHeaders && headersChanged) {
+            newHeaders = {
+                white: headers.White || '?',
+                black: headers.Black || '??',
+                result: headers.Result,
+                date: headers.Date,
+            };
+        }
 
         const update: UpdateGameRequest = {
             orientation,
-            unlisted:
-                (visibility === 'unlisted') === game.unlisted
-                    ? undefined
-                    : isFreeTier || visibility === 'unlisted',
+            unlisted: unlisted,
+            publish: isPublishing,
             timelineId: game.timelineId,
         };
 
-        if (headers) {
-            update.headers = headers;
+        if (newHeaders) {
+            for (const [name, value] of Object.entries(newHeaders)) {
+                chess?.setHeader(name, value);
+            }
+
+            update.headers = newHeaders;
             update.type = GameSubmissionType.Manual;
             update.pgnText = chess?.renderPgn();
         }
@@ -194,11 +257,14 @@ const SaveGameButton = ({
             });
     };
 
+    console.log(headers);
+
     return (
         <>
+            <RequestSnackbar request={request} showSuccess />
             <LoadingButton
                 variant='contained'
-                disabled={saveDisabled}
+                disabled={!dirty}
                 loading={loading}
                 onClick={() => (needsPreflight ? onShowPreflight() : onSave())}
             >
@@ -207,7 +273,7 @@ const SaveGameButton = ({
             <PublishGamePreflight
                 open={showPreflight}
                 onClose={onClosePreflight}
-                initHeaders={game.headers}
+                initHeaders={headers}
                 onSubmit={onSave}
                 loading={loading}
             />

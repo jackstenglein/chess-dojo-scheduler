@@ -32,7 +32,7 @@ const EditGamePage = () => {
 
         const req: UpdateGameRequest = {
             ...remoteGame,
-            unlisted: game?.unlisted,
+            unlisted: game?.unlisted ?? true,
             headers,
         };
 

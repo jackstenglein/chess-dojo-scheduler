@@ -49,6 +49,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
             api.updateGame(cohort, id, {
                 type: GameSubmissionType.Manual,
                 pgnText,
+                unlisted: game.unlisted ?? true,
             })
                 .then(() => {
                     trackEvent(EventType.UpdateGame, {

@@ -90,8 +90,11 @@ export interface UpdateGameRequest extends CreateGameRequest {
     /** The existing timeline id of the Game. */
     timelineId?: string;
 
-    /** Whether the Game should be unlisted. */
-    unlisted?: boolean;
+    /** Whether the Game is unlisted. */
+    unlisted: boolean;
+
+    /** Whether to attempt to publish this game */
+    publish?: boolean;
 
     /** The import headers of the Game. */
     headers?: GameImportHeaders;
@@ -155,7 +158,7 @@ const dateRegex = /^\d{4}\.\d{2}\.\d{2}$/;
 /**
  * Returns true if the given date string is a valid PGN date.
  * PGN dates are considered valid if they are in the form 2024.12.31
- * and are in the past (we allow dates up to 2 days in the future to 
+ * and are in the past (we allow dates up to 2 days in the future to
  * avoid time zone issues).
  * @param date The PGN date to check.
  * @returns True if date is a valid PGN date.
@@ -185,7 +188,7 @@ export function isValidDate(date?: string): boolean {
 
 /**
  * Returns true if the given result is a valid PGN result.
- * 
+ *
  * WARNING: do not confuse this function with isPublishableResult.
  * @param result The result to check.
  * @returns True if the given result is valid.
