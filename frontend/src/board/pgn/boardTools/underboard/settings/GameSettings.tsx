@@ -43,32 +43,26 @@ interface GameSettingsProps {
 const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
     const isFreeTier = useFreeTier();
     const [visibility, setVisibility] = useState(
-        game.unlisted ?? true ? 'unlisted' : 'published',
+        game.unlisted ?? false ? 'unlisted' : 'published',
     );
     const [orientation, setOrientation] = useState<BoardOrientation>(
         game.orientation ?? 'white',
     );
-    const [dirty, setDirty] = useState(false);
     const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
 
     const headersChanged = Object.entries(game.headers).some(
         ([name, value]) => value !== headers[name],
     );
 
+    const unlisted = visibility === 'unlisted';
+    const dirty =
+        headersChanged ||
+        orientation !== game.orientation ||
+        (game.unlisted ?? false) !== unlisted;
+
     const navigate = useNavigate();
 
-    const onChangeOrientation = (newOrientation: BoardOrientation) => {
-        setDirty(true);
-        setOrientation(newOrientation);
-    };
-
-    const onChangeVisibility = (visibility: string) => {
-        setDirty(true);
-        setVisibility(visibility);
-    };
-
     const onChangeHeader = (name: string, value: string) => {
-        setDirty(true);
         setHeaders((oldHeaders) => ({ ...oldHeaders, [name]: value }));
     };
 
@@ -84,7 +78,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                     <RadioGroup
                         row
                         value={visibility}
-                        onChange={(e) => onChangeVisibility(e.target.value)}
+                        onChange={(e) => setVisibility(e.target.value)}
                     >
                         <FormControlLabel
                             value='published'
@@ -110,7 +104,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                         row
                         value={orientation}
                         onChange={(e) =>
-                            onChangeOrientation(e.target.value as BoardOrientation)
+                            setOrientation(e.target.value as BoardOrientation)
                         }
                     >
                         <FormControlLabel
@@ -174,9 +168,8 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                     headersChanged={headersChanged}
                     headers={headers}
                     orientation={orientation}
-                    unlisted={visibility === 'unlisted'}
+                    unlisted={unlisted}
                     onSaveGame={(game) => {
-                        setDirty(false);
                         setHeaders(game.headers);
                         onSaveGame?.(game);
                     }}
@@ -221,7 +214,7 @@ const SaveGameButton = ({
     const [showPreflight, setShowPreflight] = useState<boolean>(false);
     const loading = request.isLoading();
 
-    const isPublishing = (game.unlisted ?? true) && !unlisted;
+    const isPublishing = (game.unlisted ?? false) && !unlisted;
     const needsPreflight = !unlisted && isMissingData({ ...game, headers });
 
     const onShowPreflight = () => {
@@ -247,14 +240,24 @@ const SaveGameButton = ({
 
         const update: UpdateGameRequest = {
             orientation,
-            unlisted: unlisted,
-            publish: isPublishing,
             timelineId: game.timelineId,
         };
 
+        if (isPublishing) {
+            update.unlisted = false;
+        } else if (game.unlisted && unlisted) {
+            update.unlisted = true;
+        }
+
         if (newHeaders) {
-            for (const [name, value] of Object.entries(newHeaders)) {
-                chess?.setHeader(name.charAt(0).toUpperCase() + name.slice(1), value);
+            const pgnHeaders = {
+                White: newHeaders.white,
+                Black: newHeaders.black,
+                Date: newHeaders.date,
+            };
+
+            for (const [name, value] of Object.entries(pgnHeaders)) {
+                chess?.setHeader(name, value);
             }
 
             update.headers = newHeaders;

@@ -141,22 +141,17 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
 async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
     const update: GameUpdate = {
         updatedAt: new Date().toISOString(),
+        unlisted: request.unlisted,
     };
 
-    if (request.orientation) {
-        update.orientation = request.orientation;
-    }
-
-    if (request.unlisted) {
-        update.unlisted = true;
-        update.publishedAt = null;
-        update.timelineId = '';
-    }
-
-    if (request.publish) {
-        update.unlisted = false;
-        update.publishedAt = new Date().toISOString();
-        update.timelineId = `${update.publishedAt?.split('T')[0]}_${uuidv4()}`;
+    if (update.unlisted !== undefined) {
+        if (request.unlisted) {
+            update.publishedAt = null;
+            update.timelineId = '';
+        } else {
+            update.publishedAt = new Date().toISOString();
+            update.timelineId = `${update.publishedAt?.split('T')[0]}_${uuidv4()}`;
+        }
     }
 
     let result: string | undefined = request.headers?.result;
@@ -172,7 +167,7 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
 
         result = game.headers['Result'] ?? result;
 
-        if (isMissingData({ ...update, result }) && !request.unlisted) {
+        if (isMissingData({ ...update, result }) && !update.unlisted) {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage: 'Published games can not be missing data',
@@ -194,7 +189,7 @@ function stripNameHeader(value?: string): string {
 }
 
 /**
- * Returns whether the game headers are missing data needed to public
+ * Returns whether the game headers are missing data needed to publish
  * @param game The game to check for publishability
  * @returns Whether or not the game update is missing data
  */
@@ -206,8 +201,6 @@ function isMissingData({
 }: Partial<GameImportHeaders>): boolean {
     const strippedWhite = stripNameHeader(white);
     const strippedBlack = stripNameHeader(black);
-
-    console.log(white, black, result, date);
 
     return (
         !strippedWhite ||

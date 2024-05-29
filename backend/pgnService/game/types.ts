@@ -91,7 +91,7 @@ export interface UpdateGameRequest extends CreateGameRequest {
     timelineId?: string;
 
     /** Whether the Game is unlisted. */
-    unlisted: boolean;
+    unlisted?: boolean;
 
     /** Whether to attempt to publish this game */
     publish?: boolean;

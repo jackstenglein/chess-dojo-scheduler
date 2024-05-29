@@ -220,7 +220,7 @@ export interface UpdateGameRequest extends CreateGameRequest {
     timelineId?: string;
     orientation?: BoardOrientation;
     publish?: boolean;
-    unlisted: boolean;
+    unlisted?: boolean;
     headers?: GameHeader;
 }
 
@@ -779,7 +779,7 @@ export function parsePgnDate(pgnDate?: string): DateTime<true> | null {
  * @returns a PGN tag value suitable to use for e.g. Date
  */
 export function toPgnDate(date?: DateTime | null): string | null {
-    let pgnDate = date?.toUTC().toISO() ?? '';
+    let pgnDate = date?.toUTC().toISO();
     if (!pgnDate) {
         return null;
     }

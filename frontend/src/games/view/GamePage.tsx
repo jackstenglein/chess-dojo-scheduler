@@ -42,7 +42,6 @@ const GamePage = () => {
         firstLoad: 'false',
     });
     const firstLoad = searchParams.get('firstLoad') === 'true';
-    const [game, setGame] = useState<Game>();
     const [showPreflight, setShowPreflight] = useState(false);
 
     const reset = request.reset;
@@ -60,7 +59,6 @@ const GamePage = () => {
                     const game = response.data;
                     request.onSuccess(game);
 
-                    setGame(game);
                     setShowPreflight(firstLoad && isMissingData(game));
                     setSearchParams({ firstLoad: 'false' });
                 })
@@ -69,9 +67,11 @@ const GamePage = () => {
                     request.onFailure(err);
                 });
         }
-    }, [request, api, cohort, id]);
+    }, [request, api, cohort, id, firstLoad, setSearchParams]);
 
     const onSave = (headers: GameHeader) => {
+        const game = request.data;
+
         if (game === undefined) {
             console.error('Game is unexpectedly undefined');
             return;
@@ -163,11 +163,11 @@ const GamePage = () => {
                     />
                 </GameContext.Provider>
             </PgnErrorBoundary>
-            {game && (
+            {request.data && (
                 <MissingGameDataPreflight
                     skippable
                     open={showPreflight}
-                    initHeaders={game.headers}
+                    initHeaders={request.data.headers}
                     loading={updateRequest.isLoading()}
                     onSubmit={onSave}
                     onClose={() => setShowPreflight(false)}
