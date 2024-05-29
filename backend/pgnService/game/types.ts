@@ -90,7 +90,7 @@ export interface UpdateGameRequest extends CreateGameRequest {
     /** The existing timeline id of the Game. */
     timelineId?: string;
 
-    /** Whether the Game is unlisted. */
+    /** If specified, update whether the game should be unlisted. */
     unlisted?: boolean;
 
     /** The import headers of the Game. */
