@@ -121,44 +121,38 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                 </FormControl>
 
                 <Stack spacing={2}>
-                    <FormLabel>Player Names</FormLabel>
+                    <Typography variant='h6'>Game Info</Typography>
                     <TextField
                         fullWidth
                         data-cy='white'
-                        label='White'
+                        label="White's Name"
                         value={headers.White}
                         onChange={(e) => onChangeHeader('White', e.target.value)}
                     />
                     <TextField
                         fullWidth
                         data-cy='black'
-                        label='Black'
+                        label="Black's Name"
                         value={headers.Black}
                         onChange={(e) => onChangeHeader('Black', e.target.value)}
                     />
+                    <DatePicker
+                        label='Date Played'
+                        value={parsePgnDate(headers.Date)}
+                        onChange={(newValue) => {
+                            onChangeHeader('Date', toPgnDate(newValue) ?? '');
+                        }}
+                        slotProps={{
+                            textField: {
+                                id: 'date',
+                                fullWidth: true,
+                            },
+                            field: {
+                                clearable: true,
+                            },
+                        }}
+                    />
                 </Stack>
-
-                <FormControl>
-                    <Stack spacing={2}>
-                        <FormLabel>Date Played</FormLabel>
-                        <DatePicker
-                            label='Date'
-                            value={parsePgnDate(headers.Date)}
-                            onChange={(newValue) => {
-                                onChangeHeader('Date', toPgnDate(newValue) ?? '');
-                            }}
-                            slotProps={{
-                                textField: {
-                                    id: 'date',
-                                    fullWidth: true,
-                                },
-                                field: {
-                                    clearable: true,
-                                },
-                            }}
-                        />
-                    </Stack>
-                </FormControl>
             </Stack>
 
             <Stack spacing={2}>
