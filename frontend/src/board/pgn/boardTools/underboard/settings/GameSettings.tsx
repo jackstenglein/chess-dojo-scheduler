@@ -192,7 +192,7 @@ const SaveGameButton = ({
 }: SaveGameButtonProps) => {
     const { chess } = useChess();
     const api = useApi();
-    const request = useRequest<GameHeader>();
+    const request = useRequest();
     const [showPreflight, setShowPreflight] = useState<boolean>(false);
     const loading = request.isLoading();
 
@@ -229,7 +229,7 @@ const SaveGameButton = ({
 
         if (newHeaders) {
             for (const [name, value] of Object.entries(newHeaders)) {
-                chess?.setHeader(name, value);
+                chess?.setHeader(name.charAt(0).toUpperCase() + name.slice(1), value);
             }
 
             update.headers = newHeaders;
@@ -256,8 +256,6 @@ const SaveGameButton = ({
                 request.onFailure(err);
             });
     };
-
-    console.log(headers);
 
     return (
         <>

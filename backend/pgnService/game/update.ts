@@ -171,14 +171,14 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
         update.headers = game.headers;
 
         result = game.headers['Result'] ?? result;
-    }
 
-    if (isMissingData({ ...update, result }) && !request.unlisted) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Published games can not be missing data',
-            privateMessage: 'update requested, but game was missing data',
-        });
+        if (isMissingData({ ...update, result }) && !request.unlisted) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Published games can not be missing data',
+                privateMessage: 'update requested, but game was missing data',
+            });
+        }
     }
 
     return update;
@@ -186,7 +186,6 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
 
 /**
  * Strip name header
- *
  * @param value the name to strip
  * @returns the stripped name
  */
@@ -196,7 +195,6 @@ function stripNameHeader(value?: string): string {
 
 /**
  * Returns whether the game headers are missing data needed to public
- *
  * @param game The game to check for publishability
  * @returns Whether or not the game update is missing data
  */
@@ -208,6 +206,8 @@ function isMissingData({
 }: Partial<GameImportHeaders>): boolean {
     const strippedWhite = stripNameHeader(white);
     const strippedBlack = stripNameHeader(black);
+
+    console.log(white, black, result, date);
 
     return (
         !strippedWhite ||
