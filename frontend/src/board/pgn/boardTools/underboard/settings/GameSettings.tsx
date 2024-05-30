@@ -49,6 +49,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
         game.orientation ?? 'white',
     );
     const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
+    const navigate = useNavigate();
 
     const headersChanged = Object.entries(game.headers).some(
         ([name, value]) => value !== headers[name],
@@ -59,8 +60,6 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
         headersChanged ||
         orientation !== game.orientation ||
         (game.unlisted ?? false) !== unlisted;
-
-    const navigate = useNavigate();
 
     const onChangeHeader = (name: string, value: string) => {
         setHeaders((oldHeaders) => ({ ...oldHeaders, [name]: value }));

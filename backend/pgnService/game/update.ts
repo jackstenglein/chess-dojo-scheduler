@@ -132,10 +132,11 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
 async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
     const update: GameUpdate = {
         updatedAt: new Date().toISOString(),
-        unlisted: request.unlisted,
     };
 
-    if (update.unlisted !== undefined) {
+    if (request.unlisted !== undefined) {
+        update.unlisted = request.unlisted;
+
         if (request.unlisted) {
             update.publishedAt = null;
             update.timelineId = '';
@@ -143,6 +144,10 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
             update.publishedAt = new Date().toISOString();
             update.timelineId = `${update.publishedAt?.split('T')[0]}_${uuidv4()}`;
         }
+    }
+
+    if (request.orientation) {
+        update.orientation = request.orientation;
     }
 
     let result: string | undefined = request.headers?.result;

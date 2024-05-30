@@ -219,7 +219,6 @@ export type BoardOrientation = 'white' | 'black';
 export interface UpdateGameRequest extends CreateGameRequest {
     timelineId?: string;
     orientation?: BoardOrientation;
-    publish?: boolean;
     unlisted?: boolean;
     headers?: GameHeader;
 }
