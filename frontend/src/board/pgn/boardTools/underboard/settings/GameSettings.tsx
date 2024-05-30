@@ -43,7 +43,7 @@ interface GameSettingsProps {
 const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
     const isFreeTier = useFreeTier();
     const [visibility, setVisibility] = useState(
-        game.unlisted ?? false ? 'unlisted' : 'published',
+        game.unlisted ? 'unlisted' : 'published',
     );
     const [orientation, setOrientation] = useState<BoardOrientation>(
         game.orientation ?? 'white',
@@ -239,7 +239,7 @@ const SaveGameButton = ({
 
         if (isPublishing) {
             update.unlisted = false;
-        } else if (game.unlisted && unlisted) {
+        } else if (!game.unlisted && unlisted) {
             update.unlisted = true;
         }
 
