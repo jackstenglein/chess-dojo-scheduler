@@ -84,6 +84,7 @@ const RecentGameCell = ({
     return (
         <Card sx={{ height: 1 }}>
             <CardActionArea
+                data-cy={`recent-game-${game.source}`}
                 onClick={() => {
                     onClick(game);
                 }}
