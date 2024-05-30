@@ -46,6 +46,7 @@ services:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       GraduationsTableArn: ${chess-dojo-scheduler.GraduationsTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
 
   courseService:
     path: courseService

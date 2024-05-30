@@ -20,8 +20,8 @@ var coachingChannelId = os.Getenv("discordCoachingChannelId")
 var publicGuildId = os.Getenv("discordPublicGuildId")
 var privateGuildId = os.Getenv("discordPrivateGuildId")
 
-// getDiscordIdByCognitoUsername returns the discord ID of the user with the given Cognito username.
-func getDiscordIdByCognitoUsername(discord *discordgo.Session, username string) (string, error) {
+// GetDiscordIdByCognitoUsername returns the discord ID of the user with the given Cognito username.
+func GetDiscordIdByCognitoUsername(discord *discordgo.Session, username string) (string, error) {
 	user, err := repository.GetUser(username)
 	if err != nil {
 		return "", err
@@ -49,6 +49,14 @@ func getDiscordIdByDiscordUsername(discord *discordgo.Session, fullDiscordUserna
 
 // getDiscordUser returns the discord user with the given discord username.
 func getDiscordUser(discord *discordgo.Session, fullDiscordUsername string) (*discordgo.User, error) {
+	if discord == nil {
+		d, err := discordgo.New("Bot " + authToken)
+		if err != nil {
+			return nil, errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+		}
+		discord = d
+	}
+
 	discordUsername := fullDiscordUsername
 	var discordDiscriminator string
 
