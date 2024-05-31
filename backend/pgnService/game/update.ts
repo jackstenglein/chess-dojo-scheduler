@@ -13,9 +13,7 @@ import {
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
-import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import {
-    cleanupChessbasePgn,
     dynamo,
     gamesTable,
     getGame,
@@ -25,11 +23,9 @@ import {
     timelineTable,
 } from './create';
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
-import { getLichessChapter, getLichessGame } from './lichess';
 import {
     Game,
     GameImportHeaders,
-    GameImportType,
     GameOrientation,
     GameUpdate,
     UpdateGameRequest,
@@ -119,8 +115,7 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
         ) {
             throw new ApiError({
                 statusCode: 400,
-                publicMessage:
-                    `Invalid request: orientation must be "${GameOrientation.White}" or "${GameOrientation.Black}" if provided`,
+                publicMessage: `Invalid request: orientation must be "${GameOrientation.White}" or "${GameOrientation.Black}" if provided`,
             });
         }
 
@@ -166,7 +161,7 @@ async function getGameUpdate(
         const pgnText = (await getPgnTexts(request))[0];
         const game = getGame(undefined, pgnText, request.headers);
         const headers = getImportHeaders(game);
-        if (!request.unlisted && headers) {
+        if (request.unlisted !== undefined && !request.unlisted && headers) {
             return [null, headers];
         }
 
@@ -189,13 +184,18 @@ function getImportHeaders(game: Game): GameImportHeaders | null {
     const strippedWhite = game.white.trim().replaceAll('?', '');
     const strippedBlack = game.black.trim().replaceAll('?', '');
 
-    if (!strippedWhite || !strippedBlack || !isValidDate(game.date) || !isPublishableResult(game.headers.Result)) {
+    if (
+        !strippedWhite ||
+        !strippedBlack ||
+        !isValidDate(game.date) ||
+        !isPublishableResult(game.headers.Result)
+    ) {
         return {
             white: strippedWhite ? game.white : '',
             black: strippedBlack ? game.black : '',
             date: isValidDate(game.date) ? game.date : '',
-            result: isPublishableResult(game.headers.Result) ? game.headers.Result : ''
-        }
+            result: isPublishableResult(game.headers.Result) ? game.headers.Result : '',
+        };
     }
     return null;
 }
