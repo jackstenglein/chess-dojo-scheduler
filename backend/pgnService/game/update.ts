@@ -150,7 +150,6 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
         update.orientation = request.orientation;
     }
 
-    let result: string | undefined = request.headers?.result;
     if (request.type) {
         const pgnText = (await getPgnTexts(request))[0];
         const game = getGame(undefined, pgnText, request.headers);
@@ -161,9 +160,12 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
         update.pgn = game.pgn;
         update.headers = game.headers;
 
-        result = game.headers['Result'] ?? result;
-
-        if (isMissingData({ ...update, result }) && !update.unlisted) {
+        const result = game.headers['Result'];
+        if (
+            isMissingData({ ...update, result }) &&
+            update.unlisted !== undefined &&
+            !update.unlisted
+        ) {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage: 'Published games can not be missing data',
@@ -176,11 +178,14 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
 }
 
 /**
- * Strip name header
+ * Strip pgn player name tag values (i.e. the tags White and Black). As a convention, chess.com and others
+ * use question marks as placeholders for unknown values in PGN tags. In places, we have
+ * adopted this convention. Therefore, in order to tell if a name is truly empty, handling the case
+ * where the name value may be a placeholder, we must account for this convention.
  * @param value the name to strip
  * @returns the stripped name
  */
-function stripNameHeader(value?: string): string {
+function stripPlayerNameHeader(value?: string): string {
     return value?.trim().replaceAll('?', '') ?? '';
 }
 
@@ -195,8 +200,8 @@ function isMissingData({
     result,
     date,
 }: Partial<GameImportHeaders>): boolean {
-    const strippedWhite = stripNameHeader(white);
-    const strippedBlack = stripNameHeader(black);
+    const strippedWhite = stripPlayerNameHeader(white);
+    const strippedBlack = stripPlayerNameHeader(black);
 
     return (
         !strippedWhite ||
