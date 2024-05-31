@@ -79,16 +79,16 @@ func handler(ctx context.Context, event Event) (Event, error) {
 		}
 
 		hasGrads = true
-		sb.WriteString(fmt.Sprintf("\n<@&%s>", discord.RoleIds[cohort]))
+		sb.WriteString(fmt.Sprintf("\n<@&%s> %s\n", discord.RoleIds[cohort], discord.CohortEmojiIds[cohort]))
 		for _, grad := range cohortGrads {
 			discordId, err := discord.GetDiscordIdByCognitoUsername(nil, grad.Username)
 			if err != nil {
 				log.Errorf("Failed to get Discord ID: %v", err)
 			}
 			if discordId == "" {
-				sb.WriteString(fmt.Sprintf("\n%s", grad.DisplayName))
+				sb.WriteString(grad.DisplayName)
 			} else {
-				sb.WriteString(fmt.Sprintf("\n<@%s>", discordId))
+				sb.WriteString(fmt.Sprintf("<@%s>", discordId))
 			}
 
 			sb.WriteString(fmt.Sprintf(" – [View Profile](<%s/profile/%s>)\n", frontendHost, grad.Username))
