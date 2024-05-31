@@ -210,7 +210,7 @@ export enum GameSubmissionType {
 export interface CreateGameRequest {
     url?: string;
     pgnText?: string;
-    type?: GameSubmissionType;
+    type: GameSubmissionType;
 }
 
 /** The orientation of the board. */
