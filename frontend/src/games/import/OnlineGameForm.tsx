@@ -176,6 +176,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
 
     const lichessUsername = user?.ratings?.[RatingSystem.Lichess]?.username;
     const chesscomUsername = user?.ratings?.[RatingSystem.Chesscom]?.username;
+    const fetchGames = Boolean(lichessUsername || chesscomUsername);
 
     const {
         games,
@@ -224,7 +225,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
     return (
         <>
             <DialogTitle>Import Online Game</DialogTitle>
-            <DialogContent>
+            <DialogContent sx={{ height: fetchGames ? '75vh' : undefined }}>
                 <Stack>
                     <TextField
                         data-cy='online-game-url'
@@ -252,7 +253,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                         <ImportButton loading={loading} onClick={handleSubmit} />
                     </Stack>
                     <OrDivider header='Recent Games' />
-                    {lichessUsername || chesscomUsername ? (
+                    {fetchGames ? (
                         chesscom.isLoading() || lichess.isLoading() ? (
                             <LoadingPage />
                         ) : (
