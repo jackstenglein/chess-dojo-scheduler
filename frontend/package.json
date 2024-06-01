@@ -98,7 +98,7 @@
         "@types/react-resizable": "^3.0.7",
         "@types/uuid": "^9.0.8",
         "@typescript-eslint/eslint-plugin": "^7.9.0",
-        "@typescript-eslint/parser": "^7.9.0",
+        "@typescript-eslint/parser": "^7.11.0",
         "command-line-args": "^5.2.1",
         "command-line-usage": "^7.0.1",
         "cypress": "^13.10.0",
