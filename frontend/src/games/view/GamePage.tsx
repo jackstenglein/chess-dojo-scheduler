@@ -1,15 +1,15 @@
 import { Chess } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import {
+    BoardOrientation,
     GameHeader,
     GameSubmissionType,
     UpdateGameRequest,
-    isGame,
     isMissingData,
 } from '../../api/gameApi';
 import { useAuth } from '../../auth/Auth';
@@ -38,11 +38,8 @@ const GamePage = () => {
     const updateRequest = useRequest();
     const { cohort, id } = useParams();
     const user = useAuth().user;
-    const [searchParams, setSearchParams] = useSearchParams({
-        firstLoad: 'false',
-    });
+    const [searchParams, setSearchParams] = useSearchParams({ firstLoad: 'false' });
     const firstLoad = searchParams.get('firstLoad') === 'true';
-    const [showPreflight, setShowPreflight] = useState(false);
 
     const reset = request.reset;
     useEffect(() => {
@@ -58,18 +55,15 @@ const GamePage = () => {
                 .then((response) => {
                     const game = response.data;
                     request.onSuccess(game);
-
-                    setShowPreflight(firstLoad && isMissingData(game));
-                    setSearchParams({ firstLoad: 'false' });
                 })
                 .catch((err) => {
                     console.error('Failed to get game: ', err);
                     request.onFailure(err);
                 });
         }
-    }, [request, api, cohort, id, firstLoad, setSearchParams]);
+    }, [request, api, cohort, id]);
 
-    const onSave = (headers: GameHeader) => {
+    const onSave = (headers: GameHeader, orientation: BoardOrientation) => {
         const game = request.data;
 
         if (game === undefined) {
@@ -97,7 +91,7 @@ const GamePage = () => {
         const update: UpdateGameRequest = {
             headers,
             unlisted: true,
-            orientation: 'white',
+            orientation,
             type: GameSubmissionType.Manual,
             pgnText: chess.renderPgn(),
         };
@@ -110,15 +104,9 @@ const GamePage = () => {
                 });
 
                 const updatedGame = resp.data;
-                if (isGame(updatedGame)) {
-                    request.onSuccess(updatedGame);
-                    updateRequest.onSuccess(updatedGame);
-                } else {
-                    request.onFailure();
-                    updateRequest.onFailure('Unexpected response from server');
-                }
-
-                setShowPreflight(false);
+                request.onSuccess(updatedGame);
+                updateRequest.onSuccess(updatedGame);
+                setSearchParams();
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
@@ -127,6 +115,8 @@ const GamePage = () => {
     };
 
     const isOwner = request.data?.owner === user?.username;
+    const showPreflight =
+        isOwner && firstLoad && request.data !== undefined && isMissingData(request.data);
 
     return (
         <Box
@@ -168,9 +158,10 @@ const GamePage = () => {
                     skippable
                     open={showPreflight}
                     initHeaders={request.data.headers}
+                    initOrientation={request.data.orientation}
                     loading={updateRequest.isLoading()}
                     onSubmit={onSave}
-                    onClose={() => setShowPreflight(false)}
+                    onClose={() => setSearchParams()}
                 >
                     You can fill this data out now or later in settings.
                 </MissingGameDataPreflight>

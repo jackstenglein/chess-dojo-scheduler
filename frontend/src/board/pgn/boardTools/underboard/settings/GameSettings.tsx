@@ -22,14 +22,13 @@ import {
     GameHeader,
     GameSubmissionType,
     UpdateGameRequest,
-    isGame,
     isMissingData,
     parsePgnDate,
     toPgnDate,
 } from '../../../../../api/gameApi';
 import { useFreeTier } from '../../../../../auth/Auth';
 import { Game, PgnHeaders } from '../../../../../database/game';
-import { PublishGamePreflight } from '../../../../../games/edit/MissingGameDataPreflight';
+import { MissingGameDataPreflight } from '../../../../../games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
@@ -219,7 +218,7 @@ const SaveGameButton = ({
         request.reset();
     };
 
-    const onSave = (newHeaders?: GameHeader) => {
+    const onSave = (newHeaders?: GameHeader, newOrientation?: BoardOrientation) => {
         request.onStart();
 
         if (!newHeaders && headersChanged) {
@@ -232,7 +231,7 @@ const SaveGameButton = ({
         }
 
         const update: UpdateGameRequest = {
-            orientation,
+            orientation: newOrientation || orientation,
             timelineId: game.timelineId,
         };
 
@@ -265,10 +264,7 @@ const SaveGameButton = ({
                     dojo_cohort: game.cohort,
                 });
 
-                if (isGame(resp.data)) {
-                    onSaveGame?.(resp.data);
-                }
-
+                onSaveGame?.(resp.data);
                 request.onSuccess();
                 setShowPreflight(false);
             })
@@ -289,13 +285,17 @@ const SaveGameButton = ({
             >
                 {isPublishing ? 'Publish' : 'Save Changes'}
             </LoadingButton>
-            <PublishGamePreflight
+            <MissingGameDataPreflight
                 open={showPreflight}
                 onClose={onClosePreflight}
                 initHeaders={headers}
+                initOrientation={orientation}
                 onSubmit={onSave}
                 loading={loading}
-            />
+            >
+                Your game is missing data. Please fill out these fields to publish your
+                analysis.
+            </MissingGameDataPreflight>
         </>
     );
 };

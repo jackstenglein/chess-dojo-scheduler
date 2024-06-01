@@ -54,7 +54,7 @@ export type GameApiContextType = {
         cohort: string,
         id: string,
         req: UpdateGameRequest,
-    ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
+    ) => Promise<AxiosResponse<Game, any>>;
 
     /**
      * deleteGame removes the specified game from the database. The caller
@@ -216,11 +216,12 @@ export interface CreateGameRequest {
 /** The orientation of the board. */
 export type BoardOrientation = 'white' | 'black';
 
-export interface UpdateGameRequest extends CreateGameRequest {
+export interface UpdateGameRequest extends Omit<CreateGameRequest, 'type'> {
     timelineId?: string;
     orientation?: BoardOrientation;
     unlisted?: boolean;
     headers?: GameHeader;
+    type?: GameSubmissionType;
 }
 
 export interface GameHeader {

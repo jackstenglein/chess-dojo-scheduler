@@ -6,7 +6,12 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
     MenuItem,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
 } from '@mui/material';
@@ -14,7 +19,13 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
-import { GameHeader, parsePgnDate, stripTagValue, toPgnDate } from '../../api/gameApi';
+import {
+    BoardOrientation,
+    GameHeader,
+    parsePgnDate,
+    stripTagValue,
+    toPgnDate,
+} from '../../api/gameApi';
 import { GameResult, PgnHeaders, isGameResult } from '../../database/game';
 
 interface FormHeader {
@@ -55,26 +66,19 @@ interface MissingGameDataPreflightProps {
     open: boolean;
     onClose: () => void;
     initHeaders?: PgnHeaders;
+    initOrientation?: BoardOrientation;
     loading: boolean;
     title?: string;
     skippable?: boolean;
     children?: React.ReactNode;
-    onSubmit: (headers: GameHeader) => void;
+    onSubmit: (headers: GameHeader, orientation: BoardOrientation) => void;
 }
 
-type PublishGamePreflightProps = Omit<MissingGameDataPreflightProps, 'children'>;
-
-export const PublishGamePreflight: React.FC<MissingGameDataPreflightProps> = (
-    props: PublishGamePreflightProps,
-) => (
-    <MissingGameDataPreflight {...props}>
-        Your game is missing data. Please fill out these fields to publish your analysis.
-    </MissingGameDataPreflight>
-);
 export const MissingGameDataPreflight = ({
     open,
     onClose,
     initHeaders,
+    initOrientation,
     loading,
     skippable,
     title,
@@ -83,6 +87,9 @@ export const MissingGameDataPreflight = ({
 }: MissingGameDataPreflightProps) => {
     const [headers, setHeaders] = useState<FormHeader>(getFormHeader(initHeaders));
     const [errors, setErrors] = useState<Partial<FormError>>({});
+    const [orientation, setOrientation] = useState<BoardOrientation>(
+        initOrientation ?? 'white',
+    );
 
     if (skippable === undefined) {
         skippable = false;
@@ -123,7 +130,7 @@ export const MissingGameDataPreflight = ({
             return;
         }
 
-        onSubmit(getGameHeaders(headers));
+        onSubmit(getGameHeaders(headers), orientation);
     };
 
     return (
@@ -163,7 +170,7 @@ export const MissingGameDataPreflight = ({
                                 select
                                 data-cy='result'
                                 label='Game Result'
-                                value={headers.result}
+                                value={headers.result.replaceAll('*', '')}
                                 onChange={(e) => onChangeHeader('result', e.target.value)}
                                 error={!!errors.result}
                                 helperText={errors.result}
@@ -195,6 +202,30 @@ export const MissingGameDataPreflight = ({
                                     },
                                 }}
                             />
+                        </Grid2>
+
+                        <Grid2 xs={12}>
+                            <FormControl>
+                                <FormLabel>Default Orientation</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={orientation}
+                                    onChange={(e) =>
+                                        setOrientation(e.target.value as BoardOrientation)
+                                    }
+                                >
+                                    <FormControlLabel
+                                        value='white'
+                                        control={<Radio />}
+                                        label='White'
+                                    />
+                                    <FormControlLabel
+                                        value='black'
+                                        control={<Radio />}
+                                        label='Black'
+                                    />
+                                </RadioGroup>
+                            </FormControl>
                         </Grid2>
                     </Grid2>
                 </Stack>
