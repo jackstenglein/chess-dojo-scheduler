@@ -1,4 +1,10 @@
-import { clickImport, deleteCurrentGame, gameUrlRegex, verifyGame } from './helpers';
+import {
+    cancelPreflight,
+    clickImport,
+    deleteCurrentGame,
+    gameUrlRegex,
+    verifyGame,
+} from './helpers';
 
 const testUrls = {
     lichessChapter: 'https://lichess.org/study/W67VW7nM/3wugVXBW',
@@ -8,6 +14,8 @@ const testUrls = {
     lichessChapterMissingData: 'https://lichess.org/study/W67VW7nM/lsJkNwwR',
     lichessGameFromPosition: 'https://lichess.org/XdWMCVrNX6No',
     chesscomAnalysisA: 'https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis',
+    chesscomAnalysisB: 'https://www.chess.com/analysis/game/pgn/3PQmunBaE2?tab=analysis',
+
     chesscomAnalysisGame:
         'https://www.chess.com/analysis/game/live/108036079387?tab=review',
     chesscomGame: 'https://www.chess.com/game/live/107855985867',
@@ -81,6 +89,8 @@ describe('Import Games Page - Import Online Games', () => {
 
     it('submits from a Lichess chapter URL with missing headers successfully', () => {
         importUrl(testUrls.lichessChapterMissingData);
+        cancelPreflight();
+
         verifyGame({
             lastMove: 'd4',
         });
@@ -101,10 +111,25 @@ describe('Import Games Page - Import Online Games', () => {
         deleteCurrentGame();
     });
 
-    it('submits from Chess.com annotations URL', () => {
+    it('submits from Chess.com annotations URL (type A)', () => {
         importUrl(testUrls.chesscomAnalysisA);
+
+        // This particular analysis is missing headers
+        cancelPreflight();
+
         verifyGame({
             lastMove: 'Nxb6',
+        });
+
+        deleteCurrentGame();
+    });
+
+    it('submits from Chess.com annotations URL (type B)', () => {
+        importUrl(testUrls.chesscomAnalysisB);
+        verifyGame({
+            white: 'Test1',
+            black: 'Test2',
+            lastMove: 'e4',
         });
         deleteCurrentGame();
     });
@@ -123,19 +148,27 @@ describe('Import Games Page - Import Online Games', () => {
         deleteCurrentGame();
     });
 
-    it('submits from Chess.com recent game', () => {
-        cy.contains('othaluran').click();
-        verifyGame({
-            white: 'JackStenglein',
-            black: 'othaluran',
-            lastMove: 'Kxh8',
-            lastMoveClock: {
-                white: '0:00:23',
-                black: '0:02:26',
-            },
+    if (Cypress.env('cognito_username') === 'jackstenglein+test@gmail.com') {
+        it('submits from Chess.com recent game', () => {
+            cy.contains('othaluran').click();
+            verifyGame({
+                white: 'JackStenglein',
+                black: 'othaluran',
+                lastMove: 'Kxh8',
+                lastMoveClock: {
+                    white: '0:00:23',
+                    black: '0:02:26',
+                },
+            });
+            deleteCurrentGame();
         });
-        deleteCurrentGame();
-    });
+    } else {
+        it('submits from Chess.com recent game', () => {
+            cy.getBySel('recent-game-chesscomGame').should('exist').click();
+            verifyGame({});
+            deleteCurrentGame();
+        });
+    }
 
     it('submits Lichess game from position', () => {
         importUrl(testUrls.lichessGameFromPosition);

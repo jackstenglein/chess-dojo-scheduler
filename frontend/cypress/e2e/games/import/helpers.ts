@@ -5,10 +5,17 @@ export const gameUrlRegex = /^\/games\/\d{3,4}-\d{3,4}\/\d{4}\.\d{2}\.\d{2}_.+$/
  * Deletes the game currently open in the browser.
  */
 export function deleteCurrentGame() {
-    cy.getBySel('settings').click();
-    cy.getBySel('delete-game-button').click();
-    cy.getBySel('delete-game-confirm-button').click();
+    cy.getBySel('settings').click({ force: true });
+    cy.getBySel('delete-game-button').click({ force: true });
+    cy.getBySel('delete-game-confirm-button').click({ force: true });
     cy.location('pathname').should('equal', '/profile');
+}
+
+/**
+ * Cancel the missing-data preflight
+ */
+export function cancelPreflight() {
+    cy.getBySel('cancel-preflight').click().should('not.be.visible');
 }
 
 /**
@@ -30,6 +37,8 @@ export function verifyGame({
     lastMove?: string;
     lastMoveClock?: { white?: string; black?: string };
 }) {
+    cy.location('pathname').should('match', gameUrlRegex);
+
     if (white) {
         cy.getBySel('player-header-footer').contains(white);
     }
@@ -37,7 +46,10 @@ export function verifyGame({
         cy.getBySel('player-header-header').contains(black);
     }
     if (lastMove) {
-        cy.getBySel('pgn-text-move-button').last().should('have.text', lastMove).click();
+        cy.getBySel('pgn-text-move-button')
+            .last()
+            .should('have.text', lastMove)
+            .click({ force: true });
 
         if (lastMoveClock?.white) {
             cy.getBySel('player-header-footer').contains(lastMoveClock.white);

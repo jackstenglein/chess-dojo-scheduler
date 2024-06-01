@@ -1,4 +1,4 @@
-import { deleteCurrentGame, gameUrlRegex } from './helpers';
+import { cancelPreflight, deleteCurrentGame, gameUrlRegex } from './helpers';
 
 describe('Import Games Page - Position', () => {
     beforeEach(() => {
@@ -14,6 +14,7 @@ describe('Import Games Page - Position', () => {
         cy.getBySel('import-starting-position').click();
 
         cy.location('pathname').should('match', gameUrlRegex);
+        cancelPreflight();
 
         deleteCurrentGame();
     });

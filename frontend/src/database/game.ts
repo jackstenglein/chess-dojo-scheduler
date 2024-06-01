@@ -8,8 +8,8 @@ export enum GameResult {
  * Verifies whether the given value is a GameResult.
  * @param result The result to check.
  */
-export function isGameResult(result?: any): result is GameResult {
-    return result !== undefined && !!Object.values(GameResult).find((r) => r === result);
+export function isGameResult(result?: string): result is GameResult {
+    return !!Object.values(GameResult).find((r) => r === result);
 }
 
 export enum GameReviewStatus {

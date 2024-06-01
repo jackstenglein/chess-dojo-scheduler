@@ -11,7 +11,7 @@ import {
 } from '../../api/gameApi';
 import { Game } from '../../database/game';
 import ImportWizard from '../import/ImportWizard';
-import PublishGamePreflight from './PublishGamePreflight';
+import { PublishGamePreflight } from './MissingGameDataPreflight';
 
 interface PreflightData {
     req: CreateGameRequest;
@@ -32,7 +32,7 @@ const EditGamePage = () => {
 
         const req: UpdateGameRequest = {
             ...remoteGame,
-            unlisted: game?.unlisted,
+            unlisted: game?.unlisted ?? true,
             headers,
         };
 

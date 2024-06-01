@@ -54,17 +54,7 @@ async function updateGame(
     }
 
     const request = getRequest(event);
-    const [update, headers] = await getGameUpdate(request);
-    if (headers) {
-        return success({ count: 1, headers: [headers] });
-    }
-    if (!update) {
-        throw new ApiError({
-            statusCode: 500,
-            publicMessage: 'Temporary server error',
-            privateMessage: 'Update is null but headers was not null',
-        });
-    }
+    const update = await getGameUpdate(request);
 
     const game = await applyUpdate(userInfo.username, request.cohort, request.id, update);
     if (update.timelineId) {
@@ -100,7 +90,7 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
     const id = atob(encodedId);
 
     try {
-        const request: UpdateGameRequest = JSON.parse(event.body || '{}');
+        const request: Partial<UpdateGameRequest> = JSON.parse(event.body || '{}');
         if (!request.type && !request.orientation) {
             throw new ApiError({
                 statusCode: 400,
@@ -139,65 +129,86 @@ function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
  * @param request The UpdateGameRequest to process.
  * @returns A GameUpdate based on the given request.
  */
-async function getGameUpdate(
-    request: UpdateGameRequest,
-): Promise<[GameUpdate | null, GameImportHeaders | null]> {
+async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
     const update: GameUpdate = {
         updatedAt: new Date().toISOString(),
     };
 
-    if (request.orientation) {
-        update.orientation = request.orientation;
-    }
     if (request.unlisted !== undefined) {
         update.unlisted = request.unlisted;
-        update.publishedAt = request.unlisted ? null : new Date().toISOString();
-        update.timelineId = request.unlisted
-            ? ''
-            : `${update.publishedAt?.split('T')[0]}_${uuidv4()}`;
+
+        if (request.unlisted) {
+            update.publishedAt = null;
+            update.timelineId = '';
+        } else {
+            update.publishedAt = new Date().toISOString();
+            update.timelineId = `${update.publishedAt?.split('T')[0]}_${uuidv4()}`;
+        }
+    }
+
+    if (request.orientation) {
+        update.orientation = request.orientation;
     }
 
     if (request.type) {
         const pgnText = (await getPgnTexts(request))[0];
         const game = getGame(undefined, pgnText, request.headers);
-        const headers = getImportHeaders(game);
-        if (request.unlisted !== undefined && !request.unlisted && headers) {
-            return [null, headers];
-        }
 
         update.white = game.white;
         update.black = game.black;
         update.date = game.date;
-        update.headers = game.headers;
         update.pgn = game.pgn;
+        update.headers = game.headers;
+
+        const result = game.headers['Result'];
+        if (
+            isMissingData({ ...update, result }) &&
+            update.unlisted !== undefined &&
+            !update.unlisted
+        ) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Published games can not be missing data',
+                privateMessage: 'update requested, but game was missing data',
+            });
+        }
     }
 
-    return [update, null];
+    return update;
 }
 
 /**
- * Returns the import headers for the Game, if it is missing data. Otherwise returns null.
- * @param game The game to get the import headers for.
- * @returns The import headers, if the game is missing data. Null otherwise.
+ * Strip pgn player name tag values (i.e. the tags White and Black). As a convention, chess.com and others
+ * use question marks as placeholders for unknown values in PGN tags. In places, we have
+ * adopted this convention. Therefore, in order to tell if a name is truly empty, handling the case
+ * where the name value may be a placeholder, we must account for this convention.
+ * @param value the name to strip
+ * @returns the stripped name
  */
-function getImportHeaders(game: Game): GameImportHeaders | null {
-    const strippedWhite = game.white.trim().replaceAll('?', '');
-    const strippedBlack = game.black.trim().replaceAll('?', '');
+function stripPlayerNameHeader(value?: string): string {
+    return value?.trim().replaceAll('?', '') ?? '';
+}
 
-    if (
+/**
+ * Returns whether the game headers are missing data needed to publish
+ * @param game The game to check for publishability
+ * @returns Whether or not the game update is missing data
+ */
+function isMissingData({
+    white,
+    black,
+    result,
+    date,
+}: Partial<GameImportHeaders>): boolean {
+    const strippedWhite = stripPlayerNameHeader(white);
+    const strippedBlack = stripPlayerNameHeader(black);
+
+    return (
         !strippedWhite ||
         !strippedBlack ||
-        !isValidDate(game.date) ||
-        !isPublishableResult(game.headers.Result)
-    ) {
-        return {
-            white: strippedWhite ? game.white : '',
-            black: strippedBlack ? game.black : '',
-            date: isValidDate(game.date) ? game.date : '',
-            result: isPublishableResult(game.headers.Result) ? game.headers.Result : '',
-        };
-    }
-    return null;
+        !isValidDate(date) ||
+        !isPublishableResult(result)
+    );
 }
 
 /**

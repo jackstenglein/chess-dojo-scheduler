@@ -8,13 +8,15 @@ import {
     Radio,
     RadioGroup,
     Stack,
+    TextField,
     Typography,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../../../../analytics/events';
 import { useApi } from '../../../../../api/Api';
-import { useRequest } from '../../../../../api/Request';
+import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import {
     BoardOrientation,
     GameHeader,
@@ -22,10 +24,12 @@ import {
     UpdateGameRequest,
     isGame,
     isMissingData,
+    parsePgnDate,
+    toPgnDate,
 } from '../../../../../api/gameApi';
 import { useFreeTier } from '../../../../../auth/Auth';
-import { Game } from '../../../../../database/game';
-import PublishGamePreflight from '../../../../../games/edit/PublishGamePreflight';
+import { Game, PgnHeaders } from '../../../../../database/game';
+import { PublishGamePreflight } from '../../../../../games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
@@ -38,11 +42,28 @@ interface GameSettingsProps {
 
 const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
     const isFreeTier = useFreeTier();
-    const [visibility, setVisibility] = useState(game.unlisted ? 'unlisted' : 'public');
+    const [visibility, setVisibility] = useState(
+        game.unlisted ? 'unlisted' : 'published',
+    );
     const [orientation, setOrientation] = useState<BoardOrientation>(
         game.orientation ?? 'white',
     );
+    const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
     const navigate = useNavigate();
+
+    const headersChanged = Object.entries(game.headers).some(
+        ([name, value]) => value !== headers[name],
+    );
+
+    const unlisted = visibility === 'unlisted';
+    const dirty =
+        headersChanged ||
+        orientation !== game.orientation ||
+        (game.unlisted ?? false) !== unlisted;
+
+    const onChangeHeader = (name: string, value: string) => {
+        setHeaders((oldHeaders) => ({ ...oldHeaders, [name]: value }));
+    };
 
     return (
         <Stack spacing={5} mt={1}>
@@ -59,7 +80,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                         onChange={(e) => setVisibility(e.target.value)}
                     >
                         <FormControlLabel
-                            value='public'
+                            value='published'
                             control={<Radio disabled={isFreeTier} />}
                             label='Published'
                         />
@@ -97,14 +118,54 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                         />
                     </RadioGroup>
                 </FormControl>
+
+                <Stack spacing={2}>
+                    <Typography variant='h6'>Game Info</Typography>
+                    <TextField
+                        fullWidth
+                        data-cy='white'
+                        label="White's Name"
+                        value={headers.White}
+                        onChange={(e) => onChangeHeader('White', e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        data-cy='black'
+                        label="Black's Name"
+                        value={headers.Black}
+                        onChange={(e) => onChangeHeader('Black', e.target.value)}
+                    />
+                    <DatePicker
+                        label='Date Played'
+                        value={parsePgnDate(headers.Date)}
+                        onChange={(newValue) => {
+                            onChangeHeader('Date', toPgnDate(newValue) ?? '');
+                        }}
+                        slotProps={{
+                            textField: {
+                                id: 'date',
+                                fullWidth: true,
+                            },
+                            field: {
+                                clearable: true,
+                            },
+                        }}
+                    />
+                </Stack>
             </Stack>
 
             <Stack spacing={2}>
                 <SaveGameButton
                     game={game}
+                    dirty={dirty}
+                    headersChanged={headersChanged}
+                    headers={headers}
                     orientation={orientation}
-                    visibility={visibility}
-                    onSaveGame={onSaveGame}
+                    unlisted={unlisted}
+                    onSaveGame={(game) => {
+                        setHeaders(game.headers);
+                        onSaveGame?.(game);
+                    }}
                 />
 
                 <RequestReviewDialog game={game} />
@@ -123,35 +184,31 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
 interface SaveGameButtonProps {
     game: Game;
-    visibility: string;
+    unlisted: boolean;
     orientation: BoardOrientation;
+    headers: PgnHeaders;
+    headersChanged: boolean;
+    dirty: boolean;
     onSaveGame?: (g: Game) => void;
 }
 
 const SaveGameButton = ({
     game,
-    visibility,
+    unlisted,
     orientation,
+    headers,
+    headersChanged,
+    dirty,
     onSaveGame,
 }: SaveGameButtonProps) => {
     const { chess } = useChess();
-    const isFreeTier = useFreeTier();
     const api = useApi();
-    const request = useRequest<GameHeader>();
+    const request = useRequest();
     const [showPreflight, setShowPreflight] = useState<boolean>(false);
     const loading = request.isLoading();
 
-    const isPublishing = game.unlisted && visibility == 'public';
-    const needsPreflight = isPublishing && isMissingData(game);
-    const initHeaders: GameHeader = {
-        white: game.headers.White,
-        black: game.headers.Black,
-        result: game.headers.Result,
-        date: game.headers.Date,
-    };
-
-    const saveDisabled =
-        (visibility === 'unlisted') === game.unlisted && orientation === game.orientation;
+    const isPublishing = (game.unlisted ?? false) && !unlisted;
+    const needsPreflight = !unlisted && isMissingData({ ...game, headers });
 
     const onShowPreflight = () => {
         setShowPreflight(true);
@@ -162,20 +219,41 @@ const SaveGameButton = ({
         request.reset();
     };
 
-    const onSave = (headers?: GameHeader) => {
+    const onSave = (newHeaders?: GameHeader) => {
         request.onStart();
+
+        if (!newHeaders && headersChanged) {
+            newHeaders = {
+                white: headers.White || '?',
+                black: headers.Black || '??',
+                result: headers.Result,
+                date: headers.Date,
+            };
+        }
 
         const update: UpdateGameRequest = {
             orientation,
-            unlisted:
-                (visibility === 'unlisted') === game.unlisted
-                    ? undefined
-                    : isFreeTier || visibility === 'unlisted',
             timelineId: game.timelineId,
         };
 
-        if (headers) {
-            update.headers = headers;
+        if (isPublishing) {
+            update.unlisted = false;
+        } else if (!game.unlisted && unlisted) {
+            update.unlisted = true;
+        }
+
+        if (newHeaders) {
+            const pgnHeaders = {
+                White: newHeaders.white,
+                Black: newHeaders.black,
+                Date: newHeaders.date,
+            };
+
+            for (const [name, value] of Object.entries(pgnHeaders)) {
+                chess?.setHeader(name, value);
+            }
+
+            update.headers = newHeaders;
             update.type = GameSubmissionType.Manual;
             update.pgnText = chess?.renderPgn();
         }
@@ -202,9 +280,10 @@ const SaveGameButton = ({
 
     return (
         <>
+            <RequestSnackbar request={request} showSuccess />
             <LoadingButton
                 variant='contained'
-                disabled={saveDisabled}
+                disabled={!dirty}
                 loading={loading}
                 onClick={() => (needsPreflight ? onShowPreflight() : onSave())}
             >
@@ -213,7 +292,7 @@ const SaveGameButton = ({
             <PublishGamePreflight
                 open={showPreflight}
                 onClose={onClosePreflight}
-                initHeaders={initHeaders}
+                initHeaders={headers}
                 onSubmit={onSave}
                 loading={loading}
             />

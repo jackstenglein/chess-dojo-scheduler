@@ -235,8 +235,8 @@ export interface EditGameResponse {
     count: number;
 }
 
-export function isGame(obj: any): obj is Game {
-    return obj.count === undefined;
+export function isGame(obj: Game | EditGameResponse): obj is Game {
+    return !('count' in obj);
 }
 
 /**
@@ -752,4 +752,39 @@ export function isMissingData(game: Game) {
         stripTagValue(h.Black) === '' ||
         !isValidDate(h.Date)
     );
+}
+
+/**
+ * Parses PGN tag date
+ * @param pgnDate the PGN formatted date tag
+ * @returns DateTime if valid, otherwise null
+ */
+export function parsePgnDate(pgnDate?: string): DateTime<true> | null {
+    if (!pgnDate) {
+        return null;
+    }
+
+    const date = DateTime.fromISO(pgnDate.replaceAll('.', '-'));
+    if (!date.isValid) {
+        return null;
+    }
+
+    return date;
+}
+
+/**
+ * Converts a DateTime to a PGN tag suitable string
+ * @param date the DateTime object
+ * @returns a PGN tag value suitable to use for e.g. Date
+ */
+export function toPgnDate(date?: DateTime | null): string | null {
+    let pgnDate = date?.toUTC().toISO();
+    if (!pgnDate) {
+        return null;
+    }
+
+    pgnDate = pgnDate.substring(0, pgnDate.indexOf('T'));
+    pgnDate = pgnDate.replaceAll('-', '.');
+
+    return pgnDate;
 }

@@ -1,4 +1,10 @@
-import { clickImport, deleteCurrentGame, gameUrlRegex, verifyGame } from './helpers';
+import {
+    cancelPreflight,
+    clickImport,
+    deleteCurrentGame,
+    gameUrlRegex,
+    verifyGame,
+} from './helpers';
 
 function importPgnText(pgn: string) {
     cy.getBySel('pgn-text').type(pgn);
@@ -34,6 +40,7 @@ describe('Import Games Page - PGN Text', () => {
     it('submits from manual entry (headers only)', () => {
         cy.fixture('games/pgns/headers-only.txt').then((pgn) => {
             importPgnText(pgn);
+            cancelPreflight();
             verifyGame({ white: 'bestieboots', black: 'test2' });
             deleteCurrentGame();
         });
@@ -42,6 +49,7 @@ describe('Import Games Page - PGN Text', () => {
     it('submits from manual entry (moves only)', () => {
         cy.fixture('games/pgns/moves-only.txt').then((pgn) => {
             importPgnText(pgn);
+            cancelPreflight();
             verifyGame({ lastMove: 'a4' });
             deleteCurrentGame();
         });
