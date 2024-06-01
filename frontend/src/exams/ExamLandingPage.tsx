@@ -23,7 +23,7 @@ export const ExamLandingPage = () => {
             <Grid2 container rowSpacing={2} columnSpacing={2}>
                 <ExamCard
                     name='Tactics Tests'
-                    description='1500+'
+                    description='All Ratings'
                     href='/tests/tactics'
                     icon={QueenIcon}
                 />
