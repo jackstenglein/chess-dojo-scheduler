@@ -68,8 +68,8 @@ func handler(ctx context.Context, event Event) (Event, error) {
 	twitchTime = time.Date(twitchTime.Year(), twitchTime.Month(), twitchTime.Day(), 16, 0, 0, 0, twitchTime.Location())
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("## Congrats to this week's %s Grads!\n", event.ID))
-	sb.WriteString(fmt.Sprintf("Join us on [Twitch](<https://twitch.tv/chessdojo>) at <t:%d:t> today when we go over your profiles and games!\n", twitchTime.Unix()))
+	sb.WriteString(fmt.Sprintf("## %s Congrats to this week's %s Grads!\n", discord.MessageEmojiDojo, event.ID))
+	sb.WriteString(fmt.Sprintf("Join us on [**Twitch**](<https://twitch.tv/chessdojo>) at <t:%d:t> today when we go over your profiles and games!\n", twitchTime.Unix()))
 
 	hasGrads := false
 	for _, cohort := range cohorts {
@@ -86,12 +86,12 @@ func handler(ctx context.Context, event Event) (Event, error) {
 				log.Errorf("Failed to get Discord ID: %v", err)
 			}
 			if discordId == "" {
-				sb.WriteString(grad.DisplayName)
+				sb.WriteString(fmt.Sprintf("%s %s", discord.MessageEmojiDojo, grad.DisplayName))
 			} else {
-				sb.WriteString(fmt.Sprintf("<@%s>", discordId))
+				sb.WriteString(fmt.Sprintf("%s <@%s>", discord.MessageEmojiDojo, discordId))
 			}
 
-			sb.WriteString(fmt.Sprintf(" – [View Profile](<%s/profile/%s>)\n", frontendHost, grad.Username))
+			sb.WriteString(fmt.Sprintf(" – [**View Profile**](<%s/profile/%s>)\n", frontendHost, grad.Username))
 		}
 
 		if sb.Len() >= 1000 {
