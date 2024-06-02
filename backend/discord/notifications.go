@@ -87,7 +87,7 @@ func SendBookingNotification(username string, meetingId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("%s Hello, someone has just booked a meeting with you! View it [%s **Here**](<%s/meeting/%s>).", MessageEmojiWave, MessageEmojiArrow, frontendHost, meetingId)
+	msg := fmt.Sprintf("%s Hello, someone has just booked a meeting with you! View it %s [**Here**](<%s/meeting/%s>).", MessageEmojiWave, MessageEmojiArrow, frontendHost, meetingId)
 	return SendNotification(user, msg)
 }
 
@@ -103,7 +103,7 @@ func SendGroupJoinNotification(username string, availabilityId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("%s Hello, someone just joined your group meeting! View it [%s **Here**](<%s/meeting/%s>)", MessageEmojiWave, MessageEmojiArrow, frontendHost, availabilityId)
+	msg := fmt.Sprintf("%s Hello, someone just joined your group meeting! View it %s [**Here**](<%s/meeting/%s>)", MessageEmojiWave, MessageEmojiArrow, frontendHost, availabilityId)
 	return SendNotification(user, msg)
 }
 
