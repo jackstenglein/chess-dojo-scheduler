@@ -4,16 +4,20 @@ import csv
 db = boto3.resource('dynamodb')
 table = db.Table('prod-exams')
 
+examType = 'TACTICS_EXAM'
+examId = '97d577e0-6b9a-4b0a-a3e6-dbd590674c76'
+
 
 def writeCsv():
-    exam = table.get_item(Key={'type': 'POLGAR_EXAM', 'id': '29793882-9afb-4271-9ea8-c445ff1e0713'})['Item']
+    exam = table.get_item(Key={'type': examType, 'id': examId})['Item']
     answers = exam['answers']
 
-    with open('exam_answers-polgar-0-1.csv', 'w') as f:
+    with open('exam_answers.csv', 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(['Username', 'Rating', 'Cohort', 'Score'])
+        writer.writerow(['Username', 'Rating', 'Cohort', 'Time', 'Score'])
         for username, answer in answers.items():
-            writer.writerow([username, answer['rating'], answer['cohort'], answer['score']])
+            userAnswer = table.get_item(Key={'type': username, 'id': examId})['Item']
+            writer.writerow([username, answer['rating'], answer['cohort'], userAnswer['attempts'][0]['timeUsedSeconds'], answer['score']])
 
 
 def readCsv():
