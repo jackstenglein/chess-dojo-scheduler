@@ -50,7 +50,7 @@ deleteat!(times, negativeRatings)
 deleteat!(scores, negativeRatings)
 deleteat!(cohortsLow, negativeRatings)
 
-zeroScores = findall((v) -> v == 0, scores)
+zeroScores = findall((v) -> v < 0.15 * maxScore, scores)
 deleteat!(ratings, zeroScores)
 deleteat!(times, zeroScores)
 deleteat!(scores, zeroScores)
@@ -83,10 +83,10 @@ actualScores = collect(values(relevantCohorts))
 linearRegressionMatrix = [ones(length(actualScores),1) actualScores]
 parameters = linearRegressionMatrix\actualRatings
 println(parameters)
-plot!(1:maxScore, parameters[1].+parameters[2].*(1:maxScore), label="linear of relevant")
-plot!(1:maxScore, (minRating-100) .+ (maxRating-minRating+200)/(maxScore) .* (1:maxScore), label="imposed fit")
-weightedAverageRatings = (0.5).*((minRating-100) .+ (maxRating-minRating+200)/(maxScore) .* (1:maxScore)) .+ (0.5).*(parameters[1].+parameters[2].*(1:maxScore))
-plot!(1:maxScore, weightedAverageRatings, label="weighted avg of above two")
+plot!(0:maxScore, parameters[1].+parameters[2].*(0:maxScore), label="linear of relevant")
+plot!(0:maxScore, (minRating-100) .+ (maxRating-minRating+200)/(maxScore) .* (0:maxScore), label="imposed fit")
+weightedAverageRatings = (0.5).*((minRating-100) .+ (maxRating-minRating+200)/(maxScore) .* (0:maxScore)) .+ (0.5).*(parameters[1].+parameters[2].*(0:maxScore))
+plot!(0:maxScore, weightedAverageRatings, label="weighted avg of above two")
 
 weightedAverageRatings = (0.5).*((minRating-100) .+ (maxRating-minRating+200)/(maxScore) .* (actualScores)) .+ (0.5).*(parameters[1].+parameters[2].*(actualScores))
 mean = sum(actualRatings)/length(actualRatings)
@@ -98,12 +98,12 @@ println("r2 value = ", r2Value)
 #linearRegressionMatrix = [ones(length(scores),1) scores]
 #parameters = linearRegressionMatrix\ratings
 #println(parameters)
-#plot!(1:maxScore, parameters[1].+parameters[2].*(1:maxScore), label="linear of everyone")
+#plot!(0:maxScore, parameters[1].+parameters[2].*(0:maxScore), label="linear of everyone")
 
 #linearRegressionMatrix = [ones(length(scores),1) scores scores.*scores]
 #parameters = linearRegressionMatrix\ratings
 #println(parameters)
-#plot!(1:maxScore, parameters[1].+parameters[2].*(1:maxScore).+parameters[3].*(1:maxScore).^2, label="quadratic fit including everyone")
+#plot!(0:maxScore, parameters[1].+parameters[2].*(0:maxScore).+parameters[3].*(0:maxScore).^2, label="quadratic fit including everyone")
 
 #histogram(scores, bins=25)
 return plot!()
