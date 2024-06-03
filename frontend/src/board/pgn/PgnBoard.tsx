@@ -1,4 +1,4 @@
-import { Chess, Move, Observer } from '@jackstenglein/chess';
+import { Chess, Observer } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { Color } from 'chessground/types';
 import React, {
@@ -14,7 +14,7 @@ import React, {
 } from 'react';
 import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
-import { BoardApi, PrimitiveMove, reconcile } from '../Board';
+import { BoardApi } from '../Board';
 import ResizableContainer from './ResizableContainer';
 import { UnderboardTab } from './boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
@@ -110,32 +110,12 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             [chess, board, allowMoveDeletion, toggleOrientation, keydownMap, slots],
         );
 
-        const onMove = useCallback(
-            (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
-                chess.move({
-                    from: primMove.orig,
-                    to: primMove.dest,
-                    promotion: primMove.promotion,
-                });
-                reconcile(chess, board);
-            },
-            [],
-        );
-
         const onInitialize = useCallback(
             (board: BoardApi, chess: Chess) => {
                 parentOnInitialize?.(board, chess);
                 setBoard(board);
             },
             [parentOnInitialize, setBoard],
-        );
-
-        const onClickMove = useCallback(
-            (move: Move | null) => {
-                chess?.seek(move);
-                reconcile(chess, board);
-            },
-            [chess, board],
         );
 
         const gameOrientation = game?.orientation || startOrientation || 'white';
@@ -189,8 +169,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                                 fen,
                                 startOrientation,
                                 onInitialize,
-                                onMove,
-                                onClickMove,
                             }}
                         />
                     </ChessContext.Provider>

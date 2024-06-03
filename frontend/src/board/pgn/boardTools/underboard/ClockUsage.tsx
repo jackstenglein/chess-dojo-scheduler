@@ -3,7 +3,7 @@ import { Box, CardContent, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { AxisOptions, Chart, Datum as ChartDatum } from 'react-charts';
 import { useLightMode } from '../../../../ThemeProvider';
-import { reconcile } from '../../../Board';
+import { useReconcile } from '../../../Board';
 import { useChess } from '../../PgnBoard';
 import ClockEditor from './ClockEditor';
 
@@ -184,9 +184,10 @@ interface ClockUsageProps {
 }
 
 const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
-    const { chess, board } = useChess();
+    const { chess } = useChess();
     const light = useLightMode();
     const [forceRender, setForceRender] = useState(0);
+    const reconcile = useReconcile();
 
     const initialClock = getInitialClock(chess?.pgn);
     const increment = getIncrement(chess?.pgn);
@@ -339,7 +340,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     const onClickDatum = (datum: ChartDatum<Datum> | null) => {
         if (datum) {
             chess.seek(datum.originalDatum.move);
-            reconcile(chess, board);
+            reconcile();
         }
     };
 

@@ -213,7 +213,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                 </Typography>
             )}
 
-            <ChessContext.Provider value={{ chess }}>
+            <ChessContext.Provider value={{ chess, board }}>
                 <Box
                     gridArea='board'
                     sx={{

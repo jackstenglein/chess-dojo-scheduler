@@ -1,28 +1,30 @@
+import FunctionsIcon from '@mui/icons-material/Functions';
 import {
+    Box,
+    Link,
+    MenuItem,
     Stack,
-    Typography,
     TextField,
     Tooltip,
-    Box,
-    MenuItem,
+    Typography,
     darken,
     lighten,
     styled,
-    Link,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2/Grid2';
 import {
+    DataGridPro,
     GridColDef,
     GridRenderCellParams,
-    GridValueGetterParams,
-    GridRowParams,
     GridRowModel,
-    DataGridPro,
+    GridRowParams,
+    GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
-import FunctionsIcon from '@mui/icons-material/Functions';
 import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
+import { Request } from '../../../api/Request';
+import { useFreeTier } from '../../../auth/Auth';
 import {
     ExplorerMove,
     ExplorerPosition,
@@ -34,13 +36,11 @@ import {
     isExplorerMove,
     isExplorerPosition,
 } from '../../../database/explorer';
-import { getCohortRange, dojoCohorts } from '../../../database/user';
+import { dojoCohorts, getCohortRange } from '../../../database/user';
 import LoadingPage from '../../../loading/LoadingPage';
-import { reconcile } from '../../Board';
-import { useChess } from '../PgnBoard';
-import { Request } from '../../../api/Request';
-import { useFreeTier } from '../../../auth/Auth';
 import UpsellAlert from '../../../upsell/UpsellAlert';
+import { useReconcile } from '../../Board';
+import { useChess } from '../PgnBoard';
 
 const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -50,10 +50,10 @@ const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
         '& .chess-dojo-explorer--total': {
             backgroundColor: getBackgroundColor(
                 theme.palette.info.main,
-                theme.palette.mode
+                theme.palette.mode,
             ),
         },
-    })
+    }),
 );
 
 interface DatabaseProps {
@@ -77,12 +77,13 @@ const Database: React.FC<DatabaseProps> = ({
     setMinCohort,
     setMaxCohort,
 }) => {
-    const { chess, board } = useChess();
+    const { chess } = useChess();
+    const reconcile = useReconcile();
     const isFreeTier = useFreeTier();
 
     const cohortRange = useMemo(
         () => getCohortRange(minCohort, maxCohort),
-        [minCohort, maxCohort]
+        [minCohort, maxCohort],
     );
 
     const sortedMoves: Array<ExplorerMove | LichessExplorerMove> = useMemo(() => {
@@ -134,8 +135,8 @@ const Database: React.FC<DatabaseProps> = ({
     const totalGames = isExplorerPosition(position)
         ? getGameCount(position?.results || {}, cohortRange)
         : position
-        ? position.white + position.black + position.draws
-        : 0;
+          ? position.white + position.black + position.draws
+          : 0;
 
     const columns: GridColDef<ExplorerMove | LichessExplorerMove>[] = useMemo(() => {
         return [
@@ -150,7 +151,7 @@ const Database: React.FC<DatabaseProps> = ({
                     params: GridRenderCellParams<
                         ExplorerMove | LichessExplorerMove,
                         string
-                    >
+                    >,
                 ) => {
                     if (params.value === 'Total') {
                         return <FunctionsIcon fontSize='small' />;
@@ -164,7 +165,7 @@ const Database: React.FC<DatabaseProps> = ({
                 align: 'left',
                 headerAlign: 'left',
                 valueGetter: (
-                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>
+                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>,
                 ) => {
                     if (isExplorerMove(params.row)) {
                         return getGameCount(params.row.results, cohortRange);
@@ -175,7 +176,7 @@ const Database: React.FC<DatabaseProps> = ({
                     params: GridRenderCellParams<
                         ExplorerMove | LichessExplorerMove,
                         number
-                    >
+                    >,
                 ) => {
                     const gameCount = params.value || 0;
                     return (
@@ -198,7 +199,7 @@ const Database: React.FC<DatabaseProps> = ({
                 align: 'right',
                 headerAlign: 'left',
                 valueGetter: (
-                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>
+                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>,
                 ) => {
                     if (isExplorerMove(params.row)) {
                         return getResultCount(params.row, 'white', cohortRange);
@@ -206,7 +207,7 @@ const Database: React.FC<DatabaseProps> = ({
                     return params.row.white;
                 },
                 renderCell: (
-                    params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>
+                    params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>,
                 ) => {
                     let graphParams: ResultGraphProps = {
                         totalGames: 0,
@@ -227,7 +228,7 @@ const Database: React.FC<DatabaseProps> = ({
                                 analysis: getResultCount(
                                     params.row,
                                     'analysis',
-                                    cohortRange
+                                    cohortRange,
                                 ),
                             },
                         };
@@ -276,7 +277,7 @@ const Database: React.FC<DatabaseProps> = ({
     const onClickMove = (params: GridRowParams<ExplorerMove>) => {
         if (params.id !== 'Total') {
             chess?.move(params.id as string);
-            reconcile(chess, board);
+            reconcile();
         }
     };
 

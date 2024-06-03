@@ -16,6 +16,7 @@ import {
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { TimeField } from '@mui/x-date-pickers';
 import React, { useEffect, useRef, useState } from 'react';
+import { useReconcile } from '../../../Board';
 import {
     Nag,
     evalNags,
@@ -62,6 +63,7 @@ interface EditorProps {
 
 const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const { chess, config } = useChess();
+    const reconcile = useReconcile();
     const [, setForceRender] = useState(0);
     const textFieldRef = useRef<HTMLTextAreaElement>();
 
@@ -118,13 +120,16 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const isMainline = chess.isInMainline(move);
     const comment = move ? move.commentAfter || '' : chess.pgn.gameComment.comment || '';
 
-    const handleExclusiveNag = (nagSet: Nag[]) => (event: any, newNag: string | null) => {
-        const newNags = setNagInSet(newNag, nagSet, move?.nags);
-        chess.setNags(newNags);
-    };
+    const handleExclusiveNag =
+        (nagSet: Nag[]) => (_event: unknown, newNag: string | null) => {
+            const newNags = setNagInSet(newNag, nagSet, move?.nags);
+            chess.setNags(newNags);
+            reconcile();
+        };
 
-    const handleMultiNags = (nagSet: Nag[]) => (event: any, newNags: string[]) => {
+    const handleMultiNags = (nagSet: Nag[]) => (_event: unknown, newNags: string[]) => {
         chess.setNags(setNagsInSet(newNags, nagSet, move?.nags));
+        reconcile();
     };
 
     const takebacksDisabled =

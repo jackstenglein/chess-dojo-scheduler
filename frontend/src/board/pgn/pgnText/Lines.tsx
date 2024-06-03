@@ -11,11 +11,10 @@ const lineInset = 8; // px
 interface LineProps {
     line: Move[];
     depth: number;
-    onClickMove: (m: Move) => void;
     handleScroll: (child: HTMLElement | null) => void;
 }
 
-const Line: React.FC<LineProps> = ({ line, depth, onClickMove, handleScroll }) => {
+const Line: React.FC<LineProps> = ({ line, depth, handleScroll }) => {
     const chess = useChess().chess;
     const [, setForceRender] = useState(0);
 
@@ -45,7 +44,6 @@ const Line: React.FC<LineProps> = ({ line, depth, onClickMove, handleScroll }) =
                     key={`line-${i}`}
                     lines={[line.slice(i), ...move.variations]}
                     depth={depth + 1}
-                    onClickMove={onClickMove}
                     handleScroll={handleScroll}
                 />,
             );
@@ -59,7 +57,6 @@ const Line: React.FC<LineProps> = ({ line, depth, onClickMove, handleScroll }) =
                     inline
                     forceShowPly={i === 0}
                     move={move}
-                    onClickMove={onClickMove}
                     handleScroll={handleScroll}
                 />
                 <Comment move={move} inline />
@@ -90,11 +87,10 @@ const SCROLL_EXPANSION_INTO_VIEW_Y = 110;
 interface LinesProps {
     lines: Move[][];
     depth?: number;
-    onClickMove: (m: Move) => void;
     handleScroll: (child: HTMLElement | null) => void;
 }
 
-const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove, handleScroll }) => {
+const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll }) => {
     const [expanded, setExpanded] = useState(true);
     const expandRef = useRef<HTMLHRElement>(null);
     let d = depth || 0;
@@ -176,13 +172,7 @@ const Lines: React.FC<LinesProps> = ({ lines, depth, onClickMove, handleScroll }
 
             <Collapse in={expanded}>
                 {lines.map((l, idx) => (
-                    <Line
-                        key={idx}
-                        line={l}
-                        depth={d}
-                        onClickMove={onClickMove}
-                        handleScroll={handleScroll}
-                    />
+                    <Line key={idx} line={l} depth={d} handleScroll={handleScroll} />
                 ))}
             </Collapse>
         </Box>

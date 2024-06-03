@@ -1,21 +1,22 @@
 import { Move } from '@jackstenglein/chess';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import { useReconcile } from '../Board';
+import { BlockBoardKeyboardShortcuts, useChess } from './PgnBoard';
+import VariationDialog from './VariationDialog';
+import { UnderboardApi } from './boardTools/underboard/Underboard';
 import {
     BoardKeyBindingsKey,
+    ShortcutAction,
     defaultKeyBindings,
     keyboardShortcutHandlers,
     matchAction,
     modifierKeys,
-    ShortcutAction,
 } from './boardTools/underboard/settings/KeyboardShortcuts';
 import {
     VariationBehavior,
     VariationBehaviorKey,
 } from './boardTools/underboard/settings/ViewerSettings';
-import { UnderboardApi } from './boardTools/underboard/Underboard';
-import { BlockBoardKeyboardShortcuts, useChess } from './PgnBoard';
-import VariationDialog from './VariationDialog';
 
 interface KeyboardHandlerProps {
     underboardRef: React.RefObject<UnderboardApi>;
@@ -23,6 +24,7 @@ interface KeyboardHandlerProps {
 
 const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
     const { chess, board, keydownMap, toggleOrientation } = useChess();
+    const reconcile = useReconcile();
     const [variationBehavior] = useLocalStorage(
         VariationBehaviorKey,
         VariationBehavior.None,
@@ -63,13 +65,18 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             event.preventDefault();
             event.stopPropagation();
 
-            keyboardShortcutHandlers[matchedAction]?.(chess, board, {
-                underboardApi: underboardRef.current,
-                toggleOrientation,
-                setVariationDialogMove:
-                    variationBehavior === VariationBehavior.Dialog
-                        ? setVariationDialogMove
-                        : undefined,
+            keyboardShortcutHandlers[matchedAction]?.({
+                chess,
+                board,
+                reconcile,
+                opts: {
+                    underboardApi: underboardRef.current,
+                    toggleOrientation,
+                    setVariationDialogMove:
+                        variationBehavior === VariationBehavior.Dialog
+                            ? setVariationDialogMove
+                            : undefined,
+                },
             });
         },
         [

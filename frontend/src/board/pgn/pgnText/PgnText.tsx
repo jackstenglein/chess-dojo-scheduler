@@ -1,4 +1,3 @@
-import { Move } from '@jackstenglein/chess';
 import { Card, Stack } from '@mui/material';
 import React, { useMemo, useRef } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
@@ -11,11 +10,7 @@ import GameComment from './GameComment';
 import Result from './Result';
 import Variation from './Variation';
 
-interface PgnTextProps {
-    onClickMove: (m: Move) => void;
-}
-
-const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
+const PgnText = () => {
     const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
 
@@ -41,26 +36,26 @@ const PgnText: React.FC<PgnTextProps> = ({ onClickMove }) => {
             sx={{ overflowY: 'scroll' }}
         >
             <GameComment />
-            <Variation handleScroll={handleScroll} onClickMove={onClickMove} />
+            <Variation handleScroll={handleScroll} />
             <Result />
         </Card>
     );
 };
 
-interface ResizablePgnTextProps extends PgnTextProps {
+interface ResizablePgnTextProps {
     resizeData: ResizableData;
     onResize: (width: number, height: number) => void;
 }
 
 export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
-    const { resizeData, onResize, onClickMove } = props;
+    const { resizeData, onResize } = props;
     const { chess } = useChess();
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
         onResize(data.size.width, data.size.height);
     };
 
-    const Pgn = useMemo(() => <PgnText onClickMove={onClickMove} />, [onClickMove]);
+    const Pgn = useMemo(() => <PgnText />, []);
 
     return (
         <Resizable
