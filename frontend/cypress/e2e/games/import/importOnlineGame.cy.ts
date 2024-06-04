@@ -31,8 +31,8 @@ describe('Import Games Page - Import Online Games', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'games',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/games/import');
         cy.clock(new Date('2024-05-26'));
@@ -45,10 +45,8 @@ describe('Import Games Page - Import Online Games', () => {
         clickImport();
         cy.contains('URL is required');
 
-        cy.getBySel('online-game-url')
-            .clear()
-            .type('hello, world!')
-            .type(testUrls.lichessChapter);
+        cy.getBySel('online-game-url').clear();
+        cy.type('hello, world!' + testUrls.lichessChapter);
         clickImport();
         cy.contains('The provided URL is unsupported');
     });
@@ -148,7 +146,7 @@ describe('Import Games Page - Import Online Games', () => {
         deleteCurrentGame();
     });
 
-    if (Cypress.env('cognito_username') === 'jackstenglein+test@gmail.com') {
+    if (cy.dojo.env('cognito_username') === 'jackstenglein+test@gmail.com') {
         it('submits from Chess.com recent game', () => {
             cy.contains('othaluran').click();
             verifyGame({

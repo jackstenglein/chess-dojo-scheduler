@@ -4,8 +4,9 @@
         "lib": ["es5", "dom"],
         "types": ["cypress", "node", "cypress-real-events"],
         "resolveJsonModule": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "strict": true
 
     },
-    "include": ["**/*.ts"]
+    "include": ["**/*.ts", ".eslintrc.cjs"]
 }

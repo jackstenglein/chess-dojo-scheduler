@@ -6,8 +6,8 @@ describe('Submit Results Page', () => {
     it('hides email for logged in users', () => {
         cy.loginByCognitoApi(
             'tournaments',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/tournaments/open-classical/submit-results');
 

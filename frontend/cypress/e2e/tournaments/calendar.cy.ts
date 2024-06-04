@@ -5,8 +5,8 @@ describe('Calendar Tab', () => {
         cy.interceptApi('GET', '/event', { fixture: 'tournaments/events.json' });
         cy.loginByCognitoApi(
             'tournaments',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.clock(tournamentsClock);
 

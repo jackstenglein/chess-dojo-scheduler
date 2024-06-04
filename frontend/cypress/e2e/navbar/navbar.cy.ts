@@ -53,12 +53,12 @@ describe('Navbar', () => {
     });
 
     viewPortWidths.forEach(({ width, hidden, endHidden }) => {
-        it(`shows correct authenticated items with ${width}px width`, () => {
+        it(`shows correct authenticated items with ${width.toString()}px width`, () => {
             cy.viewport(width, 660);
             cy.loginByCognitoApi(
                 'navbar',
-                Cypress.env('cognito_username'),
-                Cypress.env('cognito_password'),
+                cy.dojo.env('cognito_username'),
+                cy.dojo.env('cognito_password'),
             );
 
             navbarStartItems
@@ -67,22 +67,24 @@ describe('Navbar', () => {
                     cy.getBySel('navbar').contains(item);
                 });
 
-            navbarEndItems.slice(endHidden).forEach((item) => cy.getBySel(item));
+            navbarEndItems.slice(endHidden).forEach((item) => {
+                cy.getBySel(item);
+            });
 
             if (hidden > 0) {
                 cy.getBySel('navbar-more-button').click();
 
                 navbarStartItems
                     .slice(navbarStartItems.length - hidden)
-                    .forEach((item) => cy.get('#menu-appbar').contains(item));
+                    .forEach((item) => {
+                        cy.get('#menu-appbar').contains(item);
+                    });
 
-                navbarEndItems
-                    .slice(0, endHidden)
-                    .forEach(
-                        (item) =>
-                            item !== 'navbar-profile-button' &&
-                            cy.get('#menu-appbar').contains(item),
-                    );
+                navbarEndItems.slice(0, endHidden).forEach((item) => {
+                    if (item !== 'navbar-profile-button') {
+                        cy.get('#menu-appbar').contains(item);
+                    }
+                });
             }
         });
     });

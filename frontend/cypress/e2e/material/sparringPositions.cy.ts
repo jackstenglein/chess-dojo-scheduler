@@ -2,8 +2,8 @@ describe('Sparring Positions Tab', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'material',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.interceptApi('GET', '/requirements/ALL_COHORTS?scoreboardOnly=false').as(
             'requirementRequest',
@@ -14,14 +14,16 @@ describe('Sparring Positions Tab', () => {
     });
 
     it('should have correct sections', () => {
-        [
+        const titles = [
             'Middlegame Win Conversions',
             'Middlegame Sparring',
             'Endgame Algorithms',
             'Endgame Win Conversions',
             'Endgame Sparring',
             'Rook Endgame Progression',
-        ].forEach((title) => cy.contains(title));
+        ];
+
+        cy.containsAll(titles);
     });
 
     it('should have sections collapsed by default', () => {
@@ -51,7 +53,7 @@ describe('Sparring Positions Tab', () => {
 
         cy.window()
             .its('navigator.clipboard')
-            .then((clip) => clip.readText())
+            .invoke('readText')
             .should(
                 'equal',
                 '2r2rk1/pb1nbppp/1p2pn2/2pp4/3P1B2/2PBPN2/PP3PPP/RN1QR1K1 w - - 0 1',

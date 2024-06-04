@@ -15,7 +15,8 @@ export function deleteCurrentGame() {
  * Cancel the missing-data preflight
  */
 export function cancelPreflight() {
-    cy.getBySel('cancel-preflight').click().should('not.be.visible');
+    cy.getBySel('cancel-preflight').click();
+    cy.getBySel('cancel-preflight').should('not.be.visible');
 }
 
 /**

@@ -1,6 +1,5 @@
 // ***********************************************************
-// This example support/e2e.ts is processed and
-// loaded automatically before your test files.
+// This file is processed and loaded automatically before your test files.
 //
 // This is a great place to put global configuration and
 // behavior that modifies Cypress.
@@ -13,9 +12,9 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
-import './commands';
 import 'cypress-real-events';
+import './commands';
 
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+// By importing this here, our custom commands defined in commands.ts
+// are available to it
+import './auth-provider-commands/cognito';

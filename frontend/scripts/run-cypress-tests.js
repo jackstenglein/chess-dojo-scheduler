@@ -39,7 +39,7 @@ const usage = [
     },
 ];
 
-const optionList = usage.find((section) => section.header == 'Options').optionList;
+const optionList = usage.find((section) => section.header === 'Options').optionList;
 const { spec, watch, help } = commandLineArgs(optionList);
 
 if (help) {
