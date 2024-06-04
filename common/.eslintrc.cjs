@@ -2,12 +2,7 @@
 module.exports = {
     extends: [
         'eslint:recommended',
-        /* Get these passing first */
-        // 'plugin:@typescript-eslint/recommended-type-checked',
-        /* Then these
-        // 'plugin:@typescript-eslint/strict-type-checked',
-        /* Finally these */
-        // 'plugin:@typescript-eslint/stylistic-type-checked',
+        'plugin:@typescript-eslint/strict-type-checked',
         'plugin:eqeqeq-fix/recommended',
         'plugin:react/jsx-runtime',
         'plugin:react-hooks/recommended',
@@ -42,8 +37,7 @@ module.exports = {
     root: true,
     settings: {
         react: {
-            version: 'detect',
+            version: '^8.57.0',
         },
     },
-    ignorePatterns: ['build'],
 };

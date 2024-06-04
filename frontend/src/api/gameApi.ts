@@ -11,7 +11,7 @@ import {
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type GameApiContextType = {
+export interface GameApiContextType {
     /**
      * createGame saves the provided game in the database.
      * @param req The CreateGameRequest.
@@ -192,7 +192,7 @@ export type GameApiContextType = {
      * @returns An AxiosResponse containing the updated game.
      */
     markReviewed: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
-};
+}
 
 export enum GameSubmissionType {
     LichessChapter = 'lichessChapter',
@@ -356,7 +356,7 @@ export function listGamesByCohort(
     startDate?: string,
     endDate?: string,
 ) {
-    let params = { startDate, endDate, startKey };
+    const params = { startDate, endDate, startKey };
     cohort = encodeURIComponent(cohort);
     return axios.get<ListGamesResponse>(BASE_URL + `/game/${cohort}`, {
         params,
@@ -386,7 +386,7 @@ export function listGamesByOwner(
     player?: string,
     color?: string,
 ) {
-    let params = { owner, startKey, startDate, endDate, player, color };
+    const params = { owner, startKey, startDate, endDate, player, color };
     return axios.get<ListGamesResponse>(BASE_URL + '/game', {
         params,
         headers: {
@@ -412,7 +412,7 @@ export function listGamesByOpening(
     startDate?: string,
     endDate?: string,
 ) {
-    let params = { eco, startKey, startDate, endDate };
+    const params = { eco, startKey, startDate, endDate };
     return axios.get<ListGamesResponse>(BASE_URL + '/game/opening', {
         params,
         headers: {
@@ -430,7 +430,7 @@ export function listGamesByOpening(
  * @returns A list of games matching the provided FEN.
  */
 export function listGamesByPosition(idToken: string, fen: string, startKey?: string) {
-    let params = { fen, startKey };
+    const params = { fen, startKey };
     return axios.get<ListGamesResponse>(BASE_URL + '/game/position', {
         params,
         headers: {
@@ -446,7 +446,7 @@ export function listGamesByPosition(idToken: string, fen: string, startKey?: str
  * @returns A list of featured games.
  */
 export async function listFeaturedGames(idToken: string, startKey?: string) {
-    let params = { startKey };
+    const params = { startKey };
     const result: GameInfo[] = [];
 
     do {
@@ -535,7 +535,7 @@ export function updateComment(idToken: string, update: UpdateCommentRequest) {
     });
 }
 
-export interface DeleteCommentRequest extends Omit<UpdateCommentRequest, 'content'> {}
+export type DeleteCommentRequest = Omit<UpdateCommentRequest, 'content'>
 
 /**
  * Deletes a comment on a game. The full updated game is returned.

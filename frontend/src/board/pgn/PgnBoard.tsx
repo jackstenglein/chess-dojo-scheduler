@@ -28,14 +28,14 @@ interface ChessConfig {
     disableTakebacks?: Color | 'both';
 }
 
-type ChessContextType = {
+interface ChessContextType {
     chess?: Chess;
     board?: BoardApi;
     config?: ChessConfig;
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
-};
+}
 
 export const ChessContext = createContext<ChessContextType>({});
 

@@ -96,7 +96,7 @@ function getPlayerName(
     rating?: string | number,
     provisional?: boolean,
 ): string {
-    let str = `${username}`;
+    let str = username;
     if (rating === undefined) {
         str += ' (??)';
     } else if (rating) {

@@ -567,12 +567,12 @@ function getCategoryTimeChartData(
     }
 
     const requirementMap =
-        requirements.reduce(
+        requirements.reduce<Record<string, Requirement>>(
             (map, r) => {
                 map[r.id] = r;
                 return map;
             },
-            {} as Record<string, Requirement>,
+            {},
         ) ?? {};
 
     const data: Record<string, PieChartData> = {};

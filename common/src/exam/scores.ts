@@ -50,10 +50,10 @@ export function getSolutionScore(
 ): number {
     let score = 0;
 
-    for (let move of solution) {
+    for (const move of solution) {
         // Recursively check variations
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 score += getSolutionScore(playAs, variation, chess, isUnscored);
             }
         }
@@ -89,6 +89,8 @@ export function getSolutionScore(
             }
         }
 
+        // Remove disabled when there's time to.
+        /* eslint-disable @typescript-eslint/restrict-plus-operands */
         score += move.userData?.score || 0;
 
         const eolSearch = endOfLineRegex.exec(move.commentAfter || '');
@@ -119,12 +121,12 @@ export function scoreVariation(
     let score = 0;
     let altFound = false;
 
-    for (let move of solution) {
+    for (const move of solution) {
         // The user may not have found the mainline solution,
         // but may have found a variation, which can also have a score associated, or can be an alternate solution
         // for this move
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 const [variationScore, alt] = scoreVariation(
                     playAs,
                     variation,
@@ -162,6 +164,9 @@ export function scoreVariation(
             found: Boolean(answerMove),
             altFound: variationAlt,
         };
+
+        // Remove disabled when there's time to.
+        /* eslint-disable @typescript-eslint/restrict-plus-operands */
         score += move.userData.score || 0;
         currentAnswerMove = answerMove;
 

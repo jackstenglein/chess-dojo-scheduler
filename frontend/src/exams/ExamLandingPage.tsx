@@ -53,7 +53,7 @@ interface ExamCardProps {
     href: string;
     icon:
         | ((props: SvgIconProps) => JSX.Element)
-        | (OverridableComponent<SvgIconTypeMap<{}, 'svg'>> & { muiName: string });
+        | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
     disabled?: boolean;
 }
 

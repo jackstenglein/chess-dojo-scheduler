@@ -254,7 +254,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     if (
                         !hasAnswered &&
                         i >= 1 &&
-                        !Boolean(exams[i - 1].answers[user?.username || ''])
+                        !exams[i - 1].answers[user?.username || '']
                     ) {
                         return (
                             <Tooltip title='This exam is locked until you complete the previous exam'>
@@ -366,7 +366,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         if (
             !user?.isAdmin &&
             i >= 1 &&
-            !Boolean(exams[i - 1].answers[user?.username || ''])
+            !exams[i - 1].answers[user?.username || '']
         ) {
             setSnackbarOpen(true);
         } else if (i >= 1 && isFreeTier) {
