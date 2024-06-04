@@ -71,55 +71,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
             <Stack spacing={3}>
                 <Typography variant='h5'>Game Settings</Typography>
 
-                <FormControl disabled={isFreeTier}>
-                    <FormLabel>Visibility</FormLabel>
-                    <RadioGroup
-                        row
-                        value={visibility}
-                        onChange={(e) => setVisibility(e.target.value)}
-                    >
-                        <FormControlLabel
-                            value='published'
-                            control={<Radio disabled={isFreeTier} />}
-                            label='Published'
-                        />
-                        <FormControlLabel
-                            value='unlisted'
-                            control={<Radio disabled={isFreeTier} />}
-                            label='Unlisted'
-                        />
-                    </RadioGroup>
-                    {isFreeTier && (
-                        <FormHelperText>
-                            Free-tier users can only submit unlisted games
-                        </FormHelperText>
-                    )}
-                </FormControl>
-
-                <FormControl>
-                    <FormLabel>Default Orientation</FormLabel>
-                    <RadioGroup
-                        row
-                        value={orientation}
-                        onChange={(e) =>
-                            setOrientation(e.target.value as BoardOrientation)
-                        }
-                    >
-                        <FormControlLabel
-                            value='white'
-                            control={<Radio />}
-                            label='White'
-                        />
-                        <FormControlLabel
-                            value='black'
-                            control={<Radio />}
-                            label='Black'
-                        />
-                    </RadioGroup>
-                </FormControl>
-
                 <Stack spacing={2}>
-                    <Typography variant='h6'>Game Info</Typography>
                     <TextField
                         fullWidth
                         data-cy='white'
@@ -150,6 +102,53 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                             },
                         }}
                     />
+
+                    <FormControl>
+                        <FormLabel>Default Orientation</FormLabel>
+                        <RadioGroup
+                            row
+                            value={orientation}
+                            onChange={(e) =>
+                                setOrientation(e.target.value as BoardOrientation)
+                            }
+                        >
+                            <FormControlLabel
+                                value='white'
+                                control={<Radio />}
+                                label='White'
+                            />
+                            <FormControlLabel
+                                value='black'
+                                control={<Radio />}
+                                label='Black'
+                            />
+                        </RadioGroup>
+                    </FormControl>
+
+                    <FormControl disabled={isFreeTier}>
+                        <FormLabel>Visibility</FormLabel>
+                        <RadioGroup
+                            row
+                            value={visibility}
+                            onChange={(e) => setVisibility(e.target.value)}
+                        >
+                            <FormControlLabel
+                                value='published'
+                                control={<Radio disabled={isFreeTier} />}
+                                label='Published'
+                            />
+                            <FormControlLabel
+                                value='unlisted'
+                                control={<Radio disabled={isFreeTier} />}
+                                label='Unlisted'
+                            />
+                        </RadioGroup>
+                        {isFreeTier && (
+                            <FormHelperText>
+                                Free-tier users can only submit unlisted games
+                            </FormHelperText>
+                        )}
+                    </FormControl>
                 </Stack>
             </Stack>
 
