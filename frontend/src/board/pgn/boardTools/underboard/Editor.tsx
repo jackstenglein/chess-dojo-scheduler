@@ -153,7 +153,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             <Grid2 xs={6}>
                                 <TimeField
                                     id={BlockBoardKeyboardShortcuts}
-                                    label='Starting Time (hh:mm:ss)'
+                                    label='Time Control (hh:mm:ss)'
                                     format='HH:mm:ss'
                                     value={convertSecondsToDateTime(initialClock)}
                                     onChange={(value) =>
