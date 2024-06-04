@@ -10,7 +10,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-import { reconcile } from '../Board';
+import { useReconcile } from '../Board';
 import { compareNags, getStandardNag, nags } from './Nag';
 import { BlockBoardKeyboardShortcuts, useChess } from './PgnBoard';
 import { getTextColor } from './pgnText/MoveButton';
@@ -23,14 +23,15 @@ interface VariationDialogProps {
 const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
     const [selected, setSelected] = useState(0);
     const { chess, board } = useChess();
+    const reconcile = useReconcile();
 
     const selectMove = useCallback(
         (move: Move) => {
             chess?.seek(move);
-            reconcile(chess, board);
+            reconcile();
             setMove(null);
         },
-        [chess, board, setMove],
+        [chess, board, setMove, reconcile],
     );
 
     useEffect(() => {

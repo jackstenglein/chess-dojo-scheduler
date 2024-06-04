@@ -1,4 +1,4 @@
-import { Event, EventType, Move } from '@jackstenglein/chess';
+import { Event, EventType } from '@jackstenglein/chess';
 import { Grid, Paper } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useChess } from '../PgnBoard';
@@ -6,10 +6,9 @@ import MoveDisplay from './MoveDisplay';
 
 interface VariationProps {
     handleScroll: (child: HTMLElement | null) => void;
-    onClickMove: (m: Move) => void;
 }
 
-const Variation: React.FC<VariationProps> = ({ handleScroll, onClickMove }) => {
+const Variation: React.FC<VariationProps> = ({ handleScroll }) => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
 
@@ -58,7 +57,6 @@ const Variation: React.FC<VariationProps> = ({ handleScroll, onClickMove }) => {
                         <MoveDisplay
                             move={move}
                             handleScroll={handleScroll}
-                            onClickMove={onClickMove}
                             key={move.ply}
                         />
                     );

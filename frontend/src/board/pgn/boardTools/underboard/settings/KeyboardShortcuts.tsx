@@ -16,7 +16,7 @@ import {
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { BoardApi, reconcile } from '../../../../Board';
+import { BoardApi } from '../../../../Board';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
 import { DefaultUnderboardTab, UnderboardApi } from '../Underboard';
 
@@ -237,45 +237,51 @@ interface ShortcutHandlerOptions {
     toggleOrientation?: () => void;
 }
 
-/** A function which handles a keyboard shortcut, using the provided Chess and Board instances. */
-type ShortcutHandler = (
-    chess: Chess | undefined,
-    board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) => void;
+interface ShortcutHandlerProps {
+    /** The Chess instance to update. */
+    chess?: Chess;
+
+    /** The Board instance to update. */
+    board?: BoardApi;
+
+    /** The Chess/Board reconcile function. */
+    reconcile?: () => void;
+
+    /** The shortcut handler options. */
+    opts?: ShortcutHandlerOptions;
+}
+
+/** A function which handles a keyboard shortcut. */
+type ShortcutHandler = (props: ShortcutHandlerProps) => void;
 
 /**
  * Goes to the first move in the given Chess instance.
  * @param chess The Chess instance to update.
- * @param board The Board instance to update.
+ * @param reconcile The Chess/Board reconcile function.
  */
-function handleFirstMove(chess: Chess | undefined, board: BoardApi | undefined) {
+function handleFirstMove({ chess, reconcile }: ShortcutHandlerProps) {
     chess?.seek(null);
-    reconcile(chess, board);
+    reconcile?.();
 }
 
 /**
  * Goes to the previous move in the given Chess instance.
  * @param chess The Chess instance to update.
- * @param board The Board instance to update.
+ * @param reconcile The Chess/Board reconcile function.
  */
-function handlePreviousMove(chess: Chess | undefined, board: BoardApi | undefined) {
+function handlePreviousMove({ chess, reconcile }: ShortcutHandlerProps) {
     chess?.seek(chess.previousMove());
-    reconcile(chess, board);
+    reconcile?.();
 }
 
 /**
  * Goes to the next move, if one exists, in the given Chess instance or set the variation
  * dialog move if opts.setVariationDialog move is provided.
  * @param chess The Chess instance to update.
- * @param board The Board instance to update.
+ * @param reconcile The Chess/Board reconcile function.
  * @param opts The options to use.
  */
-function handleNextMove(
-    chess: Chess | undefined,
-    board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleNextMove({ chess, reconcile, opts }: ShortcutHandlerProps) {
     const nextMove = chess?.nextMove();
     if (!nextMove) {
         return;
@@ -289,164 +295,122 @@ function handleNextMove(
         opts.setVariationDialogMove(nextMove);
     } else {
         chess?.seek(nextMove);
-        reconcile(chess, board);
+        reconcile?.();
     }
 }
 
 /**
  * Goes to the last move in the given Chess instance.
  * @param chess The Chess instance to update.
- * @param board The Board instance to update.
+ * @param reconcile The Chess/Board reconcile function.
  */
-function handleLastMove(chess: Chess | undefined, board: BoardApi | undefined) {
+function handleLastMove({ chess, reconcile }: ShortcutHandlerProps) {
     chess?.seek(chess.lastMove());
-    reconcile(chess, board);
+    reconcile?.();
 }
 
 /**
  * Handles toggling the orientation of the board. This function is a no-op if opts
  * does not contain a valid toggleOrientation function.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleToggleOrientation(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleToggleOrientation({ opts }: ShortcutHandlerProps) {
     opts?.toggleOrientation?.();
 }
 
 /**
  * Goes to the first variation of the next move, if one exists. Otherwise goes to the next move.
  * @param chess The Chess instance to update.
- * @param board The Board instance to update.
+ * @param reconcile The Chess/Board reconcile function.
  */
-function handleFirstVariation(chess: Chess | undefined, board: BoardApi | undefined) {
+function handleFirstVariation({ chess, reconcile }: ShortcutHandlerProps) {
     let nextMove = chess?.nextMove();
     if (nextMove?.variations.length) {
         nextMove = nextMove.variations[0][0];
     }
     if (nextMove) {
         chess?.seek(nextMove);
-        reconcile(chess, board);
+        reconcile?.();
     }
 }
 
 /**
  * Goes to the first move of the current variation.
  * @param chess The Chess instance to update.
- * @param board The Board instance to update.
+ * @param reconcile The Chess/Board reconcile function.
  */
-function handleFirstMoveVariation(chess: Chess | undefined, board: BoardApi | undefined) {
+function handleFirstMoveVariation({ chess, reconcile }: ShortcutHandlerProps) {
     const move = chess?.currentMove();
     if (move) {
         chess?.seek(move.variation[0]);
-        reconcile(chess, board);
+        reconcile?.();
     }
 }
 
 /**
  * Goes to the last move of the current variation.
  * @param chess The Chess instance to update.
- * @param board The Board instance to update.
+ * @param reconcile The Chess/Board reconcile function.
  */
-function handleLastMoveVariation(chess: Chess | undefined, board: BoardApi | undefined) {
+function handleLastMoveVariation({ chess, reconcile }: ShortcutHandlerProps) {
     const move = chess?.currentMove();
     if (move) {
         chess?.seek(move.variation[move.variation.length - 1]);
-        reconcile(chess, board);
+        reconcile?.();
     }
 }
 
 /**
  * Handles opening the Tags tab in the underboard. This function is a no-op if opts
  * does not contain a valid underboardApi object.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleOpenTags(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleOpenTags({ opts }: ShortcutHandlerProps) {
     opts?.underboardApi?.switchTab(DefaultUnderboardTab.Tags);
 }
 
 /**
  * Handles opening the Editor tab in the underboard. This function is a no-op if opts
  * does not contain a valid underboardApi object.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleOpenEditor(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleOpenEditor({ opts }: ShortcutHandlerProps) {
     opts?.underboardApi?.switchTab(DefaultUnderboardTab.Editor);
 }
 
 /**
  * Handles opening the Comments tab in the underboard. This function is a no-op if opts
  * does not contain a valid underboardApi object.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleOpenComments(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleOpenComments({ opts }: ShortcutHandlerProps) {
     opts?.underboardApi?.switchTab(DefaultUnderboardTab.Comments);
 }
 
 /**
  * Handles opening the Database Explorer tab in the underboard. This function is a no-op if opts
  * does not contain a valid underboardApi object.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleOpenDatabase(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleOpenDatabase({ opts }: ShortcutHandlerProps) {
     opts?.underboardApi?.switchTab(DefaultUnderboardTab.Explorer);
 }
 
 /**
  * Handles opening the Clock Usage tab in the underboard. This function is a no-op if opts
  * does not contain a valid underboardApi object.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleOpenClocks(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleOpenClocks({ opts }: ShortcutHandlerProps) {
     opts?.underboardApi?.switchTab(DefaultUnderboardTab.Clocks);
 }
 
 /**
  * Handles opening the Settings tab in the underboard. This function is a no-op if opts
  * does not contain a valid underboardApi object.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleOpenSettings(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleOpenSettings({ opts }: ShortcutHandlerProps) {
     opts?.underboardApi?.switchTab(DefaultUnderboardTab.Settings);
 }
 
@@ -455,30 +419,18 @@ function handleOpenSettings(
  * the Editor tab text field if the current user owns the current game and the
  * Comment tab text field otherwise. This function is a no-op if opts
  * does not contain a valid underboardApi object.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleFocusMainTextField(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleFocusMainTextField({ opts }: ShortcutHandlerProps) {
     opts?.underboardApi?.focusEditor();
 }
 
 /**
  * Handles focusing the comment tab text field in the underboard. This function is a
  * no-op if opts does not contain a valid underboardApi object.
- * @param _chess The current Chess instance. Unused.
- * @param _board The current Board instance. Unused.
  * @param opts The options to use.
  */
-function handleFocusCommentTextField(
-    _chess: Chess | undefined,
-    _board: BoardApi | undefined,
-    opts?: ShortcutHandlerOptions,
-) {
+function handleFocusCommentTextField({ opts }: ShortcutHandlerProps) {
     opts?.underboardApi?.focusCommenter();
 }
 

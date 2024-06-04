@@ -17,6 +17,7 @@ export const VariationBehaviorKey = 'variationBehavior';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
 export const ShowLegalMovesKey = 'showLegalMoves';
 export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
+export const ShowGlyphsKey = 'showGlyphsOnBoard';
 
 export enum BoardStyle {
     Standard = 'STANDARD',
@@ -93,6 +94,7 @@ const ViewerSettings = () => {
             CapturedMaterialBehavior.Difference,
         );
     const [showLegalMoves, setShowLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
+    const [showGlyphs, setShowGlyphs] = useLocalStorage(ShowGlyphsKey, false);
 
     return (
         <Stack spacing={3}>
@@ -191,6 +193,16 @@ const ViewerSettings = () => {
                         />
                     }
                     label='Show legal moves'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={showGlyphs}
+                            onChange={(e) => setShowGlyphs(e.target.checked)}
+                        />
+                    }
+                    label='Show glyphs on board'
                 />
 
                 <FormControlLabel

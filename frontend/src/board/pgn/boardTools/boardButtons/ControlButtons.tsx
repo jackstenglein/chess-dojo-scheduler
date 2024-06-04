@@ -8,22 +8,27 @@ import {
 } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
+import { useReconcile } from '../../../Board';
 import { useChess } from '../../PgnBoard';
 import {
     GoToEndButtonBehavior,
     GoToEndButtonBehaviorKey,
 } from '../underboard/settings/ViewerSettings';
 
-interface ControlButtonsProps {
-    onClickMove: (move: Move | null) => void;
-}
-
-const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
+const ControlButtons = () => {
     const [goToEndBehavior] = useLocalStorage(
         GoToEndButtonBehaviorKey,
         GoToEndButtonBehavior.SingleClick,
     );
     const { chess, toggleOrientation } = useChess();
+    const reconcile = useReconcile();
+
+    console.log('Toggle Orientation: ', toggleOrientation);
+
+    const onClickMove = (move: Move | null) => {
+        chess?.seek(move);
+        reconcile();
+    };
 
     const onFirstMove = () => {
         onClickMove(null);
@@ -104,11 +109,13 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ onClickMove }) => {
                 </Tooltip>
             )}
 
-            <Tooltip title='Flip Board'>
-                <IconButton aria-label='flip board' onClick={toggleOrientation}>
-                    <Flip sx={{ color: 'text.secondary' }} />
-                </IconButton>
-            </Tooltip>
+            {toggleOrientation && (
+                <Tooltip title='Flip Board'>
+                    <IconButton aria-label='flip board' onClick={toggleOrientation}>
+                        <Flip sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Tooltip>
+            )}
         </Stack>
     );
 };

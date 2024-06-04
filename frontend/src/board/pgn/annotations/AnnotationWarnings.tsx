@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { EventType, Move } from '@jackstenglein/chess';
 import {
     Alert,
     Button,
@@ -8,12 +8,12 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { EventType, Move } from '@jackstenglein/chess';
+import { useEffect, useMemo, useState } from 'react';
 
+import { useReconcile } from '../../Board';
+import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
 import { getWarnings } from './warningRules';
-import { reconcile } from '../../Board';
-import { compareNags, getStandardNag, nags } from '../Nag';
 
 function getMoveText(move: Move | null): string {
     if (!move) {
@@ -39,9 +39,10 @@ function getMoveText(move: Move | null): string {
 }
 
 const AnnotationWarnings = () => {
-    const { chess, board } = useChess();
+    const { chess } = useChess();
     const [showDetails, setShowDetails] = useState(false);
     const [forceRender, setForceRender] = useState(0);
+    const reconcile = useReconcile();
 
     useEffect(() => {
         if (chess) {
@@ -75,7 +76,7 @@ const AnnotationWarnings = () => {
 
     const onClickMove = (move: Move | null) => {
         chess?.seek(move);
-        reconcile(chess, board);
+        reconcile();
         setShowDetails(false);
     };
 

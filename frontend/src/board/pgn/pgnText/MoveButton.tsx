@@ -3,13 +3,13 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
-    Button as MuiButton,
     Grid,
     ListItemIcon,
     ListItemText,
     Menu,
     MenuItem,
     MenuList,
+    Button as MuiButton,
     Stack,
     Tooltip,
     Typography,
@@ -18,7 +18,9 @@ import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'rea
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
 import { useGame } from '../../../games/view/GamePage';
-import { reconcile } from '../../Board';
+import { useReconcile } from '../../Board';
+import { compareNags, getStandardNag, nags } from '../Nag';
+import { useChess } from '../PgnBoard';
 import {
     convertClockToSeconds,
     formatTime,
@@ -26,8 +28,6 @@ import {
     getInitialClock,
 } from '../boardTools/underboard/ClockUsage';
 import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
-import { compareNags, getStandardNag, nags } from '../Nag';
-import { useChess } from '../PgnBoard';
 
 export function getTextColor(move: Move, inline?: boolean): string {
     for (const nag of move.nags || []) {
@@ -210,7 +210,6 @@ interface MoveButtonProps {
     firstMove?: boolean;
     inline?: boolean;
     forceShowPly?: boolean;
-    onClickMove: (m: Move) => void;
     handleScroll: (child: HTMLButtonElement | null) => void;
 }
 
@@ -219,16 +218,24 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     firstMove,
     inline,
     forceShowPly,
-    onClickMove,
     handleScroll,
 }) => {
     const { game } = useGame();
     const { chess, board, config } = useChess();
+    const reconcile = useReconcile();
     const ref = useRef<HTMLButtonElement>(null);
     const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
     const [, setForceRender] = useState(0);
     const [showMoveTimes] = useLocalStorage(ShowMoveTimesInPgnKey, false);
+
+    const onClickMove = useCallback(
+        (move: Move | null) => {
+            chess?.seek(move);
+            reconcile();
+        },
+        [chess, reconcile],
+    );
 
     useEffect(() => {
         if (chess) {
@@ -311,7 +318,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
 
     const onDelete = () => {
         chess?.delete(move);
-        reconcile(chess, board);
+        reconcile();
     };
 
     const handleMenuClose = () => {

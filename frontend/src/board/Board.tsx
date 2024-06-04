@@ -10,6 +10,7 @@ import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
 import './board.css';
 import { getBoardSx, getPieceSx } from './boardThemes';
+import { compareNags, getNagGlyph, getStandardNag, nags } from './pgn/Nag';
 import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
 import {
@@ -19,6 +20,7 @@ import {
     CoordinateStyleKey,
     PieceStyle,
     PieceStyleKey,
+    ShowGlyphsKey,
     ShowLegalMovesKey,
 } from './pgn/boardTools/underboard/settings/ViewerSettings';
 import { ResizableData } from './pgn/resize';
@@ -97,7 +99,33 @@ export function toShapes(chess?: Chess): DrawShape[] {
     return result;
 }
 
-export function reconcile(chess?: Chess, board?: BoardApi | null) {
+export function toAutoShapes(chess?: Chess, showGlyphs?: boolean): DrawShape[] {
+    if (!chess || !showGlyphs) {
+        return [];
+    }
+
+    const currentMove = chess.currentMove();
+    if (!currentMove) {
+        return [];
+    }
+
+    const nagDetails =
+        currentMove.nags?.sort(compareNags).map((n) => nags[getStandardNag(n)]) ?? [];
+    if (nagDetails.length === 0) {
+        return [];
+    }
+
+    return [
+        {
+            orig: currentMove.to,
+            customSvg: {
+                html: getNagGlyph(nagDetails[0]),
+            },
+        },
+    ];
+}
+
+export function reconcile(chess?: Chess, board?: BoardApi | null, showGlyphs?: boolean) {
     if (!chess || !board) {
         return;
     }
@@ -113,13 +141,25 @@ export function reconcile(chess?: Chess, board?: BoardApi | null) {
         },
         drawable: {
             shapes: toShapes(chess),
+            autoShapes: toAutoShapes(chess, showGlyphs),
         },
     });
 }
 
-export function defaultOnMove(board: BoardApi, chess: Chess, move: PrimitiveMove) {
-    chess.move({ from: move.orig, to: move.dest, promotion: move.promotion });
-    reconcile(chess, board);
+export function useReconcile() {
+    const { chess, board } = useChess();
+    const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
+
+    return useCallback(() => {
+        reconcile(chess, board, showGlyphs);
+    }, [chess, board, showGlyphs]);
+}
+
+function defaultOnMove(showGlyphs: boolean): onMoveFunc {
+    return (board: BoardApi, chess: Chess, move: PrimitiveMove) => {
+        chess.move({ from: move.orig, to: move.dest, promotion: move.promotion });
+        reconcile(chess, board, showGlyphs);
+    };
 }
 
 export function defaultOnDrawableChange(chess: Chess) {
@@ -196,6 +236,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         CoordinateStyle.RankFileOnly,
     );
     const [showLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
+    const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
 
     const onStartPromotion = useCallback(
         (move: PrePromotionMove) => {
@@ -207,7 +248,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     const onFinishPromotion = useCallback(
         (piece: string) => {
             if (board && chess && promotion) {
-                const func = onMove ? onMove : defaultOnMove;
+                const func = onMove ? onMove : defaultOnMove(showGlyphs);
                 func(board, chess, {
                     orig: promotion.orig,
                     dest: promotion.dest,
@@ -216,13 +257,13 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             }
             setPromotion(null);
         },
-        [board, chess, promotion, onMove, setPromotion],
+        [board, chess, promotion, onMove, setPromotion, showGlyphs],
     );
 
     const onCancelPromotion = useCallback(() => {
         setPromotion(null);
-        reconcile(chess, board);
-    }, [board, chess]);
+        reconcile(chess, board, showGlyphs);
+    }, [board, chess, showGlyphs]);
 
     useEffect(() => {
         if (boardRef.current && !board) {
@@ -252,13 +293,14 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                                 orig,
                                 dest,
                                 onStartPromotion,
-                                onMove ? onMove : defaultOnMove,
+                                onMove ? onMove : defaultOnMove(showGlyphs),
                             ),
                     },
                 },
                 lastMove: [],
                 drawable: {
                     shapes: config?.drawable?.shapes || toShapes(chess),
+                    autoShapes: toAutoShapes(chess, showGlyphs),
                     onChange:
                         config?.drawable?.onChange || defaultOnDrawableChange(chess),
                 },
@@ -279,6 +321,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         onInitialize,
         onStartPromotion,
         pieceStyle,
+        showGlyphs,
     ]);
 
     const fen = config?.fen;
@@ -302,14 +345,14 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                                 orig,
                                 dest,
                                 onStartPromotion,
-                                onMove ? onMove : defaultOnMove,
+                                onMove ? onMove : defaultOnMove(showGlyphs),
                             ),
                     },
                 },
                 addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
             });
         }
-    }, [chess, board, onMove, onStartPromotion, pieceStyle]);
+    }, [chess, board, onMove, onStartPromotion, pieceStyle, showGlyphs]);
 
     useEffect(() => {
         board?.set({
@@ -326,6 +369,15 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         });
         board?.redrawAll();
     }, [board, coordinateStyle]);
+
+    useEffect(() => {
+        board?.set({
+            drawable: {
+                shapes: toShapes(chess),
+                autoShapes: toAutoShapes(chess, showGlyphs),
+            },
+        });
+    }, [board, chess, showGlyphs]);
 
     return (
         <Box

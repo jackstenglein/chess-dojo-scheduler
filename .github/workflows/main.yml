@@ -7,7 +7,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Prepare Common
+        working-directory: common
+        run: npm ci
 
       - name: Build
         uses: cypress-io/github-action@v6
@@ -17,7 +21,7 @@ jobs:
           build: npm run build
 
       - name: Save Build Folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: frontend/build
@@ -33,10 +37,10 @@ jobs:
     #     containers: [1, 2, 3] # Uses parallel instances
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Build Folder
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: frontend/build

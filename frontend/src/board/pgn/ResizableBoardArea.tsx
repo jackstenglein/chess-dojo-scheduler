@@ -1,9 +1,8 @@
-import { Move } from '@jackstenglein/chess';
 import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
 import { ResizeCallbackData } from 'react-resizable';
 
-import Board, { BoardApi, Chess, PrimitiveMove } from '../Board';
+import Board, { BoardApi, Chess } from '../Board';
 import BoardButtons from './boardTools/boardButtons/BoardButtons';
 import PlayerHeader from './PlayerHeader';
 import { ResizableData } from './resize';
@@ -17,8 +16,6 @@ interface ResizableBoardAreaProps {
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
     onInitialize: (board: BoardApi, chess: Chess) => void;
-    onMove: (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => void;
-    onClickMove: (move: Move | null) => void;
 }
 
 const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
@@ -30,8 +27,6 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
     fen,
     startOrientation = 'white',
     onInitialize,
-    onMove,
-    onClickMove,
 }) => {
     const handlResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
         onResize(data.size.width, data.size.height);
@@ -48,7 +43,6 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
                     orientation: startOrientation,
                 }}
                 onInitialize={onInitialize}
-                onMove={onMove}
                 resizeData={resizeData}
                 onResize={handlResize}
                 hideResize={hideResize}
@@ -56,7 +50,7 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
 
             {showPlayerHeaders && <PlayerHeader type='footer' />}
 
-            <BoardButtons onClickMove={onClickMove} />
+            <BoardButtons />
         </Stack>
     );
 };

@@ -1,17 +1,16 @@
-import { Move } from '@jackstenglein/chess';
 import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-resizable/css/styles.css';
 import { useWindowSizeEffect } from '../../ThemeProvider';
-import { BoardApi, Chess, PrimitiveMove } from '../Board';
+import { BoardApi, Chess } from '../Board';
+import KeyboardHandler from './KeyboardHandler';
+import ResizableBoardArea from './ResizableBoardArea';
 import Underboard, {
     UnderboardApi,
     UnderboardTab,
 } from './boardTools/underboard/Underboard';
-import KeyboardHandler from './KeyboardHandler';
 import { ResizablePgnText } from './pgnText/PgnText';
-import ResizableBoardArea from './ResizableBoardArea';
 import { getNewSizes, getSizes } from './resize';
 
 export const CONTAINER_ID = 'resize-container';
@@ -25,8 +24,6 @@ interface ResizableContainerProps {
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
     onInitialize: (board: BoardApi, chess: Chess) => void;
-    onMove: (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => void;
-    onClickMove: (move: Move | null) => void;
 }
 
 const ResizableContainer: React.FC<ResizableContainerProps> = ({
@@ -37,8 +34,6 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
     fen,
     startOrientation,
     onInitialize,
-    onMove,
-    onClickMove,
 }) => {
     const underboardRef = useRef<UnderboardApi>(null);
     const showUnderboard = underboardTabs.length > 0;
@@ -110,16 +105,10 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
                     fen,
                     startOrientation,
                     onInitialize,
-                    onMove,
-                    onClickMove,
                 }}
             />
 
-            <ResizablePgnText
-                resizeData={sizes.pgn}
-                onResize={onResize('pgn')}
-                onClickMove={onClickMove}
-            />
+            <ResizablePgnText resizeData={sizes.pgn} onResize={onResize('pgn')} />
         </Stack>
     );
 };

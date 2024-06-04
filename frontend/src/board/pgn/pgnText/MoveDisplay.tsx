@@ -9,10 +9,9 @@ import MoveNumber from './MoveNumber';
 interface MoveProps {
     move: Move;
     handleScroll: (child: HTMLElement | null) => void;
-    onClickMove: (m: Move) => void;
 }
 
-const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll, onClickMove }) => {
+const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll }) => {
     const { chess } = useChess();
     const [, setForceRender] = useState(0);
     const [, setHasComment] = useState(move.commentAfter && move.commentAfter !== '');
@@ -101,7 +100,6 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll, onClickMove }) =
                 key={`move-button-${move.ply}`}
                 move={move}
                 handleScroll={handleScroll}
-                onClickMove={onClickMove}
                 firstMove={move.previous === null}
             />
 
@@ -109,7 +107,6 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll, onClickMove }) =
                 key={`interrupt-${move.ply}`}
                 move={move}
                 handleScroll={handleScroll}
-                onClickMove={onClickMove}
             />
         </>
     );
