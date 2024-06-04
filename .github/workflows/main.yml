@@ -9,12 +9,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Prepare Common
+        working-directory: common
+        run: npm ci
+
       - name: Build
         uses: cypress-io/github-action@v6
         with:
           runTests: false
           working-directory: frontend
-          build: cd ../common && npm ci && cd - && npm run build
+          build: npm run build
 
       - name: Save Build Folder
         uses: actions/upload-artifact@v3
