@@ -1,7 +1,8 @@
 import { Chess, Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
 import { Box, CardContent, Stack, Typography } from '@mui/material';
+import { pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
-import { AxisOptions, Chart, Datum as ChartDatum } from 'react-charts';
+import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
 import { useLightMode } from '../../../../ThemeProvider';
 import { useReconcile } from '../../../Board';
 import { useChess } from '../../PgnBoard';
@@ -163,20 +164,32 @@ function shouldRerender(chess: Chess, event: Event): boolean {
     return false;
 }
 
-function getSeriesStyle(series: any) {
-    return {
-        fill: series.label === 'White' ? 'rgb(250, 164, 58)' : 'rgb(15, 131, 171)',
-        stroke: series.label === 'White' ? 'rgb(250, 164, 58)' : 'rgb(15, 131, 171)',
-    };
+function getSeriesStyle(series: Series<Datum>, light: boolean) {
+    if (series.label === 'White') {
+        if (light) {
+            return { fill: pink[200], stroke: pink[200] };
+        }
+        return { fill: 'white', stroke: 'white' };
+    }
+
+    if (light) {
+        return { fill: '#212121', stroke: '#212121' };
+    }
+    return { fill: 'rgb(15, 131, 171)', stroke: 'rgb(15, 131, 171)' };
 }
 
-function getDatumStyle(datum: any) {
-    return {
-        fill:
-            datum.originalDatum.label === 'White'
-                ? 'rgb(250, 164, 58)'
-                : 'rgb(15, 131, 171)',
-    };
+function getDatumStyle(datum: ChartDatum<Datum>, light: boolean) {
+    if (datum.originalDatum.label === 'White') {
+        if (light) {
+            return { fill: pink[200] };
+        }
+        return { fill: 'white' };
+    }
+
+    if (light) {
+        return { fill: '#212121' };
+    }
+    return { fill: 'rgb(15, 131, 171)' };
 }
 
 interface ClockUsageProps {
@@ -358,7 +371,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 primaryAxis: totalTimePrimaryAxis,
                                 secondaryAxes: secondaryBarAxis,
                                 dark: !light,
-                                getDatumStyle,
+                                getDatumStyle: (datum) => getDatumStyle(datum, light),
                             }}
                         />
                     </Box>
@@ -376,7 +389,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 secondaryAxes,
                                 dark: !light,
                                 onClickDatum,
-                                getSeriesStyle,
+                                getSeriesStyle: (series) => getSeriesStyle(series, light),
                             }}
                         />
                     </Box>
@@ -398,7 +411,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 secondaryAxes: secondaryBarAxis,
                                 dark: !light,
                                 onClickDatum,
-                                getSeriesStyle,
+                                getSeriesStyle: (series) => getSeriesStyle(series, light),
                             }}
                         />
                     </Box>
