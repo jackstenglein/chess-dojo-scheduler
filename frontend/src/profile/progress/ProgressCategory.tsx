@@ -19,7 +19,7 @@ import ProgressItem from './ProgressItem';
 
 export interface Category {
     name: string;
-    requirements: Array<Requirement | CustomTask>;
+    requirements: (Requirement | CustomTask)[];
     totalComplete: number;
 }
 

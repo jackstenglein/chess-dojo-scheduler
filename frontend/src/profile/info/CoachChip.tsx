@@ -8,7 +8,7 @@ interface CoachChipProps {
 }
 
 const CoachChip: React.FC<CoachChipProps> = ({ user }) => {
-    if (!user || !user.isCoach) {
+    if (!user?.isCoach) {
         return null;
     }
 

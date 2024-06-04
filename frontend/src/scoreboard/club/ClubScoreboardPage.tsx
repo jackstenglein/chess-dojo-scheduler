@@ -10,9 +10,9 @@ import LoadingPage from '../../loading/LoadingPage';
 import Scoreboard from '../Scoreboard';
 import ScoreboardViewSelector from '../ScoreboardViewSelector';
 
-export type ClubScoreboardPageParams = {
+export interface ClubScoreboardPageParams {
     id: string;
-};
+}
 
 const ClubScoreboardPage = () => {
     const { id } = useParams<ClubScoreboardPageParams>();

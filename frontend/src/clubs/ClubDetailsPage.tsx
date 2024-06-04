@@ -33,9 +33,9 @@ import MemberCountChip from './MemberCountChip';
 import ScoreboardTab from './ScoreboardTab';
 import UrlChip from './UrlChip';
 
-export type ClubDetailsParams = {
+export interface ClubDetailsParams {
     id: string;
-};
+}
 
 const ClubDetailsPage = () => {
     const auth = useAuth();

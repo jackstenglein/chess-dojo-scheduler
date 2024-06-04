@@ -5,13 +5,13 @@ import { Requirement } from '../database/requirement';
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type RequirementApiContextType = {
+export interface RequirementApiContextType {
     /**
      * getRequirement fetches the requirement with the provided id.
      * @param id The id of the requirement to fetch.
      * @returns The requirement with the provided id.
      */
-    getRequirement: (id: string) => Promise<AxiosResponse<Requirement, any>>;
+    getRequirement: (id: string) => Promise<AxiosResponse<Requirement>>;
 
     /**
      * listRequirements returns a list of requirements matching the provided cohort.
@@ -32,8 +32,8 @@ export type RequirementApiContextType = {
      */
     setRequirement: (
         requirement: Requirement
-    ) => Promise<AxiosResponse<Requirement, any>>;
-};
+    ) => Promise<AxiosResponse<Requirement>>;
+}
 
 /**
  * getRequirement fetches the requirement with the provided id.
@@ -68,7 +68,7 @@ export async function listRequirements(
     scoreboardOnly: boolean,
     startKey?: string
 ) {
-    let params = { scoreboardOnly, startKey };
+    const params = { scoreboardOnly, startKey };
     const result: Requirement[] = [];
 
     do {

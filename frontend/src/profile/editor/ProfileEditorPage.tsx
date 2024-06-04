@@ -103,7 +103,7 @@ interface RatingEditor {
 function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
     const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(
         RatingSystem,
-    ).reduce(
+    ).reduce<Record<RatingSystem, RatingEditor>>(
         (m, rs) => {
             m[rs] = {
                 username: ratings[rs]?.username || '',
@@ -114,13 +114,13 @@ function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
             };
             return m;
         },
-        {} as Record<RatingSystem, RatingEditor>,
+        {},
     );
     return ratingEditors;
 }
 
 function getRatingsFromEditors(ratingEditors: Record<RatingSystem, RatingEditor>) {
-    const ratings: Record<RatingSystem, Rating> = Object.values(RatingSystem).reduce(
+    const ratings: Record<RatingSystem, Rating> = Object.values(RatingSystem).reduce<Record<RatingSystem, Rating>>(
         (m, rs) => {
             m[rs] = {
                 username: ratingEditors[rs].username || '',
@@ -131,7 +131,7 @@ function getRatingsFromEditors(ratingEditors: Record<RatingSystem, RatingEditor>
             };
             return m;
         },
-        {} as Record<RatingSystem, Rating>,
+        {},
     );
     return ratings;
 }
@@ -146,7 +146,7 @@ function parseRating(rating: string | undefined): number {
         return 0;
     }
     rating = rating.replace(/^0+/, '') || '0';
-    let n = Math.floor(Number(rating));
+    const n = Math.floor(Number(rating));
     if (n === Infinity) {
         return -1;
     }
@@ -196,7 +196,7 @@ function getTimezoneOptions() {
 
 export function encodeFileToBase64(file: File): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.onloadend = function () {
             const base64string = reader.result as string;
             console.log('Base 64 string: ', base64string);
@@ -354,7 +354,7 @@ const ProfileEditorPage = () => {
 
         if (
             ratingSystem !== RatingSystem.Custom &&
-            !ratingEditors[ratingSystem]?.username.trim()
+            !ratingEditors[ratingSystem].username.trim()
         ) {
             newErrors[`${ratingSystem}Username`] =
                 `This field is required when using ${formatRatingSystem(
@@ -363,17 +363,17 @@ const ProfileEditorPage = () => {
         }
 
         for (const rs of Object.keys(ratingEditors)) {
-            if (parseRating(ratingEditors[rs as RatingSystem]?.startRating) < 0) {
+            if (parseRating(ratingEditors[rs as RatingSystem].startRating) < 0) {
                 newErrors[`${rs}StartRating`] = 'Rating must be an integer >= 0';
             }
         }
 
         if (ratingSystem === RatingSystem.Custom) {
-            if (parseRating(ratingEditors[RatingSystem.Custom]?.currentRating) <= 0) {
+            if (parseRating(ratingEditors[RatingSystem.Custom].currentRating) <= 0) {
                 newErrors.currentCustomRating =
                     'This field is required when using Custom rating system.';
             }
-            if (parseRating(ratingEditors[RatingSystem.Custom]?.startRating) <= 0) {
+            if (parseRating(ratingEditors[RatingSystem.Custom].startRating) <= 0) {
                 newErrors.startCustomRating =
                     'This field is required when using Custom rating system.';
             }
@@ -410,11 +410,11 @@ const ProfileEditorPage = () => {
         required: ratingSystem === rsf.system,
         label: rsf.label,
         hideLabel: rsf.hideLabel,
-        username: ratingEditors[rsf.system]?.username,
+        username: ratingEditors[rsf.system].username,
         setUsername: (value: string) => setUsername(rsf.system, value),
-        startRating: ratingEditors[rsf.system]?.startRating,
+        startRating: ratingEditors[rsf.system].startRating,
         setStartRating: (value: string) => setStartRating(rsf.system, value),
-        hidden: ratingEditors[rsf.system]?.hideUsername,
+        hidden: ratingEditors[rsf.system].hideUsername,
         setHidden: (value: boolean) => setHidden(rsf.system, value),
         usernameError: errors[`${rsf.system}Username`],
         startRatingError: errors[`${rsf.system}StartRating`],
@@ -810,7 +810,7 @@ const ProfileEditorPage = () => {
                                         label='Current Rating (Custom)'
                                         value={
                                             ratingEditors[RatingSystem.Custom]
-                                                ?.currentRating
+                                                .currentRating
                                         }
                                         onChange={(event) =>
                                             setCurrentRating(
@@ -833,7 +833,7 @@ const ProfileEditorPage = () => {
                                         label='Start Rating (Custom)'
                                         value={
                                             ratingEditors[RatingSystem.Custom]
-                                                ?.startRating
+                                                .startRating
                                         }
                                         onChange={(event) =>
                                             setStartRating(
@@ -853,7 +853,7 @@ const ProfileEditorPage = () => {
                                 <Grid item xs>
                                     <TextField
                                         label='Custom Rating Name'
-                                        value={ratingEditors[RatingSystem.Custom]?.name}
+                                        value={ratingEditors[RatingSystem.Custom].name}
                                         onChange={(event) =>
                                             setRatingName(
                                                 RatingSystem.Custom,

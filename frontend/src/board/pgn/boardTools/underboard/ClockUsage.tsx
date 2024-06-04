@@ -24,7 +24,7 @@ const primaryAxis: AxisOptions<Datum> = {
     },
 };
 
-const secondaryAxes: Array<AxisOptions<Datum>> = [
+const secondaryAxes: AxisOptions<Datum>[] = [
     {
         getValue: (datum) => datum.seconds,
         min: 0,
@@ -43,7 +43,7 @@ const barAxis: AxisOptions<Datum> = {
     },
 };
 
-const secondaryBarAxis: Array<AxisOptions<Datum>> = [
+const secondaryBarAxis: AxisOptions<Datum>[] = [
     {
         ...secondaryAxes[0],
         position: 'bottom',
@@ -66,7 +66,7 @@ export function formatTime(value: number): string {
     result += `${minutes.toLocaleString(undefined, { minimumIntegerDigits: 2 })}:`;
 
     const seconds = (value % 3600) % 60;
-    result += `${seconds.toLocaleString(undefined, { minimumIntegerDigits: 2 })}`;
+    result += seconds.toLocaleString(undefined, { minimumIntegerDigits: 2 });
     return result;
 }
 

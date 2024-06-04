@@ -16,6 +16,19 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { AuthStatus, useAuth } from '../../auth/Auth';
 import LoadingPage from '../../loading/LoadingPage';
 
+interface LichessGameResponse {
+    players: {
+        white: {
+            userId: string;
+        };
+        black: {
+            userId: string;
+        };
+    };
+    status: string;
+    winner: string;
+}
+
 function gamePlayed(result: string): boolean {
     return result !== '1/2-1/2F' && result !== '1-0F' && result !== '0-1F';
 }
@@ -54,10 +67,10 @@ const SubmitResultsPage = () => {
         const gameId = gameUrl
             .replace('https://lichess.org/', '')
             .split('/')[0]
-            .split('#')[0];
+            ?.split('#')[0];
 
         axios
-            .get(`https://lichess.org/api/game/${gameId}`)
+            .get<LichessGameResponse>(`https://lichess.org/api/game/${gameId}`)
             .then((resp) => {
                 console.log('Lichess Game Resp: ', resp);
                 setErrors({ ...errors, gameUrl: '' });
@@ -72,7 +85,7 @@ const SubmitResultsPage = () => {
                     setResult('0-1');
                 }
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error(err);
                 setErrors({
                     ...errors,
@@ -128,7 +141,7 @@ const SubmitResultsPage = () => {
                 console.log('submitResultsForOpenClassical: ', resp);
                 request.onSuccess();
                 const round =
-                    resp.data.sections?.[`${region}_${section}`]?.rounds?.length ||
+                    resp.data.sections[`${region}_${section}`]?.rounds.length ||
                     'standings';
                 navigate(
                     `/tournaments/open-classical?region=${region}&ratingRange=${section}&view=${round}`,

@@ -37,7 +37,7 @@ const CreatedAtItem: React.FC<{ user: User; viewer?: User }> = ({ user, viewer }
         requirementName: 'CreatedAt',
         requirementCategory: 'Welcome to the Dojo',
         cohort:
-            user.graduationCohorts?.length > 0
+            user.graduationCohorts.length > 0
                 ? user.graduationCohorts[0]
                 : user.dojoCohort,
     };

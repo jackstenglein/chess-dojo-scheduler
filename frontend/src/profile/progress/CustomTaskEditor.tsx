@@ -41,12 +41,12 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
         task ? Object.values(task.counts).length === dojoCohorts.length : true,
     );
     const [cohorts, setCohorts] = useState<Record<string, boolean>>(
-        dojoCohorts.reduce(
+        dojoCohorts.reduce<Record<string, boolean>>(
             (map, cohort) => {
                 map[cohort] = task?.counts[cohort] !== undefined || false;
                 return map;
             },
-            {} as Record<string, boolean>,
+            {},
         ),
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -75,12 +75,12 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
         const includedCohorts = allCohorts
             ? dojoCohorts
             : Object.keys(cohorts).filter((c) => cohorts[c]);
-        const newCounts = includedCohorts.reduce(
+        const newCounts = includedCohorts.reduce<Record<string, number>>(
             (map, c) => {
                 map[c] = 1;
                 return map;
             },
-            {} as Record<string, number>,
+            {},
         );
 
         const newTask = {

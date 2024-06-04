@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import { DataGridPro, GridActionsCellItem } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
-
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
 import { OpenClassical } from '../../../database/tournament';
@@ -38,7 +37,7 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({
             type: 'actions',
             headerName: 'Actions',
             getActions: (params) => [
-                <Tooltip title='Unban Player'>
+                <Tooltip key='unban-player' title='Unban Player'>
                     <GridActionsCellItem
                         icon={<Check color='success' />}
                         label='Unban Player'

@@ -12,13 +12,13 @@ const BASE_URL = getConfig().api.baseUrl;
 /**
  * Provides an API for interacting with the position explorer.
  */
-export type ExplorerApiContextType = {
+export interface ExplorerApiContextType {
     /**
      * Gets the ExplorerPosition with the provided FEN.
      * @param fen The FEN to fetch.
      * @returns The ExplorerPosition, if it exists.
      */
-    getPosition: (fen: string) => Promise<AxiosResponse<GetExplorerPositionResult, any>>;
+    getPosition: (fen: string) => Promise<AxiosResponse<GetExplorerPositionResult>>;
 
     /**
      * Creates, updates or deletes an ExplorerPositionFollower with the provided parameters.
@@ -27,8 +27,8 @@ export type ExplorerApiContextType = {
      */
     followPosition: (
         request: FollowPositionRequest
-    ) => Promise<AxiosResponse<ExplorerPositionFollower | null, any>>;
-};
+    ) => Promise<AxiosResponse<ExplorerPositionFollower | null>>;
+}
 
 /** The result from a GetExplorerPosition request. */
 export interface GetExplorerPositionResult {

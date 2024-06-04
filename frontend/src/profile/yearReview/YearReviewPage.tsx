@@ -19,10 +19,10 @@ export interface SectionProps {
     review: YearReview;
 }
 
-type YearReviewPageParams = {
+interface YearReviewPageParams {
     username: string;
     year: string;
-};
+}
 
 const YearReviewPage = () => {
     const { username, year } = useParams<YearReviewPageParams>();

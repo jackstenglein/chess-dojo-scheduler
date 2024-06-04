@@ -1,7 +1,6 @@
 import { Tooltip, Typography } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
-
 import { OpenClassical, OpenClassicalPlayerStatus } from '../../database/tournament';
 
 enum Result {
@@ -273,10 +272,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
             for (let i = 0; i < section.rounds.length; i++) {
                 const round = player.rounds[i];
                 if (!round) {
-                    if (
-                        player.lastActiveRound === 0 ||
-                        player.lastActiveRound >= round + 1
-                    ) {
+                    if (player.lastActiveRound === 0 || player.lastActiveRound >= i + 1) {
                         // Player received a bye
                         player.total += 0.5;
                     }

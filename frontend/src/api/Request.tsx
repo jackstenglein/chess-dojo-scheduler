@@ -132,12 +132,12 @@ export function RequestSnackbar<T = any>({
     defaultErrorMessage,
     defaultSuccessMessage,
 }: RequestSnackbarProps<T>) {
-    let displayError =
+    const displayError =
         (showError === undefined || showError) &&
         request.status === RequestStatus.Failure &&
         request.error !== undefined;
 
-    let displaySuccess = showSuccess && request.data !== undefined;
+    const displaySuccess = showSuccess && request.data !== undefined;
 
     let errorMessage =
         request.error?.response?.data?.message ||

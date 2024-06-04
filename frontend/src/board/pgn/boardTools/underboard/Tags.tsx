@@ -160,7 +160,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
         rows.push({ name: 'Cohort', value: game.cohort });
     }
 
-    rows.push(...defaultTags.map((name) => ({ name, value: tags?.[name] || '' })));
+    rows.push(...defaultTags.map((name) => ({ name, value: tags[name] || '' })));
 
     for (const [tag, value] of Object.entries(tags || {})) {
         if (!defaultTags.includes(tag) && !uneditableTags.includes(tag)) {
@@ -169,7 +169,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
     }
 
     for (const tag of uneditableTags) {
-        rows.push({ name: tag, value: tags?.[tag] || '' });
+        rows.push({ name: tag, value: tags[tag] || '' });
     }
 
     return (

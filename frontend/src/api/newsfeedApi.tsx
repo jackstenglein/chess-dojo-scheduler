@@ -5,7 +5,7 @@ import { TimelineEntry } from '../database/timeline';
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type NewsfeedApiContextType = {
+export interface NewsfeedApiContextType {
     /**
      * Fetches the timeline entry with the provided owner and id.
      * @param owner The owner of the timeline entry.
@@ -15,7 +15,7 @@ export type NewsfeedApiContextType = {
     getNewsfeedItem: (
         owner: string,
         id: string
-    ) => Promise<AxiosResponse<TimelineEntry, any>>;
+    ) => Promise<AxiosResponse<TimelineEntry>>;
 
     /**
      * Fetches a page of the provided newsfeed.
@@ -28,7 +28,7 @@ export type NewsfeedApiContextType = {
         newsfeedIds: string[],
         skipLastFetch?: boolean,
         startKey?: string
-    ) => Promise<AxiosResponse<ListNewsfeedResponse, any>>;
+    ) => Promise<AxiosResponse<ListNewsfeedResponse>>;
 
     /**
      * Adds the given content as a comment on the given TimelineEntry.
@@ -39,7 +39,7 @@ export type NewsfeedApiContextType = {
     createNewsfeedComment: (
         props: { owner: string; id: string },
         content: string
-    ) => Promise<AxiosResponse<TimelineEntry, any>>;
+    ) => Promise<AxiosResponse<TimelineEntry>>;
 
     /**
      * Sets the provided reaction types on the given TimelineEntry.
@@ -52,8 +52,8 @@ export type NewsfeedApiContextType = {
         owner: string,
         id: string,
         types: string[]
-    ) => Promise<AxiosResponse<TimelineEntry, any>>;
-};
+    ) => Promise<AxiosResponse<TimelineEntry>>;
+}
 
 /**
  * Fetches the timeline entry with the provided owner and id.

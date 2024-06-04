@@ -21,7 +21,7 @@ const MeetingMessages = () => {
     const messages = meeting?.messages;
 
     useEffect(() => {
-        bottomRef.current?.scrollTo(0, bottomRef.current?.scrollHeight || 0);
+        bottomRef.current?.scrollTo(0, bottomRef.current.scrollHeight || 0);
     }, [messages]);
 
     if (!meeting) {

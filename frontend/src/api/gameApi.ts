@@ -19,7 +19,7 @@ export type GameApiContextType = {
      */
     createGame: (
         req: CreateGameRequest,
-    ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
+    ) => Promise<AxiosResponse<Game | EditGameResponse>>;
 
     /**
      * getGame returns the requested game.
@@ -27,7 +27,7 @@ export type GameApiContextType = {
      * @param id The id of the game.
      * @returns An AxiosResponse containing the requested game.
      */
-    getGame: (cohort: string, id: string) => Promise<AxiosResponse<Game, any>>;
+    getGame: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
 
     /**
      * featureGame sets the featured status of the provided game.
@@ -40,7 +40,7 @@ export type GameApiContextType = {
         cohort: string,
         id: string,
         featured: string,
-    ) => Promise<AxiosResponse<Game, any>>;
+    ) => Promise<AxiosResponse<Game>>;
 
     /**
      * updateGame overwrites the PGN data of the provided game.
@@ -54,7 +54,7 @@ export type GameApiContextType = {
         cohort: string,
         id: string,
         req: UpdateGameRequest,
-    ) => Promise<AxiosResponse<Game, any>>;
+    ) => Promise<AxiosResponse<Game>>;
 
     /**
      * deleteGame removes the specified game from the database. The caller
@@ -63,7 +63,7 @@ export type GameApiContextType = {
      * @param id The id of the game.
      * @returns The delete Game.
      */
-    deleteGame: (cohort: string, id: string) => Promise<AxiosResponse<Game, any>>;
+    deleteGame: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
 
     /**
      * listGamesByCohort returns a list of GameInfo objects corresponding to the provided cohort,
@@ -79,7 +79,7 @@ export type GameApiContextType = {
         startKey?: string,
         startDate?: string,
         endDate?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    ) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * listGamesByOwner returns a list of GameInfo objects owned by the provided user,
@@ -100,7 +100,7 @@ export type GameApiContextType = {
         endDate?: string,
         player?: string,
         color?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    ) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * listGamesByOpening returns a list of GameInfo objects with the provided ECO code,
@@ -116,7 +116,7 @@ export type GameApiContextType = {
         startKey?: string,
         startDate?: string,
         endDate?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    ) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * listGamesByPosition returns a list of GameInfo objects matching the provided FEN,
@@ -128,7 +128,7 @@ export type GameApiContextType = {
     listGamesByPosition: (
         fen: string,
         startKey?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    ) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * listFeaturedGames returns a list of games featured in the past month.
@@ -142,9 +142,7 @@ export type GameApiContextType = {
      * @param startKey The optional startKey to use when searching.
      * @returns A list of games that are submitted for review.
      */
-    listGamesForReview: (
-        startKey?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    listGamesForReview: (startKey?: string) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * createComment adds the given content as a comment on the given game.
@@ -158,7 +156,7 @@ export type GameApiContextType = {
         id: string,
         comment: PositionComment,
         existingComments: boolean,
-    ) => Promise<AxiosResponse<Game, any>>;
+    ) => Promise<AxiosResponse<Game>>;
 
     /**
      * Updates a comment on a game. The full updated game is returned.

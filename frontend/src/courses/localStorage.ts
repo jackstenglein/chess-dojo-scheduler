@@ -20,7 +20,7 @@ export function setCheckoutSessionId(courseId?: string, checkoutId?: string) {
     }
 
     const courseCheckoutStr = localStorage.getItem(COURSE_STORAGE_KEY);
-    let checkoutSessionIds = courseCheckoutStr ? JSON.parse(courseCheckoutStr) : {};
+    const checkoutSessionIds = courseCheckoutStr ? JSON.parse(courseCheckoutStr) : {};
     checkoutSessionIds[courseId] = checkoutId;
     localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(checkoutSessionIds));
 }

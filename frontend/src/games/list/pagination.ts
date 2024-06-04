@@ -8,7 +8,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export type SearchFunc = (
     startKey: string
-) => Promise<AxiosResponse<ListGamesResponse, any>>;
+) => Promise<AxiosResponse<ListGamesResponse>>;
 
 export function usePagination(
     initialSearchFunc: SearchFunc | null,
@@ -109,7 +109,7 @@ export function usePagination(
             });
     }, [page, pageSize, games, startKey, searchFunc, request]);
 
-    let rowCount = games.length;
+    const rowCount = games.length;
     // if (startKey !== undefined) {
     //     rowCount += pageSize;
     // }

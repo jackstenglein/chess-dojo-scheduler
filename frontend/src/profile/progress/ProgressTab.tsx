@@ -32,7 +32,7 @@ function useHideCompleted(isCurrentUser: boolean) {
 
 interface Category {
     name: string;
-    requirements: Array<Requirement | CustomTask>;
+    requirements: (Requirement | CustomTask)[];
     totalComplete: number;
 }
 
@@ -63,7 +63,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
     const categories = useMemo(() => {
         const categories: Category[] = [];
-        requirements?.forEach((r) => {
+        requirements.forEach((r) => {
             const c = categories.find((c) => c.name === r.category);
             const complete = isComplete(cohort, r, user.progress[r.id]);
             if (complete && hideCompleted === 'true') {

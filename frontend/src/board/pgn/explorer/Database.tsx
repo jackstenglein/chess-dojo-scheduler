@@ -86,11 +86,11 @@ const Database: React.FC<DatabaseProps> = ({
         [minCohort, maxCohort],
     );
 
-    const sortedMoves: Array<ExplorerMove | LichessExplorerMove> = useMemo(() => {
+    const sortedMoves: (ExplorerMove | LichessExplorerMove)[] = useMemo(() => {
         if (!isExplorerPosition(position)) {
             return position?.moves || [];
         }
-        return Object.values(position?.moves || [])
+        return Object.values(position.moves || [])
             .filter((move) => {
                 return cohortRange.some((cohort) => {
                     const result = move.results[cohort] || {};
@@ -133,7 +133,7 @@ const Database: React.FC<DatabaseProps> = ({
     }, [position]);
 
     const totalGames = isExplorerPosition(position)
-        ? getGameCount(position?.results || {}, cohortRange)
+        ? getGameCount(position.results || {}, cohortRange)
         : position
           ? position.white + position.black + position.draws
           : 0;

@@ -27,8 +27,7 @@ interface ErrorBoundaryState {
 
 class PgnErrorBoundary extends Component<
     React.PropsWithChildren<PgnErrorBoundaryNavigatorProps>,
-    ErrorBoundaryState,
-    any
+    ErrorBoundaryState
 > {
     constructor(props: PgnErrorBoundaryNavigatorProps) {
         super(props);

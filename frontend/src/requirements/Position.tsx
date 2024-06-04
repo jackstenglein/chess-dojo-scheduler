@@ -59,7 +59,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 'clock.limit': position.limitSeconds,
                 'clock.increment': position.incrementSeconds,
                 fen: position.fen.trim(),
-                name: `${position.title}`,
+                name: position.title,
             })
             .then((resp) => {
                 console.log('Generate Lichess URL: ', resp);

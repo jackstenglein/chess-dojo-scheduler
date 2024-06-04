@@ -54,7 +54,7 @@ function getTimeframeOptions() {
     const options: TimeframeOption[] = [];
 
     for (let i = 0; i < numberOfOptions; i++) {
-        let prevGraduation = new Date(currGraduation);
+        const prevGraduation = new Date(currGraduation);
         prevGraduation.setUTCDate(prevGraduation.getUTCDate() - 7);
 
         options.push({

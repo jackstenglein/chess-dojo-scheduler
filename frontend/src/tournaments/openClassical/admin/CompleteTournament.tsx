@@ -30,7 +30,7 @@ const CompleteTournament: React.FC<CompleteTournamentProps> = ({
     const api = useApi();
 
     const onComplete = () => {
-        if (!date || !date.isValid) {
+        if (!date?.isValid) {
             return;
         }
 

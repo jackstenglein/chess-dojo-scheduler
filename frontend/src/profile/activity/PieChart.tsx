@@ -22,7 +22,7 @@ interface PieChartProps {
     data: PieChartData[];
     renderTotal: (value: number) => JSX.Element;
     getTooltip: (entry: PieChartData) => string;
-    onClick: (event: React.MouseEvent<Element, MouseEvent>, dataIndex: number) => void;
+    onClick: (event: React.MouseEvent, dataIndex: number) => void;
 }
 
 const PieChart: React.FC<PieChartProps> = ({

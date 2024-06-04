@@ -14,10 +14,7 @@ import { useApi } from '../../api/Api';
 function getCompleted(user: User | undefined, module: CourseModule): boolean[] {
     let exercises: boolean[] = [];
     if (
-        user &&
-        user.openingProgress &&
-        user.openingProgress[module.id] &&
-        user.openingProgress[module.id].exercises
+        user?.openingProgress?.[module.id]?.exercises
     ) {
         exercises = user.openingProgress[module.id].exercises!;
     }

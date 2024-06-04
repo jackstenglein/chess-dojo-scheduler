@@ -43,7 +43,7 @@ function dojoPointDescription(requirement: Requirement, cohort: string) {
         unit = 'percentage';
     } else if (requirement.progressBarSuffix) {
         unit = requirement.progressBarSuffix.toLowerCase();
-        if (unit[unit.length - 1] === 's') {
+        if (unit.endsWith('s')) {
             unit = unit.substring(0, unit.length - 1);
         }
     }
@@ -133,12 +133,12 @@ const RepeatChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => 
 const BlockerChips: React.FC<{ requirement: Requirement }> = ({ requirement }) => {
     const { requirements } = useRequirements(ALL_COHORTS, false);
     const requirementMap = useMemo(() => {
-        return requirements.reduce(
+        return requirements.reduce<Record<string, Requirement>>(
             (acc, r) => {
                 acc[r.id] = r;
                 return acc;
             },
-            {} as Record<string, Requirement>,
+            {},
         );
     }, [requirements]);
 
@@ -212,12 +212,12 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
             return { isBlocked: false };
         }
 
-        const requirementMap = requirements.reduce(
+        const requirementMap = requirements.reduce<Record<string, Requirement>>(
             (acc, r) => {
                 acc[r.id] = r;
                 return acc;
             },
-            {} as Record<string, Requirement>,
+            {},
         );
         for (const blockerId of requirement.blockers) {
             const blocker = requirementMap[blockerId];
@@ -318,8 +318,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                     </Grid>
                 )}
 
-                {requirement.videoUrls &&
-                    requirement.videoUrls.map((url, idx) => (
+                {requirement.videoUrls?.map((url, idx) => (
                         <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }} key={url}>
                             <iframe
                                 src={url}

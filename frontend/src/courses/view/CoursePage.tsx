@@ -23,10 +23,10 @@ import PurchaseCoursePage from './PurchaseCoursePage';
 import { AuthStatus, useAuth, useFreeTier } from '../../auth/Auth';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../localStorage';
 
-type CoursePageParams = {
+interface CoursePageParams {
     type: CourseType;
     id: string;
-};
+}
 
 const CoursePage = () => {
     const navigate = useNavigate();

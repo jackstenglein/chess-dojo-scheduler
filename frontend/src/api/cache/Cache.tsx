@@ -119,7 +119,7 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
 /**
  * CacheContextType defines the type of the cache as available through CacheProvider
  */
-type CacheContextType = {
+interface CacheContextType {
     isLoading: boolean;
     setIsLoading: (arg: boolean) => void;
 
@@ -131,7 +131,7 @@ type CacheContextType = {
 
     imageBypass: number;
     setImageBypass: (v: number) => void;
-};
+}
 
 const CacheContext = createContext<CacheContextType>(null!);
 

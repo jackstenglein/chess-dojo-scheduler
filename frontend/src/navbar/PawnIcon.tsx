@@ -2,9 +2,9 @@ import { faChessPawn } from '@fortawesome/free-solid-svg-icons';
 import { SvgIcon } from '@mui/material';
 import { forwardRef } from 'react';
 
-type FontAwesomeSvgIconProps = {
+interface FontAwesomeSvgIconProps {
     icon: any;
-};
+}
 
 const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
     (props, ref) => {

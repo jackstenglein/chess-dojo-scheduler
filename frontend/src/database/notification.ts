@@ -52,9 +52,7 @@ export interface Notification {
         id: string;
 
         /** The headers of the Game. */
-        headers: {
-            [key: string]: string;
-        };
+        headers: Record<string, string>;
     };
 
     /** Metadata for a game review Notification. */
@@ -66,9 +64,7 @@ export interface Notification {
         id: string;
 
         /** The headers of the Game. */
-        headers: {
-            [key: string]: string;
-        };
+        headers: Record<string, string>;
 
         /** The reviewer of the Game. */
         reviewer: {
@@ -122,9 +118,7 @@ export interface Notification {
         result: string;
 
         /** The headers of the game. */
-        headers: {
-            [key: string]: string;
-        };
+        headers: Record<string, string>;
     };
 
     /** Metadata for a club join request notification. */
@@ -140,16 +134,16 @@ export interface Notification {
 export function getTitle(notification: Notification): string {
     switch (notification.type) {
         case NotificationType.GameComment:
-            return `${notification.gameCommentMetadata?.headers?.White} - ${notification.gameCommentMetadata?.headers?.Black}`;
+            return `${notification.gameCommentMetadata?.headers.White} - ${notification.gameCommentMetadata?.headers.Black}`;
         case NotificationType.GameReviewComplete:
-            return `${notification.gameReviewMetadata?.headers?.White} - ${notification.gameReviewMetadata?.headers?.Black}`;
+            return `${notification.gameReviewMetadata?.headers.White} - ${notification.gameReviewMetadata?.headers.Black}`;
         case NotificationType.NewFollower:
             return 'You have a new follower';
         case NotificationType.TimelineComment:
         case NotificationType.TimelineReaction:
             return `${notification.timelineCommentMetadata?.name}`;
         case NotificationType.ExplorerGame:
-            return `${notification.explorerGameMetadata?.headers?.White} - ${notification.explorerGameMetadata?.headers?.Black}`;
+            return `${notification.explorerGameMetadata?.headers.White} - ${notification.explorerGameMetadata?.headers.Black}`;
         case NotificationType.NewClubJoinRequest:
             return `${notification.clubMetadata?.name}`;
         case NotificationType.ClubJoinRequestApproved:
@@ -158,7 +152,7 @@ export function getTitle(notification: Notification): string {
 }
 
 export function getDescription(notification: Notification): string {
-    let count = notification.count || 1;
+    const count = notification.count || 1;
 
     switch (notification.type) {
         case NotificationType.GameComment:

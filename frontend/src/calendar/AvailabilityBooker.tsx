@@ -152,7 +152,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
 
     const confirmBooking = () => {
         if (isGroup) {
-            return confirmGroupBooking();
+            confirmGroupBooking(); return;
         }
         confirmSoloBooking();
     };

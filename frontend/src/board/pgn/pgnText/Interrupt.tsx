@@ -7,7 +7,7 @@ import Lines from './Lines';
 export function hasInterrupt(move: Move): boolean {
     return (
         (move.commentAfter?.trim().length || 0) > 0 ||
-        move.variations?.some((v) => v.length > 0)
+        move.variations.some((v) => v.length > 0)
     );
 }
 

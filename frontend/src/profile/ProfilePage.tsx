@@ -37,9 +37,9 @@ import ProgressTab from './progress/ProgressTab';
 import StatsTab from './stats/StatsTab';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
 
-export type ProfilePageProps = {
+export interface ProfilePageProps {
     username: string;
-};
+}
 
 const ProfilePage = () => {
     const { username } = useParams<ProfilePageProps>();

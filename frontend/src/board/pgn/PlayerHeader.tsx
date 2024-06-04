@@ -41,7 +41,7 @@ export function getInitialClock(pgn?: Pgn): string | undefined {
     result += `${minutes.toLocaleString(undefined, { minimumIntegerDigits: 2 })}:`;
 
     const seconds = (startTime % 3600) % 60;
-    result += `${seconds.toLocaleString(undefined, { minimumIntegerDigits: 2 })}`;
+    result += seconds.toLocaleString(undefined, { minimumIntegerDigits: 2 });
 
     return result;
 }
@@ -142,13 +142,13 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
         return <EmptyHeader type={type} light={light} />;
     }
 
-    const currentMove = chess?.currentMove();
+    const currentMove = chess.currentMove();
 
     let playerName = '';
     let playerElo = '';
     let playerResult = '';
     let move: Move | null | undefined = currentMove;
-    let clockCommand: 'emt' | 'clk' = move?.commentDiag?.emt ? 'emt' : 'clk';
+    const clockCommand: 'emt' | 'clk' = move?.commentDiag?.emt ? 'emt' : 'clk';
     let color: 'w' | 'b' = 'w';
 
     if (
@@ -302,7 +302,7 @@ const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
         return null;
     }
 
-    let materialDifference = move.materialDifference;
+    const materialDifference = move.materialDifference;
     let displayedMaterialDiff = '';
     if (color === 'w' && materialDifference > 0) {
         displayedMaterialDiff = `+${materialDifference}`;

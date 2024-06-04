@@ -9,17 +9,17 @@ const BASE_URL = getConfig().api.baseUrl;
 /**
  * ScoreboardApiContextType provides an API for fetching the scoreboard.
  */
-export type ScoreboardApiContextType = {
+export interface ScoreboardApiContextType {
     /**
      * Returns the scoreboard data for the given scoreboard type.
      * @param type The scoreboard type to get. Valid values are `dojo`, `following` or a cohort.
      * @returns A list of User or ScoreboardSummary objects.
      */
-    getScoreboard: (type: string) => Promise<Array<User | ScoreboardSummary>>;
-};
+    getScoreboard: (type: string) => Promise<(User | ScoreboardSummary)[]>;
+}
 
 interface GetScoreboardResponse {
-    data: Array<User | ScoreboardSummary>;
+    data: (User | ScoreboardSummary)[];
     lastEvaluatedKey: string;
 }
 
@@ -32,9 +32,9 @@ interface GetScoreboardResponse {
 export async function getScoreboard(
     idToken: string,
     type: string
-): Promise<Array<User | ScoreboardSummary>> {
-    let params = { startKey: '' };
-    const result: Array<User | ScoreboardSummary> = [];
+): Promise<(User | ScoreboardSummary)[]> {
+    const params = { startKey: '' };
+    const result: (User | ScoreboardSummary)[] = [];
 
     do {
         const resp = await axios.get<GetScoreboardResponse>(

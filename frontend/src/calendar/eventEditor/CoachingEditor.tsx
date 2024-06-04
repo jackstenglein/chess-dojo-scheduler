@@ -67,7 +67,7 @@ export function validateCoachingEditor(
         errors.location = 'This field is required';
     }
 
-    let maxParticipants: number = -1;
+    let maxParticipants = -1;
     if (!editor.maxParticipants.trim()) {
         errors.maxParticipants = 'This field is required';
     } else {
@@ -83,7 +83,7 @@ export function validateCoachingEditor(
         }
     }
 
-    let fullPrice: number = -1;
+    let fullPrice = -1;
     if (!editor.fullPrice.trim()) {
         errors.fullPrice = 'This field is required';
     } else {
@@ -94,7 +94,7 @@ export function validateCoachingEditor(
         }
     }
 
-    let currentPrice: number = -1;
+    let currentPrice = -1;
     if (editor.currentPrice.trim()) {
         const [price, error] = validatePrice(editor.currentPrice);
         currentPrice = price;

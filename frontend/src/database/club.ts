@@ -44,14 +44,10 @@ export interface Club {
 
 export interface ClubDetails extends Club {
     /** The members of the club, mapped by their usernames. */
-    members: {
-        [username: string]: ClubMember;
-    };
+    members: Record<string, ClubMember>;
 
     /** The pending requests to join the club, mapped by their usernames. */
-    joinRequests: {
-        [username: string]: ClubJoinRequest;
-    };
+    joinRequests: Record<string, ClubJoinRequest>;
 }
 
 export interface ClubLocation {

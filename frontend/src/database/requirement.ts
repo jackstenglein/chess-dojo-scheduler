@@ -19,9 +19,7 @@ export interface CustomTask {
     owner: string;
     name: string;
     description: string;
-    counts: {
-        [cohort: string]: number;
-    };
+    counts: Record<string, number>;
     scoreboardDisplay: ScoreboardDisplay;
     category: RequirementCategory;
     updatedAt: string;
@@ -55,15 +53,11 @@ export interface Requirement {
     shortName?: string;
     description: string;
     freeDescription: string;
-    counts: {
-        [cohort: string]: number;
-    };
+    counts: Record<string, number>;
     startCount: number;
     numberOfCohorts: number;
     unitScore: number;
-    unitScoreOverride?: {
-        [cohort: string]: number;
-    };
+    unitScoreOverride?: Record<string, number>;
     totalScore: number;
     videoUrls?: string[];
     positions?: Position[];
@@ -83,12 +77,8 @@ export interface Requirement {
 
 export interface RequirementProgress {
     requirementId: string;
-    counts: {
-        [cohort: string]: number;
-    };
-    minutesSpent: {
-        [cohort: string]: number;
-    };
+    counts: Record<string, number>;
+    minutesSpent: Record<string, number>;
     updatedAt: string;
 }
 
@@ -245,7 +235,7 @@ export function getTotalScore(cohort: string | undefined, requirements: Requirem
             return sum + r.totalScore;
         }
         let unitScore = r.unitScore;
-        if (r.unitScoreOverride && r.unitScoreOverride[cohort] !== undefined) {
+        if (r.unitScoreOverride?.[cohort] !== undefined) {
             unitScore = r.unitScoreOverride[cohort];
         }
         const count = r.counts[cohort] || 0;
@@ -307,8 +297,7 @@ export function getTotalCategoryScore(
 
 export function getUnitScore(cohort: string, requirement: Requirement): number {
     if (
-        requirement.unitScoreOverride &&
-        requirement.unitScoreOverride[cohort] !== undefined
+        requirement.unitScoreOverride?.[cohort] !== undefined
     ) {
         return requirement.unitScoreOverride[cohort];
     }
