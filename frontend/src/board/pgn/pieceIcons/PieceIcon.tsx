@@ -35,7 +35,7 @@ const PieceIcon: React.FC<{ piece: string }> = ({ piece }) => {
                 marginLeft: margins[piece],
                 backgroundImage: `url(${imageUrls[piece]})`,
                 backgroundSize: 'cover',
-                ':first-child': {
+                ':first-of-type': {
                     marginLeft: 0,
                 },
             }}

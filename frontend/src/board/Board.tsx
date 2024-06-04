@@ -10,7 +10,7 @@ import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
 import './board.css';
 import { getBoardSx, getPieceSx } from './boardThemes';
-import { compareNags, getStandardNag, nags } from './pgn/Nag';
+import { compareNags, getNagGlyph, getStandardNag, nags } from './pgn/Nag';
 import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
 import {
@@ -111,20 +111,18 @@ export function toAutoShapes(chess?: Chess, showGlyphs?: boolean): DrawShape[] {
 
     const nagDetails =
         currentMove.nags?.sort(compareNags).map((n) => nags[getStandardNag(n)]) ?? [];
-    for (const nag of nagDetails) {
-        if (nag.glyph) {
-            return [
-                {
-                    orig: currentMove.to,
-                    customSvg: {
-                        html: nag.glyph,
-                    },
-                },
-            ];
-        }
+    if (nagDetails.length === 0) {
+        return [];
     }
 
-    return [];
+    return [
+        {
+            orig: currentMove.to,
+            customSvg: {
+                html: getNagGlyph(nagDetails[0]),
+            },
+        },
+    ];
 }
 
 export function reconcile(chess?: Chess, board?: BoardApi | null, showGlyphs?: boolean) {
@@ -142,7 +140,8 @@ export function reconcile(chess?: Chess, board?: BoardApi | null, showGlyphs?: b
             dests: toDests(chess),
         },
         drawable: {
-            shapes: toShapes(chess).concat(toAutoShapes(chess, showGlyphs)),
+            shapes: toShapes(chess),
+            autoShapes: toAutoShapes(chess, showGlyphs),
         },
     });
 }
@@ -301,6 +300,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 lastMove: [],
                 drawable: {
                     shapes: config?.drawable?.shapes || toShapes(chess),
+                    autoShapes: toAutoShapes(chess, showGlyphs),
                     onChange:
                         config?.drawable?.onChange || defaultOnDrawableChange(chess),
                 },
@@ -321,6 +321,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         onInitialize,
         onStartPromotion,
         pieceStyle,
+        showGlyphs,
     ]);
 
     const fen = config?.fen;
@@ -372,7 +373,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
     useEffect(() => {
         board?.set({
             drawable: {
-                shapes: toShapes(chess).concat(toAutoShapes(chess, showGlyphs)),
+                shapes: toShapes(chess),
+                autoShapes: toAutoShapes(chess, showGlyphs),
             },
         });
     }, [board, chess, showGlyphs]);
