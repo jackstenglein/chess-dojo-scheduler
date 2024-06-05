@@ -9,14 +9,9 @@
   "author": "jackstenglein",
   "license": "MIT",
   "dependencies": {
-    "@jackstenglein/chess": "^1.0.64",
-    "eslint": "^8.57.0"
+    "@jackstenglein/chess": "^1.0.64"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.12.0",
-    "eslint-plugin-eqeqeq-fix": "^1.0.3",
-    "eslint-plugin-react": "^7.34.2",
-    "eslint-plugin-react-hooks": "^4.6.2",
     "prettier-plugin-organize-imports": "^3.2.4"
   }
 }

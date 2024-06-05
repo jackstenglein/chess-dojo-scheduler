@@ -16,7 +16,13 @@ export default defineConfig(() => {
             // https://github.com/aws-amplify/amplify-js/issues/11175
             global: {},
         },
-        plugins: [react(), eslint({ failOnError: false })],
+        plugins: [
+            react(),
+            eslint({
+                failOnError: false,
+                overrideConfigFile: './.eslintrc-baseline.json',
+            }),
+        ],
         test: {
             environment: 'happy-dom',
             include: ['./src/**/*.test.ts', './src/**/*.test.tsx'],
