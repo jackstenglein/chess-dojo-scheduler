@@ -23,7 +23,7 @@ jobs:
         uses: wearerequired/lint-action@v2
         with:
           eslint: true
-          eslint_args: '-c .eslintrc-baseline.json'
+          eslint_args: '-c .eslintrc-baseline.json .'
           eslint_dir: 'frontend/'
 
       - name: Regenerate baseline file

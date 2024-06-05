@@ -72,7 +72,7 @@ async function main() {
         }
     }
 
-    const failingRules = Object.keys(filesByRule).toSorted();
+    const failingRules = [...Object.keys(filesByRule)].sort();
     const overrides = [];
     for (const ruleId of failingRules) {
         overrides.push({
