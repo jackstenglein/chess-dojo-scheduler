@@ -1,3 +1,7 @@
+import {
+    getExamMaxScore,
+    getRegression,
+} from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import { Check, Close, ExpandLess, ExpandMore, Help, Lock } from '@mui/icons-material';
 import {
     Alert,
@@ -28,7 +32,6 @@ import { Exam, ExamType } from '../../database/exam';
 import { isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
-import { getRegression, getTotalScore } from '../view/exam';
 
 interface CohortRangeExams {
     name: string;
@@ -192,10 +195,7 @@ const columns: GridColDef<Exam>[] = [
             return Math.round(10 * avg) / 10;
         },
         renderCell(params) {
-            const totalScore = params.row.pgns.reduce(
-                (sum, pgn) => sum + getTotalScore(pgn),
-                0,
-            );
+            const totalScore = getExamMaxScore(params.row);
             if (isNaN(params.value)) {
                 return `- / ${totalScore}`;
             }
@@ -286,10 +286,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     return answer.score;
                 },
                 renderCell(params: GridRenderCellParams<Exam, number>) {
-                    const totalScore = params.row.pgns.reduce(
-                        (sum, pgn) => sum + getTotalScore(pgn),
-                        0,
-                    );
+                    const totalScore = getExamMaxScore(params.row);
                     if (params.value === undefined || params.value < 0) {
                         return `- / ${totalScore}`;
                     }

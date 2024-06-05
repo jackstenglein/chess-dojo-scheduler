@@ -1,4 +1,7 @@
 import { COLOR, Chess, Move } from '@jackstenglein/chess';
+import { SimpleLinearRegression } from 'ml-regression-simple-linear';
+import { getCohortRangeInt, isCohortInRange } from '../database/cohort';
+import { Exam } from '../database/exam';
 
 const scoreRegex = /\[(\d+)\]/;
 const alternateSolutionRegex = /\[ALT\]/;
@@ -28,6 +31,30 @@ export function getOrientation(chess: Chess): 'white' | 'black' {
 export function initializeSolution(chess: Chess) {
     chess.seek(null);
     getSolutionScore(
+        chess.turn() === COLOR.black ? 'black' : 'white',
+        chess.history(),
+        chess,
+        false,
+    );
+}
+
+/**
+ * Gets the total score for the given exam.
+ * @param exam The exam to get the max score for.
+ * @returns The max score possible on the exam.
+ */
+export function getExamMaxScore(exam: Exam): number {
+    return exam.pgns.reduce((sum, pgn) => sum + getTotalScore(pgn), 0);
+}
+
+/**
+ * Gets the total score for the given PGN problem in an exam.
+ * @param pgn The PGN to get the score for.
+ */
+export function getTotalScore(pgn: string): number {
+    const chess = new Chess({ pgn });
+    chess.seek(null);
+    return getSolutionScore(
         chess.turn() === COLOR.black ? 'black' : 'white',
         chess.history(),
         chess,
@@ -171,4 +198,50 @@ export function scoreVariation(
     }
 
     return [score, altFound];
+}
+
+/**
+ * Returns the linear regression for this exam. If the exam has not been taken
+ * by enough people, null is returned.
+ * @param exam The exam to get the linear regression for.
+ * @returns The linear regression, or null if the exam does not have enough answers.
+ */
+export function getRegression(exam: Exam): SimpleLinearRegression | null {
+    let [minCohort, maxCohort] = getCohortRangeInt(exam.cohortRange);
+    minCohort = Math.max(0, minCohort - 100);
+    maxCohort += 100;
+
+    const relevantCohortRange = `${minCohort}-${maxCohort}`;
+    const minScore = 0.15 * getExamMaxScore(exam);
+
+    const scoresPerCohort = Object.values(exam.answers).reduce(
+        (acc, ans) => {
+            if (
+                !isCohortInRange(ans.cohort, relevantCohortRange) ||
+                ans.score < minScore
+            ) {
+                return acc;
+            }
+
+            const [cohort] = getCohortRangeInt(ans.cohort);
+            acc[cohort] = {
+                sum: (acc[cohort]?.sum || 0) + ans.score,
+                count: (acc[cohort]?.count || 0) + 1,
+            };
+            return acc;
+        },
+        {} as Record<number, { sum: number; count: number }>,
+    );
+
+    if (Object.values(scoresPerCohort).filter(({ count }) => count >= 3).length < 3) {
+        return null;
+    }
+
+    const x: number[] = [];
+    const y: number[] = [];
+    for (const [cohort, data] of Object.entries(scoresPerCohort)) {
+        x.push(data.sum / data.count);
+        y.push(parseInt(cohort));
+    }
+    return new SimpleLinearRegression(x, y);
 }

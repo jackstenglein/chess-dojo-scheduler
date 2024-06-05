@@ -9,7 +9,8 @@
   "author": "jackstenglein",
   "license": "MIT",
   "dependencies": {
-    "@jackstenglein/chess": "^1.0.64"
+    "@jackstenglein/chess": "^1.0.64",
+    "ml-regression-simple-linear": "^3.0.1"
   },
   "devDependencies": {
     "prettier-plugin-organize-imports": "^3.2.4"

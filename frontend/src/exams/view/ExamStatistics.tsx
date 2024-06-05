@@ -1,3 +1,8 @@
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
+import {
+    getExamMaxScore,
+    getRegression,
+} from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import { Speed } from '@mui/icons-material';
 import { CardContent, Stack, Typography } from '@mui/material';
 import {
@@ -30,12 +35,7 @@ import {
 } from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import {
-    getBestFitCohortRange,
-    getCohortRangeInt,
-    getRegression,
-    getTotalScore,
-} from './exam';
+import { getBestFitCohortRange } from './exam';
 
 export const BEST_FIT_RANGE = 'BEST_FIT_COHORTS';
 
@@ -100,10 +100,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
             .map((v) => v[1]);
     }, [cohortToSeries, cohorts]);
 
-    const totalScore = useMemo(
-        () => exam.pgns.reduce((sum, pgn) => sum + getTotalScore(pgn), 0),
-        [exam],
-    );
+    const totalScore = useMemo(() => getExamMaxScore(exam), [exam]);
 
     const lineSeries = useMemo(() => {
         const regression = getRegression(exam);
@@ -124,7 +121,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
             {
                 id: 'best-fit-scatter',
                 type: 'scatter',
-                label: 'Best Fit',
+                label: 'Test Rating',
                 color: isLight ? '#000' : '#fff',
                 data: Array.from(Array(totalScore + 2)).map((_, i) => ({
                     x: i,

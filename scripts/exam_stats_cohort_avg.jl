@@ -38,11 +38,11 @@ end
 
 println(cohortsLow)
 
-lowTimes = findall((v) -> v < minTime, times)
-deleteat!(ratings, lowTimes)
-deleteat!(times, lowTimes)
-deleteat!(scores, lowTimes)
-deleteat!(cohortsLow, lowTimes)
+# lowTimes = findall((v) -> v < minTime, times)
+# deleteat!(ratings, lowTimes)
+# deleteat!(times, lowTimes)
+# deleteat!(scores, lowTimes)
+# deleteat!(cohortsLow, lowTimes)
 
 negativeRatings = findall((v) -> v == -1.0, ratings)
 deleteat!(ratings, negativeRatings)
