@@ -1,4 +1,4 @@
-import { getCohortRangeInt } from '../exams/view/exam';
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { ExamType } from './exam';
 import { CustomTask, RequirementProgress } from './requirement';
 import { ScoreboardSummary } from './scoreboard';

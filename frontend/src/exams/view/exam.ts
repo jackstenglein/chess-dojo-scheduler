@@ -1,6 +1,5 @@
-import { Chess, COLOR, Move } from '@jackstenglein/chess';
-import { getSolutionScore } from '@jackstenglein/chess-dojo-common';
-import { SimpleLinearRegression } from 'ml-regression-simple-linear';
+import { Chess, Move } from '@jackstenglein/chess';
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApi } from '../../api/Api';
@@ -51,33 +50,6 @@ export function useExam() {
 }
 
 /**
- * Returns the given cohort range as an array of 2 numbers. Ex: 0-1500
- * would return [0, 1500]. For ranges like 2000+, the max cohort is set to Infinity
- * (IE: [2000, Infinity]). If range is not provided or the min cohort is NaN, [-1, -1]
- * is returned.
- * @param range The cohort range to convert.
- * @returns The min and max cohort as numbers.
- */
-export function getCohortRangeInt(range?: string): [number, number] {
-    if (!range) {
-        return [-1, -1];
-    }
-
-    const minCohort = parseInt(range);
-    if (isNaN(minCohort)) {
-        return [-1, -1];
-    }
-
-    let maxCohort =
-        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
-    if (isNaN(maxCohort)) {
-        maxCohort = Infinity;
-    }
-
-    return [minCohort, maxCohort];
-}
-
-/**
  * Returns the cohort range that is used to calculate the best fit line
  * of the exam. This is the exam's recommended cohort range +-100.
  * @param examRange The exam cohort range.
@@ -92,31 +64,6 @@ export function getBestFitCohortRange(examRange: string): string {
         return `${minCohort}+`;
     }
     return `${minCohort}-${maxCohort}`;
-}
-
-/**
- * Returns the linear regression for this exam. If the exam has not been taken
- * by enough people, null is returned.
- * @param exam The exam to get the linear regression for.
- * @returns The linear regression, or null if the exam does not have enough answers.
- */
-export function getRegression(exam: Exam): SimpleLinearRegression | null {
-    const [minCohort, maxCohort] = getCohortRangeInt(exam.cohortRange);
-    const answers = Object.values(exam.answers).filter((a) => {
-        return (
-            a.rating > 0 &&
-            a.score > 0 &&
-            a.rating >= minCohort - 100 &&
-            a.rating < maxCohort + 100
-        );
-    });
-    if (answers.length < 10) {
-        return null;
-    }
-
-    const x = answers.map((a) => a.score);
-    const y = answers.map((a) => a.rating);
-    return new SimpleLinearRegression(x, y);
 }
 
 export function getMoveDescription({
@@ -186,21 +133,6 @@ export function getEventHeader(pgn: string): string {
         return '';
     }
     return pgn.substring(eventIndex, endEventIndex).replace('[Event "', '');
-}
-
-/**
- * Gets the total score for the given PGN problem in an exam.
- * @param pgn The PGN to get the score for.
- */
-export function getTotalScore(pgn: string): number {
-    const chess = new Chess({ pgn });
-    chess.seek(null);
-    return getSolutionScore(
-        chess.turn() === COLOR.black ? 'black' : 'white',
-        chess.history(),
-        chess,
-        false,
-    );
 }
 
 /**

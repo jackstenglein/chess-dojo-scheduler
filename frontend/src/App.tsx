@@ -39,6 +39,7 @@ import UnsubscribePage from './dojoDigest/UnsubscribePage';
 import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
+import { ListEndgameExamsPage } from './exams/list/ListEndgameExamsPage';
 import { ListTacticsExamsPage } from './exams/list/ListTacticsExamsPage';
 import { AdminStatsPage } from './exams/view/AdminStatsPage';
 import ExamPage from './exams/view/ExamPage';
@@ -165,6 +166,7 @@ const router = createBrowserRouter(
                         <Route index element={<ExamLandingPage />} />
                         <Route path='tactics' element={<ListTacticsExamsPage />} />
                         <Route path='checkmate' element={<ListCheckmateExamsPage />} />
+                        <Route path='endgame' element={<ListEndgameExamsPage />} />
 
                         <Route path=':type/:id'>
                             <Route index element={<ExamInstructionsPage />} />

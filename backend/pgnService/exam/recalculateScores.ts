@@ -7,12 +7,17 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import {
+    Exam,
+    ExamAnswer,
+    ExamAnswerSummary,
+    isValidExamType,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
+import {
     getOrientation,
     initializeSolution,
     scoreVariation,
-} from '@jackstenglein/chess-dojo-common';
+} from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
-import { Exam, ExamAnswer, ExamAnswerSummary, isValidExamType } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const examTable = process.env.stage + '-exams';

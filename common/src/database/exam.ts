@@ -2,6 +2,7 @@
 export enum ExamType {
     Tactics = 'TACTICS_EXAM',
     Polgar = 'POLGAR_EXAM',
+    Endgame = 'ENDGAME_EXAM',
 }
 
 /**
@@ -61,12 +62,6 @@ export interface Exam {
 export interface ExamProblemAnswer {
     /** The user's final result PGN. */
     pgn: string;
-
-    /** The user's score for the problem. */
-    score: number;
-
-    /** The total score available for the problem. */
-    total: number;
 }
 
 /**
@@ -89,6 +84,9 @@ export interface ExamAttempt {
 
     /** The date the user took the exam, in time.RFC3339 format. */
     createdAt: string;
+
+    /** Whether the attempt is currently in progress. */
+    inProgress?: boolean;
 }
 
 /** A single user's answer to a full exam. */

@@ -4,7 +4,7 @@ import argparse
 import uuid
 from dynamodb_json import json_util as json 
 
-VALID_TYPES = ["TACTICS_EXAM", "POLGAR_EXAM"]
+VALID_TYPES = ["TACTICS_EXAM", "POLGAR_EXAM", "ENDGAME_EXAM"]
 VALID_COHORTS = [
     '0-500',
     '500-1000',

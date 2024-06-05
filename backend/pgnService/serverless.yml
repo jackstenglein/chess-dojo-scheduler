@@ -181,6 +181,25 @@ functions:
           - dynamodb:UpdateItem
         Resource: ${param:ExamsTableArn}
 
+  recalculateExamRegression:
+    handler: exam/regression.handler
+    timeout: 120
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${param:ExamsTableStreamArn}
+          batchWindow: 20
+          batchSize: 5
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          filterPatterns:
+            - eventName: [MODIFY]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:UsersTableArn}
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

@@ -1,5 +1,8 @@
 import { EventType } from '@jackstenglein/chess';
-import { getSolutionScore, scoreVariation } from '@jackstenglein/chess-dojo-common';
+import {
+    getSolutionScore,
+    scoreVariation,
+} from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import {
     Assessment,
     Info,

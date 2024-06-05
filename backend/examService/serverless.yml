@@ -86,25 +86,6 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: !GetAtt ExamsTable.Arn
-  
-  calcRegression:
-    handler: regression/main.go
-    timeout: 120
-    events:
-      - stream:
-          type: dynamodb
-          arn: !GetAtt ExamsTable.StreamArn
-          batchWindow: 20
-          batchSize: 5
-          maximumRetryAttempts: 2
-          parallelizationFactor: 2
-          filterPatterns:
-            - eventName: [MODIFY]
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PartiQLUpdate
-        Resource: ${param:UsersTableArn}
 
 resources:
   Conditions:
