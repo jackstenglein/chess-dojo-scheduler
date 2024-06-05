@@ -76,7 +76,7 @@ async function main() {
     const overrides = [];
     for (const ruleId of failingRules) {
         overrides.push({
-            files: [...filesByRule[ruleId]].toSorted(),
+            files: [...filesByRule[ruleId]].sort(),
             rules: { [ruleId]: 'off' },
         });
     }
@@ -89,4 +89,7 @@ async function main() {
     writeFileSync(outPath, JSON.stringify(baselineConfig, null, 4));
 }
 
-main().catch((err) => console.error(err));
+main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+});
