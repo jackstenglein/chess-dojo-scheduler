@@ -37,10 +37,9 @@ export const ExamLandingPage = () => {
 
                 <ExamCard
                     name='Endgame Tests'
-                    description='Coming June 31st'
+                    description='All Ratings'
                     href='/tests/endgame'
                     icon={RookIcon}
-                    disabled
                 />
             </Grid2>
         </Container>
