@@ -75,6 +75,7 @@
         "test:e2e": "cypress run",
         "preview": "vite preview",
         "lint": "eslint .",
+        "lint:baseline": "eslint -c .eslintrc-baseline.json .",
         "lint:cypress": "eslint cypress",
         "lint:fix": "eslint --fix .",
         "generate-lint-baseline": "scripts/generate-lint-baseline.js -i .eslintrc.cjs -o .eslintrc-baseline.json --root ."
