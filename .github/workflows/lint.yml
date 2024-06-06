@@ -35,5 +35,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'ci(linting rules): update baseline linting rules'
-          file_pattern: '*/.eslintrc-overrides.json'
+          file_pattern: '*/.eslintrc-baseline.json'
           skip_dirty_check: false
