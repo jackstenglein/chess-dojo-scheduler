@@ -387,8 +387,7 @@
         },
         {
             "files": [
-                "src/api/gameApi.test.ts",
-                "src/games/import/PGNForm.tsx"
+                "src/api/gameApi.test.ts"
             ],
             "rules": {
                 "@typescript-eslint/require-await": "off"
