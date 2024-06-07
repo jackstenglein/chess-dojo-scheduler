@@ -39,8 +39,15 @@ const usage = [
     },
 ];
 
-const optionList = usage.find((section) => section.header === 'Options').optionList;
-const { spec, watch, help } = commandLineArgs(optionList);
+const optionList = usage.find((section) => section.header === 'Options')?.optionList;
+if (!optionList) {
+    process.exit(1);
+}
+const { spec, watch, help } = commandLineArgs(optionList) as {
+    spec: string;
+    watch: string;
+    help: boolean;
+};
 
 if (help) {
     const usageMsg = commandLineUsage(usage);
@@ -57,7 +64,7 @@ if (watch) {
     }
     nodemon({
         script: scriptPath,
-        args: ['--spec', spec],
+        execArgs: ['--spec', spec],
         ext: 'js,jsx,ts,tsx,css,scss,json',
         watch: [
             'cypress.config.ts',
@@ -68,10 +75,10 @@ if (watch) {
         ],
     });
 } else {
-    const config = {};
+    const config: Partial<CypressCommandLine.CypressRunOptions> = {};
     if (spec) {
         config.spec = spec;
     }
 
-    cypress.run(config);
+    void cypress.run(config);
 }

@@ -14,5 +14,6 @@ module.exports = {
             version: 'detect',
         },
     },
+    ignorePatterns: ['build/**', 'node_modules/**'],
     root: true,
 };

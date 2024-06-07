@@ -45,8 +45,17 @@ const usage = [
 ];
 
 async function main() {
-    const optionList = usage.find((section) => section.header === 'Options').optionList;
-    const { inPath, outPath, root, help } = commandLineArgs(optionList);
+    const optionList = usage.find((section) => section.header === 'Options')?.optionList;
+    if (!optionList) {
+        process.exit(1);
+    }
+
+    const { inPath, outPath, root, help } = commandLineArgs(optionList) as {
+        inPath: string;
+        outPath: string;
+        root: string;
+        help: string;
+    };
 
     if (help || !inPath || !outPath || !root) {
         const usageMsg = commandLineUsage(usage);
@@ -60,8 +69,8 @@ async function main() {
     });
 
     const results = await eslint.lintFiles(root);
-    const failingFilesByRule = {};
-    const allRulesByFile = {};
+    const failingFilesByRule: Record<string, Set<string>> = {};
+    const allRulesByFile: Record<string, unknown> = {};
     for (const result of results) {
         const filePath = pathlib.relative(absRoot, result.filePath);
         if (!allRulesByFile[filePath]) {
