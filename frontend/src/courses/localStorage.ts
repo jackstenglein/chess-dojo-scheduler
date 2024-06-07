@@ -10,7 +10,7 @@ export function getCheckoutSessionId(courseId?: string): string {
         return '';
     }
 
-    const checkoutSessionIds = JSON.parse(courseCheckoutStr);
+    const checkoutSessionIds = JSON.parse(courseCheckoutStr) as Record<string, string>;
     return checkoutSessionIds[courseId] || '';
 }
 
@@ -20,14 +20,19 @@ export function setCheckoutSessionId(courseId?: string, checkoutId?: string) {
     }
 
     const courseCheckoutStr = localStorage.getItem(COURSE_STORAGE_KEY);
-    const checkoutSessionIds = courseCheckoutStr ? JSON.parse(courseCheckoutStr) : {};
+    const checkoutSessionIds = (
+        courseCheckoutStr ? JSON.parse(courseCheckoutStr) : {}
+    ) as Record<string, string>;
     checkoutSessionIds[courseId] = checkoutId;
     localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(checkoutSessionIds));
 }
 
 export function getAllCheckoutSessionIds(): Record<string, string> {
     const courseCheckoutStr = localStorage.getItem(COURSE_STORAGE_KEY);
-    return courseCheckoutStr ? JSON.parse(courseCheckoutStr) : {};
+    return (courseCheckoutStr ? JSON.parse(courseCheckoutStr) : {}) as Record<
+        string,
+        string
+    >;
 }
 
 export function clearCheckoutSessionIds() {

@@ -93,7 +93,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                 ))}
             </List>
 
-            {Boolean(hiddenCount) && (
+            {hiddenCount !== undefined && hiddenCount > 0 && (
                 <Stack
                     data-cy='upsell-message'
                     px={1}
@@ -103,7 +103,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                 >
                     <Typography textAlign='center'>
                         Unlock {hiddenCount} more game
-                        {hiddenCount! > 1 ? 's' : ''} by upgrading to a full account
+                        {hiddenCount > 1 ? 's' : ''} by upgrading to a full account
                     </Typography>
                     <Button variant='outlined' href='/prices'>
                         View Prices

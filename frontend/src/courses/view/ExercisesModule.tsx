@@ -1,22 +1,21 @@
 import { Box, Container, Stack, Typography } from '@mui/material';
-
-import { ModuleProps } from './Module';
-import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
-import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
-import { Coach, CourseModule, coachUrls } from '../../database/course';
 import { useCallback, useState } from 'react';
-import PgnSelector from './PgnSelector';
-import { useAuth } from '../../auth/Auth';
-import { User } from '../../database/user';
-import { useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
+import { useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
+import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
+import { Coach, CourseModule, coachUrls } from '../../database/course';
+import { User } from '../../database/user';
+import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
+import { ModuleProps } from './Module';
+import PgnSelector from './PgnSelector';
 
 function getCompleted(user: User | undefined, module: CourseModule): boolean[] {
     let exercises: boolean[] = [];
-    if (
-        user?.openingProgress?.[module.id]?.exercises
-    ) {
-        exercises = user.openingProgress[module.id].exercises!;
+
+    const userExercises = user?.openingProgress?.[module.id]?.exercises;
+    if (userExercises !== undefined) {
+        exercises = userExercises;
     }
 
     return module.pgns.map((_: string, idx: number) => {
