@@ -16,12 +16,15 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
-import { CustomTask, ScoreboardDisplay } from '../../database/requirement';
+import {
+    CustomTask,
+    RequirementCategory,
+    ScoreboardDisplay,
+} from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
 
 interface CustomTaskEditorProps {
@@ -33,7 +36,7 @@ interface CustomTaskEditorProps {
 const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose }) => {
     const request = useRequest();
     const api = useApi();
-    const user = useAuth().user!;
+    const { user } = useAuth();
 
     const [name, setName] = useState(task?.name ?? '');
     const [description, setDescription] = useState(task?.description ?? '');
@@ -41,15 +44,16 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
         task ? Object.values(task.counts).length === dojoCohorts.length : true,
     );
     const [cohorts, setCohorts] = useState<Record<string, boolean>>(
-        dojoCohorts.reduce<Record<string, boolean>>(
-            (map, cohort) => {
-                map[cohort] = task?.counts[cohort] !== undefined || false;
-                return map;
-            },
-            {},
-        ),
+        dojoCohorts.reduce<Record<string, boolean>>((map, cohort) => {
+            map[cohort] = task?.counts[cohort] !== undefined || false;
+            return map;
+        }, {}),
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    if (!user) {
+        return null;
+    }
 
     const onChangeCohort = (cohort: string, value: boolean) => {
         setCohorts({
@@ -75,13 +79,10 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
         const includedCohorts = allCohorts
             ? dojoCohorts
             : Object.keys(cohorts).filter((c) => cohorts[c]);
-        const newCounts = includedCohorts.reduce<Record<string, number>>(
-            (map, c) => {
-                map[c] = 1;
-                return map;
-            },
-            {},
-        );
+        const newCounts = includedCohorts.reduce<Record<string, number>>((map, c) => {
+            map[c] = 1;
+            return map;
+        }, {});
 
         const newTask = {
             id: task ? task.id : uuidv4(),
@@ -89,7 +90,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             description,
             counts: newCounts,
             scoreboardDisplay: ScoreboardDisplay.NonDojo,
-            category: 'Non-Dojo',
+            category: RequirementCategory.NonDojo,
             updatedAt: new Date().toISOString(),
             owner: user.username,
         };

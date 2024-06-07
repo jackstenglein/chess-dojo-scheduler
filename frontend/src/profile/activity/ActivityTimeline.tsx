@@ -1,15 +1,13 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-
+import { useState } from 'react';
 import { RequestSnackbar } from '../../api/Request';
 import { TimelineEntry } from '../../database/timeline';
 import { User } from '../../database/user';
-import { UseTimelineResponse } from './useTimeline';
 import LoadingPage from '../../loading/LoadingPage';
-import { useAuth } from '../../auth/Auth';
 import NewsfeedItem from '../../newsfeed/detail/NewsfeedItem';
-import LoadMoreButton from '../../newsfeed/list/LoadMoreButton';
 import NewsfeedItemHeader from '../../newsfeed/detail/NewsfeedItemHeader';
-import { useState } from 'react';
+import LoadMoreButton from '../../newsfeed/list/LoadMoreButton';
+import { UseTimelineResponse } from './useTimeline';
 
 export function getTimeSpent(timelineItem: TimelineEntry): string {
     if (timelineItem.minutesSpent === 0) {
@@ -23,7 +21,7 @@ export function getTimeSpent(timelineItem: TimelineEntry): string {
     return `${hours}h ${minutes}m`;
 }
 
-const CreatedAtItem: React.FC<{ user: User; viewer?: User }> = ({ user, viewer }) => {
+const CreatedAtItem: React.FC<{ user: User }> = ({ user }) => {
     if (!user.createdAt) {
         return null;
     }
@@ -60,7 +58,6 @@ interface ActivityTimelineProps {
 }
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) => {
-    const viewer = useAuth().user;
     const { request, entries, hasMore, onLoadMore, onEdit } = timeline;
     const [numShown, setNumShown] = useState(25);
 
@@ -110,7 +107,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
                         />
                     )}
 
-                    <CreatedAtItem user={user} viewer={viewer} />
+                    <CreatedAtItem user={user} />
                 </Stack>
             )}
 

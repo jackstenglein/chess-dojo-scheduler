@@ -26,11 +26,11 @@ interface GamesTabProps {
 const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const navigate = useNavigate();
     const api = useApi();
-    const currentUser = useAuth().user!;
+    const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
     const columns = useMemo(() => {
         const columns = gameTableColumns.filter((c) => c.field !== 'owner');
-        if (currentUser.username === user.username) {
+        if (currentUser?.username === user.username) {
             columns.push({
                 field: 'unlisted',
                 headerName: 'Visibility',
@@ -55,7 +55,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
             });
         }
         return columns;
-    }, [currentUser.username, user.username]);
+    }, [currentUser?.username, user.username]);
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user.username, startKey),
@@ -87,7 +87,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     return (
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
-            {currentUser.username === user.username && (
+            {currentUser?.username === user.username && (
                 <Button
                     variant='contained'
                     onClick={onSubmit}
@@ -98,7 +98,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 </Button>
             )}
 
-            {isFreeTier && currentUser.username !== user.username && (
+            {isFreeTier && currentUser?.username !== user.username && (
                 <Stack alignItems='center' mb={5}>
                     <UpsellAlert>
                         To avoid unfair preparation against Dojo members, free-tier users
@@ -108,7 +108,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 </Stack>
             )}
 
-            {(!isFreeTier || currentUser.username === user.username) && (
+            {(!isFreeTier || currentUser?.username === user.username) && (
                 <DataGridPro
                     columns={columns}
                     rows={data}

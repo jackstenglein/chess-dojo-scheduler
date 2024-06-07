@@ -1,9 +1,9 @@
-import { faDiscord } from '@fortawesome/free-brands-svg-icons';
+import { IconDefinition, faDiscord } from '@fortawesome/free-brands-svg-icons';
 import { Chip, SvgIcon, SvgIconProps, Tooltip } from '@mui/material';
 import { forwardRef } from 'react';
 
 type FontAwesomeSvgIconProps = SvgIconProps & {
-    icon: any;
+    icon: IconDefinition;
 };
 
 export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
@@ -33,13 +33,14 @@ export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconPr
                      * @see https://fontawesome.com/how-to-use/on-the-web/styling/duotone-icons#changing-opacity
                      */
                     svgPathData.map((d: string, i: number) => (
-                        <path style={{ opacity: i === 0 ? 0.4 : 1 }} d={d} />
+                        <path key={i} style={{ opacity: i === 0 ? 0.4 : 1 }} d={d} />
                     ))
                 )}
             </SvgIcon>
         );
     },
 );
+FontAwesomeSvgIcon.displayName = 'FontAwesomeSvgIcon';
 
 export function DiscordIcon() {
     return <FontAwesomeSvgIcon icon={faDiscord} />;

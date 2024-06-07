@@ -32,7 +32,7 @@ import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
 import { useCache } from '../../api/cache/Cache';
-import { useAuth } from '../../auth/Auth';
+import { useRequiredAuth } from '../../auth/Auth';
 import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 import {
     Rating,
@@ -103,36 +103,32 @@ interface RatingEditor {
 function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
     const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(
         RatingSystem,
-    ).reduce<Record<RatingSystem, RatingEditor>>(
-        (m, rs) => {
-            m[rs] = {
-                username: ratings[rs]?.username || '',
-                hideUsername: ratings[rs]?.hideUsername || false,
-                startRating: `${ratings[rs]?.startRating || 0}`,
-                currentRating: `${ratings[rs]?.currentRating || 0}`,
-                name: ratings[rs]?.name || '',
-            };
-            return m;
-        },
-        {},
-    );
+    ).reduce<Record<RatingSystem, RatingEditor>>((m, rs) => {
+        m[rs] = {
+            username: ratings[rs]?.username || '',
+            hideUsername: ratings[rs]?.hideUsername || false,
+            startRating: `${ratings[rs]?.startRating || 0}`,
+            currentRating: `${ratings[rs]?.currentRating || 0}`,
+            name: ratings[rs]?.name || '',
+        };
+        return m;
+    }, {});
     return ratingEditors;
 }
 
 function getRatingsFromEditors(ratingEditors: Record<RatingSystem, RatingEditor>) {
-    const ratings: Record<RatingSystem, Rating> = Object.values(RatingSystem).reduce<Record<RatingSystem, Rating>>(
-        (m, rs) => {
-            m[rs] = {
-                username: ratingEditors[rs].username || '',
-                hideUsername: ratingEditors[rs].hideUsername || false,
-                startRating: parseRating(ratingEditors[rs].startRating),
-                currentRating: parseRating(ratingEditors[rs].currentRating),
-                name: ratingEditors[rs].name || undefined,
-            };
-            return m;
-        },
-        {},
-    );
+    const ratings: Record<RatingSystem, Rating> = Object.values(RatingSystem).reduce<
+        Record<RatingSystem, Rating>
+    >((m, rs) => {
+        m[rs] = {
+            username: ratingEditors[rs].username || '',
+            hideUsername: ratingEditors[rs].hideUsername || false,
+            startRating: parseRating(ratingEditors[rs].startRating),
+            currentRating: parseRating(ratingEditors[rs].currentRating),
+            name: ratingEditors[rs].name || undefined,
+        };
+        return m;
+    }, {});
     return ratings;
 }
 
@@ -161,11 +157,11 @@ function getUpdate(
     formFields: Partial<User>,
     profilePictureData?: string,
 ): Partial<UserUpdate> | undefined {
-    const update: Partial<UserUpdate> = {};
+    const update: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(formFields)) {
-        if ((user as any)[key] !== value) {
-            (update as any)[key] = value;
+        if (user[key as keyof User] !== value) {
+            update[key as keyof User] = value;
         }
     }
 
@@ -211,7 +207,7 @@ export function encodeFileToBase64(file: File): Promise<string> {
 }
 
 const ProfileEditorPage = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
     const navigate = useNavigate();
     const { setImageBypass } = useCache();
@@ -294,7 +290,7 @@ const ProfileEditorPage = () => {
 
     const onChangeProfilePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (files && files.length) {
+        if (files?.length) {
             if (files[0].size / 1024 / 1024 > MAX_PROFILE_PICTURE_SIZE_MB) {
                 request.onFailure({ message: 'Profile picture must be 9MB or smaller' });
                 return;
@@ -832,8 +828,7 @@ const ProfileEditorPage = () => {
                                         required={ratingSystem === RatingSystem.Custom}
                                         label='Start Rating (Custom)'
                                         value={
-                                            ratingEditors[RatingSystem.Custom]
-                                                .startRating
+                                            ratingEditors[RatingSystem.Custom].startRating
                                         }
                                         onChange={(event) =>
                                             setStartRating(

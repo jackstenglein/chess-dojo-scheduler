@@ -60,6 +60,11 @@ interface AuthContextType {
     signout: () => void;
 }
 
+interface RequiredAuthContextType extends AuthContextType {
+    user: User;
+    status: AuthStatus.Authenticated;
+}
+
 const AuthContext = createContext<AuthContextType>(null!);
 
 function socialSignin(provider: string, redirectUri: string) {
@@ -118,6 +123,16 @@ function forgotPasswordConfirm(email: string, code: string, password: string) {
 
 export function useAuth() {
     return useContext(AuthContext);
+}
+
+export function useRequiredAuth(): RequiredAuthContextType {
+    const context = useContext(AuthContext);
+    if (!context.user || context.status !== AuthStatus.Authenticated) {
+        throw new Error(
+            'useRequiredAuth should only be called in components that the user is required to be logged in to view.',
+        );
+    }
+    return context as RequiredAuthContextType;
 }
 
 export function useFreeTier() {
