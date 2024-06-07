@@ -71,7 +71,7 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                     request.onFailure(err);
                 });
         }
-    }, [request, api]);
+    }, [request, api, examType]);
 
     const ranges = useMemo(() => {
         const ranges: CohortRangeExams[] = [];
@@ -95,7 +95,7 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
             }
         }
         return ranges;
-    }, [request]);
+    }, [request, cohortRanges]);
 
     const onChangeExpanded = (i: number) => {
         setExpanded([...expanded.slice(0, i), !expanded[i], ...expanded.slice(i + 1)]);
@@ -194,9 +194,9 @@ const columns: GridColDef<Exam>[] = [
             const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
             return Math.round(10 * avg) / 10;
         },
-        renderCell(params) {
+        renderCell(params: GridRenderCellParams<Exam, number>) {
             const totalScore = getExamMaxScore(params.row);
-            if (isNaN(params.value)) {
+            if (params.value === undefined || isNaN(params.value)) {
                 return `- / ${totalScore}`;
             }
             return `${params.value} / ${totalScore}`;
@@ -222,8 +222,8 @@ const avgRatingColumn: GridColDef<Exam> = {
 
         return Math.round((10 * sum) / Object.values(params.row.answers).length) / 10;
     },
-    renderCell(params) {
-        if (params.value < 0 || isNaN(params.value)) {
+    renderCell(params: GridRenderCellParams<Exam, number>) {
+        if (!params.value || params.value < 0 || isNaN(params.value)) {
             return (
                 <Tooltip title='Avg rating is not calculated until at least 10 people have taken the exam.'>
                     <Help sx={{ color: 'text.secondary' }} />
@@ -349,7 +349,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
             },
         ];
         return examColumns;
-    }, [user]);
+    }, [user, exams]);
 
     const onClickRow = (params: GridRowParams<Exam>) => {
         if (params.row.answers[user?.username || '']) {
@@ -360,11 +360,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         }
 
         const i = exams.findIndex((e) => e.id === params.row.id);
-        if (
-            !user?.isAdmin &&
-            i >= 1 &&
-            !exams[i - 1].answers[user?.username || '']
-        ) {
+        if (!user?.isAdmin && i >= 1 && !exams[i - 1].answers[user?.username || '']) {
             setSnackbarOpen(true);
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);

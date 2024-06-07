@@ -51,7 +51,7 @@ interface ExamStatisticsProps {
 const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
     const bestFitCohortRange = getBestFitCohortRange(exam.cohortRange);
     const [cohorts, setCohorts] = useState([bestFitCohortRange]);
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const isLight = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
     const [legendMargin, setLegendMargin] = useState(100);
@@ -60,7 +60,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
         const cohortToSeries: Record<string, ScatterSeriesType> = {};
 
         Object.entries(exam.answers).forEach(([username, answer]) => {
-            if (answer.rating <= 0 || username === user.username) {
+            if (answer.rating <= 0 || username === user?.username) {
                 return;
             }
 
@@ -132,7 +132,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 valueFormatter: (value) => `Score: ${value?.x}, Rating: ${value?.y}`,
             },
         ] as [LineSeriesType, ScatterSeriesType];
-    }, [exam, totalScore]);
+    }, [exam, totalScore, isLight]);
 
     useEffect(() => {
         if (!ref.current) {
@@ -163,30 +163,32 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
         setCohorts(finalCohorts);
     };
 
-    const yourScoreSeries: ScatterSeriesType[] = exam.answers[user.username]
-        ? [
-              {
-                  type: 'scatter',
-                  label: 'Your Score',
-                  data: [
-                      {
-                          x: exam.answers[user.username].score,
-                          y: exam.answers[user.username].rating,
-                          id: user.username,
+    const yourScoreSeries: ScatterSeriesType[] =
+        user && exam.answers[user.username]
+            ? [
+                  {
+                      type: 'scatter',
+                      label: 'Your Score',
+                      data: [
+                          {
+                              x: exam.answers[user.username].score,
+                              y: exam.answers[user.username].rating,
+                              id: user.username,
+                          },
+                      ],
+                      highlightScope: {
+                          highlighted: 'item',
+                          faded: 'global',
                       },
-                  ],
-                  highlightScope: {
-                      highlighted: 'item',
-                      faded: 'global',
+                      valueFormatter: (value) =>
+                          `Score: ${value?.x},\nRating: ${value?.y}`,
+                      color: isLight ? '#000' : '#fff',
                   },
-                  valueFormatter: (value) => `Score: ${value?.x},\nRating: ${value?.y}`,
-                  color: isLight ? '#000' : '#fff',
-              },
-          ]
-        : [];
+              ]
+            : [];
 
     let userCount = series.reduce((sum, s) => sum + s.data.length, 0);
-    if (cohorts[0] === ALL_COHORTS || cohorts.includes(user.dojoCohort)) {
+    if (cohorts[0] === ALL_COHORTS || cohorts.includes(user?.dojoCohort || '')) {
         userCount += 1;
     }
 

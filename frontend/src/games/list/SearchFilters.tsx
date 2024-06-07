@@ -26,7 +26,7 @@ import {
 } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
-import { useAuth, useFreeTier } from '../../auth/Auth';
+import { useFreeTier, useRequiredAuth } from '../../auth/Auth';
 import { RequirementCategory } from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
@@ -507,7 +507,7 @@ interface SearchFiltersProps {
 }
 
 const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
 
     const [searchParams, setSearchParams] = useSearchParams({
@@ -519,7 +519,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         type: SearchType.Cohort,
     });
 
-    const [expanded, setExpanded] = useState<string | false>(searchParams.get('type')!);
+    const [expanded, setExpanded] = useState<string | false>(
+        searchParams.get('type') || '',
+    );
     const onChangePanel =
         (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
             setExpanded(newExpanded ? panel : false);

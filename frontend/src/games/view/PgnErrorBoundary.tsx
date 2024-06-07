@@ -1,8 +1,7 @@
 // Based off of https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary
 
 import { Button, Container, Stack, Typography } from '@mui/material';
-import React, { Component } from 'react';
-
+import React, { Component, ErrorInfo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useAuth } from '../../auth/Auth';
@@ -21,8 +20,8 @@ interface PgnErrorBoundaryNavigatorProps extends PgnErrorBoundaryProps {
 
 interface ErrorBoundaryState {
     hasError: boolean;
-    error: any;
-    info: any;
+    error?: Error;
+    info?: ErrorInfo;
 }
 
 class PgnErrorBoundary extends Component<
@@ -31,14 +30,14 @@ class PgnErrorBoundary extends Component<
 > {
     constructor(props: PgnErrorBoundaryNavigatorProps) {
         super(props);
-        this.state = { hasError: false, error: null, info: null };
+        this.state = { hasError: false };
     }
 
-    static getDerivedStateFromError(error: any) {
+    static getDerivedStateFromError(error: Error) {
         return { hasError: true, error };
     }
 
-    componentDidCatch(error: any, info: any) {
+    componentDidCatch(error: Error, info: ErrorInfo) {
         console.log('Error: ', error);
         console.log('Info: ', info);
         this.setState({ hasError: true, error, info });
@@ -83,10 +82,10 @@ class PgnErrorBoundary extends Component<
                     )}
 
                     <Typography variant='body1' color='error' whiteSpace='pre-line'>
-                        {this.state.error === null ? 'null' : this.state.error.toString()}
-                        {this.state.info === null
-                            ? 'No component stack'
-                            : this.state.info.componentStack}
+                        {this.state.error ? this.state.error.toString() : 'No error'}
+                        {this.state.info
+                            ? this.state.info.componentStack
+                            : 'No component stack'}
                     </Typography>
 
                     <Typography variant='body1' whiteSpace='pre-line'>
