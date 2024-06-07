@@ -1,3 +1,4 @@
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Dialog,
@@ -6,12 +7,11 @@ import {
     DialogContentText,
     DialogTitle,
 } from '@mui/material';
-import { CustomTask } from '../database/requirement';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { LoadingButton } from '@mui/lab';
-import { useAuth } from '../auth/Auth';
-import { useApi } from '../api/Api';
 import { EventType, trackEvent } from '../analytics/events';
+import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { useAuth } from '../auth/Auth';
+import { CustomTask } from '../database/requirement';
 
 interface DeleteCustomTaskModalProps {
     task: CustomTask;
@@ -26,9 +26,13 @@ const DeleteCustomTaskModal: React.FC<DeleteCustomTaskModalProps> = ({
     onCancel,
     onDelete,
 }) => {
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const api = useApi();
     const request = useRequest();
+
+    if (!user) {
+        return null;
+    }
 
     const handleDelete = () => {
         const newTasks = user.customTasks?.filter((t) => t.id !== task.id) || [];

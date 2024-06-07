@@ -1,12 +1,11 @@
+import { Lock, Loop } from '@mui/icons-material';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import CheckIcon from '@mui/icons-material/Check';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import { Box, Button, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useMemo, useState } from 'react';
-import { useAuth, useFreeTier } from '../auth/Auth';
-
-import { Lock, Loop } from '@mui/icons-material';
 import { useRequirements } from '../api/cache/requirements';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import {
     CustomTask,
     Requirement,
@@ -133,13 +132,10 @@ const RepeatChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => 
 const BlockerChips: React.FC<{ requirement: Requirement }> = ({ requirement }) => {
     const { requirements } = useRequirements(ALL_COHORTS, false);
     const requirementMap = useMemo(() => {
-        return requirements.reduce<Record<string, Requirement>>(
-            (acc, r) => {
-                acc[r.id] = r;
-                return acc;
-            },
-            {},
-        );
+        return requirements.reduce<Record<string, Requirement>>((acc, r) => {
+            acc[r.id] = r;
+            return acc;
+        }, {});
     }, [requirements]);
 
     if (!requirement.blockers || requirement.blockers.length === 0) {
@@ -178,13 +174,13 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
     onClose,
     cohort,
 }) => {
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const isFreeTier = useFreeTier();
 
     const selectedCohort = useMemo(() => {
         if (!requirement) {
-            return cohort || user.dojoCohort;
+            return cohort || user?.dojoCohort;
         }
 
         const cohortOptions = requirement.counts[ALL_COHORTS]
@@ -194,12 +190,12 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
         if (cohort && cohortOptions.includes(cohort)) {
             return cohort;
         }
-        if (cohortOptions.includes(user.dojoCohort)) {
+        if (user?.dojoCohort && cohortOptions.includes(user.dojoCohort)) {
             return user.dojoCohort;
         }
 
         return cohortOptions.sort(compareCohorts)[0];
-    }, [requirement, user.dojoCohort]);
+    }, [requirement, user?.dojoCohort, cohort]);
 
     const { requirements } = useRequirements(ALL_COHORTS, false);
 
@@ -223,7 +219,8 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
             const blocker = requirementMap[blockerId];
             if (
                 blocker &&
-                !isComplete(selectedCohort, blocker, user.progress[blockerId])
+                selectedCohort &&
+                !isComplete(selectedCohort, blocker, user?.progress[blockerId])
             ) {
                 return {
                     isBlocked: true,
@@ -238,7 +235,11 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
         return <CustomTaskDisplay task={requirement} onClose={onClose} />;
     }
 
-    const progress = user.progress[requirement.id];
+    if (!selectedCohort) {
+        return null;
+    }
+
+    const progress = user?.progress[requirement.id];
 
     const totalCount =
         requirement.counts[selectedCohort] || requirement.counts[ALL_COHORTS];
@@ -319,17 +320,17 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                 )}
 
                 {requirement.videoUrls?.map((url, idx) => (
-                        <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }} key={url}>
-                            <iframe
-                                src={url}
-                                title={`${requirement.name} Video ${idx + 1}`}
-                                allow='accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share'
-                                allowFullScreen={true}
-                                style={{ width: '100%', height: '100%' }}
-                                frameBorder={0}
-                            />
-                        </Box>
-                    ))}
+                    <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }} key={url}>
+                        <iframe
+                            src={url}
+                            title={`${requirement.name} Video ${idx + 1}`}
+                            allow='accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share'
+                            allowFullScreen={true}
+                            style={{ width: '100%', height: '100%' }}
+                            frameBorder={0}
+                        />
+                    </Box>
+                ))}
             </Stack>
 
             <ProgressDialog

@@ -1,27 +1,22 @@
 import { Container } from '@mui/material';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-
+import NotFoundPage from '../NotFoundPage';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
 import { Requirement } from '../database/requirement';
 import LoadingPage from '../loading/LoadingPage';
-import NotFoundPage from '../NotFoundPage';
 import RequirementDisplay from './RequirementDisplay';
 
-interface RequirementPageProps {
-    id: string;
-}
-
 const RequirementPage = () => {
-    const { id } = useParams<RequirementPageProps>();
+    const { id } = useParams();
     const api = useApi();
     const request = useRequest<Requirement>();
 
     useEffect(() => {
-        if (!request.isSent()) {
+        if (id && !request.isSent()) {
             request.onStart();
-            api.getRequirement(id!)
+            api.getRequirement(id)
                 .then((response) => {
                     request.onSuccess(response.data);
                 })
