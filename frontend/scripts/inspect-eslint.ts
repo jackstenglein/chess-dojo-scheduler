@@ -61,7 +61,7 @@ async function main() {
 
     const results = await eslint.lintFiles(pattern);
     const failingFilesByRule: Record<string, Set<string>> = {};
-    const allRulesByFile: Record<string, any> = {};
+    const allRulesByFile: Record<string, unknown> = {};
     for (const result of results) {
         const filePath = result.filePath;
         if (!allRulesByFile[filePath]) {
