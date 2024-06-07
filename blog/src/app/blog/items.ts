@@ -17,7 +17,7 @@ export interface BlogItem {
 const items: BlogItem[] = [
     {
         title: 'Who Will Be Top 10 in 2025? | Dojo Talks',
-        subtitle: 'Jesse, Kostya, and David • June 5, 2024',
+        subtitle: 'Jesse, Kostya, and David • June 7, 2024',
         body: `GM Jesse Kraai, IM David Pruess, and IM Kostya Kavutskiy forecast who will be the top 10 FIDE rated chess players in June 2025 in today's episode of Dojo Talks, the ChessDojo podcast.`,
         href: '/blog/dojo-talks/top-10-2025',
         image: {
