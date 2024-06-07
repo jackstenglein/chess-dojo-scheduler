@@ -31,9 +31,9 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     ...rest
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-    const user = useAuth().user!;
+    const { user } = useAuth();
 
-    const canUpdate = requirement && cohort && user.username === username;
+    const canUpdate = requirement && cohort && user?.username === username;
     const onClick = canUpdate ? () => setShowUpdateDialog(true) : undefined;
 
     const normalized = ((value - min) * 100) / (max - min);
@@ -74,7 +74,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                     onClose={() => setShowUpdateDialog(false)}
                     requirement={requirement}
                     cohort={cohort}
-                    progress={user.progress[requirement.id]}
+                    progress={user?.progress[requirement.id]}
                 />
             )}
         </>

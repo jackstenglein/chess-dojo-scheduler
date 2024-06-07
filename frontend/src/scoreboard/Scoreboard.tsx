@@ -13,10 +13,9 @@ import {
     GridValueGetterParams,
     UncapitalizedGridProSlotsComponent,
 } from '@mui/x-data-grid-pro';
-import { Link as RouterLink } from 'react-router-dom';
-
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useFreeTier } from '../auth/Auth';
 import { isGraduation } from '../database/graduation';
 import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
@@ -206,8 +205,8 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         headerName: 'Normalized FIDE Rating',
         minWidth: 200,
         valueGetter: getNormalizedRating,
-        renderCell: (params) =>
-            params.value >= 0 ? (
+        renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) =>
+            (params.value ?? -1) >= 0 ? (
                 params.value
             ) : (
                 <Tooltip title='Custom ratings cannot be converted to FIDE'>
@@ -309,6 +308,7 @@ function getActionColumns(
             if (isPinned) {
                 return [
                     <GridActionsCellItem
+                        key='unpin'
                         label='Unpin Row'
                         icon={
                             <Tooltip title='Unpin Row'>
@@ -325,6 +325,7 @@ function getActionColumns(
             }
             return [
                 <GridActionsCellItem
+                    key='pin'
                     icon={
                         <Tooltip title='Pin Row'>
                             <PushPinIcon sx={{ color: 'text.secondary' }} />
@@ -530,7 +531,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                         r.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
                         (!isFreeTier || r.isFree),
                 )
-                .map((r) => getColumnDefinition(r, cohort!)) ?? []
+                .map((r) => getColumnDefinition(r, cohort || '')) ?? []
         );
     }, [requirements, cohort, isFreeTier]);
 

@@ -51,9 +51,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
         if (addedTcTypes.includes(TimeControlType.AllTimeContols)) {
             finalTcTypes = [TimeControlType.AllTimeContols];
         } else {
-            finalTcTypes = tcTypes.filter(
-                (tc) => tc !== TimeControlType.AllTimeContols.toString(),
-            );
+            finalTcTypes = tcTypes.filter((tc) => tc !== TimeControlType.AllTimeContols);
         }
 
         filters.setTournamentTimeControls(finalTcTypes as TimeControlType[]);
@@ -69,7 +67,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             finalTourneyTypes = [TournamentType.AllTournamentTypes];
         } else {
             finalTourneyTypes = tourneyTypes.filter(
-                (tu) => tu !== TournamentType.AllTournamentTypes.toString(),
+                (tu) => tu !== TournamentType.AllTournamentTypes,
             );
         }
 
@@ -85,9 +83,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
         if (addedpos.includes(PositionType.AllPositions)) {
             finalPosTypes = [PositionType.AllPositions];
         } else {
-            finalPosTypes = posTypes.filter(
-                (pos) => pos !== PositionType.AllPositions.toString(),
-            );
+            finalPosTypes = posTypes.filter((pos) => pos !== PositionType.AllPositions);
         }
 
         filters.setTournamentPositions(finalPosTypes as PositionType[]);

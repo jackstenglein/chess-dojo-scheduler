@@ -18,6 +18,8 @@ module.exports = {
                         { allowNumber: true },
                 ],
                 '@typescript-eslint/use-unknown-in-catch-callback-variable': 'off',
+                '@typescript-eslint/no-unsafe-enum-comparison': 'off',
+                '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
         },
         plugins: ['@typescript-eslint'],
 };

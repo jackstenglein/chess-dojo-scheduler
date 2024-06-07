@@ -1,17 +1,26 @@
-import {
-    createContext,
-    useContext,
-    useState,
-    useEffect,
-    useCallback,
-    ReactNode,
-} from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { Auth as AmplifyAuth } from 'aws-amplify';
-import { v4 as uuidv4 } from 'uuid';
 import { AxiosResponse } from 'axios';
+import {
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
+import { EventType, setUser as setAnalyticsUser, trackEvent } from '../analytics/events';
+import { useApi } from '../api/Api';
+import { syncPurchases } from '../api/paymentApi';
+import { useRequest } from '../api/Request';
+import { getUser } from '../api/userApi';
+import {
+    clearCheckoutSessionIds,
+    getAllCheckoutSessionIds,
+} from '../courses/localStorage';
 import {
     hasCreatedProfile,
     parseCognitoResponse,
@@ -19,17 +28,8 @@ import {
     SubscriptionStatus,
     User,
 } from '../database/user';
-import { getUser } from '../api/userApi';
 import LoadingPage from '../loading/LoadingPage';
-import { useApi } from '../api/Api';
-import { useRequest } from '../api/Request';
 import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
-import { EventType, trackEvent, setUser as setAnalyticsUser } from '../analytics/events';
-import {
-    clearCheckoutSessionIds,
-    getAllCheckoutSessionIds,
-} from '../courses/localStorage';
-import { syncPurchases } from '../api/paymentApi';
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -54,7 +54,7 @@ interface AuthContextType {
     forgotPasswordConfirm: (
         email: string,
         code: string,
-        password: string
+        password: string,
     ) => Promise<string>;
 
     signout: () => void;
@@ -136,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (Object.values(checkoutSessionIds).length > 0) {
             apiResponse = await syncPurchases(
                 cognitoUser.session.idToken.jwtToken,
-                checkoutSessionIds
+                checkoutSessionIds,
             );
             clearCheckoutSessionIds();
         } else {

@@ -13,11 +13,11 @@ import {
     DataGridPro,
     GridColDef,
     GridRenderCellParams,
+    GridRowModel,
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
-import { Link as RouterLink } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
-
+import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { RatingSystem, User } from '../../database/user';
@@ -55,8 +55,7 @@ const AllColumns: GridColDef[] = [
     {
         field: 'discord',
         headerName: 'Discord Username',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.discordUsername,
+        valueGetter: (params: GridValueGetterParams<User>) => params.row.discordUsername,
         flex: 1,
     },
     {
@@ -149,7 +148,7 @@ function getDisplayString(field: string): string {
 function useDebounce(
     effect: () => void,
     dependencies: React.DependencyList,
-    delay: number
+    delay: number,
 ) {
     const callback = useCallback(effect, [effect, ...dependencies]);
 
@@ -169,7 +168,7 @@ const SearchPage = () => {
         SearchFields.reduce<Record<string, boolean>>((map, field) => {
             map[field] = false;
             return map;
-        }, {})
+        }, {}),
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [columns, setColumns] = useState(AllColumns);
@@ -278,7 +277,7 @@ const SearchPage = () => {
                                                     onChange={(event) =>
                                                         onChangeField(
                                                             field,
-                                                            event.target.checked
+                                                            event.target.checked,
                                                         )
                                                     }
                                                 />
@@ -309,7 +308,7 @@ const SearchPage = () => {
                                 },
                             },
                         }}
-                        getRowId={(row) => row.username}
+                        getRowId={(row: GridRowModel<User>) => row.username}
                         pagination
                     />
                 )}
