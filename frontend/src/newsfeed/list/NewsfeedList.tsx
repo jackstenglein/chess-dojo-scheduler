@@ -6,7 +6,7 @@ import { ListNewsfeedResponse } from '../../api/newsfeedApi';
 import { RequirementCategory } from '../../database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
 import LoadingPage from '../../loading/LoadingPage';
-import Icon from '../../style/Icon';
+import Icon, { icons } from '../../style/Icon';
 import NewsfeedItem from '../detail/NewsfeedItem';
 import LoadMoreButton from './LoadMoreButton';
 import MultipleSelectChip, { MultipleSelectChipOption } from './MultipleSelectChip';
@@ -49,7 +49,7 @@ const FilterOptions = Object.keys(Filters).map((opt) => {
     return {
         value: opt,
         label: opt,
-        icon: <Icon name={opt} color='primary' />,
+        icon: <Icon name={opt as keyof typeof icons} color='primary' />,
     };
 });
 
@@ -67,9 +67,7 @@ function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) 
         (newValue: string[]) => {
             setNewsfeedIds(newValue);
 
-            const removedIds = initialNewsfeedIds.filter(
-                (id) => !newValue.includes(id),
-            );
+            const removedIds = initialNewsfeedIds.filter((id) => !newValue.includes(id));
 
             for (const id of removedIds) {
                 localStorage.setItem(`newsfeedId_${id}`, 'false');
@@ -130,7 +128,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
                     ),
                 )
                 .filter((e) => {
-                    return seen.hasOwnProperty(e.id) ? false : (seen[e.id] = true);
+                    return seen[e.id] ? false : (seen[e.id] = true);
                 });
 
             setData({
