@@ -125,9 +125,12 @@ export interface User {
 
     customTasks?: CustomTask[];
 
-    openingProgress?: Record<string, {
+    openingProgress?: Record<
+        string,
+        {
             exercises?: boolean[];
-        }>;
+        }
+    >;
 
     tutorials?: Record<string, boolean>;
     minutesSpent?: Record<MinutesSpentKey, number>;
@@ -798,8 +801,9 @@ export function shouldPromptDemotion(user?: User): boolean {
     return haveFullHistory;
 }
 
-export function hasCreatedProfile(user: User): boolean {
+export function hasCreatedProfile(user?: User): boolean {
     if (
+        !user ||
         user.dojoCohort === '' ||
         user.dojoCohort === 'NO_COHORT' ||
         user.displayName.trim() === '' ||
