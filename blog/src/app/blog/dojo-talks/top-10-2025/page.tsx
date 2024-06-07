@@ -26,7 +26,7 @@ export default function DojoTalksTop2025() {
                         Who Will Be Top 10 in 2025? <br /> Dojo Talks
                     </>
                 }
-                subtitle='Jesse, Kostya, & David • June 5, 2024'
+                subtitle='Jesse, Kostya, & David • June 7, 2024'
             />
 
             <Typography mb={3}>
