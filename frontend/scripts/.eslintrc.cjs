@@ -3,8 +3,4 @@ module.exports = {
     env: {
         node: true,
     },
-
-    parserOptions: {
-        tsconfigRootDir: '..',
-    },
 };

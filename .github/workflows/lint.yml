@@ -13,18 +13,15 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Prepare Frontend
         working-directory: frontend
         run: npm ci
 
       - name: Run linters for frontend
-        uses: wearerequired/lint-action@v2
-        with:
-          eslint: true
-          eslint_args: '-c .eslintrc-baseline.json .'
-          eslint_dir: 'frontend/'
+        working-directory: 'frontend/'
+        run: npm run lint:baseline
 
       - name: Regenerate baseline file
         working-directory: frontend

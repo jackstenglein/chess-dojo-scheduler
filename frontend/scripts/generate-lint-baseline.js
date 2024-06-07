@@ -60,23 +60,29 @@ async function main() {
     });
 
     const results = await eslint.lintFiles(root);
-    const filesByRule = {};
+    const failingFilesByRule = {};
+    const allRulesByFile = {};
     for (const result of results) {
         const filePath = pathlib.relative(absRoot, result.filePath);
+        if (!allRulesByFile[filePath]) {
+            allRulesByFile[filePath] = await eslint.calculateConfigForFile(
+                result.filePath,
+            );
+        }
         for (const message of result.messages) {
             const { ruleId } = message;
             if (ruleId) {
-                filesByRule[ruleId] ??= new Set();
-                filesByRule[ruleId].add(filePath);
+                failingFilesByRule[ruleId] ??= new Set();
+                failingFilesByRule[ruleId].add(filePath);
             }
         }
     }
 
-    const failingRules = [...Object.keys(filesByRule)].sort();
+    const failingRules = [...Object.keys(failingFilesByRule)].sort();
     const overrides = [];
     for (const ruleId of failingRules) {
         overrides.push({
-            files: [...filesByRule[ruleId]].sort(),
+            files: [...failingFilesByRule[ruleId]].sort(),
             rules: { [ruleId]: 'off' },
         });
     }
@@ -87,6 +93,7 @@ async function main() {
     };
 
     writeFileSync(outPath, JSON.stringify(baselineConfig, null, 4));
+    console.log(allRulesByFile);
 }
 
 main().catch((err) => {

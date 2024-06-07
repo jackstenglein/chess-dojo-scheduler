@@ -13,8 +13,12 @@
 // ***********************************************************
 
 import 'cypress-real-events';
+
+// Import commands.ts first so the commands defined in it are
+// available to the top level of subsequently imported files.
 import './commands';
 
-// By importing this here, our custom commands defined in commands.ts
-// are available to it
+// Define all other custom commands below. This comment is to prevent
+// autosorting of ./comments which will break top level usage of
+// cy.dojo.env at minimum
 import './auth-provider-commands/cognito';

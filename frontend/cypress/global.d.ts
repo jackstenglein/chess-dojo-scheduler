@@ -13,7 +13,6 @@ declare global {
             dojo: {
                 /**
                  * Retrieve a variable via Cypress.env, but ensure type safety.
-                 * Guarantee typesafety.
                  * @param varName The name of the variable to retrieve.
                  */
                 env<K extends EnvVarName>(name: K): Env[K];
@@ -23,14 +22,14 @@ declare global {
             /**
              * Gets an element based on its data-cy attribute.
              * @param dataCyAttribute The value of the data-cy attribute to get.
-             * @param args Optional args to pass to cy.get()
+             * @param options reflects options parameter to cy.get()
              */
             getBySel(dataCyAttribute: string, options?: CyGetOptions): Chainable<JQuery>;
 
             /**
              * Finds an element based on its data-cy attribute.
              * @param dataCyAttribute The value of the data-cy attribute to find.
-             * @param args Optional args to pass to cy.find()
+             * @param options reflects options parameter to cy.find()
              */
             findBySel(
                 dataCyAttribute: string,

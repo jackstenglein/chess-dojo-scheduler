@@ -6,8 +6,6 @@
         "types": ["cypress", "node", "cypress-real-events"],
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "strict": true
-
     },
-    "include": ["**/*.ts", ".eslintrc.cjs"]
+    "include": ["**/*.ts", "**/*.cy.ts", ".eslintrc.cjs"]
 }

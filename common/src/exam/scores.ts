@@ -219,24 +219,20 @@ export function getRegression(exam: Exam): SimpleLinearRegression | null {
     const relevantCohortRange = `${minCohort}-${maxCohort}`;
     const minScore = 0.15 * getExamMaxScore(exam);
 
-    const scoresPerCohort = Object.values(exam.answers).reduce(
-        (acc, ans) => {
-            if (
-                !isCohortInRange(ans.cohort, relevantCohortRange) ||
-                ans.score < minScore
-            ) {
-                return acc;
-            }
-
-            const [cohort] = getCohortRangeInt(ans.cohort);
-            acc[cohort] = {
-                sum: (acc[cohort]?.sum || 0) + ans.score,
-                count: (acc[cohort]?.count || 0) + 1,
-            };
+    const scoresPerCohort = Object.values(exam.answers).reduce<
+        Record<number, { sum: number; count: number }>
+    >((acc, ans) => {
+        if (!isCohortInRange(ans.cohort, relevantCohortRange) || ans.score < minScore) {
             return acc;
-        },
-        {} as Record<number, { sum: number; count: number }>,
-    );
+        }
+
+        const [cohort] = getCohortRangeInt(ans.cohort);
+        acc[cohort] = {
+            sum: (acc[cohort]?.sum || 0) + ans.score,
+            count: (acc[cohort]?.count || 0) + 1,
+        };
+        return acc;
+    }, {});
 
     if (Object.values(scoresPerCohort).filter(({ count }) => count >= 3).length < 3) {
         return null;

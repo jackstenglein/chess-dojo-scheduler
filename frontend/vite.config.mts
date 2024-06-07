@@ -21,6 +21,7 @@ export default defineConfig(() => {
             eslint({
                 failOnError: false,
                 overrideConfigFile: './.eslintrc-baseline.json',
+                include: 'src',
             }),
         ],
         test: {

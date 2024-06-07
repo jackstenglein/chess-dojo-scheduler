@@ -53,7 +53,7 @@ describe('Navbar', () => {
     });
 
     viewPortWidths.forEach(({ width, hidden, endHidden }) => {
-        it(`shows correct authenticated items with ${width.toString()}px width`, () => {
+        it(`shows correct authenticated items with ${width}px width`, () => {
             cy.viewport(width, 660);
             cy.loginByCognitoApi(
                 'navbar',

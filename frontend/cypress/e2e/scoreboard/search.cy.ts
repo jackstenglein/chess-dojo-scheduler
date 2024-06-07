@@ -45,9 +45,7 @@ describe('Search Page', () => {
         cy.getBySel('search-query').type('Test Account');
 
         cy.getBySel('search-results').contains('Test Account');
-        ['Cohort', ...checkboxes.slice(1)].forEach((label) => {
-            cy.getBySel('search-results').contains(label);
-        });
+        cy.getBySel('search-results').containsAll(['Cohort', ...checkboxes.slice(1)]);
 
         cy.contains('All Fields').click();
         cy.contains('FIDE ID').click();
