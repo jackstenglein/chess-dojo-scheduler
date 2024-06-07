@@ -15,10 +15,13 @@ interface CognitoSession {
 export interface CognitoUser {
     session: CognitoSession;
     username: string;
-    rawResponse: any;
+    rawResponse: unknown;
 }
 
-export function parseCognitoResponse(cognitoResponse: any) {
+export function parseCognitoResponse(cognitoResponse: {
+    signInUserSession: unknown;
+    username: string;
+}) {
     return {
         session: cognitoResponse.signInUserSession,
         username: cognitoResponse.username,
@@ -218,7 +221,10 @@ export type MinutesSpentKey =
     | 'ALL_COHORTS_LAST_365_DAYS'
     | 'ALL_COHORTS_NON_DOJO';
 
-export function parseUser(apiResponse: any, cognitoUser?: CognitoUser): User {
+export function parseUser(
+    apiResponse: Omit<User, 'cognitoUser'>,
+    cognitoUser?: CognitoUser,
+): User {
     return {
         ...apiResponse,
         cognitoUser,
@@ -722,7 +728,7 @@ export function normalizeToFide(rating: number, ratingSystem: RatingSystem): num
         if (x2 >= rating) {
             const x1 = getMinRatingBoundary(cohort, ratingSystem);
 
-            const y2 = getRatingBoundary(cohort, RatingSystem.Fide)!;
+            const y2 = getRatingBoundary(cohort, RatingSystem.Fide) || 0;
             const y1 = getMinRatingBoundary(cohort, RatingSystem.Fide);
 
             const result = ((y2 - y1) / (x2 - x1)) * (rating - x1) + y1;
@@ -732,7 +738,7 @@ export function normalizeToFide(rating: number, ratingSystem: RatingSystem): num
 
     // We are in the 2400+ cohort if we make it here, so we just extrapolate from the 2300-2400 line
     const x1 = getMinRatingBoundary('2300-2400', ratingSystem);
-    const x2 = getRatingBoundary('2300-2400', ratingSystem)!;
+    const x2 = getRatingBoundary('2300-2400', ratingSystem) || 0;
     const y1 = 2300;
     const y2 = 2400;
     const result = ((y2 - y1) / (x2 - x1)) * (rating - x1) + y1;

@@ -1,4 +1,5 @@
 import { RequirementProgress } from './requirement';
+import { isObject } from './scoreboard';
 import { RatingSystem } from './user';
 
 export interface Graduation {
@@ -17,6 +18,6 @@ export interface Graduation {
     createdAt: string;
 }
 
-export function isGraduation(obj: any): obj is Graduation {
-    return obj.newCohort !== undefined;
+export function isGraduation(obj: unknown): obj is Graduation {
+    return isObject(obj) && obj.newCohort !== undefined;
 }

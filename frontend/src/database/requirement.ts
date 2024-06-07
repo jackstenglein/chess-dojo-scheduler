@@ -1,3 +1,4 @@
+import { isObject } from './scoreboard';
 import { User } from './user';
 
 export enum RequirementStatus {
@@ -82,8 +83,8 @@ export interface RequirementProgress {
     updatedAt: string;
 }
 
-export function isRequirement(obj: any): obj is Requirement {
-    return obj.numberOfCohorts !== undefined;
+export function isRequirement(obj: unknown): obj is Requirement {
+    return isObject(obj) && obj.numberOfCohorts !== undefined;
 }
 
 export function compareRequirements(a: Requirement, b: Requirement) {
@@ -296,9 +297,7 @@ export function getTotalCategoryScore(
 }
 
 export function getUnitScore(cohort: string, requirement: Requirement): number {
-    if (
-        requirement.unitScoreOverride?.[cohort] !== undefined
-    ) {
+    if (requirement.unitScoreOverride?.[cohort] !== undefined) {
         return requirement.unitScoreOverride[cohort];
     }
     return requirement.unitScore;
