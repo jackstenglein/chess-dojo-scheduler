@@ -1,4 +1,4 @@
-import { Stack, Typography, useMediaQuery } from '@mui/material';
+import { Stack, Theme, Typography, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import {
     Accordion,
@@ -40,7 +40,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
     filters,
 }) => {
     const [expanded, setExpanded] = useState<boolean>(false);
-    const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+    const forceExpansion = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
 
     const onChangeTournamentTimeControls = (tcTypes: string[]) => {
         const addedTcTypes = tcTypes.filter(
@@ -51,7 +51,9 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
         if (addedTcTypes.includes(TimeControlType.AllTimeContols)) {
             finalTcTypes = [TimeControlType.AllTimeContols];
         } else {
-            finalTcTypes = tcTypes.filter((tc) => tc !== TimeControlType.AllTimeContols);
+            finalTcTypes = tcTypes.filter(
+                (tc) => tc !== TimeControlType.AllTimeContols.toString(),
+            );
         }
 
         filters.setTournamentTimeControls(finalTcTypes as TimeControlType[]);
@@ -67,7 +69,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             finalTourneyTypes = [TournamentType.AllTournamentTypes];
         } else {
             finalTourneyTypes = tourneyTypes.filter(
-                (tu) => tu !== TournamentType.AllTournamentTypes,
+                (tu) => tu !== TournamentType.AllTournamentTypes.toString(),
             );
         }
 
@@ -83,7 +85,9 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
         if (addedpos.includes(PositionType.AllPositions)) {
             finalPosTypes = [PositionType.AllPositions];
         } else {
-            finalPosTypes = posTypes.filter((pos) => pos !== PositionType.AllPositions);
+            finalPosTypes = posTypes.filter(
+                (pos) => pos !== PositionType.AllPositions.toString(),
+            );
         }
 
         filters.setTournamentPositions(finalPosTypes as PositionType[]);
