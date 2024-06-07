@@ -228,7 +228,6 @@
         {
             "files": [
                 "scripts/generate-lint-baseline.js",
-                "scripts/run-cypress-tests.js",
                 "src/ErrorBoundary.tsx",
                 "src/auth/Auth.tsx",
                 "src/board/pgn/boardTools/boardButtons/StatusIcon.tsx",
