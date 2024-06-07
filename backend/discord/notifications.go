@@ -182,7 +182,7 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 	}
 
 	sb.WriteString(fmt.Sprintf("\n **Current Participants %s:** %d/%d", MessageEmojiVote, len(event.Participants), event.MaxParticipants))
-	sb.WriteString(fmt.Sprintf("\n [%s **Click to Book**](<%s/calendar/availability/%s>)", MessageEmojiArrow, frontendHost, event.Id))
+	sb.WriteString(fmt.Sprintf("\n %s [**Click to Book**](<%s/calendar/availability/%s>)", MessageEmojiArrow, frontendHost, event.Id))
 
 	if event.DiscordMessageId == "" {
 		msg, err := discord.ChannelMessageSend(findGameChannelId, sb.String())
@@ -231,7 +231,7 @@ func SendCoachingNotification(event *database.Event) (string, error) {
 		sb.WriteString(fmt.Sprintf("\n **Coach %s:** <@%s>", MessageEmojiCoachUser, discordId))
 	}
 
-	sb.WriteString(fmt.Sprintf("\n **Time %S:** <t:%d:f> - <t:%d:f>", MessageEmojiClock, startTime.Unix(), endTime.Unix()))
+	sb.WriteString(fmt.Sprintf("\n **Time %s:** <t:%d:f> - <t:%d:f>", MessageEmojiClock, startTime.Unix(), endTime.Unix()))
 
 	if event.Coaching.CurrentPrice > 0 {
 		sb.WriteString(fmt.Sprintf("\n **Price %s:** ~~$%.2f~~ $%.2f", MessageEmojiPrice, float32(event.Coaching.FullPrice)/100, float32(event.Coaching.CurrentPrice)/100))
@@ -255,7 +255,7 @@ func SendCoachingNotification(event *database.Event) (string, error) {
 	}
 
 	sb.WriteString(fmt.Sprintf("\n **Current Participants %s:** %d/%d", MessageEmojiVote, len(event.Participants), event.MaxParticipants))
-	sb.WriteString(fmt.Sprintf("\n [** %s Click to Book**](<%s/calendar/availability/%s>)", MessageEmojiArrow, frontendHost, event.Id))
+	sb.WriteString(fmt.Sprintf("\n %s [**Click to Book**](<%s/calendar/availability/%s>)", MessageEmojiArrow, frontendHost, event.Id))
 
 	if event.DiscordMessageId == "" {
 		msg, err := discord.ChannelMessageSend(coachingChannelId, sb.String())
