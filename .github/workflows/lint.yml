@@ -11,6 +11,10 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v4
 
+      - name: Prepare Common
+        working-directory: common
+        run: npm ci
+
       - name: Prepare Frontend
         working-directory: frontend
         run: npm ci
