@@ -22,7 +22,7 @@ interface CoachingCalendarProps {
     events: Event[];
     putEvent: (e: Event) => void;
     removeEvent: (id: string) => void;
-    request: Request;
+    request: Request<unknown>;
 }
 
 const CoachingCalendar: React.FC<CoachingCalendarProps> = ({

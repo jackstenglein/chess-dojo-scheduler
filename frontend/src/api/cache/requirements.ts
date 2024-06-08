@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import {
-    compareRequirements,
     Requirement,
     ScoreboardDisplay,
+    compareRequirements,
 } from '../../database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '../../database/user';
 import { useApi } from '../Api';
@@ -11,7 +11,7 @@ import { useCache } from './Cache';
 
 interface UseRequirementsResponse {
     requirements: Requirement[];
-    request: Request;
+    request: Request<never>;
 }
 
 export function useRequirements(
@@ -20,7 +20,7 @@ export function useRequirements(
 ): UseRequirementsResponse {
     const api = useApi();
     const cache = useCache();
-    const request = useRequest();
+    const request = useRequest<never>();
 
     const requirements = useMemo(() => {
         return cache.requirements
@@ -73,13 +73,13 @@ export function useRequirements(
 
 interface UseRequirementResponse {
     requirement?: Requirement;
-    request: Request;
+    request: Request<never>;
 }
 
 export function useRequirement(id?: string): UseRequirementResponse {
     const api = useApi();
     const cache = useCache();
-    const request = useRequest();
+    const request = useRequest<never>();
 
     const requirement = useMemo(() => {
         if (id) {

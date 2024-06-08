@@ -1,13 +1,12 @@
-import { Button, Stack, Typography } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { LoadingButton } from '@mui/lab';
-
+import { Button, Stack, Typography } from '@mui/material';
 import { Request } from '../../api/Request';
-import { toDojoDateString } from '../../calendar/displayDate';
 import { useAuth } from '../../auth/Auth';
+import { toDojoDateString } from '../../calendar/displayDate';
 
 interface LoadMoreButtonProps {
-    request: Request;
+    request: Request<unknown>;
     hasMore?: boolean;
     since?: string;
     startKey?: Record<string, string>;

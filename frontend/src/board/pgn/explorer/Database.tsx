@@ -60,7 +60,7 @@ interface DatabaseProps {
     type: 'dojo' | 'lichess';
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
-    request: Request;
+    request: Request<unknown>;
     minCohort: string;
     maxCohort: string;
     setMinCohort: (v: string) => void;
