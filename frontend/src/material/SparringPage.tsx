@@ -1,5 +1,3 @@
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
     Box,
     Button,
@@ -19,7 +17,8 @@ import { Requirement } from '../database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import Position from '../requirements/Position';
-
+import CohortIcon from '../scoreboard/CohortIcon';
+import Icon from '../style/Icon';
 interface SparringRequirementProps {
     requirement: Requirement;
     forceExpanded?: boolean;
@@ -45,7 +44,11 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
             <Box>
                 <Stack direction='row' alignItems='center'>
                     <IconButton size='small' onClick={toggleOpen}>
-                        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                        {open ? (
+                            <Icon name='innerMenuUp' color='dojoOrange' />
+                        ) : (
+                            <Icon name='innerMenuDown' color='dojoOrange' />
+                        )}
                     </IconButton>
                     <Typography
                         variant='subtitle1'
@@ -109,7 +112,11 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
         <Box>
             <Stack direction='row' alignItems='center'>
                 <IconButton size='small' onClick={toggleOpen}>
-                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    {open ? (
+                        <Icon name='innerMenuUp' color='dojoOrange' />
+                    ) : (
+                        <Icon name='innerMenuDown' color='dojoOrange' />
+                    )}
                 </IconButton>
                 <Typography
                     variant='subtitle1'
@@ -118,7 +125,34 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                     onClick={toggleOpen}
                     sx={{ cursor: 'pointer' }}
                 >
-                    {subsection.name}
+                    <>
+                        {dojoCohorts.includes(subsection.name) ? (
+                            <>
+                                <CohortIcon
+                                    cohort={subsection.name}
+                                    size={30}
+                                    sx={{
+                                        marginRight: '0.6rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    tooltip=''
+                                    color='primary'
+                                />
+                                {subsection.name}
+                            </>
+                        ) : (
+                            <>
+                            <Icon
+                                name='Rook Endgame Progression'
+                                color='dojoOrange'
+                                fontSize='small'
+                                sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}
+                            />
+
+                            {subsection.name}
+                            </>
+                        )}
+                    </>
                 </Typography>
             </Stack>
 
@@ -182,10 +216,22 @@ const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
         <Box>
             <Stack direction='row' alignItems='center'>
                 <IconButton size='small' onClick={toggleOpen}>
-                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    {open ? (
+                        <Icon name='menuUp' color='dojoOrange' />
+                    ) : (
+                        <Icon name='menuDown' color='primary' />
+                    )}
                 </IconButton>
                 <Typography variant='h6' onClick={toggleOpen} sx={{ cursor: 'pointer' }}>
-                    {section.name}
+                    <>
+                        <Icon
+                            name={section.name}
+                            color='primary'
+                            fontSize='medium'
+                            sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}
+                        />{' '}
+                        {section.name}
+                    </>
                 </Typography>
             </Stack>
             <Divider />
@@ -317,6 +363,20 @@ const SparringPage = () => {
         <Container sx={{ py: 4 }}>
             <Stack spacing={4}>
                 <RequestSnackbar request={request} />
+                <Typography variant='h5' align='center'>
+                    ChessDojo Recommended Sparring Positions
+                </Typography>
+                <Typography>
+                    Lorem Ipsum is simply dummy text of the printing and typesetting
+                    industry. Lorem Ipsum has been the industry's standard dummy text ever
+                    since the 1500s, when an unknown printer took a galley of type and
+                    scrambled it to make a type specimen book. It has survived not only
+                    five centuries, but also the leap into electronic typesetting,
+                    remaining essentially unchanged. It was popularised in the 1960s with
+                    the release of Letraset sheets containing Lorem Ipsum passages, and
+                    more recently with desktop publishing software like Aldus PageMaker
+                    including versions of Lorem Ipsum.
+                </Typography>
 
                 {sections.map((s) => (
                     <SparringSection key={s.name} section={s} />

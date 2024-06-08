@@ -8,6 +8,7 @@ import {
     CardContent,
     CardHeader,
     Stack,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import axios from 'axios';
@@ -116,11 +117,13 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 />
             </CardContent>
             <CardActions>
+                
                 <CopyToClipboard
                     data-cy='position-fen-copy'
                     text={position.fen.trim()}
                     onCopy={onCopyFen}
-                >
+                >   
+                    <Tooltip title='Copy position FEN to clipboard'>  
                     <Button
                         startIcon={
                             copied === 'fen' ? <CheckIcon /> : <ContentPasteIcon />
@@ -128,7 +131,10 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     >
                         {copied === 'fen' ? 'Copied' : 'FEN'}
                     </Button>
+                    </Tooltip>
+                    
                 </CopyToClipboard>
+                <Tooltip title='Copy a URL and send to another player to play on Lichess'>
                 <LoadingButton
                     data-cy='position-challenge-url'
                     startIcon={
@@ -139,6 +145,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 >
                     {copied === 'lichess' ? 'Copied' : 'Challenge URL'}
                 </LoadingButton>
+                </Tooltip>
             </CardActions>
         </Card>
     );

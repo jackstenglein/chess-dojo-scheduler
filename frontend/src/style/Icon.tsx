@@ -46,6 +46,13 @@ import {
     Visibility,
     WavingHand,
     Whatshot,
+    ControlCamera,
+    ZoomOutMap,
+    EmojiObjects,
+    KeyboardDoubleArrowDown,
+    KeyboardDoubleArrowUp,
+    KeyboardArrowUp,
+    KeyboardArrowDown,
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -114,6 +121,9 @@ export const icons = {
     'Analyze Own Game': Biotech,
     'Book Study': AutoStories,
     'Rook Endgame Progression': RookIcon,
+    'Middlegame Win Conversions': ControlCamera,
+    'Endgame Win Conversions': ZoomOutMap,
+    'Endgame Algorithms': EmojiObjects,
     reset: RestartAlt,
     cancel: DoDisturb,
     save: Save,
@@ -143,10 +153,14 @@ export const icons = {
     [CalendarSessionType.CoachingSessions]: RocketLaunch,
     [CalendarSessionType.DojoEvents]: LiveTv,
     [CalendarSessionType.Meetings]: EventAvailableOutlined,
+    'menuUp': KeyboardDoubleArrowUp,
+    'menuDown': KeyboardDoubleArrowDown,
+    'innerMenuUp': KeyboardArrowUp,
+    'innerMenuDown': KeyboardArrowDown,
 };
 
 export interface IconProps extends SvgIconProps {
-    name: keyof typeof icons | '';
+    name: keyof typeof icons | '' ;
 }
 
 export const Icon: React.FC<IconProps> = ({ name, ...props }) => {
