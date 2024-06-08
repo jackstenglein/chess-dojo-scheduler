@@ -119,7 +119,7 @@ export interface User {
     updatedAt: string;
     numberOfGraduations: number;
     previousCohort: string;
-    graduationCohorts: string[];
+    graduationCohorts?: string[];
     lastGraduatedAt: string;
 
     enableLightMode: boolean;
