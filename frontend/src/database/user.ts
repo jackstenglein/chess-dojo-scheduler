@@ -15,13 +15,15 @@ interface CognitoSession {
 export interface CognitoUser {
     session: CognitoSession;
     username: string;
-    rawResponse: unknown;
+    rawResponse: CognitoResponse;
 }
 
-export function parseCognitoResponse(cognitoResponse: {
-    signInUserSession: unknown;
+export interface CognitoResponse {
+    signInUserSession: CognitoSession;
     username: string;
-}) {
+}
+
+export function parseCognitoResponse(cognitoResponse: CognitoResponse): CognitoUser {
     return {
         session: cognitoResponse.signInUserSession,
         username: cognitoResponse.username,
