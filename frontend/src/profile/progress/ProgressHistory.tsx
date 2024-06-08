@@ -20,9 +20,9 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import {
     CustomTask,
-    isRequirement,
     Requirement,
     ScoreboardDisplay,
+    isRequirement,
 } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
 import LoadingPage from '../../loading/LoadingPage';
@@ -201,7 +201,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
             return;
         }
 
-        let itemErrors: HistoryItemError = {};
+        const itemErrors: HistoryItemError = {};
         if (item.date === null) {
             itemErrors.date = 'This field is required';
         }
@@ -293,12 +293,12 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     onClose,
     toggleView,
 }) => {
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const api = useApi();
     const request = useRequest();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
-    const { entries, request: timelineRequest } = useTimeline(user.username);
+    const { entries, request: timelineRequest } = useTimeline(user?.username);
 
     const isTimeOnly =
         requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo ||

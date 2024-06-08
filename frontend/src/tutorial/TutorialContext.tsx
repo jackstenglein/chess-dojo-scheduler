@@ -9,11 +9,14 @@ const initialTutorialState: TutorialState = {};
 interface TutorialContextType {
     tutorialState: TutorialState;
     setTutorialState: (
-        state: TutorialState | ((prevState: TutorialState) => TutorialState)
+        state: TutorialState | ((prevState: TutorialState) => TutorialState),
     ) => void;
 }
 
-export const TutorialContext = createContext<TutorialContextType>(null!);
+export const TutorialContext = createContext<TutorialContextType>({
+    tutorialState: initialTutorialState,
+    setTutorialState: () => null,
+});
 
 export function TutorialProvider({ children }: { children: ReactNode }) {
     const [tutorialState, setTutorialState] = useState(initialTutorialState);

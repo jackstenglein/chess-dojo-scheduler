@@ -8,7 +8,7 @@ interface DojoEventViewerProps {
 }
 
 const DojoEventViewer: React.FC<DojoEventViewerProps> = ({ processedEvent }) => {
-    const event: Event = processedEvent.event;
+    const event = processedEvent.event as Event;
 
     return (
         <Stack sx={{ pt: 2 }} spacing={2}>

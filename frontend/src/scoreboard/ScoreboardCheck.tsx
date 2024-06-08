@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { Box } from '@mui/material';
-
+import { useState } from 'react';
+import { useAuth } from '../auth/Auth';
 import { Requirement } from '../database/requirement';
 import ProgressDialog from '../profile/progress/ProgressDialog';
-import { useAuth } from '../auth/Auth';
 
 interface ScoreboardCheckProps {
     value: number;
@@ -23,9 +22,9 @@ const ScoreboardCheck: React.FC<ScoreboardCheckProps> = ({
     requirement,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-    const user = useAuth().user!;
+    const { user } = useAuth();
 
-    const canUpdate = requirement && user.username === username;
+    const canUpdate = requirement && user?.username === username;
     const onClick = canUpdate ? () => setShowUpdateDialog(true) : undefined;
 
     return (
@@ -46,7 +45,7 @@ const ScoreboardCheck: React.FC<ScoreboardCheckProps> = ({
                     onClose={() => setShowUpdateDialog(false)}
                     requirement={requirement}
                     cohort={cohort}
-                    progress={user.progress[requirement.id]}
+                    progress={user?.progress[requirement.id]}
                 />
             )}
         </>

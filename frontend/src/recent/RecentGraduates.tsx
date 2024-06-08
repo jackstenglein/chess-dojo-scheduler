@@ -7,9 +7,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-
 import {
     DataGridPro,
     GridColDef,
@@ -17,6 +14,8 @@ import {
     GridValueFormatterParams,
     GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
+import { useEffect, useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { Graduation } from '../database/graduation';
@@ -54,7 +53,7 @@ function getTimeframeOptions() {
     const options: TimeframeOption[] = [];
 
     for (let i = 0; i < numberOfOptions; i++) {
-        let prevGraduation = new Date(currGraduation);
+        const prevGraduation = new Date(currGraduation);
         prevGraduation.setUTCDate(prevGraduation.getUTCDate() - 7);
 
         options.push({
@@ -232,7 +231,7 @@ const RecentGraduates = () => {
                                 <MenuItem
                                     data-cy={option.label}
                                     key={option.label}
-                                    value={option.value as any}
+                                    value={option.value as unknown as string}
                                 >
                                     {option.label}
                                 </MenuItem>

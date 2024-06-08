@@ -1,20 +1,19 @@
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
     Card,
     CardActionArea,
     CardContent,
     CardHeader,
-    Typography,
+    Chip,
     Link,
     Stack,
-    Chip,
+    Typography,
 } from '@mui/material';
-
-import { Event, EventStatus, getDisplayString } from '../database/event';
-import { useAuth } from '../auth/Auth';
 import React from 'react';
-import Avatar from '../profile/Avatar';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useRequiredAuth } from '../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
+import { Event, EventStatus, getDisplayString } from '../database/event';
+import Avatar from '../profile/Avatar';
 
 function getTitle(event: Event): string {
     if (event.coaching) {
@@ -31,7 +30,7 @@ interface MeetingListItemProps {
 }
 
 const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const navigate = useNavigate();
 
     const onClick = () => {
@@ -63,11 +62,11 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
                     title={getTitle(meeting)}
                     subheader={`${toDojoDateString(
                         start,
-                        user.timezoneOverride
+                        user.timezoneOverride,
                     )} • ${toDojoTimeString(
                         start,
                         user.timezoneOverride,
-                        user.timeFormat
+                        user.timeFormat,
                     )}`}
                     sx={{ pb: 0 }}
                 />

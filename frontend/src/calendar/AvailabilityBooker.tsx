@@ -89,7 +89,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
             newErrors.type = 'You must select a meeting type';
         }
 
-        let selectedTime: Date;
+        let selectedTime: Date | undefined = undefined;
         if (startTime === null) {
             newErrors.time = 'You must select a time';
         } else {
@@ -106,9 +106,12 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
         if (Object.entries(newErrors).length > 0) {
             return;
         }
+        if (!selectedTime || !selectedType) {
+            return;
+        }
 
         request.onStart();
-        api.bookEvent(availability.id, selectedTime!, selectedType!)
+        api.bookEvent(availability.id, selectedTime, selectedType)
             .then((response) => {
                 console.log('Book response: ', response);
                 trackEvent(EventType.BookAvailability, {
@@ -152,7 +155,8 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
 
     const confirmBooking = () => {
         if (isGroup) {
-            return confirmGroupBooking();
+            confirmGroupBooking();
+            return;
         }
         confirmSoloBooking();
     };

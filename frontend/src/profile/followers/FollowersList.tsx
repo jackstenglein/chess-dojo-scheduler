@@ -41,7 +41,7 @@ const FollowersList = () => {
         return <LoadingPage />;
     }
 
-    if (!request.data || !request.data.followers || request.data.followers.length === 0) {
+    if (!request.data?.followers || request.data.followers.length === 0) {
         return (
             <>
                 <RequestSnackbar request={request} />

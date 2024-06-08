@@ -28,14 +28,14 @@ interface ChessConfig {
     disableTakebacks?: Color | 'both';
 }
 
-type ChessContextType = {
+interface ChessContextType {
     chess?: Chess;
     board?: BoardApi;
     config?: ChessConfig;
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
-};
+}
 
 export const ChessContext = createContext<ChessContextType>({});
 
@@ -107,7 +107,16 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 keydownMap,
                 slots,
             }),
-            [chess, board, allowMoveDeletion, toggleOrientation, keydownMap, slots],
+            [
+                chess,
+                board,
+                allowMoveDeletion,
+                toggleOrientation,
+                keydownMap,
+                slots,
+                disableTakebacks,
+                initKey,
+            ],
         );
 
         const onInitialize = useCallback(
@@ -125,23 +134,19 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             }
         }, [gameOrientation, board, toggleOrientation]);
 
-        useImperativeHandle(
-            ref,
-            () => {
-                return {
-                    getPgn() {
-                        return chess.renderPgn() || '';
-                    },
-                    addObserver(observer: Observer) {
-                        chess.addObserver(observer);
-                    },
-                    removeObserver(observer: Observer) {
-                        chess.removeObserver(observer);
-                    },
-                };
-            },
-            [chess],
-        );
+        useImperativeHandle(ref, () => {
+            return {
+                getPgn() {
+                    return chess.renderPgn() || '';
+                },
+                addObserver(observer: Observer) {
+                    chess.addObserver(observer);
+                },
+                removeObserver(observer: Observer) {
+                    chess.removeObserver(observer);
+                },
+            };
+        }, [chess]);
 
         return (
             <Box
@@ -177,5 +182,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         );
     },
 );
+PgnBoard.displayName = 'PgnBoard';
 
 export default PgnBoard;

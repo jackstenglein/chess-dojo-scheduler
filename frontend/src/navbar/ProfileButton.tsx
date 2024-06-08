@@ -16,7 +16,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { useLocalStorage } from 'usehooks-ts';
 import { useApi } from '../api/Api';
 import { useAuth } from '../auth/Auth';
@@ -54,7 +53,7 @@ const ProfileButton = () => {
 
     const toggleColorMode = () => {
         setColorMode(colorMode === 'light' ? 'dark' : 'light');
-        api.updateUser({ enableLightMode: colorMode === 'dark' });
+        void api.updateUser({ enableLightMode: colorMode === 'dark' });
     };
 
     return (

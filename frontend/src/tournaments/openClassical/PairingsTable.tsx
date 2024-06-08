@@ -1,6 +1,6 @@
 import { OpenInNew, Warning } from '@mui/icons-material';
 import { Stack, Tooltip } from '@mui/material';
-import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
 import { OpenClassical, OpenClassicalPairing } from '../../database/tournament';
 
 export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
@@ -40,7 +40,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         flex: 0.5,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => {
+        renderCell: (params: GridRenderCellParams<OpenClassicalPairing, string>) => {
             if (params.value === '*' || params.value === '') {
                 return params.value;
             }
@@ -63,7 +63,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         width: 75,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => {
+        renderCell: (params: GridRenderCellParams<OpenClassicalPairing, string>) => {
             if (
                 params.value &&
                 (params.value.startsWith('https://lichess.org/') ||

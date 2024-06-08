@@ -22,7 +22,7 @@ interface VariationDialogProps {
 
 const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
     const [selected, setSelected] = useState(0);
-    const { chess, board } = useChess();
+    const { chess } = useChess();
     const reconcile = useReconcile();
 
     const selectMove = useCallback(
@@ -31,7 +31,7 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
             reconcile();
             setMove(null);
         },
-        [chess, board, setMove, reconcile],
+        [chess, setMove, reconcile],
     );
 
     useEffect(() => {
@@ -58,7 +58,7 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
             } else if (event.key === 'ArrowLeft' || event.key === 'Escape') {
                 setMove(null);
             } else if (event.key >= '0' && event.key <= '9') {
-                let index = parseInt(event.key);
+                const index = parseInt(event.key);
                 if (index === 0 && move.variations.length > 8) {
                     // 0 is out of order to match its position on the keyboard
                     selectMove(move.variations[8][0]);

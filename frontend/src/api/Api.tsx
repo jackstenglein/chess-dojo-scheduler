@@ -80,6 +80,7 @@ import {
     updateComment,
     UpdateCommentRequest,
     updateGame,
+    UpdateGameRequest,
 } from './gameApi';
 import {
     GraduationApiContextType,
@@ -175,6 +176,7 @@ type ApiContextType = UserApiContextType &
     ExamApiContextType &
     EmailApiContextType;
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const ApiContext = createContext<ApiContextType>(null!);
 
 /**
@@ -192,7 +194,7 @@ export function useApi() {
  */
 export function ApiProvider({ children }: { children: ReactNode }) {
     const auth = useAuth();
-    const idToken = auth.user?.cognitoUser?.session?.idToken.jwtToken ?? '';
+    const idToken = auth.user?.cognitoUser?.session.idToken.jwtToken ?? '';
 
     const value = useMemo(() => {
         return {
@@ -259,15 +261,15 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             deleteEvent: (id: string) => deleteEvent(idToken, id),
             getEvent: (id: string) => getEvent(idToken, id),
             listEvents: (startKey?: string) => listEvents(idToken, startKey),
-            setEvent: (event: Event) => setEvent(idToken, event),
+            setEvent: (event: Partial<Event>) => setEvent(idToken, event),
             createMessage: (id: string, content: string) =>
-                createMessage(idToken, auth.user!, id, content),
+                createMessage(idToken, auth.user, id, content),
 
             createGame: (req: CreateGameRequest) => createGame(idToken, req),
             getGame: (cohort: string, id: string) => getGame(cohort, id),
             featureGame: (cohort: string, id: string, featured: string) =>
                 featureGame(idToken, cohort, id, featured),
-            updateGame: (cohort: string, id: string, req: CreateGameRequest) =>
+            updateGame: (cohort: string, id: string, req: UpdateGameRequest) =>
                 updateGame(idToken, cohort, id, req),
             deleteGame: (cohort: string, id: string) => deleteGame(idToken, cohort, id),
             listGamesByCohort: (

@@ -17,18 +17,18 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
+import { useLightMode } from '../../../../ThemeProvider';
 import { AuthStatus, useAuth } from '../../../../auth/Auth';
 import { useGame } from '../../../../games/view/GamePage';
-import { useLightMode } from '../../../../ThemeProvider';
-import Explorer from '../../explorer/Explorer';
 import { useChess } from '../../PgnBoard';
-import { ResizableData } from '../../resize';
 import ResizeHandle from '../../ResizeHandle';
+import Explorer from '../../explorer/Explorer';
+import { ResizableData } from '../../resize';
 import ClockUsage from './ClockUsage';
-import Comments from './comments/Comments';
 import Editor from './Editor';
-import Settings from './settings/Settings';
 import Tags from './Tags';
+import Comments from './comments/Comments';
+import Settings from './settings/Settings';
 
 export enum DefaultUnderboardTab {
     Tags = 'tags',
@@ -117,40 +117,36 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                 ? initialTab
                 : isOwner
                   ? DefaultUnderboardTab.Editor
-                  : Boolean(game)
+                  : game
                     ? DefaultUnderboardTab.Comments
                     : DefaultUnderboardTab.Explorer,
         );
         const light = useLightMode();
 
-        useImperativeHandle(
-            ref,
-            () => {
-                return {
-                    switchTab(tab: DefaultUnderboardTab) {
-                        if (tabs.includes(tab)) {
-                            setUnderboard(tab);
-                        }
-                    },
-                    focusEditor() {
-                        if (isOwner) {
-                            setUnderboard(DefaultUnderboardTab.Editor);
-                            setFocusEditor(true);
-                        } else if (tabs.includes(DefaultUnderboardTab.Comments)) {
-                            setUnderboard(DefaultUnderboardTab.Comments);
-                            setFocusCommenter(true);
-                        }
-                    },
-                    focusCommenter() {
-                        if (tabs.includes(DefaultUnderboardTab.Comments)) {
-                            setUnderboard(DefaultUnderboardTab.Comments);
-                            setFocusCommenter(true);
-                        }
-                    },
-                };
-            },
-            [tabs, setUnderboard, isOwner, setFocusEditor, setFocusCommenter],
-        );
+        useImperativeHandle(ref, () => {
+            return {
+                switchTab(tab: DefaultUnderboardTab) {
+                    if (tabs.includes(tab)) {
+                        setUnderboard(tab);
+                    }
+                },
+                focusEditor() {
+                    if (isOwner) {
+                        setUnderboard(DefaultUnderboardTab.Editor);
+                        setFocusEditor(true);
+                    } else if (tabs.includes(DefaultUnderboardTab.Comments)) {
+                        setUnderboard(DefaultUnderboardTab.Comments);
+                        setFocusCommenter(true);
+                    }
+                },
+                focusCommenter() {
+                    if (tabs.includes(DefaultUnderboardTab.Comments)) {
+                        setUnderboard(DefaultUnderboardTab.Comments);
+                        setFocusCommenter(true);
+                    }
+                },
+            };
+        }, [tabs, setUnderboard, isOwner, setFocusEditor, setFocusCommenter]);
 
         const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
             onResize(Math.floor(data.size.width), Math.floor(data.size.height));
@@ -196,7 +192,9 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 size='small'
                                 exclusive
                                 value={underboard}
-                                onChange={(_, val) => val && setUnderboard(val)}
+                                onChange={(_, val: string | null) =>
+                                    val && setUnderboard(val)
+                                }
                                 fullWidth
                             >
                                 {tabs.map((tab, index) => {
@@ -258,13 +256,14 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                             />
                         )}
 
-                        {customTab && customTab.element}
+                        {customTab?.element}
                     </Stack>
                 </Card>
             </Resizable>
         );
     },
 );
+Underboard.displayName = 'Underboard';
 
 interface UnderboardButtonProps extends ToggleButtonProps {
     tooltip: string;

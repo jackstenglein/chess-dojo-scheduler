@@ -2,7 +2,6 @@ import { Alert, Container, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from '../auth/Auth';
@@ -50,7 +49,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
                 console.log('subscriptionCheckout: ', resp);
                 window.location.href = resp.data.url;
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error('subscriptionCheckout: ', err);
                 request.onFailure(err);
             });

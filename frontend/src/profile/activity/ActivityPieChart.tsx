@@ -137,13 +137,13 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
         setTimeframe(timeframe);
     };
 
-    const onClickScoreChart = (_: any, segmentIndex: number) => {
+    const onClickScoreChart = (_: React.MouseEvent, segmentIndex: number) => {
         if (!scoreChartCategory) {
             setScoreChartCategory(scoreChartData[segmentIndex].name);
         }
     };
 
-    const onClickTimeChart = (_: any, segmentIndex: number) => {
+    const onClickTimeChart = (_: React.MouseEvent, segmentIndex: number) => {
         if (!timeChartCategory) {
             setTimeChartCategory(timeChartData[segmentIndex].name);
         }

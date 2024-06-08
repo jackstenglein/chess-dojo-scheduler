@@ -97,7 +97,7 @@ const columns: GridColDef<GameInfo>[] = [
         align: 'right',
         headerAlign: 'right',
         valueFormatter: (params: GridValueFormatterParams<string>) => {
-            return params.value?.split('T')[0].replaceAll('-', '.');
+            return params.value.split('T')[0].replaceAll('-', '.');
         },
     },
     {

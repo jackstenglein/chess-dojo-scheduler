@@ -16,8 +16,8 @@ describe('Search Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'scoreboard',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/scoreboard/search');
     });
@@ -31,7 +31,7 @@ describe('Search Page', () => {
 
     it('has checkboxes for field searching', () => {
         cy.getBySel('search-field').should('have.length', checkboxes.length);
-        checkboxes.forEach((label) => cy.contains(label));
+        cy.containsAll(checkboxes);
     });
 
     it('requires at least one field', () => {
@@ -45,9 +45,7 @@ describe('Search Page', () => {
         cy.getBySel('search-query').type('Test Account');
 
         cy.getBySel('search-results').contains('Test Account');
-        ['Cohort', ...checkboxes.slice(1)].forEach((label) =>
-            cy.getBySel('search-results').contains(label)
-        );
+        cy.getBySel('search-results').containsAll(['Cohort', ...checkboxes.slice(1)]);
 
         cy.contains('All Fields').click();
         cy.contains('FIDE ID').click();

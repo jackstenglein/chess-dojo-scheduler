@@ -1,13 +1,12 @@
-import React from 'react';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-
-import AvailabilityViewer from './AvailabilityViewer';
-import MeetingViewer from './MeetingViewer';
-import { Event, EventType } from '../../database/event';
+import React from 'react';
 import { useAuth } from '../../auth/Auth';
+import { Event, EventType } from '../../database/event';
+import AvailabilityViewer from './AvailabilityViewer';
+import CoachingViewer from './CoachingViewer';
 import DojoEventViewer from './DojoEventViewer';
 import LigaTournamentViewer from './LigaTournamentViewer';
-import CoachingViewer from './CoachingViewer';
+import MeetingViewer from './MeetingViewer';
 
 interface ProcessedEventViewerProps {
     processedEvent: ProcessedEvent;
@@ -16,8 +15,8 @@ interface ProcessedEventViewerProps {
 const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({
     processedEvent,
 }) => {
-    const user = useAuth().user!;
-    const event: Event | undefined = processedEvent.event;
+    const { user } = useAuth();
+    const event = processedEvent.event as Event | undefined;
 
     if (!event) {
         return null;
@@ -26,7 +25,7 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({
     if (event.type === EventType.Availability) {
         if (
             Object.values(event.participants).length === 0 ||
-            (event.owner !== user.username && !event.participants[user.username])
+            (event.owner !== user?.username && !event.participants[user?.username || ''])
         ) {
             return <AvailabilityViewer processedEvent={processedEvent} />;
         }

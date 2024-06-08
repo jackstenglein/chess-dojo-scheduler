@@ -16,8 +16,8 @@ describe('Import Games Page - PGN Text', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'games',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/games/import');
         cy.getBySel('import-pgn-text').click();
@@ -30,7 +30,7 @@ describe('Import Games Page - PGN Text', () => {
     });
 
     it('submits from manual entry (full)', () => {
-        cy.fixture('games/pgns/valid.txt').then((pgn) => {
+        cy.fixture<string>('games/pgns/valid.txt').then((pgn) => {
             importPgnText(pgn);
             verifyGame({ white: 'Test1', black: 'Test2', lastMove: 'e4' });
             deleteCurrentGame();
@@ -38,7 +38,7 @@ describe('Import Games Page - PGN Text', () => {
     });
 
     it('submits from manual entry (headers only)', () => {
-        cy.fixture('games/pgns/headers-only.txt').then((pgn) => {
+        cy.fixture<string>('games/pgns/headers-only.txt').then((pgn) => {
             importPgnText(pgn);
             cancelPreflight();
             verifyGame({ white: 'bestieboots', black: 'test2' });
@@ -47,7 +47,7 @@ describe('Import Games Page - PGN Text', () => {
     });
 
     it('submits from manual entry (moves only)', () => {
-        cy.fixture('games/pgns/moves-only.txt').then((pgn) => {
+        cy.fixture<string>('games/pgns/moves-only.txt').then((pgn) => {
             importPgnText(pgn);
             cancelPreflight();
             verifyGame({ lastMove: 'a4' });
@@ -56,7 +56,7 @@ describe('Import Games Page - PGN Text', () => {
     });
 
     it('displays error snackbar on invalid PGN', () => {
-        cy.fixture('games/pgns/invalid.txt').then((pgn) => {
+        cy.fixture<string>('games/pgns/invalid.txt').then((pgn) => {
             cy.getBySel('pgn-text').type(pgn);
             clickImport();
 

@@ -1,13 +1,12 @@
 import { Container, Divider, Stack, Typography } from '@mui/material';
-
-import { useAuth } from '../../auth/Auth';
 import NotFoundPage from '../../NotFoundPage';
-import StripeInfo from './stripe/StripeInfo';
-import ConnectStripeAccount from './stripe/ConnectStripeAccount';
+import { useRequiredAuth } from '../../auth/Auth';
 import CoursesCard from './courseEditor/CoursesCard';
+import ConnectStripeAccount from './stripe/ConnectStripeAccount';
+import StripeInfo from './stripe/StripeInfo';
 
 const CoachPortalPage = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
 
     if (!user.isCoach) {
         return <NotFoundPage />;

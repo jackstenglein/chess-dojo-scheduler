@@ -1,30 +1,29 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-    Container,
-    Stack,
-    Card,
-    CardHeader,
-    CardContent,
-    Typography,
-    Button,
-    Tooltip,
-    Alert,
-} from '@mui/material';
 import { Warning } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-
-import { Event, EventStatus, EventType, getDisplayString } from '../database/event';
-import { useCache } from '../api/cache/Cache';
-import LoadingPage from '../loading/LoadingPage';
-import { useAuth } from '../auth/Auth';
+import {
+    Alert,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Container,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
 import NotFoundPage from '../NotFoundPage';
-import CancelMeetingButton from './CancelMeetingButton';
+import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
+import { useCache } from '../api/cache/Cache';
+import { useRequiredAuth } from '../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
 import Field from '../calendar/eventViewer/Field';
 import ParticipantsList from '../calendar/eventViewer/ParticipantsList';
+import { Event, EventStatus, EventType, getDisplayString } from '../database/event';
 import { User, dojoCohorts } from '../database/user';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useApi } from '../api/Api';
+import LoadingPage from '../loading/LoadingPage';
+import CancelMeetingButton from './CancelMeetingButton';
 import MeetingMessages from './MeetingMessages';
 
 const CANCELATION_DEADLINE = 24 * 1000 * 60 * 60; // 24 hours
@@ -95,12 +94,12 @@ function getCancelDialog(user: User, meeting: Event): [string, string, string] {
 const MeetingPage = () => {
     const { meetingId } = useParams();
     const cache = useCache();
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const navigate = useNavigate();
     const checkoutRequest = useRequest();
     const api = useApi();
 
-    const meeting = cache.events.get(meetingId!);
+    const meeting = cache.events.get(meetingId || '');
     if (!meeting) {
         if (cache.isLoading) {
             return <LoadingPage />;
@@ -150,12 +149,16 @@ const MeetingPage = () => {
 
     const [cancelButton, cancelDialogTitle, cancelDialogContent] = getCancelDialog(
         user,
-        meeting
+        meeting,
     );
 
     const onCompletePayment = () => {
+        if (!meetingId) {
+            return;
+        }
+
         checkoutRequest.onStart();
-        api.getEventCheckout(meetingId!)
+        api.getEventCheckout(meetingId)
             .then((resp) => {
                 window.location.href = resp.data.url;
             })
@@ -277,7 +280,7 @@ const MeetingPage = () => {
                                 {isCoaching &&
                                     isOwner &&
                                     Object.values(meeting.participants).some(
-                                        (p) => !p.hasPaid
+                                        (p) => !p.hasPaid,
                                     ) && (
                                         <Tooltip title='Some users have not paid and will lose their booking in ~30 min'>
                                             <Warning color='warning' />

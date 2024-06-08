@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Email, Notifications, Web } from '@mui/icons-material';
 import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 import { UserNotificationSettings } from '../../database/user';
@@ -45,7 +49,7 @@ function setSettingValue(
 
 interface NotificationSettingsSection {
     label: string;
-    settings: Array<{ label: string; path: string }>;
+    settings: { label: string; path: string }[];
     icon: React.ReactNode;
 }
 

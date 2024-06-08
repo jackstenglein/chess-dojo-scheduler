@@ -1,11 +1,11 @@
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Container, Tab } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
-
 import Icon from '../style/Icon';
 import CalendarTab from './CalendarTab';
 import InfoTab from './InfoTab';
 import LeaderboardTab from './LeaderboardTab';
+
 const TournamentsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({
         type: 'calendar',
@@ -17,7 +17,7 @@ const TournamentsPage = () => {
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList
                         data-cy='tournaments-tab-list'
-                        onChange={(_, t) => setSearchParams({ type: t })}
+                        onChange={(_, t: string) => setSearchParams({ type: t })}
                         variant='scrollable'
                     >
                         <Tab

@@ -13,10 +13,10 @@ interface AvailabilityViewerProps {
 }
 
 const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent }) => {
-    const event: Event = processedEvent.event;
     const navigate = useNavigate();
 
-    const isOwner: boolean = processedEvent.isOwner;
+    const event = processedEvent.event as Event;
+    const isOwner = processedEvent.isOwner as boolean;
 
     const startBooking = () => {
         navigate(`/calendar/availability/${event.id}`);

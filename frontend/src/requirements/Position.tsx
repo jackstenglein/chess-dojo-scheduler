@@ -14,7 +14,6 @@ import axios from 'axios';
 import copy from 'copy-to-clipboard';
 import { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-
 import { EventType, trackEvent } from '../analytics/events';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import Board from '../board/Board';
@@ -55,12 +54,15 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     const generateLichessUrl = () => {
         lichessRequest.onStart();
         axios
-            .post('https://lichess.org/api/challenge/open', {
-                'clock.limit': position.limitSeconds,
-                'clock.increment': position.incrementSeconds,
-                fen: position.fen.trim(),
-                name: `${position.title}`,
-            })
+            .post<{ challenge: { url: string } }>(
+                'https://lichess.org/api/challenge/open',
+                {
+                    'clock.limit': position.limitSeconds,
+                    'clock.increment': position.incrementSeconds,
+                    fen: position.fen.trim(),
+                    name: position.title,
+                },
+            )
             .then((resp) => {
                 console.log('Generate Lichess URL: ', resp);
                 trackEvent(EventType.CreateSparringLink, {

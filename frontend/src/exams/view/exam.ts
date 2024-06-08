@@ -147,9 +147,9 @@ export function addExtraVariation(
     currentSolutionMove: Move | null,
     solution: Chess,
 ) {
-    for (let move of answer) {
+    for (const move of answer) {
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 addExtraVariation(variation, currentSolutionMove, solution);
             }
         }

@@ -1,15 +1,14 @@
-import { useEffect, useMemo } from 'react';
 import { Container, Stack } from '@mui/material';
+import { useEffect, useMemo } from 'react';
 import { AxisOptions } from 'react-charts';
-
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { RatingSystem, dojoCohorts, formatRatingSystem } from '../../database/user';
 import { useApi } from '../../api/Api';
-import { UserStatistics } from '../../database/statistics';
-import LoadingPage from '../../loading/LoadingPage';
-import Chart, { Datum, Series } from './Chart';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
+import { UserStatistics } from '../../database/statistics';
+import { RatingSystem, dojoCohorts, formatRatingSystem } from '../../database/user';
+import LoadingPage from '../../loading/LoadingPage';
 import ScoreboardViewSelector from '../ScoreboardViewSelector';
+import Chart, { Datum, Series } from './Chart';
 
 const primaryAxis: AxisOptions<Datum> = {
     getValue: (datum) => datum.cohort,
@@ -62,7 +61,7 @@ const timeSecondaryAxes: AxisOptions<Datum>[] = [
 function getSeries(
     label: string,
     data: UserStatistics | undefined,
-    getValue: (d: UserStatistics, c: string) => number
+    getValue: (d: UserStatistics, c: string) => number,
 ): Series[] {
     if (!data) {
         return [];
@@ -134,7 +133,7 @@ function getAdminParticipantsSeries(data: UserStatistics | undefined): Series[] 
 const StatisticsPage = () => {
     const api = useApi();
     const request = useRequest<UserStatistics>();
-    const user = useAuth().user!;
+    const { user } = useAuth();
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -156,7 +155,7 @@ const StatisticsPage = () => {
             'Rating Change',
             request.data,
             (d, c) =>
-                d.cohorts[c].activeRatingChanges + d.cohorts[c].inactiveRatingChanges
+                d.cohorts[c].activeRatingChanges + d.cohorts[c].inactiveRatingChanges,
         );
     }, [request.data]);
 
@@ -166,7 +165,7 @@ const StatisticsPage = () => {
             request.data,
             (d, c) =>
                 (d.cohorts[c].activeRatingChanges + d.cohorts[c].inactiveRatingChanges) /
-                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants)
+                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants),
         );
     }, [request.data]);
 
@@ -174,7 +173,7 @@ const StatisticsPage = () => {
         return getSeries(
             'Total Time',
             request.data,
-            (d, c) => d.cohorts[c].activeMinutesSpent + d.cohorts[c].inactiveMinutesSpent
+            (d, c) => d.cohorts[c].activeMinutesSpent + d.cohorts[c].inactiveMinutesSpent,
         );
     }, [request.data]);
 
@@ -184,7 +183,7 @@ const StatisticsPage = () => {
             request.data,
             (d, c) =>
                 (d.cohorts[c].activeMinutesSpent + d.cohorts[c].inactiveMinutesSpent) /
-                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants)
+                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants),
         );
     }, [request.data]);
 
@@ -195,7 +194,7 @@ const StatisticsPage = () => {
             (d, c) =>
                 (d.cohorts[c].activeRatingChangePerHour +
                     d.cohorts[c].inactiveRatingChangePerHour) /
-                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants)
+                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants),
         );
     }, [request.data]);
 
@@ -203,7 +202,7 @@ const StatisticsPage = () => {
         return getSeries(
             'Graduations',
             request.data,
-            (d, c) => d.cohorts[c].numGraduations
+            (d, c) => d.cohorts[c].numGraduations,
         );
     }, [request.data]);
 
@@ -211,7 +210,7 @@ const StatisticsPage = () => {
         return getSeries(
             'Average Time to Graduate',
             request.data,
-            (d, c) => d.cohorts[c].graduationMinutes / d.cohorts[c].numGraduations
+            (d, c) => d.cohorts[c].graduationMinutes / d.cohorts[c].numGraduations,
         );
     }, [request.data]);
 
@@ -219,7 +218,7 @@ const StatisticsPage = () => {
         return getSeries(
             'Total Dojo Score',
             request.data,
-            (d, c) => d.cohorts[c].activeDojoScores + d.cohorts[c].inactiveDojoScores
+            (d, c) => d.cohorts[c].activeDojoScores + d.cohorts[c].inactiveDojoScores,
         );
     }, [request.data]);
 
@@ -229,7 +228,7 @@ const StatisticsPage = () => {
             request.data,
             (d, c) =>
                 (d.cohorts[c].activeDojoScores + d.cohorts[c].inactiveDojoScores) /
-                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants)
+                (d.cohorts[c].activeParticipants + d.cohorts[c].inactiveParticipants),
         );
     }, [request.data]);
 
@@ -237,12 +236,12 @@ const StatisticsPage = () => {
         return getSeries(
             'Avg Rating Change / Dojo Point',
             request.data,
-            (d, c) => d.cohorts[c].avgRatingChangePerDojoPoint
+            (d, c) => d.cohorts[c].avgRatingChangePerDojoPoint,
         );
     }, [request.data]);
 
     const participantsData: Series[] = useMemo(() => {
-        return user.isAdmin
+        return user?.isAdmin
             ? getAdminParticipantsSeries(request.data)
             : getSeries(
                   'Participants',
@@ -251,12 +250,13 @@ const StatisticsPage = () => {
                       d.cohorts[c].activeParticipants +
                       d.cohorts[c].inactiveParticipants +
                       d.cohorts[c].freeActiveParticipants +
-                      d.cohorts[c].freeInactiveParticipants
+                      d.cohorts[c].freeInactiveParticipants,
               );
-    }, [request.data, user.isAdmin]);
+    }, [request.data, user?.isAdmin]);
 
     const ratingSystemsData: Series[] = useMemo(() => {
-        if (!request.data) {
+        const data = request.data;
+        if (!data) {
             return [];
         }
         return Object.values(RatingSystem).map((rs) => ({
@@ -264,14 +264,14 @@ const StatisticsPage = () => {
             data: dojoCohorts.map((c) => ({
                 cohort: c,
                 value:
-                    request.data!.cohorts[c].activeRatingSystems[rs] +
-                    request.data!.cohorts[c].inactiveRatingSystems[rs],
+                    data.cohorts[c].activeRatingSystems[rs] +
+                    data.cohorts[c].inactiveRatingSystems[rs],
             })),
         }));
     }, [request.data]);
 
     const subscriptionChangesData: Series[] = useMemo(() => {
-        if (!request.data || !user.isAdmin) {
+        if (!request.data || !user?.isAdmin) {
             return [];
         }
         return [
@@ -296,7 +296,7 @@ const StatisticsPage = () => {
                 }),
             },
         ];
-    }, [request.data, user.isAdmin]);
+    }, [request.data, user?.isAdmin]);
 
     if (request.isLoading() && request.data === undefined) {
         return <LoadingPage />;
@@ -308,11 +308,11 @@ const StatisticsPage = () => {
 
     const totalRatingChange = totalRatingChangeData[0]?.data.reduce(
         (sum, d) => sum + d.value,
-        0
+        0,
     );
     const totalDojoPoints = totalDojoScoreData[0]?.data.reduce(
         (sum, d) => sum + d.value,
-        0
+        0,
     );
 
     return (
@@ -406,7 +406,7 @@ const StatisticsPage = () => {
                     secondaryAxes={participantsSecondaryAxes}
                 />
 
-                {user.isAdmin && (
+                {user?.isAdmin && (
                     <Chart
                         title='Subscription Changes'
                         series={subscriptionChangesData}

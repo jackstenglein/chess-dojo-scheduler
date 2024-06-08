@@ -4,6 +4,7 @@ import {
     MenuItem,
     Stack,
     TextField,
+    Theme,
     Typography,
     useMediaQuery,
 } from '@mui/material';
@@ -71,7 +72,7 @@ interface CourseFilterEditorProps {
 
 export const CourseFilterEditor: React.FC<CourseFilterEditorProps> = ({ filters }) => {
     const [expanded, setExpanded] = useState<string | boolean>(false);
-    const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+    const forceExpansion = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
 
     const handleAccordionChange =
         (panel: string) => (_: React.SyntheticEvent, newExpanded: boolean) => {

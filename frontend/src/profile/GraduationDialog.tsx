@@ -1,3 +1,4 @@
+import SchoolIcon from '@mui/icons-material/School';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -17,20 +18,19 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import { RatingSystem, shouldPromptGraduation } from '../database/user';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import SchoolIcon from '@mui/icons-material/School';
 
 const GraduationDialog = () => {
     const [comments, setComments] = useState('');
     const request = useRequest();
     const api = useApi();
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
     const shouldGraduate = shouldPromptGraduation(user);
     const disableGraduation =
-        !shouldGraduate && user.ratingSystem !== RatingSystem.Custom;
+        !shouldGraduate && user?.ratingSystem !== RatingSystem.Custom;
 
     const onOpen = () => {
         if (isFreeTier) {
@@ -91,7 +91,7 @@ const GraduationDialog = () => {
                 }
                 fullWidth
             >
-                <DialogTitle>Graduate from {user.dojoCohort}?</DialogTitle>
+                <DialogTitle>Graduate from {user?.dojoCohort}?</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2}>
                         <DialogContentText>

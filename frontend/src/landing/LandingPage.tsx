@@ -1,4 +1,4 @@
-import { Box, Button, Container, Stack, Typography, useTheme } from '@mui/material';
+import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthStatus, useAuth } from '../auth/Auth';
@@ -11,8 +11,7 @@ import WhatsIncluded from './WhatsIncluded';
 const LandingPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
-    const locationState = useLocation().state;
-    const theme = useTheme();
+    const locationState: unknown = useLocation().state;
 
     if (auth.status === AuthStatus.Loading) {
         return <LoadingPage />;

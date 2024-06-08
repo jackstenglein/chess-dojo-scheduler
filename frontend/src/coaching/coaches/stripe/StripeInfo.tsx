@@ -1,18 +1,17 @@
-import { useEffect } from 'react';
 import { Stack } from '@mui/material';
-
-import { useAuth } from '../../../auth/Auth';
+import { useEffect } from 'react';
 import NotFoundPage from '../../../NotFoundPage';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
+import { useRequiredAuth } from '../../../auth/Auth';
 import { StripeAccount } from '../../../database/payment';
 import LoadingPage from '../../../loading/LoadingPage';
 import AccountStatusCard from './AccountStatusCard';
-import PayoutsCard from './PayoutsCard';
 import DashboardCard from './DashboardCard';
+import PayoutsCard from './PayoutsCard';
 
 const StripeInfo = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
     const request = useRequest<StripeAccount>();
 

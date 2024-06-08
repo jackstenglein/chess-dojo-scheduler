@@ -1,17 +1,16 @@
+import { Box, Card, CardContent, CardHeader, Stack } from '@mui/material';
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Card, CardContent, CardHeader, Stack } from '@mui/material';
-
-import { useCache } from '../api/cache/Cache';
-import LoadingPage from '../loading/LoadingPage';
-import CommentList from '../newsfeed/detail/CommentList';
 import { useApi } from '../api/Api';
+import { useCache } from '../api/cache/Cache';
+import { useRequiredAuth } from '../auth/Auth';
 import { Event, EventType } from '../database/event';
+import LoadingPage from '../loading/LoadingPage';
 import CommentEditor from '../newsfeed/detail/CommentEditor';
-import { useAuth } from '../auth/Auth';
+import CommentList from '../newsfeed/detail/CommentList';
 
 const MeetingMessages = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const { meetingId } = useParams();
     const cache = useCache();
     const api = useApi();
@@ -21,7 +20,7 @@ const MeetingMessages = () => {
     const messages = meeting?.messages;
 
     useEffect(() => {
-        bottomRef.current?.scrollTo(0, bottomRef.current?.scrollHeight || 0);
+        bottomRef.current?.scrollTo(0, bottomRef.current.scrollHeight || 0);
     }, [messages]);
 
     if (!meeting) {

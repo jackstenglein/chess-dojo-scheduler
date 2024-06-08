@@ -24,7 +24,7 @@ interface NotificationListItemProps {
 
 interface DeletableNotification {
     onDelete: (e: React.MouseEvent) => void;
-    deleteRequest: Request;
+    deleteRequest: Request<never>;
 }
 
 export const NotificationListItem: React.FC<NotificationListItemProps> = ({
@@ -35,7 +35,7 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
     const navigate = useNavigate();
     const api = useApi();
     const cache = useCache();
-    const request = useRequest();
+    const request = useRequest<never>();
 
     const onDeleteNotification = (e: React.MouseEvent) => {
         e.preventDefault();

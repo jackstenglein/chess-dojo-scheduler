@@ -1,4 +1,5 @@
 import { Link, SxProps, Typography, useTheme } from '@mui/material';
+import { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -177,7 +178,13 @@ const Markdown: React.FC<MarkdownProps> = ({ text, inline }) => {
     );
 };
 
-function Text(props: any) {
+function Text(props: {
+    inline?: boolean;
+    first?: boolean;
+    p?: string;
+    fontSize?: string;
+    children?: ReactNode;
+}) {
     let sx: SxProps | undefined;
     if (props.inline) {
         if (props.first) {

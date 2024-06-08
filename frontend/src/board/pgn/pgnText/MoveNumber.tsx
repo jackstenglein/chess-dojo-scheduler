@@ -11,7 +11,7 @@ const MoveNumber: React.FC<MoveNumberProps> = ({ ply }) => {
     }
 
     return (
-        <Grid key={'move-number-' + ply} item xs={2}>
+        <Grid key={`move-number-${ply}`} item xs={2}>
             <Stack
                 justifyContent='center'
                 alignItems='center'

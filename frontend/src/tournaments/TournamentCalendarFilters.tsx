@@ -1,4 +1,4 @@
-import { Stack, Typography, useMediaQuery } from '@mui/material';
+import { Stack, Theme, Typography, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import {
     Accordion,
@@ -40,7 +40,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
     filters,
 }) => {
     const [expanded, setExpanded] = useState<boolean>(false);
-    const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+    const forceExpansion = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
 
     const onChangeTournamentTimeControls = (tcTypes: string[]) => {
         const addedTcTypes = tcTypes.filter(

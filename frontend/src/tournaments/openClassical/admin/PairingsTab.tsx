@@ -157,7 +157,7 @@ const AdminPairingsTable: React.FC<AdminPairingsTableProps> = ({
             type: 'actions',
             headerName: 'Actions',
             getActions: (params) => [
-                <Tooltip title='Update Result'>
+                <Tooltip key='update-result' title='Update Result'>
                     <GridActionsCellItem
                         icon={<Edit />}
                         label='Update Result'
@@ -194,7 +194,7 @@ const AdminPairingsTable: React.FC<AdminPairingsTableProps> = ({
                 setUpdatePairing(undefined);
                 updateRequest.onSuccess();
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error(err);
                 updateRequest.onFailure(err);
             });

@@ -26,8 +26,7 @@ const GameComment = () => {
     }, [chess, setForceRender]);
 
     if (
-        !chess?.pgn.gameComment ||
-        !chess.pgn.gameComment.comment ||
+        !chess?.pgn.gameComment.comment ||
         chess.pgn.gameComment.comment.trim() === '[#]'
     ) {
         return null;

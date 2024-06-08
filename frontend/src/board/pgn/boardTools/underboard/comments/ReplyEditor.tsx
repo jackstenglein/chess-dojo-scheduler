@@ -3,7 +3,7 @@ import { Button, Stack, TextField } from '@mui/material';
 import { useState } from 'react';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import { useAuth } from '../../../../../auth/Auth';
+import { useRequiredAuth } from '../../../../../auth/Auth';
 import { PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
@@ -17,7 +17,7 @@ const ReplyEditor: React.FC<ReplyEditorProps> = ({ parent, onCancel }) => {
     const [value, setValue] = useState('');
     const request = useRequest();
     const api = useApi();
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const { game, onUpdateGame } = useGame();
 
     if (!game || !onUpdateGame) {

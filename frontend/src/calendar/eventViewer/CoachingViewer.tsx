@@ -24,7 +24,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
     const user = useAuth().user;
     const navigate = useNavigate();
 
-    const event: Event = processedEvent.event;
+    const event = processedEvent.event as Event;
     if (!event.coaching) {
         return null;
     }
@@ -51,7 +51,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
             });
     };
 
-    const isOwner: boolean = processedEvent.isOwner;
+    const isOwner = processedEvent.isOwner as boolean;
     const isParticipant = Boolean(event.participants[user?.username || '']);
 
     return (

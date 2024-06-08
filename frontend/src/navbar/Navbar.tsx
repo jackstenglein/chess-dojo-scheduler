@@ -2,6 +2,7 @@ import {
     AppBar,
     Container,
     Slide,
+    Theme,
     Toolbar,
     useMediaQuery,
     useScrollTrigger,
@@ -16,7 +17,7 @@ interface HideOnScrollProps {
 }
 
 function HideOnScroll(props: HideOnScrollProps) {
-    const isMedium = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+    const isMedium = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
     const trigger = useScrollTrigger({ threshold: 20 });
 
     return (

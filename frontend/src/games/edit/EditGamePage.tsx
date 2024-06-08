@@ -17,7 +17,7 @@ const EditGamePage = () => {
     const request = useRequest<PreflightData>();
     const { cohort, id } = useParams();
     const navigate = useNavigate();
-    const game: Game | undefined = useLocation().state?.game;
+    const game: Game | undefined = (useLocation().state as { game?: Game })?.game;
 
     const onEdit = (remoteGame?: CreateGameRequest, headers?: GameHeader) => {
         if (!cohort || !id || !remoteGame) {

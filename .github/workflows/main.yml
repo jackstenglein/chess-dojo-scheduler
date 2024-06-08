@@ -45,6 +45,10 @@ jobs:
           name: build
           path: frontend/build
 
+      - name: Prepare Common
+        working-directory: common
+        run: npm ci
+
       - name: Cypress Run
         uses: cypress-io/github-action@v6
         with:

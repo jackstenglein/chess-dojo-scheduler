@@ -22,7 +22,7 @@ interface CoachingCalendarProps {
     events: Event[];
     putEvent: (e: Event) => void;
     removeEvent: (id: string) => void;
-    request: Request;
+    request: Request<unknown>;
 }
 
 const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
@@ -123,10 +123,12 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
 
                 copyRequest.onStart();
 
-                let id = originalEvent.event?.id;
-                let discordMessageId = originalEvent.event?.discordMessageId;
-                let privateDiscordEventId = originalEvent.event?.privateDiscordEventId;
-                let publicDiscordEventId = originalEvent.event?.publicDiscordEventId;
+                const event = originalEvent.event as Event | undefined;
+
+                let id = event?.id;
+                let discordMessageId = event?.discordMessageId;
+                let privateDiscordEventId = event?.privateDiscordEventId;
+                let publicDiscordEventId = event?.publicDiscordEventId;
 
                 // If shift is held, then set the id and discord ids to
                 // undefined in order to create a new event
@@ -138,7 +140,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                 }
 
                 const response = await api.setEvent({
-                    ...(originalEvent.event ?? {}),
+                    ...event,
                     startTime: startIso,
                     endTime: endIso,
                     id,

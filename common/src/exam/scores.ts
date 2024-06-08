@@ -77,10 +77,10 @@ export function getSolutionScore(
 ): number {
     let score = 0;
 
-    for (let move of solution) {
+    for (const move of solution) {
         // Recursively check variations
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 score += getSolutionScore(playAs, variation, chess, isUnscored);
             }
         }
@@ -116,6 +116,8 @@ export function getSolutionScore(
             }
         }
 
+        // Remove disabled when there's time to.
+        /* eslint-disable @typescript-eslint/restrict-plus-operands */
         score += move.userData?.score || 0;
 
         const eolSearch = endOfLineRegex.exec(move.commentAfter || '');
@@ -146,12 +148,12 @@ export function scoreVariation(
     let score = 0;
     let altFound = false;
 
-    for (let move of solution) {
+    for (const move of solution) {
         // The user may not have found the mainline solution,
         // but may have found a variation, which can also have a score associated, or can be an alternate solution
         // for this move
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 const [variationScore, alt] = scoreVariation(
                     playAs,
                     variation,
@@ -189,6 +191,9 @@ export function scoreVariation(
             found: Boolean(answerMove),
             altFound: variationAlt,
         };
+
+        // Remove disabled when there's time to.
+        /* eslint-disable @typescript-eslint/restrict-plus-operands */
         score += move.userData.score || 0;
         currentAnswerMove = answerMove;
 
@@ -214,24 +219,20 @@ export function getRegression(exam: Exam): SimpleLinearRegression | null {
     const relevantCohortRange = `${minCohort}-${maxCohort}`;
     const minScore = 0.15 * getExamMaxScore(exam);
 
-    const scoresPerCohort = Object.values(exam.answers).reduce(
-        (acc, ans) => {
-            if (
-                !isCohortInRange(ans.cohort, relevantCohortRange) ||
-                ans.score < minScore
-            ) {
-                return acc;
-            }
-
-            const [cohort] = getCohortRangeInt(ans.cohort);
-            acc[cohort] = {
-                sum: (acc[cohort]?.sum || 0) + ans.score,
-                count: (acc[cohort]?.count || 0) + 1,
-            };
+    const scoresPerCohort = Object.values(exam.answers).reduce<
+        Record<number, { sum: number; count: number }>
+    >((acc, ans) => {
+        if (!isCohortInRange(ans.cohort, relevantCohortRange) || ans.score < minScore) {
             return acc;
-        },
-        {} as Record<number, { sum: number; count: number }>,
-    );
+        }
+
+        const [cohort] = getCohortRangeInt(ans.cohort);
+        acc[cohort] = {
+            sum: (acc[cohort]?.sum || 0) + ans.score,
+            count: (acc[cohort]?.count || 0) + 1,
+        };
+        return acc;
+    }, {});
 
     if (Object.values(scoresPerCohort).filter(({ count }) => count >= 3).length < 3) {
         return null;

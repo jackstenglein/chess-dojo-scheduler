@@ -17,7 +17,7 @@ import {
     TimeControlType,
 } from '../database/event';
 import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '../database/user';
-import Icon from '../style/Icon';
+import Icon, { icons } from '../style/Icon';
 import UpsellAlert from '../upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import CalendarTutorial from './CalendarTutorial';
@@ -31,6 +31,7 @@ import {
     getHours,
     useFilters,
 } from './filters/CalendarFilters';
+
 function processAvailability(
     user: User | undefined,
     filters: Filters,
@@ -304,11 +305,11 @@ export function getProcessedEvents(
 }
 
 export default function CalendarPage() {
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const api = useApi();
     const isFreeTier = useFreeTier();
     const [canceled, setCanceled] = useState(
-        Boolean(useLocation().state?.canceled) || false,
+        Boolean((useLocation().state as { canceled: boolean })?.canceled) || false,
     );
 
     const { events, putEvent, removeEvent, request } = useEvents();
@@ -367,10 +368,12 @@ export default function CalendarPage() {
 
                 copyRequest.onStart();
 
-                let id = originalEvent.event?.id;
-                let discordMessageId = originalEvent.event?.discordMessageId;
-                let privateDiscordEventId = originalEvent.event?.privateDiscordEventId;
-                let publicDiscordEventId = originalEvent.event?.publicDiscordEventId;
+                const dojoEvent = originalEvent.event as Event | undefined;
+
+                let id = dojoEvent?.id;
+                let discordMessageId = dojoEvent?.discordMessageId;
+                let privateDiscordEventId = dojoEvent?.privateDiscordEventId;
+                let publicDiscordEventId = dojoEvent?.publicDiscordEventId;
 
                 // If shift is held, then set the id and discord ids to
                 // undefined in order to create a new event
@@ -382,7 +385,7 @@ export default function CalendarPage() {
                 }
 
                 const response = await api.setEvent({
-                    ...(originalEvent.event ?? {}),
+                    ...dojoEvent,
                     startTime: startIso,
                     endTime: endIso,
                     id,
@@ -519,7 +522,7 @@ export default function CalendarPage() {
                                 isFreeTier ? (
                                     <UpsellDialog
                                         open={true}
-                                        onClose={scheduler.close}
+                                        onClose={() => scheduler.close()}
                                         currentAction={RestrictedAction.AddCalendarEvents}
                                     />
                                 ) : (
@@ -581,6 +584,7 @@ export function CustomEventRenderer({
 
     const quarterHours = Math.abs(event.start.getTime() - event.end.getTime()) / 900000;
     const maxLines = 2 + Math.max(0, quarterHours - 4);
+    const dojoEvent = event.event as Event | undefined;
 
     return (
         <Stack
@@ -597,7 +601,8 @@ export function CustomEventRenderer({
             <Stack direction='row' alignItems='start' spacing={0.5}>
                 <Icon
                     name={
-                        event.event?.ligaTournament?.timeControlType || event.event?.type
+                        (dojoEvent?.ligaTournament?.timeControlType ||
+                            dojoEvent?.type) as keyof typeof icons
                     }
                     color='inherit'
                     fontSize='inherit'

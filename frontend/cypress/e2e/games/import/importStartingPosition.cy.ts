@@ -4,8 +4,8 @@ describe('Import Games Page - Position', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'games',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/games/import');
     });

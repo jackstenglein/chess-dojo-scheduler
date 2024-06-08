@@ -1,6 +1,5 @@
-import { Chip, Tooltip } from '@mui/material';
-import { Sports } from '@mui/icons-material';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import { Chip, Tooltip } from '@mui/material';
 import { User } from '../../database/user';
 
 interface CoachChipProps {
@@ -8,7 +7,7 @@ interface CoachChipProps {
 }
 
 const CoachChip: React.FC<CoachChipProps> = ({ user }) => {
-    if (!user || !user.isCoach) {
+    if (!user?.isCoach) {
         return null;
     }
 

@@ -47,7 +47,7 @@ Object.entries(urlMatchers).forEach(([submissionType, match]) =>
             }
         });
 
-        it('matches relevant URLs', async () => {
+        it('matches relevant URLs', () => {
             testURLs[submissionType].forEach((url) => {
                 expect(
                     match(url),

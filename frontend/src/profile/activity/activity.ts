@@ -193,12 +193,12 @@ function getTimeframeScoreChartData(
 
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
-    const requirementMap = requirements.reduce(
+    const requirementMap = requirements.reduce<Record<string, Requirement>>(
         (m, r) => {
             m[r.id] = r;
             return m;
         },
-        {} as Record<string, Requirement>,
+        {},
     );
 
     for (const entry of timeline) {
@@ -268,12 +268,12 @@ function getCategoryScoreChartData(
 
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
-    const requirementMap = requirements.reduce(
+    const requirementMap = requirements.reduce<Record<string, Requirement>>(
         (m, r) => {
             m[r.id] = r;
             return m;
         },
-        {} as Record<string, Requirement>,
+        {},
     );
 
     for (const entry of timeline) {
@@ -495,12 +495,12 @@ function getAllTimeTimeChartData(
     requirements: Requirement[],
 ): PieChartData[] {
     const requirementMap =
-        requirements.reduce(
+        requirements.reduce<Record<string, Requirement | CustomTask>>(
             (map, r) => {
                 map[r.id] = r;
                 return map;
             },
-            {} as Record<string, Requirement | CustomTask>,
+            {},
         ) ?? {};
 
     user.customTasks?.forEach((t) => {
@@ -567,12 +567,12 @@ function getCategoryTimeChartData(
     }
 
     const requirementMap =
-        requirements.reduce(
+        requirements.reduce<Record<string, Requirement>>(
             (map, r) => {
                 map[r.id] = r;
                 return map;
             },
-            {} as Record<string, Requirement>,
+            {},
         ) ?? {};
 
     const data: Record<string, PieChartData> = {};
@@ -632,7 +632,7 @@ function getAllTimeCategoryTimeChartData(
             continue;
         }
         const progress = user.progress[requirement.id];
-        if (!progress || !progress.minutesSpent) {
+        if (!progress?.minutesSpent) {
             continue;
         }
 
@@ -664,11 +664,11 @@ function getAllTimeCategoryTimeChartData(
     if (category === 'Non-Dojo') {
         for (const task of user.customTasks || []) {
             const progress = user.progress[task.id];
-            if (!progress || !progress.minutesSpent) {
+            if (!progress?.minutesSpent) {
                 continue;
             }
 
-            let name = task.name;
+            const name = task.name;
 
             let reqCohorts = cohorts;
             if (cohorts.includes(ALL_COHORTS)) {

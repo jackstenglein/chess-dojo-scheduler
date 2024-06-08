@@ -13,7 +13,7 @@ const BASE_URL = getConfig().api.baseUrl;
 export type TimePeriod = 'monthly' | 'yearly';
 export type TimeControl = 'blitz' | 'rapid' | 'classical';
 
-export type TournamentApiContextType = {
+export interface TournamentApiContextType {
     /**
      * getLeaderboard returns the requested leaderboard.
      * @param site The site the leaderboard is for.
@@ -37,7 +37,7 @@ export type TournamentApiContextType = {
      * current tournament will be returned.
      * @returns An AxiosResponse containing the requested OpenClassical.
      */
-    getOpenClassical: (startsAt?: string) => Promise<AxiosResponse<OpenClassical, any>>;
+    getOpenClassical: (startsAt?: string) => Promise<AxiosResponse<OpenClassical>>;
 
     /**
      * Submits a request to register for the Open Classical.
@@ -46,7 +46,7 @@ export type TournamentApiContextType = {
      */
     registerForOpenClassical: (
         req: OpenClassicalRegistrationRequest,
-    ) => Promise<AxiosResponse<void, any>>;
+    ) => Promise<AxiosResponse<null>>;
 
     /**
      * Submits a request to enter results for the Open Classical.
@@ -55,7 +55,7 @@ export type TournamentApiContextType = {
      */
     submitResultsForOpenClassical: (
         req: OpenClassicalSubmitResultsRequest,
-    ) => Promise<AxiosResponse<OpenClassical, any>>;
+    ) => Promise<AxiosResponse<OpenClassical>>;
 
     /**
      * Sets the pairings using the given request. Only admins and tournament
@@ -65,7 +65,7 @@ export type TournamentApiContextType = {
      */
     putOpenClassicalPairings: (
         req: OpenClassicalPutPairingsRequest,
-    ) => Promise<AxiosResponse<OpenClassical, any>>;
+    ) => Promise<AxiosResponse<OpenClassical>>;
 
     /**
      * Returns a list of previous open classicals.
@@ -83,7 +83,7 @@ export type TournamentApiContextType = {
     adminGetRegistrations: (
         region: string,
         section: string,
-    ) => Promise<AxiosResponse<any, any>>;
+    ) => Promise<AxiosResponse<Blob>>;
 
     /**
      * Bans the given player from the open classical.
@@ -146,7 +146,7 @@ export type TournamentApiContextType = {
     adminCompleteTournament: (
         nextStartDate: string,
     ) => Promise<AxiosResponse<OpenClassical>>;
-};
+}
 
 /** A request to register for the Open Classical. */
 export interface OpenClassicalRegistrationRequest {
@@ -255,7 +255,7 @@ export function registerForOpenClassical(
     idToken: string,
     req: OpenClassicalRegistrationRequest,
 ) {
-    return axios.post<void>(
+    return axios.post<null>(
         `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/register`,
         req,
         {

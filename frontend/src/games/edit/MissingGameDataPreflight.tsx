@@ -120,7 +120,7 @@ export const MissingGameDataPreflight = ({
             if (!isGameResult(headers.result)) {
                 newErrors.result = 'This field is required';
             }
-            if (headers.date === null || !headers.date.isValid) {
+            if (!headers.date?.isValid) {
                 newErrors.date = 'This field is required';
             }
         }
