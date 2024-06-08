@@ -16,7 +16,6 @@ import {
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
-    GridValueFormatterParams,
 } from '@mui/x-data-grid-pro';
 import React, { useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
@@ -24,6 +23,7 @@ import { RequestSnackbar } from '../../api/Request';
 import { useFreeTier } from '../../auth/Auth';
 import { GameInfo } from '../../database/game';
 import { RequirementCategory } from '../../database/requirement';
+import { dojoCohorts } from '../../database/user';
 import Avatar from '../../profile/Avatar';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
@@ -41,15 +41,21 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerName: 'Cohort',
         width: 115,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
+            let value = params.value;
+            if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
+                value = value.replace('00', '');
+            }
+
             return (
                 <Stack
                     direction='row'
                     spacing={1}
                     alignItems='center'
                     onClick={(e) => e.stopPropagation()}
+                    height={1}
                 >
                     <CohortIcon cohort={params.value} size={25} tooltip='' />
-                    <Typography variant='body2'>{params.value}</Typography>
+                    <Typography variant='body2'>{value}</Typography>
                 </Stack>
             );
         },
@@ -92,7 +98,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'result',
         headerName: 'Result',
-        valueGetter: (params) => params.row.headers.Result,
+        valueGetter: (_value, row) => row.headers.Result,
         renderCell: RenderResult,
         align: 'center',
         headerAlign: 'center',
@@ -101,10 +107,8 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'moves',
         headerName: 'Moves',
-        valueGetter: (params) =>
-            params.row.headers.PlyCount
-                ? Math.ceil(parseInt(params.row.headers.PlyCount) / 2)
-                : '?',
+        valueGetter: (_value, row) =>
+            row.headers.PlyCount ? Math.ceil(parseInt(row.headers.PlyCount) / 2) : '?',
         align: 'center',
         headerAlign: 'center',
         width: 75,
@@ -112,16 +116,10 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'publishedAt',
         headerName: 'Publish Date',
-        valueGetter: (params) => {
-            return (
-                params.row.publishedAt ||
-                params.row.createdAt ||
-                params.row.id.split('_')[0]
-            );
+        valueGetter: (_value, row) => {
+            return row.publishedAt || row.createdAt || row.id.split('_')[0];
         },
-        valueFormatter: (params: GridValueFormatterParams<string>) => {
-            return params.value.split('T')[0].replaceAll('-', '.');
-        },
+        valueFormatter: (value: string) => value.split('T')[0].replaceAll('-', '.'),
         width: 120,
         align: 'right',
         headerAlign: 'right',

@@ -18,11 +18,9 @@ import {
     GridRenderCellParams,
     GridRowModel,
     GridRowParams,
-    GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
 import { Request } from '../../../api/Request';
 import { useFreeTier } from '../../../auth/Auth';
 import {
@@ -164,13 +162,11 @@ const Database: React.FC<DatabaseProps> = ({
                 headerName: 'Games',
                 align: 'left',
                 headerAlign: 'left',
-                valueGetter: (
-                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>,
-                ) => {
-                    if (isExplorerMove(params.row)) {
-                        return getGameCount(params.row.results, cohortRange);
+                valueGetter: (_value, row) => {
+                    if (isExplorerMove(row)) {
+                        return getGameCount(row.results, cohortRange);
                     }
-                    return params.row.white + params.row.black + params.row.draws;
+                    return row.white + row.black + row.draws;
                 },
                 renderCell: (
                     params: GridRenderCellParams<
@@ -198,13 +194,11 @@ const Database: React.FC<DatabaseProps> = ({
                 headerName: 'Results',
                 align: 'right',
                 headerAlign: 'left',
-                valueGetter: (
-                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>,
-                ) => {
-                    if (isExplorerMove(params.row)) {
-                        return getResultCount(params.row, 'white', cohortRange);
+                valueGetter: (_value, row) => {
+                    if (isExplorerMove(row)) {
+                        return getResultCount(row, 'white', cohortRange);
                     }
-                    return params.row.white;
+                    return row.white;
                 },
                 renderCell: (
                     params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>,

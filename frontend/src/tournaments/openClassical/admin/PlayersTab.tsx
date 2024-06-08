@@ -17,7 +17,6 @@ import {
     GridActionsCellItem,
     GridColDef,
     GridToolbarContainer,
-    GridValueFormatterParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -28,6 +27,13 @@ import {
     OpenClassicalPlayer,
     OpenClassicalPlayerStatus,
 } from '../../../database/tournament';
+
+declare module '@mui/x-data-grid' {
+    interface ToolbarPropsOverrides {
+        region: string;
+        ratingRange: string;
+    }
+}
 
 export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
     {
@@ -47,12 +53,12 @@ export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
     {
         field: 'byeRequests',
         headerName: 'Bye Requests',
-        valueFormatter(params: GridValueFormatterParams<boolean[] | undefined>) {
-            if (!params.value) {
+        valueFormatter(value: boolean[]) {
+            if (!value) {
                 return null;
             }
 
-            return params.value
+            return value
                 .map((v, idx) => (v ? idx + 1 : false))
                 .filter((v) => v !== false)
                 .join(', ');
@@ -63,8 +69,8 @@ export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
     {
         field: 'status',
         headerName: 'Status',
-        valueFormatter(params: GridValueFormatterParams<OpenClassicalPlayerStatus>) {
-            switch (params.value) {
+        valueFormatter(value: OpenClassicalPlayerStatus) {
+            switch (value) {
                 case OpenClassicalPlayerStatus.Active:
                     return 'Active';
                 case OpenClassicalPlayerStatus.Withdrawn:

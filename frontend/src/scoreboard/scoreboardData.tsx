@@ -1,10 +1,5 @@
-import {
-    GridColDef,
-    GridRenderCellParams,
-    GridValueGetterParams,
-} from '@mui/x-data-grid-pro';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
 import React, { useState } from 'react';
-
 import { Graduation, isGraduation } from '../database/graduation';
 import {
     Requirement,
@@ -75,12 +70,8 @@ export function getColumnDefinition(
 ): GridColDef<ScoreboardRow> {
     const totalCount = requirement.counts[cohort] || 0;
 
-    const valueGetter = (params: GridValueGetterParams<ScoreboardRow>) => {
-        return getCurrentCount(
-            cohort,
-            requirement,
-            getProgress(params.row)[requirement.id],
-        );
+    const valueGetter = (_value: never, row: ScoreboardRow) => {
+        return getCurrentCount(cohort, requirement, getProgress(row)[requirement.id]);
     };
 
     const renderCell = (params: GridRenderCellParams<ScoreboardRow>) => {
@@ -140,7 +131,7 @@ export function getColumnDefinition(
 }
 
 export function getCohortScore(
-    params: GridValueGetterParams<ScoreboardRow>,
+    row: ScoreboardRow,
     cohort: string | undefined,
     requirements: Requirement[],
 ): number {
@@ -148,7 +139,7 @@ export function getCohortScore(
         return 0;
     }
 
-    const progress = getProgress(params.row);
+    const progress = getProgress(row);
     let score = 0;
     for (const requirement of requirements) {
         score += getCurrentScore(cohort, requirement, progress[requirement.id]);
@@ -157,7 +148,7 @@ export function getCohortScore(
 }
 
 export function getTotalTime(
-    params: GridValueGetterParams<ScoreboardRow>,
+    row: ScoreboardRow,
     cohort: string | undefined,
     nonDojoOnly: boolean,
     requirements: Requirement[],
@@ -173,11 +164,8 @@ export function getTotalTime(
     );
 
     let result = 0;
-    for (const progress of Object.values(getProgress(params.row))) {
-        if (
-            progress.minutesSpent[cohort] &&
-            requirementIds.has(progress.requirementId)
-        ) {
+    for (const progress of Object.values(getProgress(row))) {
+        if (progress.minutesSpent[cohort] && requirementIds.has(progress.requirementId)) {
             result += progress.minutesSpent[cohort];
         }
     }
@@ -185,7 +173,7 @@ export function getTotalTime(
 }
 
 export function getCategoryScore(
-    params: GridValueGetterParams<ScoreboardRow>,
+    row: ScoreboardRow,
     cohort: string | undefined,
     category: string,
     requirements: Requirement[],
@@ -194,7 +182,7 @@ export function getCategoryScore(
         return 0;
     }
 
-    const progress = getProgress(params.row);
+    const progress = getProgress(row);
     let score = 0;
     for (const requirement of requirements) {
         if (requirement.category === category) {
@@ -205,7 +193,7 @@ export function getCategoryScore(
 }
 
 export function getPercentComplete(
-    params: GridValueGetterParams<ScoreboardRow>,
+    row: ScoreboardRow,
     cohort: string | undefined,
     requirements: Requirement[],
 ): number {
@@ -214,7 +202,7 @@ export function getPercentComplete(
     }
 
     const totalScore = getTotalScore(cohort, requirements);
-    const userScore = getCohortScore(params, cohort, requirements);
+    const userScore = getCohortScore(row, cohort, requirements);
     return (userScore / totalScore) * 100;
 }
 
@@ -222,51 +210,46 @@ export function formatPercentComplete(value: number) {
     return `${Math.round(value)}%`;
 }
 
-export function getRatingSystem(params: GridValueGetterParams<ScoreboardRow>) {
+export function getRatingSystem(row: ScoreboardRow) {
     if (
-        params.row.ratingSystem === RatingSystem.Custom &&
-        !isGraduation(params.row) &&
-        params.row.ratings[RatingSystem.Custom]?.name
+        row.ratingSystem === RatingSystem.Custom &&
+        !isGraduation(row) &&
+        row.ratings[RatingSystem.Custom]?.name
     ) {
-        return `Custom (${params.row.ratings[RatingSystem.Custom].name})`;
+        return `Custom (${row.ratings[RatingSystem.Custom].name})`;
     }
-    return formatRatingSystem(params.row.ratingSystem);
+    return formatRatingSystem(row.ratingSystem);
 }
 
-export function getStartRating(params: GridValueGetterParams<ScoreboardRow>): number {
-    if (isGraduation(params.row)) {
-        return params.row.startRating;
+export function getStartRating(row: ScoreboardRow): number {
+    if (isGraduation(row)) {
+        return row.startRating;
     }
 
-    return getUserStartRating(params.row);
+    return getUserStartRating(row);
 }
 
-export function getCurrentRating(params: GridValueGetterParams<ScoreboardRow>): number {
-    if (isGraduation(params.row)) {
-        return params.row.currentRating;
+export function getCurrentRating(row: ScoreboardRow): number {
+    if (isGraduation(row)) {
+        return row.currentRating;
     }
 
-    return getUserCurrentRating(params.row);
+    return getUserCurrentRating(row);
 }
 
-export function getRatingChange(params: GridValueGetterParams<ScoreboardRow>) {
-    const startRating = getStartRating(params);
-    const currentRating = getCurrentRating(params);
+export function getRatingChange(row: ScoreboardRow) {
+    const startRating = getStartRating(row);
+    const currentRating = getCurrentRating(row);
     return currentRating - startRating;
 }
 
-export function getNormalizedRating(
-    params: GridValueGetterParams<ScoreboardRow>,
-): number {
-    return normalizeToFide(getCurrentRating(params), params.row.ratingSystem);
+export function getNormalizedRating(row: ScoreboardRow): number {
+    return normalizeToFide(getCurrentRating(row), row.ratingSystem);
 }
 
-export function getMinutesSpent(
-    params: GridValueGetterParams<ScoreboardRow>,
-    key: MinutesSpentKey,
-): number {
-    if (isGraduation(params.row)) {
+export function getMinutesSpent(row: ScoreboardRow, key: MinutesSpentKey): number {
+    if (isGraduation(row)) {
         return 0;
     }
-    return params.row.minutesSpent ? params.row.minutesSpent[key] || 0 : 0;
+    return row.minutesSpent ? row.minutesSpent[key] || 0 : 0;
 }

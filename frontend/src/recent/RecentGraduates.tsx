@@ -7,13 +7,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import {
-    DataGridPro,
-    GridColDef,
-    GridRenderCellParams,
-    GridValueFormatterParams,
-    GridValueGetterParams,
-} from '@mui/x-data-grid-pro';
+import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -98,11 +92,11 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         align: 'center',
         headerAlign: 'center',
         minWidth: 150,
-        valueGetter: (params: GridValueGetterParams<Graduation>) => {
-            if (params.row.graduationCohorts && params.row.graduationCohorts.length > 0) {
-                return params.row.graduationCohorts;
+        valueGetter: (_value, row) => {
+            if (row.graduationCohorts && row.graduationCohorts.length > 0) {
+                return row.graduationCohorts;
             }
-            return params.row.previousCohort;
+            return row.previousCohort;
         },
         renderCell: (params: GridRenderCellParams<Graduation>) => {
             let graduationCohorts = params.row.graduationCohorts;
@@ -129,8 +123,8 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         minWidth: 150,
         headerAlign: 'center',
         align: 'center',
-        valueGetter: (params: GridValueGetterParams<Graduation>) => {
-            return parseInt(params.row.previousCohort.split('-')[0]);
+        valueGetter: (_value, row) => {
+            return parseInt(row.previousCohort.split('-')[0]);
         },
         renderCell: (params: GridRenderCellParams<Graduation>) => {
             return params.row.previousCohort;
@@ -142,8 +136,8 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         minWidth: 150,
         headerAlign: 'center',
         align: 'center',
-        valueGetter: (params: GridValueGetterParams<Graduation>) => {
-            return parseInt(params.row.newCohort.replaceAll('+', '').split('-')[0]);
+        valueGetter: (_value, row) => {
+            return parseInt(row.newCohort.replaceAll('+', '').split('-')[0]);
         },
         renderCell: (params: GridRenderCellParams<Graduation>) => {
             return params.row.newCohort;
@@ -154,18 +148,14 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         headerName: 'Dojo Score',
         headerAlign: 'center',
         align: 'center',
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            return Math.round(params.value * 100) / 100;
-        },
+        valueFormatter: (value) => Math.round(value * 100) / 100,
     },
     {
         field: 'createdAt',
         headerName: 'Date',
         headerAlign: 'center',
         align: 'center',
-        valueFormatter: (params: GridValueFormatterParams<string>) => {
-            return new Date(params.value).toLocaleDateString();
-        },
+        valueFormatter: (value) => new Date(value).toLocaleDateString(),
     },
     {
         field: 'comments',

@@ -14,7 +14,6 @@ import {
     GridColDef,
     GridRenderCellParams,
     GridRowModel,
-    GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -24,17 +23,17 @@ import { RatingSystem, User } from '../../database/user';
 import Avatar from '../../profile/Avatar';
 import ScoreboardViewSelector from '../ScoreboardViewSelector';
 
-const AllColumns: GridColDef[] = [
+const AllColumns: GridColDef<User>[] = [
     {
         field: 'dojoCohort',
         headerName: 'Cohort',
-        valueGetter: (params: GridValueGetterParams<User>) => params.row.dojoCohort,
+        valueGetter: (_value, row: User) => row.dojoCohort,
         minWidth: 125,
     },
     {
         field: 'display',
         headerName: 'Display Name',
-        valueGetter: (params: GridValueGetterParams<User>) => params.row.displayName,
+        valueGetter: (_value, row: User) => row.displayName,
         renderCell: (params: GridRenderCellParams<User, string>) => {
             return (
                 <Stack direction='row' spacing={1} alignItems='center'>
@@ -55,64 +54,56 @@ const AllColumns: GridColDef[] = [
     {
         field: 'discord',
         headerName: 'Discord Username',
-        valueGetter: (params: GridValueGetterParams<User>) => params.row.discordUsername,
+        valueGetter: (_value, row: User) => row.discordUsername,
         flex: 1,
     },
     {
         field: RatingSystem.Chesscom,
         headerName: 'Chess.com Username',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.ratings[RatingSystem.Chesscom]?.username,
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Chesscom]?.username,
         flex: 1,
         minWidth: 175,
     },
     {
         field: RatingSystem.Lichess,
         headerName: 'Lichess Username',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.ratings[RatingSystem.Lichess]?.username,
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Lichess]?.username,
         flex: 1,
     },
     {
         field: RatingSystem.Fide,
         headerName: 'FIDE ID',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.ratings[RatingSystem.Fide]?.username,
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Fide]?.username,
         flex: 1,
     },
     {
         field: RatingSystem.Uscf,
         headerName: 'USCF ID',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.ratings[RatingSystem.Uscf]?.username,
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Uscf]?.username,
         flex: 1,
     },
     {
         field: RatingSystem.Cfc,
         headerName: 'CFC ID',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.ratings[RatingSystem.Cfc]?.username,
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Cfc]?.username,
         flex: 1,
     },
     {
         field: RatingSystem.Ecf,
         headerName: 'ECF ID',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.ratings[RatingSystem.Ecf]?.username,
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Ecf]?.username,
         flex: 1,
     },
     {
         field: RatingSystem.Dwz,
         headerName: 'DWZ ID',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.ratings[RatingSystem.Dwz]?.username,
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Dwz]?.username,
         flex: 1,
     },
     {
         field: RatingSystem.Acf,
         headerName: 'ACF ID',
-        valueGetter: (params: GridValueGetterParams<User>) =>
-            params.row.ratings[RatingSystem.Acf]?.username,
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Acf]?.username,
         flex: 1,
     },
 ];
