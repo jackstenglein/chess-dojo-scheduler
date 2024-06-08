@@ -2,7 +2,7 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Board from '../../board/Board';
-import { LigaTournament, displayTournamentType } from '../../database/event';
+import { Event, displayTournamentType } from '../../database/event';
 import Icon from '../../style/Icon';
 
 function getLigaIconBasedOnTimeControl(timeControl: number) {
@@ -34,7 +34,8 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
         }, 250);
     }, [setDisplayPosition]);
 
-    const ligaTournament: LigaTournament = processedEvent.event.ligaTournament;
+    const event = processedEvent.event as Event;
+    const ligaTournament = event.ligaTournament;
     if (!ligaTournament) {
         return null;
     }
@@ -46,7 +47,7 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
                 {displayTournamentType(ligaTournament.type)}
             </Typography>
 
-            {processedEvent.event.location && (
+            {event.location && (
                 <Stack>
                     <Typography variant='h6' color='text.secondary'>
                         <Icon
@@ -58,16 +59,16 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
                     </Typography>
                     <Link
                         variant='body1'
-                        href={processedEvent.event.location}
+                        href={event.location}
                         target='_blank'
                         rel='noreferrer'
                     >
-                        {processedEvent.event.location}
+                        {event.location}
                     </Link>
                 </Stack>
             )}
 
-            {processedEvent.event.description && (
+            {event.description && (
                 <Stack>
                     <Typography variant='h6' color='text.secondary'>
                         <Icon
@@ -78,7 +79,7 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
                         Description
                     </Typography>
                     <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
-                        {processedEvent.event.description}
+                        {event.description}
                     </Typography>
                 </Stack>
             )}

@@ -97,21 +97,24 @@ export function validateAvailabilityEditor(
     if (Object.entries(errors).length > 0) {
         return [null, errors];
     }
+    if (!editor.start || !editor.end) {
+        return [null, errors];
+    }
 
     const startTime = getTimeZonedDate(
-        editor.start!.toJSDate(),
+        editor.start.toJSDate(),
         user.timezoneOverride,
         'forward',
     ).toISOString();
     const endTime = getTimeZonedDate(
-        editor.end!.toJSDate(),
+        editor.end.toJSDate(),
         user.timezoneOverride,
         'forward',
     ).toISOString();
 
     return [
         {
-            ...(originalEvent?.event ?? {}),
+            ...((originalEvent?.event as Event) ?? {}),
             type: editor.type,
             owner: user.username,
             ownerDisplayName: user.displayName,

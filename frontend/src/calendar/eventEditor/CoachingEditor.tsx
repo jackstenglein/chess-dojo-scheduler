@@ -12,7 +12,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/Auth';
 import { Event, EventStatus } from '../../database/event';
-import { dojoCohorts, User } from '../../database/user';
+import { User, dojoCohorts } from '../../database/user';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
@@ -108,25 +108,28 @@ export function validateCoachingEditor(
     if (Object.entries(errors).length > 0) {
         return [null, errors];
     }
+    if (!editor.start || !editor.end) {
+        return [null, errors];
+    }
 
     const selectedCohorts = editor.allCohorts
         ? dojoCohorts
         : dojoCohorts.filter((c) => editor.cohorts[c]);
 
     const startTime = getTimeZonedDate(
-        editor.start!.toJSDate(),
+        editor.start.toJSDate(),
         user.timezoneOverride,
         'forward',
     ).toISOString();
     const endTime = getTimeZonedDate(
-        editor.end!.toJSDate(),
+        editor.end.toJSDate(),
         user.timezoneOverride,
         'forward',
     ).toISOString();
 
     return [
         {
-            ...(originalEvent?.event ?? {}),
+            ...((originalEvent?.event as Event) ?? {}),
             type: editor.type,
             owner: user.username,
             ownerDisplayName: user.displayName,
@@ -142,7 +145,7 @@ export function validateCoachingEditor(
             description: editor.description.trim(),
             maxParticipants,
             coaching: {
-                stripeId: user.coachInfo?.stripeId,
+                stripeId: user.coachInfo?.stripeId || '',
                 fullPrice,
                 currentPrice,
                 bookableByFreeUsers: editor.bookableByFreeUsers,
@@ -158,10 +161,10 @@ interface CoachingEditorProps {
 }
 
 const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const navigate = useNavigate();
 
-    if (!user.coachInfo?.onboardingComplete || !user.coachInfo.stripeId) {
+    if (!user?.coachInfo?.onboardingComplete || !user.coachInfo.stripeId) {
         return (
             <Alert
                 severity='error'

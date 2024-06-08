@@ -44,14 +44,14 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
     const onChangeTimezone = (tz: string) => {
         setTimezone(tz);
         if (auth.user) {
-            api.updateUser({ timezoneOverride: tz });
+            void api.updateUser({ timezoneOverride: tz });
         }
     };
 
     const onChangeTimeFormat = (format: TimeFormat) => {
         setTimeFormat(format);
         if (auth.user) {
-            api.updateUser({ timeFormat: format });
+            void api.updateUser({ timeFormat: format });
         }
     };
 

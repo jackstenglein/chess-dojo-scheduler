@@ -21,7 +21,7 @@ import { EventType as AnalyticsEventType, trackEvent } from '../../analytics/eve
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useCache } from '../../api/cache/Cache';
-import { useAuth } from '../../auth/Auth';
+import { useRequiredAuth } from '../../auth/Auth';
 import { Event, EventType } from '../../database/event';
 import Icon from '../../style/Icon';
 import AvailabilityEditor, { validateAvailabilityEditor } from './AvailabilityEditor';
@@ -48,12 +48,16 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
     const defaultEnd = scheduler.state.end.value as Date;
 
     const api = useApi();
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
 
     const cache = useCache();
     const request = useRequest();
 
-    const editor = useEventEditor(defaultStart, defaultEnd, originalEvent?.event);
+    const editor = useEventEditor(
+        defaultStart,
+        defaultEnd,
+        originalEvent?.event as Event,
+    );
 
     const onSubmit = async () => {
         let event: Event | null = null;
@@ -131,7 +135,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                     <Button
                         data-cy='cancel-button'
                         color='error'
-                        onClick={scheduler.close}
+                        onClick={() => scheduler.close()}
                         disabled={request.isLoading()}
                         startIcon={<Icon name='cancel' />}
                     >
@@ -141,7 +145,9 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                         data-cy='save-button'
                         color='success'
                         loading={request.isLoading()}
-                        onClick={onSubmit}
+                        onClick={() => {
+                            void onSubmit();
+                        }}
                         startIcon={<Icon name='save' />}
                     >
                         Save

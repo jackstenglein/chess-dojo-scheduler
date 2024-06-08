@@ -4,14 +4,12 @@ import { useAuth } from '../../auth/Auth';
 import { AvailabilityType, Event, EventType } from '../../database/event';
 import { dojoCohorts } from '../../database/user';
 
-const ONE_HOUR = 60 * 60 * 1000;
-
 /**
  * Returns true if the provided object is a valid date.
  * @param d The object to check.
  * @returns True if the object is a valid date.
  */
-export function isValidDate(d: any) {
+export function isValidDate(d: unknown) {
     return d instanceof Date && !isNaN(d.getTime());
 }
 
@@ -198,7 +196,7 @@ export default function useEventEditor(
     initialEnd: Date,
     initialEvent?: Event,
 ): UseEventEditorResponse {
-    const user = useAuth().user!;
+    const { user } = useAuth();
 
     const [type, setType] = useState<EventType>(
         initialEvent?.type ?? EventType.Availability,
@@ -240,17 +238,13 @@ export default function useEventEditor(
         [setAvailabilityTypes],
     );
 
-    const userCohortIndex = dojoCohorts.findIndex((c) => c === user.dojoCohort);
+    const userCohortIndex = dojoCohorts.findIndex((c) => c === user?.dojoCohort);
     const [allCohorts, setAllCohorts] = useState(false);
     const [cohorts, setCohorts] = useState<Record<string, boolean>>(
-        dojoCohorts.reduce<Record<string, boolean>>(
-            (map, cohort, index) => {
-                map[cohort] =
-                    userCohortIndex >= 0 && Math.abs(index - userCohortIndex) <= 1;
-                return map;
-            },
-            {},
-        ),
+        dojoCohorts.reduce<Record<string, boolean>>((map, cohort, index) => {
+            map[cohort] = userCohortIndex >= 0 && Math.abs(index - userCohortIndex) <= 1;
+            return map;
+        }, {}),
     );
     const setCohort = useCallback(
         (cohort: string, value: boolean) => {

@@ -1,22 +1,17 @@
 import { Alert, Snackbar } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-
 import { useCache } from '../api/cache/Cache';
-import LoadingPage from '../loading/LoadingPage';
 import { EventType } from '../database/event';
+import LoadingPage from '../loading/LoadingPage';
 import AvailabilityBooker from './AvailabilityBooker';
 import CoachingBooker from './CoachingBooker';
 
-interface EventBookerProps {
-    id: string;
-}
-
 const EventBooker = () => {
     const navigate = useNavigate();
-
-    const { id } = useParams<EventBookerProps>();
+    const { id } = useParams();
     const cache = useCache();
-    const event = cache.events.get(id!);
+
+    const event = cache.events.get(id || '');
 
     if (!event) {
         if (cache.isLoading) {
