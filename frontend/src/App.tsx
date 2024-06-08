@@ -1,6 +1,6 @@
-import { LicenseInfo } from '@mui/x-data-grid-pro';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { LicenseInfo } from '@mui/x-license';
 import { Amplify, Hub } from 'aws-amplify';
 import { useEffect } from 'react';
 import {

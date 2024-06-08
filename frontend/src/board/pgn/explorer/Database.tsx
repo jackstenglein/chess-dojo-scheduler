@@ -46,10 +46,10 @@ const getBackgroundColor = (color: string, mode: string) =>
 const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
     ({ theme }) => ({
         '& .chess-dojo-explorer--total': {
-            backgroundColor: getBackgroundColor(
+            backgroundColor: `${getBackgroundColor(
                 theme.palette.info.main,
                 theme.palette.mode,
-            ),
+            )} !important`,
         },
     }),
 );
@@ -152,7 +152,7 @@ const Database: React.FC<DatabaseProps> = ({
                     >,
                 ) => {
                     if (params.value === 'Total') {
-                        return <FunctionsIcon fontSize='small' />;
+                        return <FunctionsIcon fontSize='small' sx={{ height: 1 }} />;
                     }
                     return params.value;
                 },
@@ -407,62 +407,64 @@ const ResultGraph: React.FC<ResultGraphProps> = ({ totalGames, resultCount }) =>
     }
 
     return (
-        <Stack
-            direction='row'
-            sx={{
-                width: 1,
-                border: 1,
-                borderColor: 'divider',
-                borderRadius: '3px',
-                overflow: 'hidden',
-            }}
-        >
-            {resultKeys.map((k) => {
-                const count = resultCount[k];
-                const percentage = (100 * count) / totalGames;
-                if (count === 0) {
-                    return null;
-                }
+        <Stack sx={{ height: 1, justifyContent: 'center' }}>
+            <Stack
+                direction='row'
+                sx={{
+                    width: 1,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: '3px',
+                    overflow: 'hidden',
+                }}
+            >
+                {resultKeys.map((k) => {
+                    const count = resultCount[k];
+                    const percentage = (100 * count) / totalGames;
+                    if (count === 0) {
+                        return null;
+                    }
 
-                return (
-                    <Tooltip
-                        key={k}
-                        title={
-                            <Box sx={{ textAlign: 'center' }}>
-                                {k[0].toUpperCase()}
-                                {k.substring(1)}
-                                <br />
-                                {count.toLocaleString()} Game{count !== 1 ? 's' : ''}
-                                <br />
-                                {Math.round(percentage * 10) / 10}%
-                            </Box>
-                        }
-                    >
-                        <Box
-                            sx={{
-                                width: `${percentage}%`,
-                                minWidth: '26px',
-                                backgroundColor: resultGraphColors[k],
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'end',
-                                overflow: 'hidden',
-                                height: '16px',
-                            }}
+                    return (
+                        <Tooltip
+                            key={k}
+                            title={
+                                <Box sx={{ textAlign: 'center' }}>
+                                    {k[0].toUpperCase()}
+                                    {k.substring(1)}
+                                    <br />
+                                    {count.toLocaleString()} Game{count !== 1 ? 's' : ''}
+                                    <br />
+                                    {Math.round(percentage * 10) / 10}%
+                                </Box>
+                            }
                         >
-                            <Typography
+                            <Box
                                 sx={{
-                                    fontSize: '0.8rem',
-                                    lineHeight: '14px',
-                                    color: resultGraphTextColors[k],
+                                    width: `${percentage}%`,
+                                    minWidth: '26px',
+                                    backgroundColor: resultGraphColors[k],
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'end',
+                                    overflow: 'hidden',
+                                    height: '16px',
                                 }}
                             >
-                                {Math.round(percentage)}%
-                            </Typography>
-                        </Box>
-                    </Tooltip>
-                );
-            })}
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.8rem',
+                                        lineHeight: '14px',
+                                        color: resultGraphTextColors[k],
+                                    }}
+                                >
+                                    {Math.round(percentage)}%
+                                </Typography>
+                            </Box>
+                        </Tooltip>
+                    );
+                })}
+            </Stack>
         </Stack>
     );
 };
