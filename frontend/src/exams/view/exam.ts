@@ -8,11 +8,10 @@ import { Exam, ExamAnswer, ExamType } from '../../database/exam';
 import { Requirement } from '../../database/requirement';
 import {
     ALL_COHORTS,
+    User,
     compareCohorts,
-    isCohortGreater,
     isCohortInRange,
     isCohortLess,
-    User,
 } from '../../database/user';
 
 /**
@@ -249,9 +248,7 @@ export function calculateTacticsRating(
         });
     }
 
-    if (isCohortGreater(user.dojoCohort, '1400-1500')) {
-        rating.components.push(...getExamRating(user, ExamType.Tactics));
-    }
+    rating.components.push(...getExamRating(user, ExamType.Tactics));
 
     const countedComponents = rating.components.filter((c) => c.rating >= 0);
     if (countedComponents.length > 0) {
@@ -341,10 +338,9 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
         .filter(
             (e) =>
                 e.examType === examType &&
-                // If a user is above the cohort range for a series of tests,
-                // we don't count it, as it could potentially give them an inflated score.
-                (isCohortInRange(user.dojoCohort, e.cohortRange) ||
-                    isCohortLess(user.dojoCohort, e.cohortRange)),
+                // If a user is not in the cohort range for a series of tests,
+                // we don't count it, as it could potentially give them an inflated/deflated score.
+                isCohortInRange(user.dojoCohort, getBestFitCohortRange(e.cohortRange)),
         )
         .sort((lhs, rhs) => rhs.createdAt.localeCompare(lhs.createdAt))
         .slice(0, numberOfExams);
@@ -360,7 +356,7 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
             {
                 name: `${displayExamType(examType)}s`,
                 rating,
-                description: `The average of the 3 most recent ${displayExamType(examType)} ratings`,
+                description: `The average of the 3 most recent ${displayExamType(examType)} ratings. Only tests within the proper cohort range are counted.`,
             },
         ];
     }
@@ -369,17 +365,17 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
         {
             name: 'Test 1',
             rating: countedExams[0]?.rating ?? -1,
-            description: `The most recent ${displayExamType(examType)} rating`,
+            description: `The most recent ${displayExamType(examType)} rating. Only tests within the proper cohort range are counted.`,
         },
         {
             name: 'Test 2',
             rating: countedExams[1]?.rating ?? -1,
-            description: `The second-most recent ${displayExamType(examType)} rating`,
+            description: `The second-most recent ${displayExamType(examType)} rating. Only tests within the proper cohort range are counted.`,
         },
         {
             name: 'Test 3',
             rating: countedExams[2]?.rating ?? -1,
-            description: `The third-most recent ${displayExamType(examType)} rating`,
+            description: `The third-most recent ${displayExamType(examType)} rating. Only tests within the proper cohort range are counted.`,
         },
     ];
 }
@@ -394,5 +390,7 @@ function displayExamType(examType: ExamType): string {
             return 'Tactics Test';
         case ExamType.Polgar:
             return 'Polgar Mate Test';
+        case ExamType.Endgame:
+            return 'Endgame Test';
     }
 }
