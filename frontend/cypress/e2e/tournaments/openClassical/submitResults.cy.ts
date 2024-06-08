@@ -190,9 +190,15 @@ describe('Submit Results Page', () => {
         cy.getBySel('report-opponent').should('not.exist');
     });
 
-    it.only('redirects to details page on submit', () => {
+    it('redirects to details page on submit', () => {
         cy.interceptApi('POST', '/public/tournaments/open-classical/results', {
-            body: {},
+            body: {
+                sections: {
+                    A_U1800: {
+                        rounds: [],
+                    },
+                },
+            },
         });
 
         cy.getBySel('email').type('test@example.com');

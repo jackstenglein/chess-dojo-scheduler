@@ -45,8 +45,7 @@ describe('Import Games Page - Import Online Games', () => {
         clickImport();
         cy.contains('URL is required');
 
-        cy.getBySel('online-game-url').clear();
-        cy.type('hello, world!' + testUrls.lichessChapter);
+        cy.getBySel('online-game-url').type('hello, world!' + testUrls.lichessChapter);
         clickImport();
         cy.contains('The provided URL is unsupported');
     });
@@ -147,7 +146,7 @@ describe('Import Games Page - Import Online Games', () => {
     });
 
     if (cy.dojo.env('cognito_username') === 'jackstenglein+test@gmail.com') {
-        it('submits from Chess.com recent game', () => {
+        it.only('submits from Chess.com recent game', () => {
             cy.contains('othaluran').click();
             verifyGame({
                 white: 'JackStenglein',

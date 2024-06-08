@@ -19,7 +19,7 @@ import { useAuth } from '../auth/Auth';
 import { FollowerEntry } from '../database/follower';
 import { User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
-import PawnIcon from '../navbar/PawnIcon';
+import { PawnIcon } from '../style/ChessIcons';
 import GamesTab from './GamesTab';
 import GraduationDialog from './GraduationDialog';
 import ActivityTab from './activity/ActivityTab';

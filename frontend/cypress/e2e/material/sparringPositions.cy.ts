@@ -53,7 +53,7 @@ describe('Sparring Positions Tab', () => {
 
         cy.window()
             .its('navigator.clipboard')
-            .invoke('readText')
+            .then((clip: Clipboard) => clip.readText())
             .should(
                 'equal',
                 '2r2rk1/pb1nbppp/1p2pn2/2pp4/3P1B2/2PBPN2/PP3PPP/RN1QR1K1 w - - 0 1',
