@@ -44,7 +44,7 @@ const ListClubsPage = () => {
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs
                         value={searchParams.get('view') || 'all'}
-                        onChange={(_, t) => setSearchParams({ view: t })}
+                        onChange={(_, t: string) => setSearchParams({ view: t })}
                         variant='scrollable'
                     >
                         <Tab label='All Clubs' value='all' />

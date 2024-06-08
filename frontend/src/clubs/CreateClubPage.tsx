@@ -1,3 +1,4 @@
+import { Delete, Upload } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -13,26 +14,23 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
-import { Delete, Upload } from '@mui/icons-material';
 import { useApi } from '../api/Api';
-import { useCache } from '../api/cache/Cache';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { useCache } from '../api/cache/Cache';
 import { ClubDetails } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
 import { ClubAvatar } from '../profile/Avatar';
 import {
-    encodeFileToBase64,
     MAX_PROFILE_PICTURE_SIZE_MB,
+    encodeFileToBase64,
 } from '../profile/editor/ProfileEditorPage';
-import { ClubDetailsParams } from './ClubDetailsPage';
 
 const CreateClubPage = () => {
     const api = useApi();
     const getRequest = useRequest<ClubDetails>();
     const saveRequest = useRequest();
     const navigate = useNavigate();
-    const { id } = useParams<ClubDetailsParams>();
+    const { id } = useParams();
     const { setImageBypass } = useCache();
 
     const [name, setName] = useState('');
@@ -82,7 +80,7 @@ const CreateClubPage = () => {
 
     const onChangePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (files && files.length) {
+        if (files?.length) {
             if (files[0].size / 1024 / 1024 > MAX_PROFILE_PICTURE_SIZE_MB) {
                 saveRequest.onFailure({ message: 'Logo must be 9MB or smaller' });
                 return;
