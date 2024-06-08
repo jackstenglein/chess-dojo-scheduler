@@ -1,9 +1,8 @@
 import { TabContext, TabPanel } from '@mui/lab';
 import { Box, Container, Tab, Tabs } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
-
-import UpcomingSessions from './UpcomingSessions';
 import CoachesTab from './CoachesTab';
+import UpcomingSessions from './UpcomingSessions';
 
 const CoachingPage = () => {
     const [searchParams, setSearchParams] = useSearchParams({ view: 'sessions' });
@@ -14,7 +13,7 @@ const CoachingPage = () => {
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs
                         value={searchParams.get('view') || 'coaches'}
-                        onChange={(_, t) => setSearchParams({ view: t })}
+                        onChange={(_, t: string) => setSearchParams({ view: t })}
                         variant='scrollable'
                     >
                         <Tab label='Coaches' value='coaches' />

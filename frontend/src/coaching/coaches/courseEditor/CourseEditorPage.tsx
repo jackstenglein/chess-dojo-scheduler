@@ -26,7 +26,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { useAuth } from '../../../auth/Auth';
+import { useRequiredAuth } from '../../../auth/Auth';
 import { Course, CourseSellingPoint, CourseType } from '../../../database/course';
 import { dojoCohorts, getCohortRange } from '../../../database/user';
 import LoadingPage from '../../../loading/LoadingPage';
@@ -81,17 +81,12 @@ interface CourseEditorErrors {
     };
 }
 
-interface CourseEditorPageParams {
-    type: CourseType;
-    id: string;
-}
-
 const CourseEditorPage = () => {
-    const params = useParams<CourseEditorPageParams>();
+    const params = useParams();
     const request = useRequest<Course>();
     const saveRequest = useRequest<string>();
     const api = useApi();
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
 
     const [type, setType] = useState<CourseType>(CourseType.Opening);
     const [name, setName] = useState('');
@@ -791,6 +786,7 @@ const CourseEditorPage = () => {
                                     <Stack mt={2} spacing={3}>
                                         {option.sellingPoints.map((item, spIdx) => (
                                             <Stack
+                                                key={spIdx}
                                                 direction='row'
                                                 spacing={1}
                                                 alignItems='center'

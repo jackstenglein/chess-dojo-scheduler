@@ -21,7 +21,7 @@ export interface EventApiContextType {
     bookEvent: (
         id: string,
         startTime?: Date,
-        type?: string
+        type?: string,
     ) => Promise<AxiosResponse<BookEventResponse>>;
 
     /**
@@ -65,7 +65,7 @@ export interface EventApiContextType {
      * @param event The Event to save.
      * @returns An AxiosResponse containing the Event as saved in the database.
      */
-    setEvent: (event: Event) => Promise<AxiosResponse<Event>>;
+    setEvent: (event: Partial<Event>) => Promise<AxiosResponse<Event>>;
 
     /**
      * Adds the given message to the given event.
@@ -97,7 +97,7 @@ export function bookEvent(idToken: string, id: string, startTime?: Date, type?: 
             startTime: startTime?.toISOString(),
             type,
         },
-        { headers: { Authorization: 'Bearer ' + idToken } }
+        { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }
 
@@ -133,7 +133,7 @@ export function cancelEvent(idToken: string, id: string) {
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        }
+        },
     );
 }
 
@@ -190,7 +190,7 @@ export async function listEvents(idToken: string, startKey?: string) {
                           Authorization: 'Bearer ' + idToken,
                       }
                     : undefined,
-            }
+            },
         );
 
         result.push(...resp.data.events);
@@ -206,7 +206,7 @@ export async function listEvents(idToken: string, startKey?: string) {
  * @param event The Event to save.
  * @returns An AxiosResponse containing the Event as saved in the database.
  */
-export function setEvent(idToken: string, event: Event) {
+export function setEvent(idToken: string, event: Partial<Event>) {
     return axios.put<Event>(`${BASE_URL}/event`, event, {
         headers: {
             Authorization: 'Bearer ' + idToken,
@@ -226,7 +226,7 @@ export function createMessage(
     idToken: string,
     messager: User,
     id: string,
-    content: string
+    content: string,
 ) {
     const comment = {
         owner: messager.username,

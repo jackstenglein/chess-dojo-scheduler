@@ -259,7 +259,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             deleteEvent: (id: string) => deleteEvent(idToken, id),
             getEvent: (id: string) => getEvent(idToken, id),
             listEvents: (startKey?: string) => listEvents(idToken, startKey),
-            setEvent: (event: Event) => setEvent(idToken, event),
+            setEvent: (event: Partial<Event>) => setEvent(idToken, event),
             createMessage: (id: string, content: string) =>
                 createMessage(idToken, auth.user!, id, content),
 
