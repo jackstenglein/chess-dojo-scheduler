@@ -290,7 +290,7 @@ function Root() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        Hub.listen('auth', (data: any) => {
+        Hub.listen('auth', (data: { payload?: { event: string; data?: string } }) => {
             switch (data?.payload?.event) {
                 case 'customOAuthState':
                     if (data.payload.data) {

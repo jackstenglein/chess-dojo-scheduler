@@ -1,7 +1,6 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
-
 import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 import eslint from 'vite-plugin-eslint';
 
 export default defineConfig(() => {
@@ -20,7 +19,6 @@ export default defineConfig(() => {
             react(),
             eslint({
                 failOnError: false,
-                overrideConfigFile: './.eslintrc-baseline.json',
                 include: 'src',
             }),
         ],

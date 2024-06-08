@@ -82,7 +82,7 @@ class PgnErrorBoundary extends Component<
                     )}
 
                     <Typography variant='body1' color='error' whiteSpace='pre-line'>
-                        {this.state.error ? this.state.error.toString() : 'No error'}
+                        {this.state.error ? this.state.error.toString() : 'Null error'}
                         {this.state.info
                             ? this.state.info.componentStack
                             : 'No component stack'}
