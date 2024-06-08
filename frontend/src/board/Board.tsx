@@ -39,7 +39,7 @@ export function toDests(chess?: Chess): Map<Key, Key[]> {
     if (!chess) {
         return new Map();
     }
-    const dests = new Map();
+    const dests = new Map<Key, Key[]>();
     SQUARES.forEach((s) => {
         const moves = chess.moves({ square: s, verbose: true });
         if (moves) {

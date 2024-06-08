@@ -3,7 +3,7 @@ import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/ma
 import React, { useEffect, useRef, useState } from 'react';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import { useAuth } from '../../../../../auth/Auth';
+import { useRequiredAuth } from '../../../../../auth/Auth';
 import { PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../../PgnBoard';
@@ -14,7 +14,7 @@ export interface CommentEditorProps {
 }
 
 const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEditor }) => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
     const [comment, setComment] = useState('');
     const request = useRequest();

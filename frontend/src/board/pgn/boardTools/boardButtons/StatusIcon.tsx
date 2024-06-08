@@ -3,25 +3,24 @@ import { CloudDone, CloudOff } from '@mui/icons-material';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import debounce from 'lodash.debounce';
 import { useEffect, useMemo, useRef, useState } from 'react';
-
 import { EventType, trackEvent } from '../../../../analytics/events';
 import { useApi } from '../../../../api/Api';
-import { GameSubmissionType } from '../../../../api/gameApi';
 import { RequestSnackbar, useRequest } from '../../../../api/Request';
+import { GameSubmissionType } from '../../../../api/gameApi';
 import { useAuth } from '../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../calendar/displayDate';
 import { Game } from '../../../../database/game';
 import { useChess } from '../../PgnBoard';
 
-export const useDebounce = (callback: (...args: any) => void, delay = 6000) => {
-    const ref = useRef<any>();
+export function useDebounce<T>(callback: (...args: T[]) => void, delay = 6000) {
+    const ref = useRef<(...args: T[]) => void>();
 
     useEffect(() => {
         ref.current = callback;
     }, [callback]);
 
     const debouncedCallback = useMemo(() => {
-        const func = (...args: any) => {
+        const func = (...args: T[]) => {
             ref.current?.(...args);
         };
 
@@ -29,7 +28,7 @@ export const useDebounce = (callback: (...args: any) => void, delay = 6000) => {
     }, [delay]);
 
     return debouncedCallback;
-};
+}
 
 interface StatusIconProps {
     game: Game;
@@ -132,10 +131,10 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                     title={
                         request.data || game.updatedAt
                             ? `Last saved at ${toDojoDateString(
-                                  request.data || new Date(game.updatedAt!),
+                                  request.data || new Date(game.updatedAt || ''),
                                   user?.timezoneOverride,
                               )} ${toDojoTimeString(
-                                  request.data || new Date(game.updatedAt!),
+                                  request.data || new Date(game.updatedAt || ''),
                                   user?.timezoneOverride,
                                   user?.timeFormat,
                               )}`

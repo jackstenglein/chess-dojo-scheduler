@@ -12,7 +12,7 @@ interface ResizeHandleProps {
     visibility?: 'hidden';
 }
 
-const ResizeHandle = forwardRef<any, ResizeHandleProps>((props, ref) => {
+const ResizeHandle = forwardRef<HTMLSpanElement, ResizeHandleProps>((props, ref) => {
     const { dark, position, right, bottom, fontSize, visibility, ...others } = props;
     return (
         <span
@@ -40,5 +40,6 @@ const ResizeHandle = forwardRef<any, ResizeHandleProps>((props, ref) => {
         </span>
     );
 });
+ResizeHandle.displayName = 'ResizeHandle';
 
 export default ResizeHandle;

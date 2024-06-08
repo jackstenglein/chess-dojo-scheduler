@@ -22,7 +22,7 @@ interface VariationDialogProps {
 
 const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
     const [selected, setSelected] = useState(0);
-    const { chess, board } = useChess();
+    const { chess } = useChess();
     const reconcile = useReconcile();
 
     const selectMove = useCallback(
@@ -31,7 +31,7 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
             reconcile();
             setMove(null);
         },
-        [chess, board, setMove, reconcile],
+        [chess, setMove, reconcile],
     );
 
     useEffect(() => {

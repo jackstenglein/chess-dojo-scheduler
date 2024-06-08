@@ -2,6 +2,7 @@ import { EventType, TAGS } from '@jackstenglein/chess';
 import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
+    GridCellParams,
     GridColDef,
     GridEditInputCell,
     GridEditSingleSelectCell,
@@ -71,7 +72,9 @@ const columns: GridColDef<TagRow>[] = [
                 );
             }
 
-            return params.row.value.toString();
+            if (typeof params.row.value === 'string') {
+                return params.row.value;
+            }
         },
         renderEditCell: (params) => <CustomEditComponent {...params} />,
     },
@@ -91,7 +94,11 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
                         return value;
                     },
                     getOptionLabel(value) {
-                        return value.toString();
+                        if (typeof value === 'string') {
+                            return value;
+                        }
+                        // This should not happen but is required by eslint
+                        return '';
                     },
                 }}
             />
@@ -203,7 +210,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     columnHeaders: () => null,
                     footer: () => null,
                 }}
-                isCellEditable={(params) => {
+                isCellEditable={(params: GridCellParams<TagRow>) => {
                     if (!allowEdits) {
                         return false;
                     }

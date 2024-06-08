@@ -88,6 +88,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             variationBehavior,
             setVariationDialogMove,
             underboardRef,
+            reconcile,
         ],
     );
 
