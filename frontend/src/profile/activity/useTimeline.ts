@@ -4,7 +4,7 @@ import { Request, useRequest } from '../../api/Request';
 import { TimelineEntry } from '../../database/timeline';
 
 export interface UseTimelineResponse {
-    request: Request<never>;
+    request: Request<unknown>;
     entries: TimelineEntry[];
     hasMore: boolean;
     onLoadMore: () => void;
@@ -15,7 +15,7 @@ export function useTimeline(owner?: string): UseTimelineResponse {
     const api = useApi();
     const [entries, setEntries] = useState<TimelineEntry[]>([]);
     const [startKey, setStartKey] = useState<string>();
-    const request = useRequest<never>();
+    const request = useRequest<unknown>();
 
     useEffect(() => {
         if (owner && !request.isSent()) {
