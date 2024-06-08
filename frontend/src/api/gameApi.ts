@@ -312,7 +312,7 @@ export function updateGame(
     // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded
     id = btoa(id);
 
-    return axios.put<Game | EditGameResponse>(BASE_URL + `/game2/${cohort}/${id}`, req, {
+    return axios.put<Game>(BASE_URL + `/game2/${cohort}/${id}`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }
@@ -535,7 +535,7 @@ export function updateComment(idToken: string, update: UpdateCommentRequest) {
     });
 }
 
-export type DeleteCommentRequest = Omit<UpdateCommentRequest, 'content'>
+export type DeleteCommentRequest = Omit<UpdateCommentRequest, 'content'>;
 
 /**
  * Deletes a comment on a game. The full updated game is returned.

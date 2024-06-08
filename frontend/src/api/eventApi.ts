@@ -224,15 +224,15 @@ export function setEvent(idToken: string, event: Partial<Event>) {
  */
 export function createMessage(
     idToken: string,
-    messager: User,
+    messager: User | undefined,
     id: string,
     content: string,
 ) {
     const comment = {
-        owner: messager.username,
-        ownerDisplayName: messager.displayName,
-        ownerCohort: messager.dojoCohort,
-        ownerPreviousCohort: messager.previousCohort,
+        owner: messager?.username,
+        ownerDisplayName: messager?.displayName,
+        ownerCohort: messager?.dojoCohort,
+        ownerPreviousCohort: messager?.previousCohort,
         content,
     };
 

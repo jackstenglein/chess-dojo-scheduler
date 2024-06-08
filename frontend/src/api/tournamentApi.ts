@@ -46,7 +46,7 @@ export interface TournamentApiContextType {
      */
     registerForOpenClassical: (
         req: OpenClassicalRegistrationRequest,
-    ) => Promise<AxiosResponse<void>>;
+    ) => Promise<AxiosResponse<null>>;
 
     /**
      * Submits a request to enter results for the Open Classical.
@@ -255,7 +255,7 @@ export function registerForOpenClassical(
     idToken: string,
     req: OpenClassicalRegistrationRequest,
 ) {
-    return axios.post<void>(
+    return axios.post<null>(
         `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/register`,
         req,
         {

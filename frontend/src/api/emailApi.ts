@@ -27,7 +27,7 @@ interface SupportTicketResponse {
  * @returns An empty AxiosResponse.
  */
 export function unsubscribeFromDojoDigest(email: string) {
-    return axios.post<void>(`${BASE_URL}/public/dojodigest/unsubscribe`, { email });
+    return axios.post<null>(`${BASE_URL}/public/dojodigest/unsubscribe`, { email });
 }
 
 /**

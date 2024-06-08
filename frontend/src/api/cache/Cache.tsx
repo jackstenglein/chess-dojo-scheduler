@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
     createContext,
     ReactNode,
@@ -26,13 +30,13 @@ interface IdentifiableCache<T> {
     remove: (id: string) => void;
     isFetched: (id: string) => boolean;
     markFetched: (id: string) => void;
-    request: Request;
+    request: Request<never>;
 }
 
 function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
     const [objects, setObjects] = useState<Record<string, T>>({});
     const fetchedIds = useRef<Record<string, boolean>>({});
-    const request = useRequest();
+    const request = useRequest<never>();
 
     const get = useCallback(
         (id: string) => {
@@ -133,6 +137,7 @@ interface CacheContextType {
     setImageBypass: (v: number) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const CacheContext = createContext<CacheContextType>(null!);
 
 /**
@@ -172,7 +177,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
 
 interface UseEventsResponse {
     events: Event[];
-    request: Request;
+    request: Request<never>;
     putEvent: (e: Event) => void;
     removeEvent: (id: string) => void;
 }
@@ -181,7 +186,7 @@ export function useEvents(): UseEventsResponse {
     const auth = useAuth();
     const api = useApi();
     const cache = useCache();
-    const request = useRequest();
+    const request = useRequest<never>();
 
     const events = useMemo(() => cache.events.list(), [cache.events]);
 
@@ -216,7 +221,7 @@ export function useEvents(): UseEventsResponse {
 
 interface UseNotificationsResponse {
     notifications: Notification[];
-    request: Request;
+    request: Request<never>;
     removeNotification: (id: string) => void;
 }
 
@@ -224,7 +229,7 @@ export function useNotifications(): UseNotificationsResponse {
     const auth = useAuth();
     const api = useApi();
     const cache = useCache();
-    const request = useRequest();
+    const request = useRequest<never>();
 
     const notifications = useMemo(
         () => cache.notifications.list(),

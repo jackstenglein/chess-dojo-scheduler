@@ -15,7 +15,7 @@ export interface NotificationApiContextType {
      * @returns A list of notifications and the next start key.
      */
     listNotifications: (
-        startKey?: string
+        startKey?: string,
     ) => Promise<AxiosResponse<ListNotificationsResponse>>;
 
     /**
@@ -23,7 +23,7 @@ export interface NotificationApiContextType {
      * @param id The id of the Notification to delete.
      * @returns An empty AxiosResponse.
      */
-    deleteNotification: (id: string) => Promise<AxiosResponse<void>>;
+    deleteNotification: (id: string) => Promise<AxiosResponse<null>>;
 }
 
 /**
@@ -59,7 +59,7 @@ export function listNotifications(idToken: string, startKey?: string) {
  */
 export function deleteNotification(idToken: string, id: string) {
     id = encodeURIComponent(id);
-    return axios.delete<void>(`${BASE_URL}/user/notifications/${id}`, {
+    return axios.delete<null>(`${BASE_URL}/user/notifications/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
