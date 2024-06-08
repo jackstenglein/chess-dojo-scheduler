@@ -88,10 +88,10 @@ const Database: React.FC<DatabaseProps> = ({
         if (!isExplorerPosition(position)) {
             return position?.moves || [];
         }
-        return Object.values(position.moves || [])
+        return Object.values(position?.moves || [])
             .filter((move) => {
                 return cohortRange.some((cohort) => {
-                    const result = move.results[cohort] || {};
+                    const result = move.results?.[cohort] || {};
                     return (
                         result.white || result.black || result.draws || result.analysis
                     );

@@ -184,7 +184,7 @@ export interface LichessExplorerMove {
  * @returns True if the object is an ExplorerPosition.
  */
 export function isExplorerPosition(obj: unknown): obj is ExplorerPosition {
-    return isObject(obj) && obj.moves !== undefined;
+    return isObject(obj) && obj.results !== undefined && obj.moves !== undefined;
 }
 
 /**
