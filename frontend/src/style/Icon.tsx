@@ -53,6 +53,10 @@ import {
     KeyboardDoubleArrowUp,
     KeyboardArrowUp,
     KeyboardArrowDown,
+    SportsKabaddi,
+    Sports,
+    Link
+
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -157,6 +161,7 @@ export const icons = {
     'menuDown': KeyboardDoubleArrowDown,
     'innerMenuUp': KeyboardArrowUp,
     'innerMenuDown': KeyboardArrowDown,
+    'spar': Link
 };
 
 export interface IconProps extends SvgIconProps {

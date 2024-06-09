@@ -1,6 +1,9 @@
 import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { LoadingButton } from '@mui/lab';
+import Icon from '../style/Icon';
+import { getLigaIconBasedOnTimeControl } from '../calendar/eventViewer/LigaTournamentViewer';
+import PawnIcon from '../navbar/PawnIcon';
 import {
     Button,
     Card,
@@ -37,6 +40,8 @@ interface PositionProps {
 const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     const [copied, setCopied] = useState('');
     const lichessRequest = useRequest();
+    const positionExp = new String("https://www.chessdojo.club/games/explorer?fen=");
+    const expURL = positionExp.concat(position.fen);
 
     const onCopy = (name: string) => {
         setCopied(name);
@@ -52,6 +57,14 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
         });
         onCopy('fen');
     };
+
+    const onCopyExp = () => {
+        trackEvent( EventType.CopyPositionExplorer, {
+            position_exp_url: expURL,
+        }
+        );
+        onCopy('exp');
+    }
 
     const generateLichessUrl = () => {
         lichessRequest.onStart();
@@ -91,14 +104,17 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 subheader={
                     <Stack px={1}>
                         <Stack direction='row' justifyContent='space-between'>
-                            <Typography>{position.title}</Typography>
+                            <Typography variant='h6'> {position.title}</Typography>
+                            <Tooltip title={getLigaIconBasedOnTimeControl(position.limitSeconds).toLowerCase().concat(" time control")}>
                             <Typography>
-                                {position.limitSeconds / 60}+{position.incrementSeconds}
+                                <Icon name={getLigaIconBasedOnTimeControl(position.limitSeconds)} color='dojoOrange' sx={{marginRight: "0.3", verticalAlign: "middle"}}/> {position.limitSeconds / 60}+{position.incrementSeconds} 
                             </Typography>
+                            </Tooltip>
+                          
                         </Stack>
 
                         <Stack direction='row' justifyContent='space-between'>
-                            <Typography variant='body2' color='text.secondary'>
+                            <Typography variant='body1' color='text.secondary'>
                                 {turn[0].toLocaleUpperCase() + turn.slice(1)} to play
                                 {position.result &&
                                     ` and ${position.result.toLocaleLowerCase()}`}
@@ -126,7 +142,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     <Tooltip title='Copy position FEN to clipboard'>  
                     <Button
                         startIcon={
-                            copied === 'fen' ? <CheckIcon /> : <ContentPasteIcon />
+                            copied === 'fen' ? <CheckIcon color='success'/> : <ContentPasteIcon color='dojoOrange'/>
                         }
                     >
                         {copied === 'fen' ? 'Copied' : 'FEN'}
@@ -134,11 +150,25 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     </Tooltip>
                     
                 </CopyToClipboard>
+                
+                    <Tooltip title='Open this in position explorer'>  
+                    <Button
+                        startIcon={
+                            copied === 'exp' ? <CheckIcon color='success'/> : <Icon name='explore' color='dojoOrange'/>
+                        }
+                        href={expURL}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                    >
+                        {copied === 'exp' ? 'Copied' : 'Explorer'}
+                    </Button>
+                    </Tooltip>
+   
                 <Tooltip title='Copy a URL and send to another player to play on Lichess'>
                 <LoadingButton
                     data-cy='position-challenge-url'
                     startIcon={
-                        copied === 'lichess' ? <CheckIcon /> : <ContentPasteIcon />
+                        copied === 'lichess' ? <CheckIcon color='success'/> : <Icon name='spar' color='dojoOrange'/>
                     }
                     loading={lichessRequest.isLoading()}
                     onClick={generateLichessUrl}
