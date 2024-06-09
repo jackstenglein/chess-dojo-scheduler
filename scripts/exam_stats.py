@@ -5,7 +5,7 @@ db = boto3.resource('dynamodb')
 table = db.Table('prod-exams')
 
 examType = 'TACTICS_EXAM'
-examId = '97d577e0-6b9a-4b0a-a3e6-dbd590674c76'
+examId = 'e6ab227e-586f-4cef-b770-b840e82f1823'
 
 
 def writeCsv():
