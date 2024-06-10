@@ -1,13 +1,12 @@
-import { Box, CardContent, Tab } from '@mui/material';
-import { TabContext, TabList } from '@mui/lab';
-import { useCallback, useEffect, useState } from 'react';
 import { Event, EventType } from '@jackstenglein/chess';
-
-import { useChess } from '../PgnBoard';
+import { TabContext, TabList } from '@mui/lab';
+import { Box, CardContent, Tab } from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
 import { usePosition } from '../../../api/cache/positions';
+import { ExplorerPositionFollower } from '../../../database/explorer';
+import { useChess } from '../PgnBoard';
 import Database from './Database';
 import Header from './Header';
-import { ExplorerPositionFollower } from '../../../database/explorer';
 
 const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -52,7 +51,7 @@ const Explorer = () => {
                 });
             }
         },
-        [putPosition, position]
+        [putPosition, position],
     );
 
     const { dojo, lichess, follower } = position || {};
@@ -70,7 +69,7 @@ const Explorer = () => {
             <TabContext value={tab}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList
-                        onChange={(_, val) => setTab(val)}
+                        onChange={(_, val: 'dojo' | 'lichess') => setTab(val)}
                         aria-label='Position database type'
                     >
                         <Tab label='Dojo Database' value='dojo' />

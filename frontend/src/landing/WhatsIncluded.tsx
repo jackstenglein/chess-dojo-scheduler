@@ -134,7 +134,7 @@ const WhatsIncluded = () => {
                         <Tabs
                             data-cy='whatsincluded-tab-list'
                             value={value}
-                            onChange={(_, t) => setValue(t)}
+                            onChange={(_, t: string) => setValue(t)}
                             variant='scrollable'
                             sx={{ justifyContent: 'center' }}
                         >

@@ -9,7 +9,7 @@ const showPromo = today.getTime() < promoEnd.getTime();
 
 const JoinToday = () => {
     const navigate = useNavigate();
-    const locationState = useLocation().state;
+    const locationState: unknown = useLocation().state;
 
     return (
         <Stack width={1} alignItems='center' mt={5} textAlign='center'>

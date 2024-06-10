@@ -29,6 +29,9 @@ const (
 
 	// Indicates the item is a Polgar mates exam.
 	ExamType_Polgar ExamType = "POLGAR_EXAM"
+
+	// Indicates the item is an endgame exam.
+	ExamType_Endgame ExamType = "ENDGAME_EXAM"
 )
 
 func IsValidExamType(examType ExamType) bool {

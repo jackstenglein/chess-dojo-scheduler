@@ -4,21 +4,21 @@ import { Request, useRequest } from '../../api/Request';
 import { TimelineEntry } from '../../database/timeline';
 
 export interface UseTimelineResponse {
-    request: Request;
+    request: Request<unknown>;
     entries: TimelineEntry[];
     hasMore: boolean;
     onLoadMore: () => void;
     onEdit: (i: number, entry: TimelineEntry) => void;
 }
 
-export function useTimeline(owner: string): UseTimelineResponse {
+export function useTimeline(owner?: string): UseTimelineResponse {
     const api = useApi();
     const [entries, setEntries] = useState<TimelineEntry[]>([]);
     const [startKey, setStartKey] = useState<string>();
-    const request = useRequest();
+    const request = useRequest<unknown>();
 
     useEffect(() => {
-        if (!request.isSent()) {
+        if (owner && !request.isSent()) {
             request.onStart();
             api.listUserTimeline(owner, startKey)
                 .then((res) => {

@@ -8,17 +8,17 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import GoogleButton from 'react-google-button';
-import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
-
 import { useState } from 'react';
+import GoogleButton from 'react-google-button';
+import { Navigate, Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
 
 const SignupPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
-    const redirectUri = useLocation().state?.redirectUri || '';
+    const redirectUri =
+        (useLocation().state as { redirectUri?: string } | undefined)?.redirectUri || '';
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -60,7 +60,7 @@ const SignupPage = () => {
             .then((result) => {
                 navigate('/verify-email', {
                     state: {
-                        username: result.user.username,
+                        username: result.user.getUsername(),
                         name: name.trim(),
                         email: email.trim(),
                         password,

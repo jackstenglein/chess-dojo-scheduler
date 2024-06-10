@@ -14,7 +14,7 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary, {
     AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
-import { styled } from '@mui/material/styles';
+import { Theme, styled } from '@mui/material/styles';
 import { DateTime } from 'luxon';
 import React, { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -138,12 +138,12 @@ export function useFilters(): Filters {
     const [minHour, setMinHour] = useLocalStorage<DateTime | null>(
         'calendarFilters.minHour',
         DateTime.now().set({ hour: 0 }),
-        { deserializer: (v) => DateTime.fromISO(JSON.parse(v)) },
+        { deserializer: (v) => DateTime.fromISO(JSON.parse(v) as string) },
     );
     const [maxHour, setMaxHour] = useLocalStorage<DateTime | null>(
         'calendarFilters.maxHour',
         DateTime.now().set({ hour: 23 }),
-        { deserializer: (v) => DateTime.fromISO(JSON.parse(v)) },
+        { deserializer: (v) => DateTime.fromISO(JSON.parse(v) as string) },
     );
 
     const [sessions, setSessions] = useLocalStorage('calendarFilters.sessions', [
@@ -277,7 +277,7 @@ interface CalendarFiltersProps {
 export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => {
     const auth = useAuth();
     const [expanded, setExpanded] = useState<string | boolean>(false);
-    const forceExpansion = useMediaQuery((theme: any) => theme.breakpoints.up('md'));
+    const forceExpansion = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
 
     const { events } = useEvents();
     const filterTime = new Date(new Date().getTime()).toISOString();

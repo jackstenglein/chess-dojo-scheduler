@@ -5,8 +5,6 @@ import {
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
-    GridValueFormatterParams,
-    GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import { useCallback } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -66,7 +64,7 @@ const columns: GridColDef<GameInfo>[] = [
     {
         field: 'result',
         headerName: 'Result',
-        valueGetter: (params) => params.row.headers.Result,
+        valueGetter: (_value, row) => row.headers.Result,
         renderCell: RenderResult,
         align: 'center',
         headerAlign: 'center',
@@ -75,10 +73,8 @@ const columns: GridColDef<GameInfo>[] = [
     {
         field: 'moves',
         headerName: 'Moves',
-        valueGetter: (params) =>
-            params.row.headers.PlyCount
-                ? Math.ceil(parseInt(params.row.headers.PlyCount) / 2)
-                : '?',
+        valueGetter: (_value, row) =>
+            row.headers.PlyCount ? Math.ceil(parseInt(row.headers.PlyCount) / 2) : '?',
         align: 'center',
         headerAlign: 'center',
         width: 75,
@@ -96,9 +92,7 @@ const columns: GridColDef<GameInfo>[] = [
         width: 145,
         align: 'right',
         headerAlign: 'right',
-        valueFormatter: (params: GridValueFormatterParams<string>) => {
-            return params.value?.split('T')[0].replaceAll('-', '.');
-        },
+        valueFormatter: (value: string) => value.split('T')[0].replaceAll('-', '.'),
     },
     {
         field: 'review.type',
@@ -106,11 +100,11 @@ const columns: GridColDef<GameInfo>[] = [
         align: 'center',
         headerAlign: 'center',
         width: 120,
-        valueGetter: (params: GridValueGetterParams<GameInfo>) => {
-            if (!params.row.review) {
+        valueGetter: (_value, row) => {
+            if (!row.review) {
                 return '';
             }
-            switch (params.row.review.type) {
+            switch (row.review.type) {
                 case GameReviewType.Quick:
                     return 'Quick';
                 case GameReviewType.Deep:
@@ -123,8 +117,8 @@ const columns: GridColDef<GameInfo>[] = [
         headerName: 'Deadline',
         align: 'center',
         headerAlign: 'center',
-        valueGetter: (params: GridValueGetterParams<GameInfo>) => {
-            const d = new Date(params.row.reviewRequestedAt || '');
+        valueGetter: (_value, row) => {
+            const d = new Date(row.reviewRequestedAt || '');
             if (!isValidDate(d)) {
                 return '';
             }

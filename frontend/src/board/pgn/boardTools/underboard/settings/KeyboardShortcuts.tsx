@@ -439,8 +439,8 @@ function handleFocusCommentTextField({ opts }: ShortcutHandlerProps) {
  */
 function handleUnfocusTextField() {
     const activeElement = document.activeElement;
-    if (typeof (activeElement as any).blur === 'function') {
-        (activeElement as any).blur();
+    if (typeof (activeElement as HTMLElement).blur === 'function') {
+        (activeElement as HTMLElement).blur();
     }
 }
 
@@ -681,7 +681,7 @@ const KeyboardShortcuts = () => {
             </Grid2>
 
             <Dialog
-                open={Boolean(editAction)}
+                open={!!editAction}
                 onClose={onCloseEditor}
                 maxWidth='sm'
                 fullWidth
@@ -690,9 +690,11 @@ const KeyboardShortcuts = () => {
                     container: BlockBoardKeyboardShortcuts,
                 }}
             >
-                <DialogTitle>
-                    Edit Shortcut for <em>{displayShortcutAction(editAction!)}</em>
-                </DialogTitle>
+                {editAction && (
+                    <DialogTitle>
+                        Edit Shortcut for <em>{displayShortcutAction(editAction)}</em>
+                    </DialogTitle>
+                )}
                 <DialogContent>
                     <DialogContentText>
                         Press any key to change the shortcut, then click save.

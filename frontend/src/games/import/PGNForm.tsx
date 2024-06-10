@@ -44,7 +44,7 @@ export const PGNForm: React.FC<ImportDialogProps> = ({ onSubmit, loading, onClos
 
         if (file) {
             const reader = new FileReader();
-            reader.onload = async (e) => {
+            reader.onload = (e) => {
                 const text = e.target?.result?.toString();
                 onSubmit({ pgnText: text, type: GameSubmissionType.Manual });
             };

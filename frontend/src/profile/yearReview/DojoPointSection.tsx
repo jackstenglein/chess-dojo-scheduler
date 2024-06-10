@@ -19,7 +19,7 @@ export const primaryAxis: AxisOptions<Datum> = {
     getValue: (datum) => datum.primary,
 };
 
-export const secondaryAxes: Array<AxisOptions<Datum>> = [
+export const secondaryAxes: AxisOptions<Datum>[] = [
     {
         position: 'bottom',
         getValue: (datum) => datum.secondary,
@@ -42,7 +42,7 @@ export function getCategoryData(
             label,
             data: categories.reverse().map((category) => ({
                 primary: category,
-                secondary: data.byCategory?.[category] || 0,
+                secondary: data.byCategory[category] || 0,
             })),
         },
     ];
@@ -71,7 +71,7 @@ export function getMonthData(label: string, data: YearReviewDataSection) {
                 .sort((lhs, rhs) => rhs[1].localeCompare(lhs[1]))
                 .map((month) => ({
                     primary: month[0],
-                    secondary: data.byPeriod?.[month[1]] || 0,
+                    secondary: data.byPeriod[month[1]] || 0,
                 })),
         },
     ];

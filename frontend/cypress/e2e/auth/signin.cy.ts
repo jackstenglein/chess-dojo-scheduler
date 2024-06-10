@@ -57,8 +57,8 @@ describe('Signin Page', () => {
     });
 
     it('logs in with correct credentials', () => {
-        cy.get('#email').type(Cypress.env('cognito_username'));
-        cy.get('#password').type(Cypress.env('cognito_password'));
+        cy.get('#email').type(cy.dojo.env('cognito_username'));
+        cy.get('#password').type(cy.dojo.env('cognito_password'));
 
         cy.get('[data-cy="signin-button"]').click();
 

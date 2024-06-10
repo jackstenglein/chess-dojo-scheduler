@@ -1,5 +1,6 @@
 import { StaticImageData } from 'next/image';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
+import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
 import tacticsTestImage from './tactics-test/image.png';
 
 export interface BlogItem {
@@ -14,6 +15,17 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Who Will Be Top 10 in 2025? | Dojo Talks',
+        subtitle: 'Jesse, Kostya, and David • June 7, 2024',
+        body: `GM Jesse Kraai, IM David Pruess, and IM Kostya Kavutskiy forecast who will be the top 10 FIDE rated chess players in June 2025 in today's episode of Dojo Talks, the ChessDojo podcast.`,
+        href: '/blog/dojo-talks/top-10-2025',
+        image: {
+            src: talkstop2025,
+            alt: '',
+        },
+    },
+
     {
         title: 'Introducing Dojo Tactics Tests – A New Way to Assess Your Skills',
         subtitle: 'Kostya Kavutskiy • May 15, 2024',

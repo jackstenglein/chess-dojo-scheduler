@@ -233,7 +233,7 @@ export function getNagInSet(nagSet: Nag[], nags: string[] | undefined): Nag {
     }
 
     for (const nag of nags) {
-        let stdNag = getStandardNag(nag);
+        const stdNag = getStandardNag(nag);
         if (nagSet.includes(stdNag)) {
             return stdNag;
         }
@@ -277,8 +277,8 @@ export function setNagsInSet(newNags: Nag[], nagSet: Nag[], nags?: string[]): Na
 }
 
 export function compareNags(lhs: Nag, rhs: Nag): number {
-    let lhsNum = parseInt(lhs.slice(1));
-    let rhsNum = parseInt(rhs.slice(1));
+    const lhsNum = parseInt(lhs.slice(1));
+    const rhsNum = parseInt(rhs.slice(1));
 
     if (lhsNum < rhsNum) {
         return -1;

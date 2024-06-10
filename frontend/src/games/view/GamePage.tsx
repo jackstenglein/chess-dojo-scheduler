@@ -19,11 +19,11 @@ import { Game } from '../../database/game';
 import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
 import PgnErrorBoundary from './PgnErrorBoundary';
 
-type GameContextType = {
+interface GameContextType {
     game?: Game;
     onUpdateGame?: (g: Game) => void;
     isOwner?: boolean;
-};
+}
 
 const GameContext = createContext<GameContextType>({});
 

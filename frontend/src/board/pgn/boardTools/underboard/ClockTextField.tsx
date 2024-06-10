@@ -126,9 +126,9 @@ function getTimeSlotsFromMove(move: Move): TimeSlots {
     }
 
     const slots = clock.split(':');
-    let seconds = parseFloat(slots[slots.length - 1] || '0');
-    let minutes = parseInt(slots[slots.length - 2] || '0');
-    let hours = parseInt(slots[slots.length - 3] || '0');
+    const seconds = parseFloat(slots[slots.length - 1] || '0');
+    const minutes = parseInt(slots[slots.length - 2] || '0');
+    const hours = parseInt(slots[slots.length - 3] || '0');
 
     return {
         hours,
@@ -160,7 +160,7 @@ function onChangeTimeSlot(
 function getClockFromTimeSlots(slots: TimeSlots): string {
     const seconds = slots.seconds % 60;
     let minutes = slots.minutes + Math.floor(slots.seconds / 60);
-    let hours = slots.hours + Math.floor(minutes / 60);
+    const hours = slots.hours + Math.floor(minutes / 60);
     minutes = minutes % 60;
 
     return formatTime(hours * 3600 + minutes * 60 + seconds);

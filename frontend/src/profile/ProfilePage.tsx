@@ -19,7 +19,7 @@ import { useAuth } from '../auth/Auth';
 import { FollowerEntry } from '../database/follower';
 import { User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
-import PawnIcon from '../navbar/PawnIcon';
+import { PawnIcon } from '../style/ChessIcons';
 import GamesTab from './GamesTab';
 import GraduationDialog from './GraduationDialog';
 import ActivityTab from './activity/ActivityTab';
@@ -37,20 +37,16 @@ import ProgressTab from './progress/ProgressTab';
 import StatsTab from './stats/StatsTab';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
 
-export type ProfilePageProps = {
-    username: string;
-};
-
 const ProfilePage = () => {
-    const { username } = useParams<ProfilePageProps>();
+    const { username } = useParams();
     const navigate = useNavigate();
     const api = useApi();
     const auth = useAuth();
-    const currentUser = auth.user!;
+    const currentUser = auth.user;
     const request = useRequest<User>();
     const followRequest = useRequest<FollowerEntry>();
 
-    const currentUserProfile = !username || username === currentUser.username;
+    const currentUserProfile = !username || username === currentUser?.username;
 
     const [searchParams, setSearchParams] = useSearchParams(
         currentUserProfile ? { view: 'progress' } : { view: 'stats' },
@@ -94,7 +90,7 @@ const ProfilePage = () => {
     }
 
     const onFollow = () => {
-        if (currentUserProfile) {
+        if (currentUserProfile || !currentUser) {
             return;
         }
 
@@ -187,14 +183,12 @@ const ProfilePage = () => {
 
                 <Bio bio={user.bio} />
 
-                {/* <MetricsDashboard user={user} sx={{ mt: 3 }} /> */}
-
                 <Box sx={{ width: '100%', typography: 'body1', mt: 5 }}>
                     <TabContext value={searchParams.get('view') || 'stats'}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <Tabs
                                 value={searchParams.get('view') || 'stats'}
-                                onChange={(_, t) => setSearchParams({ view: t })}
+                                onChange={(_, t: string) => setSearchParams({ view: t })}
                                 aria-label='profile tabs'
                                 variant='scrollable'
                             >

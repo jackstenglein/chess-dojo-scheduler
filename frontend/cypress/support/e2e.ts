@@ -1,6 +1,5 @@
 // ***********************************************************
-// This example support/e2e.ts is processed and
-// loaded automatically before your test files.
+// This file is processed and loaded automatically before your test files.
 //
 // This is a great place to put global configuration and
 // behavior that modifies Cypress.
@@ -13,9 +12,13 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
-import './commands';
 import 'cypress-real-events';
 
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+// Import commands.ts first so the commands defined in it are
+// available to the top level of subsequently imported files.
+import './commands';
+
+// Define all other custom commands below. This comment is to prevent
+// autosorting of ./comments which will break top level usage of
+// cy.dojo.env at minimum
+import './auth-provider-commands/cognito';

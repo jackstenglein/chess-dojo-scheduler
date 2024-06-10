@@ -2,8 +2,8 @@ describe('Statistics Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'scoreboard',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/scoreboard/stats');
     });
@@ -32,6 +32,6 @@ describe('Statistics Page', () => {
         ];
 
         cy.getBySel('chart-title').should('have.length', titles.length);
-        titles.forEach((title) => cy.contains(title));
+        cy.containsAll(titles);
     });
 });

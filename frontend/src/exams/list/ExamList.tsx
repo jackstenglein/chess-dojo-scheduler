@@ -19,8 +19,6 @@ import {
     GridColDef,
     GridRenderCellParams,
     GridRowParams,
-    GridValueFormatterParams,
-    GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -71,7 +69,7 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                     request.onFailure(err);
                 });
         }
-    }, [request, api]);
+    }, [request, api, examType]);
 
     const ranges = useMemo(() => {
         const ranges: CohortRangeExams[] = [];
@@ -95,7 +93,7 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
             }
         }
         return ranges;
-    }, [request]);
+    }, [request, cohortRanges]);
 
     const onChangeExpanded = (i: number) => {
         setExpanded([...expanded.slice(0, i), !expanded[i], ...expanded.slice(i + 1)]);
@@ -147,9 +145,7 @@ const columns: GridColDef<Exam>[] = [
     {
         field: 'problems',
         headerName: '# of Problems',
-        valueGetter(params) {
-            return params.row.pgns.length;
-        },
+        valueGetter: (_value, row) => row.pgns.length,
         align: 'center',
         headerAlign: 'center',
         flex: 1,
@@ -157,9 +153,7 @@ const columns: GridColDef<Exam>[] = [
     {
         field: 'timeLimitSeconds',
         headerName: 'Time Limit',
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            return `${params.value / 60} min`;
-        },
+        valueFormatter: (value: number) => `${value / 60} min`,
         headerAlign: 'center',
         align: 'center',
         flex: 1,
@@ -189,14 +183,14 @@ const columns: GridColDef<Exam>[] = [
         headerName: 'Avg Score',
         headerAlign: 'center',
         align: 'center',
-        valueGetter(params) {
-            const scores = Object.values(params.row.answers).map((a) => a.score);
+        valueGetter(_value, row) {
+            const scores = Object.values(row.answers).map((a) => a.score);
             const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
             return Math.round(10 * avg) / 10;
         },
-        renderCell(params) {
+        renderCell(params: GridRenderCellParams<Exam, number>) {
             const totalScore = getExamMaxScore(params.row);
-            if (isNaN(params.value)) {
+            if (params.value === undefined || isNaN(params.value)) {
                 return `- / ${totalScore}`;
             }
             return `${params.value} / ${totalScore}`;
@@ -210,20 +204,20 @@ const avgRatingColumn: GridColDef<Exam> = {
     headerName: 'Avg Rating',
     headerAlign: 'center',
     align: 'center',
-    valueGetter(params) {
-        const regression = getRegression(params.row);
+    valueGetter(_value, row) {
+        const regression = getRegression(row);
         if (!regression) {
             return -1;
         }
 
-        const sum = Object.values(params.row.answers)
+        const sum = Object.values(row.answers)
             .map((a) => regression.predict(a.score))
             .reduce((sum, rating) => sum + rating, 0);
 
-        return Math.round((10 * sum) / Object.values(params.row.answers).length) / 10;
+        return Math.round((10 * sum) / Object.values(row.answers).length) / 10;
     },
-    renderCell(params) {
-        if (params.value < 0 || isNaN(params.value)) {
+    renderCell(params: GridRenderCellParams<Exam, number>) {
+        if (!params.value || params.value < 0 || isNaN(params.value)) {
             return (
                 <Tooltip title='Avg rating is not calculated until at least 10 people have taken the exam.'>
                     <Help sx={{ color: 'text.secondary' }} />
@@ -254,7 +248,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     if (
                         !hasAnswered &&
                         i >= 1 &&
-                        !Boolean(exams[i - 1].answers[user?.username || ''])
+                        !exams[i - 1].answers[user?.username || '']
                     ) {
                         return (
                             <Tooltip title='This exam is locked until you complete the previous exam'>
@@ -275,11 +269,11 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 headerName: 'Your Score',
                 align: 'center',
                 headerAlign: 'center',
-                valueGetter(params: GridValueGetterParams<Exam>) {
+                valueGetter(_value, row) {
                     if (!user) {
                         return -1;
                     }
-                    const answer = params.row.answers[user.username];
+                    const answer = row.answers[user.username];
                     if (!answer) {
                         return -1;
                     }
@@ -300,20 +294,17 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 headerName: 'Your Rating',
                 align: 'center',
                 headerAlign: 'center',
-                valueGetter(params: GridValueGetterParams<Exam>) {
-                    if (!user || !params.row.answers[user.username]) {
+                valueGetter(_value, row) {
+                    if (!user || !row.answers[user.username]) {
                         return '';
                     }
-                    const regression = getRegression(params.row);
+                    const regression = getRegression(row);
                     if (!regression) {
                         return -1;
                     }
                     return (
                         Math.round(
-                            10 *
-                                regression.predict(
-                                    params.row.answers[user.username].score,
-                                ),
+                            10 * regression.predict(row.answers[user.username].score),
                         ) / 10
                     );
                 },
@@ -333,11 +324,11 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                 headerName: 'Date Taken',
                 align: 'center',
                 headerAlign: 'center',
-                valueGetter(params: GridValueGetterParams<Exam>) {
+                valueGetter(_value, row) {
                     if (!user) {
                         return '';
                     }
-                    const answer = params.row.answers[user.username];
+                    const answer = row.answers[user.username];
                     return answer
                         ? toDojoDateString(
                               new Date(answer.createdAt),
@@ -349,7 +340,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
             },
         ];
         return examColumns;
-    }, [user]);
+    }, [user, exams]);
 
     const onClickRow = (params: GridRowParams<Exam>) => {
         if (params.row.answers[user?.username || '']) {
@@ -360,11 +351,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
         }
 
         const i = exams.findIndex((e) => e.id === params.row.id);
-        if (
-            !user?.isAdmin &&
-            i >= 1 &&
-            !Boolean(exams[i - 1].answers[user?.username || ''])
-        ) {
+        if (!user?.isAdmin && i >= 1 && !exams[i - 1].answers[user?.username || '']) {
             setSnackbarOpen(true);
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);

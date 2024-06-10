@@ -1,35 +1,35 @@
-import {
-    createContext,
-    useContext,
-    useState,
-    useEffect,
-    useCallback,
-    ReactNode,
-} from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { Auth as AmplifyAuth } from 'aws-amplify';
-import { v4 as uuidv4 } from 'uuid';
-import { AxiosResponse } from 'axios';
-
+import { AxiosError, AxiosResponse } from 'axios';
 import {
-    hasCreatedProfile,
-    parseCognitoResponse,
-    parseUser,
-    SubscriptionStatus,
-    User,
-} from '../database/user';
-import { getUser } from '../api/userApi';
-import LoadingPage from '../loading/LoadingPage';
+    ReactNode,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
+import { EventType, setUser as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { useRequest } from '../api/Request';
-import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
-import { EventType, trackEvent, setUser as setAnalyticsUser } from '../analytics/events';
+import { syncPurchases } from '../api/paymentApi';
+import { getUser } from '../api/userApi';
 import {
     clearCheckoutSessionIds,
     getAllCheckoutSessionIds,
 } from '../courses/localStorage';
-import { syncPurchases } from '../api/paymentApi';
+import {
+    CognitoResponse,
+    SubscriptionStatus,
+    User,
+    hasCreatedProfile,
+    parseCognitoResponse,
+    parseUser,
+} from '../database/user';
+import LoadingPage from '../loading/LoadingPage';
+import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -47,20 +47,45 @@ interface AuthContextType {
     socialSignin: (provider: string, redirectUri: string) => void;
     signin: (email: string, password: string) => Promise<void>;
 
-    signup: (name: string, email: string, password: string) => Promise<any>;
+    signup: (
+        name: string,
+        email: string,
+        password: string,
+    ) => Promise<{ user: { getUsername: () => string } }>;
     confirmSignup: (username: string, code: string) => Promise<void>;
-    resendSignupCode: (username: string) => Promise<any>;
+    resendSignupCode: (username: string) => Promise<void>;
     forgotPassword: (email: string) => Promise<void>;
     forgotPasswordConfirm: (
         email: string,
         code: string,
-        password: string
+        password: string,
     ) => Promise<string>;
 
     signout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>(null!);
+interface RequiredAuthContextType extends AuthContextType {
+    user: User;
+    status: AuthStatus.Authenticated;
+}
+
+const defaultAuthContextFunction = () => {
+    throw new Error('Using the default AuthContext is prohibited');
+};
+
+const AuthContext = createContext<AuthContextType>({
+    status: AuthStatus.Unauthenticated,
+    getCurrentUser: defaultAuthContextFunction,
+    updateUser: defaultAuthContextFunction,
+    socialSignin: defaultAuthContextFunction,
+    signin: defaultAuthContextFunction,
+    signup: defaultAuthContextFunction,
+    confirmSignup: defaultAuthContextFunction,
+    resendSignupCode: defaultAuthContextFunction,
+    forgotPassword: defaultAuthContextFunction,
+    forgotPasswordConfirm: defaultAuthContextFunction,
+    signout: defaultAuthContextFunction,
+});
 
 function socialSignin(provider: string, redirectUri: string) {
     trackEvent(EventType.Login, { method: 'Google' });
@@ -92,10 +117,10 @@ function confirmSignup(username: string, code: string) {
     trackEvent(EventType.SignupConfirm);
     return AmplifyAuth.confirmSignUp(username, code, {
         forceAliasCreation: false,
-    }).catch((err) => {
+    }).catch((err: Error) => {
         if (
-            err.code !== 'NotAuthorizedException' ||
-            !err.message.includes('Current status is CONFIRMED')
+            (err as { code?: string }).code !== 'NotAuthorizedException' ||
+            !err.message?.includes('Current status is CONFIRMED')
         ) {
             throw err;
         }
@@ -120,6 +145,16 @@ export function useAuth() {
     return useContext(AuthContext);
 }
 
+export function useRequiredAuth(): RequiredAuthContextType {
+    const context = useContext(AuthContext);
+    if (!context.user || context.status !== AuthStatus.Authenticated) {
+        throw new Error(
+            'useRequiredAuth should only be called in components that the user is required to be logged in to view.',
+        );
+    }
+    return context as RequiredAuthContextType;
+}
+
 export function useFreeTier() {
     return useAuth().user?.subscriptionStatus !== SubscriptionStatus.Subscribed;
 }
@@ -128,34 +163,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
 
-    const handleCognitoResponse = useCallback(async (cognitoResponse: any) => {
-        const cognitoUser = parseCognitoResponse(cognitoResponse);
-        const checkoutSessionIds = getAllCheckoutSessionIds();
-        let apiResponse: AxiosResponse<User>;
+    const handleCognitoResponse = useCallback(
+        async (cognitoResponse: CognitoResponse) => {
+            const cognitoUser = parseCognitoResponse(cognitoResponse);
+            const checkoutSessionIds = getAllCheckoutSessionIds();
+            let apiResponse: AxiosResponse<User>;
 
-        if (Object.values(checkoutSessionIds).length > 0) {
-            apiResponse = await syncPurchases(
-                cognitoUser.session.idToken.jwtToken,
-                checkoutSessionIds
-            );
-            clearCheckoutSessionIds();
-        } else {
-            apiResponse = await getUser(cognitoUser.session.idToken.jwtToken);
-        }
+            if (Object.values(checkoutSessionIds).length > 0) {
+                apiResponse = await syncPurchases(
+                    cognitoUser.session.idToken.jwtToken,
+                    checkoutSessionIds,
+                );
+                clearCheckoutSessionIds();
+            } else {
+                apiResponse = await getUser(cognitoUser.session.idToken.jwtToken);
+            }
 
-        const user = parseUser(apiResponse.data, cognitoUser);
-        console.log('Got user: ', user);
-        setUser(user);
-        setStatus(AuthStatus.Authenticated);
-        setAnalyticsUser(user);
-    }, []);
+            const user = parseUser(apiResponse.data, cognitoUser);
+            console.log('Got user: ', user);
+            setUser(user);
+            setStatus(AuthStatus.Authenticated);
+            setAnalyticsUser(user);
+        },
+        [],
+    );
 
     const getCurrentUser = useCallback(async () => {
         try {
-            console.log('Getting current user');
-            const cognitoResponse = await AmplifyAuth.currentAuthenticatedUser({
+            const cognitoResponse = (await AmplifyAuth.currentAuthenticatedUser({
                 bypassCache: true,
-            });
+            })) as CognitoResponse;
             await handleCognitoResponse(cognitoResponse);
         } catch (err) {
             console.error('Failed to get user: ', err);
@@ -164,7 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [handleCognitoResponse]);
 
     useEffect(() => {
-        getCurrentUser();
+        void getCurrentUser();
     }, [getCurrentUser]);
 
     const updateUser = (update: Partial<User>) => {
@@ -174,18 +211,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const signin = (email: string, password: string) => {
-        return new Promise<void>(async (resolve, reject) => {
-            try {
-                console.log('Signing in');
-                const cognitoResponse = await AmplifyAuth.signIn(email, password);
-                trackEvent(EventType.Login, { method: 'Cognito' });
-                await handleCognitoResponse(cognitoResponse);
-                resolve();
-            } catch (err) {
-                console.error('Failed Auth.signIn: ', err);
-                setStatus(AuthStatus.Unauthenticated);
-                reject(err);
-            }
+        return new Promise<void>((resolve, reject) => {
+            void (async () => {
+                try {
+                    console.log('Signing in');
+                    const cognitoResponse = (await AmplifyAuth.signIn(
+                        email,
+                        password,
+                    )) as CognitoResponse;
+                    trackEvent(EventType.Login, { method: 'Cognito' });
+                    await handleCognitoResponse(cognitoResponse);
+                    resolve();
+                } catch (err) {
+                    console.error('Failed Auth.signIn: ', err);
+                    setStatus(AuthStatus.Unauthenticated);
+                    reject(err as Error);
+                }
+            })();
         });
     };
 
@@ -247,8 +289,8 @@ export function RequireAuth() {
                         subscriptionStatus: SubscriptionStatus.Subscribed,
                     });
                 })
-                .catch((err) => {
-                    console.log('Check user access error: ', err.response);
+                .catch((err: AxiosError) => {
+                    console.log('Check user access error: ', err);
                     request.onFailure(err);
                     if (err.response?.status === 403) {
                         auth.updateUser({

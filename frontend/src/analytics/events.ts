@@ -1,5 +1,4 @@
 import ReactGA from 'react-ga4';
-
 import { User } from '../database/user';
 
 export enum EventType {
@@ -47,7 +46,7 @@ export enum EventType {
     PgnErrorBoundary = 'pgn_error_boundary',
 }
 
-export function trackEvent(type: EventType, params?: any) {
+export function trackEvent(type: EventType, params?: unknown) {
     ReactGA.event(type, params);
 }
 

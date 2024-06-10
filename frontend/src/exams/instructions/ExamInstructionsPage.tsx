@@ -147,6 +147,7 @@ function getSampleExam(exam: Exam): Exam {
 
     switch (exam.type) {
         case ExamType.Tactics:
+        case ExamType.Endgame:
             pgns = tacticsSampleProblems;
             break;
         case ExamType.Polgar:

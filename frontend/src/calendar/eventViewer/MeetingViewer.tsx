@@ -14,7 +14,7 @@ interface MeetingViewerProps {
 
 const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
     const navigate = useNavigate();
-    const event: Event = processedEvent.event;
+    const event = processedEvent.event as Event;
 
     const participantsLength = Object.values(event.participants).length;
 

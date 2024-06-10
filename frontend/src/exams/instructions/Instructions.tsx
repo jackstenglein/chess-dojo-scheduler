@@ -14,6 +14,7 @@ interface InstructionsProps {
 const Instructions: React.FC<InstructionsProps> = ({ type, ...props }) => {
     switch (type) {
         case ExamType.Tactics:
+        case ExamType.Endgame:
             return <TacticsInstructions {...props} />;
         case ExamType.Polgar:
             return <PolgarMateInstructions {...props} />;
@@ -43,9 +44,9 @@ export const TacticsInstructions: React.FC<InstructionsProps> = ({
             <Typography component='div'>
                 <Box component='ul' sx={{ m: 0, '& li': { mt: 1 } }}>
                     <li>
-                        Unlike most online tactics trainers, you play both your moves and
-                        your opponent's. You will not receive feedback on any moves until
-                        the test is fully complete.
+                        Unlike most online trainers, you play both your moves and your
+                        opponent's. You will not receive feedback on any moves until the
+                        test is fully complete.
                     </li>
                     <li>
                         Points are awarded based on how many critical moves you find. A
@@ -116,9 +117,9 @@ export const PolgarMateInstructions: React.FC<InstructionsProps> = ({
             <Typography component='div'>
                 <Box component='ul' sx={{ m: 0, '& li': { mt: 1 } }}>
                     <li>
-                        Unlike most online tactics trainers, you play both your moves and
-                        your opponent's. You will not receive feedback on any moves until
-                        the test is fully complete.
+                        Unlike most online trainers, you play both your moves and your
+                        opponent's. You will not receive feedback on any moves until the
+                        test is fully complete.
                     </li>
                     <li>
                         Points are awarded based on how many correct moves you find. A

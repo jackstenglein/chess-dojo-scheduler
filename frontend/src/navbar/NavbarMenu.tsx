@@ -52,7 +52,7 @@ import { useNotifications } from '../api/cache/Cache';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { hasCreatedProfile } from '../database/user';
 import NotificationButton from '../notifications/NotificationButton';
-import PawnIcon from './PawnIcon';
+import { PawnIcon } from '../style/ChessIcons';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
@@ -556,7 +556,7 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     };
 
     const { startItems, menuItems, endItems } = useNavbarItems(meetingCount, handleClick);
-    const profileCreated = hasCreatedProfile(auth.user!);
+    const profileCreated = hasCreatedProfile(auth.user);
 
     if (!profileCreated) {
         return (
@@ -648,7 +648,7 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
         };
     };
 
-    const profileCreated = hasCreatedProfile(auth.user!);
+    const profileCreated = hasCreatedProfile(auth.user);
 
     let startItemsJsx: JSX.Element[] = [];
     if (profileCreated) {

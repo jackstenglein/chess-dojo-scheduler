@@ -1,7 +1,6 @@
 import { Tooltip, Typography } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
-
 import { OpenClassical, OpenClassicalPlayerStatus } from '../../database/tournament';
 
 enum Result {
@@ -33,14 +32,14 @@ function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
             headerName: `Round ${i + 1}`,
             align: 'center',
             headerAlign: 'center',
-            valueGetter: (params) => {
-                const round = params.row.rounds[i];
+            valueGetter: (_value, row, _column, api) => {
+                const round = row.rounds[i];
                 if (!round || round.result === Result.Bye) {
                     return Result.Bye;
                 }
 
                 const result = round.result;
-                const opponent = params.api.getAllRowIds().indexOf(round.opponent) + 1;
+                const opponent = api.current.getAllRowIds().indexOf(round.opponent) + 1;
                 return `${result}${opponent}`;
             },
             renderCell: (params) => {
@@ -119,7 +118,8 @@ const standingsTableColumns: GridColDef<StandingsTableRow>[] = [
         field: 'rank',
         headerName: 'Rank',
         renderHeader: () => '',
-        valueGetter: (params) => params.api.getAllRowIds().indexOf(params.id) + 1,
+        valueGetter: (_value, row, _col, api) =>
+            api.current.getAllRowIds().indexOf(row.lichessUsername) + 1,
         sortable: false,
         filterable: false,
         align: 'center',
@@ -273,10 +273,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
             for (let i = 0; i < section.rounds.length; i++) {
                 const round = player.rounds[i];
                 if (!round) {
-                    if (
-                        player.lastActiveRound === 0 ||
-                        player.lastActiveRound >= round + 1
-                    ) {
+                    if (player.lastActiveRound === 0 || player.lastActiveRound >= i + 1) {
                         // Player received a bye
                         player.total += 0.5;
                     }

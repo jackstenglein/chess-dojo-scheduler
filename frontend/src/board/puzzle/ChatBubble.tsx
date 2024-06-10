@@ -1,7 +1,7 @@
 import { Card, CardContent, Typography } from '@mui/material';
-import { PropsWithChildren } from 'react';
+import { ReactNode } from 'react';
 
-const ChatBubble: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+const ChatBubble = ({ children }: { children: ReactNode }) => {
     return (
         <Card
             variant='outlined'

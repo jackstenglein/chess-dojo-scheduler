@@ -6,8 +6,8 @@ describe('Submit Results Page', () => {
     it('hides email for logged in users', () => {
         cy.loginByCognitoApi(
             'tournaments',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/tournaments/open-classical/submit-results');
 
@@ -190,9 +190,15 @@ describe('Submit Results Page', () => {
         cy.getBySel('report-opponent').should('not.exist');
     });
 
-    it.only('redirects to details page on submit', () => {
+    it('redirects to details page on submit', () => {
         cy.interceptApi('POST', '/public/tournaments/open-classical/results', {
-            body: {},
+            body: {
+                sections: {
+                    A_U1800: {
+                        rounds: [],
+                    },
+                },
+            },
         });
 
         cy.getBySel('email').type('test@example.com');

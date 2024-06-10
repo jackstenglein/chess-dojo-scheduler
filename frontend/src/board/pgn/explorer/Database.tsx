@@ -18,11 +18,9 @@ import {
     GridRenderCellParams,
     GridRowModel,
     GridRowParams,
-    GridValueGetterParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
 import { Request } from '../../../api/Request';
 import { useFreeTier } from '../../../auth/Auth';
 import {
@@ -48,10 +46,10 @@ const getBackgroundColor = (color: string, mode: string) =>
 const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
     ({ theme }) => ({
         '& .chess-dojo-explorer--total': {
-            backgroundColor: getBackgroundColor(
+            backgroundColor: `${getBackgroundColor(
                 theme.palette.info.main,
                 theme.palette.mode,
-            ),
+            )} !important`,
         },
     }),
 );
@@ -60,7 +58,7 @@ interface DatabaseProps {
     type: 'dojo' | 'lichess';
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
-    request: Request;
+    request: Request<unknown>;
     minCohort: string;
     maxCohort: string;
     setMinCohort: (v: string) => void;
@@ -86,14 +84,14 @@ const Database: React.FC<DatabaseProps> = ({
         [minCohort, maxCohort],
     );
 
-    const sortedMoves: Array<ExplorerMove | LichessExplorerMove> = useMemo(() => {
+    const sortedMoves: (ExplorerMove | LichessExplorerMove)[] = useMemo(() => {
         if (!isExplorerPosition(position)) {
             return position?.moves || [];
         }
         return Object.values(position?.moves || [])
             .filter((move) => {
                 return cohortRange.some((cohort) => {
-                    const result = move.results[cohort] || {};
+                    const result = move.results?.[cohort] || {};
                     return (
                         result.white || result.black || result.draws || result.analysis
                     );
@@ -133,7 +131,7 @@ const Database: React.FC<DatabaseProps> = ({
     }, [position]);
 
     const totalGames = isExplorerPosition(position)
-        ? getGameCount(position?.results || {}, cohortRange)
+        ? getGameCount(position.results || {}, cohortRange)
         : position
           ? position.white + position.black + position.draws
           : 0;
@@ -154,7 +152,7 @@ const Database: React.FC<DatabaseProps> = ({
                     >,
                 ) => {
                     if (params.value === 'Total') {
-                        return <FunctionsIcon fontSize='small' />;
+                        return <FunctionsIcon fontSize='small' sx={{ height: 1 }} />;
                     }
                     return params.value;
                 },
@@ -164,13 +162,11 @@ const Database: React.FC<DatabaseProps> = ({
                 headerName: 'Games',
                 align: 'left',
                 headerAlign: 'left',
-                valueGetter: (
-                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>,
-                ) => {
-                    if (isExplorerMove(params.row)) {
-                        return getGameCount(params.row.results, cohortRange);
+                valueGetter: (_value, row) => {
+                    if (isExplorerMove(row)) {
+                        return getGameCount(row.results, cohortRange);
                     }
-                    return params.row.white + params.row.black + params.row.draws;
+                    return row.white + row.black + row.draws;
                 },
                 renderCell: (
                     params: GridRenderCellParams<
@@ -198,13 +194,11 @@ const Database: React.FC<DatabaseProps> = ({
                 headerName: 'Results',
                 align: 'right',
                 headerAlign: 'left',
-                valueGetter: (
-                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>,
-                ) => {
-                    if (isExplorerMove(params.row)) {
-                        return getResultCount(params.row, 'white', cohortRange);
+                valueGetter: (_value, row) => {
+                    if (isExplorerMove(row)) {
+                        return getResultCount(row, 'white', cohortRange);
                     }
-                    return params.row.white;
+                    return row.white;
                 },
                 renderCell: (
                     params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>,
@@ -413,62 +407,64 @@ const ResultGraph: React.FC<ResultGraphProps> = ({ totalGames, resultCount }) =>
     }
 
     return (
-        <Stack
-            direction='row'
-            sx={{
-                width: 1,
-                border: 1,
-                borderColor: 'divider',
-                borderRadius: '3px',
-                overflow: 'hidden',
-            }}
-        >
-            {resultKeys.map((k) => {
-                const count = resultCount[k];
-                const percentage = (100 * count) / totalGames;
-                if (count === 0) {
-                    return null;
-                }
+        <Stack sx={{ height: 1, justifyContent: 'center' }}>
+            <Stack
+                direction='row'
+                sx={{
+                    width: 1,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: '3px',
+                    overflow: 'hidden',
+                }}
+            >
+                {resultKeys.map((k) => {
+                    const count = resultCount[k];
+                    const percentage = (100 * count) / totalGames;
+                    if (count === 0) {
+                        return null;
+                    }
 
-                return (
-                    <Tooltip
-                        key={k}
-                        title={
-                            <Box sx={{ textAlign: 'center' }}>
-                                {k[0].toUpperCase()}
-                                {k.substring(1)}
-                                <br />
-                                {count.toLocaleString()} Game{count !== 1 ? 's' : ''}
-                                <br />
-                                {Math.round(percentage * 10) / 10}%
-                            </Box>
-                        }
-                    >
-                        <Box
-                            sx={{
-                                width: `${percentage}%`,
-                                minWidth: '26px',
-                                backgroundColor: resultGraphColors[k],
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'end',
-                                overflow: 'hidden',
-                                height: '16px',
-                            }}
+                    return (
+                        <Tooltip
+                            key={k}
+                            title={
+                                <Box sx={{ textAlign: 'center' }}>
+                                    {k[0].toUpperCase()}
+                                    {k.substring(1)}
+                                    <br />
+                                    {count.toLocaleString()} Game{count !== 1 ? 's' : ''}
+                                    <br />
+                                    {Math.round(percentage * 10) / 10}%
+                                </Box>
+                            }
                         >
-                            <Typography
+                            <Box
                                 sx={{
-                                    fontSize: '0.8rem',
-                                    lineHeight: '14px',
-                                    color: resultGraphTextColors[k],
+                                    width: `${percentage}%`,
+                                    minWidth: '26px',
+                                    backgroundColor: resultGraphColors[k],
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'end',
+                                    overflow: 'hidden',
+                                    height: '16px',
                                 }}
                             >
-                                {Math.round(percentage)}%
-                            </Typography>
-                        </Box>
-                    </Tooltip>
-                );
-            })}
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.8rem',
+                                        lineHeight: '14px',
+                                        color: resultGraphTextColors[k],
+                                    }}
+                                >
+                                    {Math.round(percentage)}%
+                                </Typography>
+                            </Box>
+                        </Tooltip>
+                    );
+                })}
+            </Stack>
         </Stack>
     );
 };

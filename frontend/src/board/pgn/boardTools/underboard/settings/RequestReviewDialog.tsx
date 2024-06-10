@@ -22,14 +22,14 @@ import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../../../../../api/Api';
-import { ListGamesResponse } from '../../../../../api/gameApi';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
+import { ListGamesResponse } from '../../../../../api/gameApi';
 import { useAuth } from '../../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
 import {
-    displayGameReviewType,
     Game,
     GameReviewType,
+    displayGameReviewType,
 } from '../../../../../database/game';
 import { ONE_WEEK } from '../../../../../games/review/ReviewQueuePage';
 import Avatar from '../../../../../profile/Avatar';
@@ -109,7 +109,7 @@ const SubmitDialogContent: React.FC<{
 
         if (!queueRequest.isSent()) {
             queueRequest.onStart();
-            getQueueLength();
+            void getQueueLength();
         }
     }, [queueRequest, api, cohort, id]);
 
@@ -126,9 +126,12 @@ const SubmitDialogContent: React.FC<{
         if (Object.keys(newErrors).length > 0) {
             return;
         }
+        if (!reviewType) {
+            return;
+        }
 
         request.onStart();
-        api.requestReview(cohort, id, reviewType!)
+        api.requestReview(cohort, id, reviewType)
             .then((resp) => {
                 console.log('requestReview: ', resp);
                 window.location.href = resp.data.url;
@@ -383,7 +386,7 @@ const PendingDialogContent: React.FC<{ game: Game }> = ({ game }) => {
 
         if (!queueRequest.isSent()) {
             queueRequest.onStart();
-            getQueueLength();
+            void getQueueLength();
         }
     }, [queueRequest, api, cohort, id]);
 

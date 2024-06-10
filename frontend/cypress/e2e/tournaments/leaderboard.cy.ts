@@ -18,8 +18,8 @@ describe('Leaderboard Tab', () => {
         );
         cy.loginByCognitoApi(
             'tournaments',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.clock(tournamentsClock);
 
@@ -41,7 +41,7 @@ describe('Leaderboard Tab', () => {
             .find('.MuiDataGrid-columnHeader')
             .should('have.length', columns.length);
 
-        columns.forEach((col) => cy.getBySel('leaderboard').contains(col));
+        cy.getBySel('leaderboard').containsAll(columns);
     });
 
     it('displays correct data', () => {

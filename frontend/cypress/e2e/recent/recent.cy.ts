@@ -5,8 +5,8 @@ describe('Graduations', () => {
         cy.clock(now);
         cy.loginByCognitoApi(
             'recent',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/recent');
     });
@@ -23,7 +23,7 @@ describe('Graduations', () => {
             fixture: 'recent/graduations.json',
         });
 
-        [
+        const columns = [
             'Name',
             'Graduated',
             'Old Cohort',
@@ -31,12 +31,11 @@ describe('Graduations', () => {
             'Dojo Score',
             'Date',
             'Comments',
-        ].forEach((col) =>
-            cy
-                .getBySel('recent-graduates-table')
-                .get('.MuiDataGrid-columnHeaders')
-                .contains(col),
-        );
+        ];
+
+        cy.getBySel('recent-graduates-table')
+            .get('.MuiDataGrid-columnHeaders')
+            .containsAll(columns);
     });
 
     it('displays correct graduations from past week', () => {
@@ -69,8 +68,8 @@ describe('Featured Games', () => {
         cy.clock(now);
         cy.loginByCognitoApi(
             'recent',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/recent');
     });

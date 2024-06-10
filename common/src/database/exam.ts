@@ -2,6 +2,7 @@
 export enum ExamType {
     Tactics = 'TACTICS_EXAM',
     Polgar = 'POLGAR_EXAM',
+    Endgame = 'ENDGAME_EXAM',
 }
 
 /**

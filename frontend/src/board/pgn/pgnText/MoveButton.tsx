@@ -149,6 +149,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
         </MuiButton>
     );
 });
+Button.displayName = 'Button';
 
 interface MoveMenuProps {
     anchor?: HTMLElement;
@@ -158,7 +159,10 @@ interface MoveMenuProps {
 }
 
 const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) => {
-    const chess = useChess().chess!;
+    const { chess } = useChess();
+    if (!chess) {
+        return null;
+    }
 
     const canPromote = chess.canPromoteVariation(move);
 
@@ -221,7 +225,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     handleScroll,
 }) => {
     const { game } = useGame();
-    const { chess, board, config } = useChess();
+    const { chess, config } = useChess();
     const reconcile = useReconcile();
     const ref = useRef<HTMLButtonElement>(null);
     const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
@@ -325,7 +329,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         setMenuAnchorEl(undefined);
     };
 
-    let moveText = move.san;
+    const moveText = move.san;
 
     if (inline) {
         let text = '';
@@ -362,7 +366,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     const moveTime = showMoveTimes && game ? getMoveTime(chess, move) : undefined;
 
     return (
-        <Grid key={'move-' + move.ply} item xs={5}>
+        <Grid key={`move-${move.ply}`} item xs={5}>
             <Button
                 ref={ref}
                 isCurrentMove={isCurrentMove}

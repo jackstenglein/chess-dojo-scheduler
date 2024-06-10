@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import { Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-
-import { useApi } from '../../api/Api';
-import { ProfileCreatorFormProps } from './ProfileCreatorPage';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
 const defaultSources = [
     'Twitch',
@@ -33,10 +32,10 @@ const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevSte
     const request = useRequest();
 
     const [referralSource, setReferralSource] = useState(
-        getReferralSource(user.referralSource)
+        getReferralSource(user.referralSource),
     );
     const [otherSource, setOtherSource] = useState(
-        defaultSources.includes(user.referralSource) ? '' : user.referralSource
+        defaultSources.includes(user.referralSource) ? '' : user.referralSource,
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
 

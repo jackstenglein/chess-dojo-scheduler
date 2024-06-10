@@ -1,3 +1,4 @@
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import ReactGA from 'react-ga4';
 import { ReportCallback } from 'web-vitals';
@@ -7,11 +8,12 @@ import reportWebVitals from './reportWebVitals';
 
 ReactGA.initialize('G-9VPNTDELD2');
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
-    // <React.StrictMode>
-    <App />,
-    // </React.StrictMode>
+    <React.StrictMode>
+        <App />,
+    </React.StrictMode>,
 );
 
 const sendToAnalytics: ReportCallback = ({ id, name, value }) => {

@@ -1,6 +1,6 @@
-import { LicenseInfo } from '@mui/x-data-grid-pro';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { LicenseInfo } from '@mui/x-license';
 import { Amplify, Hub } from 'aws-amplify';
 import { useEffect } from 'react';
 import {
@@ -39,6 +39,7 @@ import UnsubscribePage from './dojoDigest/UnsubscribePage';
 import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
+import { ListEndgameExamsPage } from './exams/list/ListEndgameExamsPage';
 import { ListTacticsExamsPage } from './exams/list/ListTacticsExamsPage';
 import { AdminStatsPage } from './exams/view/AdminStatsPage';
 import ExamPage from './exams/view/ExamPage';
@@ -165,6 +166,7 @@ const router = createBrowserRouter(
                         <Route index element={<ExamLandingPage />} />
                         <Route path='tactics' element={<ListTacticsExamsPage />} />
                         <Route path='checkmate' element={<ListCheckmateExamsPage />} />
+                        <Route path='endgame' element={<ListEndgameExamsPage />} />
 
                         <Route path=':type/:id'>
                             <Route index element={<ExamInstructionsPage />} />
@@ -275,7 +277,7 @@ function App() {
             <ThemeProvider>
                 <LocalizationProvider
                     dateAdapter={AdapterLuxon}
-                    adapterLocale={navigator.languages?.[0]}
+                    adapterLocale={navigator.languages[0]}
                 >
                     <RouterProvider router={router} />
                 </LocalizationProvider>
@@ -288,7 +290,7 @@ function Root() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        Hub.listen('auth', (data: any) => {
+        Hub.listen('auth', (data: { payload?: { event: string; data?: string } }) => {
             switch (data?.payload?.event) {
                 case 'customOAuthState':
                     if (data.payload.data) {

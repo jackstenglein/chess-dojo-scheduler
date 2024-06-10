@@ -77,7 +77,7 @@ export function getChartData(
     let data = [];
 
     if (dates.length === ratingHistory.length) {
-        data = ratingHistory?.map((r) => ({
+        data = ratingHistory.map((r) => ({
             date: new Date(r.date),
             rating: r.rating,
         }));
@@ -151,7 +151,7 @@ export const primaryAxis: AxisOptions<Datum> = {
     getValue: (datum) => datum.date,
 };
 
-export const secondaryAxes: Array<AxisOptions<Datum>> = [
+export const secondaryAxes: AxisOptions<Datum>[] = [
     {
         scaleType: 'linear',
         getValue: (datum) => datum.rating,

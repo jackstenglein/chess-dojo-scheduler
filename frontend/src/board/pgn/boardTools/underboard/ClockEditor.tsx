@@ -21,7 +21,7 @@ export function convertSecondsToDateTime(seconds: number | undefined): DateTime 
 }
 
 function convertDateTimeToClock(date: DateTime | null): string {
-    if (!date || !date.isValid) {
+    if (!date?.isValid) {
         return '';
     }
     return formatTime(date.hour * 3600 + date.minute * 60 + date.second);
@@ -63,8 +63,8 @@ const ClockEditor = () => {
         return null;
     }
 
-    const initialClock = getInitialClock(chess?.pgn);
-    const increment = getIncrement(chess?.pgn);
+    const initialClock = getInitialClock(chess.pgn);
+    const increment = getIncrement(chess.pgn);
 
     const moves = chess.history();
     const grid = [];

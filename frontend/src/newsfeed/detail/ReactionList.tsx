@@ -1,5 +1,3 @@
-import { CSSProperties, useMemo, useState } from 'react';
-
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import {
     Button,
@@ -11,7 +9,7 @@ import {
     Typography,
     useTheme,
 } from '@mui/material';
-
+import { CSSProperties, useMemo, useState } from 'react';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
@@ -69,11 +67,11 @@ const ReactionTypesToImage = {
 };
 
 function isReactor(
-    user: User,
+    user: User | undefined,
     reactions: Record<string, Reaction> | null,
     type: string,
 ): boolean {
-    if (!reactions) {
+    if (!user || !reactions) {
         return false;
     }
     if (!reactions[user.username]) {
@@ -114,7 +112,7 @@ const ReactionEmoji: React.FC<{ type: string; icon?: boolean }> = ({ type, icon 
         case ':SlowDown:':
         case ':LevelUp:':
         case ':YodaKraai:':
-        case ':Mate:':
+        case ':Mate:': {
             const styles: CSSProperties = {
                 objectFit: 'contain',
             };
@@ -132,6 +130,7 @@ const ReactionEmoji: React.FC<{ type: string; icon?: boolean }> = ({ type, icon 
                     src={ReactionTypesToImage[type]}
                 />
             );
+        }
     }
 
     if (icon) return <>{type}</>;
@@ -147,7 +146,7 @@ interface ReactionListProps {
 }
 
 const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdit }) => {
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const api = useApi();
     const request = useRequest();
 
@@ -176,8 +175,11 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
     };
 
     const onReact = (type: string) => {
-        const types = getNewTypes(user, reactions, type);
+        if (!user) {
+            return;
+        }
 
+        const types = getNewTypes(user, reactions, type);
         request.onStart();
         api.setNewsfeedReaction(owner, id, types)
             .then((resp) => {

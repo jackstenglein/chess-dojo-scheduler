@@ -6,17 +6,14 @@ import {
     GridActionsCellItem,
     GridColDef,
     GridColumnGroupingModel,
+    GridProSlotsComponent,
     GridRenderCellParams,
     GridRowId,
     GridRowModel,
-    GridValueFormatterParams,
-    GridValueGetterParams,
-    UncapitalizedGridProSlotsComponent,
 } from '@mui/x-data-grid-pro';
-import { Link as RouterLink } from 'react-router-dom';
-
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useFreeTier } from '../auth/Auth';
 import { isGraduation } from '../database/graduation';
 import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
@@ -62,10 +59,8 @@ const rankColumn: GridColDef<ScoreboardRow> = {
     field: 'rank',
     headerName: 'Rank',
     renderHeader: () => '',
-    valueGetter: (params) =>
-        params.api
-            .getSortedRowIds()
-            .indexOf((params.id as string).replace('#pinned', '')) + 1,
+    valueGetter: (_value, row, _column, api) =>
+        api.current.getSortedRowIds().indexOf(row.username.replace('#pinned', '')) + 1,
     sortable: false,
     filterable: false,
     align: 'center',
@@ -101,11 +96,11 @@ const cohortColumn: GridColDef<ScoreboardRow> = {
     headerName: 'Cohort',
     align: 'center',
     headerAlign: 'center',
-    valueGetter(params: GridValueGetterParams<ScoreboardRow>) {
-        if (isGraduation(params.row)) {
+    valueGetter(_value, row) {
+        if (isGraduation(row)) {
             return '';
         }
-        return parseInt(params.row.dojoCohort);
+        return parseInt(row.dojoCohort);
     },
     renderCell(params) {
         if (isGraduation(params.row)) {
@@ -118,11 +113,11 @@ const cohortColumn: GridColDef<ScoreboardRow> = {
 const graduatedColumn: GridColDef<ScoreboardRow> = {
     field: 'previousCohort',
     headerName: 'Graduated',
-    valueGetter: (params: GridValueGetterParams<ScoreboardRow>) => {
-        if (params.row.graduationCohorts && params.row.graduationCohorts.length > 0) {
-            return params.row.graduationCohorts;
+    valueGetter: (_value, row) => {
+        if (row.graduationCohorts && row.graduationCohorts.length > 0) {
+            return row.graduationCohorts;
         }
-        return params.row.previousCohort;
+        return row.previousCohort;
     },
     renderCell: (params: GridRenderCellParams<ScoreboardRow>) => {
         let graduationCohorts = params.row.graduationCohorts;
@@ -135,7 +130,7 @@ const graduatedColumn: GridColDef<ScoreboardRow> = {
             }
 
             return (
-                <Stack direction='row'>
+                <Stack direction='row' alignItems='center' height={1}>
                     {graduationCohorts.map((c) => (
                         <CohortIcon key={c} cohort={c} size={32} />
                     ))}
@@ -173,7 +168,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         field: 'ratingSystem',
         headerName: 'Rating System',
         minWidth: 175,
-        valueGetter: getRatingSystem,
+        valueGetter: (_value, row) => getRatingSystem(row),
         align: 'center',
         headerAlign: 'center',
     },
@@ -181,7 +176,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         field: 'startRating',
         headerName: 'Start Rating',
         minWidth: 150,
-        valueGetter: getStartRating,
+        valueGetter: (_value, row) => getStartRating(row),
         align: 'center',
         headerAlign: 'center',
     },
@@ -189,7 +184,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         field: 'currentRating',
         headerName: 'Current Rating',
         minWidth: 150,
-        valueGetter: getCurrentRating,
+        valueGetter: (_value, row) => getCurrentRating(row),
         align: 'center',
         headerAlign: 'center',
     },
@@ -197,7 +192,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         field: 'ratingChange',
         headerName: 'Rating Change',
         minWidth: 150,
-        valueGetter: getRatingChange,
+        valueGetter: (_value, row) => getRatingChange(row),
         align: 'center',
         headerAlign: 'center',
     },
@@ -205,9 +200,9 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         field: 'normalizedRating',
         headerName: 'Normalized FIDE Rating',
         minWidth: 200,
-        valueGetter: getNormalizedRating,
-        renderCell: (params) =>
-            params.value >= 0 ? (
+        valueGetter: (_value, row) => getNormalizedRating(row),
+        renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) =>
+            (params.value ?? -1) >= 0 ? (
                 params.value
             ) : (
                 <Tooltip title='Custom ratings cannot be converted to FIDE'>
@@ -309,6 +304,7 @@ function getActionColumns(
             if (isPinned) {
                 return [
                     <GridActionsCellItem
+                        key='unpin'
                         label='Unpin Row'
                         icon={
                             <Tooltip title='Unpin Row'>
@@ -325,6 +321,7 @@ function getActionColumns(
             }
             return [
                 <GridActionsCellItem
+                    key='pin'
                     icon={
                         <Tooltip title='Pin Row'>
                             <PushPinIcon sx={{ color: 'text.secondary' }} />
@@ -356,18 +353,18 @@ function getTrainingPlanColumns(
                 field: 'cohortScore',
                 headerName: 'Dojo Score',
                 minWidth: 125,
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getCohortScore(params, cohort, requirements),
+                valueGetter: (_value, row) => getCohortScore(row, cohort, requirements),
                 align: 'center',
             },
             {
                 field: 'percentComplete',
                 headerName: 'Percent Complete',
                 minWidth: 175,
-                valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                    getPercentComplete(params, cohort, requirements),
+                valueGetter: (_value, row) =>
+                    getPercentComplete(row, cohort, requirements),
                 renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) => (
                     <ScoreboardProgress
+                        fullHeight
                         value={params.value ?? 0}
                         max={100}
                         min={0}
@@ -385,7 +382,7 @@ function getTrainingPlanColumns(
             headerName: 'Dojo Score',
             minWidth: 150,
             align: 'center',
-            valueFormatter: (params) => Math.round(params.value * 100) / 100,
+            valueFormatter: (value) => Math.round(value * 100) / 100,
         },
     ];
 }
@@ -400,10 +397,9 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
         {
             field: 'totalTime',
             headerName: allCohorts ? 'All Tasks' : 'Cohort Tasks',
-            valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                getMinutesSpent(params, allCohorts ? 'ALL_COHORTS_ALL_TIME' : 'ALL_TIME'),
-            valueFormatter: (params: GridValueFormatterParams<number>) =>
-                formatTime(params.value),
+            valueGetter: (_value, row) =>
+                getMinutesSpent(row, allCohorts ? 'ALL_COHORTS_ALL_TIME' : 'ALL_TIME'),
+            valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
             headerAlign: 'center',
@@ -411,13 +407,12 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
         {
             field: 'last7DaysTime',
             headerName: 'Last 7 Days',
-            valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+            valueGetter: (_value, row) =>
                 getMinutesSpent(
-                    params,
+                    row,
                     allCohorts ? 'ALL_COHORTS_LAST_7_DAYS' : 'LAST_7_DAYS',
                 ),
-            valueFormatter: (params: GridValueFormatterParams<number>) =>
-                formatTime(params.value),
+            valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
             headerAlign: 'center',
@@ -425,13 +420,12 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
         {
             field: 'last30DaysTime',
             headerName: 'Last 30 Days',
-            valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+            valueGetter: (_value, row) =>
                 getMinutesSpent(
-                    params,
+                    row,
                     allCohorts ? 'ALL_COHORTS_LAST_30_DAYS' : 'LAST_30_DAYS',
                 ),
-            valueFormatter: (params: GridValueFormatterParams<number>) =>
-                formatTime(params.value),
+            valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
             headerAlign: 'center',
@@ -439,13 +433,12 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
         {
             field: 'last90DaysTime',
             headerName: 'Last 90 Days',
-            valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+            valueGetter: (_value, row) =>
                 getMinutesSpent(
-                    params,
+                    row,
                     allCohorts ? 'ALL_COHORTS_LAST_90_DAYS' : 'LAST_90_DAYS',
                 ),
-            valueFormatter: (params: GridValueFormatterParams<number>) =>
-                formatTime(params.value),
+            valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
             headerAlign: 'center',
@@ -453,13 +446,12 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
         {
             field: 'last365DaysTime',
             headerName: 'Last 365 Days',
-            valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
+            valueGetter: (_value, row) =>
                 getMinutesSpent(
-                    params,
+                    row,
                     allCohorts ? 'ALL_COHORTS_LAST_365_DAYS' : 'LAST_365_DAYS',
                 ),
-            valueFormatter: (params: GridValueFormatterParams<number>) =>
-                formatTime(params.value),
+            valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
             headerAlign: 'center',
@@ -467,10 +459,9 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
         {
             field: 'nonDojoTime',
             headerName: 'Non-Dojo',
-            valueGetter: (params: GridValueGetterParams<ScoreboardRow>) =>
-                getMinutesSpent(params, allCohorts ? 'ALL_COHORTS_NON_DOJO' : 'NON_DOJO'),
-            valueFormatter: (params: GridValueFormatterParams<number>) =>
-                formatTime(params.value),
+            valueGetter: (_value, row) =>
+                getMinutesSpent(row, allCohorts ? 'ALL_COHORTS_NON_DOJO' : 'NON_DOJO'),
+            valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
             headerAlign: 'center',
@@ -486,7 +477,7 @@ interface ScoreboardProps {
     rows: ScoreboardRow[];
     loading: boolean;
     addUser?: boolean;
-    slots?: Partial<UncapitalizedGridProSlotsComponent>;
+    slots?: Partial<GridProSlotsComponent>;
     slotProps?: GridProSlotProps;
 }
 
@@ -530,7 +521,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                         r.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
                         (!isFreeTier || r.isFree),
                 )
-                .map((r) => getColumnDefinition(r, cohort!)) ?? []
+                .map((r) => getColumnDefinition(r, cohort || '')) ?? []
         );
     }, [requirements, cohort, isFreeTier]);
 
@@ -595,7 +586,6 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
         <DataGridPro
             data-cy={cypressId}
             sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
-            experimentalFeatures={{ columnGrouping: true }}
             columns={columns}
             columnGroupingModel={columnGroups}
             rows={rows}

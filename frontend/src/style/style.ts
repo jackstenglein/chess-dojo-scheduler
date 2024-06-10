@@ -20,13 +20,13 @@ function stringToColor(string: string) {
     return color;
 }
 
-export type SxSize = {
+export interface SxSize {
     xs?: string;
     sm?: string;
     md?: string;
     lg?: string;
     xl?: string;
-};
+}
 
 /**
  * Returns the props for a MUI Avatar with the given size and name.
@@ -37,7 +37,7 @@ export type SxSize = {
 export function avatarProps(name: string, size: number | SxSize = 74, fontSize?: SxSize) {
     let uppercaseLetters = name.replace(/[a-z]/g, '').slice(0, 3);
 
-    let tokens = name.split(' ');
+    const tokens = name.split(' ');
     if (tokens.length > 1) {
         uppercaseLetters = tokens
             .slice(0, 3)

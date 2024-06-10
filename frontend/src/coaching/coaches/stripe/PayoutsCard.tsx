@@ -1,3 +1,4 @@
+import { AccountBalance, CreditCard, Help } from '@mui/icons-material';
 import {
     Card,
     CardContent,
@@ -10,8 +11,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { AccountBalance, CreditCard, Help } from '@mui/icons-material';
-
 import { StripeAccount, StripePayoutMethod } from '../../../database/payment';
 
 const PayoutsCard = ({ account }: { account?: StripeAccount }) => {
@@ -67,8 +66,8 @@ const PayoutsCard = ({ account }: { account?: StripeAccount }) => {
                                     </TableCell>
                                     <TableCell align='center'>
                                         <Typography>
-                                            {account.settings.payouts.schedule
-                                                .delay_days + ' Days'}
+                                            {account.settings.payouts.schedule.delay_days}{' '}
+                                            Days
                                         </Typography>
                                     </TableCell>
                                 </TableRow>

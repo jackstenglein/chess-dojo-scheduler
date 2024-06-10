@@ -1,12 +1,13 @@
+import { CognitoUser } from '@aws-amplify/auth';
 import { Amplify, Auth } from 'aws-amplify';
 
 Amplify.configure({
     Auth: {
-        region: Cypress.env('cognito_region'),
-        userPoolId: Cypress.env('cognito_user_pool_id'),
-        userPoolWebClientId: Cypress.env('cognito_user_pool_web_client_id'),
+        region: cy.dojo.env('cognito_region'),
+        userPoolId: cy.dojo.env('cognito_user_pool_id'),
+        userPoolWebClientId: cy.dojo.env('cognito_user_pool_web_client_id'),
         oauth: {
-            domain: Cypress.env('cognito_domain'),
+            domain: cy.dojo.env('cognito_domain'),
             scope: ['profile', 'email', 'openid'],
             redirectSignIn: Cypress.config('baseUrl'),
             redirectSignOut: Cypress.config('baseUrl'),
@@ -14,6 +15,24 @@ Amplify.configure({
         },
     },
 });
+
+type CognitoUserWithInternals = CognitoUser & {
+    username: string;
+    keyPrefix: string;
+};
+
+interface HasClockDrift {
+    // Was treated like a string by the code, but should be a number
+    clockDrift: number | string;
+}
+
+function isCognitoUser(resp: unknown): resp is CognitoUserWithInternals {
+    return resp instanceof CognitoUser;
+}
+
+function isHasClockDrift(session: unknown): session is HasClockDrift {
+    return !!session && typeof session === 'object' && 'clockDrift' in session;
+}
 
 const loginToCognito = (email: string, password: string) => {
     const log = Cypress.log({
@@ -26,28 +45,45 @@ const loginToCognito = (email: string, password: string) => {
 
     const signIn = Auth.signIn(email, password);
 
-    cy.wrap(signIn, { log: false }).then((cognitoResponse: any) => {
-        const keyPrefixWithUsername = `${cognitoResponse.keyPrefix}.${cognitoResponse.username}`;
+    cy.wrap(signIn, { log: false }).then((cognitoResponse) => {
+        if (!isCognitoUser(cognitoResponse)) {
+            throw new Error(
+                `Unexpected response from Auth.signIn. Expected CognitoUser, got ${typeof cognitoResponse}`,
+            );
+        }
+
+        const user = cognitoResponse;
+        const userSession = user.getSignInUserSession();
+        if (!isHasClockDrift(userSession)) {
+            throw new Error(
+                `Unexpected response from Auth.signIn. Expected CognitoUserSession to have clockDrift`,
+            );
+        }
+
+        const idToken = userSession.getIdToken();
+        const refreshToken = userSession.getRefreshToken();
+        const accessToken = userSession.getAccessToken();
+
+        const { username, keyPrefix } = user;
+
+        const keyPrefixWithUsername = `${keyPrefix}.${username}`;
         window.localStorage.setItem(
             `${keyPrefixWithUsername}.idToken`,
-            cognitoResponse.signInUserSession.idToken.jwtToken
+            idToken.getJwtToken(),
         );
         window.localStorage.setItem(
             `${keyPrefixWithUsername}.accessToken`,
-            cognitoResponse.signInUserSession.accessToken.jwtToken
+            accessToken.getJwtToken(),
         );
         window.localStorage.setItem(
             `${keyPrefixWithUsername}.refreshToken`,
-            cognitoResponse.signInUserSession.refreshToken.token
+            refreshToken.getToken(),
         );
         window.localStorage.setItem(
             `${keyPrefixWithUsername}.clockDrift`,
-            cognitoResponse.signInUserSession.clockDrift
+            userSession.clockDrift.toString(),
         );
-        window.localStorage.setItem(
-            `${cognitoResponse.keyPrefix}.LastAuthUser`,
-            cognitoResponse.username
-        );
+        window.localStorage.setItem(`${keyPrefix}.LastAuthUser`, username);
 
         window.localStorage.setItem('amplify-authenticator-authState', 'signedIn');
 
@@ -60,7 +96,7 @@ Cypress.Commands.add('loginByCognitoApi', (sessionId, email, password) => {
     cy.session(
         `${sessionId}-${email}`,
         () => {
-            return loginToCognito(email, password);
+            loginToCognito(email, password);
         },
         {
             validate() {
@@ -68,7 +104,7 @@ Cypress.Commands.add('loginByCognitoApi', (sessionId, email, password) => {
 
                 cy.location('pathname').should('equal', '/profile');
             },
-        }
+        },
     );
     cy.visit('/');
 });

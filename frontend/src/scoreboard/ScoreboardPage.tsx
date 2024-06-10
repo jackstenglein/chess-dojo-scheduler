@@ -1,29 +1,24 @@
 import { Container, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-
 import { useApi } from '../api/Api';
-import { useRequirements } from '../api/cache/requirements';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
+import { useRequirements } from '../api/cache/requirements';
+import { useAuth, useFreeTier } from '../auth/Auth';
 import { Graduation } from '../database/graduation';
-import { dojoCohorts, SubscriptionStatus } from '../database/user';
+import { dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import UpsellAlert from '../upsell/UpsellAlert';
 import GraduationChips from './GraduationChips';
 import Scoreboard from './Scoreboard';
-import { ScoreboardRow } from './scoreboardData';
 import ScoreboardTutorial from './ScoreboardTutorial';
 import ScoreboardViewSelector from './ScoreboardViewSelector';
-
-type ScoreboardPageParams = {
-    type: string;
-};
+import { ScoreboardRow } from './scoreboardData';
 
 const ScoreboardPage = () => {
-    const user = useAuth().user!;
-    const isFreeTier = user.subscriptionStatus === SubscriptionStatus.FreeTier;
-    const { type } = useParams<ScoreboardPageParams>();
+    const { user } = useAuth();
+    const isFreeTier = useFreeTier();
+    const { type } = useParams();
 
     const dataRequest = useRequest<ScoreboardRow[]>();
     const graduationsRequest = useRequest<Graduation[]>();
@@ -64,19 +59,21 @@ const ScoreboardPage = () => {
         }
     });
 
+    const dataReset = dataRequest.reset;
+    const gradReset = graduationsRequest.reset;
     useEffect(() => {
         if (type) {
-            dataRequest.reset();
-            graduationsRequest.reset();
+            dataReset();
+            gradReset();
         }
-    }, [type]);
+    }, [type, dataReset, gradReset]);
 
     const onChangeViewType = (type: string) => {
         navigate(`/scoreboard/${type}`);
     };
 
     if (!type) {
-        return <Navigate to={`./${user.dojoCohort}`} replace />;
+        return <Navigate to={`./${user?.dojoCohort}`} replace />;
     }
 
     if (

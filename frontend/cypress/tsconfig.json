@@ -1,11 +1,11 @@
 {
     "compilerOptions": {
+        "strict": true,
         "target": "es5",
         "lib": ["es5", "dom"],
         "types": ["cypress", "node", "cypress-real-events"],
         "resolveJsonModule": true,
-        "esModuleInterop": true
-
+        "esModuleInterop": true,
     },
-    "include": ["**/*.ts"]
+    "include": ["**/*.ts", "**/*.cy.ts", ".eslintrc.cjs"]
 }

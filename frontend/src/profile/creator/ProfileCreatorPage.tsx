@@ -1,14 +1,13 @@
+import { Box, Container, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Stepper, Step, StepLabel, Typography, Container, Box } from '@mui/material';
-
+import { useRequiredAuth } from '../../auth/Auth';
 import { SubscriptionStatus, User, dojoCohorts } from '../../database/user';
-import PersonalInfoForm from './PersonalInfoForm';
-import { useAuth } from '../../auth/Auth';
-import PreferredRatingSystemForm from './PreferredRatingSystemForm';
-import ExtraRatingSystemsForm from './ExtraRatingSystemsForm';
-import DiscordForm from './DiscordForm';
-import ReferralSourceForm from './ReferralSourceForm';
 import PricingPage from '../../upsell/PricingPage';
+import DiscordForm from './DiscordForm';
+import ExtraRatingSystemsForm from './ExtraRatingSystemsForm';
+import PersonalInfoForm from './PersonalInfoForm';
+import PreferredRatingSystemForm from './PreferredRatingSystemForm';
+import ReferralSourceForm from './ReferralSourceForm';
 
 interface StepProps {
     label: string;
@@ -50,7 +49,10 @@ const steps: StepProps[] = [
     },
 ];
 
-function getActiveStep(user: User): number {
+function getActiveStep(user?: User): number {
+    if (!user) {
+        return 0;
+    }
     if (user.displayName.trim() === '') {
         return 0;
     }
@@ -66,7 +68,7 @@ function getActiveStep(user: User): number {
 }
 
 const ProfileCreatorPage = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const [activeStep, setActiveStep] = useState(getActiveStep(user));
     const [showPricingPage, setShowPricingPage] = useState(true);
 

@@ -6,7 +6,7 @@ import { StripeAccount } from '../database/payment';
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type PaymentApiContextType = {
+export interface PaymentApiContextType {
     /**
      * Creates a subscription checkout session.
      * @param request The SubscriptionCheckoutRequest.
@@ -39,7 +39,7 @@ export type PaymentApiContextType = {
      * @returns A stripe login link URL.
      */
     paymentAccountLogin: () => Promise<AxiosResponse<StripeUrlResponse>>;
-};
+}
 
 /** A request to create a subscription checkout session. */
 export interface SubscriptionCheckoutRequest {

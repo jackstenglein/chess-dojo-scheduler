@@ -30,9 +30,9 @@ export enum SortBy {
     Oldest = 'OLDEST',
 }
 
-type PositionCommentSortContextType = {
+interface PositionCommentSortContextType {
     sortBy: SortBy;
-};
+}
 
 const PositionCommentSortContext = createContext<PositionCommentSortContextType>({
     sortBy: SortBy.Newest,

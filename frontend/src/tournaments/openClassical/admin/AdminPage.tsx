@@ -64,7 +64,7 @@ const AdminPage = () => {
             {request.data && (
                 <TabContext value={tab}>
                     <TabList
-                        onChange={(_, value) => setTab(value)}
+                        onChange={(_, value: string) => setTab(value)}
                         sx={{ borderBottom: 1, borderColor: 'divider' }}
                     >
                         <Tab label='Active Players' value='players' />

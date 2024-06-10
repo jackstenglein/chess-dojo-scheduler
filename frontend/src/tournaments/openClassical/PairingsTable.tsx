@@ -1,37 +1,37 @@
 import { OpenInNew, Warning } from '@mui/icons-material';
 import { Stack, Tooltip } from '@mui/material';
-import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
 import { OpenClassical, OpenClassicalPairing } from '../../database/tournament';
 
 export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
     {
         field: 'whiteLichess',
         headerName: 'White (Lichess)',
-        valueGetter: (params) =>
-            `${params.row.white.lichessUsername}${
-                params.row.white.rating ? ` (${params.row.white.rating})` : ''
+        valueGetter: (_value, row) =>
+            `${row.white.lichessUsername}${
+                row.white.rating ? ` (${row.white.rating})` : ''
             }`,
         flex: 1,
     },
     {
         field: 'whiteDiscord',
         headerName: 'White (Discord)',
-        valueGetter: (params) => params.row.white.discordUsername,
+        valueGetter: (_value, row) => row.white.discordUsername,
         flex: 1,
     },
     {
         field: 'blackLichess',
         headerName: 'Black (Lichess)',
-        valueGetter: (params) =>
-            `${params.row.black.lichessUsername}${
-                params.row.black.rating ? ` (${params.row.black.rating})` : ''
+        valueGetter: (_value, row) =>
+            `${row.black.lichessUsername}${
+                row.black.rating ? ` (${row.black.rating})` : ''
             }`,
         flex: 1,
     },
     {
         field: 'blackDiscord',
         headerName: 'Black (Discord)',
-        valueGetter: (params) => params.row.black.discordUsername,
+        valueGetter: (_value, row) => row.black.discordUsername,
         flex: 1,
     },
     {
@@ -40,7 +40,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         flex: 0.5,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => {
+        renderCell: (params: GridRenderCellParams<OpenClassicalPairing, string>) => {
             if (params.value === '*' || params.value === '') {
                 return params.value;
             }
@@ -63,7 +63,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         width: 75,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => {
+        renderCell: (params: GridRenderCellParams<OpenClassicalPairing, string>) => {
             if (
                 params.value &&
                 (params.value.startsWith('https://lichess.org/') ||

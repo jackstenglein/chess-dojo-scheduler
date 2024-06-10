@@ -10,7 +10,7 @@ export interface WarningRule {
 export interface Warning {
     displayName: string;
     description: string;
-    moves: Array<Move | null>;
+    moves: (Move | null)[];
 }
 
 const ChesscomCommentAfterRegex =

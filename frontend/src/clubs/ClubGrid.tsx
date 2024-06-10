@@ -18,7 +18,7 @@ import MemberCountChip from './MemberCountChip';
 
 interface ClubGridProps {
     clubs?: Club[];
-    request: Request;
+    request: Request<unknown>;
 }
 
 const ClubGrid: React.FC<ClubGridProps> = ({ clubs, request }) => {

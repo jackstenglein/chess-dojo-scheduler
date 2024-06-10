@@ -12,6 +12,7 @@ interface RenderPlayersProps {
     black: string;
     blackElo?: string | number;
     blackProvisional?: boolean;
+    fullHeight?: boolean;
 }
 
 export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
@@ -19,6 +20,7 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
 
     return (
         <RenderPlayers
+            fullHeight
             white={headers.White}
             black={headers.Black}
             whiteElo={headers.WhiteElo}
@@ -34,13 +36,14 @@ export function RenderPlayers({
     black,
     blackElo,
     blackProvisional,
+    fullHeight,
 }: RenderPlayersProps) {
     const light = useLightMode();
     const whiteStr = getPlayerName(white, whiteElo, whiteProvisional);
     const blackStr = getPlayerName(black, blackElo, blackProvisional);
 
     return (
-        <Stack>
+        <Stack height={fullHeight ? 1 : undefined} justifyContent='center'>
             <Stack direction='row' spacing={1} alignItems='center'>
                 {light ? (
                     <CircleOutlinedIcon
@@ -76,7 +79,7 @@ export function RenderPlayers({
 
 export function RenderResult(params: GridRenderCellParams) {
     return (
-        <Stack alignItems='center'>
+        <Stack height={1} justifyContent='center' alignItems='center'>
             <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
                 {params.value === GameResult.White && '1'}
                 {params.value === GameResult.Black && '0'}
@@ -96,7 +99,7 @@ function getPlayerName(
     rating?: string | number,
     provisional?: boolean,
 ): string {
-    let str = `${username}`;
+    let str = username;
     if (rating === undefined) {
         str += ' (??)';
     } else if (rating) {

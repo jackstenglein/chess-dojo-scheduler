@@ -8,7 +8,7 @@ allInfo = readdlm(filename, ',', String, '\n', skipstart=1)
 maxScore = 69 # 52 #62 #69
 maxRating = 2400 #2400
 minRating = 2000 #2000
-minTime = 1200 # 20 min
+minTime = 600 # 10 min
 
 if filename == "exam1500-1.csv"
     maxScore = 52
@@ -22,6 +22,10 @@ elseif filename == "exam2000-1.csv"
     maxScore = 69
     maxRating = 2400
     minRating = 2000
+elseif filename == "exam1000-1.csv"
+    maxScore = 38
+    maxRating = 1100
+    minRating = 0
 else
     println("UNEXPECTED FILENAME")
     return false
@@ -38,11 +42,11 @@ end
 
 println(cohortsLow)
 
-# lowTimes = findall((v) -> v < minTime, times)
-# deleteat!(ratings, lowTimes)
-# deleteat!(times, lowTimes)
-# deleteat!(scores, lowTimes)
-# deleteat!(cohortsLow, lowTimes)
+lowTimes = findall((v) -> v < minTime, times)
+deleteat!(ratings, lowTimes)
+deleteat!(times, lowTimes)
+deleteat!(scores, lowTimes)
+deleteat!(cohortsLow, lowTimes)
 
 negativeRatings = findall((v) -> v == -1.0, ratings)
 deleteat!(ratings, negativeRatings)
@@ -68,7 +72,7 @@ for low in sortedLows
 end
 
 relevantCohorts = filter((v) -> (minRating-100 <= v[1] <= maxRating+100), cohortScores)
-plot(collect(values(cohortScores)), collect(keys(cohortScores)), title="Ratings vs Scores with Time: $filename", xlabel="Scores", ylabel="Ratings", label="cohort avg", seriestype=:scatter)
+plot(collect(values(cohortScores)), collect(keys(cohortScores)), title="Ratings vs Scores: $filename", xlabel="Scores", ylabel="Ratings", label="cohort avg", seriestype=:scatter)
 plot!(collect(values(relevantCohorts)), collect(keys(relevantCohorts)), label="relevant cohort avg", seriestype=:scatter)
 
 #plot!(scores, ratings, title="Ratings vs Scores", label="all", xlabel="scores", ylabel="ratings", seriestype=:scatter)

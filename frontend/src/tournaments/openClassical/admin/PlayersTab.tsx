@@ -17,10 +17,8 @@ import {
     GridActionsCellItem,
     GridColDef,
     GridToolbarContainer,
-    GridValueFormatterParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
-
 import { useSearchParams } from 'react-router-dom';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
@@ -29,6 +27,13 @@ import {
     OpenClassicalPlayer,
     OpenClassicalPlayerStatus,
 } from '../../../database/tournament';
+
+declare module '@mui/x-data-grid' {
+    interface ToolbarPropsOverrides {
+        region: string;
+        ratingRange: string;
+    }
+}
 
 export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
     {
@@ -48,12 +53,12 @@ export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
     {
         field: 'byeRequests',
         headerName: 'Bye Requests',
-        valueFormatter(params: GridValueFormatterParams<boolean[]>) {
-            if (!params.value) {
+        valueFormatter(value: boolean[]) {
+            if (!value) {
                 return null;
             }
 
-            return params.value
+            return value
                 .map((v, idx) => (v ? idx + 1 : false))
                 .filter((v) => v !== false)
                 .join(', ');
@@ -64,15 +69,14 @@ export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
     {
         field: 'status',
         headerName: 'Status',
-        valueFormatter(params: GridValueFormatterParams<string>) {
-            if (params.value === OpenClassicalPlayerStatus.Active) {
-                return 'Active';
-            }
-            if (params.value === OpenClassicalPlayerStatus.Banned) {
-                return 'Banned';
-            }
-            if (params.value === OpenClassicalPlayerStatus.Withdrawn) {
-                return 'Withdrawn';
+        valueFormatter(value: OpenClassicalPlayerStatus) {
+            switch (value) {
+                case OpenClassicalPlayerStatus.Active:
+                    return 'Active';
+                case OpenClassicalPlayerStatus.Withdrawn:
+                    return 'Withdrawn';
+                case OpenClassicalPlayerStatus.Banned:
+                    return 'Banned';
             }
         },
     },
@@ -94,7 +98,7 @@ function CustomToolbar({ region, ratingRange }: { region: string; ratingRange: s
                 downloadRequest.onSuccess();
                 link.remove();
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error('adminGetRegistrations: ', err);
                 downloadRequest.onFailure();
             });
@@ -151,7 +155,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
             type: 'actions',
             headerName: 'Actions',
             getActions: (params) => [
-                <Tooltip title='Withdraw Player'>
+                <Tooltip key='withdraw' title='Withdraw Player'>
                     <GridActionsCellItem
                         disabled={params.row.status !== OpenClassicalPlayerStatus.Active}
                         icon={<PersonRemove />}
@@ -162,7 +166,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                         }}
                     />
                 </Tooltip>,
-                <Tooltip title='Ban Player'>
+                <Tooltip key='ban' title='Ban Player'>
                     <GridActionsCellItem
                         disabled={params.row.status === OpenClassicalPlayerStatus.Banned}
                         color='error'
@@ -191,7 +195,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                     `${updatePlayer} ${updateType === 'ban' ? 'banned' : 'withdrawn'}`,
                 );
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error('updatePlayer: ', err);
                 updateRequest.onFailure(err);
             });

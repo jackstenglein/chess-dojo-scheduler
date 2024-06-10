@@ -12,25 +12,25 @@ const BASE_URL = getConfig().api.baseUrl;
 /**
  * UserApiContextType provides an API for interacting with the current signed-in user.
  */
-export type UserApiContextType = {
+export interface UserApiContextType {
     /**
      * checkUserAccess returns a 200 OK if the current signed-in user has an active subscription
      * on chessdojo.shop and an error otherwise.
      * @returns An empty AxiosResponse if the current user has an active subscription.
      */
-    checkUserAccess: () => Promise<AxiosResponse<any, any>>;
+    checkUserAccess: () => Promise<AxiosResponse>;
 
     /**
      * getUser returns the current signed-in user.
      * @returns An AxiosResponse containing the current user in the data field.
      */
-    getUser: () => Promise<AxiosResponse<User, any>>;
+    getUser: () => Promise<AxiosResponse<User>>;
 
     /**
      * getUserPublic returns the user with the provided username.
      * @returns An AxiosResponse containing the provided user in the data field.
      */
-    getUserPublic: (username: string) => Promise<AxiosResponse<User, any>>;
+    getUserPublic: (username: string) => Promise<AxiosResponse<User>>;
 
     /**
      * listUserTimeline returns a list of the provided user's timeline entries.
@@ -69,7 +69,7 @@ export type UserApiContextType = {
     updateUser: (
         update: Partial<User>,
         autopickCohort?: boolean,
-    ) => Promise<AxiosResponse<User, any>>;
+    ) => Promise<AxiosResponse<User>>;
 
     /**
      * updateUserProgress updates the current user's progress on the provided requirement.
@@ -88,7 +88,7 @@ export type UserApiContextType = {
         incrementalMinutesSpent: number,
         date: DateTime | null,
         notes: string,
-    ) => Promise<AxiosResponse<User, any>>;
+    ) => Promise<AxiosResponse<User>>;
 
     /**
      * updateUserTimeline sets the current user's timeline for the provided requirement.
@@ -107,26 +107,26 @@ export type UserApiContextType = {
         deleted: TimelineEntry[],
         count: number,
         minutesSpent: number,
-    ) => Promise<AxiosResponse<User, any>>;
+    ) => Promise<AxiosResponse<User>>;
 
     /**
      * graduate creates a new graduation object for the given user and updates them to the next cohort.
      * @param comments The comments the user wants to add to their graduation object.
      * @returns An AxiosResponse containing the new graduation object and the user update.
      */
-    graduate: (comments: string) => Promise<AxiosResponse<GraduationResponse, any>>;
+    graduate: (comments: string) => Promise<AxiosResponse<GraduationResponse>>;
 
     /**
      * @returns An AxiosResponse containing the user statistics.
      */
-    getUserStatistics: () => Promise<AxiosResponse<UserStatistics, any>>;
+    getUserStatistics: () => Promise<AxiosResponse<UserStatistics>>;
 
     /**
      * Fetches the FollowerEntry for the current signed-in user and the given poster, if it exists.
      * @param poster The person being followed.
      * @returns The FollowerEntry or null if it does not exist.
      */
-    getFollower: (poster: string) => Promise<AxiosResponse<FollowerEntry | null, any>>;
+    getFollower: (poster: string) => Promise<AxiosResponse<FollowerEntry | null>>;
 
     /**
      * Edits the follower state of the current signed-in user for the given poster.
@@ -137,7 +137,7 @@ export type UserApiContextType = {
     editFollower: (
         poster: string,
         action: 'follow' | 'unfollow',
-    ) => Promise<AxiosResponse<FollowerEntry | null, any>>;
+    ) => Promise<AxiosResponse<FollowerEntry | null>>;
 
     /**
      * Fetches a list of followers for the given user.
@@ -148,7 +148,7 @@ export type UserApiContextType = {
     listFollowers: (
         username: string,
         startKey?: string,
-    ) => Promise<AxiosResponse<ListFollowersResponse, any>>;
+    ) => Promise<AxiosResponse<ListFollowersResponse>>;
 
     /**
      * Fetches the list of users the given user is following.
@@ -159,8 +159,8 @@ export type UserApiContextType = {
     listFollowing: (
         username: string,
         startKey?: string,
-    ) => Promise<AxiosResponse<ListFollowersResponse, any>>;
-};
+    ) => Promise<AxiosResponse<ListFollowersResponse>>;
+}
 
 /**
  * checkUserAccess returns a 200 OK if the current signed-in user has an active subscription
@@ -215,7 +215,7 @@ export async function listUserTimeline(
     owner: string,
     startKey?: string,
 ) {
-    let params = { startKey };
+    const params = { startKey };
     const resp = await axios.get<ListUserTimelineResponse>(
         `${BASE_URL}/user/${owner}/timeline`,
         {
@@ -245,7 +245,7 @@ export async function listUsersByCohort(
     cohort: string,
     startKey?: string,
 ) {
-    let params = { startKey };
+    const params = { startKey };
     const result: User[] = [];
     do {
         const resp = await axios.get<ListUsersResponse>(BASE_URL + `/user/${cohort}`, {
@@ -268,7 +268,7 @@ export async function listUsersByCohort(
  * @returns A list of users matching the provided query and fields.
  */
 export async function searchUsers(query: string, fields: string[], startKey?: string) {
-    let params = { query, fields: fields.join(','), startKey };
+    const params = { query, fields: fields.join(','), startKey };
     const result: User[] = [];
 
     do {

@@ -2,6 +2,7 @@
 export enum ExamType {
     Tactics = 'TACTICS_EXAM',
     Polgar = 'POLGAR_EXAM',
+    Endgame = 'ENDGAME_EXAM',
 }
 
 export function displayExamType(type: ExamType): string {
@@ -10,6 +11,8 @@ export function displayExamType(type: ExamType): string {
             return 'Tactics Test';
         case ExamType.Polgar:
             return 'Checkmate Test';
+        case ExamType.Endgame:
+            return 'Endgame Test';
     }
 }
 
