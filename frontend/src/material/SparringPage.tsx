@@ -142,14 +142,17 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                             </>
                         ) : (
                             <>
-                            <Icon
-                                name='Rook Endgame Progression'
-                                color='dojoOrange'
-                                fontSize='small'
-                                sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}
-                            />
+                                <Icon
+                                    name='Rook Endgame Progression'
+                                    color='dojoOrange'
+                                    fontSize='small'
+                                    sx={{
+                                        marginRight: '0.3rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                />
 
-                            {subsection.name}
+                                {subsection.name}
                             </>
                         )}
                     </>
@@ -367,15 +370,10 @@ const SparringPage = () => {
                     ChessDojo Recommended Sparring Positions
                 </Typography>
                 <Typography>
-                    Lorem Ipsum is simply dummy text of the printing and typesetting
-                    industry. Lorem Ipsum has been the industry's standard dummy text ever
-                    since the 1500s, when an unknown printer took a galley of type and
-                    scrambled it to make a type specimen book. It has survived not only
-                    five centuries, but also the leap into electronic typesetting,
-                    remaining essentially unchanged. It was popularised in the 1960s with
-                    the release of Letraset sheets containing Lorem Ipsum passages, and
-                    more recently with desktop publishing software like Aldus PageMaker
-                    including versions of Lorem Ipsum.
+                    Below are the recommended sparring positions per cohort. Ideally, you
+                    should spar positions with someone within one cohort of you and
+                    discuss the games afterward. Detailed instructions per position can be
+                    found in the training plan.
                 </Typography>
 
                 {sections.map((s) => (

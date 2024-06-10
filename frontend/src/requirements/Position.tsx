@@ -1,9 +1,6 @@
 import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { LoadingButton } from '@mui/lab';
-import Icon from '../style/Icon';
-import { getLigaIconBasedOnTimeControl } from '../calendar/eventViewer/LigaTournamentViewer';
-import PawnIcon from '../navbar/PawnIcon';
 import {
     Button,
     Card,
@@ -18,6 +15,8 @@ import axios from 'axios';
 import copy from 'copy-to-clipboard';
 import { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { getLigaIconBasedOnTimeControl } from '../calendar/eventViewer/LigaTournamentViewer';
+import Icon from '../style/Icon';
 
 import { EventType, trackEvent } from '../analytics/events';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -40,7 +39,7 @@ interface PositionProps {
 const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     const [copied, setCopied] = useState('');
     const lichessRequest = useRequest();
-    const positionExp = new String("https://www.chessdojo.club/games/explorer?fen=");
+    const positionExp = new String('https://www.chessdojo.club/games/explorer?fen=');
     const expURL = positionExp.concat(position.fen);
 
     const onCopy = (name: string) => {
@@ -59,12 +58,11 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     };
 
     const onCopyExp = () => {
-        trackEvent( EventType.CopyPositionExplorer, {
+        trackEvent(EventType.CopyPositionExplorer, {
             position_exp_url: expURL,
-        }
-        );
+        });
         onCopy('exp');
-    }
+    };
 
     const generateLichessUrl = () => {
         lichessRequest.onStart();
@@ -105,12 +103,28 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     <Stack px={1}>
                         <Stack direction='row' justifyContent='space-between'>
                             <Typography variant='h6'> {position.title}</Typography>
-                            <Tooltip title={getLigaIconBasedOnTimeControl(position.limitSeconds).toLowerCase().concat(" time control")}>
-                            <Typography>
-                                <Icon name={getLigaIconBasedOnTimeControl(position.limitSeconds)} color='dojoOrange' sx={{marginRight: "0.3", verticalAlign: "middle"}}/> {position.limitSeconds / 60}+{position.incrementSeconds} 
-                            </Typography>
+                            <Tooltip
+                                title={getLigaIconBasedOnTimeControl(
+                                    position.limitSeconds,
+                                )
+                                    .toLowerCase()
+                                    .concat(' time control')}
+                            >
+                                <Typography>
+                                    <Icon
+                                        name={getLigaIconBasedOnTimeControl(
+                                            position.limitSeconds,
+                                        )}
+                                        color='dojoOrange'
+                                        sx={{
+                                            marginRight: '0.3',
+                                            verticalAlign: 'middle',
+                                        }}
+                                    />{' '}
+                                    {position.limitSeconds / 60}+
+                                    {position.incrementSeconds}
+                                </Typography>
                             </Tooltip>
-                          
                         </Stack>
 
                         <Stack direction='row' justifyContent='space-between'>
@@ -123,7 +137,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     </Stack>
                 }
             />
-            <CardContent sx={{ pt: 0, px: 1, width: '336px', height: '336px' }}>
+            <CardContent sx={{ pt: 0, px: 1, width: '400px', height: '400px' }}>
                 <Board
                     config={{
                         fen: position.fen.trim(),
@@ -133,48 +147,58 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 />
             </CardContent>
             <CardActions>
-                
                 <CopyToClipboard
                     data-cy='position-fen-copy'
                     text={position.fen.trim()}
                     onCopy={onCopyFen}
-                >   
-                    <Tooltip title='Copy position FEN to clipboard'>  
-                    <Button
-                        startIcon={
-                            copied === 'fen' ? <CheckIcon color='success'/> : <ContentPasteIcon color='dojoOrange'/>
-                        }
-                    >
-                        {copied === 'fen' ? 'Copied' : 'FEN'}
-                    </Button>
+                >
+                    <Tooltip title='Copy position FEN to clipboard'>
+                        <Button
+                            startIcon={
+                                copied === 'fen' ? (
+                                    <CheckIcon color='success' />
+                                ) : (
+                                    <ContentPasteIcon color='dojoOrange' />
+                                )
+                            }
+                        >
+                            {copied === 'fen' ? 'Copied' : 'FEN'}
+                        </Button>
                     </Tooltip>
-                    
                 </CopyToClipboard>
-                
-                    <Tooltip title='Open this in position explorer'>  
+
+                <Tooltip title='Open this in position explorer'>
                     <Button
                         startIcon={
-                            copied === 'exp' ? <CheckIcon color='success'/> : <Icon name='explore' color='dojoOrange'/>
+                            copied === 'exp' ? (
+                                <CheckIcon color='success' />
+                            ) : (
+                                <Icon name='explore' color='dojoOrange' />
+                            )
                         }
                         href={expURL}
-                        rel="noopener noreferrer"
-                        target="_blank"
+                        rel='noopener noreferrer'
+                        target='_blank'
                     >
                         {copied === 'exp' ? 'Copied' : 'Explorer'}
                     </Button>
-                    </Tooltip>
-   
+                </Tooltip>
+
                 <Tooltip title='Copy a URL and send to another player to play on Lichess'>
-                <LoadingButton
-                    data-cy='position-challenge-url'
-                    startIcon={
-                        copied === 'lichess' ? <CheckIcon color='success'/> : <Icon name='spar' color='dojoOrange'/>
-                    }
-                    loading={lichessRequest.isLoading()}
-                    onClick={generateLichessUrl}
-                >
-                    {copied === 'lichess' ? 'Copied' : 'Challenge URL'}
-                </LoadingButton>
+                    <LoadingButton
+                        data-cy='position-challenge-url'
+                        startIcon={
+                            copied === 'lichess' ? (
+                                <CheckIcon color='success' />
+                            ) : (
+                                <Icon name='spar' color='dojoOrange' />
+                            )
+                        }
+                        loading={lichessRequest.isLoading()}
+                        onClick={generateLichessUrl}
+                    >
+                        {copied === 'lichess' ? 'Copied' : 'Challenge URL'}
+                    </LoadingButton>
                 </Tooltip>
             </CardActions>
         </Card>

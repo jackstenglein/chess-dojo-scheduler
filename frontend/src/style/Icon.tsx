@@ -6,12 +6,14 @@ import {
     Biotech,
     BorderColor,
     CalendarMonth,
+    ControlCamera,
     Create,
     CrisisAlert,
     DashboardCustomize,
     DoDisturb,
     Download,
     EditCalendar,
+    EmojiObjects,
     Event,
     EventAvailable,
     EventAvailableOutlined,
@@ -21,7 +23,12 @@ import {
     Group,
     Groups,
     Info,
+    KeyboardArrowDown,
+    KeyboardArrowUp,
+    KeyboardDoubleArrowDown,
+    KeyboardDoubleArrowUp,
     Leaderboard,
+    Link,
     LiveTv,
     LocalHospital,
     LocationOn,
@@ -46,17 +53,7 @@ import {
     Visibility,
     WavingHand,
     Whatshot,
-    ControlCamera,
     ZoomOutMap,
-    EmojiObjects,
-    KeyboardDoubleArrowDown,
-    KeyboardDoubleArrowUp,
-    KeyboardArrowUp,
-    KeyboardArrowDown,
-    SportsKabaddi,
-    Sports,
-    Link
-
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -157,15 +154,15 @@ export const icons = {
     [CalendarSessionType.CoachingSessions]: RocketLaunch,
     [CalendarSessionType.DojoEvents]: LiveTv,
     [CalendarSessionType.Meetings]: EventAvailableOutlined,
-    'menuUp': KeyboardDoubleArrowUp,
-    'menuDown': KeyboardDoubleArrowDown,
-    'innerMenuUp': KeyboardArrowUp,
-    'innerMenuDown': KeyboardArrowDown,
-    'spar': Link
+    menuUp: KeyboardDoubleArrowUp,
+    menuDown: KeyboardDoubleArrowDown,
+    innerMenuUp: KeyboardArrowUp,
+    innerMenuDown: KeyboardArrowDown,
+    spar: Link,
 };
 
 export interface IconProps extends SvgIconProps {
-    name: keyof typeof icons | '' ;
+    name: keyof typeof icons | '';
 }
 
 export const Icon: React.FC<IconProps> = ({ name, ...props }) => {
