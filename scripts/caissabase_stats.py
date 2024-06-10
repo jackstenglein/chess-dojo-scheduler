@@ -6,10 +6,14 @@ black_elo_re = re.compile('\[BlackElo \"(.*)\"\]')
 date_re = re.compile('\[Date \"(.*)\..*\..*\"\]')
 time_control_re = re.compile('\[TimeControl \"(.*)\"\]')
 event_re = re.compile('\[Event \"(.*)\"]')
+site_re = re.compile('\[Site \"(.*)\"]')
+
 
 def main():
-    chessbase_stats, chessbase_years, chessbase_tcs = get_pgn_stats('/Users/jackstenglein/Downloads/megadb_2023.pgn')
-    caissabase_stats, caissabase_years, caissabase_tcs = get_pgn_stats('/Users/jackstenglein/Documents/caissabase-2024-04-27.pgn')
+    twic_info = load_twic_info('twic_output_new.csv')
+
+    chessbase_stats, chessbase_years, chessbase_tcs = get_pgn_stats('/Users/jackstenglein/Downloads/megadb_2023.pgn', twic_info)
+    caissabase_stats, caissabase_years, caissabase_tcs = get_pgn_stats('/Users/jackstenglein/Documents/caissabase-2024-04-27.pgn', twic_info)
 
     years = chessbase_years.union(caissabase_years)
     years = list(years)
@@ -92,7 +96,25 @@ def main():
             ])
 
 
-def get_pgn_stats(filename):
+def load_twic_info(filename):
+    twic_info = {}
+    with open(filename, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            archive_num, pgn_event, pgn_site, twic_event, twic_site, time_controls = row
+            if pgn_site != twic_site:
+                continue
+            if time_controls == "Unknown":
+                continue
+            
+            twic_info[pgn_event] = {
+                'event': pgn_event,
+                'time_controls': time_controls
+            }
+    return twic_info
+
+
+def get_pgn_stats(filename, twic_info):
     game_stats = {
         'total': 0,
         'total_two_players_2200+': 0,
@@ -112,9 +134,16 @@ def get_pgn_stats(filename):
             game_stats[year] = game_stats.get(year, 0) + 1
             years.add(year)
 
-            tc = get_time_control(pgn)
+            tc = get_time_control(pgn, twic_info)
             game_stats[tc] = game_stats.get(tc, 0) + 1
             tcs.add(tc)
+
+            if tc == '?':
+                event = get_event(pgn)
+                site = get_site(pgn)
+                with open('unknown_tc.csv', 'a') as f:
+                    writer = csv.writer(f)
+                    writer.writerow([event, site, year])
 
             white_elo, black_elo = get_elos(pgn)
             if white_elo < 0 and black_elo < 0:
@@ -193,28 +222,43 @@ def get_year(pgn):
     return date.group(1)
 
 
-def get_time_control(pgn):
+def get_event(pgn):
+    event = event_re.search(pgn)
+    if event is None:
+        return '?'
+    return event.group(1)
+
+
+def get_site(pgn):
+    site = site_re.search(pgn)
+    if site is None:
+        return '?'
+    return site.group(1)
+
+
+def get_time_control(pgn, twic_info):
     time_control = time_control_re.search(pgn)
     if time_control is not None:
         return time_control.group(1)
 
-    event = event_re.search(pgn)
-    if event is None:
-        return '?'
+    event = get_event(pgn)
+    event_lower = event.lower()
 
-    event = event.group(1).lower()
-    if 'classical' in event:
+    if 'classical' in event_lower:
         return 'classical'
-    if 'rapid' in event:
+    if 'rapid' in event_lower:
         return 'rapid'
-    if 'quick' in event:
+    if 'quick' in event_lower:
         return 'quick'
-    if 'blitz' in event:
+    if 'blitz' in event_lower:
         return 'blitz'
-    if 'bullet' in event:
+    if 'bullet' in event_lower:
         return 'bullet'
-    if 'titled tue' in event:
+    if 'titled tue' in event_lower:
         return 'titled tue'
+
+    if event in twic_info:
+        return twic_info[event]['time_controls']
     
     return '?'
 
