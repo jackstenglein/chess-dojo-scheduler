@@ -74,18 +74,15 @@ def fetch_twic_info(archive_num):
         return []
     
     soup = BeautifulSoup(res.text, 'html.parser')
-    game_counts = get_twic_game_counts(soup, archive_num)
+    results = get_twic_game_counts(soup, archive_num)
 
-    if game_counts is None or len(game_counts) == 0:
-        print(f'ERROR {archive_num}: Got 0 game counts')
+    if results is None or len(results) == 0:
+        print(f'ERROR {archive_num}: Got 0 events from game counts')
         return []
     
-    results = []
     events = soup.find_all('h2')
     for event in events:
-        event_info = get_twic_event_info(event, game_counts)
-        if event_info is not None:
-            results.append(event_info)
+        add_twic_event_info(event, results)
 
     return results
 
@@ -102,38 +99,44 @@ def get_twic_game_counts(soup, archive_num):
     if rows[0].get_text().strip() != 'Games Section':
         return None
     
-    result = {}
+    result = []
     for row in rows[1:]:
         if len(row.contents) == 2:
             event = row.contents[0].get_text()
+            count = 0
 
             if archive_num in EVENT_COUNT_OVERRIDES and event in EVENT_COUNT_OVERRIDES[archive_num]:
-                result[event] = EVENT_COUNT_OVERRIDES[archive_num][event]
+                count = EVENT_COUNT_OVERRIDES[archive_num][event]
             else:
                 count = row.contents[1].get_text().strip()
                 count = count.split(' ')[0]
+                count = re.sub('[^0-9]','', count)
                 try:
                     count = int(count)
-                    result[event] = count
                 except Exception as e:
-                    print(f'ERROR {archive_num}: failed to parse int: ', e)
+                    contents = row.contents[1].get_text()
+                    print(f'ERROR {archive_num}: failed to parse int from `{contents}`: ', e)
                     return None
+            
+            result.append({
+                'event': event,
+                'count': count,
+                'sections': []
+            })
 
     return result
 
 
-def get_twic_event_info(event, game_counts):
+def add_twic_event_info(event, game_counts):
     event_name = event.get_text().strip()
     event_name = twic_header_re.sub('', event_name)
-    count = game_counts.get(event_name, 0)
-    if count == 0:
+
+    matched_event = next((e for e in game_counts if e['event'] == event_name), None)
+
+    if matched_event == None:
         return None
     
-    result = {
-        'event': event_name,
-        'count': count,
-        'sections': []
-    }
+    print('Matched Event: ', matched_event)
 
     curr = event.next_sibling
     while curr is not None:
@@ -141,11 +144,11 @@ def get_twic_event_info(event, game_counts):
             break
         
         if curr.name == 'ul' and curr.has_attr('class') and curr['class'][0] == 'tourn_details':
-            result['sections'].append(get_twic_section(curr))
+            matched_event['sections'].append(get_twic_section(curr))
 
         curr = curr.next_sibling
     
-    return result
+    return matched_event
     
 
 def get_twic_section(tourn_details):
@@ -189,6 +192,7 @@ def analyze_twic_archive(archive_num):
         print(f'ERROR {archive_num}: empty PGNs.')
         return {}
     
+    print(f'INFO {archive_num}: Got TWIC Info: ', twic_info)
     print(f'INFO {archive_num}: Got %d PGNs' % (len(pgns)))
 
     pgnIdx = 0
@@ -216,9 +220,13 @@ def analyze_twic_archive(archive_num):
             site_found = matches_site(site, info)
 
             if not site_found:
-                print(f'WARNING {archive_num}: site `{site}` not found for PGN (could indicate mismatched event): {pgn}\n\t', info, end='\n\n')
+                print(f'WARNING {archive_num}: site `{site}` not found for PGN {pgnIdx} (could indicate mismatched event): {pgn}\n\t', info, end='\n\n')
+                if i > 1 and event_processed == 1 and matches_site(site, twic_info[i - 1]):
+                    print(f'INFO {archive_num}: site `{site}` matches prev info. Assuming TWIC count is wrong and skipping PGN {pgnIdx}.')
+                    event_processed -= 1
+                    continue
                 if i + 1 < len(twic_info) and matches_site(site, twic_info[i + 1]):
-                    print(f'INFO {archive_num}: site `{site}` matches next info. Assuming TWIC count is wrong and moving to next info.')
+                    print(f'INFO {archive_num}: site `{site}` matches next info for PGN {pgnIdx}. Assuming TWIC count is wrong and moving to next info.')
                     pgnIdx -= 1
                     break
 
@@ -230,14 +238,23 @@ def analyze_twic_archive(archive_num):
             result = results.get(f'{event}_{site}', { 
                 'pgn_event': event, 
                 'pgn_site': site,
-                'twic_event': matched_section['event'] if matched_section else info['event'],
-                'twic_site': info['sections'][0].get('site', ''),
+                'twic_event': '', # matched_section['event'] if matched_section else info['event'],
+                'twic_site': '', # info['sections'][0].get('site', ''),
                 'twic_time_controls': set(),
+                'match_found': False,
             })
+            if result['match_found']:
+                # This event/site combo has already found a perfect match, so no need to add more TCs
+                continue
 
             if matched_section:
-                result['twic_time_controls'].add(matched_section['time_control'])
+                result['twic_event'] = matched_section['event']
+                result['twic_site'] = matched_section['site']
+                result['twic_time_controls'] = [matched_section['time_control']]
+                result['match_found'] = True
             elif not matched_section:
+                result['twic_event'] = info['event']
+                result['twic_site'] = info['sections'][0]['site']
                 result['twic_time_controls'].update([section['time_control'] for section in info['sections'] if section['time_control']])
 
             results[f'{event}_{site}'] = result
@@ -246,12 +263,13 @@ def analyze_twic_archive(archive_num):
 
 
 def main():
-    outfile = 'twic_output_new.csv'
+    outfile = 'twic_output_full_3.csv'
     with open(outfile, 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(['TWIC Archive Num', 'PGN Event', 'PGN Site', 'TWIC Event', 'TWIC Site', 'Possible Time Controls'])
+        writer.writerow(['TWIC Archive Num', 'PGN Event', 'PGN Site', 'TWIC Event', 'TWIC Site', 'Possible Time Controls', 'Section Found'])
 
-    for archive_num in range(920, 1543):
+    
+    for archive_num in range(920, 1544): # range(920, 1544):
         results = analyze_twic_archive(archive_num)
         print(f'INFO {archive_num}: Got %d events' % (len(results)))
         with open(outfile, 'a') as f:
@@ -263,7 +281,8 @@ def main():
                     result['pgn_site'],
                     result['twic_event'],
                     result['twic_site'],
-                    ', '.join(result['twic_time_controls'])
+                    ', '.join(result['twic_time_controls']),
+                    result['match_found']
                 ])
 
 

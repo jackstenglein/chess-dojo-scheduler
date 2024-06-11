@@ -10,12 +10,12 @@ site_re = re.compile('\[Site \"(.*)\"]')
 
 
 def main():
-    twic_info = load_twic_info('twic_output_new.csv')
+    twic_info = load_twic_info('twic_output_full_3.csv')
 
-    chessbase_stats, chessbase_years, chessbase_tcs = get_pgn_stats('/Users/jackstenglein/Downloads/megadb_2023.pgn', twic_info)
+    # chessbase_stats, chessbase_years, chessbase_tcs = get_pgn_stats('/Users/jackstenglein/Downloads/megadb_2023.pgn', twic_info)
     caissabase_stats, caissabase_years, caissabase_tcs = get_pgn_stats('/Users/jackstenglein/Documents/caissabase-2024-04-27.pgn', twic_info)
 
-    years = chessbase_years.union(caissabase_years)
+    years = caissabase_years #chessbase_years.union(caissabase_years)
     years = list(years)
     years.sort(reverse=True)
     years.insert(0, 'total')
@@ -47,15 +47,15 @@ def main():
                 caissabase_stats.get(f'{year}_two_players_U2200', 0),
                 caissabase_stats.get(f'{year}_one_player_unknown_rating', 0),
                 caissabase_stats.get(f'{year}_two_players_unknown_rating', 0),
-                chessbase_stats.get(f'{year}', 0),
-                chessbase_stats.get(f'{year}_two_players_2200+', 0),
-                chessbase_stats.get(f'{year}_one_player_2200+', 0),
-                chessbase_stats.get(f'{year}_two_players_U2200', 0),
-                chessbase_stats.get(f'{year}_one_player_unknown_rating', 0),
-                chessbase_stats.get(f'{year}_two_players_unknown_rating', 0),
+                # chessbase_stats.get(f'{year}', 0),
+                # chessbase_stats.get(f'{year}_two_players_2200+', 0),
+                # chessbase_stats.get(f'{year}_one_player_2200+', 0),
+                # chessbase_stats.get(f'{year}_two_players_U2200', 0),
+                # chessbase_stats.get(f'{year}_one_player_unknown_rating', 0),
+                # chessbase_stats.get(f'{year}_two_players_unknown_rating', 0),
             ])
 
-    tcs = chessbase_tcs.union(caissabase_tcs)
+    tcs = caissabase_tcs # chessbase_tcs.union(caissabase_tcs)
     tcs = list(tcs)
     tcs.sort(reverse=True)
     tcs.insert(0, 'total')
@@ -87,13 +87,25 @@ def main():
                 caissabase_stats.get(f'{tc}_two_players_U2200', 0),
                 caissabase_stats.get(f'{tc}_one_player_unknown_rating', 0),
                 caissabase_stats.get(f'{tc}_two_players_unknown_rating', 0),
-                chessbase_stats.get(f'{tc}', 0),
-                chessbase_stats.get(f'{tc}_two_players_2200+', 0),
-                chessbase_stats.get(f'{tc}_one_player_2200+', 0),
-                chessbase_stats.get(f'{tc}_two_players_U2200', 0),
-                chessbase_stats.get(f'{tc}_one_player_unknown_rating', 0),
-                chessbase_stats.get(f'{tc}_two_players_unknown_rating', 0),
+                # chessbase_stats.get(f'{tc}', 0),
+                # chessbase_stats.get(f'{tc}_two_players_2200+', 0),
+                # chessbase_stats.get(f'{tc}_one_player_2200+', 0),
+                # chessbase_stats.get(f'{tc}_two_players_U2200', 0),
+                # chessbase_stats.get(f'{tc}_one_player_unknown_rating', 0),
+                # chessbase_stats.get(f'{tc}_two_players_unknown_rating', 0),
             ])
+
+
+def twic_matches(pgn_event, pgn_site, twic_event, twic_site, match_found):
+    if match_found:
+        return True
+    if pgn_site == twic_site:
+        return True
+    if pgn_event in twic_event or twic_event in pgn_event:
+        return True
+    if twic_site.split(' ')[-1] in pgn_site:
+        return True
+    return False
 
 
 def load_twic_info(filename):
@@ -101,13 +113,21 @@ def load_twic_info(filename):
     with open(filename, 'r') as f:
         reader = csv.reader(f)
         for row in reader:
-            archive_num, pgn_event, pgn_site, twic_event, twic_site, time_controls = row
-            if pgn_site != twic_site:
-                continue
+            archive_num, pgn_event, pgn_site, twic_event, twic_site, time_controls, match_found = row
+
             if time_controls == "Unknown":
                 continue
+
+            if not twic_matches(pgn_event, pgn_site, twic_event, twic_site, match_found):
+                continue
+
+            substituted_event = pgn_event.replace("st", ".").replace("nd", ".").replace("rd", ".").replace("th", ".")
             
-            twic_info[pgn_event] = {
+            twic_info[f'{pgn_event}_{pgn_site}'] = {
+                'event': pgn_event,
+                'time_controls': time_controls
+            }
+            twic_info[f'{substituted_event}_{pgn_site}'] = {
                 'event': pgn_event,
                 'time_controls': time_controls
             }
@@ -139,11 +159,8 @@ def get_pgn_stats(filename, twic_info):
             tcs.add(tc)
 
             if tc == '?':
-                event = get_event(pgn)
-                site = get_site(pgn)
-                with open('unknown_tc.csv', 'a') as f:
-                    writer = csv.writer(f)
-                    writer.writerow([event, site, year])
+                game_stats[f'?_{year}'] = game_stats.get(f'?_{year}', 0) + 1
+                tcs.add(f'?_{year}')
 
             white_elo, black_elo = get_elos(pgn)
             if white_elo < 0 and black_elo < 0:
@@ -242,7 +259,11 @@ def get_time_control(pgn, twic_info):
         return time_control.group(1)
 
     event = get_event(pgn)
+    twic_event = event + '_' + get_site(pgn)
     event_lower = event.lower()
+
+    if twic_event in twic_info:
+        return twic_info[twic_event]['time_controls']
 
     if 'classical' in event_lower:
         return 'classical'
@@ -256,9 +277,8 @@ def get_time_control(pgn, twic_info):
         return 'bullet'
     if 'titled tue' in event_lower:
         return 'titled tue'
-
-    if event in twic_info:
-        return twic_info[event]['time_controls']
+    if 'armageddon' in event_lower:
+        return 'armageddon'
     
     return '?'
 
