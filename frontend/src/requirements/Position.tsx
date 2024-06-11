@@ -130,9 +130,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     </Stack>
                 }
             />
-            <CardContent
-                sx={{ pt: 0, px: 1, width: 1, minWidth: '336px', aspectRatio: '1 / 1' }}
-            >
+            <CardContent sx={{ pt: 0, px: 1, width: '336px', aspectRatio: '1 / 1' }}>
                 <Board
                     config={{
                         fen: position.fen.trim(),
@@ -141,7 +139,10 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     }}
                 />
             </CardContent>
-            <CardActions>
+            <CardActions
+                disableSpacing
+                sx={{ flexWrap: 'wrap', width: '336px', columnGap: 1 }}
+            >
                 <CopyToClipboard
                     data-cy='position-fen-copy'
                     text={position.fen.trim()}
@@ -157,21 +158,10 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                                 )
                             }
                         >
-                            {copied === 'fen' ? 'Copied' : 'FEN'}
+                            FEN
                         </Button>
                     </Tooltip>
                 </CopyToClipboard>
-
-                <Tooltip title='Open in position explorer'>
-                    <Button
-                        startIcon={<Icon name='explore' color='dojoOrange' />}
-                        href={`/games/explorer?fen=${position.fen}`}
-                        rel='noopener'
-                        target='_blank'
-                    >
-                        Explorer
-                    </Button>
-                </Tooltip>
 
                 <Tooltip title='Copy a URL and send to another player to play on Lichess'>
                     <LoadingButton
@@ -186,8 +176,19 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                         loading={lichessRequest.isLoading()}
                         onClick={generateLichessUrl}
                     >
-                        {copied === 'lichess' ? 'Copied' : 'Challenge URL'}
+                        Challenge URL
                     </LoadingButton>
+                </Tooltip>
+
+                <Tooltip title='Open in position explorer'>
+                    <Button
+                        startIcon={<Icon name='explore' color='dojoOrange' />}
+                        href={`/games/explorer?fen=${position.fen}`}
+                        rel='noopener'
+                        target='_blank'
+                    >
+                        Explorer
+                    </Button>
                 </Tooltip>
             </CardActions>
         </Card>

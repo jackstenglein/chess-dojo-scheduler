@@ -4,11 +4,11 @@ import {
     Collapse,
     Container,
     Divider,
-    Grid,
     IconButton,
     Stack,
     Typography,
 } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, { useMemo, useState } from 'react';
 import { RequestSnackbar } from '../api/Request';
 import { useRequirements } from '../api/cache/requirements';
@@ -63,13 +63,13 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                 </Stack>
 
                 <Collapse in={open} timeout='auto' unmountOnExit>
-                    <Grid container spacing={2}>
+                    <Grid2 container spacing={2} sx={{ margin: 'auto' }}>
                         {requirement.positions.map((p) => (
-                            <Grid item xs='auto' key={p.fen}>
+                            <Grid2 xs='auto' key={p.fen}>
                                 <Position position={p} />
-                            </Grid>
+                            </Grid2>
                         ))}
-                    </Grid>
+                    </Grid2>
                 </Collapse>
             </Box>
         );
@@ -77,22 +77,22 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
 
     if (stacked) {
         return (
-            <Grid container spacing={2}>
+            <Grid2 container spacing={2} sx={{ margin: 'auto' }}>
                 {requirement.positions.map((p) => (
-                    <Grid item xs='auto' key={p.fen}>
+                    <Grid2 xs='auto' key={p.fen}>
                         <Position position={p} />
-                    </Grid>
+                    </Grid2>
                 ))}
-            </Grid>
+            </Grid2>
         );
     }
 
     return (
         <>
             {requirement.positions.map((p) => (
-                <Grid item xs='auto' key={p.fen}>
+                <Grid2 xs='auto' key={p.fen}>
                     <Position position={p} />
-                </Grid>
+                </Grid2>
             ))}
         </>
     );
@@ -142,19 +142,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                                 {subsection.name}
                             </>
                         ) : (
-                            <>
-                                <Icon
-                                    name='Rook Endgame Progression'
-                                    color='dojoOrange'
-                                    fontSize='small'
-                                    sx={{
-                                        marginRight: '0.3rem',
-                                        verticalAlign: 'middle',
-                                    }}
-                                />
-
-                                {subsection.name}
-                            </>
+                            <>{subsection.name}</>
                         )}
                     </>
                 </Typography>
@@ -168,7 +156,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                         ))}
                     </Stack>
                 ) : (
-                    <Grid container spacing={2}>
+                    <Grid2 container spacing={2}>
                         {subsection.requirements.map((r) => (
                             <SparringRequirement
                                 key={r.id}
@@ -178,7 +166,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                         ))}
 
                         {subsection.hidden > 0 && (
-                            <Grid item xs='auto'>
+                            <Grid2 xs='auto'>
                                 <Stack
                                     data-cy='upsell-message'
                                     px={1}
@@ -197,9 +185,9 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                                         View Prices
                                     </Button>
                                 </Stack>
-                            </Grid>
+                            </Grid2>
                         )}
-                    </Grid>
+                    </Grid2>
                 )}
             </Collapse>
         </Box>
