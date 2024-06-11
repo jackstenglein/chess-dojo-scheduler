@@ -18,7 +18,8 @@ import { ALL_COHORTS, dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import Position from '../requirements/Position';
 import CohortIcon from '../scoreboard/CohortIcon';
-import Icon from '../style/Icon';
+import Icon, { IconProps } from '../style/Icon';
+
 interface SparringRequirementProps {
     requirement: Requirement;
     forceExpanded?: boolean;
@@ -228,7 +229,7 @@ const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
                 <Typography variant='h6' onClick={toggleOpen} sx={{ cursor: 'pointer' }}>
                     <>
                         <Icon
-                            name={section.name}
+                            name={section.name as IconProps['name']}
                             color='primary'
                             fontSize='medium'
                             sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}

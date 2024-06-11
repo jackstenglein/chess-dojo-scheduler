@@ -36,7 +36,6 @@ export enum EventType {
     // Material actions
     CreateSparringLink = 'create_sparring_link',
     CopyFen = 'copy_fen',
-    CopyPositionExplorer = 'copy_position_explorer',
 
     // Upsell
     ViewUpsellDialog = 'view_upsell_dialog',
