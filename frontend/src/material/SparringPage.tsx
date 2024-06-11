@@ -63,7 +63,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                 </Stack>
 
                 <Collapse in={open} timeout='auto' unmountOnExit>
-                    <Grid2 container spacing={2} sx={{ margin: 'auto' }}>
+                    <Grid2 container spacing={2}>
                         {requirement.positions.map((p) => (
                             <Grid2 xs='auto' key={p.fen}>
                                 <Position position={p} />
@@ -77,7 +77,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
 
     if (stacked) {
         return (
-            <Grid2 container spacing={2} sx={{ margin: 'auto' }}>
+            <Grid2 container spacing={2}>
                 {requirement.positions.map((p) => (
                     <Grid2 xs='auto' key={p.fen}>
                         <Position position={p} />
