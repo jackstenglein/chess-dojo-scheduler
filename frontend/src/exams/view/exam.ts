@@ -203,6 +203,10 @@ export interface TacticsRatingComponent {
 
     /** A description of the component to be displayed to users. */
     description: string;
+
+    /** Indicates rating was derived as a summary (e.g. average) of 0 or more exams
+     * taken within the dojo **/
+    examSummary?: boolean;
 }
 
 /**
@@ -357,6 +361,7 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
                 name: `${displayExamType(examType)}s`,
                 rating,
                 description: `The average of the 3 most recent ${displayExamType(examType)} ratings. Only tests within the proper cohort range are counted.`,
+                examSummary: true,
             },
         ];
     }
@@ -389,7 +394,7 @@ function displayExamType(examType: ExamType): string {
         case ExamType.Tactics:
             return 'Tactics Test';
         case ExamType.Polgar:
-            return 'Polgar Mate Test';
+            return 'Checkmate Test';
         case ExamType.Endgame:
             return 'Endgame Test';
     }

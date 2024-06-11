@@ -1,4 +1,4 @@
-import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, Link, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
@@ -71,7 +71,11 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             <Tooltip title={c.description}>
                                 <Stack alignItems='center'>
                                     <Typography variant='body2' color='text.secondary'>
-                                        {c.name}
+                                        {c.examSummary ? (
+                                            <Link href='/tests'>{c.name}</Link>
+                                        ) : (
+                                            c.name
+                                        )}
                                     </Typography>
 
                                     <Typography
