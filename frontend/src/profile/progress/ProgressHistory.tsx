@@ -12,6 +12,7 @@ import {
     Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
@@ -25,6 +26,7 @@ import {
     isRequirement,
 } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
+import { User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import { useTimeline } from '../activity/useTimeline';
 
@@ -295,7 +297,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
 }) => {
     const { user } = useAuth();
     const api = useApi();
-    const request = useRequest<unknown>();
+    const request = useRequest<AxiosResponse<User>>();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
     const { entries, request: timelineRequest } = useTimeline(user?.username);
