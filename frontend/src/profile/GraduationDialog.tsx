@@ -21,7 +21,7 @@ import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 
 const GraduationDialog = () => {
     const [comments, setComments] = useState('');
-    const request = useRequest();
+    const request = useRequest<string>();
     const api = useApi();
     const { user } = useAuth();
     const isFreeTier = useFreeTier();

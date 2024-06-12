@@ -20,7 +20,7 @@ const VerifyEmailPage = () => {
     const [codeError, setCodeError] = useState<string>();
 
     const submitRequest = useRequest();
-    const codeRequest = useRequest();
+    const codeRequest = useRequest<string>();
 
     if (auth.status === AuthStatus.Loading) {
         return (

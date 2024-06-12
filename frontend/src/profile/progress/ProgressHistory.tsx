@@ -295,7 +295,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
 }) => {
     const { user } = useAuth();
     const api = useApi();
-    const request = useRequest();
+    const request = useRequest<unknown>();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
     const { entries, request: timelineRequest } = useTimeline(user?.username);

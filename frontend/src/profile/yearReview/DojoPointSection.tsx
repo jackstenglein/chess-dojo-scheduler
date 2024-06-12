@@ -1,13 +1,14 @@
-import { useMemo } from 'react';
 import { Box, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { useMemo } from 'react';
 
-import { SectionProps } from './YearReviewPage';
 import { AxisOptions, Chart } from 'react-charts';
+import { useAuth } from '../../auth/Auth';
 import { YearReviewDataSection } from '../../database/yearReview';
 import { CategoryColors, ScoreCategories } from '../activity/activity';
-import { useAuth } from '../../auth/Auth';
 import Percentiles from './Percentiles';
+import { SectionProps } from './YearReviewPage';
+import { RequirementCategory } from '../../database/requirement';
 
 export interface Datum {
     primary: string;
@@ -30,11 +31,15 @@ export const secondaryAxes: AxisOptions<Datum>[] = [
 export function getCategoryData(
     label: string,
     data: YearReviewDataSection,
-    nonDojo?: boolean
+    nonDojo?: boolean,
 ) {
     let categories = [...ScoreCategories];
     if (nonDojo) {
-        categories = ['Welcome to the Dojo', ...categories, 'Non-Dojo'];
+        categories = [
+            RequirementCategory.Welcome,
+            ...categories,
+            RequirementCategory.NonDojo,
+        ];
     }
 
     return [
