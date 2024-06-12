@@ -3,8 +3,8 @@ name: Lint
 on: push
 
 jobs:
-  run-linter:
-    name: Run linter
+  run-linter-and-build:
+    name: Lint and perform test build
     runs-on: ubuntu-latest
 
     steps:
@@ -22,3 +22,7 @@ jobs:
       - name: Run linters for frontend
         working-directory: frontend
         run: npm run lint
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
