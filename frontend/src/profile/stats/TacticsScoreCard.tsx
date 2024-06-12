@@ -3,7 +3,8 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
 import { calculateTacticsRating } from '../../exams/view/exam';
-
+import MeterGauge from './MeterGauge';
+import ExamGraphComposer from '../../exams/list/ExamGraphComposer';
 interface TacticsScoreCardProps {
     user: User;
 }
@@ -26,7 +27,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     direction='row'
                     mb={2}
                     spacing={2}
-                    justifyContent='start'
+                    justifyContent='center'
                     alignItems='center'
                 >
                     <Typography variant='h6'>Tactics Rating </Typography>
@@ -58,6 +59,24 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     </Tooltip>
                 </Stack>
 
+                <Stack
+                    direction='row'
+                    mb={2}
+                    spacing={2}
+                    justifyContent='start'
+                    alignItems='center'
+                >
+                    {(isProvisional && Math.round(tacticsRating.overall) <= 0)? (
+                        <MeterGauge value={0} wdith={300} height={300} />
+                    ) : (
+                        <MeterGauge
+                            value={Math.round(tacticsRating.overall)}
+                            wdith={100}
+                            height={100}
+                        />
+                    )}
+                </Stack>
+
                 <Grid2 container rowGap={4} columnSpacing={2} justifyContent='center'>
                     {tacticsRating.components.map((c) => (
                         <Grid2
@@ -83,13 +102,33 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                     >
                                         {c.rating > 0 ? Math.round(c.rating) : '?'}
                                     </Typography>
+                                    <>
+                                        {' '}
+                                        {Math.round(c.rating) === -1 ? (
+                                            <MeterGauge
+                                                value={0}
+                                                wdith={100}
+                                                height={100}
+                                            />
+                                        ) : (
+                                            <MeterGauge
+                                                value={Math.round(c.rating)}
+                                                wdith={100}
+                                                height={100}
+                                            />
+                                        )}
+                                    </>
                                 </Stack>
                             </Tooltip>
                         </Grid2>
                     ))}
                 </Grid2>
             </CardContent>
+
+            
         </Card>
+
+        
     );
 };
 
