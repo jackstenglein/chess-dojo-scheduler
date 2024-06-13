@@ -1,10 +1,9 @@
-import { useAuth } from "../../auth/Auth";
-import { useRequiredAuth } from "../../auth/Auth";
 
 import { User } from "../../database/user";
 import { ExamType } from "../../database/exam";
 import ExamGraph from "./ExamGraph";
 import React from "react";
+import { toDojoDateString } from '../../calendar/displayDate';
 /**
  * Gets the list of user's exam ratings from the exams field.
  * @param user - The user object containing exam summaries.
@@ -22,9 +21,13 @@ function getUserExamRatings(user: User): number[] {
  * @returns A list of exam ratings for the specified exam type.
  */
 function getUserExamRatingsByType(user: User, examType: ExamType): number[] {
+    if(Object.keys(user.exams).length == 0){
+        console.log("No Exam Found!");
+        return [];
+    }
     return Object.values(user.exams)
         .filter(examSummary => examSummary.examType === examType)
-        .map(examSummary => examSummary.rating);
+        .map(examSummary => Math.round(examSummary.rating)).reverse();
 }
 
 /**
@@ -33,19 +36,30 @@ function getUserExamRatingsByType(user: User, examType: ExamType): number[] {
  * @returns A list of exam creation times.
  */
 function getUserExamCreationTimes(user: User): string[] {
-    return Object.values(user.exams).map(examSummary => examSummary.createdAt);
+    if(Object.keys(user.exams).length == 0){
+        console.log("No Exam Found!");
+        return [];
+    }
+    return Object.values(user.exams).map(examSummary => toDojoDateString(new Date(examSummary.createdAt), user.timezoneOverride)).reverse();
+}
+
+interface ExamComposer {
+    user: User
+    width: number
+    height: number
 }
 
 
-const ExamGraphComposer: React.FC = () => {
+const ExamGraphComposer: React.FC<ExamComposer> = ({user, width, height}) => {
 
-    const auth = useRequiredAuth();
-    const user = auth.user;
+    console.log(getUserExamRatingsByType(user, ExamType.Polgar));
+    console.log(getUserExamRatingsByType(user, ExamType.Tactics));
+    console.log(getUserExamRatingsByType(user, ExamType.Endgame));
 
     return (
-
-        <ExamGraph polgarData={getUserExamRatingsByType(user, ExamType.Polgar)} tacData={getUserExamRatingsByType(user, ExamType.Polgar)} 
-        endgameData={getUserExamRatingsByType(user, ExamType.Endgame)} xLabels={getUserExamCreationTimes(user)} width={300} height={300}/>
+        
+        <ExamGraph polgarData={getUserExamRatingsByType(user, ExamType.Polgar)} tacData={getUserExamRatingsByType(user, ExamType.Tactics)} 
+        endgameData={getUserExamRatingsByType(user, ExamType.Endgame)} xLabels={getUserExamCreationTimes(user)} width={width} height={height}/>
 
     );
 };

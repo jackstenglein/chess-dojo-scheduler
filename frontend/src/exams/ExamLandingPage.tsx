@@ -51,7 +51,7 @@ export const ExamLandingPage = () => {
                     </Typography>
                 </Stack>
 
-                <ExamGraphComposer/>
+                <ExamGraphComposer user={user} width={700} height={500}/>
 
                 <Stack spacing={3}>
                     <Typography variant='h5' align='center'>

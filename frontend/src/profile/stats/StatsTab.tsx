@@ -8,6 +8,7 @@ import {
     RatingSystem,
     User,
 } from '../../database/user';
+import ExamGraphComposer from '../../exams/list/ExamGraphComposer';
 import RatingCard from './RatingCard';
 import TacticsScoreCard from './TacticsScoreCard';
 
@@ -69,6 +70,9 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
             })}
 
             <TacticsScoreCard user={user} />
+
+            <ExamGraphComposer user={user} width={800} height={500}/>
+
         </Stack>
     );
 };
