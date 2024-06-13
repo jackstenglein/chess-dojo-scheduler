@@ -23,7 +23,7 @@ const ExamGraph: React.FC<ExamVals> = ({
             width={width}
             height={height}
             series={[
-                { data: polgarData, label: 'Polgar' },
+                { data: polgarData, label: 'Checkmate' },
                 { data: tacData, label: 'Tactics' },
                 { data: endgameData, label: 'Endgame' },
             ]}
