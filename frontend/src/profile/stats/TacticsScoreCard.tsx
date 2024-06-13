@@ -2,9 +2,9 @@ import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
+import ExamGraphComposer from '../../exams/list/ExamGraphComposer';
 import { calculateTacticsRating } from '../../exams/view/exam';
 import MeterGauge from './MeterGauge';
-import ExamGraphComposer from '../../exams/list/ExamGraphComposer';
 interface TacticsScoreCardProps {
     user: User;
 }
@@ -30,7 +30,14 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     justifyContent='center'
                     alignItems='center'
                 >
-                    <Typography variant='h6'>Tactics Rating </Typography>
+                    <Typography
+                        variant='h6'
+                        sx={{
+                            fontWeight: 'bold',
+                        }}
+                    >
+                        My Tactics Rating{' '}
+                    </Typography>
                     <Tooltip
                         title={getTooltip(
                             tacticsRating.overall,
@@ -66,13 +73,16 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     justifyContent='start'
                     alignItems='center'
                 >
-                    {(isProvisional && Math.round(tacticsRating.overall) <= 0)? (
-                        <MeterGauge value={0} wdith={300} height={300} />
+                    {isProvisional && Math.round(tacticsRating.overall) <= 0 ? (
+                        <MeterGauge value={0} wdith={300} height={300} text='?' />
                     ) : (
                         <MeterGauge
                             value={Math.round(tacticsRating.overall)}
                             wdith={100}
                             height={100}
+                            text={new Number(
+                                Math.round(tacticsRating.overall),
+                            ).toString()}
                         />
                     )}
                 </Stack>
@@ -89,32 +99,33 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                         >
                             <Tooltip title={c.description}>
                                 <Stack alignItems='center'>
-                                    <Typography variant='body2' color='text.secondary'>
-                                        {c.name}
-                                    </Typography>
-
                                     <Typography
+                                        variant='body2'
+                                        color='text.main'
                                         sx={{
-                                            fontSize: '2rem',
-                                            lineHeight: 1,
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {c.rating > 0 ? Math.round(c.rating) : '?'}
+                                        {c.name}
                                     </Typography>
+
                                     <>
                                         {' '}
-                                        {Math.round(c.rating) === -1 ? (
+                                        {c.rating <= 0 ? (
                                             <MeterGauge
                                                 value={0}
                                                 wdith={100}
                                                 height={100}
+                                                text='?'
                                             />
                                         ) : (
                                             <MeterGauge
                                                 value={Math.round(c.rating)}
                                                 wdith={100}
                                                 height={100}
+                                                text={new Number(
+                                                    Math.round(c.rating),
+                                                ).toString()}
                                             />
                                         )}
                                     </>
@@ -124,11 +135,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     ))}
                 </Grid2>
             </CardContent>
-
-            
         </Card>
-
-        
     );
 };
 

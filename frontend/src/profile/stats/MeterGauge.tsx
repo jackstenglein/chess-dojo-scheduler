@@ -1,60 +1,35 @@
+import { Gauge, gaugeClasses } from '@mui/x-charts';
 import * as React from 'react';
-import {
-  GaugeContainer,
-  GaugeValueArc,
-  GaugeReferenceArc,
-  useGaugeState,
-} from '@mui/x-charts/Gauge';
-
-function GaugePointer() {
-  const { valueAngle, outerRadius, cx, cy } = useGaugeState();
-
-  if (valueAngle === null) {
-    // No value to display
-    return null;
-  }
-
-  const target = {
-    x: cx + outerRadius * Math.sin(valueAngle),
-    y: cy - outerRadius * Math.cos(valueAngle),
-  };
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r={5} fill="#FFA500" />
-      <path
-        d={`M ${cx} ${cy} L ${target.x} ${target.y}`}
-        stroke="#FFA500"
-        strokeWidth={3}
-      />
-    </g>
-  );
-}
 
 interface MeterProps {
-  value: number;
-  wdith: number;
-  height: number;
+    value: number;
+    wdith: number;
+    height: number;
+    text: string;
 }
 
-const MeterGauge: React.FC<MeterProps> = ({ value, wdith, height }) => {
-  return (
-    <GaugeContainer
-      width={wdith}
-      height={height}
-      startAngle={-110}
-      endAngle={110}
-      valueMin={0}
-      valueMax={2700}
-      value={value}
-      
-      
-    >
-      <GaugeReferenceArc />
-      <GaugeValueArc />
-      <GaugePointer />
-    </GaugeContainer>
-  );
+const MeterGauge: React.FC<MeterProps> = ({ value, wdith, height, text }) => {
+    return (
+        <Gauge
+            width={wdith}
+            height={height}
+            value={value}
+            text={text}
+            valueMin={0}
+            valueMax={2700}
+            sx={(theme) => ({
+                [`& .${gaugeClasses.valueText}`]: {
+                    fontSize: 20,
+                },
+                [`& .${gaugeClasses.valueArc}`]: {
+                    fill: '#52b202',
+                },
+                [`& .${gaugeClasses.referenceArc}`]: {
+                    fill: theme.palette.text.disabled,
+                },
+            })}
+        />
+    );
 };
 
 export default MeterGauge;
-

@@ -70,8 +70,7 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
             })}
 
             <TacticsScoreCard user={user} />
-
-            <ExamGraphComposer user={user} width={800} height={500}/>
+            <ExamGraphComposer user={user} width={700} height={500} />
 
         </Stack>
     );
