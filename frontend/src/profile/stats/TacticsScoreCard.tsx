@@ -36,7 +36,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             fontWeight: 'bold',
                         }}
                     >
-                        My Tactics Rating{' '}
+                        Tactics Rating{' '}
                     </Typography>
                     <Tooltip
                         title={getTooltip(
