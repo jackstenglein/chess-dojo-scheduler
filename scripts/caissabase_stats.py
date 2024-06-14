@@ -10,7 +10,7 @@ site_re = re.compile('\[Site \"(.*)\"]')
 
 
 def main():
-    twic_info = load_twic_info('twic_output_full_3.csv')
+    twic_info = load_twic_info('twic_output_full_4.csv')
 
     # chessbase_stats, chessbase_years, chessbase_tcs = get_pgn_stats('/Users/jackstenglein/Downloads/megadb_2023.pgn', twic_info)
     caissabase_stats, caissabase_years, caissabase_tcs = get_pgn_stats('/Users/jackstenglein/Documents/caissabase-2024-04-27.pgn', twic_info)
@@ -198,9 +198,9 @@ def read_pgn(file):
     
     foundMoves = False
     while line := file.readline():
-        if foundMoves and line == '\n':
+        if foundMoves and (line == '\n' or line == '\r\n'):
             break
-        elif line == '\n':
+        elif line == '\n' or line == '\r\n':
             foundMoves = True
 
         pgn += line
