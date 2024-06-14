@@ -19,9 +19,8 @@ export const ExamLandingPage = () => {
                     ChessDojo Tactics Tests
                 </Typography>
                 <Typography>
-                    Lorem Ipsum is simply dummy text of the printing and typesetting
-                    industry. Lorem Ipsum has been the industry's standard dummy text ever
-                    since the 1500s, when an unknown printer took a galley of type and
+                    Welcome to ChessDojo tactics test, a place to view your tactical
+                    ratings, your tactical history graph and to start new tactics test
                 </Typography>
             </Stack>
             <Stack spacing={3}>

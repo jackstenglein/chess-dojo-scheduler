@@ -203,6 +203,9 @@ export interface TacticsRatingComponent {
 
     /** A description of the component to be displayed to users. */
     description: string;
+
+    /** Link relevant to this component */
+    link?: string;
 }
 
 
@@ -308,6 +311,20 @@ function getTaskRating(user: User, req?: Requirement): number {
 }
 
 /**
+ * Returns URL to the particular exam
+ */
+function linkToExamType(examType: ExamType): string {
+    switch (examType) {
+        case ExamType.Tactics:
+            return '/tests/tactics';
+        case ExamType.Polgar:
+            return '/tests/checkmate';
+        case ExamType.Endgame:
+            return '/tests/endgame';
+    }
+}
+
+/**
  * Returns the max possible rating for the given requirement.
  * @param req The requirement to get the max rating for.
  * @returns The max possible rating for the requirement.
@@ -359,6 +376,7 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
                 name: `${displayExamType(examType)}s`,
                 rating,
                 description: `The average of the 3 most recent ${displayExamType(examType)} ratings. Only tests within the proper cohort range are counted.`,
+                link: linkToExamType(examType),
             },
         ];
     }
@@ -391,7 +409,7 @@ function displayExamType(examType: ExamType): string {
         case ExamType.Tactics:
             return 'Tactics Test';
         case ExamType.Polgar:
-            return 'Polgar Mate Test';
+            return 'Checkmate Test';
         case ExamType.Endgame:
             return 'Endgame Test';
     }

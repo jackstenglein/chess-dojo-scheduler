@@ -1,16 +1,12 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import React from 'react';
+import { useRequirements } from '../../api/cache/requirements';
 import { toDojoDateString } from '../../calendar/displayDate';
 import { ExamType } from '../../database/exam';
-import { User } from '../../database/user';
-import ExamGraph from './ExamGraph';
-import { useRequirements } from '../../api/cache/requirements';
-import { ALL_COHORTS} from '../../database/user';
+import { ALL_COHORTS, User } from '../../database/user';
 import { calculateTacticsRating } from '../../exams/view/exam';
 import { TacticsRatingComponent } from '../view/exam';
-
-
-
+import ExamGraph from './ExamGraph';
 
 /**
  * Gets the list of user's exam ratings filtered by exam type.
@@ -38,54 +34,55 @@ function getUserExamCreationTimes(user: User): string[] {
         .reverse();
 }
 
-
-/**
- * gets the users progress PR ratings
- * @param user user 
- * @param type the PR task name
- * @returns 
- */
-function getUserExamRatingByProgress(user: User, type: string): number[]{
-    const { requirements } = useRequirements(ALL_COHORTS, true);
-    const tacticsRating = calculateTacticsRating(user, requirements);
-    const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
-
-    if(!isProvisional){
-        return Object.values(tacticsRating.components).filter((f) => f.name === type).map((c) => (c.rating));
-        
-    }
-
-    return [];
-}
-
 /**
  * Gets the the color for the exam component
  * @param t TacticsRatingCompontent
  * @returns hexcode color
  */
+
 export function getExamColour(t: TacticsRatingComponent): string {
-    if(t.name.includes("Polgar Mate Tests")){
-        return "#8c03fc"
-    }else if(t.name.includes("Tactics Tests")){
-        return "#038cfc"
-    }else if(t.name.includes("Endgame Tests")){
-        return "#76d404"
-    }else if(t.name.includes("PR 5 Min")){
-        return "#c9f03c"
-    }else if(t.name.includes("PR Survival")){
-        return "#ab3cf0"
+    if (t.name.includes('Polgar Mate Tests')) {
+        return '#8c03fc';
+    } else if (t.name.includes('Tactics Tests')) {
+        return '#038cfc';
+    } else if (t.name.includes('Endgame Tests')) {
+        return '#f29c4b';
+    } else if (t.name.includes('PR 5 Min')) {
+        return '#c9f03c';
+    } else if (t.name.includes('PR Survival')) {
+        return '#ab3cf0';
     }
 
-    return "#4b4d49"
+    return '#4b4d49';
 }
+
+/**
+ * Exam Composer interface for ExamGraphComposer component props
+ */
 
 interface ExamComposer {
-    user: User;
-    width: number;
-    height: number;
+    user: User; // Dojo user
+    width: number; // width of the Card
+    height: number; // height of the Card
 }
 
+/**
+ * function to render the card containting the graph of a user's tactical ratings
+ * @param ExamComposer interface
+ * @returns users' tactics rating card
+ */
+
 const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
+    const { requirements } = useRequirements(ALL_COHORTS, true);
+    const tacticsRating = calculateTacticsRating(user, requirements);
+    const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
+    const realRating = Math.round(tacticsRating.overall);
+    let checkProvLine: number[];
+    if (isProvisional) {
+        checkProvLine = [];
+    } else {
+        checkProvLine = [realRating];
+    }
     return (
         <Card variant='outlined'>
             <CardContent>
@@ -109,9 +106,10 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                         polgarData={getUserExamRatingsByType(user, ExamType.Polgar)}
                         tacData={getUserExamRatingsByType(user, ExamType.Tactics)}
                         endgameData={getUserExamRatingsByType(user, ExamType.Endgame)}
-                        pr5min={getUserExamRatingByProgress(user, 'PR 5 Min')}
-                        prsuv={getUserExamRatingByProgress(user, 'PR Survival')}
+                        isUserProv={isProvisional}
                         xLabels={getUserExamCreationTimes(user)}
+                        realRating={realRating}
+                        checkProvLine={checkProvLine}
                         width={width}
                         height={height}
                     />

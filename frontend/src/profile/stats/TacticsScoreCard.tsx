@@ -1,10 +1,12 @@
-import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, Link, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
+import { Link as RouterLink } from 'react-router-dom';
+import { getExamColour } from '../../exams/list/ExamGraphComposer';
 import { calculateTacticsRating } from '../../exams/view/exam';
 import MeterGauge from './MeterGauge';
-import { getExamColour } from '../../exams/list/ExamGraphComposer';
+
 interface TacticsScoreCardProps {
     user: User;
 }
@@ -36,7 +38,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             fontWeight: 'bold',
                         }}
                     >
-                        Tactics Rating{' '}
+                        Tactics Rating:{' '}
                     </Typography>
                     <Tooltip
                         title={getTooltip(
@@ -46,23 +48,30 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             isProvisional,
                         )}
                     >
-                        <Typography
-                            variant='h6'
-                            sx={{
-                                fontSize: '2rem',
-                                fontWeight: 'bold',
-                            }}
-                            color={
-                                tacticsRating.overall < minCohort
-                                    ? 'error'
-                                    : tacticsRating.overall > maxCohort
-                                      ? 'success.main'
-                                      : 'warning.main'
-                            }
+                        <Stack
+                            mb={2}
+                            spacing={1}
+                            justifyContent='center'
+                            alignItems='center'
                         >
-                            {Math.round(tacticsRating.overall)}
-                            {isProvisional && '?'}
-                        </Typography>
+                            <Typography
+                                variant='h6'
+                                sx={{
+                                    fontSize: '2rem',
+                                    fontWeight: 'bold',
+                                }}
+                                color={
+                                    tacticsRating.overall < minCohort
+                                        ? 'error'
+                                        : tacticsRating.overall > maxCohort
+                                          ? 'success.main'
+                                          : 'warning.main'
+                                }
+                            >
+                                {Math.round(tacticsRating.overall)}
+                                {isProvisional && '?'}
+                            </Typography>
+                        </Stack>
                     </Tooltip>
                 </Stack>
 
@@ -74,11 +83,17 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     alignItems='center'
                 >
                     {isProvisional && Math.round(tacticsRating.overall) <= 0 ? (
-                        <MeterGauge value={0} wdith={300} height={300} text='?' color='#4b4d49' />
+                        <MeterGauge
+                            value={0}
+                            width={300}
+                            height={300}
+                            text='?'
+                            color='#4b4d49'
+                        />
                     ) : (
                         <MeterGauge
                             value={Math.round(tacticsRating.overall)}
-                            wdith={100}
+                            width={100}
                             height={100}
                             text={new Number(
                                 Math.round(tacticsRating.overall),
@@ -107,7 +122,13 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {c.name}
+                                        {c.link ? (
+                                            <Link component={RouterLink} to={c.link}>
+                                                {c.name}
+                                            </Link>
+                                        ) : (
+                                            c.name
+                                        )}
                                     </Typography>
 
                                     <>
@@ -115,7 +136,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                         {c.rating <= 0 ? (
                                             <MeterGauge
                                                 value={0}
-                                                wdith={100}
+                                                width={100}
                                                 height={100}
                                                 text='?'
                                                 color='#4b4d49'
@@ -123,7 +144,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                         ) : (
                                             <MeterGauge
                                                 value={Math.round(c.rating)}
-                                                wdith={100}
+                                                width={100}
                                                 height={100}
                                                 text={new Number(
                                                     Math.round(c.rating),
