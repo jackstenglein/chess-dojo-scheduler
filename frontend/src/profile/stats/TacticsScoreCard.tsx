@@ -2,9 +2,9 @@ import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
-import ExamGraphComposer from '../../exams/list/ExamGraphComposer';
 import { calculateTacticsRating } from '../../exams/view/exam';
 import MeterGauge from './MeterGauge';
+import { getExamColour } from '../../exams/list/ExamGraphComposer';
 interface TacticsScoreCardProps {
     user: User;
 }
@@ -74,7 +74,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     alignItems='center'
                 >
                     {isProvisional && Math.round(tacticsRating.overall) <= 0 ? (
-                        <MeterGauge value={0} wdith={300} height={300} text='?' />
+                        <MeterGauge value={0} wdith={300} height={300} text='?' color='#4b4d49' />
                     ) : (
                         <MeterGauge
                             value={Math.round(tacticsRating.overall)}
@@ -83,6 +83,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             text={new Number(
                                 Math.round(tacticsRating.overall),
                             ).toString()}
+                            color='#37e691'
                         />
                     )}
                 </Stack>
@@ -117,6 +118,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                                 wdith={100}
                                                 height={100}
                                                 text='?'
+                                                color='#4b4d49'
                                             />
                                         ) : (
                                             <MeterGauge
@@ -126,6 +128,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                                 text={new Number(
                                                     Math.round(c.rating),
                                                 ).toString()}
+                                                color={getExamColour(c)}
                                             />
                                         )}
                                     </>

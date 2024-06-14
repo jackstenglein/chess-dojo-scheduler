@@ -205,6 +205,8 @@ export interface TacticsRatingComponent {
     description: string;
 }
 
+
+
 /**
  * Calculates the user's tactics rating.
  *

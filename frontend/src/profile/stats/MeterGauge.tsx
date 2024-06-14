@@ -6,9 +6,10 @@ interface MeterProps {
     wdith: number;
     height: number;
     text: string;
+    color: string;
 }
 
-const MeterGauge: React.FC<MeterProps> = ({ value, wdith, height, text }) => {
+const MeterGauge: React.FC<MeterProps> = ({ value, wdith, height, text, color }) => {
     return (
         <Gauge
             width={wdith}
@@ -22,7 +23,7 @@ const MeterGauge: React.FC<MeterProps> = ({ value, wdith, height, text }) => {
                     fontSize: 20,
                 },
                 [`& .${gaugeClasses.valueArc}`]: {
-                    fill: '#52b202',
+                    fill: color,
                 },
                 [`& .${gaugeClasses.referenceArc}`]: {
                     fill: theme.palette.text.disabled,
