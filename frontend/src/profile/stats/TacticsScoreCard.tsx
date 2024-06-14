@@ -1,5 +1,6 @@
 import { Card, CardContent, Link, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { Link as RouterLink } from 'react-router-dom';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
 import { Link as RouterLink } from 'react-router-dom';
@@ -115,6 +116,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                         >
                             <Tooltip title={c.description}>
                                 <Stack alignItems='center'>
+
                                     <Typography
                                         variant='body2'
                                         color='text.main'
