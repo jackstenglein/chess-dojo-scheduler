@@ -10,6 +10,8 @@ import {
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Link } from 'react-router-dom';
+import { ExamType } from '../../database/exam';
+
 
 interface ExamCardProps {
     name: string;
@@ -19,9 +21,12 @@ interface ExamCardProps {
         | ((props: SvgIconProps) => JSX.Element)
         | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
     disabled?: boolean;
+    
 }
 
-export const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) => {
+
+
+export const ExamCard = ({ name, description, href, icon, disabled}: ExamCardProps) => {
     const Icon = icon;
     return (
         <Grid2 xs={12} sm={6} md={4}>

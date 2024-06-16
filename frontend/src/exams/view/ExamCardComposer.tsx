@@ -1,7 +1,8 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { KingIcon, QueenIcon, RookIcon } from '../../style/ChessIcons';
+import { KingIcon, QueenIcon, RookIcon, KnightIcon} from '../../style/ChessIcons';
 import { ExamCard } from './ExamCard';
+
 
 export const ExamCardComposer = () => {
     return (
@@ -24,7 +25,7 @@ export const ExamCardComposer = () => {
                         Attempt Test
                     </Typography>
                 </Stack>
-                <Grid2 container rowSpacing={3} columnSpacing={3}>
+                <Grid2 container rowSpacing={2} columnSpacing={2} md={18} >
                     <ExamCard
                         name='Start Tactics Tests'
                         description='All Ratings'
@@ -33,6 +34,14 @@ export const ExamCardComposer = () => {
                     />
 
                     <ExamCard
+                        name='Start Endgame Tests'
+                        description='All Ratings'
+                        href='/tests/endgame'
+                        icon={RookIcon}
+                    />
+                </Grid2>
+                <Grid2 container rowSpacing={2} columnSpacing={2} md={18}>
+                    <ExamCard
                         name='Start Checkmate Tests'
                         description='All Ratings'
                         href='/tests/checkmate'
@@ -40,10 +49,12 @@ export const ExamCardComposer = () => {
                     />
 
                     <ExamCard
-                        name='Start Endgame Tests'
-                        description='All Ratings'
-                        href='/tests/endgame'
-                        icon={RookIcon}
+                        name='Start Positional Tests'
+                        description='Coming soon'
+                        href='/tests/'
+                        disabled={true}
+                        icon={KnightIcon}
+                        
                     />
                 </Grid2>
             </CardContent>
