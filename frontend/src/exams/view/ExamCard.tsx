@@ -21,12 +21,24 @@ interface ExamCardProps {
         | ((props: SvgIconProps) => JSX.Element)
         | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
     disabled?: boolean;
+    colorType: ExamType;
     
 }
 
+function getColorBasedOnExamType(examType: ExamType): string {
+    switch(examType){
+        case ExamType.Endgame:
+            return "endgameTest";
+        case ExamType.Polgar:
+            return "checkmateTest";
+        case ExamType.Tactics:
+            return "tacticsTest";
+        case ExamType.Positional:
+            return "primary";       
+    }
+}
 
-
-export const ExamCard = ({ name, description, href, icon, disabled}: ExamCardProps) => {
+export const ExamCard = ({ name, description, href, icon, disabled, colorType}: ExamCardProps) => {
     const Icon = icon;
     return (
         <Grid2 xs={12} sm={6} md={4}>
@@ -42,7 +54,7 @@ export const ExamCard = ({ name, description, href, icon, disabled}: ExamCardPro
                 >
                     <CardContent>
                         <Stack justifyContent='center' alignItems='center'>
-                            <Icon sx={{ fontSize: '5rem', mb: 2 }} color='primary' />
+                            <Icon sx={{ fontSize: '5rem', mb: 2 }} color={getColorBasedOnExamType(colorType)} />
                             <Typography variant='h5' mb={0.5}>
                                 {name}
                             </Typography>
