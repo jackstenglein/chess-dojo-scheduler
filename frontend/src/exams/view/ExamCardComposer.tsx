@@ -2,6 +2,7 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { KingIcon, QueenIcon, RookIcon, KnightIcon} from '../../style/ChessIcons';
 import { ExamCard } from './ExamCard';
+import { ExamType } from '../../database/exam';
 
 
 export const ExamCardComposer = () => {
@@ -31,6 +32,7 @@ export const ExamCardComposer = () => {
                         description='All Ratings'
                         href='/tests/tactics'
                         icon={QueenIcon}
+                        colorType={ExamType.Tactics}
                     />
 
                     <ExamCard
@@ -38,6 +40,7 @@ export const ExamCardComposer = () => {
                         description='All Ratings'
                         href='/tests/endgame'
                         icon={RookIcon}
+                        colorType={ExamType.Endgame}
                     />
                 </Grid2>
                 <Grid2 container rowSpacing={2} columnSpacing={2} md={18}>
@@ -46,6 +49,7 @@ export const ExamCardComposer = () => {
                         description='All Ratings'
                         href='/tests/checkmate'
                         icon={KingIcon}
+                        colorType={ExamType.Polgar}
                     />
 
                     <ExamCard
@@ -54,6 +58,7 @@ export const ExamCardComposer = () => {
                         href='/tests/'
                         disabled={true}
                         icon={KnightIcon}
+                        colorType={ExamType.Positional}
                         
                     />
                 </Grid2>

@@ -3,6 +3,7 @@ export enum ExamType {
     Tactics = 'TACTICS_EXAM',
     Polgar = 'POLGAR_EXAM',
     Endgame = 'ENDGAME_EXAM',
+    Positional = 'POSITIONAL_EXAM',
 }
 
 export function displayExamType(type: ExamType): string {
@@ -13,6 +14,9 @@ export function displayExamType(type: ExamType): string {
             return 'Checkmate Test';
         case ExamType.Endgame:
             return 'Endgame Test';
+        case ExamType.Positional:
+            return 'Positional Test';    
+            
     }
 }
 

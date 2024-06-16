@@ -16,6 +16,9 @@ declare module '@mui/material/styles' {
         liga: Palette['primary'];
         book: Palette['primary'];
         meet: Palette['primary'];
+        tacticsTest: Palette['primary'];
+        endgameTest: Palette['primary'];
+        checkmateTest: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
@@ -26,6 +29,9 @@ declare module '@mui/material/styles' {
         liga?: PaletteOptions['primary'];
         book?: Palette['primary'];
         meet?: Palette['primary'];
+        tacticsTest?: Palette['primary'];
+        endgameTest?: Palette['primary'];
+        checkmateTest?: Palette['primary'];
     }
 }
 
@@ -106,6 +112,24 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
             createTheme({
                 palette: {
                     mode: colorMode as PaletteMode,
+                    checkmateTest: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#8c03fc',
+                        },
+                        name: 'checkmateTest',
+                    }),
+                    endgameTest: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#f29c4b',
+                        },
+                        name: 'endgameTest',
+                    }),
+                    tacticsTest: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#038cfc',
+                        },
+                        name: 'tacticsTest',
+                    }),
                     meet: defaultTheme.palette.augmentColor({
                         color: {
                             main: '#93a84f',
