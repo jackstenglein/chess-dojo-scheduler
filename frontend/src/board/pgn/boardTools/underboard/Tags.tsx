@@ -40,7 +40,7 @@ const columns: GridColDef<TagRow>[] = [
                 typeof params.row.value === 'object'
             ) {
                 return (
-                    <Stack direction='row' spacing={1} alignItems='center'>
+                    <Stack direction='row' spacing={1} alignItems='center' height={1}>
                         <Avatar
                             username={params.row.value.username}
                             displayName={params.row.value.displayName}
