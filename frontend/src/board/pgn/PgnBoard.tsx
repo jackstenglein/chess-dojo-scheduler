@@ -26,6 +26,7 @@ interface ChessConfig {
     initKey?: string;
     allowMoveDeletion?: boolean;
     disableTakebacks?: Color | 'both';
+    disableNullMoves?: boolean;
 }
 
 interface ChessContextType {
@@ -77,15 +78,18 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             initKey,
             allowMoveDeletion,
             disableTakebacks,
+            disableNullMoves: disableNullMovesProp,
             slots,
         },
         ref,
     ) => {
+        const { game } = useGame();
         const [board, setBoard] = useState<BoardApi>();
-        const [chess] = useState<Chess>(new Chess());
+
+        const disableNullMoves = disableNullMovesProp ?? !game;
+        const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
         const [, setOrientation] = useState(startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
-        const { game } = useGame();
 
         const toggleOrientation = useCallback(() => {
             if (board) {
@@ -133,6 +137,10 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 toggleOrientation();
             }
         }, [gameOrientation, board, toggleOrientation]);
+
+        useEffect(() => {
+            chess.disableNullMoves = disableNullMoves;
+        }, [chess, disableNullMoves]);
 
         useImperativeHandle(ref, () => {
             return {

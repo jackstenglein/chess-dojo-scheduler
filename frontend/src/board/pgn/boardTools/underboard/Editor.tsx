@@ -1,8 +1,9 @@
-import { Event, EventType } from '@jackstenglein/chess';
+import { Chess, Event, EventType } from '@jackstenglein/chess';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
+    Box,
     Button,
     CardContent,
     Stack,
@@ -132,9 +133,16 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
         reconcile();
     };
 
+    const onNullMove = () => {
+        chess.move('Z0');
+        reconcile();
+    };
+
     const takebacksDisabled =
         config?.disableTakebacks === 'both' ||
         config?.disableTakebacks?.[0] === move?.color;
+
+    const nullMoveStatus = getNullMoveStatus(chess);
 
     return (
         <CardContent>
@@ -187,97 +195,128 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     label='Comments'
                     id={BlockBoardKeyboardShortcuts}
                     multiline
-                    minRows={move ? (isMainline ? 3 : 7) : 15}
-                    maxRows={move ? 9 : 15}
+                    minRows={isMainline ? 3 : 7}
+                    maxRows={9}
                     value={comment}
                     onChange={(event) => chess.setComment(event.target.value)}
                     fullWidth
                 />
 
-                {move && (
-                    <>
-                        <Stack spacing={1}>
-                            <ToggleButtonGroup
-                                exclusive
-                                value={getNagInSet(moveNags, chess.currentMove()?.nags)}
-                                onChange={handleExclusiveNag(moveNags)}
-                            >
-                                {moveNags.map((nag) => (
-                                    <NagButton
-                                        key={nag}
-                                        value={nag}
-                                        text={nags[nag].label}
-                                        description={nags[nag].description}
-                                    />
-                                ))}
-                            </ToggleButtonGroup>
+                <Stack spacing={1}>
+                    <ToggleButtonGroup
+                        disabled={!move}
+                        exclusive
+                        value={getNagInSet(moveNags, chess.currentMove()?.nags)}
+                        onChange={handleExclusiveNag(moveNags)}
+                    >
+                        {moveNags.map((nag) => (
+                            <NagButton
+                                key={nag}
+                                value={nag}
+                                text={nags[nag].label}
+                                description={nags[nag].description}
+                            />
+                        ))}
+                    </ToggleButtonGroup>
 
-                            <ToggleButtonGroup
-                                exclusive
-                                value={getNagInSet(evalNags, chess.currentMove()?.nags)}
-                                onChange={handleExclusiveNag(evalNags)}
-                            >
-                                {evalNags.map((nag) => (
-                                    <NagButton
-                                        key={nag}
-                                        value={nag}
-                                        text={nags[nag].label}
-                                        description={nags[nag].description}
-                                    />
-                                ))}
-                            </ToggleButtonGroup>
+                    <ToggleButtonGroup
+                        disabled={!move}
+                        exclusive
+                        value={getNagInSet(evalNags, chess.currentMove()?.nags)}
+                        onChange={handleExclusiveNag(evalNags)}
+                    >
+                        {evalNags.map((nag) => (
+                            <NagButton
+                                key={nag}
+                                value={nag}
+                                text={nags[nag].label}
+                                description={nags[nag].description}
+                            />
+                        ))}
+                    </ToggleButtonGroup>
 
-                            <ToggleButtonGroup
-                                value={getNagsInSet(
-                                    positionalNags,
-                                    chess.currentMove()?.nags,
-                                )}
-                                onChange={handleMultiNags(positionalNags)}
-                            >
-                                {positionalNags.map((nag) => (
-                                    <NagButton
-                                        key={nag}
-                                        value={nag}
-                                        text={nags[nag].label}
-                                        description={nags[nag].description}
-                                    />
-                                ))}
-                            </ToggleButtonGroup>
-                        </Stack>
+                    <ToggleButtonGroup
+                        disabled={!move}
+                        value={getNagsInSet(positionalNags, chess.currentMove()?.nags)}
+                        onChange={handleMultiNags(positionalNags)}
+                    >
+                        {positionalNags.map((nag) => (
+                            <NagButton
+                                key={nag}
+                                value={nag}
+                                text={nags[nag].label}
+                                description={nags[nag].description}
+                            />
+                        ))}
+                    </ToggleButtonGroup>
+                </Stack>
 
-                        <Stack spacing={1}>
-                            <Button
-                                startIcon={<CheckIcon />}
-                                variant='outlined'
-                                disabled={chess.isInMainline(move) || takebacksDisabled}
-                                onClick={() => chess.promoteVariation(move, true)}
-                            >
-                                Make main line
-                            </Button>
-                            <Button
-                                startIcon={<ArrowUpwardIcon />}
-                                variant='outlined'
-                                disabled={
-                                    !chess.canPromoteVariation(move) || takebacksDisabled
-                                }
-                                onClick={() => chess.promoteVariation(move)}
-                            >
-                                Move variation up
-                            </Button>
-                            <Button
-                                startIcon={<DeleteIcon />}
-                                variant='outlined'
-                                onClick={() => chess.delete(move)}
-                                disabled={!config?.allowMoveDeletion || takebacksDisabled}
-                            >
-                                Delete from here
-                            </Button>
-                        </Stack>
-                    </>
-                )}
+                <Stack spacing={1}>
+                    {!chess.disableNullMoves && (
+                        <Tooltip title={nullMoveStatus.tooltip}>
+                            <Box sx={{ width: 1 }}>
+                                <Button
+                                    disabled={nullMoveStatus.disabled}
+                                    variant='outlined'
+                                    onClick={onNullMove}
+                                    fullWidth
+                                >
+                                    Insert null move
+                                </Button>
+                            </Box>
+                        </Tooltip>
+                    )}
+
+                    <Button
+                        startIcon={<CheckIcon />}
+                        variant='outlined'
+                        disabled={chess.isInMainline(move) || takebacksDisabled}
+                        onClick={() => chess.promoteVariation(move, true)}
+                    >
+                        Make main line
+                    </Button>
+                    <Button
+                        startIcon={<ArrowUpwardIcon />}
+                        variant='outlined'
+                        disabled={!chess.canPromoteVariation(move) || takebacksDisabled}
+                        onClick={() => chess.promoteVariation(move)}
+                    >
+                        Move variation up
+                    </Button>
+                    <Button
+                        startIcon={<DeleteIcon />}
+                        variant='outlined'
+                        onClick={() => chess.delete(move)}
+                        disabled={!config?.allowMoveDeletion || takebacksDisabled}
+                    >
+                        Delete from here
+                    </Button>
+                </Stack>
             </Stack>
         </CardContent>
     );
 };
 
 export default Editor;
+
+function getNullMoveStatus(chess: Chess): { disabled: boolean; tooltip: string } {
+    if (chess.isCheck()) {
+        return { disabled: true, tooltip: 'Null moves cannot be added while in check.' };
+    }
+    if (chess.isGameOver()) {
+        return {
+            disabled: true,
+            tooltip: 'Null moves cannot be added while the game is over.',
+        };
+    }
+    if (chess.currentMove()?.san === 'Z0') {
+        return {
+            disabled: true,
+            tooltip: 'Multiple null moves cannot be added in a row.',
+        };
+    }
+    return {
+        disabled: false,
+        tooltip: 'You can also add a null move by moving the king onto the enemy king.',
+    };
+}
