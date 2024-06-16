@@ -1,4 +1,4 @@
-import { Chess, Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
+import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
 import { Box, CardContent, Stack, Typography } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
@@ -75,7 +75,7 @@ export function getInitialClock(pgn?: Pgn): number {
         return 0;
     }
 
-    const timeControl = pgn.header.tags[TAGS.TimeControl];
+    const timeControl = pgn.header.tags.TimeControl?.value;
     if (!timeControl) {
         return 0;
     }
@@ -95,7 +95,7 @@ export function getIncrement(pgn?: Pgn): number {
         return 0;
     }
 
-    const timeControl = pgn.header.tags[TAGS.TimeControl];
+    const timeControl = pgn.header.tags.TimeControl?.value;
     if (!timeControl) {
         return 0;
     }
@@ -150,7 +150,7 @@ function shouldRerender(chess: Chess, event: Event): boolean {
         return event.commandName === 'clk';
     }
     if (event.type === EventType.UpdateHeader) {
-        return event.headerName === TAGS.TimeControl;
+        return event.headerName === 'TimeControl';
     }
     if (event.type === EventType.LegalMove) {
         return chess.lastMove() === event.move;

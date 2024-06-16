@@ -1,4 +1,4 @@
-import { Event, EventType, TAGS } from '@jackstenglein/chess';
+import { Event, EventType } from '@jackstenglein/chess';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -87,7 +87,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     }
                     if (
                         event.type === EventType.UpdateHeader &&
-                        event.headerName !== TAGS.TimeControl
+                        event.headerName !== 'TimeControl'
                     ) {
                         return;
                     }

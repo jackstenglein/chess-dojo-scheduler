@@ -1,4 +1,4 @@
-import { COLOR, Chess, Move } from '@jackstenglein/chess';
+import { Chess, Color, Move } from '@jackstenglein/chess';
 import { SimpleLinearRegression } from 'ml-regression-simple-linear';
 import { getCohortRangeInt, isCohortInRange } from '../database/cohort';
 import { Exam } from '../database/exam';
@@ -6,6 +6,14 @@ import { Exam } from '../database/exam';
 const scoreRegex = /\[(\d+)\]/;
 const alternateSolutionRegex = /\[ALT\]/;
 const endOfLineRegex = /\[EOL\]/;
+
+export interface ExamMoveUserData {
+    score?: number;
+    isAlt?: boolean;
+    found?: boolean;
+    altFound?: boolean;
+    extra?: boolean;
+}
 
 /**
  * Gets the exam orientation for the provided Chess instance. The exam
@@ -31,7 +39,7 @@ export function getOrientation(chess: Chess): 'white' | 'black' {
 export function initializeSolution(chess: Chess) {
     chess.seek(null);
     getSolutionScore(
-        chess.turn() === COLOR.black ? 'black' : 'white',
+        chess.turn() === Color.black ? 'black' : 'white',
         chess.history(),
         chess,
         false,
@@ -55,7 +63,7 @@ export function getTotalScore(pgn: string): number {
     const chess = new Chess({ pgn });
     chess.seek(null);
     return getSolutionScore(
-        chess.turn() === COLOR.black ? 'black' : 'white',
+        chess.turn() === Color.black ? 'black' : 'white',
         chess.history(),
         chess,
         false,
@@ -107,7 +115,7 @@ export function getSolutionScore(
             const altSearch = alternateSolutionRegex.exec(move.commentAfter || '');
             if (altSearch) {
                 move.userData = {
-                    ...move.userData,
+                    ...(move.userData as ExamMoveUserData),
                     isAlt: true,
                 };
                 move.commentAfter = move.commentAfter
@@ -116,9 +124,7 @@ export function getSolutionScore(
             }
         }
 
-        // Remove disabled when there's time to.
-        /* eslint-disable @typescript-eslint/restrict-plus-operands */
-        score += move.userData?.score || 0;
+        score += (move.userData as ExamMoveUserData)?.score || 0;
 
         const eolSearch = endOfLineRegex.exec(move.commentAfter || '');
         if (eolSearch) {
@@ -179,7 +185,11 @@ export function scoreVariation(
             break;
         }
 
-        const answerMove = answer.move(move.san, currentAnswerMove, false, true, true);
+        const answerMove = answer.move(move.san, {
+            previousMove: currentAnswerMove,
+            existingOnly: true,
+            skipSeek: true,
+        });
         if (!answerMove && !variationAlt) {
             // The user didn't find this move at all (mainline or variation), so they couldn't
             // have found any subsequent moves and we can break
@@ -187,17 +197,15 @@ export function scoreVariation(
         }
 
         move.userData = {
-            ...move.userData,
+            ...(move.userData as ExamMoveUserData),
             found: Boolean(answerMove),
             altFound: variationAlt,
         };
 
-        // Remove disabled when there's time to.
-        /* eslint-disable @typescript-eslint/restrict-plus-operands */
-        score += move.userData.score || 0;
+        score += (move.userData as ExamMoveUserData).score || 0;
         currentAnswerMove = answerMove;
 
-        if (move.userData.isAlt) {
+        if ((move.userData as ExamMoveUserData).isAlt) {
             altFound = true;
         }
     }

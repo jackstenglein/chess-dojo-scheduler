@@ -1,4 +1,4 @@
-import { Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
+import { Event, EventType, Move, Pgn } from '@jackstenglein/chess';
 import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -19,7 +19,7 @@ export function getInitialClock(pgn?: Pgn): string | undefined {
         return undefined;
     }
 
-    const timeControl = pgn.header.tags[TAGS.TimeControl];
+    const timeControl = pgn.header.tags.TimeControl?.value;
     if (!timeControl) {
         return undefined;
     }
@@ -90,12 +90,12 @@ function getCapturedPieceCounts(fen: string) {
 }
 
 const rerenderHeaders = [
-    TAGS.White,
-    TAGS.WhiteElo,
-    TAGS.Black,
-    TAGS.BlackElo,
-    TAGS.Result,
-    TAGS.TimeControl,
+    'White',
+    'WhiteElo',
+    'Black',
+    'BlackElo',
+    'Result',
+    'TimeControl',
 ];
 
 const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
@@ -155,8 +155,8 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
         (type === 'header' && board.state.orientation === 'white') ||
         (type === 'footer' && board.state.orientation === 'black')
     ) {
-        playerName = pgn.header.tags.Black;
-        playerElo = pgn.header.tags.BlackElo;
+        playerName = pgn.header.tags.Black || '?';
+        playerElo = pgn.header.tags.BlackElo?.value || '';
         const resultTokens = pgn.header.tags.Result?.split('-');
         if (resultTokens && resultTokens.length > 1) {
             playerResult = resultTokens[1];
@@ -166,8 +166,8 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
         }
         color = 'b';
     } else {
-        playerName = pgn.header.tags.White;
-        playerElo = pgn.header.tags.WhiteElo;
+        playerName = pgn.header.tags.White || '?';
+        playerElo = pgn.header.tags.WhiteElo?.value || '';
         const resultTokens = pgn.header.tags.Result?.split('-');
         if (resultTokens && resultTokens.length > 1) {
             playerResult = resultTokens[0];

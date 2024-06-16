@@ -1,26 +1,24 @@
 'use strict';
 
-import { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
 import {
     AttributeValue,
-    DynamoDBClient,
-    UpdateItemCommand,
-    PutItemCommand,
-    DeleteItemCommand,
     ConditionalCheckFailedException,
+    DeleteItemCommand,
+    DynamoDBClient,
+    PutItemCommand,
+    UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
 import deepEqual from 'deep-equal';
-
 import {
     ExplorerGame,
     ExplorerMove,
-    ExplorerResult,
     ExplorerPosition,
+    ExplorerResult,
     Game,
     GameResult,
-    normalizeFen,
     dojoCohorts,
 } from './types';
 
@@ -94,12 +92,12 @@ async function processRecord(record: DynamoDBRecord) {
     try {
         const oldGame = record.dynamodb?.OldImage
             ? (unmarshall(
-                  record.dynamodb.OldImage as Record<string, AttributeValue>
+                  record.dynamodb.OldImage as Record<string, AttributeValue>,
               ) as Game)
             : undefined;
         const newGame = record.dynamodb?.NewImage
             ? (unmarshall(
-                  record.dynamodb.NewImage as Record<string, AttributeValue>
+                  record.dynamodb.NewImage as Record<string, AttributeValue>,
               ) as Game)
             : undefined;
 
@@ -164,16 +162,18 @@ function extractPositions(game?: Game): Record<string, ExplorerPositionExtractio
  */
 function extractPositionRecursive(
     chess: Chess,
-    explorerPositions: Record<string, ExplorerPositionExtraction>
+    explorerPositions: Record<string, ExplorerPositionExtraction>,
 ) {
-    const normalizedFen = normalizeFen(chess.fen());
+    const normalizedFen = chess.normalizedFen();
     const isMainline = chess.isInMainline();
 
     const explorerPosition: ExplorerPositionExtraction = explorerPositions[
         normalizedFen
     ] || {
         normalizedFen,
-        result: isMainline ? getExplorerMoveResult(chess.header().Result) : 'analysis',
+        result: isMainline
+            ? getExplorerMoveResult(chess.header().tags.Result)
+            : 'analysis',
         moves: {},
     };
     explorerPositions[normalizedFen] = explorerPosition;
@@ -184,7 +184,7 @@ function extractPositionRecursive(
             explorerPosition.moves[nextMove.san] = {
                 san: nextMove.san,
                 result: isMainline
-                    ? getExplorerMoveResult(chess.header().Result)
+                    ? getExplorerMoveResult(chess.header().tags.Result)
                     : 'analysis',
             };
         }
@@ -216,7 +216,7 @@ function extractPositionRecursive(
  */
 function getUpdates(
     oldPositions: Record<string, ExplorerPositionExtraction>,
-    newPositions: Record<string, ExplorerPositionExtraction>
+    newPositions: Record<string, ExplorerPositionExtraction>,
 ): ExplorerPositionUpdate[] {
     const updates: ExplorerPositionUpdate[] = [];
 
@@ -287,7 +287,7 @@ function getUpdates(
  * @param result The PGN result to convert.
  * @returns The ExplorerMoveResult matching the PGN result.
  */
-function getExplorerMoveResult(result: string): keyof ExplorerResult {
+function getExplorerMoveResult(result?: string): keyof ExplorerResult {
     switch (result) {
         case GameResult.White:
             return 'white';
@@ -310,7 +310,7 @@ function getExplorerMoveResult(result: string): keyof ExplorerResult {
 async function writeExplorerPosition(
     game: Game,
     chess: Chess,
-    update: ExplorerPositionUpdate
+    update: ExplorerPositionUpdate,
 ): Promise<boolean> {
     if (!update.newResult && !update.oldResult) {
         console.error('ERROR: update does not contain newResult nor oldResult');
@@ -341,11 +341,11 @@ async function writeExplorerPosition(
 async function setOrUpdateExplorerPosition(
     game: Game,
     chess: Chess,
-    update: ExplorerPositionUpdate
+    update: ExplorerPositionUpdate,
 ): Promise<boolean> {
     if (!update.newResult) {
         console.error(
-            'ERROR: setExplorerPosition called with update where newResult is undefined'
+            'ERROR: setExplorerPosition called with update where newResult is undefined',
         );
         return false;
     }
@@ -354,7 +354,7 @@ async function setOrUpdateExplorerPosition(
         const initialExplorerPosition = getInitialExplorerPosition(
             chess,
             update,
-            game.cohort
+            game.cohort,
         );
 
         await dynamo.send(
@@ -362,7 +362,7 @@ async function setOrUpdateExplorerPosition(
                 Item: marshall(initialExplorerPosition),
                 ConditionExpression: 'attribute_not_exists(normalizedFen)',
                 TableName: explorerTable,
-            })
+            }),
         );
         return true;
     } catch (err) {
@@ -384,29 +384,38 @@ async function setOrUpdateExplorerPosition(
 function getInitialExplorerPosition(
     chess: Chess,
     update: ExplorerPositionUpdate,
-    cohort: string
+    cohort: string,
 ): ExplorerPosition {
     chess.load(update.normalizedFen);
-    const moves = chess.moves();
+    const moves = chess.moves({ disableNullMoves: true });
 
-    const explorerMoves = moves.reduce((map, move) => {
-        map[move.san] = {
-            san: move.san,
-            results: dojoCohorts.reduce((map, c) => {
-                map[c] = {};
-                return map;
-            }, {} as Record<string, ExplorerResult>),
-        };
-        return map;
-    }, {} as Record<string, ExplorerMove>);
+    const explorerMoves = moves.reduce(
+        (map, move) => {
+            map[move.san] = {
+                san: move.san,
+                results: dojoCohorts.reduce(
+                    (map, c) => {
+                        map[c] = {};
+                        return map;
+                    },
+                    {} as Record<string, ExplorerResult>,
+                ),
+            };
+            return map;
+        },
+        {} as Record<string, ExplorerMove>,
+    );
 
     const explorerPosition = {
         normalizedFen: update.normalizedFen,
         id: 'POSITION',
-        results: dojoCohorts.reduce((map, c) => {
-            map[c] = {};
-            return map;
-        }, {} as Record<string, ExplorerResult>),
+        results: dojoCohorts.reduce(
+            (map, c) => {
+                map[c] = {};
+                return map;
+            },
+            {} as Record<string, ExplorerResult>,
+        ),
         moves: explorerMoves,
     };
 
@@ -426,7 +435,7 @@ function getInitialExplorerPosition(
  */
 async function updateExplorerPosition(
     cohort: string,
-    update: ExplorerPositionUpdate
+    update: ExplorerPositionUpdate,
 ): Promise<boolean> {
     let updateExpression: string;
     const expressionAttrValues: Record<string, AttributeValue> = {};
@@ -463,7 +472,7 @@ async function updateExplorerPosition(
 
     updateExpression = updateExpression.substring(
         0,
-        updateExpression.length - ', '.length
+        updateExpression.length - ', '.length,
     );
 
     const input = new UpdateItemCommand({
@@ -490,7 +499,7 @@ async function updateExplorerPosition(
             'ERROR: Failed to update explorer position %j with input %j: ',
             update,
             input,
-            err
+            err,
         );
         return false;
     }
@@ -537,7 +546,7 @@ async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
             new PutItemCommand({
                 Item: marshall(explorerGame, { removeUndefinedValues: true }),
                 TableName: explorerTable,
-            })
+            }),
         );
     } catch (err) {
         console.error('ERROR: Failed to set explorer game %j: ', explorerGame, err);
@@ -559,7 +568,7 @@ async function removeExplorerGame(game: Game, update: ExplorerPositionUpdate) {
                     id: { S: id },
                 },
                 TableName: explorerTable,
-            })
+            }),
         );
     } catch (err) {
         console.error('ERROR: Failed to delete explorer game: ', err);
