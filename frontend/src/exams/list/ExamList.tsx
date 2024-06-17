@@ -1,7 +1,5 @@
-import {
-    getExamMaxScore,
-    getRegression,
-} from '@jackstenglein/chess-dojo-common/src/exam/scores';
+import { Exam, ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
+import { getRegression } from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import { Check, Close, ExpandLess, ExpandMore, Help, Lock } from '@mui/icons-material';
 import {
     Alert,
@@ -25,7 +23,6 @@ import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth, useFreeTier } from '../../auth/Auth';
 import { toDojoDateString } from '../../calendar/displayDate';
-import { Exam, ExamType } from '../../database/exam';
 import { isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
@@ -47,7 +44,6 @@ interface ExamInfo {
     averageRating: number;
     userScore: number;
     userRating: number;
-    totalScore: number;
     dateTaken: string;
 }
 
@@ -78,7 +74,6 @@ function getExamInfo(e: Exam, username?: string, timezoneOverride?: string): Exa
         averageRating,
         userScore: e.answers[username || '']?.score ?? -1,
         userRating,
-        totalScore: getExamMaxScore(e),
         dateTaken: answer
             ? toDojoDateString(new Date(answer.createdAt), timezoneOverride)
             : '',
@@ -234,9 +229,9 @@ const columns: GridColDef<ExamInfo>[] = [
         valueGetter: (_value, row) => row.averageScore,
         renderCell(params: GridRenderCellParams<ExamInfo, number>) {
             if (params.value === undefined || isNaN(params.value)) {
-                return `- / ${params.row.totalScore}`;
+                return `- / ${params.row.exam.totalScore}`;
             }
-            return `${params.value} / ${params.row.totalScore}`;
+            return `${params.value} / ${params.row.exam.totalScore}`;
         },
         flex: 1,
     },
@@ -248,9 +243,9 @@ const columns: GridColDef<ExamInfo>[] = [
         valueGetter: (_value, row) => row.userScore,
         renderCell(params: GridRenderCellParams<ExamInfo, number>) {
             if (params.value === undefined || params.value < 0) {
-                return `- / ${params.row.totalScore}`;
+                return `- / ${params.row.exam.totalScore}`;
             }
-            return `${params.value} / ${params.row.totalScore}`;
+            return `${params.value} / ${params.row.exam.totalScore}`;
         },
         flex: 1,
     },

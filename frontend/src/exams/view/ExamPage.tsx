@@ -1,5 +1,10 @@
 import { EventType } from '@jackstenglein/chess';
 import {
+    Exam,
+    ExamAnswer,
+    ExamAttempt,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
+import {
     getSolutionScore,
     scoreVariation,
 } from '@jackstenglein/chess-dojo-common/src/exam/scores';
@@ -39,7 +44,6 @@ import PgnBoard, {
 import { useDebounce } from '../../board/pgn/boardTools/boardButtons/StatusIcon';
 import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from '../../board/pgn/pgnText/MoveButton';
-import { Exam, ExamAnswer, ExamAttempt } from '../../database/exam';
 import { getCurrentRating, normalizeToFide } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import Instructions from '../instructions/Instructions';

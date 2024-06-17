@@ -227,30 +227,34 @@ export function getRegression(exam: Exam): SimpleLinearRegression | null {
     const relevantCohortRange = `${minCohort}-${maxCohort}`;
     const minScore = 0.15 * getExamMaxScore(exam);
 
-    const scoresPerCohort = Object.values(exam.answers).reduce<
-        Record<number, { sum: number; count: number }>
-    >((acc, ans) => {
+    const scoresPerCohort = new Map<number, { sum: number; count: number }>();
+
+    Object.values(exam.answers).forEach((ans) => {
         if (!isCohortInRange(ans.cohort, relevantCohortRange) || ans.score < minScore) {
-            return acc;
+            return;
         }
 
         const [cohort] = getCohortRangeInt(ans.cohort);
-        acc[cohort] = {
-            sum: (acc[cohort]?.sum || 0) + ans.score,
-            count: (acc[cohort]?.count || 0) + 1,
-        };
-        return acc;
-    }, {});
+        scoresPerCohort.set(cohort, {
+            sum: (scoresPerCohort.get(cohort)?.sum || 0) + ans.score,
+            count: (scoresPerCohort.get(cohort)?.count || 0) + 1,
+        });
+    });
 
-    if (Object.values(scoresPerCohort).filter(({ count }) => count >= 3).length < 3) {
+    for (const [cohort, data] of scoresPerCohort) {
+        if (data.count < 3) {
+            scoresPerCohort.delete(cohort);
+        }
+    }
+    if (scoresPerCohort.size < 3) {
         return null;
     }
 
     const x: number[] = [];
     const y: number[] = [];
-    for (const [cohort, data] of Object.entries(scoresPerCohort)) {
+    for (const [cohort, data] of scoresPerCohort) {
         x.push(data.sum / data.count);
-        y.push(parseInt(cohort));
+        y.push(cohort);
     }
     return new SimpleLinearRegression(x, y);
 }
