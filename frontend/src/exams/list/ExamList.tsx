@@ -173,7 +173,11 @@ const columns: GridColDef<Exam>[] = [
                             : 'Takebacks are enabled for this exam. After making a move, you can promote another move instead.'
                     }
                 >
-                    {params.value ? <Close color='error' /> : <Check color='success' />}
+                    {params.value ? (
+                        <Close color='error' sx={{ height: 1 }} />
+                    ) : (
+                        <Check color='success' sx={{ height: 1 }} />
+                    )}
                 </Tooltip>
             );
         },
@@ -220,7 +224,7 @@ const avgRatingColumn: GridColDef<Exam> = {
         if (!params.value || params.value < 0 || isNaN(params.value)) {
             return (
                 <Tooltip title='Avg rating is not calculated until at least 10 people have taken the exam.'>
-                    <Help sx={{ color: 'text.secondary' }} />
+                    <Help sx={{ color: 'text.secondary', height: 1 }} />
                 </Tooltip>
             );
         }
@@ -312,7 +316,7 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                     if (!params.value || params.value < 0 || isNaN(params.value)) {
                         return (
                             <Tooltip title='Your rating is not calculated until at least 10 people have taken the exam.'>
-                                <Help sx={{ color: 'text.secondary' }} />
+                                <Help sx={{ color: 'text.secondary', height: 1 }} />
                             </Tooltip>
                         );
                     }
