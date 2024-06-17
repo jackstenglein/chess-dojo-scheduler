@@ -2,6 +2,7 @@ import { Container, Stack, Typography } from '@mui/material';
 import { ExamType } from '../../database/exam';
 import { KingIcon } from '../../style/ChessIcons';
 import { ExamList } from './ExamList';
+import { getColorBasedOnExamType } from '../view/ExamCard';
 
 const POLGAR_RANGES = ['0-500', '500-1000', '1000-1500', '1500+'];
 
@@ -16,6 +17,7 @@ export const ListCheckmateExamsPage = () => {
                     <KingIcon
                         fontSize='inherit'
                         sx={{ mr: 2, verticalAlign: 'center' }}
+                        color={getColorBasedOnExamType(ExamType.Polgar)}
                     />
                     Checkmate Tests
                 </Typography>

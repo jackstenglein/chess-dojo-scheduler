@@ -19,6 +19,7 @@ declare module '@mui/material/styles' {
         tacticsTest: Palette['primary'];
         endgameTest: Palette['primary'];
         checkmateTest: Palette['primary'];
+        positionalTest: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
@@ -32,6 +33,7 @@ declare module '@mui/material/styles' {
         tacticsTest?: Palette['primary'];
         endgameTest?: Palette['primary'];
         checkmateTest?: Palette['primary'];
+        positionalTest?: Palette['primary'];
     }
 }
 
@@ -112,6 +114,12 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
             createTheme({
                 palette: {
                     mode: colorMode as PaletteMode,
+                    positionalTest: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#1b11ab',
+                        },
+                        name: 'positionalTest',
+                    }),
                     checkmateTest: defaultTheme.palette.augmentColor({
                         color: {
                             main: '#8c03fc',
@@ -126,7 +134,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
                     }),
                     tacticsTest: defaultTheme.palette.augmentColor({
                         color: {
-                            main: '#038cfc',
+                            main: '#55d444',
                         },
                         name: 'tacticsTest',
                     }),

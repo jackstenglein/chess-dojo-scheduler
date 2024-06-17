@@ -28,7 +28,7 @@ export const ExamCardComposer = () => {
                 </Stack>
                 <Grid2 container rowSpacing={2} columnSpacing={2} md={18} >
                     <ExamCard
-                        name='Start Tactics Tests'
+                        name='Tactics Tests'
                         description='All Ratings'
                         href='/tests/tactics'
                         icon={QueenIcon}
@@ -36,7 +36,7 @@ export const ExamCardComposer = () => {
                     />
 
                     <ExamCard
-                        name='Start Endgame Tests'
+                        name='Endgame Tests'
                         description='All Ratings'
                         href='/tests/endgame'
                         icon={RookIcon}
@@ -45,7 +45,7 @@ export const ExamCardComposer = () => {
                 </Grid2>
                 <Grid2 container rowSpacing={2} columnSpacing={2} md={18}>
                     <ExamCard
-                        name='Start Checkmate Tests'
+                        name='Checkmate Tests'
                         description='All Ratings'
                         href='/tests/checkmate'
                         icon={KingIcon}
@@ -53,7 +53,7 @@ export const ExamCardComposer = () => {
                     />
 
                     <ExamCard
-                        name='Start Positional Tests'
+                        name='Positional Tests'
                         description='Coming soon'
                         href='/tests/'
                         disabled={true}

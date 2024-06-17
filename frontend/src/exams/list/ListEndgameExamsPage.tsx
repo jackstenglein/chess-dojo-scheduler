@@ -2,6 +2,7 @@ import { Container, Stack, Typography } from '@mui/material';
 import { ExamType } from '../../database/exam';
 import { RookIcon } from '../../style/ChessIcons';
 import { ExamList } from './ExamList';
+import { getColorBasedOnExamType } from '../view/ExamCard';
 
 const COHORT_RANGES = ['0-1000', '1000-1500', '1500-2000', '2000+'];
 
@@ -16,6 +17,7 @@ export const ListEndgameExamsPage = () => {
                     <RookIcon
                         fontSize='inherit'
                         sx={{ mr: 2, verticalAlign: 'center' }}
+                        color={getColorBasedOnExamType(ExamType.Endgame)}
                     />
                     Endgame Tests
                 </Typography>
