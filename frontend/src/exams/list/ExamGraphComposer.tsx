@@ -44,7 +44,7 @@ export function getExamColour(t: TacticsRatingComponent): string {
     if (t.name.includes('Polgar Mate Tests')) {
         return '#8c03fc';
     } else if (t.name.includes('Tactics Tests')) {
-        return '#038cfc';
+        return '#55d444';
     } else if (t.name.includes('Endgame Tests')) {
         return '#f29c4b';
     } else if (t.name.includes('PR 5 Min')) {

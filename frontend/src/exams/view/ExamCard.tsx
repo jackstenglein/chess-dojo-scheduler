@@ -25,7 +25,7 @@ interface ExamCardProps {
     
 }
 
-function getColorBasedOnExamType(examType: ExamType): string {
+export function getColorBasedOnExamType(examType: ExamType): string {
     switch(examType){
         case ExamType.Endgame:
             return "endgameTest";
@@ -34,7 +34,7 @@ function getColorBasedOnExamType(examType: ExamType): string {
         case ExamType.Tactics:
             return "tacticsTest";
         case ExamType.Positional:
-            return "primary";       
+            return "positionalTest";       
     }
 }
 
