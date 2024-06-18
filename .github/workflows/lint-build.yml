@@ -15,6 +15,11 @@ jobs:
         working-directory: common
         run: npm ci
 
+      - name: Prepare shared eslint rules
+        working-directory: eslint-config-dojo
+        run: npm ci
+
+
       - name: Prepare Frontend
         working-directory: frontend
         run: npm ci
