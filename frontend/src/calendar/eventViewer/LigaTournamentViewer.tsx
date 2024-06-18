@@ -5,10 +5,10 @@ import Board from '../../board/Board';
 import { Event, displayTournamentType } from '../../database/event';
 import Icon, { IconName } from '../../style/Icon';
 
-function getLigaIconBasedOnTimeControl(timeControl: number): IconName | undefined {
+export function getLigaIconBasedOnTimeControl(timeControl: number): IconName | undefined {
     const tc = timeControl / 60;
 
-    if (tc >= 3 && tc <= 9) {
+    if (tc >= 1 && tc <= 9) {
         return 'Blitz';
     } else if (tc >= 10 && tc < 60) {
         return 'Rapid';

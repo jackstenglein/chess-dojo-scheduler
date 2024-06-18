@@ -6,12 +6,14 @@ import {
     Biotech,
     BorderColor,
     CalendarMonth,
+    ControlCamera,
     Create,
     CrisisAlert,
     DashboardCustomize,
     DoDisturb,
     Download,
     EditCalendar,
+    EmojiObjects,
     Event,
     EventAvailable,
     EventAvailableOutlined,
@@ -21,7 +23,12 @@ import {
     Group,
     Groups,
     Info,
+    KeyboardArrowDown,
+    KeyboardArrowUp,
+    KeyboardDoubleArrowDown,
+    KeyboardDoubleArrowUp,
     Leaderboard,
+    Link,
     LiveTv,
     LocalHospital,
     LocationOn,
@@ -47,6 +54,7 @@ import {
     Visibility,
     WavingHand,
     Whatshot,
+    ZoomOutMap,
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -116,6 +124,9 @@ export const icons = {
     'Analyze Own Game': Biotech,
     'Book Study': AutoStories,
     'Rook Endgame Progression': RookIcon,
+    'Middlegame Win Conversions': ControlCamera,
+    'Endgame Win Conversions': ZoomOutMap,
+    'Endgame Algorithms': EmojiObjects,
     reset: RestartAlt,
     cancel: DoDisturb,
     save: Save,
@@ -145,6 +156,11 @@ export const icons = {
     [CalendarSessionType.CoachingSessions]: RocketLaunch,
     [CalendarSessionType.DojoEvents]: LiveTv,
     [CalendarSessionType.Meetings]: EventAvailableOutlined,
+    menuUp: KeyboardDoubleArrowUp,
+    menuDown: KeyboardDoubleArrowDown,
+    innerMenuUp: KeyboardArrowUp,
+    innerMenuDown: KeyboardArrowDown,
+    spar: Link,
 };
 
 export type IconName = keyof typeof icons;
