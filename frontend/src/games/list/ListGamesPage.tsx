@@ -7,6 +7,7 @@ import {
     IconButton,
     Link,
     Stack,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import {
@@ -235,7 +236,6 @@ const ListGamesPage = () => {
                         data-cy='games-table'
                         columns={columns}
                         rows={data}
-                        rowCount={rowCount}
                         pageSizeOptions={isFreeTier ? [10] : [5, 10, 25]}
                         paginationModel={
                             isFreeTier
@@ -391,17 +391,27 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
                     },
                     nextButton: () => {
                         return (
-                            <IconButton
-                                aria-label='Go to next page'
-                                title='Go to next page'
-                                onClick={onNextPage}
-                                disabled={
-                                    isFreeTier ||
-                                    ((page + 1) * pageSize >= count && !hasMore)
+                            <Tooltip
+                                title={
+                                    isFreeTier
+                                        ? 'Free-tier users can only access the first page of results'
+                                        : ''
                                 }
                             >
-                                <KeyboardArrowRight />
-                            </IconButton>
+                                <span>
+                                    <IconButton
+                                        aria-label='Go to next page'
+                                        title='Go to next page'
+                                        onClick={onNextPage}
+                                        disabled={
+                                            isFreeTier ||
+                                            ((page + 1) * pageSize >= count && !hasMore)
+                                        }
+                                    >
+                                        <KeyboardArrowRight />
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
                         );
                     },
                 },

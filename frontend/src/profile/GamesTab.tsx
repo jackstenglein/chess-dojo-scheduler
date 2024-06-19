@@ -112,7 +112,6 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 <DataGridPro
                     columns={columns}
                     rows={data}
-                    rowCount={rowCount}
                     pageSizeOptions={[5, 10, 25]}
                     paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
                     onPaginationModelChange={onPaginationModelChange}

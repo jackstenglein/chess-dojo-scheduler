@@ -1,19 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
 import { AxiosResponse } from 'axios';
-
-import { ListGamesResponse } from '../../api/gameApi';
-import { RequestStatus, useRequest } from '../../api/Request';
-import { GameInfo } from '../../database/game';
+import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { RequestStatus, useRequest } from '../../api/Request';
+import { ListGamesResponse } from '../../api/gameApi';
+import { GameInfo } from '../../database/game';
 
-export type SearchFunc = (
-    startKey: string
-) => Promise<AxiosResponse<ListGamesResponse>>;
+export type SearchFunc = (startKey: string) => Promise<AxiosResponse<ListGamesResponse>>;
 
 export function usePagination(
     initialSearchFunc: SearchFunc | null,
     initialPage: number,
-    initialPageSize: number
+    initialPageSize: number,
 ) {
     const request = useRequest();
     const reset = request.reset;
@@ -26,7 +23,7 @@ export function usePagination(
     const [games, setGames] = useState<GameInfo[]>([]);
     const [startKey, setStartKey] = useState<string | undefined>('');
     const [searchFunc, setSearchFunc] = useState<SearchFunc | null>(
-        () => initialSearchFunc
+        () => initialSearchFunc,
     );
 
     const page = parseInt(searchParams.get('page') || `${initialPage}`);
@@ -40,14 +37,14 @@ export function usePagination(
                 return prev;
             });
         },
-        [reset, setSearchParams]
+        [reset, setSearchParams],
     );
 
     const onChangePageSize = useCallback(
         (newPageSize: number) => {
             setSearchParams((prev) => {
                 const oldPageSize = parseInt(
-                    prev.get('pageSize') || `${initialPageSize}`
+                    prev.get('pageSize') || `${initialPageSize}`,
                 );
                 const oldPage = parseInt(prev.get('page') || `${initialPage}`);
                 const newPage = Math.floor((oldPage * oldPageSize) / newPageSize);
@@ -57,7 +54,7 @@ export function usePagination(
                 return prev;
             });
         },
-        [setSearchParams, initialPage, initialPageSize]
+        [setSearchParams, initialPage, initialPageSize],
     );
 
     const onSearch = useCallback(
@@ -67,7 +64,7 @@ export function usePagination(
             setStartKey('');
             setSearchFunc(() => searchFunc);
         },
-        [reset, setGames, setStartKey, setSearchFunc]
+        [reset, setGames, setStartKey, setSearchFunc],
     );
 
     useEffect(() => {
@@ -78,7 +75,6 @@ export function usePagination(
 
         // We have already fetched this page of data and don't need to refetch
         if (games.length > (page + 1) * pageSize) {
-            console.log('games.length > page * pageSize: ', games.length, page, pageSize);
             return;
         }
 
@@ -93,7 +89,6 @@ export function usePagination(
         }
 
         // We need to fetch the next page
-        console.log('Fetching page: ', page);
         request.onStart();
 
         searchFunc(startKey)
@@ -110,14 +105,6 @@ export function usePagination(
     }, [page, pageSize, games, startKey, searchFunc, request]);
 
     const rowCount = games.length;
-    // if (startKey !== undefined) {
-    //     rowCount += pageSize;
-    // }
-
-    // let data: GameInfo[] = [];
-    // if (games.length > page * pageSize) {
-    //     data = games.slice(page * pageSize, page * pageSize + pageSize);
-    // }
 
     return {
         page,

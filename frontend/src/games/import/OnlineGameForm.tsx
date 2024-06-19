@@ -91,12 +91,7 @@ const RecentGameCell = ({
                 sx={{ height: 1 }}
             >
                 <CardContent>
-                    <Stack
-                        spacing={1.125}
-                        onClick={() => {
-                            onClick(game);
-                        }}
-                    >
+                    <Stack spacing={1.125}>
                         <Stack
                             direction='row'
                             spacing={1}

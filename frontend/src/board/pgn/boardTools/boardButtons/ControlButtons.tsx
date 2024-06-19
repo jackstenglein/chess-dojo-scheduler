@@ -23,8 +23,6 @@ const ControlButtons = () => {
     const { chess, toggleOrientation } = useChess();
     const reconcile = useReconcile();
 
-    console.log('Toggle Orientation: ', toggleOrientation);
-
     const onClickMove = (move: Move | null) => {
         chess?.seek(move);
         reconcile();
