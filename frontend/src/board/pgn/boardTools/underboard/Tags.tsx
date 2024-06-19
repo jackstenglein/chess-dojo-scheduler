@@ -1,4 +1,4 @@
-import { EventType, TAGS } from '@jackstenglein/chess';
+import { EventType } from '@jackstenglein/chess';
 import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
@@ -40,7 +40,7 @@ const columns: GridColDef<TagRow>[] = [
                 typeof params.row.value === 'object'
             ) {
                 return (
-                    <Stack direction='row' spacing={1} alignItems='center'>
+                    <Stack direction='row' spacing={1} alignItems='center' height={1}>
                         <Avatar
                             username={params.row.value.username}
                             displayName={params.row.value.displayName}
@@ -81,7 +81,7 @@ const columns: GridColDef<TagRow>[] = [
 ];
 
 function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
-    if (props.row.name === TAGS.Result) {
+    if (props.row.name === 'Result') {
         return (
             <GridEditSingleSelectCell
                 {...props}
@@ -147,8 +147,8 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
         }
     }, [chess]);
 
-    const tags = chess?.pgn.header.tags;
-    if (!tags) {
+    const header = chess?.pgn.header;
+    if (!header) {
         return null;
     }
 
@@ -167,16 +167,16 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
         rows.push({ name: 'Cohort', value: game.cohort });
     }
 
-    rows.push(...defaultTags.map((name) => ({ name, value: tags[name] || '' })));
+    rows.push(...defaultTags.map((name) => ({ name, value: header.getRawValue(name) })));
 
-    for (const [tag, value] of Object.entries(tags || {})) {
+    for (const tag of Object.keys(header.tags || {})) {
         if (!defaultTags.includes(tag) && !uneditableTags.includes(tag)) {
-            rows.push({ name: tag, value });
+            rows.push({ name: tag, value: header.getRawValue(tag) });
         }
     }
 
     for (const tag of uneditableTags) {
-        rows.push({ name: tag, value: tags[tag] || '' });
+        rows.push({ name: tag, value: header.getRawValue(tag) });
     }
 
     return (
@@ -227,14 +227,14 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     const name = newRow.name;
 
                     if (
-                        [TAGS.White, TAGS.Date, TAGS.Black].includes(name) &&
+                        ['White', 'Date', 'Black'].includes(name) &&
                         stripTagValue(value) === ''
                     ) {
                         setError(`${name} tag is required`);
                         return oldRow;
                     }
 
-                    if ([TAGS.Date].includes(name) && !isValidDate(value)) {
+                    if (['Date'].includes(name) && !isValidDate(value)) {
                         setError('PGN dates must be in the format 2024.12.31');
                         return oldRow;
                     }

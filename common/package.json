@@ -10,15 +10,15 @@
     "author": "jackstenglein",
     "license": "MIT",
     "dependencies": {
-        "@jackstenglein/chess": "^1.0.64",
+        "@jackstenglein/chess": "^2.1.3",
         "ml-regression-simple-linear": "^3.0.1"
     },
     "devDependencies": {
-        "prettier-plugin-organize-imports": "^3.2.4",
+        "@jackstenglein/eslint-config-dojo": "file:../eslint-config-dojo",
         "@typescript-eslint/eslint-plugin": "^7.12.0",
         "@typescript-eslint/parser": "^7.12.0",
         "eslint": "^8.57.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
-        "@jackstenglein/eslint-config-dojo": "file:../eslint-config-dojo"
+        "prettier-plugin-organize-imports": "^3.2.4"
     }
 }

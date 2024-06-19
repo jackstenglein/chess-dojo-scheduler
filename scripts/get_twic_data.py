@@ -4,7 +4,7 @@ from urllib.request import urlopen, Request
 from zipfile import ZipFile
 from io import BytesIO
 import ssl 
-from caissabase_stats import get_event, get_site
+from caissabase_stats import get_event, get_site, read_pgn
 import re
 import csv
 
@@ -17,6 +17,17 @@ EVENT_COUNT_OVERRIDES = {
         '18th Bergamo Open 2019': 36,
     }
 }
+
+def read_twic_from_file(archive_num):
+    pgns = []
+    try: 
+        with open(f'twic{archive_num}.pgn', 'r', encoding='utf-8-sig') as file:
+            while pgn := read_pgn(file):
+                pgns.append(pgn)
+        return pgns
+    except Exception as e:
+        print(f'ERROR {archive_num}: last PGN: ', pgns[-1], '\n', e)
+
 
 def fetch_twic_pgns(archive_num):
     resp = urlopen(Request(f'https://theweekinchess.com/zips/twic{archive_num}g.zip', data=None, headers={'User-Agent': 'curl/8.4.0'}))
@@ -43,9 +54,9 @@ def read_zip_pgn(file, archive_num):
     
     foundMoves = False
     while line := read_zip_line(file, archive_num):
-        if foundMoves and line == '\n':
+        if foundMoves and (line == '\n' or line == '\r\n'):
             break
-        elif line == '\n':
+        elif line == '\n' or line == '\r\n':
             foundMoves = True
 
         pgn += line
@@ -136,8 +147,6 @@ def add_twic_event_info(event, game_counts):
     if matched_event == None:
         return None
     
-    print('Matched Event: ', matched_event)
-
     curr = event.next_sibling
     while curr is not None:
         if curr.name == 'h2':
@@ -182,14 +191,14 @@ def matches_site(site, info):
 def analyze_twic_archive(archive_num):
     print(f'\n\nINFO {archive_num}: processing archive.')
 
+    pgns = read_twic_from_file(archive_num)
+    if len(pgns) == 0:
+        print(f'ERROR {archive_num}: empty PGNs.')
+        return {}
+
     twic_info = fetch_twic_info(archive_num)
     if len(twic_info) == 0:
         print(f'ERROR {archive_num}: empty twic_info.')
-        return {}
-
-    pgns = fetch_twic_pgns(archive_num)
-    if len(pgns) == 0:
-        print(f'ERROR {archive_num}: empty PGNs.')
         return {}
     
     print(f'INFO {archive_num}: Got TWIC Info: ', twic_info)
@@ -262,14 +271,16 @@ def analyze_twic_archive(archive_num):
     return results
 
 
+broken_archives = [1420, 1439, 1483, 943]
+
+
 def main():
-    outfile = 'twic_output_full_3.csv'
+    outfile = 'twic_output_broken.csv'
     with open(outfile, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['TWIC Archive Num', 'PGN Event', 'PGN Site', 'TWIC Event', 'TWIC Site', 'Possible Time Controls', 'Section Found'])
-
     
-    for archive_num in range(920, 1544): # range(920, 1544):
+    for archive_num in broken_archives: # range(920, 1544):
         results = analyze_twic_archive(archive_num)
         print(f'INFO {archive_num}: Got %d events' % (len(results)))
         with open(outfile, 'a') as f:

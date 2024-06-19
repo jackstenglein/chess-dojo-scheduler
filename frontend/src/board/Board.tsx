@@ -39,9 +39,12 @@ export function toDests(chess?: Chess): Map<Key, Key[]> {
     if (!chess) {
         return new Map();
     }
+
+    const disableNullMoves =
+        chess.disableNullMoves || Boolean(chess.currentMove()?.isNullMove);
     const dests = new Map<Key, Key[]>();
     SQUARES.forEach((s) => {
-        const moves = chess.moves({ square: s, verbose: true });
+        const moves = chess.moves({ square: s, disableNullMoves });
         if (moves) {
             dests.set(
                 s,
@@ -157,7 +160,11 @@ export function useReconcile() {
 
 function defaultOnMove(showGlyphs: boolean): onMoveFunc {
     return (board: BoardApi, chess: Chess, move: PrimitiveMove) => {
-        chess.move({ from: move.orig, to: move.dest, promotion: move.promotion });
+        chess.move({
+            from: move.orig as Square,
+            to: move.dest as Square,
+            promotion: move.promotion,
+        });
         reconcile(chess, board, showGlyphs);
     };
 }

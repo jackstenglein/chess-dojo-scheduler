@@ -53,6 +53,7 @@ const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {
                     showPlayerHeaders={false}
                     startOrientation={module.boardOrientation}
                     underboardTabs={[]}
+                    disableNullMoves={false}
                 />
             </Box>
         </Container>

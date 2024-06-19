@@ -35,7 +35,7 @@ describe('Scoreboard Page', () => {
     it('hides free-tier users', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
-        cy.interceptApi('GET', '/scoreboard/1500-1600', {
+        cy.interceptApi('GET', '/scoreboard/1500-1600?startKey=', {
             fixture: 'scoreboard/empty.json',
         });
         cy.visit('/scoreboard');

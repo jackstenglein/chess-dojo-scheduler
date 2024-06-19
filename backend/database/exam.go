@@ -65,6 +65,9 @@ type Exam struct {
 	// The list of problem PGNs in the exam.
 	Pgns []string `dynamodbav:"pgns" json:"pgns"`
 
+	// The total score possible on the exam.
+	TotalScore int `dynamodbav:"totalScore" json:"totalScore"`
+
 	// The max amount of time allowed to take the exam, in seconds.
 	TimeLimitSeconds int `dynamodbav:"timeLimitSeconds" json:"timeLimitSeconds"`
 
@@ -82,14 +85,6 @@ type Exam struct {
 type ExamProblemAnswer struct {
 	// The user's final result PGN.
 	Pgn string `dynamodbav:"pgn" json:"pgn"`
-
-	// The user's score for the problem.
-	// DEPRECATED
-	Score int `dynamodbav:"score" json:"score"`
-
-	// The total score available for the problem.
-	// DEPRECATED
-	Total int `dynamodbav:"total" json:"total"`
 }
 
 // A single user's attempt on an exam. Users can retake an exam,

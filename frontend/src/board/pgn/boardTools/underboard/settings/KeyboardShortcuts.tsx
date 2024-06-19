@@ -76,6 +76,9 @@ export enum ShortcutAction {
 
     /** Unfocuses any currently-focused text field. */
     UnfocusTextField = 'UNFOCUS_TEXTFIELD',
+
+    /** Inserts a null move. */
+    InsertNullMove = 'INSERT_NULL_MOVE',
 }
 
 /**
@@ -119,6 +122,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Focus Comment Text Field';
         case ShortcutAction.UnfocusTextField:
             return 'Unfocus Text Fields';
+        case ShortcutAction.InsertNullMove:
+            return 'Insert Null Move';
     }
 }
 
@@ -163,6 +168,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Open the Comments tab and focus the text field.';
         case ShortcutAction.UnfocusTextField:
             return 'Unfocuses all text fields, allowing the usage of keyboard shortcuts and board controls.';
+        case ShortcutAction.InsertNullMove:
+            return 'Inserts a null move into the PGN, passing the turn to the other side without changing the position. Null moves cannot be added when in check or immediately after another null move.';
     }
 }
 
@@ -207,6 +214,7 @@ export const defaultKeyBindings: Record<ShortcutAction, KeyBinding> = {
     [ShortcutAction.FocusMainTextField]: { modifier: '', key: '' },
     [ShortcutAction.FocusCommentTextField]: { modifier: '', key: '' },
     [ShortcutAction.UnfocusTextField]: { modifier: '', key: '' },
+    [ShortcutAction.InsertNullMove]: { modifier: '', key: '' },
 };
 
 /** The valid modifier keys. */
@@ -445,6 +453,24 @@ function handleUnfocusTextField() {
 }
 
 /**
+ * Handles inserting a null move. If the current move is check or the game is over,
+ * this function is a no-op.
+ * @param chess The chess instance to update.
+ */
+function handleInsertNullMove({ chess, reconcile }: ShortcutHandlerProps) {
+    if (
+        chess?.disableNullMoves ||
+        chess?.isCheck() ||
+        chess?.isGameOver() ||
+        chess?.currentMove()?.san === 'Z0'
+    ) {
+        return;
+    }
+    chess?.move('Z0');
+    reconcile?.();
+}
+
+/**
  * Maps ShortcutActions to their handler functions. Not all ShortcutActions are included.
  */
 export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> = {
@@ -465,6 +491,7 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.FocusMainTextField]: handleFocusMainTextField,
     [ShortcutAction.FocusCommentTextField]: handleFocusCommentTextField,
     [ShortcutAction.UnfocusTextField]: handleUnfocusTextField,
+    [ShortcutAction.InsertNullMove]: handleInsertNullMove,
 };
 
 /**

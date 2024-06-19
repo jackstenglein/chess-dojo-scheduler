@@ -2,7 +2,7 @@ using DelimitedFiles
 using Plots
 using LinearAlgebra
 
-function tactics_test_math(filename="exam0-1.csv")
+function tactics_test_math(filename="exam0-2.csv")
 
 allInfo = readdlm(filename, ',', String, '\n', skipstart=1)
 maxScore = 69 # 52 #62 #69
@@ -24,6 +24,10 @@ elseif filename == "exam2000-1.csv"
     minRating = 2000
 elseif filename == "exam0-1.csv"
     maxScore = 38
+    maxRating = 1000
+    minRating = 0
+elseif filename == "exam0-2.csv"
+    maxScore = 31
     maxRating = 1000
     minRating = 0
 else
@@ -66,14 +70,14 @@ deleteat!(times, zeroScores)
 deleteat!(scores, zeroScores)
 deleteat!(cohortsLow, zeroScores)
 
-# notEnoughUsers = findall((v) -> count(==(v), cohortsLow) < 3, cohortsLow)
-# println(cohortsLow)
-# println(notEnoughUsers)
-# deleteat!(cohortsLow, notEnoughUsers)
-# deleteat!(ratings, notEnoughUsers)
-# deleteat!(times, notEnoughUsers)
-# deleteat!(scores, notEnoughUsers)
-# println(cohortsLow)
+notEnoughUsers = findall((v) -> count(==(v), cohortsLow) < 3, cohortsLow)
+println(cohortsLow)
+println(notEnoughUsers)
+deleteat!(cohortsLow, notEnoughUsers)
+deleteat!(ratings, notEnoughUsers)
+deleteat!(times, notEnoughUsers)
+deleteat!(scores, notEnoughUsers)
+println(cohortsLow)
 
 sortedLows = sort(unique(cohortsLow))
 cohortScores = Dict(sortedLows .=> zeros(length(sortedLows),1))

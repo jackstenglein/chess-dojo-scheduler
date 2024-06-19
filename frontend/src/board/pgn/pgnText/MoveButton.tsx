@@ -1,4 +1,5 @@
 import { Chess, Event, EventType, Move } from '@jackstenglein/chess';
+import { Help } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -117,35 +118,41 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             onContextMenu={onRightClick}
             {...longPress()}
         >
-            {time || slots?.moveButtonExtras ? (
-                <Stack
-                    direction='row'
-                    alignItems='center'
-                    justifyContent='space-between'
-                    width={1}
-                >
-                    <div>
-                        {text}
-                        {displayNags}
-                    </div>
-
-                    {time && (
-                        <Typography
-                            variant='caption'
-                            color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
-                        >
-                            {time}
-                        </Typography>
-                    )}
-
-                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
-                </Stack>
-            ) : (
-                <>
+            <Stack
+                direction='row'
+                alignItems='center'
+                justifyContent='space-between'
+                width={1}
+            >
+                <Stack direction='row' alignItems='center'>
                     {text}
                     {displayNags}
-                </>
-            )}
+                    {move.isNullMove && (
+                        <Tooltip title='A null move passes the turn to the opponent and is commonly used for demonstrating a threat.'>
+                            <Help
+                                fontSize='inherit'
+                                sx={{
+                                    color: isCurrentMove ? 'inherit' : 'text.secondary',
+                                    position: 'relative',
+                                    top: -1,
+                                    ml: 0.5,
+                                }}
+                            />
+                        </Tooltip>
+                    )}
+                </Stack>
+
+                {time && (
+                    <Typography
+                        variant='caption'
+                        color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
+                    >
+                        {time}
+                    </Typography>
+                )}
+
+                {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
+            </Stack>
         </MuiButton>
     );
 });

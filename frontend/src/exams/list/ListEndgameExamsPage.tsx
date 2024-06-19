@@ -1,5 +1,5 @@
+import { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Container, Stack, Typography } from '@mui/material';
-import { ExamType } from '../../database/exam';
 import { RookIcon } from '../../style/ChessIcons';
 import { ExamList } from './ExamList';
 

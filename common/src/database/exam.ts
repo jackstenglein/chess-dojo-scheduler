@@ -45,6 +45,9 @@ export interface Exam {
     /** The list of problem PGNs in the exam. */
     pgns: string[];
 
+    /** The total score possible on the exam. */
+    totalScore: number;
+
     /** The max amount of time allowed to take the exam, in seconds. */
     timeLimitSeconds: number;
 

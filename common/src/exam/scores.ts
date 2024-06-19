@@ -1,4 +1,4 @@
-import { COLOR, Chess, Move } from '@jackstenglein/chess';
+import { Chess, Color, Move } from '@jackstenglein/chess';
 import { SimpleLinearRegression } from 'ml-regression-simple-linear';
 import { getCohortRangeInt, isCohortInRange } from '../database/cohort';
 import { Exam } from '../database/exam';
@@ -6,6 +6,14 @@ import { Exam } from '../database/exam';
 const scoreRegex = /\[(\d+)\]/;
 const alternateSolutionRegex = /\[ALT\]/;
 const endOfLineRegex = /\[EOL\]/;
+
+export interface ExamMoveUserData {
+    score?: number;
+    isAlt?: boolean;
+    found?: boolean;
+    altFound?: boolean;
+    extra?: boolean;
+}
 
 /**
  * Gets the exam orientation for the provided Chess instance. The exam
@@ -31,7 +39,7 @@ export function getOrientation(chess: Chess): 'white' | 'black' {
 export function initializeSolution(chess: Chess) {
     chess.seek(null);
     getSolutionScore(
-        chess.turn() === COLOR.black ? 'black' : 'white',
+        chess.turn() === Color.black ? 'black' : 'white',
         chess.history(),
         chess,
         false,
@@ -55,7 +63,7 @@ export function getTotalScore(pgn: string): number {
     const chess = new Chess({ pgn });
     chess.seek(null);
     return getSolutionScore(
-        chess.turn() === COLOR.black ? 'black' : 'white',
+        chess.turn() === Color.black ? 'black' : 'white',
         chess.history(),
         chess,
         false,
@@ -107,7 +115,7 @@ export function getSolutionScore(
             const altSearch = alternateSolutionRegex.exec(move.commentAfter || '');
             if (altSearch) {
                 move.userData = {
-                    ...move.userData,
+                    ...(move.userData as ExamMoveUserData),
                     isAlt: true,
                 };
                 move.commentAfter = move.commentAfter
@@ -116,9 +124,7 @@ export function getSolutionScore(
             }
         }
 
-        // Remove disabled when there's time to.
-        /* eslint-disable @typescript-eslint/restrict-plus-operands */
-        score += move.userData?.score || 0;
+        score += (move.userData as ExamMoveUserData)?.score || 0;
 
         const eolSearch = endOfLineRegex.exec(move.commentAfter || '');
         if (eolSearch) {
@@ -179,7 +185,11 @@ export function scoreVariation(
             break;
         }
 
-        const answerMove = answer.move(move.san, currentAnswerMove, false, true, true);
+        const answerMove = answer.move(move.san, {
+            previousMove: currentAnswerMove,
+            existingOnly: true,
+            skipSeek: true,
+        });
         if (!answerMove && !variationAlt) {
             // The user didn't find this move at all (mainline or variation), so they couldn't
             // have found any subsequent moves and we can break
@@ -187,17 +197,15 @@ export function scoreVariation(
         }
 
         move.userData = {
-            ...move.userData,
+            ...(move.userData as ExamMoveUserData),
             found: Boolean(answerMove),
             altFound: variationAlt,
         };
 
-        // Remove disabled when there's time to.
-        /* eslint-disable @typescript-eslint/restrict-plus-operands */
-        score += move.userData.score || 0;
+        score += (move.userData as ExamMoveUserData).score || 0;
         currentAnswerMove = answerMove;
 
-        if (move.userData.isAlt) {
+        if ((move.userData as ExamMoveUserData).isAlt) {
             altFound = true;
         }
     }
@@ -219,30 +227,34 @@ export function getRegression(exam: Exam): SimpleLinearRegression | null {
     const relevantCohortRange = `${minCohort}-${maxCohort}`;
     const minScore = 0.15 * getExamMaxScore(exam);
 
-    const scoresPerCohort = Object.values(exam.answers).reduce<
-        Record<number, { sum: number; count: number }>
-    >((acc, ans) => {
+    const scoresPerCohort = new Map<number, { sum: number; count: number }>();
+
+    Object.values(exam.answers).forEach((ans) => {
         if (!isCohortInRange(ans.cohort, relevantCohortRange) || ans.score < minScore) {
-            return acc;
+            return;
         }
 
         const [cohort] = getCohortRangeInt(ans.cohort);
-        acc[cohort] = {
-            sum: (acc[cohort]?.sum || 0) + ans.score,
-            count: (acc[cohort]?.count || 0) + 1,
-        };
-        return acc;
-    }, {});
+        scoresPerCohort.set(cohort, {
+            sum: (scoresPerCohort.get(cohort)?.sum || 0) + ans.score,
+            count: (scoresPerCohort.get(cohort)?.count || 0) + 1,
+        });
+    });
 
-    if (Object.values(scoresPerCohort).filter(({ count }) => count >= 3).length < 3) {
+    for (const [cohort, data] of scoresPerCohort) {
+        if (data.count < 3) {
+            scoresPerCohort.delete(cohort);
+        }
+    }
+    if (scoresPerCohort.size < 3) {
         return null;
     }
 
     const x: number[] = [];
     const y: number[] = [];
-    for (const [cohort, data] of Object.entries(scoresPerCohort)) {
+    for (const [cohort, data] of scoresPerCohort) {
         x.push(data.sum / data.count);
-        y.push(parseInt(cohort));
+        y.push(cohort);
     }
     return new SimpleLinearRegression(x, y);
 }

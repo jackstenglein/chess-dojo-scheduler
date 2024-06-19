@@ -92,6 +92,7 @@ const ModelGamesPage = () => {
                         key={getRequest.data.pgn}
                         pgn={getRequest.data.pgn}
                         startOrientation={getRequest.data.orientation}
+                        disableNullMoves={false}
                         underboardTabs={[
                             {
                                 name: 'selector',
