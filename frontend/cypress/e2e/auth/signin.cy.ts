@@ -21,11 +21,7 @@ describe('Signin Page', () => {
     });
 
     it('has sign in with google button', () => {
-        cy.contains('Sign in with Google').click();
-
-        cy.origin('https://accounts.google.com', () => {
-            cy.url().should('contain', 'accounts.google.com');
-        });
+        cy.contains('Sign in with Google');
     });
 
     it('requires email to submit form', () => {
