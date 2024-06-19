@@ -4,13 +4,11 @@ import { defineConfig } from 'vite';
 import eslint from 'vite-plugin-eslint';
 import istanbul from 'vite-plugin-istanbul';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
     return {
         build: {
             outDir: 'build',
-            rollupOptions: {
-                external: new RegExp('/coverage/.*'),
-            },
+            sourcemap: mode === 'test',
         },
         server: {
             port: 3000,
@@ -25,10 +23,16 @@ export default defineConfig(() => {
                 failOnError: false,
                 include: 'src',
             }),
-            istanbul({
-                cypress: true,
-                requireEnv: false,
-            }),
+            ...(mode === 'test'
+                ? [
+                      istanbul({
+                          cypress: true,
+                          requireEnv: false,
+                          forceBuildInstrument: true,
+                          checkProd: true,
+                      }),
+                  ]
+                : []),
         ],
         test: {
             environment: 'happy-dom',

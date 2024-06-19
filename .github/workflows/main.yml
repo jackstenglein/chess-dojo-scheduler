@@ -18,7 +18,7 @@ jobs:
         with:
           runTests: false
           working-directory: frontend
-          build: npm run build
+          build: npm run build:cypress
 
       - name: Save Build Folder
         uses: actions/upload-artifact@v4
@@ -54,7 +54,7 @@ jobs:
         with:
           working-directory: frontend
           build: npx cypress info
-          start: npm start
+          start: npm run preview
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
           record: true

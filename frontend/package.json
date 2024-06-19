@@ -72,7 +72,8 @@
         "test": "npm run test:unit && npm run test:e2e",
         "test:unit": "vitest run",
         "test:e2e": "cypress run",
-        "preview": "vite preview",
+        "build:cypress": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=6000' vite build --mode test",
+        "preview": "vite preview --port 3000",
         "lint": "eslint .",
         "lint:cypress": "eslint cypress",
         "lint:fix": "eslint --fix ."
