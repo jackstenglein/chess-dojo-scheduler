@@ -8,6 +8,9 @@ export default defineConfig(() => {
     return {
         build: {
             outDir: 'build',
+            rollupOptions: {
+                external: new RegExp('/coverage/.*'),
+            },
         },
         server: {
             port: 3000,
