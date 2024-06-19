@@ -12,6 +12,7 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
+import '@cypress/code-coverage/support';
 import 'cypress-real-events';
 
 // Import commands.ts first so the commands defined in it are

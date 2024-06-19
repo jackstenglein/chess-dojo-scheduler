@@ -11,6 +11,7 @@ cypress/fixtures/auth/signinCredentials.json
 # testing
 /coverage
 cypress/screenshots/
+.nyc_output/
 
 # production
 /build

@@ -2,6 +2,7 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import eslint from 'vite-plugin-eslint';
+import istanbul from 'vite-plugin-istanbul';
 
 export default defineConfig(() => {
     return {
@@ -20,6 +21,10 @@ export default defineConfig(() => {
             eslint({
                 failOnError: false,
                 include: 'src',
+            }),
+            istanbul({
+                cypress: true,
+                requireEnv: false,
             }),
         ],
         test: {
