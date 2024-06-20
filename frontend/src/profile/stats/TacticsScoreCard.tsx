@@ -1,8 +1,9 @@
 import { Card, CardContent, Link, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { Link as RouterLink } from 'react-router-dom';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
-import { Link as RouterLink } from 'react-router-dom';
 import { getExamColour } from '../../exams/list/ExamGraphComposer';
 import { calculateTacticsRating } from '../../exams/view/exam';
 import MeterGauge from './MeterGauge';
@@ -40,7 +41,10 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     >
                         Tactics Rating:{' '}
                     </Typography>
-                    <Tooltip
+
+                   
+
+                     <Tooltip
                         title={getTooltip(
                             tacticsRating.overall,
                             minCohort,
@@ -72,7 +76,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                 {isProvisional && '?'}
                             </Typography>
                         </Stack>
-                    </Tooltip>
+                    </Tooltip> 
                 </Stack>
 
                 <Stack
@@ -157,6 +161,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             </Tooltip>
                         </Grid2>
                     ))}
+                    
                 </Grid2>
             </CardContent>
         </Card>

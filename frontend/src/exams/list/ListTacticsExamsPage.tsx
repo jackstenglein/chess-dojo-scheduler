@@ -1,8 +1,10 @@
-import { Container, Stack, Typography } from '@mui/material';
+import { CardContent, Container, Stack, Typography } from '@mui/material';
 import { ExamType } from '../../database/exam';
 import { QueenIcon } from '../../style/ChessIcons';
 import { ExamList } from './ExamList';
 import { getColorBasedOnExamType } from '../view/ExamCard';
+import {Card} from '@mui/material';
+import ListCheckmateExamsPage from './ListCheckmateExamsPage';
 const TACTICS_RANGES = ['0-1000', '1000-1500', '1500-2000', '2000+'];
 
 /**
@@ -12,7 +14,9 @@ export const ListTacticsExamsPage = () => {
     return (
         <Container sx={{ py: 5 }}>
             <Stack spacing={4}>
-                <Typography variant='h4'>
+                <Card variant='outlined'>
+                    <CardContent>
+                    <Typography variant='h4'>
                     <QueenIcon
                         fontSize='inherit'
                         sx={{ mr: 2, verticalAlign: 'center' }}
@@ -21,7 +25,10 @@ export const ListTacticsExamsPage = () => {
                     Tactics Tests
                 </Typography>
                 <ExamList cohortRanges={TACTICS_RANGES} examType={ExamType.Tactics} />
+                    </CardContent>
+                </Card>
             </Stack>
+            <ListCheckmateExamsPage />
         </Container>
     );
 };

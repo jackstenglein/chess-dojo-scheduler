@@ -116,7 +116,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
                     mode: colorMode as PaletteMode,
                     positionalTest: defaultTheme.palette.augmentColor({
                         color: {
-                            main: '#1b11ab',
+                            main: '#d61313',
                         },
                         name: 'positionalTest',
                     }),
@@ -128,7 +128,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
                     }),
                     endgameTest: defaultTheme.palette.augmentColor({
                         color: {
-                            main: '#f29c4b',
+                            main: '#186aed',
                         },
                         name: 'endgameTest',
                     }),

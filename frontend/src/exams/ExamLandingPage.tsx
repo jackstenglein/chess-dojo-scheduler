@@ -27,8 +27,6 @@ export const ExamLandingPage = () => {
             <Stack spacing={3}>
                 <TacticsScoreCard user={user} />
 
-                <ExamGraphComposer user={user} width={700} height={500} />
-
                 <ExamRubricComposer />
 
                 <ExamCardComposer />
