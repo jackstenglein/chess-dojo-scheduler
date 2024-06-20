@@ -42,13 +42,15 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                     if (params.row.unlisted) {
                         return (
                             <Tooltip title='Unlisted'>
-                                <VisibilityOff sx={{ color: 'text.secondary' }} />
+                                <VisibilityOff
+                                    sx={{ color: 'text.secondary', height: 1 }}
+                                />
                             </Tooltip>
                         );
                     }
                     return (
                         <Tooltip title='Public'>
-                            <Visibility sx={{ color: 'text.secondary' }} />
+                            <Visibility sx={{ color: 'text.secondary', height: 1 }} />
                         </Tooltip>
                     );
                 },
