@@ -1,3 +1,4 @@
+import task from '@cypress/code-coverage/task';
 import { defineConfig } from 'cypress';
 import dotenv from 'dotenv';
 import { EnvSchema } from './cypress/env';
@@ -10,6 +11,10 @@ export default defineConfig({
     e2e: {
         baseUrl: 'http://localhost:3000',
         experimentalRunAllSpecs: true,
+        setupNodeEvents(on, config) {
+            task(on, config);
+            return config;
+        },
     },
 
     env: EnvSchema.strict().parse({
@@ -22,5 +27,9 @@ export default defineConfig({
         cognito_user_pool_id: process.env.AWS_COGNITO_USER_POOL_ID,
         cognito_user_pool_web_client_id: process.env.AWS_COGNITO_USER_POOL_WEB_CLIENT_ID,
         cognito_domain: process.env.AWS_COGNITO_DOMAIN,
+
+        codeCoverage: {
+            exclude: 'cypress/**/*.*',
+        },
     }),
 });

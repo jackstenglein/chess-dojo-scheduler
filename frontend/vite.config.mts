@@ -2,11 +2,13 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import eslint from 'vite-plugin-eslint';
+import istanbul from 'vite-plugin-istanbul';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
     return {
         build: {
             outDir: 'build',
+            sourcemap: mode === 'test',
         },
         server: {
             port: 3000,
@@ -21,6 +23,16 @@ export default defineConfig(() => {
                 failOnError: false,
                 include: 'src',
             }),
+            ...(mode === 'test'
+                ? [
+                      istanbul({
+                          cypress: true,
+                          requireEnv: false,
+                          forceBuildInstrument: true,
+                          checkProd: true,
+                      }),
+                  ]
+                : []),
         ],
         test: {
             environment: 'happy-dom',
