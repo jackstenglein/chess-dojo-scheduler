@@ -41,9 +41,9 @@ interface ExamInfo {
     id: string;
     exam: Exam;
     averageScore: number;
-    averageRating: number;
-    userScore: number;
-    userRating: number;
+    averageRating: number | undefined;
+    userScore: number | undefined;
+    userRating: number | undefined;
     dateTaken: string;
 }
 
@@ -54,8 +54,8 @@ function getExamInfo(e: Exam, username?: string, timezoneOverride?: string): Exa
 
     const answer = e.answers[username || ''];
 
-    let averageRating = -1;
-    let userRating = -1;
+    let averageRating: number | undefined = undefined;
+    let userRating: number | undefined = undefined;
     if (regression) {
         const sum = Object.values(e.answers)
             .map((a) => regression.predict(a.score))
@@ -72,7 +72,7 @@ function getExamInfo(e: Exam, username?: string, timezoneOverride?: string): Exa
         exam: e,
         averageScore: Math.round(10 * avg) / 10,
         averageRating,
-        userScore: e.answers[username || '']?.score ?? -1,
+        userScore: e.answers[username || '']?.score,
         userRating,
         dateTaken: answer
             ? toDojoDateString(new Date(answer.createdAt), timezoneOverride)
@@ -241,8 +241,8 @@ const columns: GridColDef<ExamInfo>[] = [
         align: 'center',
         headerAlign: 'center',
         valueGetter: (_value, row) => row.userScore,
-        renderCell(params: GridRenderCellParams<ExamInfo, number>) {
-            if (params.value === undefined || params.value < 0) {
+        renderCell(params: GridRenderCellParams<ExamInfo, number | undefined>) {
+            if (params.value === undefined) {
                 return `- / ${params.row.exam.totalScore}`;
             }
             return `${params.value} / ${params.row.exam.totalScore}`;
@@ -255,10 +255,10 @@ const columns: GridColDef<ExamInfo>[] = [
         headerAlign: 'center',
         align: 'center',
         valueGetter: (_value, row) => row.averageRating,
-        renderCell(params: GridRenderCellParams<ExamInfo, number>) {
-            if (!params.value || params.value < 0 || isNaN(params.value)) {
+        renderCell(params: GridRenderCellParams<ExamInfo, number | undefined>) {
+            if (params.value === undefined || isNaN(params.value)) {
                 return (
-                    <Tooltip title='Avg rating is not calculated until at least 10 people have taken the exam.'>
+                    <Tooltip title='Avg rating is not calculated until enough people have taken the exam.'>
                         <Help sx={{ color: 'text.secondary', height: 1 }} />
                     </Tooltip>
                 );
@@ -273,10 +273,10 @@ const columns: GridColDef<ExamInfo>[] = [
         align: 'center',
         headerAlign: 'center',
         valueGetter: (_value, row) => row.userRating,
-        renderCell(params: GridRenderCellParams<ExamInfo, number>) {
-            if (!params.value || params.value < 0 || isNaN(params.value)) {
+        renderCell(params: GridRenderCellParams<ExamInfo, number | undefined>) {
+            if (params.value === undefined || isNaN(params.value)) {
                 return (
-                    <Tooltip title='Your rating is not calculated until at least 10 people have taken the exam.'>
+                    <Tooltip title='Your rating is not calculated until enough people have taken the exam.'>
                         <Help sx={{ color: 'text.secondary', height: 1 }} />
                     </Tooltip>
                 );

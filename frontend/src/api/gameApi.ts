@@ -733,7 +733,10 @@ export function isValidDate(date?: string) {
  * @param header The header to strip question marks from.
  * @returns The stripped header value.
  */
-export function stripTagValue(header: string) {
+export function stripTagValue(header?: string | null): string {
+    if (!header) {
+        return '';
+    }
     header = header.trim();
     return header.replaceAll('?', '') === '' ? '' : header;
 }

@@ -26,9 +26,9 @@ import Explorer from '../../explorer/Explorer';
 import { ResizableData } from '../../resize';
 import ClockUsage from './ClockUsage';
 import Editor from './Editor';
-import Tags from './Tags';
 import Comments from './comments/Comments';
 import Settings from './settings/Settings';
+import Tags from './tags/Tags';
 
 export enum DefaultUnderboardTab {
     Tags = 'tags',

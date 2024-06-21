@@ -11,13 +11,14 @@ import {
 } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { isValidDate, stripTagValue } from '../../../../api/gameApi';
-import { Game } from '../../../../database/game';
-import Avatar from '../../../../profile/Avatar';
-import CohortIcon from '../../../../scoreboard/CohortIcon';
-import { useChess } from '../../PgnBoard';
+import { isValidDate, stripTagValue } from '../../../../../api/gameApi';
+import { Game } from '../../../../../database/game';
+import Avatar from '../../../../../profile/Avatar';
+import CohortIcon from '../../../../../scoreboard/CohortIcon';
+import { useChess } from '../../../PgnBoard';
+import { EditDateCell } from './DateEditor';
 
-interface TagRow {
+export interface TagRow {
     name: string;
     value:
         | string
@@ -80,6 +81,8 @@ const columns: GridColDef<TagRow>[] = [
     },
 ];
 
+const dateTags = ['Date', 'EventDate', 'UTCDate', 'EndDate'];
+
 function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
     if (props.row.name === 'Result') {
         return (
@@ -103,6 +106,9 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
                 }}
             />
         );
+    }
+    if (dateTags.includes(props.row.name)) {
+        return <EditDateCell {...props} />;
     }
     return <GridEditInputCell {...props} />;
 }
@@ -202,7 +208,10 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
 
             <DataGridPro
                 autoHeight
-                sx={{ border: 0 }}
+                sx={{
+                    border: 0,
+                    '& .MuiDataGrid-cell--editing': { outline: 'none !important' },
+                }}
                 columns={columns}
                 rows={rows}
                 getRowId={(row) => row.name}
@@ -234,7 +243,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                         return oldRow;
                     }
 
-                    if (['Date'].includes(name) && !isValidDate(value)) {
+                    if (dateTags.includes(name) && value && !isValidDate(value)) {
                         setError('PGN dates must be in the format 2024.12.31');
                         return oldRow;
                     }
