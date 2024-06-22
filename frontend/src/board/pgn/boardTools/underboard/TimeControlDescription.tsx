@@ -11,6 +11,20 @@ export function TimeControlDescription({
         return 'Unknown';
     }
 
+    if (timeControls.length === 1) {
+        const tc = timeControls[0];
+        return (
+            <Typography>
+                {formatTime(tc.seconds || 0)}{' '}
+                {tc.increment
+                    ? ` + ${tc.increment} sec increment`
+                    : tc.delay
+                      ? ` + ${tc.delay} sec delay`
+                      : ''}
+            </Typography>
+        );
+    }
+
     let currentMove = 1;
     return (
         <Stack>
