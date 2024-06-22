@@ -42,9 +42,9 @@ const ExamGraph: React.FC<ExamVals> = ({
             width={width}
             height={height}
             series={[
-                { data: polgarData, label: 'Checkmate', color: '#8c03fc', type: 'line' },
-                { data: tacData, label: 'Tactics', color: '#55d444', type: 'line' },
-                { data: endgameData, label: 'Endgame', color: '#f29c4b', type: 'line' },
+                { data: polgarData, label: 'Positional Rating', color: '#d61313', type: 'line' },
+                { data: tacData, label: 'Tactics Rating', color: '#55d444', type: 'line' },
+                { data: endgameData, label: 'Endgame Rating', color: '#186aed', type: 'line' },
                 {
                     data: checkProvLine,
                     label: 'Overal Rating',

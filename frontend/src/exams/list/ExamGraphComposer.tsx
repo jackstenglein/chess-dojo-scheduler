@@ -41,16 +41,18 @@ function getUserExamCreationTimes(user: User): string[] {
  */
 
 export function getExamColour(t: TacticsRatingComponent): string {
-    if (t.name.includes('Polgar Mate Tests')) {
+    if (t.name.includes('Checkmate Tests')) {
         return '#8c03fc';
     } else if (t.name.includes('Tactics Tests')) {
         return '#55d444';
     } else if (t.name.includes('Endgame Tests')) {
-        return '#f29c4b';
+        return '#186aed';
     } else if (t.name.includes('PR 5 Min')) {
         return '#c9f03c';
     } else if (t.name.includes('PR Survival')) {
         return '#ab3cf0';
+    } else if (t.name.includes("Positional Tests")){
+        return "#d61313";
     }
 
     return '#4b4d49';

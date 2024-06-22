@@ -11,15 +11,6 @@ const ExamRubricComposer: React.FC = () => {
                     justifyContent='center'
                     
                 >
-                    <Typography
-                        variant='h6'
-                        sx={{
-                            fontWeight: 'bold',
-                        }}
-                        align='center'
-                    >
-                        Tactics Rubric{' '}
-                    </Typography>
 
                     <Typography variant='body1'>
                         The Dojo tests three essential skills: tactics, endgame and
