@@ -1,10 +1,11 @@
+import { PgnDate } from '@jackstenglein/chess';
 import { GridRenderEditCellParams, useGridApiContext } from '@mui/x-data-grid-pro';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { parsePgnDate, toPgnDate } from '../../../../../api/gameApi';
 import { TagRow } from './Tags';
 
-export function EditDateCell(props: GridRenderEditCellParams<TagRow, string>) {
+export function EditDateCell(props: GridRenderEditCellParams<TagRow, PgnDate | string>) {
     const { id, value, field } = props;
     const apiRef = useGridApiContext();
 
@@ -12,11 +13,12 @@ export function EditDateCell(props: GridRenderEditCellParams<TagRow, string>) {
         void apiRef.current.setEditCellValue({ id, field, value: toPgnDate(newValue) });
     };
 
+    const dateTime = parsePgnDate(isPgnDate(value) ? value.value : value);
     return (
         <DatePicker
             autoFocus
             disableFuture
-            value={parsePgnDate(value)}
+            value={dateTime}
             onChange={handleChange}
             sx={{
                 width: 1,
@@ -25,5 +27,14 @@ export function EditDateCell(props: GridRenderEditCellParams<TagRow, string>) {
                 '& fieldset': { border: 0 },
             }}
         />
+    );
+}
+
+function isPgnDate(obj: unknown): obj is PgnDate {
+    return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        'value' in obj &&
+        typeof obj.value === 'string'
     );
 }

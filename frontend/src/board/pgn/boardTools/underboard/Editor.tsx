@@ -46,13 +46,21 @@ interface NagButtonProps extends ToggleButtonProps {
 const NagButton: React.FC<NagButtonProps> = ({ text, description, ...props }) => {
     return (
         <Tooltip title={description}>
-            <ToggleButton {...props} sx={{ width: `${100 / 8}%` }}>
-                <Stack alignItems='center' justifyContent='center'>
-                    <Typography sx={{ fontSize: '1.3rem', fontWeight: '600' }}>
-                        {text}
-                    </Typography>
-                </Stack>
-            </ToggleButton>
+            <span style={{ width: `${100 / 8}%` }}>
+                <ToggleButton {...props} sx={{ width: 1 }}>
+                    <Stack alignItems='center' justifyContent='center'>
+                        <Typography
+                            sx={{
+                                whiteSpace: 'nowrap',
+                                fontSize: '1.3rem',
+                                fontWeight: '600',
+                            }}
+                        >
+                            {text}
+                        </Typography>
+                    </Stack>
+                </ToggleButton>
+            </span>
         </Tooltip>
     );
 };
