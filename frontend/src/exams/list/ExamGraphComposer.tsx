@@ -41,7 +41,7 @@ function getUserExamCreationTimes(user: User): string[] {
  */
 
 export function getExamColour(t: TacticsRatingComponent): string {
-    if (t.name.includes('Polgar Mate Tests')) {
+    if (t.name.includes('Checkmate Tests')) {
         return '#8c03fc';
     } else if (t.name.includes('Tactics Tests')) {
         return '#55d444';
