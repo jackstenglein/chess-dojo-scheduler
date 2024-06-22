@@ -1,16 +1,14 @@
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
     Box,
     Button,
     Collapse,
     Container,
     Divider,
-    Grid,
     IconButton,
     Stack,
     Typography,
 } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, { useMemo, useState } from 'react';
 import { RequestSnackbar } from '../api/Request';
 import { useRequirements } from '../api/cache/requirements';
@@ -19,6 +17,8 @@ import { Requirement } from '../database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import Position from '../requirements/Position';
+import CohortIcon from '../scoreboard/CohortIcon';
+import Icon, { IconProps } from '../style/Icon';
 
 interface SparringRequirementProps {
     requirement: Requirement;
@@ -45,7 +45,11 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
             <Box>
                 <Stack direction='row' alignItems='center'>
                     <IconButton size='small' onClick={toggleOpen}>
-                        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                        {open ? (
+                            <Icon name='innerMenuUp' color='dojoOrange' />
+                        ) : (
+                            <Icon name='innerMenuDown' color='dojoOrange' />
+                        )}
                     </IconButton>
                     <Typography
                         variant='subtitle1'
@@ -59,13 +63,13 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                 </Stack>
 
                 <Collapse in={open} timeout='auto' unmountOnExit>
-                    <Grid container spacing={2}>
+                    <Grid2 container spacing={2}>
                         {requirement.positions.map((p) => (
-                            <Grid item xs='auto' key={p.fen}>
+                            <Grid2 xs='auto' key={p.fen}>
                                 <Position position={p} />
-                            </Grid>
+                            </Grid2>
                         ))}
-                    </Grid>
+                    </Grid2>
                 </Collapse>
             </Box>
         );
@@ -73,22 +77,22 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
 
     if (stacked) {
         return (
-            <Grid container spacing={2}>
+            <Grid2 container spacing={2}>
                 {requirement.positions.map((p) => (
-                    <Grid item xs='auto' key={p.fen}>
+                    <Grid2 xs='auto' key={p.fen}>
                         <Position position={p} />
-                    </Grid>
+                    </Grid2>
                 ))}
-            </Grid>
+            </Grid2>
         );
     }
 
     return (
         <>
             {requirement.positions.map((p) => (
-                <Grid item xs='auto' key={p.fen}>
+                <Grid2 xs='auto' key={p.fen}>
                     <Position position={p} />
-                </Grid>
+                </Grid2>
             ))}
         </>
     );
@@ -109,7 +113,11 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
         <Box>
             <Stack direction='row' alignItems='center'>
                 <IconButton size='small' onClick={toggleOpen}>
-                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    {open ? (
+                        <Icon name='innerMenuUp' color='dojoOrange' />
+                    ) : (
+                        <Icon name='innerMenuDown' color='dojoOrange' />
+                    )}
                 </IconButton>
                 <Typography
                     variant='subtitle1'
@@ -118,7 +126,25 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                     onClick={toggleOpen}
                     sx={{ cursor: 'pointer' }}
                 >
-                    {subsection.name}
+                    <>
+                        {dojoCohorts.includes(subsection.name) ? (
+                            <>
+                                <CohortIcon
+                                    cohort={subsection.name}
+                                    size={30}
+                                    sx={{
+                                        marginRight: '0.6rem',
+                                        verticalAlign: 'middle',
+                                    }}
+                                    tooltip=''
+                                    color='primary'
+                                />
+                                {subsection.name}
+                            </>
+                        ) : (
+                            <>{subsection.name}</>
+                        )}
+                    </>
                 </Typography>
             </Stack>
 
@@ -130,7 +156,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                         ))}
                     </Stack>
                 ) : (
-                    <Grid container spacing={2}>
+                    <Grid2 container spacing={2}>
                         {subsection.requirements.map((r) => (
                             <SparringRequirement
                                 key={r.id}
@@ -140,7 +166,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                         ))}
 
                         {subsection.hidden > 0 && (
-                            <Grid item xs='auto'>
+                            <Grid2 xs='auto'>
                                 <Stack
                                     data-cy='upsell-message'
                                     px={1}
@@ -159,9 +185,9 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                                         View Prices
                                     </Button>
                                 </Stack>
-                            </Grid>
+                            </Grid2>
                         )}
-                    </Grid>
+                    </Grid2>
                 )}
             </Collapse>
         </Box>
@@ -182,10 +208,22 @@ const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
         <Box>
             <Stack direction='row' alignItems='center'>
                 <IconButton size='small' onClick={toggleOpen}>
-                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    {open ? (
+                        <Icon name='menuUp' color='dojoOrange' />
+                    ) : (
+                        <Icon name='menuDown' color='primary' />
+                    )}
                 </IconButton>
                 <Typography variant='h6' onClick={toggleOpen} sx={{ cursor: 'pointer' }}>
-                    {section.name}
+                    <>
+                        <Icon
+                            name={section.name as IconProps['name']}
+                            color='primary'
+                            fontSize='medium'
+                            sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}
+                        />{' '}
+                        {section.name}
+                    </>
                 </Typography>
             </Stack>
             <Divider />
@@ -317,6 +355,15 @@ const SparringPage = () => {
         <Container sx={{ py: 4 }}>
             <Stack spacing={4}>
                 <RequestSnackbar request={request} />
+                <Typography variant='h5' align='center'>
+                    ChessDojo Recommended Sparring Positions
+                </Typography>
+                <Typography>
+                    Below are the recommended sparring positions per cohort. Ideally, you
+                    should spar positions with someone within one cohort of you and
+                    discuss the games afterward. Detailed instructions per position can be
+                    found in the training plan.
+                </Typography>
 
                 {sections.map((s) => (
                     <SparringSection key={s.name} section={s} />

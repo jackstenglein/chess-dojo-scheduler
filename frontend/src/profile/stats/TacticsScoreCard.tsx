@@ -5,6 +5,10 @@ import React, { useState } from 'react';
 import { User } from '../../database/user';
 import ExamGraphComposer from '../../exams/list/ExamGraphComposer';
 import TacticsMeterCard from './TacticsMeterCard';
+
+
+
+
 interface TacticsScoreCardProps {
     user: User;
 }

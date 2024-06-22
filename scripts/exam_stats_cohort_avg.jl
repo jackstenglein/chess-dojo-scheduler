@@ -2,13 +2,13 @@ using DelimitedFiles
 using Plots
 using LinearAlgebra
 
-function tactics_test_math(filename="exam1500-1.csv")
+function tactics_test_math(filename="exam0-1.csv")
 
 allInfo = readdlm(filename, ',', String, '\n', skipstart=1)
 maxScore = 69 # 52 #62 #69
 maxRating = 2400 #2400
 minRating = 2000 #2000
-minTime = 1200 # 20 min
+minTime = 600 # 10 min
 
 if filename == "exam1500-1.csv"
     maxScore = 52
@@ -22,6 +22,10 @@ elseif filename == "exam2000-1.csv"
     maxScore = 69
     maxRating = 2400
     minRating = 2000
+elseif filename == "exam0-1.csv"
+    maxScore = 38
+    maxRating = 1000
+    minRating = 0
 else
     println("UNEXPECTED FILENAME")
     return false
@@ -31,12 +35,18 @@ ratings = parse.(Float64, allInfo[:,2])
 times = parse.(Int64, allInfo[:,4])
 scores = parse.(Int64, allInfo[:,5])
 cohortsLow = Int64[]
-for rating in allInfo[:,2]
-    roundedRating = fld(parse(Float64, rating), 100) * 100
-    push!(cohortsLow, roundedRating)
+# for rating in allInfo[:,2]
+#     roundedRating = fld(parse(Float64, rating), 100) * 100
+#     push!(cohortsLow, roundedRating)
+# end
+for cohorts in allInfo[:,3]
+    if cohorts == "2400+"
+        push!(cohortsLow, 2400)
+    else
+        lowHigh = split(cohorts, "-")
+        push!(cohortsLow, parse(Int64, lowHigh[1]))
+    end
 end
-
-println(cohortsLow)
 
 # lowTimes = findall((v) -> v < minTime, times)
 # deleteat!(ratings, lowTimes)
@@ -56,6 +66,15 @@ deleteat!(times, zeroScores)
 deleteat!(scores, zeroScores)
 deleteat!(cohortsLow, zeroScores)
 
+# notEnoughUsers = findall((v) -> count(==(v), cohortsLow) < 3, cohortsLow)
+# println(cohortsLow)
+# println(notEnoughUsers)
+# deleteat!(cohortsLow, notEnoughUsers)
+# deleteat!(ratings, notEnoughUsers)
+# deleteat!(times, notEnoughUsers)
+# deleteat!(scores, notEnoughUsers)
+# println(cohortsLow)
+
 sortedLows = sort(unique(cohortsLow))
 cohortScores = Dict(sortedLows .=> zeros(length(sortedLows),1))
 cohortNum = Dict(sortedLows .=> zeros(length(sortedLows),1))
@@ -63,22 +82,26 @@ for (i,score) in enumerate(scores)
     cohortScores[cohortsLow[i]] += score
     cohortNum[cohortsLow[i]] += 1
 end
+
 for low in sortedLows
     cohortScores[low] /= cohortNum[low]
 end
 
-relevantCohorts = filter((v) -> (minRating-100 <= v[1] <= maxRating+100), cohortScores)
-plot(collect(values(cohortScores)), collect(keys(cohortScores)), title="Ratings vs Scores with Time: $filename", xlabel="Scores", ylabel="Ratings", label="cohort avg", seriestype=:scatter)
+relevantCohorts = filter((v) -> (minRating-100 <= v[1] < maxRating+100), cohortScores)
+plot(collect(values(cohortScores)), collect(keys(cohortScores)), title="Ratings vs Scores: $filename", xlabel="Scores", ylabel="Ratings", label="cohort avg", seriestype=:scatter)
 plot!(collect(values(relevantCohorts)), collect(keys(relevantCohorts)), label="relevant cohort avg", seriestype=:scatter)
 
 #plot!(scores, ratings, title="Ratings vs Scores", label="all", xlabel="scores", ylabel="ratings", seriestype=:scatter)
 relevantRatings = findall((v) -> (v >= minRating-100 && v < maxRating+100), ratings)
 
+println("Relevant Cohorts: ", relevantCohorts)
 #actualRatings = ratings[relevantRatings]
 #actualScores = scores[relevantRatings]
 actualRatings = collect(keys(relevantCohorts))
 actualScores = collect(values(relevantCohorts))
 #plot!(actualScores, actualRatings, label="relevant", seriestype=:scatter)
+println(actualRatings)
+println(actualScores)
 
 linearRegressionMatrix = [ones(length(actualScores),1) actualScores]
 parameters = linearRegressionMatrix\actualRatings
