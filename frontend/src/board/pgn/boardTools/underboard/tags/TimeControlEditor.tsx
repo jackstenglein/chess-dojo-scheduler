@@ -35,19 +35,23 @@ const d = new Date();
 d.setHours(0, 0, 0);
 const defaultDateTime = DateTime.fromJSDate(d);
 
-export function TimeControlEditor(
-    props: GridRenderEditCellParams<TagRow, TimeControlHeader>,
-) {
-    const { id, field, value } = props;
-    const apiRef = useGridApiContext();
-    const [timeControls, setTimeControls] = useState<TimeControl[]>(value?.items || []);
+interface TimeControlEditorProps {
+    open: boolean;
+    initialItems?: TimeControl[];
+    onCancel: () => void;
+    onSuccess: (value: string) => void;
+}
+
+export function TimeControlEditor({
+    open,
+    initialItems,
+    onCancel,
+    onSuccess,
+}: TimeControlEditorProps) {
+    const [timeControls, setTimeControls] = useState<TimeControl[]>(initialItems || []);
     const [errors, setErrors] = useState<TimeControlErrors>({});
 
-    const onClose = () => {
-        apiRef.current.stopCellEditMode({ id, field, ignoreModifications: true });
-    };
-
-    const onSave = async () => {
+    const onSave = () => {
         const newErrors = validateTimeControls(timeControls);
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) {
@@ -55,8 +59,7 @@ export function TimeControlEditor(
         }
 
         const newValue = timeControls.map((tc) => getTimeControlValue(tc)).join(':');
-        await apiRef.current.setEditCellValue({ id, field, value: newValue });
-        apiRef.current.stopCellEditMode({ id, field });
+        onSuccess(newValue);
     };
 
     const setTimeControl = (i: number, value: TimeControl) => {
@@ -122,8 +125,8 @@ export function TimeControlEditor(
         <Dialog
             maxWidth='md'
             fullWidth
-            open
-            onClose={onClose}
+            open={open}
+            onClose={onCancel}
             classes={{
                 container: BlockBoardKeyboardShortcuts,
             }}
@@ -241,10 +244,35 @@ export function TimeControlEditor(
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button onClick={() => void onSave()}>Update</Button>
+                <Button onClick={onCancel}>Cancel</Button>
+                <Button onClick={onSave}>Update</Button>
             </DialogActions>
         </Dialog>
+    );
+}
+
+export function TimeControlGridEditor(
+    props: GridRenderEditCellParams<TagRow, TimeControlHeader>,
+) {
+    const { id, field, value } = props;
+    const apiRef = useGridApiContext();
+
+    const onClose = () => {
+        apiRef.current.stopCellEditMode({ id, field, ignoreModifications: true });
+    };
+
+    const onSuccess = async (value: string) => {
+        await apiRef.current.setEditCellValue({ id, field, value });
+        apiRef.current.stopCellEditMode({ id, field });
+    };
+
+    return (
+        <TimeControlEditor
+            open
+            initialItems={value?.items}
+            onCancel={onClose}
+            onSuccess={onSuccess}
+        />
     );
 }
 

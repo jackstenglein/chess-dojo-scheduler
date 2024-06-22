@@ -17,7 +17,7 @@ import Avatar from '../../../../../profile/Avatar';
 import CohortIcon from '../../../../../scoreboard/CohortIcon';
 import { useChess } from '../../../PgnBoard';
 import { EditDateCell } from './DateEditor';
-import { TimeControlEditor } from './TimeControlEditor';
+import { TimeControlGridEditor } from './TimeControlEditor';
 
 interface OwnerValue {
     displayName: string;
@@ -112,7 +112,7 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
         );
     }
     if (props.row.name === 'TimeControl') {
-        return <TimeControlEditor {...props} />;
+        return <TimeControlGridEditor {...props} />;
     }
     if (dateTags.includes(props.row.name)) {
         return <EditDateCell {...props} />;

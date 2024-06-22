@@ -1,4 +1,4 @@
-import { Chess, Event, EventType, Move } from '@jackstenglein/chess';
+import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { Help } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
@@ -22,12 +22,7 @@ import { useGame } from '../../../games/view/GamePage';
 import { useReconcile } from '../../Board';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
-import {
-    convertClockToSeconds,
-    formatTime,
-    getIncrement,
-    getInitialClock,
-} from '../boardTools/underboard/ClockUsage';
+import { convertClockToSeconds, formatTime } from '../boardTools/underboard/ClockUsage';
 import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
 
 export function getTextColor(move: Move, inline?: boolean): string {
@@ -400,6 +395,33 @@ function getMoveTime(chess: Chess | undefined, move: Move): string {
         return '0';
     }
 
+    const moveNumber = Math.floor(move.ply / 2 + 0.5);
+
+    let timeControl: TimeControl | undefined = undefined;
+    let tcMoveNum = 0;
+    let additionalTime = 0;
+
+    const timeControls = chess?.header().tags.TimeControl?.items || [];
+
+    for (let i = 0; i < timeControls.length; i++) {
+        const tc = timeControls[i];
+        if (!tc.moves) {
+            timeControl = tc;
+            break;
+        }
+
+        tcMoveNum += tc.moves || 0;
+        if (moveNumber <= tcMoveNum) {
+            timeControl = tc;
+            additionalTime = Math.max(0, timeControls[i + 1].seconds || 0);
+            break;
+        }
+    }
+
+    if (!timeControl) {
+        return '0';
+    }
+
     let prev: Move | null | undefined = move;
     let prevSeconds = undefined;
     do {
@@ -408,14 +430,18 @@ function getMoveTime(chess: Chess | undefined, move: Move): string {
     } while (prev && prevSeconds === undefined);
 
     if (prevSeconds === undefined) {
-        prevSeconds = getInitialClock(chess?.pgn);
+        prevSeconds = chess?.header().tags.TimeControl?.items[0]?.seconds || 0;
     }
-    if (prevSeconds === 0) {
+    if (prevSeconds <= 0) {
         return '0';
     }
 
-    const increment = getIncrement(chess?.pgn);
-    const elapsedSeconds = prevSeconds - seconds + increment;
+    const bonus = Math.max(0, timeControl.increment || timeControl.delay || 0);
+    let elapsedSeconds = prevSeconds - seconds + bonus;
+    if (tcMoveNum === moveNumber) {
+        elapsedSeconds += additionalTime;
+    }
+
     return formatTime(elapsedSeconds);
 }
 

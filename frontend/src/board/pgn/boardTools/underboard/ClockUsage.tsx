@@ -57,6 +57,11 @@ const totalTimePrimaryAxis: AxisOptions<Datum> = {
 
 export function formatTime(value: number): string {
     let result = '';
+    if (value < 0) {
+        result = '-';
+        value = Math.abs(value);
+    }
+
     const hours = Math.floor(value / 3600);
     if (hours > 0) {
         result = `${hours}:`;
@@ -202,8 +207,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     const [forceRender, setForceRender] = useState(0);
     const reconcile = useReconcile();
 
-    const initialClock = getInitialClock(chess?.pgn);
-    const increment = getIncrement(chess?.pgn);
+    const timeControls = chess?.header().tags.TimeControl?.items;
 
     useEffect(() => {
         if (chess && showEditor) {
@@ -228,7 +232,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     }, [chess, setForceRender, showEditor]);
 
     const data = useMemo(() => {
-        if (!chess || forceRender < 0) {
+        if (!chess || !timeControls || timeControls.length === 0 || forceRender < 0) {
             return {
                 total: [],
                 remainingPerMove: [],
@@ -236,79 +240,97 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             };
         }
 
-        const whiteLineData: Datum[] = [
+        let timeControl = timeControls[0];
+        let timeControlIdx = 0;
+
+        const whiteClockDisplay: Datum[] = [
             {
                 moveNumber: 0,
-                seconds: initialClock,
+                seconds: timeControl.seconds || 0,
                 move: null,
             },
         ];
-        const blackLineData: Datum[] = [
+        const blackClockDisplay: Datum[] = [
             {
                 moveNumber: 0,
-                seconds: initialClock,
+                seconds: timeControl.seconds || 0,
                 move: null,
             },
         ];
 
-        const whiteBarData: Datum[] = [];
-        const blackBarData: Datum[] = [];
+        const whiteTimePerMove: Datum[] = [];
+        const blackTimePerMove: Datum[] = [];
 
         let whiteSecTotal = 0;
         let blackSecTotal = 0;
 
         const moves = chess.history();
         for (let i = 0; i < moves.length; i += 2) {
+            const bonus = Math.max(0, timeControl.increment || timeControl.delay || 0);
+            let additionalTime = 0;
+
+            if (
+                timeControl.moves &&
+                timeControlIdx + 1 < timeControls.length &&
+                i / 2 === timeControl.moves - 1
+            ) {
+                timeControl = timeControls[++timeControlIdx];
+                additionalTime = Math.max(0, timeControl.seconds || 0);
+            }
+
             const firstTime = convertClockToSeconds(moves[i]?.commentDiag?.clk);
-            whiteLineData.push({
+            whiteClockDisplay.push({
                 moveNumber: i / 2 + 1,
                 seconds:
                     firstTime !== undefined
                         ? firstTime
-                        : whiteLineData[whiteLineData.length - 1].seconds,
+                        : whiteClockDisplay[whiteClockDisplay.length - 1].seconds,
                 move: moves[i],
             });
 
             const secondTime = convertClockToSeconds(moves[i + 1]?.commentDiag?.clk);
-            blackLineData.push({
+            blackClockDisplay.push({
                 moveNumber: i / 2 + 1,
                 seconds:
                     secondTime !== undefined
                         ? secondTime
-                        : blackLineData[blackLineData.length - 1].seconds,
+                        : blackClockDisplay[blackClockDisplay.length - 1].seconds,
                 move: moves[i + 1] ? moves[i + 1] : moves[i],
             });
 
-            whiteBarData.push({
+            whiteTimePerMove.push({
                 moveNumber: i / 2 + 1,
                 seconds:
-                    whiteLineData[whiteLineData.length - 2].seconds -
-                    whiteLineData[whiteLineData.length - 1].seconds +
-                    increment,
+                    whiteClockDisplay[whiteClockDisplay.length - 2].seconds -
+                    whiteClockDisplay[whiteClockDisplay.length - 1].seconds +
+                    additionalTime +
+                    bonus,
                 move: moves[i],
             });
-            blackBarData.push({
+            blackTimePerMove.push({
                 moveNumber: i / 2 + 1,
-                seconds:
-                    blackLineData[blackLineData.length - 2].seconds -
-                    blackLineData[blackLineData.length - 1].seconds +
-                    increment,
+                seconds: !moves[i + 1]
+                    ? 0
+                    : blackClockDisplay[blackClockDisplay.length - 2].seconds -
+                      blackClockDisplay[blackClockDisplay.length - 1].seconds +
+                      additionalTime +
+                      bonus,
                 move: moves[i + 1] ? moves[i + 1] : moves[i],
             });
 
-            whiteSecTotal += whiteBarData[whiteBarData.length - 1].seconds;
-            blackSecTotal += blackBarData[blackBarData.length - 1].seconds;
+            whiteSecTotal += whiteTimePerMove[whiteTimePerMove.length - 1].seconds;
+            blackSecTotal += blackTimePerMove[blackTimePerMove.length - 1].seconds;
         }
 
-        if (whiteBarData.length === 0) {
-            whiteBarData.push({
+        if (whiteTimePerMove.length === 0) {
+            whiteTimePerMove.push({
                 moveNumber: 0,
                 seconds: 0,
                 move: null,
             });
         }
-        if (blackBarData.length === 0) {
-            blackBarData.push({
+        if (blackTimePerMove.length === 0) {
+            blackTimePerMove.push({
                 moveNumber: 0,
                 seconds: 0,
                 move: null,
@@ -336,15 +358,15 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 },
             ],
             remainingPerMove: [
-                { label: 'White', data: whiteLineData },
-                { label: 'Black', data: blackLineData },
+                { label: 'White', data: whiteClockDisplay },
+                { label: 'Black', data: blackClockDisplay },
             ],
             usedPerMove: [
-                { label: 'White', data: whiteBarData.reverse() },
-                { label: 'Black', data: blackBarData.reverse() },
+                { label: 'White', data: whiteTimePerMove.reverse() },
+                { label: 'Black', data: blackTimePerMove.reverse() },
             ],
         };
-    }, [chess, increment, initialClock, forceRender]);
+    }, [chess, timeControls, forceRender]);
 
     if (!chess) {
         return null;

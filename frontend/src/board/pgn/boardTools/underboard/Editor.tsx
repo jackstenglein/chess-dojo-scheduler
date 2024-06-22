@@ -1,4 +1,5 @@
 import { Chess, Event, EventType } from '@jackstenglein/chess';
+import { Edit } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -6,6 +7,7 @@ import {
     Box,
     Button,
     CardContent,
+    IconButton,
     Stack,
     TextField,
     ToggleButton,
@@ -14,8 +16,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
-import { TimeField } from '@mui/x-date-pickers';
 import React, { useEffect, useRef, useState } from 'react';
 import { useReconcile } from '../../../Board';
 import {
@@ -30,13 +30,9 @@ import {
     setNagsInSet,
 } from '../../Nag';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
-import {
-    convertSecondsToDateTime,
-    handleIncrement,
-    handleInitialClock,
-} from './ClockEditor';
 import ClockTextField from './ClockTextField';
-import { getIncrement, getInitialClock } from './ClockUsage';
+import { TimeControlDescription } from './TimeControlDescription';
+import { TimeControlEditor } from './tags/TimeControlEditor';
 
 interface NagButtonProps extends ToggleButtonProps {
     text: string;
@@ -75,6 +71,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const reconcile = useReconcile();
     const [, setForceRender] = useState(0);
     const textFieldRef = useRef<HTMLTextAreaElement>();
+    const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
 
     useEffect(() => {
         if (chess) {
@@ -122,9 +119,6 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
         return null;
     }
 
-    const initialClock = getInitialClock(chess.pgn);
-    const increment = getIncrement(chess.pgn);
-
     const move = chess.currentMove();
     const isMainline = chess.isInMainline(move);
     const comment = move ? move.commentAfter || '' : chess.pgn.gameComment.comment || '';
@@ -146,6 +140,11 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
         reconcile();
     };
 
+    const onUpdateTimeControl = (value: string) => {
+        chess.setHeader('TimeControl', value);
+        setShowTimeControlEditor(false);
+    };
+
     const takebacksDisabled =
         config?.disableTakebacks === 'both' ||
         config?.disableTakebacks?.[0] === move?.color;
@@ -154,48 +153,41 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
 
     return (
         <CardContent>
-            <Stack spacing={3} mt={2}>
+            <Stack spacing={3} mt={move ? 2 : undefined}>
                 {move && isMainline ? (
                     <ClockTextField label='Clock (hh:mm:ss)' move={move} />
                 ) : (
                     !move && (
-                        <Grid2
-                            container
-                            columnSpacing={1}
-                            rowGap={3}
-                            alignItems='center'
-                            pb={2}
-                        >
-                            <Grid2 xs={6}>
-                                <TimeField
-                                    id={BlockBoardKeyboardShortcuts}
-                                    label='Time Control (hh:mm:ss)'
-                                    format='HH:mm:ss'
-                                    value={convertSecondsToDateTime(initialClock)}
-                                    onChange={(value) =>
-                                        handleInitialClock(chess, increment, value)
-                                    }
-                                    fullWidth
-                                />
-                            </Grid2>
+                        <Stack>
+                            <Stack direction='row' alignItems='center' spacing={0.5}>
+                                <Typography variant='subtitle1'>Time Control</Typography>
 
-                            <Grid2 xs={6}>
-                                <TextField
-                                    id={BlockBoardKeyboardShortcuts}
-                                    label='Increment (Sec)'
-                                    value={`${increment}`}
-                                    onChange={(e) =>
-                                        handleIncrement(
-                                            chess,
-                                            initialClock,
-                                            e.target.value,
-                                        )
-                                    }
-                                    fullWidth
-                                />
-                            </Grid2>
-                        </Grid2>
+                                <Tooltip title='Edit time control'>
+                                    <IconButton
+                                        size='small'
+                                        sx={{ position: 'relative', top: '-2px' }}
+                                        onClick={() => setShowTimeControlEditor(true)}
+                                    >
+                                        <Edit fontSize='inherit' />
+                                    </IconButton>
+                                </Tooltip>
+                            </Stack>
+                            <TimeControlDescription
+                                timeControls={
+                                    chess.header().tags.TimeControl?.items || []
+                                }
+                            />
+                        </Stack>
                     )
+                )}
+
+                {showTimeControlEditor && (
+                    <TimeControlEditor
+                        open={showTimeControlEditor}
+                        initialItems={chess.header().tags.TimeControl?.items}
+                        onCancel={() => setShowTimeControlEditor(false)}
+                        onSuccess={onUpdateTimeControl}
+                    />
                 )}
 
                 <TextField
