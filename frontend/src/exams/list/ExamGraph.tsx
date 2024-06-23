@@ -11,7 +11,8 @@ import * as React from 'react';
 interface ExamVals {
     polgarData: number[]; // checkmate tests ratings list
     tacData: number[]; // tactics test ratings list
-    endgameData: number[]; // endgame test ratings list
+    pr5min: number[];
+    prSuv: number[];
     checkProvLine: number[]; // overall rating list
     xLabels: string[]; // X-axis label which is timestamp for users' tests
     width: number; // Width of the ExamGraph frame
@@ -29,7 +30,8 @@ interface ExamVals {
 const ExamGraph: React.FC<ExamVals> = ({
     polgarData,
     tacData,
-    endgameData,
+    pr5min,
+    prSuv,
     xLabels,
     width,
     height,
@@ -42,10 +44,10 @@ const ExamGraph: React.FC<ExamVals> = ({
             width={width}
             height={height}
             series={[
-                { data: polgarData, label: 'Checkmate', color: '#5905a3', type: 'line' },
+                { data: polgarData, label: 'Checkmate', color: '#5905a3', type: 'line'},
                 { data: tacData, label: 'Tactics', color: '#55d444', type: 'line' },
-                { data: endgameData, label: 'PR 5 Min', color: '#2803a1', type: 'line' },
-                {data: [], label: 'PR Survival', color: '#e01eeb', type: 'line'},
+                { data: pr5min, label: 'PR 5 Min', color: '#2803a1', type: 'line' },
+                {data: prSuv, label: 'PR Survival', color: '#e01eeb', type: 'line'},
                 {
                     data: checkProvLine,
                     label: 'Overall',
@@ -53,7 +55,8 @@ const ExamGraph: React.FC<ExamVals> = ({
                     type: 'line',
                 },
             ]}
-            xAxis={[{ scaleType: 'point', data: xLabels }]}
+            xAxis={[{scaleType: 'point', data: xLabels}]}
+    
             grid={{ vertical: true, horizontal: true }}
         >
             <LinePlot />
