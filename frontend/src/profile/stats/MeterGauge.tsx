@@ -11,31 +11,39 @@ interface MeterProps {
     height: number; // The meter height
     text: string; // The meter inner text
     color: string; // The meter color
+    userMaxValue: number;
+    
+
 }
 
-function GaugePointer() {
+interface GaugePointerProps {
+    color: string;
+  }
+  
+  const GaugePointer: React.FC<GaugePointerProps> = ({ color }) => {
     const { valueAngle, outerRadius, cx, cy } = useGaugeState();
-
+  
     if (valueAngle === null) {
-        // No value to display
-        return null;
+      // No value to display
+      return null;
     }
-
+  
     const target = {
-        x: cx + outerRadius * Math.sin(valueAngle),
-        y: cy - outerRadius * Math.cos(valueAngle),
+      x: cx + outerRadius * Math.sin(valueAngle),
+      y: cy - outerRadius * Math.cos(valueAngle),
     };
+  
     return (
-        <g>
-            <circle cx={cx} cy={cy} r={5} fill='red' />
-            <path
-                d={`M ${cx} ${cy} L ${target.x} ${target.y}`}
-                stroke='gold'
-                strokeWidth={3}
-            />
-        </g>
+      <g>
+        <circle cx={cx} cy={cy} r={5} fill="red" />
+        <path
+          d={`M ${cx} ${cy} L ${target.x} ${target.y}`}
+          stroke={color}
+          strokeWidth={3}
+        />
+      </g>
     );
-}
+  };
 
 /**
  * Compontent to render Meter for given meterProps props
@@ -43,7 +51,7 @@ function GaugePointer() {
  * @returns UI Compontent for meter display
  */
 
-const MeterGauge: React.FC<MeterProps> = ({ value, width, height, text, color }) => {
+const MeterGauge: React.FC<MeterProps> = ({ value, width, height, text, color, userMaxValue }) => {
     return (
         <Box>
             <Stack>
@@ -63,7 +71,7 @@ const MeterGauge: React.FC<MeterProps> = ({ value, width, height, text, color })
                     height={height}
                     value={value}
                     valueMin={0}
-                    valueMax={2900}
+                    valueMax={userMaxValue}
                     startAngle={-100}
                     endAngle={100}
                     text={''}
@@ -79,7 +87,7 @@ const MeterGauge: React.FC<MeterProps> = ({ value, width, height, text, color })
                         },
                     })}
                 >
-                    <GaugePointer />
+                    <GaugePointer color={color}/>
                 </Gauge>
             </Stack>
         </Box>

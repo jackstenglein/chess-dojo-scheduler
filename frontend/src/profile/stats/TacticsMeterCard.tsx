@@ -11,12 +11,13 @@ import { Link } from 'react-router-dom';
 import MeterGauge from './MeterGauge';
 import { getExamColour } from '../../exams/list/ExamGraphComposer';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { getRatingCompoProgressColor} from './TacticsBarCard';
 
 interface TacticsScoreCardProps {
     user: User;
 }
 
-function getTooltip(
+export function getTooltip(
     rating: number,
     minCohort: number,
     maxCohort: number,
@@ -113,7 +114,8 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
                             width={300}
                             height={300}
                             text='?'
-                            color='#4b4d49'
+                            color='white'
+                            userMaxValue={maxCohort+100}
                         />
                     ) : (
                         <MeterGauge
@@ -123,7 +125,8 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
                             text={new Number(
                                 Math.round(tacticsRating.overall),
                             ).toString()}
-                            color='#37e691'
+                            color={getRatingCompoProgressColor(minCohort, maxCohort, tacticsRating.overall)}
+                            userMaxValue={isProvisional ? 2900: maxCohort + 100}
                         />
                     )}
                 </Grid2>
@@ -164,7 +167,8 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
                                                 width={100}
                                                 height={100}
                                                 text={'?'}
-                                                color=''
+                                                color='white'
+                                                userMaxValue={maxCohort+100}
                                             />
                                         ) : (
                                             <MeterGauge
@@ -174,7 +178,8 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
                                                 text={new Number(
                                                     Math.round(c.rating),
                                                 ).toString()}
-                                                color={getExamColour(c)}
+                                                color={getRatingCompoProgressColor(minCohort, maxCohort, c.rating)}
+                                                userMaxValue={isProvisional ? 2900: maxCohort + 100}
                                             />
                                         )}
                                     </>
