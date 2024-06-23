@@ -6,9 +6,6 @@ interface BarGraphProps {
     width: number;
     height: number;
     tacRating: number;
-    posRating: number;
-    endRating: number;
-    opRating: number;
     pr5Rating: number;
     prsuRating: number;
     checkRating: number;
@@ -16,13 +13,13 @@ interface BarGraphProps {
 }
 
 
-const BarGraph: React.FC<BarGraphProps> = ({width, height, tacRating, endRating, posRating, opRating, progressColors, pr5Rating, prsuRating, checkRating}) => {
+const BarGraph: React.FC<BarGraphProps> = ({width, height, tacRating, progressColors, pr5Rating, prsuRating, checkRating}) => {
     return (
         <BarChart
             xAxis={[
                 {
                     id: 'barCategories',
-                    data: ['Tactics', 'Positional', 'Endgame', 'Opening', 'Checkmate', 'PR 5 Min', 'PR Survival'],
+                    data: ['Tactics', 'Checkmate', 'PR 5 Min', 'PR Survival'],
                     scaleType: 'band',
                     colorMap: {
                         type: 'ordinal',
@@ -40,7 +37,7 @@ const BarGraph: React.FC<BarGraphProps> = ({width, height, tacRating, endRating,
             ]}
             series={[
                 {
-                    data: [tacRating, posRating, endRating, opRating, checkRating, pr5Rating, prsuRating],
+                    data: [tacRating, checkRating, pr5Rating, prsuRating],
                    
                 },
             ]}

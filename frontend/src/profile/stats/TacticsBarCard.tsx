@@ -61,15 +61,6 @@ const TacticsBarGraphCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
 
     tacticsRating.components.map((c) => {
         switch (c.name) {
-            case 'Endgame Rating':
-                endRating = Math.round(c.rating);
-                break;
-            case 'Positional Rating':
-                posRating = Math.round(c.rating);
-                break;
-            case 'Opening Rating':
-                opRating = Math.round(c.rating);
-                break;
             case 'Checkmate Rating':
                 checkmate =  Math.round(c.rating);
                 break;
@@ -84,9 +75,6 @@ const TacticsBarGraphCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
    
         progressColors = [
             getRatingCompoProgressColor(minCohort, maxCohort, tacRating),
-            getRatingCompoProgressColor(minCohort, maxCohort, posRating),
-            getRatingCompoProgressColor(minCohort, maxCohort, endRating),
-            getRatingCompoProgressColor(minCohort, maxCohort, opRating),
             getRatingCompoProgressColor(minCohort, maxCohort, checkmate),
             getRatingCompoProgressColor(minCohort, maxCohort, pr5),
             getRatingCompoProgressColor(minCohort, maxCohort, prSuv),
@@ -151,9 +139,6 @@ const TacticsBarGraphCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                         width={900}
                         height={400}
                         tacRating={tacRating}
-                        posRating={posRating}
-                        endRating={endRating}
-                        opRating={opRating}
                         checkRating={checkmate}
                         pr5Rating={pr5}
                         prsuRating={prSuv}
