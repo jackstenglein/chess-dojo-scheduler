@@ -68,7 +68,9 @@
         "zod-validation-error": "^3.3.0"
     },
     "scripts": {
-        "start": "echo WARNING: npm run start nows starts site in prod mode.; next start",
+        "start": "echo ERROR: npm run start no longer supported. Use npm run dev (run server in development mode) or npm run preview (to serve build/)",
+        "preinstall": "cd ../common && npm install && cd ../eslint-config-dojo/ && npm install",
+        "preview": "next start",
         "dev": "next dev",
         "build": "next build",
         "test": "npm run test:unit && npm run test:e2e",
