@@ -15,10 +15,39 @@ import ExamGraph from './ExamGraph';
  * @returns A list of exam ratings for the specified exam type.
  */
 function getUserExamRatingsByType(user: User, examType: ExamType): number[] {
-    return Object.values(user.exams)
+    let attemptTimestamp: string[] = [];
+    let allAttempts: string[] = [];
+    let getRatinhg: number[] = [];
+    let getFinal: number[] = [];
+
+    Object.values(user.exams)
         .filter((examSummary) => examSummary.examType === examType)
-        .map((examSummary) => Math.round(examSummary.rating))
-        .reverse();
+        .map((examSummary) =>
+            attemptTimestamp.push(toDojoDateString(new Date(examSummary.createdAt), user.timezoneOverride))
+        )
+    
+    allAttempts = getUserExamCreationTimes(user);
+    
+    attemptTimestamp.map((ts) => 
+        allAttempts.includes(ts) ? getRatinhg.push(1) : getRatinhg.push(0)
+    )
+
+    Object.values(user.exams)
+        .filter((examSummary) => examSummary.examType === examType)
+        .map((examSummary) =>
+            {
+                if(getRatinhg.pop() == 1){
+                    getFinal.push(examSummary.rating)
+                }else{
+                    getFinal.push(0);
+                }
+            }
+        )
+
+    
+    return getFinal;
+
+        
 }
 
 /**
@@ -30,8 +59,8 @@ function getUserExamCreationTimes(user: User): string[] {
     return Object.values(user.exams)
         .map((examSummary) =>
             toDojoDateString(new Date(examSummary.createdAt), user.timezoneOverride),
-        )
-        .reverse();
+        ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+        
 }
 
 /**
@@ -107,7 +136,8 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                     <ExamGraph
                         polgarData={getUserExamRatingsByType(user, ExamType.Polgar)}
                         tacData={getUserExamRatingsByType(user, ExamType.Tactics)}
-                        endgameData={getUserExamRatingsByType(user, ExamType.Endgame)}
+                        pr5min={[]}
+                        prSuv={[]}
                         isUserProv={isProvisional}
                         xLabels={getUserExamCreationTimes(user)}
                         realRating={realRating}
