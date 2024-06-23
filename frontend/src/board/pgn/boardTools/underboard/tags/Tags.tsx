@@ -1,4 +1,5 @@
 import { EventType } from '@jackstenglein/chess';
+import { type Tags as PgnTags } from '@jackstenglein/pgn-parser';
 import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
@@ -129,7 +130,7 @@ const defaultTags = [
 const uneditableTags = ['PlyCount', 'TimeControl'];
 
 interface TagsProps {
-    tags?: Record<string, string>;
+    tags?: PgnTags;
     game?: Game;
     allowEdits?: boolean;
 }
