@@ -7,6 +7,9 @@ import TacticsBarGraphCard from './TacticsBarCard';
 import Icon from '../../style/Icon';
 import TacticsMeterCard from './TacticsMeterCard';
 import { RequirementCategory } from '../../database/requirement';
+
+
+
 interface TacticsScoreCardProps {
     user: User;
 }

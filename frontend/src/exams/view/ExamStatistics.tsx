@@ -113,7 +113,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 id: 'best-fit',
                 type: 'line',
                 label: '',
-                data: Array.from(Array(totalScore + 2)).map((_, i) =>
+                data: Array.from(Array(totalScore + 1)).map((_, i) =>
                     regression.predict(i),
                 ),
                 color: isLight ? '#000' : '#fff',
@@ -123,7 +123,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 type: 'scatter',
                 label: 'Test Rating',
                 color: isLight ? '#000' : '#fff',
-                data: Array.from(Array(totalScore + 2)).map((_, i) => ({
+                data: Array.from(Array(totalScore + 1)).map((_, i) => ({
                     x: i,
                     y: Math.round(regression.predict(i)),
                     id: i,
