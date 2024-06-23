@@ -3,30 +3,6 @@ name: Cypress Tests
 on: push
 
 jobs:
-  install:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Prepare Frontend
-        working-directory: frontend
-        run: npm ci
-
-      - name: Build
-        uses: cypress-io/github-action@v6
-        with:
-          runTests: false
-          working-directory: frontend
-          build: npm run build
-
-      - name: Save Build Folder
-        uses: actions/upload-artifact@v4
-        with:
-          name: build
-          path: frontend/build
-          if-no-files-found: error
-
   cypress-run:
     timeout-minutes: 30
     runs-on: ubuntu-22.04
@@ -36,6 +12,10 @@ jobs:
     #   matrix:
     #     containers: [1, 2, 3] # Uses parallel instances
     steps:
+      - name: Prepare Frontend
+        working-directory: frontend
+        run: npm ci
+
       - name: Cypress Run
         uses: cypress-io/github-action@v6
         with:
