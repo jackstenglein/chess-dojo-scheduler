@@ -1,5 +1,4 @@
-import { EventType } from '@jackstenglein/chess';
-import { type Tags as PgnTags } from '@jackstenglein/pgn-parser';
+import { EventType, PgnDate, PgnTime, TimeControl } from '@jackstenglein/chess';
 import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
@@ -10,7 +9,7 @@ import {
     GridRenderCellParams,
     GridRenderEditCellParams,
 } from '@mui/x-data-grid-pro';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { isValidDate, stripTagValue } from '../../../../../api/gameApi';
 import { Game } from '../../../../../database/game';
@@ -18,16 +17,21 @@ import Avatar from '../../../../../profile/Avatar';
 import CohortIcon from '../../../../../scoreboard/CohortIcon';
 import { useChess } from '../../../PgnBoard';
 import { EditDateCell } from './DateEditor';
+import { TimeControlGridEditor } from './TimeControlEditor';
+
+interface OwnerValue {
+    displayName: string;
+    username: string;
+    previousCohort: string;
+}
+
+function isOwnerValue(obj: unknown): obj is OwnerValue {
+    return typeof obj === 'object' && obj !== null && 'displayName' in obj;
+}
 
 export interface TagRow {
     name: string;
-    value:
-        | string
-        | {
-              displayName: string;
-              username: string;
-              previousCohort: string;
-          };
+    value: string | OwnerValue | PgnDate | PgnTime | TimeControl;
 }
 
 const columns: GridColDef<TagRow>[] = [
@@ -37,10 +41,7 @@ const columns: GridColDef<TagRow>[] = [
         flex: 0.75,
         editable: true,
         renderCell: (params: GridRenderCellParams<TagRow>) => {
-            if (
-                params.row.name === 'Uploaded By' &&
-                typeof params.row.value === 'object'
-            ) {
+            if (isOwnerValue(params.row.value)) {
                 return (
                     <Stack direction='row' spacing={1} alignItems='center' height={1}>
                         <Avatar
@@ -77,6 +78,8 @@ const columns: GridColDef<TagRow>[] = [
             if (typeof params.row.value === 'string') {
                 return params.row.value;
             }
+
+            return params.row.value.value;
         },
         renderEditCell: (params) => <CustomEditComponent {...params} />,
     },
@@ -108,6 +111,9 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
             />
         );
     }
+    if (props.row.name === 'TimeControl') {
+        return <TimeControlGridEditor {...props} />;
+    }
     if (dateTags.includes(props.row.name)) {
         return <EditDateCell {...props} />;
     }
@@ -127,10 +133,9 @@ const defaultTags = [
     'Board',
 ];
 
-const uneditableTags = ['PlyCount', 'TimeControl'];
+const uneditableTags = ['PlyCount'];
 
 interface TagsProps {
-    tags?: PgnTags;
     game?: Game;
     allowEdits?: boolean;
 }
@@ -178,7 +183,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
 
     for (const tag of Object.keys(header.tags || {})) {
         if (!defaultTags.includes(tag) && !uneditableTags.includes(tag)) {
-            rows.push({ name: tag, value: header.getRawValue(tag) });
+            rows.push({ name: tag, value: header.getValue(tag) });
         }
     }
 
@@ -217,9 +222,9 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                 rows={rows}
                 getRowId={(row) => row.name}
                 slots={{
-                    columnHeaders: () => null,
-                    footer: () => null,
+                    columnHeaders: NullHeader,
                 }}
+                hideFooter
                 isCellEditable={(params: GridCellParams<TagRow>) => {
                     if (!allowEdits) {
                         return false;
@@ -250,7 +255,10 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     }
 
                     chess.setHeader(newRow.name, newRow.value as string);
-                    return newRow;
+                    return {
+                        ...newRow,
+                        value: chess.header().getValue(newRow.name),
+                    };
                 }}
                 onProcessRowUpdateError={(err: Error) => {
                     setError(err.message);
@@ -261,3 +269,6 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
 };
 
 export default Tags;
+
+const NullHeader = React.forwardRef(() => null);
+NullHeader.displayName = 'NullHeader';
