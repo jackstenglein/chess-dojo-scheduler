@@ -3,8 +3,10 @@ import Button from '@mui/material/Button';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, { useState } from 'react';
 import { User } from '../../database/user';
-import ExamGraphComposer from '../../exams/list/ExamGraphComposer';
+import TacticsBarGraphCard from './TacticsBarCard';
+import Icon from '../../style/Icon';
 import TacticsMeterCard from './TacticsMeterCard';
+import { RequirementCategory } from '../../database/requirement';
 interface TacticsScoreCardProps {
     user: User;
 }
@@ -20,16 +22,16 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
         <div>
             <Card variant='outlined'>
                 <CardContent>
-                    <Grid2 container rowGap={4} columnSpacing={2} justifyContent='center'>
-                        <Button variant='text' onClick={handleButtonClick}>
-                            {showMeterCard ? 'Show Bar Graph' : 'Show Component A'}
-                        </Button>
-                    </Grid2>
                     {showMeterCard ? (
                         <TacticsMeterCard user={user} />
                     ) : (
-                        <ExamGraphComposer width={800} height={500} user={user} />
+                        <TacticsBarGraphCard user={user}/>
                     )}
+                    <Grid2 container rowGap={4} columnSpacing={2} justifyContent='end'>
+                        <Button variant='text' onClick={handleButtonClick} color='info' startIcon={showMeterCard ?  <Icon name='leaderboard' fontSize='large'/> : <Icon name={RequirementCategory.Tactics} fontSize='large'/>}>
+                         Change View
+                        </Button>
+                    </Grid2>
                 </CardContent>
             </Card>
         </div>
