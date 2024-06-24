@@ -14,6 +14,8 @@ interface BarGraphProps {
 
 
 const BarGraph: React.FC<BarGraphProps> = ({width, height, tacRating, progressColors, pr5Rating, prsuRating, checkRating}) => {
+    const data =[tacRating, checkRating, pr5Rating, prsuRating];
+    console.log(data);
     return (
         <BarChart
             xAxis={[
@@ -26,8 +28,6 @@ const BarGraph: React.FC<BarGraphProps> = ({width, height, tacRating, progressCo
                         colors: progressColors,
                       }
                     ,
-                    min: 0,
-                    max: 2900,
                     categoryGapRatio: 0.7,
                     barGapRatio: 0.2,
                     label: 'Tactics Rating Component'
@@ -37,10 +37,12 @@ const BarGraph: React.FC<BarGraphProps> = ({width, height, tacRating, progressCo
             ]}
             series={[
                 {
-                    data: [tacRating, checkRating, pr5Rating, prsuRating],
+                    data: data,
                    
                 },
             ]}
+
+            
             
             width={width}
             height={height}

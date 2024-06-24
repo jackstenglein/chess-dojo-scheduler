@@ -183,8 +183,8 @@ export function addExtraVariation(
     }
 }
 
-const PuzzleRush5MinReqId = '42804d40-3651-438c-a8ae-e2200fe23b4c';
-const PuzzleSurvivalReqId = 'fa98ad32-219a-4ee9-ae02-2cda69efce06';
+export const PuzzleRush5MinReqId = '42804d40-3651-438c-a8ae-e2200fe23b4c';
+export const PuzzleSurvivalReqId = 'fa98ad32-219a-4ee9-ae02-2cda69efce06';
 
 export interface TacticsRating {
     /** The user's overall tactics rating. */

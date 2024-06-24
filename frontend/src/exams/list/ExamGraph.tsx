@@ -1,7 +1,7 @@
+import { ChartsReferenceLine } from '@mui/x-charts';
 import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
 import { LineChart, LinePlot, MarkPlot } from '@mui/x-charts/LineChart';
-import { ChartsReferenceLine } from '@mui/x-charts';
 import * as React from 'react';
 
 /**
@@ -18,6 +18,7 @@ interface ExamVals {
     isUserProv: boolean; // user's tactics rating provisional value
     checkProvLine: number[]; // overall rating list
     realRating: number;
+    isPR: boolean;
 }
 
 /**
@@ -35,8 +36,12 @@ const ExamGraph: React.FC<ExamVals> = ({
     color,
     isUserProv,
     checkProvLine,
-    realRating
+    realRating,
+    isPR,
 }) => {
+    const colorLabel = !isPR ? '' : !isUserProv ? '' : '#37e691';
+    const displayLabel = !isPR? '': !isUserProv ? '' : 'Overall Rating';
+    const lineType = !isPR? undefined : !isUserProv ? undefined: 'line';
     return (
         <LineChart
             width={width}
@@ -47,6 +52,12 @@ const ExamGraph: React.FC<ExamVals> = ({
                     label: label,
                     color: color,
                     type: 'line',
+                },
+                {
+                    data: checkProvLine,
+                    label: displayLabel,
+                    color: colorLabel,
+                    type: lineType,
                 },
             ]}
             // series={[
@@ -66,9 +77,14 @@ const ExamGraph: React.FC<ExamVals> = ({
         >
             <LinePlot />
             <MarkPlot />
-            {isUserProv ? null : (
-                <ChartsReferenceLine y={realRating} lineStyle={{ stroke: '#37e691' }} />
-            )}
+            {
+                !isPR ? null : (
+                    isUserProv ? null : (
+                        <ChartsReferenceLine y={realRating} lineStyle={{ stroke: '#37e691' }} />
+                    )
+                )
+            }
+            
             <ChartsXAxis />
             <ChartsYAxis />
         </LineChart>
