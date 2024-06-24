@@ -35,7 +35,7 @@ const GamePage = () => {
     const api = useApi();
     const request = useRequest<Game>();
     const featureRequest = useRequest();
-    const updateRequest = useRequest();
+    const updateRequest = useRequest<Game>();
     const { cohort, id } = useParams();
     const user = useAuth().user;
     const [searchParams, setSearchParams] = useSearchParams({ firstLoad: 'false' });

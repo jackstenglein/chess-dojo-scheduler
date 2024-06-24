@@ -54,18 +54,18 @@ const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
     }),
 );
 
-interface DatabaseProps {
+interface DatabaseProps<T> {
     type: 'dojo' | 'lichess';
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
-    request: Request<unknown>;
+    request: Request<T>;
     minCohort: string;
     maxCohort: string;
     setMinCohort: (v: string) => void;
     setMaxCohort: (v: string) => void;
 }
 
-const Database: React.FC<DatabaseProps> = ({
+function Database<T>({
     type,
     fen,
     position,
@@ -74,7 +74,7 @@ const Database: React.FC<DatabaseProps> = ({
     maxCohort,
     setMinCohort,
     setMaxCohort,
-}) => {
+}: DatabaseProps<T>) {
     const { chess } = useChess();
     const reconcile = useReconcile();
     const isFreeTier = useFreeTier();
@@ -376,7 +376,7 @@ const Database: React.FC<DatabaseProps> = ({
             )}
         </Grid>
     );
-};
+}
 
 export default Database;
 

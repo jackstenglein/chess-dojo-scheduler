@@ -86,6 +86,9 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
 
     const turn = turnColor(position.fen);
 
+    const timeControlName =
+        getLigaIconBasedOnTimeControl(position.limitSeconds) ?? 'unknown';
+
     return (
         <Card variant='outlined' sx={{ px: 0 }}>
             <RequestSnackbar request={lichessRequest} />
@@ -97,9 +100,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                         <Stack direction='row' justifyContent='space-between'>
                             <Typography variant='h6'> {position.title}</Typography>
                             <Tooltip
-                                title={getLigaIconBasedOnTimeControl(
-                                    position.limitSeconds,
-                                )
+                                title={timeControlName
                                     .toLowerCase()
                                     .concat(' time control')}
                             >

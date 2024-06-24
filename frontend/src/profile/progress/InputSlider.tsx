@@ -16,7 +16,7 @@ const InputSlider: React.FC<InputSliderProps> = ({
     min,
     suffix,
 }) => {
-    const handleSliderChange = (event: Event, newValue: number | number[]) => {
+    const handleSliderChange = (_: Event, newValue: number | number[]) => {
         setValue(newValue as number);
     };
 

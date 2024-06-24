@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useMemo } from 'react';
 import { useFreeTier } from '../../auth/Auth';
-import { CustomTask, Requirement } from '../../database/requirement';
+import { CustomTask, Requirement, RequirementCategory } from '../../database/requirement';
 import { User } from '../../database/user';
 import Icon from '../../style/Icon';
 import { useTutorial } from '../../tutorial/TutorialContext';
@@ -18,7 +18,7 @@ import { TutorialName } from '../../tutorial/tutorialNames';
 import ProgressItem from './ProgressItem';
 
 export interface Category {
-    name: string;
+    name: RequirementCategory;
     requirements: (Requirement | CustomTask)[];
     totalComplete: number;
 }

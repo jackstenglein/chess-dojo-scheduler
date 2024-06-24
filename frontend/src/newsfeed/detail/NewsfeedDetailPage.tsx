@@ -1,12 +1,12 @@
 import { Container } from '@mui/material';
-import { useApi } from '../../api/Api';
-import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import NotFoundPage from '../../NotFoundPage';
+import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { TimelineEntry } from '../../database/timeline';
-import NewsfeedItem from './NewsfeedItem';
 import LoadingPage from '../../loading/LoadingPage';
-import NotFoundPage from '../../NotFoundPage';
+import NewsfeedItem from './NewsfeedItem';
 
 interface NewsfeedDetailPageParams {
     owner: string;
@@ -14,7 +14,7 @@ interface NewsfeedDetailPageParams {
 }
 
 const NewsfeedDetailPage = () => {
-    const { owner, id } = useParams<NewsfeedDetailPageParams>();
+    const { owner, id } = useParams<Partial<NewsfeedDetailPageParams>>();
     const api = useApi();
     const request = useRequest<TimelineEntry>();
 

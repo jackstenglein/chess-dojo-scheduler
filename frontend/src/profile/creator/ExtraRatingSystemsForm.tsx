@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
     Button,
     Checkbox,
@@ -8,8 +7,11 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import React, { useState } from 'react';
 
-import { ProfileCreatorFormProps } from './ProfileCreatorPage';
+import { LoadingButton } from '@mui/lab';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import {
     RatingSystem,
     User,
@@ -21,16 +23,14 @@ import {
     getUsernameLabel,
     getUsernameType,
 } from './PreferredRatingSystemForm';
-import { LoadingButton } from '@mui/lab';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
 const { Custom, ...RatingSystems } = RatingSystem;
 
 function getUpdate(
     user: User,
     usernames: Record<RatingSystem, string>,
-    hideUsernames: Record<RatingSystem, boolean>
+    hideUsernames: Record<RatingSystem, boolean>,
 ): Partial<User> {
     const ratings = Object.assign({}, user.ratings);
 
@@ -56,17 +56,17 @@ const ExtraRatingSystemsForm: React.FC<ProfileCreatorFormProps> = ({
     const request = useRequest();
 
     const [usernames, setUsernames] = useState<Record<RatingSystem, string>>(
-        Object.values(RatingSystems).reduce<Record<RatingSystem, string>>((map, rs) => {
+        Object.values(RatingSystems).reduce<Record<string, string>>((map, rs) => {
             map[rs] = getRatingUsername(user, rs);
             return map;
-        }, {})
+        }, {}),
     );
 
     const [hideUsernames, setHideUsernames] = useState<Record<RatingSystem, boolean>>(
-        Object.values(RatingSystems).reduce<Record<RatingSystem, boolean>>((map, rs) => {
+        Object.values(RatingSystems).reduce<Record<string, boolean>>((map, rs) => {
             map[rs] = hideRatingUsername(user, rs);
             return map;
-        }, {})
+        }, {}),
     );
 
     const setUsername = (rs: RatingSystem, value: string) => {
@@ -141,7 +141,7 @@ const ExtraRatingSystemsForm: React.FC<ProfileCreatorFormProps> = ({
                                         />
                                     }
                                     label={`Hide ${getUsernameType(
-                                        rs
+                                        rs,
                                     )} from other Dojo members`}
                                     sx={{ justifyContent: 'end' }}
                                 />

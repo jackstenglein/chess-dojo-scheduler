@@ -16,7 +16,7 @@ export enum RequestStatus {
 /**
  * Request defines the overall state of an API request, as well as functions to update that state.
  */
-export interface Request<T> {
+export interface Request<T = undefined> {
     status: RequestStatus;
     data?: T;
     error?: unknown;
@@ -32,7 +32,7 @@ export interface Request<T> {
 /**
  * useRequest returns a Request object that can be used to track the lifecycle of an API request.
  */
-export function useRequest<T>(): Request<T> {
+export function useRequest<T = undefined>(): Request<T> {
     const [status, setStatus] = useState<RequestStatus>(RequestStatus.NotSent);
     const [data, setData] = useState<T>();
     const [error, setError] = useState<unknown>();

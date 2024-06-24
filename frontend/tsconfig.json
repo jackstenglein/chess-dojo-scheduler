@@ -1,22 +1,41 @@
 {
-    "compilerOptions": {
-        "target": "es2015",
-        "lib": ["dom", "dom.iterable", "esnext"],
-        "allowJs": true,
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "strict": true,
-        "forceConsistentCasingInFileNames": true,
-        "noFallthroughCasesInSwitch": true,
-        "module": "esnext",
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "noEmit": true,
-        "jsx": "react-jsx",
-        "types": ["vitest/globals", "@testing-library/jest-dom"],
-        "useUnknownInCatchVariables": true
-    },
-    "include": ["src", "cypress.config.ts", "vite.config.mts", ".eslintrc.cjs", "scripts", "scripts/.eslintrc.cjs"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ES2015",
+    "useDefineForClassFields": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": { "@/*": ["src/*"] }
+  },
+  "include": [
+    "src",
+    "cypress.config.ts",
+    "vitest.config.ts",
+    ".eslintrc.cjs",
+    "scripts",
+    "./*.cjs",
+    "./*.mjs",
+    "./build/types/**/*.ts",
+    "./next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
