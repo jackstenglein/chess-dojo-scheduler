@@ -86,7 +86,7 @@ export interface ExplorerGame {
 
     /**
      * The range key of the table, in the form GAME#cohort#date_uuid, where GAME is the
-     * literal value `GAME`, cohort is the value of the hash key in the games table and
+     * literal value `GAME`, cohort is the **explorer** cohort of the game and
      * date_uuid is the value of the range key in the games table.
      */
     id: string;
@@ -172,6 +172,9 @@ export interface Game {
 
     /** Whether the game is unlisted. */
     unlisted: boolean;
+
+    /** The time class of the game. Currently only set on games in the masters DB. */
+    timeClass?: string;
 }
 
 /** The header data of a PGN. */
