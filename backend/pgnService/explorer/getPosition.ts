@@ -58,21 +58,23 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
  * @returns An ExplorerPosition for the provided FEN.
  */
 async function fetchFromDojo(fen: string): Promise<ExplorerPosition | null> {
-    const getItemOutput = await dynamo.send(
-        new GetItemCommand({
-            Key: {
-                normalizedFen: { S: fen },
-                id: { S: 'POSITION' },
-            },
-            TableName: explorerTable,
-        }),
-    );
-    if (!getItemOutput.Item) {
-        return null;
-    }
+    // const getItemOutput = await dynamo.send(
+    //     new GetItemCommand({
+    //         Key: {
+    //             normalizedFen: { S: fen },
+    //             id: { S: 'POSITION' },
+    //         },
+    //         TableName: explorerTable,
+    //     }),
+    // );
+    // if (!getItemOutput.Item) {
+    //     return null;
+    // }
 
-    const position = unmarshall(getItemOutput.Item);
-    return position as ExplorerPosition;
+    // const position = unmarshall(getItemOutput.Item);
+    // return position as ExplorerPosition;
+
+    return null;
 }
 
 /**
