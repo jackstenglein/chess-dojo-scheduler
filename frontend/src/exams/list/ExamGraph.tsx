@@ -1,7 +1,7 @@
-import { ChartsReferenceLine } from '@mui/x-charts';
 import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
 import { LineChart, LinePlot, MarkPlot } from '@mui/x-charts/LineChart';
+import { ChartsReferenceLine } from '@mui/x-charts';
 import * as React from 'react';
 
 /**
@@ -9,16 +9,15 @@ import * as React from 'react';
  */
 
 interface ExamVals {
-    polgarData: number[]; // checkmate tests ratings list
-    tacData: number[]; // tactics test ratings list
-    pr5min: number[];
-    prSuv: number[];
-    checkProvLine: number[]; // overall rating list
-    xLabels: string[]; // X-axis label which is timestamp for users' tests
-    width: number; // Width of the ExamGraph frame
-    height: number; // height of the ExamGraph frame
-    realRating: number; // the overall tactics rating of the user
+    data: number[];
+    xLabels: string[];
+    width: number;
+    height: number;
+    label: string;
+    color: string;
     isUserProv: boolean; // user's tactics rating provisional value
+    checkProvLine: number[]; // overall rating list
+    realRating: number;
 }
 
 /**
@@ -28,35 +27,41 @@ interface ExamVals {
  */
 
 const ExamGraph: React.FC<ExamVals> = ({
-    polgarData,
-    tacData,
-    pr5min,
-    prSuv,
+    data,
     xLabels,
     width,
     height,
-    realRating,
+    label,
+    color,
     isUserProv,
     checkProvLine,
+    realRating
 }) => {
     return (
         <LineChart
             width={width}
             height={height}
             series={[
-                { data: polgarData, label: 'Checkmate', color: '#5905a3', type: 'line'},
-                { data: tacData, label: 'Tactics', color: '#55d444', type: 'line' },
-                { data: pr5min, label: 'PR 5 Min', color: '#2803a1', type: 'line' },
-                {data: prSuv, label: 'PR Survival', color: '#e01eeb', type: 'line'},
                 {
-                    data: checkProvLine,
-                    label: 'Overall',
-                    color: '#37e691',
+                    data: data,
+                    label: label,
+                    color: color,
                     type: 'line',
                 },
             ]}
-            xAxis={[{scaleType: 'point', data: xLabels}]}
-    
+            // series={[
+            //     { data: polgarData, label: 'Checkmate', color: '#5905a3', type: 'line'},
+            //     { data: tacData, label: 'Tactics', color: '#55d444', type: 'line' },
+            //     { data: pr5min, label: 'PR 5 Min', color: '#2803a1', type: 'line' },
+            //     {data: prSuv, label: 'PR Survival', color: '#e01eeb', type: 'line'},
+            //     {
+            //         data: checkProvLine,
+            //         label: 'Overall',
+            //         color: '#37e691',
+            //         type: 'line',
+            //     },
+            // ]}
+            xAxis={[{ scaleType: 'point', data: xLabels }]}
             grid={{ vertical: true, horizontal: true }}
         >
             <LinePlot />
@@ -64,7 +69,6 @@ const ExamGraph: React.FC<ExamVals> = ({
             {isUserProv ? null : (
                 <ChartsReferenceLine y={realRating} lineStyle={{ stroke: '#37e691' }} />
             )}
-
             <ChartsXAxis />
             <ChartsYAxis />
         </LineChart>

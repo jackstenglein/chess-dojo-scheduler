@@ -1,5 +1,6 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import React from 'react';
+import { Button, Card, CardContent, Stack, Typography } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import React, { useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import { toDojoDateString } from '../../calendar/displayDate';
 import { ExamType } from '../../database/exam';
@@ -15,39 +16,13 @@ import ExamGraph from './ExamGraph';
  * @returns A list of exam ratings for the specified exam type.
  */
 function getUserExamRatingsByType(user: User, examType: ExamType): number[] {
-    let attemptTimestamp: string[] = [];
-    let allAttempts: string[] = [];
-    let getRatinhg: number[] = [];
     let getFinal: number[] = [];
 
     Object.values(user.exams)
         .filter((examSummary) => examSummary.examType === examType)
-        .map((examSummary) =>
-            attemptTimestamp.push(toDojoDateString(new Date(examSummary.createdAt), user.timezoneOverride))
-        )
-    
-    allAttempts = getUserExamCreationTimes(user);
-    
-    attemptTimestamp.map((ts) => 
-        allAttempts.includes(ts) ? getRatinhg.push(1) : getRatinhg.push(0)
-    )
+        .map((examSummary) => getFinal.push(examSummary.rating));
 
-    Object.values(user.exams)
-        .filter((examSummary) => examSummary.examType === examType)
-        .map((examSummary) =>
-            {
-                if(getRatinhg.pop() == 1){
-                    getFinal.push(examSummary.rating)
-                }else{
-                    getFinal.push(0);
-                }
-            }
-        )
-
-    
     return getFinal;
-
-        
 }
 
 /**
@@ -55,12 +30,13 @@ function getUserExamRatingsByType(user: User, examType: ExamType): number[] {
  * @param user - The user object containing exam summaries.
  * @returns A list of exam creation times.
  */
-function getUserExamCreationTimes(user: User): string[] {
+function getUserExamCreationTimes(user: User, examType: ExamType): string[] {
     return Object.values(user.exams)
+        .filter((examSummary) => examSummary.examType === examType)
         .map((examSummary) =>
             toDojoDateString(new Date(examSummary.createdAt), user.timezoneOverride),
-        ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-        
+        )
+        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 }
 
 /**
@@ -80,8 +56,8 @@ export function getExamColour(t: TacticsRatingComponent): string {
         return '#c9f03c';
     } else if (t.name.includes('PR Survival')) {
         return '#ab3cf0';
-    } else if (t.name.includes("Positional Tests")){
-        return "#d61313";
+    } else if (t.name.includes('Positional Tests')) {
+        return '#d61313';
     }
 
     return '#4b4d49';
@@ -108,12 +84,18 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
     const tacticsRating = calculateTacticsRating(user, requirements);
     const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
     const realRating = Math.round(tacticsRating.overall);
+    const [showTacticsGraph, setTacticsGraph] = useState(true);
     let checkProvLine: number[];
     if (isProvisional) {
         checkProvLine = [];
     } else {
         checkProvLine = [realRating];
     }
+
+    const handleTacGraphClick = () => {
+        setTacticsGraph(!showTacticsGraph);
+    };
+
     return (
         <Card variant='outlined'>
             <CardContent>
@@ -133,19 +115,37 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                     >
                         Tactics History{' '}
                     </Typography>
-                    <ExamGraph
-                        polgarData={getUserExamRatingsByType(user, ExamType.Polgar)}
-                        tacData={getUserExamRatingsByType(user, ExamType.Tactics)}
-                        pr5min={[]}
-                        prSuv={[]}
-                        isUserProv={isProvisional}
-                        xLabels={getUserExamCreationTimes(user)}
-                        realRating={realRating}
-                        checkProvLine={checkProvLine}
-                        width={width}
-                        height={height}
-                    />
+                    {showTacticsGraph ? (
+                        <ExamGraph
+                            data={getUserExamRatingsByType(user, ExamType.Tactics)}
+                            label='Tactics Test'
+                            color='#55d444'
+                            xLabels={getUserExamCreationTimes(user, ExamType.Tactics)}
+                            width={width}
+                            isUserProv={isProvisional}
+                            checkProvLine={checkProvLine}
+                            realRating={realRating}
+                            height={height}
+                        />
+                    ) : (
+                        <ExamGraph
+                            data={getUserExamRatingsByType(user, ExamType.Polgar)}
+                            label='Checkmate Test'
+                            color='#5905a3'
+                            xLabels={getUserExamCreationTimes(user, ExamType.Polgar)}
+                            isUserProv={isProvisional}
+                            checkProvLine={checkProvLine}
+                            realRating={realRating}
+                            width={width}
+                            height={height}
+                        />
+                    )}
                 </Stack>
+                <Grid2 container rowGap={4} columnSpacing={2} justifyContent='end'>
+                    <Button variant='text' onClick={handleTacGraphClick} color='info'>
+                        {showTacticsGraph ? 'Checkmate' : 'Tactics'}
+                    </Button>
+                </Grid2>
             </CardContent>
         </Card>
     );
