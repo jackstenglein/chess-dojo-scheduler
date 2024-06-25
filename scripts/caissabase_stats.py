@@ -260,25 +260,25 @@ def get_time_control(pgn, twic_info):
 
     event = get_event(pgn)
     twic_event = event + '_' + get_site(pgn)
-    event_lower = event.lower()
+    # event_lower = event.lower()
 
     if twic_event in twic_info:
         return twic_info[twic_event]['time_controls']
 
-    if 'classical' in event_lower:
-        return 'classical'
-    if 'rapid' in event_lower:
-        return 'rapid'
-    if 'quick' in event_lower:
-        return 'quick'
-    if 'blitz' in event_lower:
-        return 'blitz'
-    if 'bullet' in event_lower:
-        return 'bullet'
-    if 'titled tue' in event_lower:
-        return 'titled tue'
-    if 'armageddon' in event_lower:
-        return 'armageddon'
+    # if 'classical' in event_lower:
+    #     return 'classical'
+    # if 'rapid' in event_lower:
+    #     return 'rapid'
+    # if 'quick' in event_lower:
+    #     return 'quick'
+    # if 'blitz' in event_lower:
+    #     return 'blitz'
+    # if 'bullet' in event_lower:
+    #     return 'bullet'
+    # if 'titled tue' in event_lower:
+    #     return 'titled tue'
+    # if 'armageddon' in event_lower:
+    #     return 'armageddon'
     
     return '?'
 

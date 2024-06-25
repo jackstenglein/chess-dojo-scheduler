@@ -8,14 +8,14 @@ import { useCache } from './Cache';
 
 interface UsePositionResponse {
     position: GetExplorerPositionResult | undefined;
-    request: Request<never>;
+    request: Request<unknown>;
     putPosition: (p: GetExplorerPositionResult) => void;
 }
 
 export function usePosition(fen: string): UsePositionResponse {
     const api = useApi();
     const cache = useCache();
-    const request = useRequest<never>();
+    const request = useRequest();
 
     const normalizedFen = normalizeFen(fen);
     const position = useMemo(
