@@ -69,15 +69,15 @@
         "zod-validation-error": "^3.3.0"
     },
     "scripts": {
-        "start": "echo WARNING: npm run start now serves build/. Use npm run dev to run server in development mode; echo; npx serve -s build/",
+        "start": "vite dev",
         "preinstall": "cd ../common && npm install && cd ../eslint-config-dojo/ && npm install",
-        "dev": "next dev",
-        "build": "next build",
+        "dev": "vite dev",
+        "build": "vite build",
         "test": "npm run test:unit && npm run test:cypress",
         "test:unit": "vitest run",
         "test:cypress": "cypress run",
         "preview": "vite preview",
-        "lint": "next lint",
+        "lint": "tsc --noEmit && eslint .",
         "lint:cypress": "eslint cypress",
         "lint:fix": "eslint --fix ."
     },
