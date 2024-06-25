@@ -57,7 +57,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     const generateLichessUrl = () => {
         lichessRequest.onStart();
         axios
-            .post<{ challenge: { url: string } }>(
+            .post<{ url: string }>(
                 'https://lichess.org/api/challenge/open',
                 {
                     'clock.limit': position.limitSeconds,
@@ -75,7 +75,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     clock_increment: position.incrementSeconds,
                 });
                 lichessRequest.onSuccess();
-                copy(resp.data.challenge.url);
+                copy(resp.data.url);
                 onCopy('lichess');
             })
             .catch((err) => {
