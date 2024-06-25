@@ -23,10 +23,6 @@ export function getRatingCompoProgressColor(
     userMaxCohort: number,
     compRating: number,
 ): string {
-    console.log('Comp ' + compRating);
-    console.log('Max ' + userMaxCohort);
-    console.log('Min ' + userMinCohort);
-
     const maxc = userMaxCohort + 100;
 
     if (compRating > maxc || isTargetInRange(userMaxCohort, maxc, compRating)) {
@@ -50,7 +46,7 @@ const TacticsBarGraphCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
             : minCohort;
 
     const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
-    const tacRating = tacticsRating.overall;
+    const tacRating = Math.round(tacticsRating.overall);
     
     let progressColors = [];
     let checkmate = 0;
@@ -85,7 +81,7 @@ const TacticsBarGraphCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
 
    
         progressColors = [
-            getRatingCompoProgressColor(minCohort, maxCohort, tacRating <= 0 ? 0 : tacticsRating.overall),
+            getRatingCompoProgressColor(minCohort, maxCohort, tacRating <= 0 ? 0 : tacRating),
             getRatingCompoProgressColor(minCohort, maxCohort, checkmate),
             getRatingCompoProgressColor(minCohort, maxCohort, pr5),
             getRatingCompoProgressColor(minCohort, maxCohort, prSuv),

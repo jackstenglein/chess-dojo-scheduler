@@ -1,35 +1,45 @@
 import { Card, CardContent } from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React from 'react';
 import { User } from '../../database/user';
 import TacticsBarGraphCard from './TacticsBarCard';
 import TacticsMeterCard from './TacticsMeterCard';
+import Icon from '../../style/Icon';
+import { RequirementCategory } from '../../database/requirement';
 interface TacticsScoreCardProps {
     user: User;
 }
 
 const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
-    const [graphpicker, setGraphPicker] = React.useState<'meter' | 'bar'>('meter');
+    const [graphpicker, setGraphPicker] = React.useState<string | null>('meter');
+
+    const handleAlignment = (
+        event: React.MouseEvent<HTMLElement>,
+        newAlignment: string | null,
+      ) => {
+        setGraphPicker(newAlignment);
+      };
 
     return (
         <div>
             <Card variant='outlined'>
                 <CardContent>
                     <Grid2 container rowGap={4} columnSpacing={2} justifyContent='end'>
-                        <TextField
-                            select
-                            sx={{ minWidth: 150 }}
-                            label='Pick Graph Type'
+                        <ToggleButtonGroup
                             value={graphpicker}
-                            onChange={(event) =>
-                                setGraphPicker(event.target.value as 'meter' | 'bar')
-                            }
+                            exclusive
+                            onChange={handleAlignment}
+                            aria-label='text alignment'
                         >
-                            <MenuItem value='meter'> Meter </MenuItem>
-                            <MenuItem value='bar'> Bar </MenuItem>
-                        </TextField>
+                            <ToggleButton value='meter' aria-label='View meter graph'>
+                                <Icon name={RequirementCategory.Tactics} color='primary'/>
+                            </ToggleButton>
+                            <ToggleButton value='bar' aria-label='View bar graph'>
+                            <Icon name='leaderboard' color='primary'/>
+                            </ToggleButton>
+                        </ToggleButtonGroup>
                     </Grid2>
                 </CardContent>
                 <CardContent>

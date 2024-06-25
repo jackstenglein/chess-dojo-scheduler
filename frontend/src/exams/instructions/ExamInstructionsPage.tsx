@@ -143,7 +143,7 @@ const polgarSampleProblems = [
  * @returns A sample exam.
  */
 function getSampleExam(exam: Exam): Exam {
-    let pgns = [];
+    let pgns: string[] = [];
 
     switch (exam.type) {
         case ExamType.Tactics:

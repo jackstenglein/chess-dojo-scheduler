@@ -1,9 +1,8 @@
 import { Container, Stack, Typography } from '@mui/material';
 import { useRequiredAuth } from '../auth/Auth';
 import TacticsScoreCard from '../profile/stats/TacticsScoreCard';
-import ExamGraphComposer from './list/ExamGraphComposer';
-import { ExamCardComposer } from './view/ExamCardComposer';
 import ExamRubricComposer from './list/ExamRubricComposer';
+import { ExamCardComposer } from './view/ExamCardComposer';
 
 /**
  * Renders a simple landing page that directs users to the different types of exams

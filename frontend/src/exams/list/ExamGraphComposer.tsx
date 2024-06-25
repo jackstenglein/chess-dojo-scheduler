@@ -2,7 +2,7 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React, { useState } from 'react';
+import React from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import { toDojoDateString } from '../../calendar/displayDate';
 import { ExamType } from '../../database/exam';
@@ -22,13 +22,13 @@ import ExamGraph from './ExamGraph';
  * @returns A list of exam ratings for the specified exam type.
  */
 function getUserExamRatingsByType(user: User, examType: ExamType): number[] {
-    let getFinal: number[] = [];
+    const getFinal: number[] = [];
 
     Object.values(user.exams)
         .filter((examSummary) => examSummary.examType === examType)
         .map((examSummary) => getFinal.push(examSummary.rating));
 
-    return getFinal;
+    return getFinal.map((num) => parseInt(num.toString()));
 }
 
 /**
@@ -93,10 +93,10 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
     const [graphpicker, setGraphPicker] = React.useState<
         'tactics' | 'checkmate' | 'prfive' | 'prsuv'
     >('tactics');
-    let puzzleRush5data: number[] = [];
-    let puzzleSurvdata: number[] = [];
-    let puzzleRush5Timeline: string[] = [];
-    let puzzleSurTimeline: string[] = [];
+    const puzzleRush5data: number[] = [];
+    const puzzleSurvdata: number[] = [];
+    const puzzleRush5Timeline: string[] = [];
+    const puzzleSurTimeline: string[] = [];
 
     const timeline = useTimeline(user.username);
 
@@ -116,6 +116,8 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
 
     puzzleRush5Timeline.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
     puzzleSurTimeline.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    puzzleRush5data.map((num) => parseInt(num.toString()));
+    puzzleSurvdata.map((num) => parseInt(num.toString()));
 
     let checkProvLine: number[];
     if (isProvisional) {

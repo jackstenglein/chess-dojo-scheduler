@@ -52,12 +52,14 @@ const ExamGraph: React.FC<ExamVals> = ({
                     label: label,
                     color: color,
                     type: 'line',
+                    valueFormatter: (v) => new Number(v).toString()
                 },
                 {
                     data: checkProvLine,
                     label: displayLabel,
                     color: colorLabel,
                     type: lineType,
+                    valueFormatter: (v) => new Number(v).toString()
                 },
             ]}
             // series={[
@@ -74,12 +76,19 @@ const ExamGraph: React.FC<ExamVals> = ({
             // ]}
             xAxis={[{ scaleType: 'point', data: xLabels }]}
             grid={{ vertical: true, horizontal: true }}
+            yAxis={
+                [
+                    {
+                        valueFormatter: (number) => new Number(number).toString() 
+                    }
+                ]
+            }
         >
             <LinePlot />
             <MarkPlot />
             {
                 !isPR ? null : (
-                    isUserProv ? null : (
+                    !isUserProv ? null : (
                         <ChartsReferenceLine y={realRating} lineStyle={{ stroke: '#37e691' }} />
                     )
                 )

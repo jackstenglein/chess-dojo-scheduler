@@ -1,13 +1,12 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { KingIcon, QueenIcon, RookIcon, KnightIcon} from '../../style/ChessIcons';
-import { ExamCard } from './ExamCard';
 import { ExamType } from '../../database/exam';
-
+import { KnightIcon, QueenIcon, RookIcon } from '../../style/ChessIcons';
+import { ExamCard } from './ExamCard';
 
 export const ExamCardComposer = () => {
     return (
-        <Card variant='outlined' sx={{borderColor: "gold"}}>
+        <Card variant='outlined' sx={{ borderColor: 'gold' }}>
             <CardContent>
                 <Stack
                     direction='column'
@@ -15,9 +14,8 @@ export const ExamCardComposer = () => {
                     spacing={3}
                     justifyContent='center'
                     alignItems='center'
-                >
-                </Stack>
-                <Grid2 container rowSpacing={2} columnSpacing={2} md={18} >
+                ></Stack>
+                <Grid2 container rowSpacing={2} columnSpacing={2} md={18}>
                     <ExamCard
                         name='Tactics Tests'
                         description='All Ratings'
@@ -35,14 +33,13 @@ export const ExamCardComposer = () => {
                     />
                 </Grid2>
                 <ExamCard
-                        name='Positional Tests'
-                        description='Coming soon'
-                        href='/tests/'
-                        disabled={true}
-                        icon={KnightIcon}
-                        colorType={ExamType.Positional}
-                        
-                    />
+                    name='Positional Tests'
+                    description='Coming soon'
+                    href='/tests/'
+                    disabled={true}
+                    icon={KnightIcon}
+                    colorType={ExamType.Positional}
+                />
             </CardContent>
         </Card>
     );
