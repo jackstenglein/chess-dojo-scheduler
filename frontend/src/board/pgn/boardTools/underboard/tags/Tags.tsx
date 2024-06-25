@@ -1,4 +1,4 @@
-import { EventType, TAGS } from '@jackstenglein/chess';
+import { EventType, PgnDate, PgnTime, TimeControl } from '@jackstenglein/chess';
 import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
@@ -9,23 +9,29 @@ import {
     GridRenderCellParams,
     GridRenderEditCellParams,
 } from '@mui/x-data-grid-pro';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { isValidDate, stripTagValue } from '../../../../api/gameApi';
-import { Game } from '../../../../database/game';
-import Avatar from '../../../../profile/Avatar';
-import CohortIcon from '../../../../scoreboard/CohortIcon';
-import { useChess } from '../../PgnBoard';
+import { isValidDate, stripTagValue } from '../../../../../api/gameApi';
+import { Game } from '../../../../../database/game';
+import Avatar from '../../../../../profile/Avatar';
+import CohortIcon from '../../../../../scoreboard/CohortIcon';
+import { useChess } from '../../../PgnBoard';
+import { EditDateCell } from './DateEditor';
+import { TimeControlGridEditor } from './TimeControlEditor';
 
-interface TagRow {
+interface OwnerValue {
+    displayName: string;
+    username: string;
+    previousCohort: string;
+}
+
+function isOwnerValue(obj: unknown): obj is OwnerValue {
+    return typeof obj === 'object' && obj !== null && 'displayName' in obj;
+}
+
+export interface TagRow {
     name: string;
-    value:
-        | string
-        | {
-              displayName: string;
-              username: string;
-              previousCohort: string;
-          };
+    value: string | OwnerValue | PgnDate | PgnTime | TimeControl;
 }
 
 const columns: GridColDef<TagRow>[] = [
@@ -35,12 +41,9 @@ const columns: GridColDef<TagRow>[] = [
         flex: 0.75,
         editable: true,
         renderCell: (params: GridRenderCellParams<TagRow>) => {
-            if (
-                params.row.name === 'Uploaded By' &&
-                typeof params.row.value === 'object'
-            ) {
+            if (isOwnerValue(params.row.value)) {
                 return (
-                    <Stack direction='row' spacing={1} alignItems='center'>
+                    <Stack direction='row' spacing={1} alignItems='center' height={1}>
                         <Avatar
                             username={params.row.value.username}
                             displayName={params.row.value.displayName}
@@ -75,13 +78,17 @@ const columns: GridColDef<TagRow>[] = [
             if (typeof params.row.value === 'string') {
                 return params.row.value;
             }
+
+            return params.row.value.value;
         },
         renderEditCell: (params) => <CustomEditComponent {...params} />,
     },
 ];
 
+const dateTags = ['Date', 'EventDate', 'UTCDate', 'EndDate'];
+
 function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
-    if (props.row.name === TAGS.Result) {
+    if (props.row.name === 'Result') {
         return (
             <GridEditSingleSelectCell
                 {...props}
@@ -104,6 +111,12 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
             />
         );
     }
+    if (props.row.name === 'TimeControl') {
+        return <TimeControlGridEditor {...props} />;
+    }
+    if (dateTags.includes(props.row.name)) {
+        return <EditDateCell {...props} />;
+    }
     return <GridEditInputCell {...props} />;
 }
 
@@ -120,7 +133,7 @@ const defaultTags = [
     'Board',
 ];
 
-const uneditableTags = ['PlyCount', 'TimeControl'];
+const uneditableTags = ['PlyCount'];
 
 interface TagsProps {
     tags?: Record<string, string>;
@@ -147,8 +160,8 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
         }
     }, [chess]);
 
-    const tags = chess?.pgn.header.tags;
-    if (!tags) {
+    const header = chess?.pgn.header;
+    if (!header) {
         return null;
     }
 
@@ -167,16 +180,16 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
         rows.push({ name: 'Cohort', value: game.cohort });
     }
 
-    rows.push(...defaultTags.map((name) => ({ name, value: tags[name] || '' })));
+    rows.push(...defaultTags.map((name) => ({ name, value: header.getRawValue(name) })));
 
-    for (const [tag, value] of Object.entries(tags || {})) {
+    for (const tag of Object.keys(header.tags || {})) {
         if (!defaultTags.includes(tag) && !uneditableTags.includes(tag)) {
-            rows.push({ name: tag, value });
+            rows.push({ name: tag, value: header.getValue(tag) });
         }
     }
 
     for (const tag of uneditableTags) {
-        rows.push({ name: tag, value: tags[tag] || '' });
+        rows.push({ name: tag, value: header.getRawValue(tag) });
     }
 
     return (
@@ -202,14 +215,17 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
 
             <DataGridPro
                 autoHeight
-                sx={{ border: 0 }}
+                sx={{
+                    border: 0,
+                    '& .MuiDataGrid-cell--editing': { outline: 'none !important' },
+                }}
                 columns={columns}
                 rows={rows}
                 getRowId={(row) => row.name}
                 slots={{
-                    columnHeaders: () => null,
-                    footer: () => null,
+                    columnHeaders: NullHeader,
                 }}
+                hideFooter
                 isCellEditable={(params: GridCellParams<TagRow>) => {
                     if (!allowEdits) {
                         return false;
@@ -227,20 +243,23 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     const name = newRow.name;
 
                     if (
-                        [TAGS.White, TAGS.Date, TAGS.Black].includes(name) &&
+                        ['White', 'Date', 'Black'].includes(name) &&
                         stripTagValue(value) === ''
                     ) {
                         setError(`${name} tag is required`);
                         return oldRow;
                     }
 
-                    if ([TAGS.Date].includes(name) && !isValidDate(value)) {
+                    if (dateTags.includes(name) && value && !isValidDate(value)) {
                         setError('PGN dates must be in the format 2024.12.31');
                         return oldRow;
                     }
 
                     chess.setHeader(newRow.name, newRow.value as string);
-                    return newRow;
+                    return {
+                        ...newRow,
+                        value: chess.header().getValue(newRow.name),
+                    };
                 }}
                 onProcessRowUpdateError={(err: Error) => {
                     setError(err.message);
@@ -251,3 +270,6 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
 };
 
 export default Tags;
+
+const NullHeader = React.forwardRef(() => null);
+NullHeader.displayName = 'NullHeader';

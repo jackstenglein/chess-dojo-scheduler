@@ -1,6 +1,11 @@
+import {
+    Exam,
+    ExamAnswer,
+    ExamAttempt,
+    ExamType,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
 import axios, { AxiosResponse } from 'axios';
 import { getConfig } from '../config';
-import { Exam, ExamAnswer, ExamAttempt, ExamType } from '../database/exam';
 
 const BASE_URL = getConfig().api.baseUrl;
 

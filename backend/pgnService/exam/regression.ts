@@ -22,8 +22,6 @@ interface UserExamSummaryUpdate {
 }
 
 export const handler: DynamoDBStreamHandler = async (event) => {
-    console.log('Event: %j', event);
-
     const promises = event.Records.map((r) => processRecord(r));
     await Promise.all(promises);
 };
@@ -45,9 +43,9 @@ async function processRecord(record: DynamoDBRecord) {
     ) as Exam;
 
     if (!isValidExamType(exam.type)) {
-        console.log('Not an exam, skipping record');
         return;
     }
+    console.log('Record: %j', record);
 
     const regression = getRegression(exam);
     if (!regression) {
@@ -87,18 +85,19 @@ async function updateUserExamRatings(examId: string, updates: UserExamSummaryUpd
     for (let i = 0; i < updates.length; i += 25) {
         const statements: BatchStatementRequest[] = [];
 
-        for (let j = 0; j < updates.length && j < i + 25; j++) {
+        for (let j = i; j < updates.length && j < i + 25; j++) {
             const update = updates[j];
             const params = marshall([update.summary, update.username]);
-            console.log('Params: ', params);
 
             statements.push({
-                Statement: `UPDATE ${userTable} SET exams.${examId}=? WHERE username=?`,
+                Statement: `UPDATE "${userTable}" SET exams."${examId}"=? WHERE username=?`,
                 Parameters: params as unknown as AttributeValue[],
             });
         }
 
+        console.log('Sending BatchExecuteStatements: ', statements);
         const input = new BatchExecuteStatementCommand({ Statements: statements });
-        await dynamo.send(input);
+        const result = await dynamo.send(input);
+        console.log('BatchExecuteResult: %j', result);
     }
 }

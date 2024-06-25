@@ -42,13 +42,15 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                     if (params.row.unlisted) {
                         return (
                             <Tooltip title='Unlisted'>
-                                <VisibilityOff sx={{ color: 'text.secondary' }} />
+                                <VisibilityOff
+                                    sx={{ color: 'text.secondary', height: 1 }}
+                                />
                             </Tooltip>
                         );
                     }
                     return (
                         <Tooltip title='Public'>
-                            <Visibility sx={{ color: 'text.secondary' }} />
+                            <Visibility sx={{ color: 'text.secondary', height: 1 }} />
                         </Tooltip>
                     );
                 },
@@ -112,7 +114,6 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 <DataGridPro
                     columns={columns}
                     rows={data}
-                    rowCount={rowCount}
                     pageSizeOptions={[5, 10, 25]}
                     paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
                     onPaginationModelChange={onPaginationModelChange}

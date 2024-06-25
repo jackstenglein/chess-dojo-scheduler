@@ -1,10 +1,14 @@
 import { Chess, Move } from '@jackstenglein/chess';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
+import {
+    Exam,
+    ExamAnswer,
+    ExamType,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { useRequest } from '../../api/Request';
-import { Exam, ExamAnswer, ExamType } from '../../database/exam';
 import { Requirement } from '../../database/requirement';
 import {
     ALL_COHORTS,
@@ -153,21 +157,16 @@ export function addExtraVariation(
             }
         }
 
-        let existingMove = solution.move(
-            move.san,
-            currentSolutionMove,
-            false,
-            true,
-            true,
-        );
+        let existingMove = solution.move(move.san, {
+            previousMove: currentSolutionMove,
+            existingOnly: true,
+            skipSeek: true,
+        });
         if (!existingMove) {
-            existingMove = solution.move(
-                move.san,
-                currentSolutionMove,
-                false,
-                false,
-                true,
-            );
+            existingMove = solution.move(move.san, {
+                previousMove: currentSolutionMove,
+                skipSeek: true,
+            });
             if (!existingMove) {
                 // This only happens if the user's answer has an invalid move.
                 // IE: the test changed since they took it. In that case, we break, since

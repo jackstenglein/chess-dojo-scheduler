@@ -1,16 +1,14 @@
 'use strict';
 
-import axios from 'axios';
 import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
-
+import axios from 'axios';
 import {
     ExplorerPosition,
     ExplorerPositionFollower,
     LichessExplorerPosition,
-    normalizeFen,
 } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
@@ -31,7 +29,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     try {
         const chess = new Chess({ fen });
-        const normalizedFen = normalizeFen(chess.fen());
+        const normalizedFen = chess.normalizedFen();
 
         const results = await Promise.all([
             fetchFromDojo(normalizedFen),
@@ -60,21 +58,23 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
  * @returns An ExplorerPosition for the provided FEN.
  */
 async function fetchFromDojo(fen: string): Promise<ExplorerPosition | null> {
-    const getItemOutput = await dynamo.send(
-        new GetItemCommand({
-            Key: {
-                normalizedFen: { S: fen },
-                id: { S: 'POSITION' },
-            },
-            TableName: explorerTable,
-        })
-    );
-    if (!getItemOutput.Item) {
-        return null;
-    }
+    // const getItemOutput = await dynamo.send(
+    //     new GetItemCommand({
+    //         Key: {
+    //             normalizedFen: { S: fen },
+    //             id: { S: 'POSITION' },
+    //         },
+    //         TableName: explorerTable,
+    //     }),
+    // );
+    // if (!getItemOutput.Item) {
+    //     return null;
+    // }
 
-    const position = unmarshall(getItemOutput.Item);
-    return position as ExplorerPosition;
+    // const position = unmarshall(getItemOutput.Item);
+    // return position as ExplorerPosition;
+
+    return null;
 }
 
 /**
@@ -88,7 +88,7 @@ async function fetchFromLichess(fen: string): Promise<LichessExplorerPosition | 
             'https://explorer.lichess.ovh/lichess',
             {
                 params: { fen, topGames: 0, recentGames: 0 },
-            }
+            },
         );
         return response.data;
     } catch (err) {
@@ -104,7 +104,7 @@ async function fetchFromLichess(fen: string): Promise<LichessExplorerPosition | 
  */
 async function fetchFollower(
     fen: string,
-    event: any
+    event: any,
 ): Promise<ExplorerPositionFollower | null> {
     const claims = event.requestContext?.authorizer?.jwt?.claims;
     if (!claims || !claims['cognito:username']) {
@@ -120,7 +120,7 @@ async function fetchFollower(
                     id: { S: `FOLLOWER#${username}` },
                 },
                 TableName: explorerTable,
-            })
+            }),
         );
         if (!getItemOutput.Item) {
             return null;

@@ -1,4 +1,5 @@
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
+import { Exam } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import {
     getExamMaxScore,
     getRegression,
@@ -25,7 +26,6 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLightMode } from '../../ThemeProvider';
 import { useAuth } from '../../auth/Auth';
-import { Exam } from '../../database/exam';
 import {
     ALL_COHORTS,
     cohortColors,

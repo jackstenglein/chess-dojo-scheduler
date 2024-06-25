@@ -1,11 +1,14 @@
 import { Chess, Move } from '@jackstenglein/chess';
-import { TextField, Typography } from '@mui/material';
+import { Edit } from '@mui/icons-material';
+import { IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { TimeField } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
-import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
+import { useState } from 'react';
+import { useChess } from '../../PgnBoard';
 import ClockTextField from './ClockTextField';
-import { formatTime, getIncrement, getInitialClock } from './ClockUsage';
+import { formatTime } from './ClockUsage';
+import { TimeControlDescription } from './TimeControlDescription';
+import { TimeControlEditor } from './tags/TimeControlEditor';
 
 export function convertSecondsToDateTime(seconds: number | undefined): DateTime | null {
     if (!seconds) {
@@ -27,30 +30,6 @@ function convertDateTimeToClock(date: DateTime | null): string {
     return formatTime(date.hour * 3600 + date.minute * 60 + date.second);
 }
 
-export function handleInitialClock(
-    chess: Chess,
-    increment: number,
-    value: DateTime | null,
-) {
-    const seconds = value ? value.hour * 3600 + value.minute * 60 + value.second : 0;
-
-    let timeControl = `${seconds}`;
-    if (increment) {
-        timeControl += `+${increment}`;
-    }
-
-    chess.setHeader('TimeControl', timeControl);
-}
-
-export function handleIncrement(chess: Chess, initialClock: number, value: string) {
-    const increment = parseInt(value);
-    if (isNaN(increment)) {
-        chess.setHeader('TimeControl', `${initialClock}`);
-    } else {
-        chess.setHeader('TimeControl', `${initialClock}+${increment}`);
-    }
-}
-
 export function onChangeClock(chess: Chess, move: Move, value: DateTime | null) {
     const clk = convertDateTimeToClock(value);
     chess.setCommand('clk', clk, move);
@@ -58,13 +37,16 @@ export function onChangeClock(chess: Chess, move: Move, value: DateTime | null) 
 
 const ClockEditor = () => {
     const { chess } = useChess();
+    const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
 
     if (!chess) {
         return null;
     }
 
-    const initialClock = getInitialClock(chess.pgn);
-    const increment = getIncrement(chess.pgn);
+    const onUpdateTimeControl = (value: string) => {
+        chess.setHeader('TimeControl', value);
+        setShowTimeControlEditor(false);
+    };
 
     const moves = chess.history();
     const grid = [];
@@ -93,25 +75,32 @@ const ClockEditor = () => {
 
     return (
         <Grid2 container columnSpacing={1} rowGap={3} alignItems='center' pb={2}>
-            <Grid2 xs={6}>
-                <TimeField
-                    id={BlockBoardKeyboardShortcuts}
-                    label='Time Control (hh:mm:ss)'
-                    format='HH:mm:ss'
-                    value={convertSecondsToDateTime(initialClock)}
-                    onChange={(value) => handleInitialClock(chess, increment, value)}
-                    fullWidth
-                />
-            </Grid2>
+            <Grid2 xs={12}>
+                <Stack direction='row' alignItems='center' spacing={0.5}>
+                    <Typography variant='subtitle1'>Time Control</Typography>
 
-            <Grid2 xs={6}>
-                <TextField
-                    id={BlockBoardKeyboardShortcuts}
-                    label='Increment (Sec)'
-                    value={`${increment}`}
-                    onChange={(e) => handleIncrement(chess, initialClock, e.target.value)}
-                    fullWidth
+                    <Tooltip title='Edit time control'>
+                        <IconButton
+                            size='small'
+                            sx={{ position: 'relative', top: '-2px' }}
+                            onClick={() => setShowTimeControlEditor(true)}
+                        >
+                            <Edit fontSize='inherit' />
+                        </IconButton>
+                    </Tooltip>
+                </Stack>
+                <TimeControlDescription
+                    timeControls={chess.header().tags.TimeControl?.items || []}
                 />
+
+                {showTimeControlEditor && (
+                    <TimeControlEditor
+                        open={showTimeControlEditor}
+                        initialItems={chess.header().tags.TimeControl?.items}
+                        onCancel={() => setShowTimeControlEditor(false)}
+                        onSuccess={onUpdateTimeControl}
+                    />
+                )}
             </Grid2>
 
             <Grid2 xs={12} pb={1}>

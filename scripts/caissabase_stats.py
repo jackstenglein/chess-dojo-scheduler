@@ -10,7 +10,7 @@ site_re = re.compile('\[Site \"(.*)\"]')
 
 
 def main():
-    twic_info = load_twic_info('twic_output_full_3.csv')
+    twic_info = load_twic_info('twic_output_full_4.csv')
 
     # chessbase_stats, chessbase_years, chessbase_tcs = get_pgn_stats('/Users/jackstenglein/Downloads/megadb_2023.pgn', twic_info)
     caissabase_stats, caissabase_years, caissabase_tcs = get_pgn_stats('/Users/jackstenglein/Documents/caissabase-2024-04-27.pgn', twic_info)
@@ -198,9 +198,9 @@ def read_pgn(file):
     
     foundMoves = False
     while line := file.readline():
-        if foundMoves and line == '\n':
+        if foundMoves and (line == '\n' or line == '\r\n'):
             break
-        elif line == '\n':
+        elif line == '\n' or line == '\r\n':
             foundMoves = True
 
         pgn += line
@@ -260,25 +260,25 @@ def get_time_control(pgn, twic_info):
 
     event = get_event(pgn)
     twic_event = event + '_' + get_site(pgn)
-    event_lower = event.lower()
+    # event_lower = event.lower()
 
     if twic_event in twic_info:
         return twic_info[twic_event]['time_controls']
 
-    if 'classical' in event_lower:
-        return 'classical'
-    if 'rapid' in event_lower:
-        return 'rapid'
-    if 'quick' in event_lower:
-        return 'quick'
-    if 'blitz' in event_lower:
-        return 'blitz'
-    if 'bullet' in event_lower:
-        return 'bullet'
-    if 'titled tue' in event_lower:
-        return 'titled tue'
-    if 'armageddon' in event_lower:
-        return 'armageddon'
+    # if 'classical' in event_lower:
+    #     return 'classical'
+    # if 'rapid' in event_lower:
+    #     return 'rapid'
+    # if 'quick' in event_lower:
+    #     return 'quick'
+    # if 'blitz' in event_lower:
+    #     return 'blitz'
+    # if 'bullet' in event_lower:
+    #     return 'bullet'
+    # if 'titled tue' in event_lower:
+    #     return 'titled tue'
+    # if 'armageddon' in event_lower:
+    #     return 'armageddon'
     
     return '?'
 

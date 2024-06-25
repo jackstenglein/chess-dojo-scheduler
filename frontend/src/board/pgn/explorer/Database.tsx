@@ -1,5 +1,6 @@
 import FunctionsIcon from '@mui/icons-material/Functions';
 import {
+    Alert,
     Box,
     Link,
     MenuItem,
@@ -39,6 +40,8 @@ import LoadingPage from '../../../loading/LoadingPage';
 import UpsellAlert from '../../../upsell/UpsellAlert';
 import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
+
+const maintenance = true;
 
 const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -244,6 +247,18 @@ const Database: React.FC<DatabaseProps> = ({
             },
         ];
     }, [totalGames, cohortRange]);
+
+    if (maintenance && type === 'dojo') {
+        return (
+            <Box mt={2}>
+                <Alert severity='warning'>
+                    The Dojo explorer database is currently undergoing maintenance to
+                    support our upcoming masters database. It will be available again in a
+                    few hours.
+                </Alert>
+            </Box>
+        );
+    }
 
     if (type === 'dojo' && isFreeTier) {
         return (

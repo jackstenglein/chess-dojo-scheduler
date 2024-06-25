@@ -1,3 +1,4 @@
+
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { ExamType } from '../../database/exam';
 import { KingIcon } from '../../style/ChessIcons';

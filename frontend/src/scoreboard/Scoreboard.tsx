@@ -124,7 +124,7 @@ const graduatedColumn: GridColDef<ScoreboardRow> = {
         if (graduationCohorts && graduationCohorts.length > 0) {
             graduationCohorts = graduationCohorts
                 .sort(compareCohorts)
-                .filter((c, i) => graduationCohorts.indexOf(c) === i);
+                .filter((c, i) => graduationCohorts?.indexOf(c) === i);
             if (graduationCohorts.length > 3) {
                 graduationCohorts = graduationCohorts.slice(graduationCohorts.length - 3);
             }

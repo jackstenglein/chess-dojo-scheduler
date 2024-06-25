@@ -1,6 +1,6 @@
+import { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Box, Typography } from '@mui/material';
 import React from 'react';
-import { ExamType } from '../../database/exam';
 
 interface InstructionsProps {
     length: number;

@@ -1,10 +1,10 @@
 'use strict';
 
 import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { ExplorerGame, normalizeFen } from './types';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { ExplorerGame } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     try {
         const chess = new Chess({ fen });
-        const normalizedFen = normalizeFen(chess.fen());
+        const normalizedFen = chess.normalizedFen();
 
         const queryOutput = await dynamo.send(
             new QueryCommand({
@@ -41,11 +41,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 },
                 ExclusiveStartKey: startKey ? JSON.parse(startKey) : undefined,
                 TableName: explorerTable,
-            })
+            }),
         );
 
         const games = queryOutput.Items?.map(
-            (item) => (unmarshall(item) as ExplorerGame).game
+            (item) => (unmarshall(item) as ExplorerGame).game,
         );
         const lastEvaluatedKey = JSON.stringify(queryOutput.LastEvaluatedKey);
 
