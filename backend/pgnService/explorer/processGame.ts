@@ -461,7 +461,9 @@ function getInitialExplorerPosition(
     };
 
     for (const move of Object.values(update.moves)) {
-        explorerPosition.moves[move.san].results[cohort][move.newResult!] = 1;
+        explorerPosition.moves[move.san].results[cohort] = {
+            [move.newResult!]: 1,
+        };
     }
 
     return explorerPosition;
