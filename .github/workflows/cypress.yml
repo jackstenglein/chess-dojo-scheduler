@@ -6,7 +6,6 @@ jobs:
   cypress-run:
     timeout-minutes: 30
     runs-on: ubuntu-22.04
-    needs: install
     # strategy:
     #   fail-fast: false # https://github.com/cypress-io/github-action/issues/48
     #   matrix:
