@@ -72,6 +72,7 @@
         "start": "vite dev",
         "preinstall": "cd ../common && npm install && cd ../eslint-config-dojo/ && npm install",
         "dev": "vite dev",
+        "dev:precheck": "npm run test:unit && npm run lint && vite dev",
         "build": "vite build",
         "test": "npm run test:unit && npm run test:cypress",
         "test:unit": "vitest run",
