@@ -11,6 +11,9 @@ jobs:
     #   matrix:
     #     containers: [1, 2, 3] # Uses parallel instances
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Prepare Frontend
         working-directory: frontend
         run: npm ci
