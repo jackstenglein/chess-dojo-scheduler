@@ -311,8 +311,8 @@ type GameLister interface {
 	// fetched separately with a call to GetGame.
 	ListGamesByEco(eco, startDate, endDate, startKey string) ([]*Game, string, error)
 
-	// ScanGames returns a list of all Games in the database.
-	ScanGames(startKey string) ([]*Game, string, error)
+	// ScanCohort returns a list of all Games in the given cohort, including the PGN text.
+	ScanCohort(cohort DojoCohort, startKey string) ([]*Game, string, error)
 }
 
 type GameCommenter interface {
@@ -676,14 +676,23 @@ func (repo *dynamoRepository) ListGamesForReview(startKey string) ([]Game, strin
 	return games, lastKey, nil
 }
 
-// ScanGames returns a list of all Games in the database.
-func (repo *dynamoRepository) ScanGames(startKey string) ([]*Game, string, error) {
-	input := &dynamodb.ScanInput{
+// ScanCohort returns a list of all Games in the provided cohort, including the PGN text.
+func (repo *dynamoRepository) ScanCohort(cohort DojoCohort, startKey string) ([]*Game, string, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression: aws.String("#cohort = :cohort"),
+		ExpressionAttributeNames: map[string]*string{
+			"#cohort": aws.String("cohort"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":cohort": {
+				S: aws.String(string(cohort)),
+			},
+		},
 		TableName: aws.String(gameTable),
 	}
 
 	var games []*Game
-	lastKey, err := repo.scan(input, startKey, &games)
+	lastKey, err := repo.query(input, startKey, &games)
 	if err != nil {
 		return nil, "", err
 	}
