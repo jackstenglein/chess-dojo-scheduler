@@ -255,7 +255,7 @@ export interface PgnHeaders {
     Date: string;
 
     /** The site the game was played on. */
-    Site: string;
+    Site?: string;
 
     /** The result of the game. */
     Result: GameResult;

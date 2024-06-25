@@ -14,20 +14,32 @@ table = db.Table('dev-games')
 
 
 def main():
+    skip = 102
     max_count = 1
-    upload_pgns(max_count, '/Users/jackstenglein/Documents/caissabase-2024-04-27.pgn')
+    upload_pgns(max_count, skip, '/Users/jackstenglein/Documents/caissabase-2024-04-27.pgn')
 
 
-def upload_pgns(max_count, filename):
+def upload_pgns(max_count, skip, filename):
     twic_info = load_twic_info('twic_output_full_4.csv')
     time_control_info = load_time_control_info('time_controls.csv')
 
+    skipped = 0
     count = 0
     failed = 0
 
     with table.batch_writer() as batch:
         with open(filename, 'r', encoding='utf-8-sig') as file:
             while pgn := read_pgn(file):
+                if skipped < skip:
+                    skipped += 1
+                    continue
+
+                if count % 20000 == 0:
+                    print('Success: ', count)
+                    print('Skipped: ', skipped)
+                    print('Failed: ', failed)
+                    print('Total: ', count+failed+skipped, end='\n\n\n')
+
                 try:
                     game = chess.pgn.read_game(io.StringIO(pgn))
                     if game is None:
@@ -36,7 +48,6 @@ def upload_pgns(max_count, filename):
                         continue
 
                     game = convert_game(game, pgn, twic_info, time_control_info)
-                    print(game)
                     batch.put_item(Item=game)
 
                     count += 1
@@ -51,8 +62,9 @@ def upload_pgns(max_count, filename):
                     break
     
     print('Success: ', count)
+    print('Skipped: ', skipped)
     print('Failed: ', failed)
-    print('Total: ', count+failed)
+    print('Total: ', count+failed+skipped)
 
 
 def write_failure(pgn):
