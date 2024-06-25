@@ -33,7 +33,7 @@
         "./*.mjs",
         "./*.mts",
         "./*.ts",
-        "./*.js",
+        "./*.js"
     ],
     "exclude": ["node_modules"]
 }
