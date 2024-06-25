@@ -8,7 +8,7 @@ import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
     const api = useApi();
-    const request = useRequest();
+    const request = useRequest<string>();
     const navigate = useNavigate();
 
     const onCreate = (req: CreateGameRequest) => {

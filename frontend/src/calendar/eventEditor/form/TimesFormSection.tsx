@@ -75,7 +75,7 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                         helperText: endError,
                     },
                 }}
-                minDateTime={minEnd}
+                minDateTime={minEnd === null ? undefined : minEnd}
                 ampm={timeFormat === TimeFormat.TwelveHour}
             />
         </Stack>

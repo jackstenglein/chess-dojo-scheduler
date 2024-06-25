@@ -30,13 +30,13 @@ interface IdentifiableCache<T> {
     remove: (id: string) => void;
     isFetched: (id: string) => boolean;
     markFetched: (id: string) => void;
-    request: Request<never>;
+    request: Request;
 }
 
 function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
     const [objects, setObjects] = useState<Record<string, T>>({});
     const fetchedIds = useRef<Record<string, boolean>>({});
-    const request = useRequest<never>();
+    const request = useRequest();
 
     const get = useCallback(
         (id: string) => {
@@ -177,7 +177,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
 
 interface UseEventsResponse {
     events: Event[];
-    request: Request<never>;
+    request: Request;
     putEvent: (e: Event) => void;
     removeEvent: (id: string) => void;
 }
@@ -186,7 +186,7 @@ export function useEvents(): UseEventsResponse {
     const auth = useAuth();
     const api = useApi();
     const cache = useCache();
-    const request = useRequest<never>();
+    const request = useRequest();
 
     const events = useMemo(() => cache.events.list(), [cache.events]);
 
@@ -221,7 +221,7 @@ export function useEvents(): UseEventsResponse {
 
 interface UseNotificationsResponse {
     notifications: Notification[];
-    request: Request<never>;
+    request: Request;
     removeNotification: (id: string) => void;
 }
 
@@ -229,7 +229,7 @@ export function useNotifications(): UseNotificationsResponse {
     const auth = useAuth();
     const api = useApi();
     const cache = useCache();
-    const request = useRequest<never>();
+    const request = useRequest();
 
     const notifications = useMemo(
         () => cache.notifications.list(),

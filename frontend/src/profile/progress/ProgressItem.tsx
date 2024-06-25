@@ -52,7 +52,6 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 progress={progress}
                 task={requirement}
                 cohort={cohort}
-                isCurrentUser={isCurrentUser}
             />
         );
     }

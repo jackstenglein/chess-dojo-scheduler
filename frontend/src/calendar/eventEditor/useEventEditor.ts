@@ -220,13 +220,10 @@ export default function useEventEditor(
     const [availabilityTypes, setAvailabilityTypes] = useState<
         Record<AvailabilityType, boolean>
     >(
-        Object.values(AvailabilityType).reduce<Record<AvailabilityType, boolean>>(
-            (map, type) => {
-                map[type] = false;
-                return map;
-            },
-            {},
-        ),
+        Object.values(AvailabilityType).reduce<Record<string, boolean>>((map, type) => {
+            map[type] = false;
+            return map;
+        }, {}),
     );
     const setAvailabilityType = useCallback(
         (type: AvailabilityType, value: boolean) => {

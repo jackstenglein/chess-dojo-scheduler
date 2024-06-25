@@ -8,7 +8,7 @@ import { useCache } from './Cache';
 
 interface UsePositionResponse {
     position: GetExplorerPositionResult | undefined;
-    request: Request<unknown>;
+    request: Request;
     putPosition: (p: GetExplorerPositionResult) => void;
 }
 

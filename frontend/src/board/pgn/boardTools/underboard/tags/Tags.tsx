@@ -136,7 +136,6 @@ const defaultTags = [
 const uneditableTags = ['PlyCount'];
 
 interface TagsProps {
-    tags?: Record<string, string>;
     game?: Game;
     allowEdits?: boolean;
 }

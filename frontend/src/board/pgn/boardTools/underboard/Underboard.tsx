@@ -229,11 +229,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
 
                     <Stack sx={{ overflowY: 'auto', flexGrow: 1 }}>
                         {underboard === DefaultUnderboardTab.Tags && (
-                            <Tags
-                                tags={chess?.pgn.header.tags}
-                                game={game}
-                                allowEdits={isOwner}
-                            />
+                            <Tags game={game} allowEdits={isOwner} />
                         )}
                         {underboard === DefaultUnderboardTab.Editor && (
                             <Editor

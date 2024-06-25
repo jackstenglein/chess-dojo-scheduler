@@ -3,9 +3,9 @@ import { Box, Link, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Board from '../../board/Board';
 import { Event, displayTournamentType } from '../../database/event';
-import Icon from '../../style/Icon';
+import Icon, { IconName } from '../../style/Icon';
 
-export function getLigaIconBasedOnTimeControl(timeControl: number) {
+export function getLigaIconBasedOnTimeControl(timeControl: number): IconName | undefined {
     const tc = timeControl / 60;
 
     if (tc >= 1 && tc <= 9) {
@@ -16,7 +16,7 @@ export function getLigaIconBasedOnTimeControl(timeControl: number) {
         return 'Classical';
     }
 
-    return '';
+    return undefined;
 }
 
 interface LigaTournamentViewerProps {

@@ -112,7 +112,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
                 ampm={timeFormat === TimeFormat.TwelveHour}
                 value={minHour}
                 onChange={(v) => setMinHour(v)}
-                maxTime={maxHour}
+                maxTime={maxHour === null ? undefined : maxHour}
                 slotProps={{
                     textField: {
                         size: 'small',
@@ -129,7 +129,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
                 ampm={timeFormat === TimeFormat.TwelveHour}
                 value={maxHour}
                 onChange={(v) => setMaxHour(v)}
-                minTime={minHour}
+                minTime={minHour === null ? undefined : minHour}
                 slotProps={{
                     textField: {
                         size: 'small',

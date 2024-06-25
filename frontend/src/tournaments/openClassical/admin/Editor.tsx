@@ -36,7 +36,7 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
     const [csvData, setCsvData] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const request = useRequest();
+    const request = useRequest<OpenClassical>();
     const api = useApi();
 
     if (!openClassical || !user) {

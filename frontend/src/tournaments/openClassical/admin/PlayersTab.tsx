@@ -137,7 +137,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
     const [updateType, setUpdateType] = useState<'' | 'ban' | 'withdraw'>('');
 
     const api = useApi();
-    const updateRequest = useRequest();
+    const updateRequest = useRequest<string>();
 
     const region = searchParams.get('region') || 'A';
     const ratingRange = searchParams.get('ratingRange') || 'Open';

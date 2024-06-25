@@ -320,7 +320,7 @@ export default function CalendarPage() {
     const view = calendarRef.current?.scheduler.view;
 
     const copyRequest = useRequest();
-    const deleteRequest = useRequest();
+    const deleteRequest = useRequest<string>();
 
     const deleteAvailability = useCallback(
         async (id: string) => {
@@ -531,7 +531,7 @@ export default function CalendarPage() {
                             }
                             onDelete={deleteAvailability}
                             onEventDrop={copyAvailability}
-                            viewerExtraComponent={(fields, event) => (
+                            viewerExtraComponent={(_, event) => (
                                 <ProcessedEventViewer processedEvent={event} />
                             )}
                             events={processedEvents}

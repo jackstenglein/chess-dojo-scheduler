@@ -1,5 +1,7 @@
 import { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 
+export { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
+
 /**
  * Returns a display string for the given Exam type.
  * @param type The type of the Exam.

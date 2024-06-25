@@ -36,7 +36,9 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
                             </Tooltip>
                             <Typography ml={1} fontWeight='bold'>
                                 {Math.round(
-                                    10 * calculateTacticsRating(user, requirements),
+                                    10 *
+                                        calculateTacticsRating(user, requirements)
+                                            .overall,
                                 ) / 10}
                             </Typography>
                         </Stack>
