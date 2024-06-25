@@ -26,15 +26,15 @@ functions:
   processGame:
     handler: explorer/processGame.handler
     timeout: 30
-    # events:
-    #   - stream:
-    #       type: dynamodb
-    #       arn: ${param:GamesTableStreamArn}
-    #       batchWindow: 20
-    #       batchSize: 2
-    #       maximumRetryAttempts: 2
-    #       parallelizationFactor: 2
-    #       functionResponseType: ReportBatchItemFailures
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${param:GamesTableStreamArn}
+          batchWindow: 20
+          batchSize: 2
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          functionResponseType: ReportBatchItemFailures
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -43,24 +43,20 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:DeleteItem
         Resource: !GetAtt ExplorerTable.Arn
-      - Effect: Allow
-        Action:
-          - dynamodb:UpdateItem
-        Resource: ${param:GamesTableArn}
 
   notifyFollowers:
     handler: explorer/notifyFollowers.handler
     timeout: 30
-    # events:
-    #   - stream:
-    #       type: dynamodb
-    #       arn: !GetAtt ExplorerTable.StreamArn
-    #       batchWindow: 20
-    #       batchSize: 5
-    #       maximumRetryAttempts: 2
-    #       parallelizationFactor: 2
-    #       filterPatterns:
-    #         - eventName: [INSERT]
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt ExplorerTable.StreamArn
+          batchWindow: 20
+          batchSize: 5
+          maximumRetryAttempts: 2
+          parallelizationFactor: 2
+          filterPatterns:
+            - eventName: [INSERT]
     iamRoleStatements:
       - Effect: Allow
         Action:
