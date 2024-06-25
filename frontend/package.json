@@ -77,7 +77,9 @@
         "test:unit": "vitest run",
         "test:cypress": "cypress run",
         "preview": "vite preview",
-        "lint": "tsc --noEmit && eslint .",
+        "lint": "npm run lint:types && eslint .",
+        "lint:types": "tsc --noEmit",
+        "lint:types:watch": "tsc --noEmit --watch",
         "lint:cypress": "eslint cypress",
         "lint:fix": "eslint --fix ."
     },
