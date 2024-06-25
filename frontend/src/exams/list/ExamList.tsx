@@ -32,7 +32,6 @@ import { isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import { getColorBasedOnExamType } from '../view/ExamCard';
-import CohortIcon from '../../scoreboard/CohortIcon';
 
 interface CohortRangeExams {
     name: string;
@@ -264,16 +263,28 @@ export const ExamsTable = ({ exams }: { exams: Exam[] }) => {
                         return (
                             <Tooltip title='This exam is locked until you complete the previous exam'>
                                 <Stack direction='row' spacing={0.5} alignItems='center'>
-                                    <Link color='text.disabled'>{params.value} <Lock fontSize='small' color='error' sx={{verticalAlign: "middle"}} /></Link>
-                                    
+                                    <Link color='text.disabled'>
+                                        {params.value}{' '}
+                                        <Lock
+                                            fontSize='small'
+                                            color='error'
+                                            sx={{ verticalAlign: 'middle' }}
+                                        />
+                                    </Link>
                                 </Stack>
                             </Tooltip>
                         );
                     }
                     return (
                         <Stack direction='row' spacing={0.5} alignItems='center'>
-                            <Link sx={{ cursor: 'pointer' }}>{params.value} <OpenInNewIcon fontSize='small' color='primary' sx={{verticalAlign: "middle"}}/></Link>
-                            
+                            <Link sx={{ cursor: 'pointer' }}>
+                                {params.value}{' '}
+                                <OpenInNewIcon
+                                    fontSize='small'
+                                    color='primary'
+                                    sx={{ verticalAlign: 'middle' }}
+                                />
+                            </Link>
                         </Stack>
                     );
                 },

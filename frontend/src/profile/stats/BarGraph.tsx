@@ -2,6 +2,10 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import * as React from 'react';
 
 
+/**
+ * This compontent represents a Bar Graph
+ */
+
 interface BarGraphProps {
     width: number;
     height: number;
@@ -14,6 +18,8 @@ interface BarGraphProps {
 
 
 const BarGraph: React.FC<BarGraphProps> = ({width, height, tacRating, progressColors, pr5Rating, prsuRating, checkRating}) => {
+    const data =[tacRating, checkRating, pr5Rating, prsuRating];
+    console.log(data);
     return (
         <BarChart
             xAxis={[
@@ -26,21 +32,31 @@ const BarGraph: React.FC<BarGraphProps> = ({width, height, tacRating, progressCo
                         colors: progressColors,
                       }
                     ,
-                    min: 0,
-                    max: 2900,
                     categoryGapRatio: 0.7,
                     barGapRatio: 0.2,
                     label: 'Tactics Rating Component'
+                    
                   
                 },
                 
             ]}
+
+            yAxis={
+                [
+                    {
+                        valueFormatter: (number) => new Number(number).toString() 
+                    }
+                ]
+            }
+
             series={[
                 {
-                    data: [tacRating, checkRating, pr5Rating, prsuRating],
-                   
+                    data: data,
+                    valueFormatter: (v) => new Number(v).toString()
                 },
             ]}
+
+            
             
             width={width}
             height={height}

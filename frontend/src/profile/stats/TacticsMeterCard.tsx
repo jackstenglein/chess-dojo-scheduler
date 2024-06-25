@@ -1,17 +1,13 @@
 import * as React from 'react';
 
 import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
-import { BarChart } from '@mui/x-charts/BarChart';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { Link, Link as RouterLink } from 'react-router-dom';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
 import { calculateTacticsRating } from '../../exams/view/exam';
-import { ChartsReferenceLine } from '@mui/x-charts';
-import { Link as RouterLink } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 import MeterGauge from './MeterGauge';
-import { getExamColour } from '../../exams/list/ExamGraphComposer';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { getRatingCompoProgressColor} from './TacticsBarCard';
+import { getRatingCompoProgressColor } from './TacticsBarCard';
 
 interface TacticsScoreCardProps {
     user: User;
@@ -43,7 +39,7 @@ export function getTooltip(
     return tooltip;
 }
 
-const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
+const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     const { requirements } = useRequirements(ALL_COHORTS, true);
     const tacticsRating = calculateTacticsRating(user, requirements);
     const minCohort = parseInt(user.dojoCohort);
@@ -115,7 +111,7 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
                             height={300}
                             text='?'
                             color='white'
-                            userMaxValue={maxCohort+100}
+                            userMaxValue={maxCohort + 100}
                         />
                     ) : (
                         <MeterGauge
@@ -125,8 +121,12 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
                             text={new Number(
                                 Math.round(tacticsRating.overall),
                             ).toString()}
-                            color={getRatingCompoProgressColor(minCohort, maxCohort, tacticsRating.overall)}
-                            userMaxValue={isProvisional ? 2900: maxCohort + 100}
+                            color={getRatingCompoProgressColor(
+                                minCohort,
+                                maxCohort,
+                                tacticsRating.overall,
+                            )}
+                            userMaxValue={isProvisional ? 2900 : maxCohort + 100}
                         />
                     )}
                 </Grid2>
@@ -168,7 +168,7 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
                                                 height={100}
                                                 text={'?'}
                                                 color='white'
-                                                userMaxValue={maxCohort+100}
+                                                userMaxValue={maxCohort + 100}
                                             />
                                         ) : (
                                             <MeterGauge
@@ -178,8 +178,14 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
                                                 text={new Number(
                                                     Math.round(c.rating),
                                                 ).toString()}
-                                                color={getRatingCompoProgressColor(minCohort, maxCohort, c.rating)}
-                                                userMaxValue={isProvisional ? 2900: maxCohort + 100}
+                                                color={getRatingCompoProgressColor(
+                                                    minCohort,
+                                                    maxCohort,
+                                                    c.rating,
+                                                )}
+                                                userMaxValue={
+                                                    isProvisional ? 2900 : maxCohort + 100
+                                                }
                                             />
                                         )}
                                     </>
@@ -194,4 +200,3 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({user}) => {
 };
 
 export default TacticsMeterCard;
-

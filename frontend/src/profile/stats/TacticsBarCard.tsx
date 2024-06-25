@@ -23,10 +23,6 @@ export function getRatingCompoProgressColor(
     userMaxCohort: number,
     compRating: number,
 ): string {
-    console.log('Comp ' + compRating);
-    console.log('Max ' + userMaxCohort);
-    console.log('Min ' + userMinCohort);
-
     const maxc = userMaxCohort + 100;
 
     if (compRating > maxc || isTargetInRange(userMaxCohort, maxc, compRating)) {
@@ -50,11 +46,9 @@ const TacticsBarGraphCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
             : minCohort;
 
     const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
-    const tacRating = tacticsRating.overall;
+    const tacRating = Math.round(tacticsRating.overall);
+    
     let progressColors = [];
-    let endRating = 0;
-    let posRating = 0;
-    let opRating = 0;
     let checkmate = 0;
     let pr5 = 0;
     let prSuv = 0;
@@ -62,19 +56,32 @@ const TacticsBarGraphCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     tacticsRating.components.map((c) => {
         switch (c.name) {
             case 'Checkmate Rating':
+                if(c.rating <= 0){
+                    checkmate = 0;
+                    return;
+                }
                 checkmate =  Math.round(c.rating);
                 break;
             case 'PR 5 Min':
+                 if(c.rating <= 0){
+                    pr5 = 0;
+                    return;
+                 }
                  pr5 =  Math.round(c.rating);
                  break;
             case 'PR Survival':
-                 prSuv = Math.round(c.rating);             
+                if(c.rating <= 0){
+                    prSuv = 0
+                    return;
+                }
+                 prSuv = Math.round(c.rating);
+                break;              
         }
     });
 
    
         progressColors = [
-            getRatingCompoProgressColor(minCohort, maxCohort, tacRating),
+            getRatingCompoProgressColor(minCohort, maxCohort, tacRating <= 0 ? 0 : tacRating),
             getRatingCompoProgressColor(minCohort, maxCohort, checkmate),
             getRatingCompoProgressColor(minCohort, maxCohort, pr5),
             getRatingCompoProgressColor(minCohort, maxCohort, prSuv),
