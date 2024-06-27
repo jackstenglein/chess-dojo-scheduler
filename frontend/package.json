@@ -69,17 +69,19 @@
         "zod-validation-error": "^3.3.0"
     },
     "scripts": {
-        "start": "echo WARNING: npm run start now serves build/. Use npm run dev to run server in development mode; echo; npx serve -s build/",
+        "start": "echo ERROR: behavior of 'npm run start' was non-standard and thus has been removed to force migration to 'npm run dev'. In the future, this script will serve the production build, per NextJS conventions",
         "preinstall": "cd ../common && npm install && cd ../eslint-config-dojo/ && npm install",
         "dev": "next dev",
+        "dev:precheck": "npm run test:unit && npm run lint && next build && npm run dev",
         "build": "next build",
         "test": "npm run test:unit && npm run test:cypress",
         "test:unit": "vitest run",
         "test:cypress": "cypress run",
-        "preview": "vite preview",
-        "lint": "next lint",
+        "lint": "npm run lint:types && eslint .",
         "lint:cypress": "eslint cypress",
-        "lint:fix": "eslint --fix ."
+        "lint:fix": "eslint --fix .",
+        "lint:types": "tsc --noEmit",
+        "lint:types:watch": "tsc --noEmit --watch"
     },
     "browserslist": {
         "production": [

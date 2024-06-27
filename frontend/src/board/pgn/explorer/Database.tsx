@@ -1,3 +1,5 @@
+import { FEN } from '@jackstenglein/chess';
+import { Help, QuestionMark } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import {
     Box,
@@ -36,9 +38,12 @@ import {
 } from '../../../database/explorer';
 import { dojoCohorts, getCohortRange } from '../../../database/user';
 import LoadingPage from '../../../loading/LoadingPage';
+import MultipleSelectChip from '../../../newsfeed/list/MultipleSelectChip';
+import Icon from '../../../style/Icon';
 import UpsellAlert from '../../../upsell/UpsellAlert';
 import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
+import { ExplorerDatabaseType } from './Explorer';
 
 const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -55,7 +60,7 @@ const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
 );
 
 interface DatabaseProps<T> {
-    type: 'dojo' | 'lichess';
+    type: ExplorerDatabaseType;
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
     request: Request<T>;
@@ -63,6 +68,8 @@ interface DatabaseProps<T> {
     maxCohort: string;
     setMinCohort: (v: string) => void;
     setMaxCohort: (v: string) => void;
+    timeControls: string[];
+    setTimeControls: (v: string[]) => void;
 }
 
 function Database<T>({
@@ -74,20 +81,25 @@ function Database<T>({
     maxCohort,
     setMinCohort,
     setMaxCohort,
+    timeControls,
+    setTimeControls,
 }: DatabaseProps<T>) {
     const { chess } = useChess();
     const reconcile = useReconcile();
     const isFreeTier = useFreeTier();
 
-    const cohortRange = useMemo(
-        () => getCohortRange(minCohort, maxCohort),
-        [minCohort, maxCohort],
-    );
+    const cohortRange = useMemo(() => {
+        if (type === ExplorerDatabaseType.Dojo) {
+            return getCohortRange(minCohort, maxCohort);
+        }
+        return timeControls.map((tc) => `masters-${tc}`);
+    }, [type, minCohort, maxCohort, timeControls]);
 
     const sortedMoves: (ExplorerMove | LichessExplorerMove)[] = useMemo(() => {
         if (!isExplorerPosition(position)) {
             return position?.moves || [];
         }
+
         return Object.values(position?.moves || [])
             .filter((move) => {
                 return cohortRange.some((cohort) => {
@@ -245,11 +257,11 @@ function Database<T>({
         ];
     }, [totalGames, cohortRange]);
 
-    if (type === 'dojo' && isFreeTier) {
+    if (type !== ExplorerDatabaseType.Lichess && isFreeTier) {
         return (
             <Box mt={2}>
                 <UpsellAlert>
-                    Upgrade to a full account to search the Dojo Database by position and
+                    Upgrade to a full account to search the Dojo databases by position and
                     subscribe to positions.
                 </UpsellAlert>
             </Box>
@@ -277,7 +289,7 @@ function Database<T>({
 
     return (
         <Grid container columnSpacing={1} rowSpacing={2} mt={2}>
-            {type === 'dojo' && (
+            {type === ExplorerDatabaseType.Dojo && (
                 <>
                     <Grid xs={6} sm={6}>
                         <TextField
@@ -319,6 +331,39 @@ function Database<T>({
                 </>
             )}
 
+            {type === ExplorerDatabaseType.Masters && (
+                <>
+                    <Grid xs={12}>
+                        <Stack direction='row' alignItems='center' spacing={0.5}>
+                            <MultipleSelectChip
+                                label='Time Controls'
+                                selected={timeControls}
+                                setSelected={setTimeControls}
+                                options={masterTimeControlOptions}
+                                sx={{ width: 1 }}
+                                size='small'
+                                error={timeControls.length === 0}
+                            />
+                            <Tooltip
+                                title={
+                                    <span>
+                                        These time controls follow FIDE regulations:
+                                        <br />
+                                        Standard: &gt;=1 hr for all moves
+                                        <br />
+                                        Rapid: &gt;10 min for all moves
+                                        <br />
+                                        Blitz: &lt;=10 min for all moves
+                                    </span>
+                                }
+                            >
+                                <Help sx={{ color: 'text.secondary' }} />
+                            </Tooltip>
+                        </Stack>
+                    </Grid>
+                </>
+            )}
+
             <Grid xs={12}>
                 <StyledDataGrid
                     autoHeight
@@ -346,7 +391,7 @@ function Database<T>({
                                 <Typography>
                                     No moves played from this position.
                                 </Typography>
-                                {type === 'dojo' &&
+                                {type === ExplorerDatabaseType.Dojo &&
                                     cohortRange.length < dojoCohorts.length && (
                                         <Typography>
                                             Try expanding your cohort range.
@@ -362,7 +407,7 @@ function Database<T>({
                 />
             </Grid>
 
-            {type === 'dojo' && (
+            {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
                 <Grid xs={12} display='flex' justifyContent='center'>
                     <Link
                         component={RouterLink}
@@ -379,6 +424,29 @@ function Database<T>({
 }
 
 export default Database;
+
+const masterTimeControlOptions = [
+    {
+        value: 'standard',
+        label: 'Standard',
+        icon: <Icon name='Classical' />,
+    },
+    {
+        value: 'rapid',
+        label: 'Rapid',
+        icon: <Icon name='Rapid' />,
+    },
+    {
+        value: 'blitz',
+        label: 'Blitz',
+        icon: <Icon name='Blitz' />,
+    },
+    {
+        value: 'unknown',
+        label: 'Unknown',
+        icon: <QuestionMark />,
+    },
+];
 
 const resultKeys: (keyof ExplorerResult)[] = ['white', 'draws', 'black', 'analysis'];
 

@@ -17,8 +17,8 @@ import (
 )
 
 var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
-var uscfRegexp, _ = regexp.Compile("<input type=text name=rating1 size=20 readonly maxlength=20 tabindex=120 value='(\\d+)")
-var acfRegexp, _ = regexp.Compile(`Current Rating:\s+</div>\s+<div id="stats-box-data-col">\s+\d+\s+</div>\s+<div id="stats-box-data-col">\s+(\d+)`)
+var uscfRegexp, _ = regexp.Compile(`<input type=text name=rating1 size=20 readonly maxlength=20 tabindex=120 value='(\d+)`)
+var acfRegexp, _ = regexp.Compile(`Current Rating:\s*</div>\s*<div id="stats-box-data-col">\s*[-\d]*\s*</div>\s*<div id="stats-box-data-col">\s*(\d+)`)
 
 type ChesscomResponse struct {
 	Rapid struct {

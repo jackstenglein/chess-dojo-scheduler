@@ -13,6 +13,7 @@ import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { isValidDate, stripTagValue } from '../../../../../api/gameApi';
 import { Game } from '../../../../../database/game';
+import { MastersCohort } from '../../../../../games/list/ListGamesPage';
 import Avatar from '../../../../../profile/Avatar';
 import CohortIcon from '../../../../../scoreboard/CohortIcon';
 import { useChess } from '../../../PgnBoard';
@@ -42,6 +43,9 @@ const columns: GridColDef<TagRow>[] = [
         editable: true,
         renderCell: (params: GridRenderCellParams<TagRow>) => {
             if (isOwnerValue(params.row.value)) {
+                if (params.row.value.username === MastersCohort) {
+                    return null;
+                }
                 return (
                     <Stack direction='row' spacing={1} alignItems='center' height={1}>
                         <Avatar
@@ -70,7 +74,9 @@ const columns: GridColDef<TagRow>[] = [
                             params.row.value,
                         )}`}
                     >
-                        {params.row.value}
+                        {params.row.value === MastersCohort
+                            ? 'Masters DB'
+                            : params.row.value}
                     </Link>
                 );
             }

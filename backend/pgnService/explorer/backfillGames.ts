@@ -1,6 +1,6 @@
 import { AttributeValue, DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
-import { handler } from './processGame';
 import { Context, DynamoDBStreamEvent } from 'aws-lambda';
+import { handler } from './processGame';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const gamesTable = process.env.stage + '-games';
@@ -34,7 +34,7 @@ async function main() {
             await handler(
                 { Records: records } as DynamoDBStreamEvent,
                 undefined as unknown as Context,
-                () => null
+                () => null,
             );
 
             processed += records.length;

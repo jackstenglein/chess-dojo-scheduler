@@ -6,12 +6,14 @@ jobs:
   cypress-run:
     timeout-minutes: 30
     runs-on: ubuntu-22.04
-    needs: install
     # strategy:
     #   fail-fast: false # https://github.com/cypress-io/github-action/issues/48
     #   matrix:
     #     containers: [1, 2, 3] # Uses parallel instances
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Prepare Frontend
         working-directory: frontend
         run: npm ci

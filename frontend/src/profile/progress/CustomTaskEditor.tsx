@@ -84,7 +84,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             return map;
         }, {});
 
-        const newTask = {
+        const newTask: CustomTask = {
             id: task ? task.id : uuidv4(),
             name,
             description,
