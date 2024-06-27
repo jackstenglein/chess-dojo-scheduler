@@ -149,7 +149,7 @@ const SubmitDialogContent: React.FC<{
                 <DialogContentText mb={3}>
                     One of the senseis will review this game on a future{' '}
                     <Link
-                        href='https://www.twitch.tv/chessdojolive'
+                        href='https://www.twitch.tv/chessdojo'
                         target='_blank'
                         rel='noreferrer'
                     >
@@ -157,7 +157,7 @@ const SubmitDialogContent: React.FC<{
                     </Link>
                     . If you miss the live stream, you can watch the review in the{' '}
                     <Link
-                        href='https://www.twitch.tv/chessdojolive/videos?filter=archives&sort=time'
+                        href='https://www.twitch.tv/chessdojo/videos?filter=archives&sort=time'
                         target='_blank'
                         rel='noreferrer'
                     >
@@ -284,7 +284,7 @@ const CompletedDialogContent: React.FC<{ game: Game }> = ({ game }) => {
                 <DialogContentText>
                     Your game review was reviewed on a previous{' '}
                     <Link
-                        href='https://www.twitch.tv/chessdojolive'
+                        href='https://www.twitch.tv/chessdojo'
                         target='_blank'
                         rel='noreferrer'
                     >
@@ -292,7 +292,7 @@ const CompletedDialogContent: React.FC<{ game: Game }> = ({ game }) => {
                     </Link>
                     . If you missed the live stream, you can watch the review in the{' '}
                     <Link
-                        href='https://www.twitch.tv/chessdojolive/videos?filter=archives&sort=time'
+                        href='https://www.twitch.tv/chessdojo/videos?filter=archives&sort=time'
                         target='_blank'
                         rel='noreferrer'
                     >
@@ -407,7 +407,7 @@ const PendingDialogContent: React.FC<{ game: Game }> = ({ game }) => {
                     Your game review is still in the queue. One of the senseis will review
                     this game on a future{' '}
                     <Link
-                        href='https://www.twitch.tv/chessdojolive'
+                        href='https://www.twitch.tv/chessdojo'
                         target='_blank'
                         rel='noreferrer'
                     >
@@ -415,7 +415,7 @@ const PendingDialogContent: React.FC<{ game: Game }> = ({ game }) => {
                     </Link>
                     . If you miss the live stream, you can watch the review in the{' '}
                     <Link
-                        href='https://www.twitch.tv/chessdojolive/videos?filter=archives&sort=time'
+                        href='https://www.twitch.tv/chessdojo/videos?filter=archives&sort=time'
                         target='_blank'
                         rel='noreferrer'
                     >
