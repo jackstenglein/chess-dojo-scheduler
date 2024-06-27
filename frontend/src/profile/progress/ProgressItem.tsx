@@ -103,7 +103,11 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
         );
         for (const blockerId of requirement.blockers) {
             const blocker = requirementMap[blockerId];
-            if (blocker && !isComplete(cohort, blocker, user.progress[blockerId])) {
+            if (
+                blocker &&
+                (blocker.isFree || !isFreeTier) &&
+                !isComplete(cohort, blocker, user.progress[blockerId])
+            ) {
                 return {
                     isBlocked: true,
                     reason: `This task is locked until you complete ${blocker.category} - ${blocker.name}.`,
@@ -111,7 +115,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
             }
         }
         return { isBlocked: false };
-    }, [requirement, requirements, cohort, user]);
+    }, [requirement, requirements, cohort, user, isFreeTier]);
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
