@@ -23,6 +23,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         return handleError(400, { publicMessage: 'Invalid request: FEN is required' });
     }
     const startKey = event.queryStringParameters?.startKey;
+    const masters = event.queryStringParameters?.masters === 'true';
 
     try {
         const chess = new Chess({ fen });
@@ -30,14 +31,15 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         const queryOutput = await dynamo.send(
             new QueryCommand({
-                KeyConditionExpression: `#fen = :fen AND begins_with ( #id, :id )`,
+                KeyConditionExpression: `#fen = :fen AND #id BETWEEN :minId AND :maxId`,
                 ExpressionAttributeNames: {
                     '#fen': 'normalizedFen',
                     '#id': 'id',
                 },
                 ExpressionAttributeValues: {
                     ':fen': { S: normalizedFen },
-                    ':id': { S: 'GAME#' },
+                    ':minId': { S: masters ? 'GAME#masters' : 'GAME#' },
+                    ':maxId': { S: masters ? 'GAME#z' : 'GAME#masters' },
                 },
                 ExclusiveStartKey: startKey ? JSON.parse(startKey) : undefined,
                 TableName: explorerTable,

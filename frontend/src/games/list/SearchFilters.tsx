@@ -554,6 +554,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const color = searchParams.get('color') || 'either';
     const eco = searchParams.get('eco') || '';
     const fen = searchParams.get('fen') || '';
+    const mastersOnly = searchParams.get('masters') === 'true';
+
     let startDateStr: string | undefined = undefined;
     let endDateStr: string | undefined = undefined;
     if (isValid(new Date(paramsStartDate || ''))) {
@@ -602,8 +604,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     );
 
     const searchByPosition = useCallback(
-        (startKey: string) => api.listGamesByPosition(fen, startKey),
-        [api, fen],
+        (startKey: string) => api.listGamesByPosition(fen, mastersOnly, startKey),
+        [api, fen, mastersOnly],
     );
 
     // Search is called every time the above functions change, which should

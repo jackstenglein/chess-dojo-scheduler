@@ -411,11 +411,12 @@ function Database<T>({
                 <Grid xs={12} display='flex' justifyContent='center'>
                     <Link
                         component={RouterLink}
-                        to={`/games?type=position&fen=${fen}`}
+                        to={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
                         target='_blank'
                         rel='noopener'
                     >
-                        View all games containing this position
+                        View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'}{' '}
+                        games containing this position
                     </Link>
                 </Grid>
             )}
