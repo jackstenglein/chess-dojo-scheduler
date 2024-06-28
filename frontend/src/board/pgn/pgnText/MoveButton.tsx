@@ -413,7 +413,7 @@ function getMoveTime(chess: Chess | undefined, move: Move): string {
         tcMoveNum += tc.moves || 0;
         if (moveNumber <= tcMoveNum) {
             timeControl = tc;
-            additionalTime = Math.max(0, timeControls[i + 1].seconds || 0);
+            additionalTime = Math.max(0, timeControls[i + 1]?.seconds || 0);
             break;
         }
     }
