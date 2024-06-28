@@ -43,23 +43,9 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
-        width: 115,
+        width: 120,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
             let value = params.value;
-            if (value === MastersCohort) {
-                return (
-                    <Stack
-                        direction='row'
-                        spacing={1}
-                        alignItems='center'
-                        onClick={(e) => e.stopPropagation()}
-                        height={1}
-                    >
-                        <Typography variant='body2'>Masters DB</Typography>
-                    </Stack>
-                );
-            }
-
             if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
                 value = value.replace('00', '');
             }
@@ -73,7 +59,9 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
                     height={1}
                 >
                     <CohortIcon cohort={params.value} size={25} tooltip='' />
-                    <Typography variant='body2'>{value}</Typography>
+                    <Typography variant='body2'>
+                        {value === MastersCohort ? 'Masters DB' : value}
+                    </Typography>
                 </Stack>
             );
         },

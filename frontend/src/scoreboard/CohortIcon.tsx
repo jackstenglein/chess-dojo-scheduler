@@ -8,6 +8,7 @@ import {
 import { SxProps, styled } from '@mui/material/styles';
 import { CSSProperties } from 'react';
 import { ALL_COHORTS } from '../database/user';
+import { MastersCohort } from '../games/list/ListGamesPage';
 
 export const cohortIcons: Record<string, string> = {
     '0-300': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/0-300.png',
@@ -33,6 +34,7 @@ export const cohortIcons: Record<string, string> = {
     '2200-2300': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2200-2300.png',
     '2300-2400': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
     '2400+': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
+    [MastersCohort]: 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
 };
 
 const Tooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -86,6 +88,9 @@ const CohortIcon: React.FC<CohortIconProps & SvgIconProps> = ({
                         : {}),
                     ...(cohort === '2400+'
                         ? { filter: `drop-shadow(0px 0px ${size / 8}px #fedf53` }
+                        : {}),
+                    ...(cohort === MastersCohort
+                        ? { filter: `drop-shadow(0px 0px ${size / 8}px #22a2f2` }
                         : {}),
                 }}
             />

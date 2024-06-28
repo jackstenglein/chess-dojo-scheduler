@@ -31,6 +31,7 @@ import { RequirementCategory } from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
+import { MastersCohort } from './ListGamesPage';
 import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (
@@ -101,7 +102,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                     label='Cohort'
                     onChange={(e) => setCohort(e.target.value)}
                 >
-                    {dojoCohorts.map((c) => (
+                    {dojoCohorts.concat(MastersCohort).map((c) => (
                         <MenuItem key={c} value={c}>
                             <CohortIcon
                                 cohort={c}
@@ -110,7 +111,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                                 tooltip=''
                                 color='primary'
                             />
-                            {c}
+                            {c === MastersCohort ? 'Masters DB' : c}
                         </MenuItem>
                     ))}
                 </Select>
