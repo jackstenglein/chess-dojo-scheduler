@@ -48,7 +48,7 @@ export function TimeControlEditor({
     onCancel,
     onSuccess,
 }: TimeControlEditorProps) {
-    const [timeControls, setTimeControls] = useState<TimeControl[]>(initialItems || []);
+    const [timeControls, setTimeControls] = useState<TimeControl[]>(initialItems || [{}]);
     const [errors, setErrors] = useState<TimeControlErrors>({});
 
     const onSave = () => {
