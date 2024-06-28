@@ -26,7 +26,7 @@ export interface Config {
     };
 }
 
-const config: Record<string, Config> = {
+const config: Record<typeof process.env.NODE_ENV, Config> = {
     test: {
         auth: {
             region: 'us-east-1',
@@ -116,5 +116,15 @@ const config: Record<string, Config> = {
 };
 
 export function getConfig(): Config {
-    return config[process.env.NODE_ENV || ''];
+    const envOverride = process.env.NEXT_PUBLIC_BUILD_NODE_ENV;
+    let env = process.env.NODE_ENV;
+    if (
+        envOverride === 'development' ||
+        envOverride === 'test' ||
+        envOverride === 'production'
+    ) {
+        env = envOverride;
+    }
+
+    return config[env];
 }

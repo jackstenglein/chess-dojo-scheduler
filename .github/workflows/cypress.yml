@@ -14,16 +14,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare Frontend
+      - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm ci
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build:test
 
       - name: Cypress Run
         uses: cypress-io/github-action@v6
         with:
           working-directory: frontend
           build: npx cypress info
-          start: npm run dev
+          start: npm run start:build
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
           record: true
