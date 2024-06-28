@@ -40,7 +40,7 @@ export interface GameInfo {
     owner: string;
     ownerDisplayName: string;
     ownerPreviousCohort: string;
-    headers: PgnHeaders;
+    headers?: PgnHeaders;
     createdAt: string;
 
     /** When the game was last updated. */

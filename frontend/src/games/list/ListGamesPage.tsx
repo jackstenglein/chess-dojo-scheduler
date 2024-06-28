@@ -107,7 +107,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'result',
         headerName: 'Result',
-        valueGetter: (_value, row) => row.headers.Result,
+        valueGetter: (_value, row) => row.headers?.Result,
         renderCell: RenderResult,
         align: 'center',
         headerAlign: 'center',
@@ -117,7 +117,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         field: 'moves',
         headerName: 'Moves',
         valueGetter: (_value, row) =>
-            row.headers.PlyCount ? Math.ceil(parseInt(row.headers.PlyCount) / 2) : '?',
+            row.headers?.PlyCount ? Math.ceil(parseInt(row.headers.PlyCount) / 2) : '?',
         align: 'center',
         headerAlign: 'center',
         width: 75,

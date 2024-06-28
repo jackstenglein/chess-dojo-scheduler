@@ -232,7 +232,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     }, [chess, setForceRender, showEditor]);
 
     const data = useMemo(() => {
-        if (!chess || !timeControls || timeControls.length === 0 || forceRender < 0) {
+        if (!chess || forceRender < 0) {
             return {
                 total: [],
                 remainingPerMove: [],
@@ -240,7 +240,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             };
         }
 
-        let timeControl = timeControls[0];
+        let timeControl = timeControls?.[0] ?? {};
         let timeControlIdx = 0;
 
         const whiteClockDisplay: Datum[] = [
@@ -271,10 +271,10 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
 
             if (
                 timeControl.moves &&
-                timeControlIdx + 1 < timeControls.length &&
+                timeControlIdx + 1 < (timeControls?.length ?? 0) &&
                 i / 2 === timeControl.moves - 1
             ) {
-                timeControl = timeControls[++timeControlIdx];
+                timeControl = timeControls?.[++timeControlIdx] || {};
                 additionalTime = Math.max(0, timeControl.seconds || 0);
             }
 
@@ -378,6 +378,8 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             reconcile();
         }
     };
+
+    console.log('Data: ', data);
 
     return (
         <CardContent sx={{ height: 1 }}>

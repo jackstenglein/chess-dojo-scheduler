@@ -78,6 +78,9 @@ export function RenderPlayers({
 }
 
 export function RenderResult(params: GridRenderCellParams) {
+    if (!params.value) {
+        return '?';
+    }
     return (
         <Stack height={1} justifyContent='center' alignItems='center'>
             <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
