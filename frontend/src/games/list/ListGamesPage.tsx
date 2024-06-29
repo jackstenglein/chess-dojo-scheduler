@@ -36,11 +36,14 @@ import ListGamesTutorial from './ListGamesTutorial';
 import SearchFilters from './SearchFilters';
 import { usePagination } from './pagination';
 
+export const MastersCohort = 'masters';
+export const MastersOwnerDisplayName = 'Masters DB';
+
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
-        width: 115,
+        width: 120,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
             let value = params.value;
             if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
@@ -56,7 +59,9 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
                     height={1}
                 >
                     <CohortIcon cohort={params.value} size={25} tooltip='' />
-                    <Typography variant='body2'>{value}</Typography>
+                    <Typography variant='body2'>
+                        {value === MastersCohort ? 'Masters DB' : value}
+                    </Typography>
                 </Stack>
             );
         },
@@ -66,7 +71,10 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerName: 'Uploaded By',
         minWidth: 150,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
-            if (params.row.ownerDisplayName === '') {
+            if (
+                params.row.ownerDisplayName === '' ||
+                params.row.ownerDisplayName === MastersOwnerDisplayName
+            ) {
                 return '';
             }
 
@@ -99,7 +107,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'result',
         headerName: 'Result',
-        valueGetter: (_value, row) => row.headers.Result,
+        valueGetter: (_value, row) => row.headers?.Result,
         renderCell: RenderResult,
         align: 'center',
         headerAlign: 'center',
@@ -109,7 +117,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         field: 'moves',
         headerName: 'Moves',
         valueGetter: (_value, row) =>
-            row.headers.PlyCount ? Math.ceil(parseInt(row.headers.PlyCount) / 2) : '?',
+            row.headers?.PlyCount ? Math.ceil(parseInt(row.headers.PlyCount) / 2) : '?',
         align: 'center',
         headerAlign: 'center',
         width: 75,

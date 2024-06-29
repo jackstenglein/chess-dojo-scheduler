@@ -6,7 +6,7 @@ import SellingPoint, { SellingPointStatus } from './SellingPoint';
 
 interface PriceMatrixProps {
     onSubscribe: (interval: 'month' | 'year') => void;
-    request?: Request<unknown>;
+    request?: Request;
     interval?: string;
     onFreeTier?: () => void;
 }

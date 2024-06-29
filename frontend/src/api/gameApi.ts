@@ -122,11 +122,13 @@ export interface GameApiContextType {
      * listGamesByPosition returns a list of GameInfo objects matching the provided FEN,
      * as well as the next start key for pagination.
      * @param fen The FEN to search for.
+     * @param mastersOnly Whether to only search for master games.
      * @param startKey The optional start key to use for pagination.
      * @returns A list of games matching the provided FEN.
      */
     listGamesByPosition: (
         fen: string,
+        mastersOnly: boolean,
         startKey?: string,
     ) => Promise<AxiosResponse<ListGamesResponse>>;
 
@@ -426,11 +428,17 @@ export function listGamesByOpening(
  * as well as the next start key for pagination.
  * @param idToken The id token of the current signed-in user.
  * @param fen The FEN to search for.
+ * @param mastersOnly Whether to only search the masters DB.
  * @param startKey The optional start key to use for pagination.
  * @returns A list of games matching the provided FEN.
  */
-export function listGamesByPosition(idToken: string, fen: string, startKey?: string) {
-    const params = { fen, startKey };
+export function listGamesByPosition(
+    idToken: string,
+    fen: string,
+    mastersOnly: boolean,
+    startKey?: string,
+) {
+    const params = { fen, startKey, masters: mastersOnly };
     return axios.get<ListGamesResponse>(BASE_URL + '/game/position', {
         params,
         headers: {

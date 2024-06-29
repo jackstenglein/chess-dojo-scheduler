@@ -56,7 +56,7 @@ export function displayEvent(event: Event, viewer?: User): boolean {
 
 interface CoachingListProps {
     events: Event[];
-    request: Request<unknown>;
+    request: Request;
 }
 
 const CoachingList: React.FC<CoachingListProps> = ({ events, request }) => {

@@ -22,6 +22,8 @@ import {
     GameResult,
 } from './types';
 
+const STARTING_POSITION_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
 
@@ -77,8 +79,6 @@ interface ExplorerMoveUpdate {
  * @param event The DynamoDB stream event that triggered this Lambda. It contains the Game table objects.
  */
 export const handler: DynamoDBStreamHandler = async (event) => {
-    console.log('Event: %j', event);
-
     for (const record of event.Records) {
         await processRecord(record);
     }
@@ -125,7 +125,7 @@ async function processRecord(record: DynamoDBRecord) {
         const results = await Promise.all(promises);
         console.log('Finished with %d results: %j', results.length, results);
     } catch (err) {
-        console.error('ERROR: Failed to process record %j: ', record, err);
+        console.log('ERROR: Failed to process record %j: ', record, err);
     }
 }
 
@@ -179,7 +179,10 @@ function extractPositionRecursive(
 
     const nextMove = chess.nextMove();
     if (nextMove) {
-        if (isMainline || !explorerPosition.moves[nextMove.san]) {
+        if (
+            nextMove.san !== 'Z0' &&
+            (isMainline || !explorerPosition.moves[nextMove.san])
+        ) {
             explorerPosition.moves[nextMove.san] = {
                 san: nextMove.san,
                 result: isMainline
@@ -192,7 +195,10 @@ function extractPositionRecursive(
 
         for (const variation of nextMove.variations || []) {
             if (variation[0]) {
-                if (!explorerPosition.moves[variation[0].san]) {
+                if (
+                    variation[0].san !== 'Z0' &&
+                    !explorerPosition.moves[variation[0].san]
+                ) {
                     explorerPosition.moves[variation[0].san] = {
                         san: variation[0].san,
                         result: 'analysis',
@@ -434,7 +440,9 @@ function getInitialExplorerPosition(
         (map, move) => {
             map[move.san] = {
                 san: move.san,
-                results: {},
+                results: {
+                    [cohort]: {},
+                },
             };
             return map;
         },
@@ -539,7 +547,7 @@ async function updateExplorerPosition(
         await dynamo.send(input);
         return true;
     } catch (err) {
-        console.error(
+        console.log(
             'ERROR: Failed to update explorer position %j with input %j: ',
             update,
             input,
@@ -579,13 +587,22 @@ async function setExplorerPositionCohort(
         '#cohort': cohort,
     };
 
-    Object.values(update.moves).forEach((move, index) => {
+    const chess = new Chess({ fen: update.normalizedFen });
+    const moves = chess.moves({ disableNullMoves: true });
+
+    const resultPerMove: Record<string, keyof ExplorerResult | undefined> = {};
+    update.moves.forEach((move) => (resultPerMove[move.san] = move.newResult));
+
+    moves.forEach((move, index) => {
         updateExpression += `moves.#san${index}.results.#cohort = :result${index}, `;
         exprAttrNames[`#san${index}`] = move.san;
+        const result = resultPerMove[move.san];
         exprAttrValues[`:result${index}`] = {
-            M: {
-                [move.newResult!]: { N: '1' },
-            },
+            M: result
+                ? {
+                      [result]: { N: '1' },
+                  }
+                : {},
         };
     });
 
@@ -618,8 +635,10 @@ async function setExplorerPositionCohort(
         if (err instanceof ConditionalCheckFailedException) {
             // This happens only when two people in the same cohort simultaneously
             // upload a game with a move not played before in that cohort
+            console.log('setExplorerPositionCohort conditional check failed');
             return false;
         }
+        console.log('Failed setExplorerPositionCohort: ', err);
         throw err;
     }
 }
@@ -641,22 +660,40 @@ async function updateExplorerGame(game: Game, update: ExplorerPositionUpdate) {
 }
 
 /**
- * Sets the ExplorerGame in the database associated with this game and update.
+ * Sets the ExplorerGame in the database associated with this game and update. If the position
+ * is the starting position, then the update is skipped.
  * @param game The game associated with the ExplorerPosition.
  * @param update The update applied to the ExplorerPosition.
  */
 async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
+    if (update.normalizedFen === STARTING_POSITION_FEN) {
+        return;
+    }
+
     const id = `GAME#${getExplorerCohort(game)}#${game.id}`;
     const explorerGame: ExplorerGame = {
         normalizedFen: update.normalizedFen,
         id,
         cohort: game.cohort,
         owner: game.owner,
-        ownerDisplayName: game.ownerDisplayName,
         result: update.newResult!,
         game: {
-            ...game,
-            pgn: '',
+            cohort: game.cohort,
+            id: game.id,
+            date: game.date,
+            createdAt: game.createdAt,
+            publishedAt: game.publishedAt,
+            owner: game.owner,
+            ownerDisplayName: game.ownerDisplayName,
+            timeClass: game.timeClass,
+            headers: {
+                White: game.headers.White,
+                WhiteElo: game.headers.WhiteElo,
+                Black: game.headers.Black,
+                BlackElo: game.headers.BlackElo,
+                Result: game.headers.Result,
+                PlyCount: game.headers.PlyCount,
+            },
         },
     };
 
@@ -668,16 +705,21 @@ async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
             }),
         );
     } catch (err) {
-        console.error('ERROR: Failed to set explorer game %j: ', explorerGame, err);
+        console.log('ERROR: Failed to set explorer game %j: ', explorerGame, err);
     }
 }
 
 /**
- * Removes the ExplorerGame in the database associated with this game and update.
+ * Removes the ExplorerGame in the database associated with this game and update. If the
+ * position is the starting position, then the update is skipped.
  * @param game The game associated with the ExplorerPosition.
  * @param update The update applied to the ExplorerPosition.
  */
 async function removeExplorerGame(game: Game, update: ExplorerPositionUpdate) {
+    if (update.normalizedFen === STARTING_POSITION_FEN) {
+        return;
+    }
+
     try {
         const id = `GAME#${getExplorerCohort(game)}#${game.id}`;
         await dynamo.send(
@@ -690,6 +732,6 @@ async function removeExplorerGame(game: Game, update: ExplorerPositionUpdate) {
             }),
         );
     } catch (err) {
-        console.error('ERROR: Failed to delete explorer game: ', err);
+        console.log('ERROR: Failed to delete explorer game: ', err);
     }
 }

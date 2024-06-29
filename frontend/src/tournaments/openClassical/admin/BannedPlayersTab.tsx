@@ -29,7 +29,7 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({
 }) => {
     const [unbanPlayer, setUnbanPlayer] = useState('');
     const api = useApi();
-    const unbanRequest = useRequest();
+    const unbanRequest = useRequest<string>();
 
     const columns = useMemo(() => {
         return defaultPlayerColumns.slice(0, 3).concat({

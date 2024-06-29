@@ -41,8 +41,6 @@ export interface GameInfo {
     ownerDisplayName: string;
     ownerPreviousCohort: string;
     headers: PgnHeaders;
-    isFeatured: string;
-    featuredAt: string;
     createdAt: string;
 
     /** When the game was last updated. */

@@ -57,15 +57,12 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     const generateLichessUrl = () => {
         lichessRequest.onStart();
         axios
-            .post<{ challenge: { url: string } }>(
-                'https://lichess.org/api/challenge/open',
-                {
-                    'clock.limit': position.limitSeconds,
-                    'clock.increment': position.incrementSeconds,
-                    fen: position.fen.trim(),
-                    name: position.title,
-                },
-            )
+            .post<{ url: string }>('https://lichess.org/api/challenge/open', {
+                'clock.limit': position.limitSeconds,
+                'clock.increment': position.incrementSeconds,
+                fen: position.fen.trim(),
+                name: position.title,
+            })
             .then((resp) => {
                 console.log('Generate Lichess URL: ', resp);
                 trackEvent(EventType.CreateSparringLink, {
@@ -75,7 +72,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     clock_increment: position.incrementSeconds,
                 });
                 lichessRequest.onSuccess();
-                copy(resp.data.challenge.url);
+                copy(resp.data.url);
                 onCopy('lichess');
             })
             .catch((err) => {
@@ -85,6 +82,9 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     };
 
     const turn = turnColor(position.fen);
+
+    const timeControlName =
+        getLigaIconBasedOnTimeControl(position.limitSeconds) ?? 'unknown';
 
     return (
         <Card variant='outlined' sx={{ px: 0 }}>
@@ -97,9 +97,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                         <Stack direction='row' justifyContent='space-between'>
                             <Typography variant='h6'> {position.title}</Typography>
                             <Tooltip
-                                title={getLigaIconBasedOnTimeControl(
-                                    position.limitSeconds,
-                                )
+                                title={timeControlName
                                     .toLowerCase()
                                     .concat(' time control')}
                             >

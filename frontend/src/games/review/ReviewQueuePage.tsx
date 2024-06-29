@@ -163,7 +163,7 @@ const ReviewQueuePage = () => {
             <Typography color='text.secondary' mb={3}>
                 These games will be reviewed by one of the senseis on a future{' '}
                 <Link
-                    href='https://www.twitch.tv/chessdojolive'
+                    href='https://www.twitch.tv/chessdojo'
                     target='_blank'
                     rel='noreferrer'
                 >

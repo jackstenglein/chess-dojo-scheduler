@@ -1,11 +1,11 @@
 import { Stack, Typography } from '@mui/material';
-import Icon from '../../style/Icon';
+import Icon, { type IconName } from '../../style/Icon';
 
 interface FieldProps {
     title?: string;
     body?: string;
     showEmptyBody?: boolean;
-    iconName?: string;
+    iconName?: IconName;
 }
 
 const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, iconName }) => {

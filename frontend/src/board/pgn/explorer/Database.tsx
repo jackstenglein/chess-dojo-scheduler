@@ -1,6 +1,7 @@
+import { FEN } from '@jackstenglein/chess';
+import { Help, QuestionMark } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import {
-    Alert,
     Box,
     Link,
     MenuItem,
@@ -37,11 +38,12 @@ import {
 } from '../../../database/explorer';
 import { dojoCohorts, getCohortRange } from '../../../database/user';
 import LoadingPage from '../../../loading/LoadingPage';
+import MultipleSelectChip from '../../../newsfeed/list/MultipleSelectChip';
+import Icon from '../../../style/Icon';
 import UpsellAlert from '../../../upsell/UpsellAlert';
 import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
-
-const maintenance = true;
+import { ExplorerDatabaseType } from './Explorer';
 
 const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -57,18 +59,20 @@ const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
     }),
 );
 
-interface DatabaseProps {
-    type: 'dojo' | 'lichess';
+interface DatabaseProps<T> {
+    type: ExplorerDatabaseType;
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
-    request: Request<unknown>;
+    request: Request<T>;
     minCohort: string;
     maxCohort: string;
     setMinCohort: (v: string) => void;
     setMaxCohort: (v: string) => void;
+    timeControls: string[];
+    setTimeControls: (v: string[]) => void;
 }
 
-const Database: React.FC<DatabaseProps> = ({
+function Database<T>({
     type,
     fen,
     position,
@@ -77,20 +81,25 @@ const Database: React.FC<DatabaseProps> = ({
     maxCohort,
     setMinCohort,
     setMaxCohort,
-}) => {
+    timeControls,
+    setTimeControls,
+}: DatabaseProps<T>) {
     const { chess } = useChess();
     const reconcile = useReconcile();
     const isFreeTier = useFreeTier();
 
-    const cohortRange = useMemo(
-        () => getCohortRange(minCohort, maxCohort),
-        [minCohort, maxCohort],
-    );
+    const cohortRange = useMemo(() => {
+        if (type === ExplorerDatabaseType.Dojo) {
+            return getCohortRange(minCohort, maxCohort);
+        }
+        return timeControls.map((tc) => `masters-${tc}`);
+    }, [type, minCohort, maxCohort, timeControls]);
 
     const sortedMoves: (ExplorerMove | LichessExplorerMove)[] = useMemo(() => {
         if (!isExplorerPosition(position)) {
             return position?.moves || [];
         }
+
         return Object.values(position?.moves || [])
             .filter((move) => {
                 return cohortRange.some((cohort) => {
@@ -248,23 +257,11 @@ const Database: React.FC<DatabaseProps> = ({
         ];
     }, [totalGames, cohortRange]);
 
-    if (maintenance && type === 'dojo') {
-        return (
-            <Box mt={2}>
-                <Alert severity='warning'>
-                    The Dojo explorer database is currently undergoing maintenance to
-                    support our upcoming masters database. It will be available again in a
-                    few hours.
-                </Alert>
-            </Box>
-        );
-    }
-
-    if (type === 'dojo' && isFreeTier) {
+    if (type !== ExplorerDatabaseType.Lichess && isFreeTier) {
         return (
             <Box mt={2}>
                 <UpsellAlert>
-                    Upgrade to a full account to search the Dojo Database by position and
+                    Upgrade to a full account to search the Dojo databases by position and
                     subscribe to positions.
                 </UpsellAlert>
             </Box>
@@ -292,7 +289,7 @@ const Database: React.FC<DatabaseProps> = ({
 
     return (
         <Grid container columnSpacing={1} rowSpacing={2} mt={2}>
-            {type === 'dojo' && (
+            {type === ExplorerDatabaseType.Dojo && (
                 <>
                     <Grid xs={6} sm={6}>
                         <TextField
@@ -334,6 +331,39 @@ const Database: React.FC<DatabaseProps> = ({
                 </>
             )}
 
+            {type === ExplorerDatabaseType.Masters && (
+                <>
+                    <Grid xs={12}>
+                        <Stack direction='row' alignItems='center' spacing={0.5}>
+                            <MultipleSelectChip
+                                label='Time Controls'
+                                selected={timeControls}
+                                setSelected={setTimeControls}
+                                options={masterTimeControlOptions}
+                                sx={{ width: 1 }}
+                                size='small'
+                                error={timeControls.length === 0}
+                            />
+                            <Tooltip
+                                title={
+                                    <span>
+                                        These time controls follow FIDE regulations:
+                                        <br />
+                                        Standard: &gt;=1 hr for all moves
+                                        <br />
+                                        Rapid: &gt;10 min for all moves
+                                        <br />
+                                        Blitz: &lt;=10 min for all moves
+                                    </span>
+                                }
+                            >
+                                <Help sx={{ color: 'text.secondary' }} />
+                            </Tooltip>
+                        </Stack>
+                    </Grid>
+                </>
+            )}
+
             <Grid xs={12}>
                 <StyledDataGrid
                     autoHeight
@@ -361,7 +391,7 @@ const Database: React.FC<DatabaseProps> = ({
                                 <Typography>
                                     No moves played from this position.
                                 </Typography>
-                                {type === 'dojo' &&
+                                {type === ExplorerDatabaseType.Dojo &&
                                     cohortRange.length < dojoCohorts.length && (
                                         <Typography>
                                             Try expanding your cohort range.
@@ -377,23 +407,47 @@ const Database: React.FC<DatabaseProps> = ({
                 />
             </Grid>
 
-            {type === 'dojo' && (
+            {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
                 <Grid xs={12} display='flex' justifyContent='center'>
                     <Link
                         component={RouterLink}
-                        to={`/games?type=position&fen=${fen}`}
+                        to={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
                         target='_blank'
                         rel='noopener'
                     >
-                        View all games containing this position
+                        View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'}{' '}
+                        games containing this position
                     </Link>
                 </Grid>
             )}
         </Grid>
     );
-};
+}
 
 export default Database;
+
+const masterTimeControlOptions = [
+    {
+        value: 'standard',
+        label: 'Standard',
+        icon: <Icon name='Classical' />,
+    },
+    {
+        value: 'rapid',
+        label: 'Rapid',
+        icon: <Icon name='Rapid' />,
+    },
+    {
+        value: 'blitz',
+        label: 'Blitz',
+        icon: <Icon name='Blitz' />,
+    },
+    {
+        value: 'unknown',
+        label: 'Unknown',
+        icon: <QuestionMark />,
+    },
+];
 
 const resultKeys: (keyof ExplorerResult)[] = ['white', 'draws', 'black', 'analysis'];
 

@@ -1,8 +1,8 @@
 import { Stack } from '@mui/material';
 import { useEffect, useMemo } from 'react';
 import { useApi } from '../api/Api';
-import { useCache } from '../api/cache/Cache';
 import { useRequest } from '../api/Request';
+import { useCache } from '../api/cache/Cache';
 import { Club } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
 import { ClubFilterEditor, ClubFilters, filterClubs } from './ClubFilters';

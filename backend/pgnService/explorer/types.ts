@@ -91,14 +91,17 @@ export interface ExplorerGame {
      */
     id: string;
 
-    /** The cohort of the game. */
+    /**
+     * The **explorer** cohort of the game. The real cohort can be found in the
+     * embedded game field.
+     */
     cohort: string;
 
-    /** The username of the owner of the game. */
+    /**
+     * The username of the owner of the game. This is duplicated in the game field,
+     * but is necessary to eventually support exploring a single user's games.
+     */
     owner: string;
-
-    /** The display name of the owner of the game. */
-    ownerDisplayName?: string;
 
     /**
      * The result of the game, as related to the associated FEN. IE: if the FEN does not appear in
@@ -107,8 +110,8 @@ export interface ExplorerGame {
      */
     result: keyof ExplorerResult;
 
-    /** The game that generated this ExplorerGame. The PGN is not included. */
-    game: Game;
+    /** A subset of the information from the game that generated this ExplorerGame. */
+    game: ExplorerGameEmbed;
 }
 
 /**
@@ -158,6 +161,12 @@ export interface Game {
     /** The date the game was played. */
     date: string;
 
+    /** The datetime the game was uploaded to the database, in ISO format. */
+    createdAt: string;
+
+    /** The datetime the game was last changed from unlisted to public, in ISO format. */
+    publishedAt?: string;
+
     /** The username of the submitter of the game. */
     owner: string;
 
@@ -175,6 +184,57 @@ export interface Game {
 
     /** The time class of the game. Currently only set on games in the masters DB. */
     timeClass?: string;
+
+    /** Whether the game has been added to the explorer. */
+    inNewExplorer?: boolean;
+}
+
+/** The important information of a game, embedded into the explorer game. */
+export interface ExplorerGameEmbed {
+    /** The cohort the game belongs to. */
+    cohort: string;
+
+    /** The id of the game, in the form date#uuid. */
+    id: string;
+
+    /** The date the game was played. */
+    date: string;
+
+    /** The datetime the game was uploaded to the database, in ISO format. */
+    createdAt: string;
+
+    /** The datetime the game was last changed from unlisted to public, in ISO format. */
+    publishedAt?: string;
+
+    /** The username of the submitter of the game. */
+    owner: string;
+
+    /** The display name of the submitter of the game. */
+    ownerDisplayName?: string;
+
+    /** The time class of the game. Currently only set on games in the masters DB. */
+    timeClass?: string;
+
+    /** A subset of the game's PGN headers. */
+    headers: {
+        /** The player with the white pieces. */
+        White: string;
+
+        /** The ELO of the player with the white pieces. */
+        WhiteElo?: string;
+
+        /** The player with the black pieces. */
+        Black: string;
+
+        /** The ELO of the player with the black pieces. */
+        BlackElo?: string;
+
+        /** The result of the game. */
+        Result: GameResult;
+
+        /** The ply count of the game. */
+        PlyCount?: string;
+    };
 }
 
 /** The header data of a PGN. */
@@ -195,7 +255,7 @@ export interface PgnHeaders {
     Date: string;
 
     /** The site the game was played on. */
-    Site: string;
+    Site?: string;
 
     /** The result of the game. */
     Result: GameResult;

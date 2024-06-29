@@ -3,7 +3,7 @@ import {
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { DateTime } from 'luxon';
-import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Club, ClubJoinRequestStatus } from '../database/club';
 import { Course } from '../database/course';
@@ -14,8 +14,8 @@ import { TimelineEntry } from '../database/timeline';
 import { LeaderboardSite, TournamentType } from '../database/tournament';
 import { User } from '../database/user';
 import {
-    batchGetClubs,
     ClubApiContextType,
+    batchGetClubs,
     createClub,
     getClub,
     joinClub,
@@ -34,16 +34,16 @@ import {
     setCourse,
 } from './courseApi';
 import {
-    createSupportTicket,
     EmailApiContextType,
     SupportTicketRequest,
+    createSupportTicket,
 } from './emailApi';
 import {
+    EventApiContextType,
     bookEvent,
     cancelEvent,
     createMessage,
     deleteEvent,
-    EventApiContextType,
     getEvent,
     getEventCheckout,
     listEvents,
@@ -58,19 +58,21 @@ import {
 } from './examApi';
 import {
     ExplorerApiContextType,
-    followPosition,
     FollowPositionRequest,
+    followPosition,
     getPosition,
 } from './explorerApi';
 import {
+    CreateGameRequest,
+    DeleteCommentRequest,
+    GameApiContextType,
+    UpdateCommentRequest,
+    UpdateGameRequest,
     createComment,
     createGame,
-    CreateGameRequest,
     deleteComment,
-    DeleteCommentRequest,
     deleteGame,
     featureGame,
-    GameApiContextType,
     getGame,
     listFeaturedGames,
     listGamesByCohort,
@@ -81,9 +83,7 @@ import {
     markReviewed,
     requestReview,
     updateComment,
-    UpdateCommentRequest,
     updateGame,
-    UpdateGameRequest,
 } from './gameApi';
 import {
     GraduationApiContextType,
@@ -92,34 +92,41 @@ import {
     listGraduationsByOwner,
 } from './graduationApi';
 import {
+    NewsfeedApiContextType,
     createNewsfeedComment,
     getNewsfeedItem,
     listNewsfeed,
-    NewsfeedApiContextType,
     setNewsfeedReaction,
 } from './newsfeedApi';
 import {
+    NotificationApiContextType,
     deleteNotification,
     listNotifications,
-    NotificationApiContextType,
 } from './notificationApi';
 import {
+    PaymentApiContextType,
+    SubscriptionCheckoutRequest,
     createPaymentAccount,
     getPaymentAccount,
     paymentAccountLogin,
-    PaymentApiContextType,
     subscriptionCheckout,
-    SubscriptionCheckoutRequest,
     subscriptionManage,
 } from './paymentApi';
 import {
+    RequirementApiContextType,
     getRequirement,
     listRequirements,
-    RequirementApiContextType,
     setRequirement,
 } from './requirementApi';
-import { getScoreboard, ScoreboardApiContextType } from './scoreboardApi';
+import { ScoreboardApiContextType, getScoreboard } from './scoreboardApi';
 import {
+    OpenClassicalPutPairingsRequest,
+    OpenClassicalRegistrationRequest,
+    OpenClassicalSubmitResultsRequest,
+    OpenClassicalVerifyResultRequest,
+    TimeControl,
+    TimePeriod,
+    TournamentApiContextType,
     adminBanPlayer,
     adminCompleteTournament,
     adminEmailPairings,
@@ -130,18 +137,12 @@ import {
     getLeaderboard,
     getOpenClassical,
     listPreviousOpenClassicals,
-    OpenClassicalPutPairingsRequest,
-    OpenClassicalRegistrationRequest,
-    OpenClassicalSubmitResultsRequest,
-    OpenClassicalVerifyResultRequest,
     putOpenClassicalPairings,
     registerForOpenClassical,
     submitResultsForOpenClassical,
-    TimeControl,
-    TimePeriod,
-    TournamentApiContextType,
 } from './tournamentApi';
 import {
+    UserApiContextType,
     checkUserAccess,
     editFollower,
     getFollower,
@@ -151,13 +152,12 @@ import {
     graduate,
     listFollowers,
     listFollowing,
-    listUsersByCohort,
     listUserTimeline,
+    listUsersByCohort,
     searchUsers,
     updateUser,
     updateUserProgress,
     updateUserTimeline,
-    UserApiContextType,
 } from './userApi';
 
 /**
@@ -304,8 +304,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 startDate?: string,
                 endDate?: string,
             ) => listGamesByOpening(idToken, eco, startKey, startDate, endDate),
-            listGamesByPosition: (fen: string, startKey?: string) =>
-                listGamesByPosition(idToken, fen, startKey),
+            listGamesByPosition: (fen: string, mastersOnly: boolean, startKey?: string) =>
+                listGamesByPosition(idToken, fen, mastersOnly, startKey),
             listFeaturedGames: (startKey?: string) =>
                 listFeaturedGames(idToken, startKey),
             listGamesForReview: (startKey?: string) =>

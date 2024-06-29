@@ -31,6 +31,7 @@ import { RequirementCategory } from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
+import { MastersCohort } from './ListGamesPage';
 import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (
@@ -101,7 +102,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                     label='Cohort'
                     onChange={(e) => setCohort(e.target.value)}
                 >
-                    {dojoCohorts.map((c) => (
+                    {dojoCohorts.concat(MastersCohort).map((c) => (
                         <MenuItem key={c} value={c}>
                             <CohortIcon
                                 cohort={c}
@@ -110,7 +111,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                                 tooltip=''
                                 color='primary'
                             />
-                            {c}
+                            {c === MastersCohort ? 'Masters DB' : c}
                         </MenuItem>
                     ))}
                 </Select>
@@ -553,6 +554,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const color = searchParams.get('color') || 'either';
     const eco = searchParams.get('eco') || '';
     const fen = searchParams.get('fen') || '';
+    const mastersOnly = searchParams.get('masters') === 'true';
+
     let startDateStr: string | undefined = undefined;
     let endDateStr: string | undefined = undefined;
     if (isValid(new Date(paramsStartDate || ''))) {
@@ -601,8 +604,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     );
 
     const searchByPosition = useCallback(
-        (startKey: string) => api.listGamesByPosition(fen, startKey),
-        [api, fen],
+        (startKey: string) => api.listGamesByPosition(fen, mastersOnly, startKey),
+        [api, fen, mastersOnly],
     );
 
     // Search is called every time the above functions change, which should

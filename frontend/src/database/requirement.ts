@@ -57,7 +57,8 @@ export interface CustomTask {
     scoreboardDisplay: ScoreboardDisplay.NonDojo;
 
     /** The category of the CustomTask. Should always be non-dojo. */
-    category: RequirementCategory;
+    category: RequirementCategory.NonDojo;
+
 
     /** The last time the CustomTask definition was updated. */
     updatedAt: string;

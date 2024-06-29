@@ -2,7 +2,7 @@ using DelimitedFiles
 using Plots
 using LinearAlgebra
 
-function tactics_test_math(filename="exam0-2.csv")
+function tactics_test_math(filename="exam1500-4.csv")
 
 allInfo = readdlm(filename, ',', String, '\n', skipstart=1)
 maxScore = 69 # 52 #62 #69
@@ -30,6 +30,10 @@ elseif filename == "exam0-2.csv"
     maxScore = 31
     maxRating = 1000
     minRating = 0
+elseif filename == "exam1500-4.csv"
+    maxScore = 58
+    maxRating = 2000
+    minRating = 1500
 else
     println("UNEXPECTED FILENAME")
     return false
@@ -39,18 +43,18 @@ ratings = parse.(Float64, allInfo[:,2])
 times = parse.(Int64, allInfo[:,4])
 scores = parse.(Int64, allInfo[:,5])
 cohortsLow = Int64[]
-# for rating in allInfo[:,2]
-#     roundedRating = fld(parse(Float64, rating), 100) * 100
-#     push!(cohortsLow, roundedRating)
-# end
-for cohorts in allInfo[:,3]
-    if cohorts == "2400+"
-        push!(cohortsLow, 2400)
-    else
-        lowHigh = split(cohorts, "-")
-        push!(cohortsLow, parse(Int64, lowHigh[1]))
-    end
+for rating in allInfo[:,2]
+    roundedRating = fld(parse(Float64, rating), 100) * 100
+    push!(cohortsLow, roundedRating)
 end
+# for cohorts in allInfo[:,3]
+#     if cohorts == "2400+"
+#         push!(cohortsLow, 2400)
+#     else
+#         lowHigh = split(cohorts, "-")
+#         push!(cohortsLow, parse(Int64, lowHigh[1]))
+#     end
+# end
 
 # lowTimes = findall((v) -> v < minTime, times)
 # deleteat!(ratings, lowTimes)

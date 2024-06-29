@@ -22,7 +22,7 @@ interface CoachingCalendarProps {
     events: Event[];
     putEvent: (e: Event) => void;
     removeEvent: (id: string) => void;
-    request: Request<unknown>;
+    request: Request;
 }
 
 const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
@@ -38,7 +38,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
 
     const [shiftHeld, setShiftHeld] = useState(false);
     const copyRequest = useRequest();
-    const deleteRequest = useRequest();
+    const deleteRequest = useRequest<string>();
 
     const processedEvents = useMemo(() => {
         const modifiedFilters = { ...filters, coaching: true };
@@ -206,7 +206,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                     customEditor={(scheduler) => <EventEditor scheduler={scheduler} />}
                     onDelete={deleteAvailability}
                     onEventDrop={copyAvailability}
-                    viewerExtraComponent={(fields, event) => (
+                    viewerExtraComponent={(_, event) => (
                         <ProcessedEventViewer processedEvent={event} />
                     )}
                     events={processedEvents}

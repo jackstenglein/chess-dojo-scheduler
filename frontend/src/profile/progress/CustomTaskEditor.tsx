@@ -89,8 +89,8 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             name,
             description,
             counts: newCounts,
-            scoreboardDisplay: ScoreboardDisplay.NonDojo,
-            category: RequirementCategory.NonDojo,
+            scoreboardDisplay: ScoreboardDisplay.NonDojo as const,
+            category: RequirementCategory.NonDojo as const,
             updatedAt: new Date().toISOString(),
             owner: user.username,
         };

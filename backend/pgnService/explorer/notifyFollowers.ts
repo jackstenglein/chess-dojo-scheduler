@@ -79,11 +79,16 @@ async function processRecord(record: DynamoDBRecord) {
     }
 
     const game = unmarshall(
-        record.dynamodb.NewImage as Record<string, AttributeValue>
+        record.dynamodb.NewImage as Record<string, AttributeValue>,
     ) as ExplorerGame;
 
     if (!game.id || !game.id.startsWith('GAME#')) {
         console.log('Skipping record as its id does not start with GAME#');
+        return;
+    }
+
+    if (game.cohort === 'masters') {
+        console.log('Skipping record since it is a masters game');
         return;
     }
 
@@ -112,12 +117,13 @@ async function processRecord(record: DynamoDBRecord) {
                     },
                     ExclusiveStartKey: startKey,
                     TableName: explorerTable,
-                })
+                }),
             );
 
-            const followers: ExplorerPositionFollower[] | undefined = queryOutput.Items?.map(
-                (item) => unmarshall(item) as ExplorerPositionFollower
-            );
+            const followers: ExplorerPositionFollower[] | undefined =
+                queryOutput.Items?.map(
+                    (item) => unmarshall(item) as ExplorerPositionFollower,
+                );
             console.log('Processing %d followers', followers?.length || 0);
 
             await processFollowers(game, followers);
@@ -137,7 +143,7 @@ async function processRecord(record: DynamoDBRecord) {
  */
 async function processFollowers(
     game: ExplorerGame,
-    followers: ExplorerPositionFollower[] | undefined
+    followers: ExplorerPositionFollower[] | undefined,
 ) {
     if (!followers || followers.length === 0) {
         console.log('processFollowers: No followers');
@@ -167,7 +173,7 @@ async function processFollowers(
  */
 function getNotification(
     game: ExplorerGame,
-    follower: ExplorerPositionFollower
+    follower: ExplorerPositionFollower,
 ): ExplorerGameNotification | null {
     if (follower.disableVariations && game.result === 'analysis') {
         console.log('Skipping follower due to disableVariations');
@@ -199,7 +205,10 @@ function getNotification(
             cohort: game.cohort,
             id: game.game.id,
             result: game.result,
-            headers: game.game.headers,
+            headers: {
+                ...game.game.headers,
+                Date: game.game.date,
+            },
         },
     };
 }

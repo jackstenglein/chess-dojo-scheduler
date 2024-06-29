@@ -103,7 +103,7 @@ interface RatingEditor {
 function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
     const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(
         RatingSystem,
-    ).reduce<Record<RatingSystem, RatingEditor>>((m, rs) => {
+    ).reduce<Record<string, RatingEditor>>((m, rs) => {
         m[rs] = {
             username: ratings[rs]?.username || '',
             hideUsername: ratings[rs]?.hideUsername || false,
@@ -118,7 +118,7 @@ function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
 
 function getRatingsFromEditors(ratingEditors: Record<RatingSystem, RatingEditor>) {
     const ratings: Record<RatingSystem, Rating> = Object.values(RatingSystem).reduce<
-        Record<RatingSystem, Rating>
+        Record<string, Rating>
     >((m, rs) => {
         m[rs] = {
             username: ratingEditors[rs].username || '',
@@ -286,7 +286,7 @@ const ProfileEditorPage = () => {
     const [profilePictureData, setProfilePictureData] = useState<string>();
 
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const request = useRequest();
+    const request = useRequest<string>();
 
     const onChangeProfilePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;

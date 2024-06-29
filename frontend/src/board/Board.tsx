@@ -1,4 +1,4 @@
-import { Chess, Move, SQUARES, Square } from '@jackstenglein/chess';
+import { Chess, Move, SQUARES, type Square } from '@jackstenglein/chess';
 import { Box, Button, Dialog, DialogContent, Stack } from '@mui/material';
 import { Chessground } from 'chessground';
 import { Api as BoardApi } from 'chessground/api';
@@ -161,8 +161,8 @@ export function useReconcile() {
 function defaultOnMove(showGlyphs: boolean): onMoveFunc {
     return (board: BoardApi, chess: Chess, move: PrimitiveMove) => {
         chess.move({
-            from: move.orig as Square,
-            to: move.dest as Square,
+            from: move.orig,
+            to: move.dest,
             promotion: move.promotion,
         });
         reconcile(chess, board, showGlyphs);
@@ -192,12 +192,18 @@ export function defaultOnDrawableChange(chess: Chess) {
 export function checkPromotion(
     board: BoardApi,
     chess: Chess,
-    orig: Key,
-    dest: Key,
+    orig: Square | Key,
+    dest: Square | Key,
     onPromotion: (move: PrePromotionMove) => void,
     onMove: onMoveFunc,
 ) {
-    if (chess.get(orig as Square)?.type === 'p' && (dest[1] === '1' || dest[1] === '8')) {
+    if (orig === 'a0' || dest === 'a0') {
+        // a0 represents a square "off the board"
+        // such as a new piece
+        return;
+    }
+
+    if (chess.get(orig)?.type === 'p' && (dest[1] === '1' || dest[1] === '8')) {
         onPromotion({ orig, dest, color: toColor(chess) });
         return;
     }
@@ -205,14 +211,14 @@ export function checkPromotion(
 }
 
 interface PrePromotionMove {
-    orig: Key;
-    dest: Key;
+    orig: Square;
+    dest: Square;
     color: Color;
 }
 
 export interface PrimitiveMove {
-    orig: Key;
-    dest: Key;
+    orig: Square;
+    dest: Square;
     promotion?: string;
 }
 
@@ -293,7 +299,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                     free: config?.movable?.free || false,
                     dests: config?.movable?.dests || toDests(chess),
                     events: {
-                        after: (orig, dest) =>
+                        after: (orig, dest) => {
                             checkPromotion(
                                 board,
                                 chess,
@@ -301,7 +307,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                                 dest,
                                 onStartPromotion,
                                 onMove ? onMove : defaultOnMove(showGlyphs),
-                            ),
+                            );
+                        },
                     },
                 },
                 lastMove: [],

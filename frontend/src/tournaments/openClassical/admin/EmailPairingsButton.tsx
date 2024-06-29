@@ -27,7 +27,7 @@ const EmailPairingsButton: React.FC<EmailPairingsButtonProps> = ({
 }) => {
     const [open, setOpen] = useState(false);
     const api = useApi();
-    const request = useRequest();
+    const request = useRequest<string>();
 
     const onSendEmails = () => {
         request.onStart();

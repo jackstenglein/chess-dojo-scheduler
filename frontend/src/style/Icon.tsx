@@ -44,6 +44,7 @@ import {
     RestartAlt,
     RocketLaunch,
     Save,
+    School,
     Science,
     Search,
     Speed,
@@ -76,6 +77,7 @@ export const icons = {
     [RequirementCategory.Endgame]: SportsScore,
     [RequirementCategory.Opening]: CrisisAlert,
     [RequirementCategory.NonDojo]: LiveTv,
+    [RequirementCategory.Graduation]: School,
     Annotations: BorderColor,
     Followers: ThumbUp,
     followers: ThumbUp,
@@ -161,8 +163,10 @@ export const icons = {
     spar: Link,
 };
 
+export type IconName = keyof typeof icons;
+
 export interface IconProps extends SvgIconProps {
-    name: keyof typeof icons | '';
+    name?: IconName;
 }
 
 export const Icon: React.FC<IconProps> = ({ name, ...props }) => {

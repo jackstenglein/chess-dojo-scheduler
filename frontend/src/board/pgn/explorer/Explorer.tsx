@@ -1,29 +1,40 @@
 import { Event, EventType } from '@jackstenglein/chess';
-import { TabContext, TabList } from '@mui/lab';
-import { Box, CardContent, Tab } from '@mui/material';
+import { TabContext } from '@mui/lab';
+import { Box, CardContent, Tab, Tabs } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
+import { SiLichess } from 'react-icons/si';
 import { usePosition } from '../../../api/cache/positions';
 import { ExplorerPositionFollower } from '../../../database/explorer';
+import { ChessDojoIcon } from '../../../style/ChessDojoIcon';
+import { KingIcon } from '../../../style/ChessIcons';
 import { useChess } from '../PgnBoard';
 import Database from './Database';
 import Header from './Header';
 
 const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
+const defaultTimeControls = ['standard', 'rapid', 'blitz', 'unknown'];
+
+export enum ExplorerDatabaseType {
+    Dojo = 'dojo',
+    Masters = 'masters',
+    Lichess = 'lichess',
+}
+
 const Explorer = () => {
-    const [tab, setTab] = useState<'dojo' | 'lichess'>('dojo');
+    const [tab, setTab] = useState<ExplorerDatabaseType>(ExplorerDatabaseType.Dojo);
     const { chess } = useChess();
     const [fen, setFen] = useState(chess?.fen() || startingPositionFen);
     const { position, request, putPosition } = usePosition(fen);
     const [minCohort, setMinCohort] = useState('');
     const [maxCohort, setMaxCohort] = useState('');
+    const [timeControls, setTimeControls] = useState(defaultTimeControls);
 
     useEffect(() => {
         if (chess) {
             const observer = {
                 types: [EventType.Initialized, EventType.LegalMove],
                 handler: (event: Event) => {
-                    console.log('Chess Event: ', event);
                     if (event.type === EventType.Initialized) {
                         setFen(chess.fen());
                     } else {
@@ -54,6 +65,15 @@ const Explorer = () => {
         [putPosition, position],
     );
 
+    const onSetTimeControls = (v: string[]) => {
+        setTimeControls(
+            v.sort(
+                (lhs, rhs) =>
+                    defaultTimeControls.indexOf(lhs) - defaultTimeControls.indexOf(rhs),
+            ),
+        );
+    };
+
     const { dojo, lichess, follower } = position || {};
 
     return (
@@ -68,24 +88,47 @@ const Explorer = () => {
 
             <TabContext value={tab}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <TabList
-                        onChange={(_, val: 'dojo' | 'lichess') => setTab(val)}
+                    <Tabs
+                        value={tab}
+                        onChange={(_, val: ExplorerDatabaseType) => setTab(val)}
                         aria-label='Position database type'
+                        variant='scrollable'
                     >
-                        <Tab label='Dojo Database' value='dojo' />
-                        <Tab label='Lichess Database' value='lichess' />
-                    </TabList>
+                        <Tab
+                            label='Dojo'
+                            value={ExplorerDatabaseType.Dojo}
+                            icon={<ChessDojoIcon />}
+                            iconPosition='start'
+                            sx={{ minHeight: '48px' }}
+                        />
+                        <Tab
+                            label='Masters'
+                            value={ExplorerDatabaseType.Masters}
+                            icon={<KingIcon sx={{ fontSize: '1rem' }} />}
+                            iconPosition='start'
+                            sx={{ minHeight: '48px' }}
+                        />
+                        <Tab
+                            label='Lichess'
+                            value={ExplorerDatabaseType.Lichess}
+                            icon={<SiLichess />}
+                            iconPosition='start'
+                            sx={{ minHeight: '48px' }}
+                        />
+                    </Tabs>
                 </Box>
 
                 <Database
                     type={tab}
                     fen={fen}
-                    position={tab === 'dojo' ? dojo : lichess}
+                    position={tab === ExplorerDatabaseType.Lichess ? lichess : dojo}
                     request={request}
                     minCohort={minCohort}
                     maxCohort={maxCohort}
                     setMinCohort={setMinCohort}
                     setMaxCohort={setMaxCohort}
+                    timeControls={timeControls}
+                    setTimeControls={onSetTimeControls}
                 />
             </TabContext>
         </CardContent>

@@ -71,7 +71,7 @@ const CoursePage = () => {
     }, [course, chapterIndex]);
 
     const moduleIndex = parseInt(searchParams.get('module') || '0');
-    const module = useMemo(() => {
+    const courseModule = useMemo(() => {
         if (moduleIndex >= 0 && moduleIndex < (chapter?.modules.length || 0)) {
             return chapter?.modules[moduleIndex];
         }
@@ -85,7 +85,7 @@ const CoursePage = () => {
         return <LoadingPage />;
     }
 
-    if (course === undefined || chapter === undefined || module === undefined) {
+    if (course === undefined || chapter === undefined || courseModule === undefined) {
         return <NotFoundPage />;
     }
 
@@ -124,7 +124,7 @@ const CoursePage = () => {
                         <Divider />
 
                         <Box mt={2}>
-                            <Module module={module} />
+                            <Module module={courseModule} />
                         </Box>
                     </Stack>
 
