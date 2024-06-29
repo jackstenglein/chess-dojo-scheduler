@@ -26,6 +26,7 @@ functions:
   processGame:
     handler: explorer/processGame.handler
     timeout: 900
+    memorySize: 4096
     events:
       - stream:
           type: dynamodb
