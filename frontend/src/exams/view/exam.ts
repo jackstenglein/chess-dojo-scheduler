@@ -332,19 +332,6 @@ export function getTaskRating(user: User, req?: Requirement): number {
     
 }
 
-/**
- * Returns URL to the particular exam
- */
-function linkToExamType(examType: ExamType): string {
-    switch (examType) {
-        case ExamType.Tactics:
-            return '/tests/tactics';
-        case ExamType.Polgar:
-            return '/tests/checkmate';
-        case ExamType.Endgame:
-            return '/tests/endgame';
-    }
-}
 
 /**
  * Returns the max possible rating for the given requirement.
