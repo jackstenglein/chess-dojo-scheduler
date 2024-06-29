@@ -161,7 +161,6 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                                     }
                                 >
                                     <ButtonBase onClick={() => onChangeExpanded(i)}>
-
                                         <IconButton>
                                             {expanded[i] ? (
                                                 <ExpandLess

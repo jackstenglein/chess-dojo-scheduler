@@ -3,13 +3,11 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React from 'react';
+import { RequirementCategory } from '../../database/requirement';
 import { User } from '../../database/user';
+import Icon from '../../style/Icon';
 import TacticsBarGraphCard from './TacticsBarCard';
 import TacticsMeterCard from './TacticsMeterCard';
-import Icon from '../../style/Icon';
-import { RequirementCategory } from '../../database/requirement';
-
-
 
 interface TacticsScoreCardProps {
     user: User;
@@ -21,9 +19,9 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     const handleAlignment = (
         event: React.MouseEvent<HTMLElement>,
         newAlignment: string | null,
-      ) => {
+    ) => {
         setGraphPicker(newAlignment);
-      };
+    };
 
     return (
         <div>
@@ -37,10 +35,13 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             aria-label='text alignment'
                         >
                             <ToggleButton value='meter' aria-label='View meter graph'>
-                                <Icon name={RequirementCategory.Tactics} color='primary'/>
+                                <Icon
+                                    name={RequirementCategory.Tactics}
+                                    color='primary'
+                                />
                             </ToggleButton>
                             <ToggleButton value='bar' aria-label='View bar graph'>
-                            <Icon name='leaderboard' color='primary'/>
+                                <Icon name='leaderboard' color='primary' />
                             </ToggleButton>
                         </ToggleButtonGroup>
                     </Grid2>

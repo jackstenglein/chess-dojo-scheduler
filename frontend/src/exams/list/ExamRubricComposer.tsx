@@ -4,14 +4,7 @@ const ExamRubricComposer: React.FC = () => {
     return (
         <Card variant='outlined'>
             <CardContent>
-                <Stack
-                    direction='column'
-                    mb={2}
-                    spacing={2}
-                    justifyContent='center'
-                    
-                >
-
+                <Stack direction='column' mb={2} spacing={2} justifyContent='center'>
                     <Typography variant='body1'>
                         The Dojo tests three essential skills: tactics, endgame and
                         positional play. By doing these tests you will be able to
@@ -25,15 +18,21 @@ const ExamRubricComposer: React.FC = () => {
                         In these tests you will be pushed to the limit in two very
                         important ways.
                     </Typography>
-                    <Typography variant='body1' sx={{
+                    <Typography
+                        variant='body1'
+                        sx={{
                             fontWeight: 'bold',
-                        }}>
+                        }}
+                    >
                         1) The patterns and ideas are the next level up from where you
                         currently are. You should therefore not expect them to be easy.
                     </Typography>
-                    <Typography variant='body1' sx={{
+                    <Typography
+                        variant='body1'
+                        sx={{
                             fontWeight: 'bold',
-                        }}>
+                        }}
+                    >
                         2) You will find your mental stamina tested. Like in a real game
                         you will start losing the freshness of your thinking process.
                         Frustration and exhaustion should be expected! The Dojo is able to

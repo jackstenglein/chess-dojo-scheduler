@@ -14,8 +14,6 @@ import {
     getTaskRating,
     getTaskRatingSingleCount,
 } from '../../exams/view/exam';
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
 import { useTimeline } from '../../profile/activity/useTimeline';
 import { TacticsRatingComponent } from '../view/exam';
 import ExamGraph from './ExamGraph';
@@ -27,7 +25,7 @@ import ExamGraph from './ExamGraph';
  */
 function getUserExamRatingsByType(user: User, examType: ExamType): number[] {
     const getFinal: number[] = [];
-    
+
     Object.values(user.exams)
         .filter((examSummary) => examSummary.examType === examType)
         .map((examSummary) => getFinal.push(examSummary.rating));
@@ -104,8 +102,18 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
     const puzzleSurvdata: number[] = [];
     const puzzleRush5Timeline: string[] = [];
     const puzzleSurTimeline: string[] = [];
-    const puzzlePushOverallRating = parseInt(getTaskRating(user,requirements.find((r) => r.id === PuzzleRush5MinReqId)).toString());
-    const puzzleSurvOverallRating = parseInt(getTaskRating(user, requirements.find((r) => r.id === PuzzleSurvivalReqId)).toString());
+    const puzzlePushOverallRating = parseInt(
+        getTaskRating(
+            user,
+            requirements.find((r) => r.id === PuzzleRush5MinReqId),
+        ).toString(),
+    );
+    const puzzleSurvOverallRating = parseInt(
+        getTaskRating(
+            user,
+            requirements.find((r) => r.id === PuzzleSurvivalReqId),
+        ).toString(),
+    );
 
     const timeline = useTimeline(user.username);
 
@@ -114,14 +122,24 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
             puzzleRush5Timeline.push(
                 toDojoDateString(new Date(his.createdAt), user.timezoneOverride),
             );
-            puzzleRush5Rating.push( getTaskRatingSingleCount(requirements.find((r) => r.id === PuzzleRush5MinReqId), his.newCount))
+            puzzleRush5Rating.push(
+                getTaskRatingSingleCount(
+                    requirements.find((r) => r.id === PuzzleRush5MinReqId),
+                    his.newCount,
+                ),
+            );
             puzzleRush5data.push(his.newCount);
         } else if (his.requirementId === PuzzleSurvivalReqId) {
             puzzleSurTimeline.push(
                 toDojoDateString(new Date(his.createdAt), user.timezoneOverride),
             );
             puzzleSurvdata.push(his.newCount);
-            puzzleSurvRating.push( getTaskRatingSingleCount(requirements.find((r) => r.id === PuzzleSurvivalReqId), his.newCount));
+            puzzleSurvRating.push(
+                getTaskRatingSingleCount(
+                    requirements.find((r) => r.id === PuzzleSurvivalReqId),
+                    his.newCount,
+                ),
+            );
         }
     });
 
@@ -146,7 +164,6 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                         sx={{ minWidth: 150 }}
                         label='Pick Rating Type'
                         value={graphpicker}
-                        
                         onChange={(event) =>
                             setGraphPicker(
                                 event.target.value as
@@ -167,13 +184,11 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                         sx={{ minWidth: 150 }}
                         label='Pick PR y-axis'
                         value={yaxis}
-                        disabled={graphpicker === 'tactics' || graphpicker === 'checkmate'}
+                        disabled={
+                            graphpicker === 'tactics' || graphpicker === 'checkmate'
+                        }
                         onChange={(event) =>
-                            setYaxis(
-                                event.target.value as
-                                    'rating'
-                                    | 'score'
-                            )
+                            setYaxis(event.target.value as 'rating' | 'score')
                         }
                     >
                         <MenuItem value='score'> Score </MenuItem>
@@ -263,7 +278,7 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                             realRating={averageRush}
                             height={height}
                         />
-                    ): null}
+                    ) : null}
                 </Stack>
             </CardContent>
         </Card>

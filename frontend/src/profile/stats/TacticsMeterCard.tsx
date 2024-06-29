@@ -151,7 +151,11 @@ const TacticsMeterCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                         }}
                                     >
                                         {c.link ? (
-                                            <Link component={RouterLink} to={c.link}>
+                                            <Link
+                                                component={RouterLink}
+                                                to={c.link}
+                                                color='primary'
+                                            >
                                                 {c.name}
                                             </Link>
                                         ) : (

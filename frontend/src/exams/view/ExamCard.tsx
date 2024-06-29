@@ -12,7 +12,6 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Link } from 'react-router-dom';
 import { ExamType } from '../../database/exam';
 
-
 interface ExamCardProps {
     name: string;
     description: string;
@@ -22,23 +21,29 @@ interface ExamCardProps {
         | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
     disabled?: boolean;
     colorType: ExamType;
-    
 }
 
 export function getColorBasedOnExamType(examType: ExamType): string {
-    switch(examType){
+    switch (examType) {
         case ExamType.Endgame:
-            return "endgameTest";
+            return 'endgameTest';
         case ExamType.Polgar:
-            return "checkmateTest";
+            return 'checkmateTest';
         case ExamType.Tactics:
-            return "tacticsTest";
+            return 'tacticsTest';
         case ExamType.Positional:
-            return "positionalTest";       
+            return 'positionalTest';
     }
 }
 
-export const ExamCard = ({ name, description, href, icon, disabled, colorType}: ExamCardProps) => {
+export const ExamCard = ({
+    name,
+    description,
+    href,
+    icon,
+    disabled,
+    colorType,
+}: ExamCardProps) => {
     const Icon = icon;
     return (
         <Grid2 xs={12} sm={6} md={4}>
@@ -54,7 +59,10 @@ export const ExamCard = ({ name, description, href, icon, disabled, colorType}: 
                 >
                     <CardContent>
                         <Stack justifyContent='center' alignItems='center'>
-                            <Icon sx={{ fontSize: '5rem', mb: 2 }} color={getColorBasedOnExamType(colorType)} />
+                            <Icon
+                                sx={{ fontSize: '5rem', mb: 2 }}
+                                color={getColorBasedOnExamType(colorType)}
+                            />
                             <Typography variant='h5' mb={0.5}>
                                 {name}
                             </Typography>

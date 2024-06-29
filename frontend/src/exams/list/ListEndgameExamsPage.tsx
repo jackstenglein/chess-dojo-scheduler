@@ -1,8 +1,8 @@
 import { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Container, Stack, Typography } from '@mui/material';
 import { RookIcon } from '../../style/ChessIcons';
-import { ExamList } from './ExamList';
 import { getColorBasedOnExamType } from '../view/ExamCard';
+import { ExamList } from './ExamList';
 
 const COHORT_RANGES = ['0-1000', '1000-1500', '1500-2000', '2000+'];
 
