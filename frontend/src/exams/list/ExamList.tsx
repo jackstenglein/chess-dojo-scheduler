@@ -1,6 +1,7 @@
 import { Exam, ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { getRegression } from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import { Check, Close, ExpandLess, ExpandMore, Help, Lock } from '@mui/icons-material';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
     Alert,
     ButtonBase,
@@ -26,6 +27,8 @@ import { toDojoDateString } from '../../calendar/displayDate';
 import { isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import { getColorBasedOnExamType } from '../view/ExamCard';
+import {IconButton} from '@mui/material';
 
 interface CohortRangeExams {
     name: string;
@@ -159,7 +162,21 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                                     }
                                 >
                                     <ButtonBase onClick={() => onChangeExpanded(i)}>
-                                        {expanded[i] ? <ExpandLess /> : <ExpandMore />}
+                                        <IconButton>
+                                            {expanded[i] ? (
+                                                <ExpandLess
+                                                    color={getColorBasedOnExamType(
+                                                        examType,
+                                                    )}
+                                                />
+                                            ) : (
+                                                <ExpandMore
+                                                    color={getColorBasedOnExamType(
+                                                        examType,
+                                                    )}
+                                                />
+                                            )}
+                                        </IconButton>
                                         <Typography variant='h6'>{range.name}</Typography>
                                     </ButtonBase>
                                 </Tooltip>
@@ -327,13 +344,30 @@ export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
                         return (
                             <Tooltip title='This exam is locked until you complete the previous exam'>
                                 <Stack direction='row' spacing={0.5} alignItems='center'>
-                                    <Link color='text.disabled'>{params.value}</Link>
-                                    <Lock fontSize='small' />
+                                    <Link color='text.disabled'>
+                                        {params.value}{' '}
+                                        <Lock
+                                            fontSize='small'
+                                            color='error'
+                                            sx={{ verticalAlign: 'middle' }}
+                                        />
+                                    </Link>
                                 </Stack>
                             </Tooltip>
                         );
                     }
-                    return <Link sx={{ cursor: 'pointer' }}>{params.value}</Link>;
+                    return (
+                        <Stack direction='row' spacing={0.5} alignItems='center'>
+                            <Link sx={{ cursor: 'pointer' }}>
+                                {params.value}{' '}
+                                <OpenInNewIcon
+                                    fontSize='small'
+                                    color='primary'
+                                    sx={{ verticalAlign: 'middle' }}
+                                />
+                            </Link>
+                        </Stack>
+                    );
                 },
                 flex: 1,
             },

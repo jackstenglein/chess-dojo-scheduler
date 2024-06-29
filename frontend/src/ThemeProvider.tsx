@@ -16,6 +16,10 @@ declare module '@mui/material/styles' {
         liga: Palette['primary'];
         book: Palette['primary'];
         meet: Palette['primary'];
+        tacticsTest: Palette['primary'];
+        endgameTest: Palette['primary'];
+        checkmateTest: Palette['primary'];
+        positionalTest: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
@@ -26,6 +30,10 @@ declare module '@mui/material/styles' {
         liga?: PaletteOptions['primary'];
         book?: Palette['primary'];
         meet?: Palette['primary'];
+        tacticsTest?: Palette['primary'];
+        endgameTest?: Palette['primary'];
+        checkmateTest?: Palette['primary'];
+        positionalTest?: Palette['primary'];
     }
 }
 
@@ -106,6 +114,30 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
             createTheme({
                 palette: {
                     mode: colorMode as PaletteMode,
+                    positionalTest: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#d61313',
+                        },
+                        name: 'positionalTest',
+                    }),
+                    checkmateTest: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#8c03fc',
+                        },
+                        name: 'checkmateTest',
+                    }),
+                    endgameTest: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#186aed',
+                        },
+                        name: 'endgameTest',
+                    }),
+                    tacticsTest: defaultTheme.palette.augmentColor({
+                        color: {
+                            main: '#55d444',
+                        },
+                        name: 'tacticsTest',
+                    }),
                     meet: defaultTheme.palette.augmentColor({
                         color: {
                             main: '#93a84f',

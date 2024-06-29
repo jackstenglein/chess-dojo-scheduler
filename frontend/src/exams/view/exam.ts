@@ -182,8 +182,8 @@ export function addExtraVariation(
     }
 }
 
-const PuzzleRush5MinReqId = '42804d40-3651-438c-a8ae-e2200fe23b4c';
-const PuzzleSurvivalReqId = 'fa98ad32-219a-4ee9-ae02-2cda69efce06';
+export const PuzzleRush5MinReqId = '42804d40-3651-438c-a8ae-e2200fe23b4c';
+export const PuzzleSurvivalReqId = 'fa98ad32-219a-4ee9-ae02-2cda69efce06';
 
 export interface TacticsRating {
     /** The user's overall tactics rating. */
@@ -206,6 +206,8 @@ export interface TacticsRatingComponent {
     /** Link relevant to this component */
     link?: string;
 }
+
+
 
 /**
  * Calculates the user's tactics rating.
@@ -262,24 +264,14 @@ export function calculateTacticsRating(
     return rating;
 }
 
-/**
- * Calculates the user's rating for a given requirement.
- * @param user The user to calculate the rating for.
- * @param req The requirement to calculate the rating for.
- * @returns The user's rating for the given requirement.
- */
-function getTaskRating(user: User, req?: Requirement): number {
-    if (!req) {
+
+export function getTaskRatingSingleCount(req?: Requirement, count?: number){
+
+    if(!req){
         return -1;
     }
 
-    const progress = user.progress[req.id];
-    if (!progress) {
-        return -1;
-    }
-
-    const count = progress.counts[ALL_COHORTS];
-    if (!count) {
+    if(!count){
         return -1;
     }
 
@@ -294,7 +286,11 @@ function getTaskRating(user: User, req?: Requirement): number {
             const minCohort = parseInt(tokens[0]);
             const maxCohort = parseInt(tokens[1] || '2500');
 
+            
             const minReqCount = i ? reqCounts[i - 1][1] : req.startCount;
+
+            
+
 
             const rating =
                 ((maxCohort - minCohort) / (reqCount - minReqCount)) *
@@ -305,7 +301,37 @@ function getTaskRating(user: User, req?: Requirement): number {
     }
 
     return getTaskMaxRating(req);
+
+
 }
+
+
+/**
+ * Calculates the user's rating for a given requirement.
+ * @param user The user to calculate the rating for.
+ * @param req The requirement to calculate the rating for.
+ * @returns The user's rating for the given requirement.
+ */
+export function getTaskRating(user: User, req?: Requirement): number {
+    if (!req) {
+        return -1;
+    }
+
+    const progress = user.progress[req.id];
+    if (!progress) {
+        return -1;
+    }
+
+    const count = progress.counts[ALL_COHORTS];
+    if (!count) {
+        return -1;
+    }
+
+    return getTaskRatingSingleCount(req, count);
+
+    
+}
+
 
 /**
  * Returns the max possible rating for the given requirement.

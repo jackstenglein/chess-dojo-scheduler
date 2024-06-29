@@ -1,6 +1,7 @@
 import { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Container, Stack, Typography } from '@mui/material';
 import { RookIcon } from '../../style/ChessIcons';
+import { getColorBasedOnExamType } from '../view/ExamCard';
 import { ExamList } from './ExamList';
 
 const COHORT_RANGES = ['0-1000', '1000-1500', '1500-2000', '2000+'];
@@ -16,6 +17,7 @@ export const ListEndgameExamsPage = () => {
                     <RookIcon
                         fontSize='inherit'
                         sx={{ mr: 2, verticalAlign: 'center' }}
+                        color={getColorBasedOnExamType(ExamType.Endgame)}
                     />
                     Endgame Tests
                 </Typography>

@@ -1,92 +1,35 @@
-import {
-    Card,
-    CardActionArea,
-    CardContent,
-    Container,
-    Stack,
-    SvgIconProps,
-    SvgIconTypeMap,
-    Typography,
-} from '@mui/material';
-import { OverridableComponent } from '@mui/material/OverridableComponent';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Link } from 'react-router-dom';
-import { KingIcon, QueenIcon, RookIcon } from '../style/ChessIcons';
+import { Container, Stack, Typography } from '@mui/material';
+import { useRequiredAuth } from '../auth/Auth';
+import TacticsScoreCard from '../profile/stats/TacticsScoreCard';
+import ExamRubricComposer from './list/ExamRubricComposer';
+import { ExamCardComposer } from './view/ExamCardComposer';
 
 /**
  * Renders a simple landing page that directs users to the different types of exams
  * (tactics, polgar, endgame, etc).
  */
 export const ExamLandingPage = () => {
+    const auth = useRequiredAuth();
+    const user = auth.user;
+
     return (
         <Container maxWidth='lg' sx={{ py: 5 }}>
-            <Grid2 container rowSpacing={2} columnSpacing={2}>
-                <ExamCard
-                    name='Tactics Tests'
-                    description='All Ratings'
-                    href='/tests/tactics'
-                    icon={QueenIcon}
-                />
+            <Stack spacing={3}>
+                <Typography variant='h4' align='center'>
+                    ChessDojo Tactics Tests
+                </Typography>
+                <Typography variant='body1' align='center'>
+                    Welcome to ChessDojo tactics test, a place to view your tactical
+                    ratings, your tactical history graph and to start new tactics test
+                </Typography>
+            </Stack>
+            <Stack spacing={3}>
+                <TacticsScoreCard user={user} />
 
-                <ExamCard
-                    name='Checkmate Tests'
-                    description='All Ratings'
-                    href='/tests/checkmate'
-                    icon={KingIcon}
-                />
+                <ExamRubricComposer />
 
-                <ExamCard
-                    name='Endgame Tests'
-                    description='All Ratings'
-                    href='/tests/endgame'
-                    icon={RookIcon}
-                />
-            </Grid2>
+                <ExamCardComposer />
+            </Stack>
         </Container>
-    );
-};
-
-interface ExamCardProps {
-    name: string;
-    description: string;
-    href: string;
-    icon:
-        | ((props: SvgIconProps) => JSX.Element)
-        | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
-    disabled?: boolean;
-}
-
-const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) => {
-    const Icon = icon;
-    return (
-        <Grid2 xs={12} sm={6} md={4}>
-            <Card
-                variant={disabled ? 'outlined' : 'elevation'}
-                sx={{ opacity: disabled ? 0.8 : 1, height: 1 }}
-            >
-                <CardActionArea
-                    component={Link}
-                    disabled={disabled}
-                    to={href}
-                    sx={{ height: 1 }}
-                >
-                    <CardContent>
-                        <Stack justifyContent='center' alignItems='center'>
-                            <Icon sx={{ fontSize: '5rem', mb: 2 }} color='primary' />
-                            <Typography variant='h5' mb={0.5}>
-                                {name}
-                            </Typography>
-                            <Typography
-                                variant='subtitle1'
-                                color='text.secondary'
-                                lineHeight='1.3'
-                            >
-                                {description}
-                            </Typography>
-                        </Stack>
-                    </CardContent>
-                </CardActionArea>
-            </Card>
-        </Grid2>
     );
 };
