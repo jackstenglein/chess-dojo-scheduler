@@ -9,13 +9,12 @@ import traceback
 
 
 db = boto3.resource('dynamodb')
-table = db.Table('dev-games')
-
+table = db.Table('prod-games')
 
 
 def main():
-    skip = 102
-    max_count = 1
+    skip = 1256454
+    max_count = -1
     upload_pgns(max_count, skip, '/Users/jackstenglein/Documents/caissabase-2024-04-27.pgn')
 
 
@@ -138,7 +137,9 @@ def get_time_control_headers(pgn, twic_info, time_control_info):
 
     if len(possible_time_classes) == 1:
         tc = time_controls[0].strip()
-        return time_control_info[tc]
+        if tc in time_control_info:
+            return time_control_info[tc]
+        return get_unknown_time_control_headers(pgn)
     
     preferred_time_class = 'Blitz'
     if 'Standard' in possible_time_classes:

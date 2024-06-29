@@ -79,9 +79,11 @@ interface ExplorerMoveUpdate {
  * @param event The DynamoDB stream event that triggered this Lambda. It contains the Game table objects.
  */
 export const handler: DynamoDBStreamHandler = async (event) => {
+    const promises: Promise<void>[] = [];
     for (const record of event.Records) {
-        await processRecord(record);
+        promises.push(processRecord(record));
     }
+    await Promise.all(promises);
 };
 
 /**
