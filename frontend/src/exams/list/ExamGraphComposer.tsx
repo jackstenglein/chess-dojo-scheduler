@@ -148,13 +148,6 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
     const sumSur = puzzleSurvdata.reduce((sum, value) => sum + value, 0);
     const avgSur = sumSur / puzzleSurvdata.length;
 
-    let checkProvLine: number[];
-    if (isProvisional) {
-        checkProvLine = [];
-    } else {
-        checkProvLine = [realRating];
-    }
-
     return (
         <Card variant='outlined'>
             <CardContent>

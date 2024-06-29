@@ -28,6 +28,7 @@ import { isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import { getColorBasedOnExamType } from '../view/ExamCard';
+import {IconButton} from '@mui/material';
 
 interface CohortRangeExams {
     name: string;
