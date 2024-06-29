@@ -1,5 +1,6 @@
 import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
-import { Box, CardContent, Stack, Typography } from '@mui/material';
+import { Edit } from '@mui/icons-material';
+import { Box, CardContent, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
 import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
@@ -7,6 +8,8 @@ import { useLightMode } from '../../../../ThemeProvider';
 import { useReconcile } from '../../../Board';
 import { useChess } from '../../PgnBoard';
 import ClockEditor from './ClockEditor';
+import { TimeControlDescription } from './TimeControlDescription';
+import { TimeControlEditor } from './tags/TimeControlEditor';
 
 interface Datum {
     label?: string;
@@ -206,6 +209,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     const light = useLightMode();
     const [forceRender, setForceRender] = useState(0);
     const reconcile = useReconcile();
+    const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
 
     const timeControls = chess?.header().tags.TimeControl?.items;
 
@@ -379,11 +383,33 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         }
     };
 
-    console.log('Data: ', data);
+    const onUpdateTimeControl = (value: string) => {
+        chess.setHeader('TimeControl', value);
+        setShowTimeControlEditor(false);
+    };
 
     return (
         <CardContent sx={{ height: 1 }}>
             <Stack height={1} spacing={4}>
+                <Stack>
+                    <Stack direction='row' alignItems='center' spacing={0.5}>
+                        <Typography variant='subtitle1'>Time Control</Typography>
+
+                        {showEditor && (
+                            <Tooltip title='Edit time control'>
+                                <IconButton
+                                    size='small'
+                                    sx={{ position: 'relative', top: '-2px' }}
+                                    onClick={() => setShowTimeControlEditor(true)}
+                                >
+                                    <Edit fontSize='inherit' />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                    </Stack>
+                    <TimeControlDescription timeControls={timeControls || []} />
+                </Stack>
+
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
                         Total Time Used
@@ -441,7 +467,18 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     </Box>
                 </Stack>
 
-                {showEditor && <ClockEditor />}
+                {showEditor && (
+                    <ClockEditor setShowTimeControlEditor={setShowTimeControlEditor} />
+                )}
+
+                {showTimeControlEditor && (
+                    <TimeControlEditor
+                        open={showTimeControlEditor}
+                        initialItems={chess.header().tags.TimeControl?.items}
+                        onCancel={() => setShowTimeControlEditor(false)}
+                        onSuccess={onUpdateTimeControl}
+                    />
+                )}
             </Stack>
         </CardContent>
     );
