@@ -11,7 +11,11 @@ import {
     PuzzleRush5MinReqId,
     PuzzleSurvivalReqId,
     calculateTacticsRating,
+    getTaskRating,
+    getTaskRatingSingleCount,
 } from '../../exams/view/exam';
+import { useApi } from '../../api/Api';
+import { useRequest } from '../../api/Request';
 import { useTimeline } from '../../profile/activity/useTimeline';
 import { TacticsRatingComponent } from '../view/exam';
 import ExamGraph from './ExamGraph';
@@ -23,7 +27,7 @@ import ExamGraph from './ExamGraph';
  */
 function getUserExamRatingsByType(user: User, examType: ExamType): number[] {
     const getFinal: number[] = [];
-
+    
     Object.values(user.exams)
         .filter((examSummary) => examSummary.examType === examType)
         .map((examSummary) => getFinal.push(examSummary.rating));
@@ -93,10 +97,15 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
     const [graphpicker, setGraphPicker] = React.useState<
         'tactics' | 'checkmate' | 'prfive' | 'prsuv'
     >('tactics');
+    const [yaxis, setYaxis] = React.useState<'score' | 'rating'>('rating');
     const puzzleRush5data: number[] = [];
+    const puzzleRush5Rating: number[] = [];
+    const puzzleSurvRating: number[] = [];
     const puzzleSurvdata: number[] = [];
     const puzzleRush5Timeline: string[] = [];
     const puzzleSurTimeline: string[] = [];
+    const puzzlePushOverallRating = parseInt(getTaskRating(user,requirements.find((r) => r.id === PuzzleRush5MinReqId)).toString());
+    const puzzleSurvOverallRating = parseInt(getTaskRating(user, requirements.find((r) => r.id === PuzzleSurvivalReqId)).toString());
 
     const timeline = useTimeline(user.username);
 
@@ -105,19 +114,21 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
             puzzleRush5Timeline.push(
                 toDojoDateString(new Date(his.createdAt), user.timezoneOverride),
             );
+            puzzleRush5Rating.push( getTaskRatingSingleCount(requirements.find((r) => r.id === PuzzleRush5MinReqId), his.newCount))
             puzzleRush5data.push(his.newCount);
         } else if (his.requirementId === PuzzleSurvivalReqId) {
             puzzleSurTimeline.push(
                 toDojoDateString(new Date(his.createdAt), user.timezoneOverride),
             );
             puzzleSurvdata.push(his.newCount);
+            puzzleSurvRating.push( getTaskRatingSingleCount(requirements.find((r) => r.id === PuzzleSurvivalReqId), his.newCount));
         }
     });
 
-    puzzleRush5Timeline.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-    puzzleSurTimeline.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-    puzzleRush5data.map((num) => parseInt(num.toString()));
-    puzzleSurvdata.map((num) => parseInt(num.toString()));
+    const sumRush = puzzleRush5data.reduce((sum, value) => sum + value, 0);
+    const averageRush = sumRush / puzzleRush5data.length;
+    const sumSur = puzzleSurvdata.reduce((sum, value) => sum + value, 0);
+    const avgSur = sumSur / puzzleSurvdata.length;
 
     let checkProvLine: number[];
     if (isProvisional) {
@@ -135,6 +146,7 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                         sx={{ minWidth: 150 }}
                         label='Pick Rating Type'
                         value={graphpicker}
+                        
                         onChange={(event) =>
                             setGraphPicker(
                                 event.target.value as
@@ -149,6 +161,23 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                         <MenuItem value='checkmate'> Checkmate</MenuItem>
                         <MenuItem value='prfive'> PR 5 Min</MenuItem>
                         <MenuItem value='prsuv'> PR Survival</MenuItem>
+                    </TextField>
+                    <TextField
+                        select
+                        sx={{ minWidth: 150 }}
+                        label='Pick PR y-axis'
+                        value={yaxis}
+                        disabled={graphpicker === 'tactics' || graphpicker === 'checkmate'}
+                        onChange={(event) =>
+                            setYaxis(
+                                event.target.value as
+                                    'rating'
+                                    | 'score'
+                            )
+                        }
+                    >
+                        <MenuItem value='score'> Score </MenuItem>
+                        <MenuItem value='rating'> Rating</MenuItem>
                     </TextField>
                 </Grid2>
                 <Stack
@@ -173,11 +202,9 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                             data={getUserExamRatingsByType(user, ExamType.Tactics)}
                             label='Tactics Test'
                             color='#55d444'
-                            isPR={true}
+                            displayDiffText='Overall Rating'
                             xLabels={getUserExamCreationTimes(user, ExamType.Tactics)}
                             width={width}
-                            isUserProv={isProvisional}
-                            checkProvLine={checkProvLine}
                             realRating={realRating}
                             height={height}
                         />
@@ -186,41 +213,57 @@ const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
                             data={getUserExamRatingsByType(user, ExamType.Polgar)}
                             label='Checkmate Test'
                             color='#5905a3'
-                            isPR={true}
+                            displayDiffText='Overall Rating'
                             xLabels={getUserExamCreationTimes(user, ExamType.Polgar)}
-                            isUserProv={isProvisional}
-                            checkProvLine={checkProvLine}
                             realRating={realRating}
                             width={width}
                             height={height}
                         />
-                    ) : graphpicker === 'prfive' ? (
+                    ) : graphpicker === 'prfive' && yaxis === 'rating' ? (
                         <ExamGraph
-                            data={puzzleRush5data}
-                            label='Puzzle 5 Min'
+                            data={puzzleRush5Rating}
+                            label='Puzzle 5 Min Rating'
                             color='#0d04bf'
-                            isPR={false}
+                            displayDiffText='Overall Rating'
                             xLabels={puzzleRush5Timeline}
                             width={width}
-                            isUserProv={isProvisional}
-                            checkProvLine={checkProvLine}
-                            realRating={realRating}
+                            realRating={puzzlePushOverallRating}
                             height={height}
                         />
-                    ) : (
+                    ) : graphpicker === 'prsuv' && yaxis === 'rating' ? (
                         <ExamGraph
-                            data={puzzleSurvdata}
-                            label='Puzzle Survival'
+                            data={puzzleSurvRating}
+                            label='Puzzle Survival Rating'
                             color='#e44cf5'
                             xLabels={puzzleSurTimeline}
-                            isUserProv={isProvisional}
-                            isPR={false}
-                            checkProvLine={checkProvLine}
-                            realRating={realRating}
+                            displayDiffText='Overall Rating'
+                            realRating={puzzleSurvOverallRating}
                             width={width}
                             height={height}
                         />
-                    )}
+                    ) : graphpicker === 'prsuv' && yaxis === 'score' ? (
+                        <ExamGraph
+                            data={puzzleSurvdata}
+                            label='Puzzle Survival Score'
+                            color='#e44cf5'
+                            xLabels={puzzleSurTimeline}
+                            displayDiffText='Avg Score'
+                            realRating={avgSur}
+                            width={width}
+                            height={height}
+                        />
+                    ) : graphpicker === 'prfive' && yaxis === 'score' ? (
+                        <ExamGraph
+                            data={puzzleRush5data}
+                            label='Puzzle 5 Min Score'
+                            color='#0d04bf'
+                            displayDiffText='Avg Score'
+                            xLabels={puzzleRush5Timeline}
+                            width={width}
+                            realRating={averageRush}
+                            height={height}
+                        />
+                    ): null}
                 </Stack>
             </CardContent>
         </Card>

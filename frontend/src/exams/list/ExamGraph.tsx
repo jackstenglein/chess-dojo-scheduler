@@ -1,7 +1,13 @@
 import { ChartsReferenceLine } from '@mui/x-charts';
 import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
-import { LineChart, LinePlot, MarkPlot } from '@mui/x-charts/LineChart';
+import {
+    LineChart,
+    lineElementClasses,
+    markElementClasses,
+    MarkPlot
+  } from '@mui/x-charts/LineChart';
+import { readFile } from 'fs';
 import * as React from 'react';
 
 /**
@@ -15,10 +21,8 @@ interface ExamVals {
     height: number;
     label: string;
     color: string;
-    isUserProv: boolean; // user's tactics rating provisional value
-    checkProvLine: number[]; // overall rating list
     realRating: number;
-    isPR: boolean;
+    displayDiffText: string;
 }
 
 /**
@@ -34,47 +38,53 @@ const ExamGraph: React.FC<ExamVals> = ({
     height,
     label,
     color,
-    isUserProv,
-    checkProvLine,
     realRating,
-    isPR,
+    displayDiffText
 }) => {
-    const colorLabel = !isPR ? '' : !isUserProv ? '' : '#37e691';
-    const displayLabel = !isPR? '': !isUserProv ? '' : 'Overall Rating';
-    const lineType = !isPR? undefined : !isUserProv ? undefined: 'line';
+
+    const convertToString = data.map((n) => parseInt(n.toString()));
+    const convertTimeline = xLabels.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    const getAvgShower = data.length <= 1 ? [] : [realRating];
     return (
         <LineChart
             width={width}
             height={height}
+            sx={{
+                [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
+                  strokeWidth: 1,
+                },
+                '.MuiLineElement-series-pvId': {
+                  strokeDasharray: '5 5',
+                },
+                '.MuiLineElement-series-uvId': {
+                  strokeDasharray: '3 4 5 2',
+                },
+                [`.${markElementClasses.root}:not(.${markElementClasses.highlighted})`]: {
+                  fill: '#fff',
+                },
+                [`& .${markElementClasses.highlighted}`]: {
+                  stroke: 'none',
+                },
+              }}
             series={[
+                
                 {
-                    data: data,
+                    data: convertToString,
                     label: label,
                     color: color,
                     type: 'line',
-                    valueFormatter: (v) => new Number(v).toString()
+                    valueFormatter: (v) => new Number(v).toString(),
+                    
                 },
                 {
-                    data: checkProvLine,
-                    label: displayLabel,
-                    color: colorLabel,
-                    type: lineType,
+                    data: getAvgShower,
+                    label: displayDiffText,
+                    color: '#37e691',
+                    type: 'line',
                     valueFormatter: (v) => new Number(v).toString()
                 },
             ]}
-            // series={[
-            //     { data: polgarData, label: 'Checkmate', color: '#5905a3', type: 'line'},
-            //     { data: tacData, label: 'Tactics', color: '#55d444', type: 'line' },
-            //     { data: pr5min, label: 'PR 5 Min', color: '#2803a1', type: 'line' },
-            //     {data: prSuv, label: 'PR Survival', color: '#e01eeb', type: 'line'},
-            //     {
-            //         data: checkProvLine,
-            //         label: 'Overall',
-            //         color: '#37e691',
-            //         type: 'line',
-            //     },
-            // ]}
-            xAxis={[{ scaleType: 'point', data: xLabels }]}
+            xAxis={[{ scaleType: 'point', data: convertTimeline }]}
             grid={{ vertical: true, horizontal: true }}
             yAxis={
                 [
@@ -84,16 +94,14 @@ const ExamGraph: React.FC<ExamVals> = ({
                 ]
             }
         >
-            <LinePlot />
+          
             <MarkPlot />
             {
-                !isPR ? null : (
-                    !isUserProv ? null : (
-                        <ChartsReferenceLine y={realRating} lineStyle={{ stroke: '#37e691' }} />
-                    )
-                )
+                    data.length <= 1 ? null : (
+                        <ChartsReferenceLine y={realRating} lineStyle={{ stroke: '#37e691' }}  />
+                        
+                    )   
             }
-            
             <ChartsXAxis />
             <ChartsYAxis />
         </LineChart>
