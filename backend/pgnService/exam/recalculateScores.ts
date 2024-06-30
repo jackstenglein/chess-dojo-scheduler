@@ -7,12 +7,18 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import {
+    Exam,
+    ExamAnswer,
+    ExamAnswerSummary,
+    isValidExamType,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
+import {
+    getExamMaxScore,
     getOrientation,
     initializeSolution,
     scoreVariation,
-} from '@jackstenglein/chess-dojo-common';
+} from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
-import { Exam, ExamAnswer, ExamAnswerSummary, isValidExamType } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const examTable = process.env.stage + '-exams';
@@ -50,6 +56,8 @@ async function processRecord(record: DynamoDBRecord) {
         return;
     }
 
+    const totalScore = getExamMaxScore(newExam);
+
     const problemChesses = newExam.pgns.map((pgn) => {
         const chess = new Chess({ pgn });
         initializeSolution(chess);
@@ -61,11 +69,12 @@ async function processRecord(record: DynamoDBRecord) {
         updates.push(recalculateScore(username, answer, newExam, problemChesses));
     }
     const updatedUsers = (await Promise.all(updates)).filter((u) => u);
-    if (updatedUsers.length === 0) {
-        console.log('No updated users');
+    if (updatedUsers.length === 0 && totalScore === oldExam.totalScore) {
+        console.log('No updated users and no update to total score');
         return;
     }
 
+    newExam.totalScore = totalScore;
     await saveUpdates(updatedUsers, newExam);
 }
 
@@ -143,12 +152,17 @@ async function getExamAnswer(
  * @param newExam The exam to update.
  */
 async function saveUpdates(updatedUsers: string[], newExam: Exam) {
-    let updateExpression = 'SET ';
-    const exprAttrValues: Record<string, AttributeValue> = {};
+    let updateExpression = 'SET #totalScore = :totalScore, ';
+    const exprAttrValues: Record<string, AttributeValue> = {
+        ':totalScore': { N: `${newExam.totalScore}` },
+    };
     const exprAttrNames: Record<string, string> = {
-        '#answers': 'answers',
+        '#totalScore': 'totalScore',
     };
 
+    if (updatedUsers.length > 0) {
+        exprAttrNames['#answers'] = 'answers';
+    }
     for (let i = 0; i < updatedUsers.length; i++) {
         updateExpression += `#answers.#u${i} = :u${i}, `;
         exprAttrValues[`:u${i}`] = { M: marshall(newExam.answers[updatedUsers[i]]) };

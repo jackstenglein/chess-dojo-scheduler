@@ -8,13 +8,13 @@ import { User } from '../database/user';
 const BASE_URL = getConfig().api.baseUrl;
 
 /** Provides an API for interacting with clubs. */
-export type ClubApiContextType = {
+export interface ClubApiContextType {
     /**
      * Creates the given club.
      * @param club The club to create.
      * @returns An AxiosResponse containing the created club.
      */
-    createClub: (club: Partial<Club>) => Promise<AxiosResponse<ClubDetails, any>>;
+    createClub: (club: Partial<Club>) => Promise<AxiosResponse<ClubDetails>>;
 
     /**
      * Updates the club with the given id.
@@ -25,7 +25,7 @@ export type ClubApiContextType = {
     updateClub: (
         id: string,
         update: Partial<Club>,
-    ) => Promise<AxiosResponse<ClubDetails, any>>;
+    ) => Promise<AxiosResponse<ClubDetails>>;
 
     /**
      * Fetches the full list of clubs in the database.
@@ -43,7 +43,7 @@ export type ClubApiContextType = {
     getClub: (
         id: string,
         scoreboard?: boolean,
-    ) => Promise<AxiosResponse<GetClubResponse, any>>;
+    ) => Promise<AxiosResponse<GetClubResponse>>;
 
     /**
      * Fetches the clubs with the given ids.
@@ -59,7 +59,7 @@ export type ClubApiContextType = {
      * @returns An AxiosResponse containing the club's updated details and
      * additional scoreboard entries.
      */
-    joinClub: (id: string) => Promise<AxiosResponse<GetClubResponse, any>>;
+    joinClub: (id: string) => Promise<AxiosResponse<GetClubResponse>>;
 
     /**
      * Sends a request to join the given club.
@@ -70,7 +70,7 @@ export type ClubApiContextType = {
     requestToJoinClub: (
         id: string,
         notes: string,
-    ) => Promise<AxiosResponse<ClubDetails, any>>;
+    ) => Promise<AxiosResponse<ClubDetails>>;
 
     /**
      * Applies the given status to the given club join request.
@@ -83,15 +83,15 @@ export type ClubApiContextType = {
         clubId: string,
         username: string,
         status: ClubJoinRequestStatus,
-    ) => Promise<AxiosResponse<GetClubResponse, any>>;
+    ) => Promise<AxiosResponse<GetClubResponse>>;
 
     /**
      * Leaves the club with the given id.
      * @param clubId The id of the club to leave.
      * @returns An AxiosResponse containing the club's updated details.
      */
-    leaveClub: (clubId: string) => Promise<AxiosResponse<ClubDetails, any>>;
-};
+    leaveClub: (clubId: string) => Promise<AxiosResponse<ClubDetails>>;
+}
 
 /**
  * Creates the given club.
@@ -129,7 +129,7 @@ interface ListClubsResponse {
  * @returns A list of all clubs in the database.
  */
 export async function listClubs(startKey?: string) {
-    let params = { startKey };
+    const params = { startKey };
     const result: Club[] = [];
 
     do {

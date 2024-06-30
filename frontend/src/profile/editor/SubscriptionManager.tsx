@@ -62,7 +62,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
                 <>
                     <Typography>Subscription Status: Subscribed</Typography>
 
-                    {paymentInfo && paymentInfo.customerId ? (
+                    {paymentInfo?.customerId ? (
                         <LoadingButton
                             loading={request.isLoading()}
                             onClick={onManageSubscription}

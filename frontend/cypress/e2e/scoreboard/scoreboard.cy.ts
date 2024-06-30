@@ -2,8 +2,8 @@ describe('Scoreboard Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'scoreboard',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/scoreboard');
     });
@@ -35,7 +35,7 @@ describe('Scoreboard Page', () => {
     it('hides free-tier users', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
-        cy.interceptApi('GET', '/scoreboard/1500-1600', {
+        cy.interceptApi('GET', '/scoreboard/1500-1600?startKey=', {
             fixture: 'scoreboard/empty.json',
         });
         cy.visit('/scoreboard');
@@ -65,9 +65,7 @@ describe('Scoreboard Page', () => {
             .find('.MuiDataGrid-columnHeader--filledGroup')
             .should('have.length', columnGroups.length);
 
-        columnGroups.forEach((group) =>
-            cy.getBySel('current-members-scoreboard').contains(group),
-        );
+        cy.getBySel('current-members-scoreboard').containsAll(columnGroups);
     });
 
     it('contains default columns', () => {
@@ -90,8 +88,6 @@ describe('Scoreboard Page', () => {
             'Non-Dojo',
         ];
 
-        defaultColumns.forEach((col) =>
-            cy.getBySel('current-members-scoreboard').contains(col),
-        );
+        cy.getBySel('current-members-scoreboard').containsAll(defaultColumns);
     });
 });

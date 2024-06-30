@@ -13,7 +13,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth, useFreeTier } from '../auth/Auth';
+import { useFreeTier, useRequiredAuth } from '../auth/Auth';
 import PgnBoard from '../board/pgn/PgnBoard';
 import PuzzleBoard from '../board/puzzle/PuzzleBoard';
 import PgnSelector from '../courses/view/PgnSelector';
@@ -24,7 +24,7 @@ import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
 import LoadingPage from '../loading/LoadingPage';
 
 const MemorizeGamesPage = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
     const listRequest = useRequest<GameInfo[]>();
     const getRequest = useRequest<Game>();
@@ -56,9 +56,8 @@ const MemorizeGamesPage = () => {
     }, [listRequest, api, user.dojoCohort]);
 
     useEffect(() => {
-        if (!getRequest.isSent() && (listRequest.data?.length || 0) > 0) {
-            const gameInfo = listRequest.data![selectedIndex];
-
+        const gameInfo = listRequest.data?.[selectedIndex];
+        if (!getRequest.isSent() && gameInfo) {
             getRequest.onStart();
             api.getGame(gameInfo.cohort, gameInfo.id)
                 .then((res) => {

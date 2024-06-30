@@ -233,16 +233,15 @@ export function getGame(
             chess.setHeader('Result', headers.result);
         }
 
-        chess.setHeader('White', chess.header().White?.trim() || '?');
-        chess.setHeader('Black', chess.header().Black?.trim() || '??');
-        chess.setHeader('Date', chess.header().Date?.trim().replaceAll('-', '.') || '');
-        chess.setHeader('Result', chess.header().Result?.trim() || '*');
+        chess.setHeader('White', chess.header().tags.White?.trim() || '?');
+        chess.setHeader('Black', chess.header().tags.Black?.trim() || '??');
+        chess.setHeader('Result', chess.header().tags.Result?.trim() || '*');
         chess.setHeader('PlyCount', `${chess.plyCount()}`);
 
-        if (!isValidDate(chess.header().Date)) {
+        if (!isValidDate(chess.header().tags.Date?.value)) {
             chess.setHeader('Date', '');
         }
-        if (!isValidResult(chess.header().Result)) {
+        if (!isValidResult(chess.header().tags.Result)) {
             chess.setHeader('Result', '*');
         }
 
@@ -252,15 +251,15 @@ export function getGame(
         return {
             cohort: user?.dojoCohort || '',
             id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
-            white: chess.header().White.toLowerCase(),
-            black: chess.header().Black.toLowerCase(),
-            date: chess.header().Date,
+            white: chess.header().tags.White?.toLowerCase() || '?',
+            black: chess.header().tags.Black?.toLowerCase() || '?',
+            date: chess.header().tags.Date?.value || '',
             createdAt: now.toISOString(),
             updatedAt: now.toISOString(),
             owner: user?.username || '',
             ownerDisplayName: user?.displayName || '',
             ownerPreviousCohort: user?.previousCohort || '',
-            headers: chess.header(),
+            headers: chess.header().valueMap(),
             pgn: chess.renderPgn(),
             orientation: GameOrientation.White,
             comments: [],

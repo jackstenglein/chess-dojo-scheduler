@@ -129,7 +129,7 @@ interface ImportSourceCardProps {
     description: string;
     icon:
         | ((props: SvgIconProps) => JSX.Element)
-        | (OverridableComponent<SvgIconTypeMap<{}, 'svg'>> & { muiName: string });
+        | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
     onClick?: () => void;
     loading?: boolean;
     disabled?: boolean;

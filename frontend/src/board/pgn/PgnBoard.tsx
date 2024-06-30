@@ -1,4 +1,4 @@
-import { Chess, Move, Observer } from '@jackstenglein/chess';
+import { Chess, Observer } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { Color } from 'chessground/types';
 import React, {
@@ -14,7 +14,7 @@ import React, {
 } from 'react';
 import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
-import { BoardApi, PrimitiveMove, reconcile } from '../Board';
+import { BoardApi } from '../Board';
 import ResizableContainer from './ResizableContainer';
 import { UnderboardTab } from './boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
@@ -26,16 +26,17 @@ interface ChessConfig {
     initKey?: string;
     allowMoveDeletion?: boolean;
     disableTakebacks?: Color | 'both';
+    disableNullMoves?: boolean;
 }
 
-type ChessContextType = {
+interface ChessContextType {
     chess?: Chess;
     board?: BoardApi;
     config?: ChessConfig;
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
-};
+}
 
 export const ChessContext = createContext<ChessContextType>({});
 
@@ -77,15 +78,18 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             initKey,
             allowMoveDeletion,
             disableTakebacks,
+            disableNullMoves: disableNullMovesProp,
             slots,
         },
         ref,
     ) => {
+        const { game } = useGame();
         const [board, setBoard] = useState<BoardApi>();
-        const [chess] = useState<Chess>(new Chess());
+
+        const disableNullMoves = disableNullMovesProp ?? !game;
+        const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
         const [, setOrientation] = useState(startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
-        const { game } = useGame();
 
         const toggleOrientation = useCallback(() => {
             if (board) {
@@ -107,19 +111,16 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 keydownMap,
                 slots,
             }),
-            [chess, board, allowMoveDeletion, toggleOrientation, keydownMap, slots],
-        );
-
-        const onMove = useCallback(
-            (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
-                chess.move({
-                    from: primMove.orig,
-                    to: primMove.dest,
-                    promotion: primMove.promotion,
-                });
-                reconcile(chess, board);
-            },
-            [],
+            [
+                chess,
+                board,
+                allowMoveDeletion,
+                toggleOrientation,
+                keydownMap,
+                slots,
+                disableTakebacks,
+                initKey,
+            ],
         );
 
         const onInitialize = useCallback(
@@ -130,14 +131,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             [parentOnInitialize, setBoard],
         );
 
-        const onClickMove = useCallback(
-            (move: Move | null) => {
-                chess?.seek(move);
-                reconcile(chess, board);
-            },
-            [chess, board],
-        );
-
         const gameOrientation = game?.orientation || startOrientation || 'white';
         useEffect(() => {
             if (gameOrientation !== board?.state.orientation) {
@@ -145,23 +138,23 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             }
         }, [gameOrientation, board, toggleOrientation]);
 
-        useImperativeHandle(
-            ref,
-            () => {
-                return {
-                    getPgn() {
-                        return chess.renderPgn() || '';
-                    },
-                    addObserver(observer: Observer) {
-                        chess.addObserver(observer);
-                    },
-                    removeObserver(observer: Observer) {
-                        chess.removeObserver(observer);
-                    },
-                };
-            },
-            [chess],
-        );
+        useEffect(() => {
+            chess.disableNullMoves = disableNullMoves;
+        }, [chess, disableNullMoves]);
+
+        useImperativeHandle(ref, () => {
+            return {
+                getPgn() {
+                    return chess.renderPgn() || '';
+                },
+                addObserver(observer: Observer) {
+                    chess.addObserver(observer);
+                },
+                removeObserver(observer: Observer) {
+                    chess.removeObserver(observer);
+                },
+            };
+        }, [chess]);
 
         return (
             <Box
@@ -189,8 +182,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                                 fen,
                                 startOrientation,
                                 onInitialize,
-                                onMove,
-                                onClickMove,
                             }}
                         />
                     </ChessContext.Provider>
@@ -199,5 +190,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         );
     },
 );
+PgnBoard.displayName = 'PgnBoard';
 
 export default PgnBoard;

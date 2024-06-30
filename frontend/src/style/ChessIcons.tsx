@@ -1,5 +1,6 @@
 import {
     faChessKing,
+    faChessPawn,
     faChessQueen,
     faChessRook,
 } from '@fortawesome/free-solid-svg-icons';
@@ -16,4 +17,8 @@ export function QueenIcon(props: SvgIconProps) {
 
 export function KingIcon(props: SvgIconProps) {
     return <FontAwesomeSvgIcon icon={faChessKing} {...props} />;
+}
+
+export function PawnIcon(props: SvgIconProps) {
+    return <FontAwesomeSvgIcon icon={faChessPawn} {...props} />;
 }

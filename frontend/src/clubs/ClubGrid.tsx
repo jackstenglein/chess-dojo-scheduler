@@ -16,12 +16,12 @@ import { ClubAvatar } from '../profile/Avatar';
 import LocationChip from './LocationChip';
 import MemberCountChip from './MemberCountChip';
 
-interface ClubGridProps {
+interface ClubGridProps<T> {
     clubs?: Club[];
-    request: Request;
+    request: Request<T>;
 }
 
-const ClubGrid: React.FC<ClubGridProps> = ({ clubs, request }) => {
+function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
     if (!clubs || clubs.length === 0) {
         return (
             <>
@@ -41,7 +41,7 @@ const ClubGrid: React.FC<ClubGridProps> = ({ clubs, request }) => {
             ))}
         </Grid2>
     );
-};
+}
 
 export default ClubGrid;
 

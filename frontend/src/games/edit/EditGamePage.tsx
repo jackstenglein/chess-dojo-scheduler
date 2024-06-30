@@ -3,15 +3,9 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import {
-    CreateGameRequest,
-    GameHeader,
-    UpdateGameRequest,
-    isGame,
-} from '../../api/gameApi';
+import { CreateGameRequest, GameHeader, UpdateGameRequest } from '../../api/gameApi';
 import { Game } from '../../database/game';
 import ImportWizard from '../import/ImportWizard';
-import PublishGamePreflight from './PublishGamePreflight';
 
 interface PreflightData {
     req: CreateGameRequest;
@@ -23,7 +17,7 @@ const EditGamePage = () => {
     const request = useRequest<PreflightData>();
     const { cohort, id } = useParams();
     const navigate = useNavigate();
-    const game: Game | undefined = useLocation().state?.game;
+    const game: Game | undefined = (useLocation().state as { game?: Game })?.game;
 
     const onEdit = (remoteGame?: CreateGameRequest, headers?: GameHeader) => {
         if (!cohort || !id || !remoteGame) {
@@ -38,19 +32,12 @@ const EditGamePage = () => {
 
         request.onStart();
         api.updateGame(cohort, id, req)
-            .then((response) => {
-                if (isGame(response.data)) {
-                    trackEvent(EventType.UpdateGame, {
-                        method: req.type,
-                        dojo_cohort: cohort,
-                    });
-                    navigate(`/games/${cohort}/${id}`);
-                } else if (response.data.headers) {
-                    request.onSuccess({
-                        req: remoteGame,
-                        headers: response.data.headers[0],
-                    });
-                }
+            .then(() => {
+                trackEvent(EventType.UpdateGame, {
+                    method: req.type,
+                    dojo_cohort: cohort,
+                });
+                navigate(`/games/${cohort}/${id}?firstLoad=true`);
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
@@ -75,14 +62,6 @@ const EditGamePage = () => {
                     <ImportWizard onSubmit={onEdit} loading={request.isLoading()} />
                 </Box>
             </Stack>
-
-            <PublishGamePreflight
-                open={Boolean(request.data)}
-                onClose={request.reset}
-                initHeaders={request.data?.headers}
-                onSubmit={(headers) => onEdit(request.data?.req, headers)}
-                loading={request.isLoading()}
-            />
         </Container>
     );
 };

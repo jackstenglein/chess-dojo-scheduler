@@ -1,8 +1,4 @@
-import Grid2 from '@mui/material/Unstable_Grid2';
-
-import { Course } from '../../../database/course';
-import CourseListItem from '../../../courses/list/CourseListItem';
-import { useState } from 'react';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
 import {
     Box,
     Button,
@@ -14,8 +10,11 @@ import {
     Tab,
     Typography,
 } from '@mui/material';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
+import Grid2 from '@mui/material/Unstable_Grid2';
+import { useState } from 'react';
+import CourseListItem from '../../../courses/list/CourseListItem';
 import PurchaseCoursePage from '../../../courses/view/PurchaseCoursePage';
+import { Course } from '../../../database/course';
 
 interface PurchaseCoursePreviewProps {
     course: Course;
@@ -55,7 +54,7 @@ const PurchaseCoursePreview: React.FC<PurchaseCoursePreviewProps> = ({
                     <TabContext value={previewTab}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList
-                                onChange={(_, value) => setPreviewTab(value)}
+                                onChange={(_, value: string) => setPreviewTab(value)}
                                 aria-label='lab API tabs example'
                             >
                                 <Tab label='Course List Page' value='listCourses' />

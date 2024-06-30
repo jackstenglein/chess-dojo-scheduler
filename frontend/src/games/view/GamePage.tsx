@@ -1,19 +1,29 @@
+import { Chess } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { createContext, useContext, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
+import {
+    BoardOrientation,
+    GameHeader,
+    GameSubmissionType,
+    UpdateGameRequest,
+    isMissingData,
+} from '../../api/gameApi';
 import { useAuth } from '../../auth/Auth';
 import PgnBoard from '../../board/pgn/PgnBoard';
 import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
 import { Game } from '../../database/game';
+import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
 import PgnErrorBoundary from './PgnErrorBoundary';
 
-type GameContextType = {
+interface GameContextType {
     game?: Game;
     onUpdateGame?: (g: Game) => void;
     isOwner?: boolean;
-};
+}
 
 const GameContext = createContext<GameContextType>({});
 
@@ -25,8 +35,11 @@ const GamePage = () => {
     const api = useApi();
     const request = useRequest<Game>();
     const featureRequest = useRequest();
+    const updateRequest = useRequest<Game>();
     const { cohort, id } = useParams();
     const user = useAuth().user;
+    const [searchParams, setSearchParams] = useSearchParams({ firstLoad: 'false' });
+    const firstLoad = searchParams.get('firstLoad') === 'true';
 
     const reset = request.reset;
     useEffect(() => {
@@ -40,7 +53,8 @@ const GamePage = () => {
             request.onStart();
             api.getGame(cohort, id)
                 .then((response) => {
-                    request.onSuccess(response.data);
+                    const game = response.data;
+                    request.onSuccess(game);
                 })
                 .catch((err) => {
                     console.error('Failed to get game: ', err);
@@ -49,7 +63,60 @@ const GamePage = () => {
         }
     }, [request, api, cohort, id]);
 
+    const onSave = (headers: GameHeader, orientation: BoardOrientation) => {
+        const game = request.data;
+
+        if (game === undefined) {
+            console.error('Game is unexpectedly undefined');
+            return;
+        }
+
+        updateRequest.onStart();
+
+        const chess = new Chess();
+        chess.loadPgn(game.pgn);
+        const headerMap = {
+            White: headers.white,
+            Black: headers.black,
+            Date: headers.date,
+            Result: headers.result,
+        };
+
+        for (const [name, value] of Object.entries(headerMap)) {
+            if (value) {
+                chess.setHeader(name, value);
+            }
+        }
+
+        const update: UpdateGameRequest = {
+            headers,
+            unlisted: true,
+            orientation,
+            type: GameSubmissionType.Manual,
+            pgnText: chess.renderPgn(),
+        };
+
+        api.updateGame(game.cohort, game.id, update)
+            .then((resp) => {
+                trackEvent(EventType.UpdateGame, {
+                    method: 'preflight',
+                    dojo_cohort: game.cohort,
+                });
+
+                const updatedGame = resp.data;
+                request.onSuccess(updatedGame);
+                updateRequest.onSuccess(updatedGame);
+                setSearchParams();
+            })
+            .catch((err) => {
+                console.error('updateGame: ', err);
+                updateRequest.onFailure(err);
+            });
+    };
+
     const isOwner = request.data?.owner === user?.username;
+    const showPreflight =
+        isOwner && firstLoad && request.data !== undefined && isMissingData(request.data);
 
     return (
         <Box
@@ -61,6 +128,7 @@ const GamePage = () => {
         >
             <RequestSnackbar request={request} />
             <RequestSnackbar request={featureRequest} showSuccess />
+            <RequestSnackbar request={updateRequest} />
 
             <PgnErrorBoundary pgn={request.data?.pgn} game={request.data}>
                 <GameContext.Provider
@@ -85,6 +153,19 @@ const GamePage = () => {
                     />
                 </GameContext.Provider>
             </PgnErrorBoundary>
+            {request.data && (
+                <MissingGameDataPreflight
+                    skippable
+                    open={showPreflight}
+                    initHeaders={request.data.headers}
+                    initOrientation={request.data.orientation}
+                    loading={updateRequest.isLoading()}
+                    onSubmit={onSave}
+                    onClose={() => setSearchParams()}
+                >
+                    You can fill this data out now or later in settings.
+                </MissingGameDataPreflight>
+            )}
         </Box>
     );
 };

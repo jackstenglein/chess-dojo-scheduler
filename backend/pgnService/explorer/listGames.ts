@@ -1,10 +1,10 @@
 'use strict';
 
 import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { ExplorerGame, normalizeFen } from './types';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { ExplorerGame } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
@@ -23,29 +23,31 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         return handleError(400, { publicMessage: 'Invalid request: FEN is required' });
     }
     const startKey = event.queryStringParameters?.startKey;
+    const masters = event.queryStringParameters?.masters === 'true';
 
     try {
         const chess = new Chess({ fen });
-        const normalizedFen = normalizeFen(chess.fen());
+        const normalizedFen = chess.normalizedFen();
 
         const queryOutput = await dynamo.send(
             new QueryCommand({
-                KeyConditionExpression: `#fen = :fen AND begins_with ( #id, :id )`,
+                KeyConditionExpression: `#fen = :fen AND #id BETWEEN :minId AND :maxId`,
                 ExpressionAttributeNames: {
                     '#fen': 'normalizedFen',
                     '#id': 'id',
                 },
                 ExpressionAttributeValues: {
                     ':fen': { S: normalizedFen },
-                    ':id': { S: 'GAME#' },
+                    ':minId': { S: masters ? 'GAME#masters' : 'GAME#' },
+                    ':maxId': { S: masters ? 'GAME#z' : 'GAME#masters' },
                 },
                 ExclusiveStartKey: startKey ? JSON.parse(startKey) : undefined,
                 TableName: explorerTable,
-            })
+            }),
         );
 
         const games = queryOutput.Items?.map(
-            (item) => (unmarshall(item) as ExplorerGame).game
+            (item) => (unmarshall(item) as ExplorerGame).game,
         );
         const lastEvaluatedKey = JSON.stringify(queryOutput.LastEvaluatedKey);
 

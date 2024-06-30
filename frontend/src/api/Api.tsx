@@ -1,18 +1,21 @@
+import {
+    ExamAttempt,
+    ExamType,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { DateTime } from 'luxon';
-import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Club, ClubJoinRequestStatus } from '../database/club';
 import { Course } from '../database/course';
 import { Event } from '../database/event';
-import { ExamAttempt, ExamType } from '../database/exam';
 import { GameReviewType, PositionComment } from '../database/game';
 import { Requirement } from '../database/requirement';
 import { TimelineEntry } from '../database/timeline';
 import { LeaderboardSite, TournamentType } from '../database/tournament';
 import { User } from '../database/user';
 import {
-    batchGetClubs,
     ClubApiContextType,
+    batchGetClubs,
     createClub,
     getClub,
     joinClub,
@@ -31,16 +34,16 @@ import {
     setCourse,
 } from './courseApi';
 import {
-    createSupportTicket,
     EmailApiContextType,
     SupportTicketRequest,
+    createSupportTicket,
 } from './emailApi';
 import {
+    EventApiContextType,
     bookEvent,
     cancelEvent,
     createMessage,
     deleteEvent,
-    EventApiContextType,
     getEvent,
     getEventCheckout,
     listEvents,
@@ -55,19 +58,21 @@ import {
 } from './examApi';
 import {
     ExplorerApiContextType,
-    followPosition,
     FollowPositionRequest,
+    followPosition,
     getPosition,
 } from './explorerApi';
 import {
+    CreateGameRequest,
+    DeleteCommentRequest,
+    GameApiContextType,
+    UpdateCommentRequest,
+    UpdateGameRequest,
     createComment,
     createGame,
-    CreateGameRequest,
     deleteComment,
-    DeleteCommentRequest,
     deleteGame,
     featureGame,
-    GameApiContextType,
     getGame,
     listFeaturedGames,
     listGamesByCohort,
@@ -78,7 +83,6 @@ import {
     markReviewed,
     requestReview,
     updateComment,
-    UpdateCommentRequest,
     updateGame,
 } from './gameApi';
 import {
@@ -88,34 +92,41 @@ import {
     listGraduationsByOwner,
 } from './graduationApi';
 import {
+    NewsfeedApiContextType,
     createNewsfeedComment,
     getNewsfeedItem,
     listNewsfeed,
-    NewsfeedApiContextType,
     setNewsfeedReaction,
 } from './newsfeedApi';
 import {
+    NotificationApiContextType,
     deleteNotification,
     listNotifications,
-    NotificationApiContextType,
 } from './notificationApi';
 import {
+    PaymentApiContextType,
+    SubscriptionCheckoutRequest,
     createPaymentAccount,
     getPaymentAccount,
     paymentAccountLogin,
-    PaymentApiContextType,
     subscriptionCheckout,
-    SubscriptionCheckoutRequest,
     subscriptionManage,
 } from './paymentApi';
 import {
+    RequirementApiContextType,
     getRequirement,
     listRequirements,
-    RequirementApiContextType,
     setRequirement,
 } from './requirementApi';
-import { getScoreboard, ScoreboardApiContextType } from './scoreboardApi';
+import { ScoreboardApiContextType, getScoreboard } from './scoreboardApi';
 import {
+    OpenClassicalPutPairingsRequest,
+    OpenClassicalRegistrationRequest,
+    OpenClassicalSubmitResultsRequest,
+    OpenClassicalVerifyResultRequest,
+    TimeControl,
+    TimePeriod,
+    TournamentApiContextType,
     adminBanPlayer,
     adminCompleteTournament,
     adminEmailPairings,
@@ -126,18 +137,12 @@ import {
     getLeaderboard,
     getOpenClassical,
     listPreviousOpenClassicals,
-    OpenClassicalPutPairingsRequest,
-    OpenClassicalRegistrationRequest,
-    OpenClassicalSubmitResultsRequest,
-    OpenClassicalVerifyResultRequest,
     putOpenClassicalPairings,
     registerForOpenClassical,
     submitResultsForOpenClassical,
-    TimeControl,
-    TimePeriod,
-    TournamentApiContextType,
 } from './tournamentApi';
 import {
+    UserApiContextType,
     checkUserAccess,
     editFollower,
     getFollower,
@@ -147,13 +152,12 @@ import {
     graduate,
     listFollowers,
     listFollowing,
-    listUsersByCohort,
     listUserTimeline,
+    listUsersByCohort,
     searchUsers,
     updateUser,
     updateUserProgress,
     updateUserTimeline,
-    UserApiContextType,
 } from './userApi';
 
 /**
@@ -175,6 +179,7 @@ type ApiContextType = UserApiContextType &
     ExamApiContextType &
     EmailApiContextType;
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const ApiContext = createContext<ApiContextType>(null!);
 
 /**
@@ -192,7 +197,7 @@ export function useApi() {
  */
 export function ApiProvider({ children }: { children: ReactNode }) {
     const auth = useAuth();
-    const idToken = auth.user?.cognitoUser?.session?.idToken.jwtToken ?? '';
+    const idToken = auth.user?.cognitoUser?.session.idToken.jwtToken ?? '';
 
     const value = useMemo(() => {
         return {
@@ -259,15 +264,15 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             deleteEvent: (id: string) => deleteEvent(idToken, id),
             getEvent: (id: string) => getEvent(idToken, id),
             listEvents: (startKey?: string) => listEvents(idToken, startKey),
-            setEvent: (event: Event) => setEvent(idToken, event),
+            setEvent: (event: Partial<Event>) => setEvent(idToken, event),
             createMessage: (id: string, content: string) =>
-                createMessage(idToken, auth.user!, id, content),
+                createMessage(idToken, auth.user, id, content),
 
             createGame: (req: CreateGameRequest) => createGame(idToken, req),
             getGame: (cohort: string, id: string) => getGame(cohort, id),
             featureGame: (cohort: string, id: string, featured: string) =>
                 featureGame(idToken, cohort, id, featured),
-            updateGame: (cohort: string, id: string, req: CreateGameRequest) =>
+            updateGame: (cohort: string, id: string, req: UpdateGameRequest) =>
                 updateGame(idToken, cohort, id, req),
             deleteGame: (cohort: string, id: string) => deleteGame(idToken, cohort, id),
             listGamesByCohort: (
@@ -299,8 +304,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 startDate?: string,
                 endDate?: string,
             ) => listGamesByOpening(idToken, eco, startKey, startDate, endDate),
-            listGamesByPosition: (fen: string, startKey?: string) =>
-                listGamesByPosition(idToken, fen, startKey),
+            listGamesByPosition: (fen: string, mastersOnly: boolean, startKey?: string) =>
+                listGamesByPosition(idToken, fen, mastersOnly, startKey),
             listFeaturedGames: (startKey?: string) =>
                 listFeaturedGames(idToken, startKey),
             listGamesForReview: (startKey?: string) =>

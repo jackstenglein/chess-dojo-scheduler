@@ -2,8 +2,8 @@ describe('Memorize Games Tab', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'material',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/material/memorizegames');
     });
@@ -17,7 +17,7 @@ describe('Memorize Games Tab', () => {
     });
 
     it('should have a game per cohort', () => {
-        cy.getBySel('pgn-selector-item').should('have.length', Cypress.env('numCohorts'));
+        cy.getBySel('pgn-selector-item').should('have.length', cy.dojo.env('numCohorts'));
     });
 
     it('should switch between study/test mode', () => {

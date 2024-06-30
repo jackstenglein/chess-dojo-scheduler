@@ -7,17 +7,16 @@ import Lines from './Lines';
 export function hasInterrupt(move: Move): boolean {
     return (
         (move.commentAfter?.trim().length || 0) > 0 ||
-        move.variations?.some((v) => v.length > 0)
+        move.variations.some((v) => v.length > 0)
     );
 }
 
 interface InterruptProps {
     move: Move;
-    onClickMove: (m: Move) => void;
     handleScroll: (child: HTMLElement | null) => void;
 }
 
-const Interrupt: React.FC<InterruptProps> = ({ move, onClickMove, handleScroll }) => {
+const Interrupt: React.FC<InterruptProps> = ({ move, handleScroll }) => {
     if (!hasInterrupt(move)) {
         return null;
     }
@@ -62,11 +61,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, onClickMove, handleScroll }
 
                     <Comment move={move} />
 
-                    <Lines
-                        lines={move.variations}
-                        onClickMove={onClickMove}
-                        handleScroll={handleScroll}
-                    />
+                    <Lines lines={move.variations} handleScroll={handleScroll} />
 
                     <Divider />
                 </Paper>

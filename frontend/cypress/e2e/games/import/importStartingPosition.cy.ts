@@ -1,11 +1,11 @@
-import { deleteCurrentGame, gameUrlRegex } from './helpers';
+import { cancelPreflight, deleteCurrentGame, gameUrlRegex } from './helpers';
 
 describe('Import Games Page - Position', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'games',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/games/import');
     });
@@ -14,6 +14,7 @@ describe('Import Games Page - Position', () => {
         cy.getBySel('import-starting-position').click();
 
         cy.location('pathname').should('match', gameUrlRegex);
+        cancelPreflight();
 
         deleteCurrentGame();
     });

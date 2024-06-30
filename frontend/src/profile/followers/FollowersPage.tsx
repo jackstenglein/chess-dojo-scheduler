@@ -1,25 +1,23 @@
+import { Container, Divider, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { Container, Divider, Stack, Typography } from '@mui/material';
-
+import NotFoundPage from '../../NotFoundPage';
 import { useApi } from '../../api/Api';
-import { useAuth } from '../../auth/Auth';
 import { useRequest } from '../../api/Request';
+import { useAuth } from '../../auth/Auth';
 import { User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import NotFoundPage from '../../NotFoundPage';
 import UserInfo from '../info/UserInfo';
 import FollowersList from './FollowersList';
-import { ProfilePageProps } from '../ProfilePage';
 
 const FollowersPage = () => {
-    const { username } = useParams<ProfilePageProps>();
+    const { username } = useParams();
     const api = useApi();
-    const currentUser = useAuth().user!;
+    const { user: currentUser } = useAuth();
     const request = useRequest<User>();
     const pathname = useLocation().pathname;
 
-    const currentUserProfile = !username || username === currentUser.username;
+    const currentUserProfile = !username || username === currentUser?.username;
 
     useEffect(() => {
         if (!currentUserProfile && !request.isSent()) {

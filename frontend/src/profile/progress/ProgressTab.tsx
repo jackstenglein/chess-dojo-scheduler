@@ -12,13 +12,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { RequestSnackbar } from '../../api/Request';
 import { useRequirements } from '../../api/cache/requirements';
-import { CustomTask, Requirement, isComplete } from '../../database/requirement';
+import { RequirementCategory, isComplete } from '../../database/requirement';
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import DojoScoreCard from '../stats/DojoScoreCard';
 import CustomTaskEditor from './CustomTaskEditor';
-import ProgressCategory from './ProgressCategory';
+import ProgressCategory, { Category } from './ProgressCategory';
 
 function useHideCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('hideCompletedTasks', 'false');
@@ -28,12 +28,6 @@ function useHideCompleted(isCurrentUser: boolean) {
         return myProfile;
     }
     return otherProfile;
-}
-
-interface Category {
-    name: string;
-    requirements: Array<Requirement | CustomTask>;
-    totalComplete: number;
 }
 
 interface ProgressTabProps {
@@ -63,7 +57,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
     const categories = useMemo(() => {
         const categories: Category[] = [];
-        requirements?.forEach((r) => {
+        requirements.forEach((r) => {
             const c = categories.find((c) => c.name === r.category);
             const complete = isComplete(cohort, r, user.progress[r.id]);
             if (complete && hideCompleted === 'true') {
@@ -88,7 +82,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                 const c = categories.find((c) => c.name === 'Non-Dojo');
                 if (c === undefined) {
                     categories.push({
-                        name: 'Non-Dojo',
+                        name: RequirementCategory.NonDojo,
                         requirements: [task],
                         totalComplete: 0,
                     });

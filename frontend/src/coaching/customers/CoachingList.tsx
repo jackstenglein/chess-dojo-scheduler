@@ -1,18 +1,18 @@
+import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { LoadingButton } from '@mui/lab';
 
-import { Event, EventStatus, EventType } from '../../database/event';
-import LoadingPage from '../../loading/LoadingPage';
+import { EventType as AnalyticsEventType, trackEvent } from '../../analytics/events';
+import { useApi } from '../../api/Api';
+import { Request, RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
-import { SubscriptionStatus, User, dojoCohorts } from '../../database/user';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
 import Field from '../../calendar/eventViewer/Field';
 import OwnerField from '../../calendar/eventViewer/OwnerField';
 import PriceField from '../../calendar/eventViewer/PriceField';
-import { Request, RequestSnackbar, useRequest } from '../../api/Request';
-import { useApi } from '../../api/Api';
-import { trackEvent, EventType as AnalyticsEventType } from '../../analytics/events';
+import { Event, EventStatus, EventType } from '../../database/event';
+import { SubscriptionStatus, User, dojoCohorts } from '../../database/user';
+import LoadingPage from '../../loading/LoadingPage';
 
 export function displayEvent(event: Event, viewer?: User): boolean {
     if (event.type !== EventType.Coaching) {
@@ -125,11 +125,11 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
                 title={event.title}
                 subheader={`${toDojoDateString(
                     start,
-                    viewer?.timezoneOverride
+                    viewer?.timezoneOverride,
                 )} • ${toDojoTimeString(
                     start,
                     viewer?.timezoneOverride,
-                    viewer?.timeFormat
+                    viewer?.timeFormat,
                 )}`}
                 sx={{ pb: 0 }}
                 action={

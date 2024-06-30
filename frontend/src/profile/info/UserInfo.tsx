@@ -44,7 +44,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, linkUsername }) => {
                         <Stack direction='row' spacing={0.5} flexWrap='wrap' rowGap={1}>
                             {user.graduationCohorts
                                 .sort(compareCohorts)
-                                .filter((c, i) => user.graduationCohorts.indexOf(c) === i)
+                                .filter(
+                                    (c, i) => user.graduationCohorts?.indexOf(c) === i,
+                                )
                                 .map((c) => (
                                     <CohortIcon key={c} cohort={c} />
                                 ))}

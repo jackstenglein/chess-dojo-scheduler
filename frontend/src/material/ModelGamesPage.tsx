@@ -3,7 +3,7 @@ import { Box, CardContent, MenuItem, TextField, Typography } from '@mui/material
 import { useEffect, useMemo, useState } from 'react';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
+import { useRequiredAuth } from '../auth/Auth';
 import PgnBoard from '../board/pgn/PgnBoard';
 import PgnSelector from '../courses/view/PgnSelector';
 import { Game, GameInfo } from '../database/game';
@@ -13,7 +13,7 @@ import LoadingPage from '../loading/LoadingPage';
 import CohortIcon from '../scoreboard/CohortIcon';
 
 const ModelGamesPage = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
     const listRequest = useRequest<GameInfo[]>();
     const getRequest = useRequest<Game>();
@@ -92,6 +92,7 @@ const ModelGamesPage = () => {
                         key={getRequest.data.pgn}
                         pgn={getRequest.data.pgn}
                         startOrientation={getRequest.data.orientation}
+                        disableNullMoves={false}
                         underboardTabs={[
                             {
                                 name: 'selector',

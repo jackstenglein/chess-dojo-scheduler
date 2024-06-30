@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { Button, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
 
-import { CustomTask } from '../database/requirement';
 import { useAuth } from '../auth/Auth';
+import { CustomTask } from '../database/requirement';
 import CustomTaskEditor from '../profile/progress/CustomTaskEditor';
 import DeleteCustomTaskModal from './DeleteCustomTaskModal';
 
@@ -12,7 +12,7 @@ interface CustomTaskDisplayProps {
 }
 
 const CustomTaskDisplay: React.FC<CustomTaskDisplayProps> = ({ task, onClose }) => {
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const [showEditor, setShowEditor] = useState(false);
     const [showDeleter, setShowDeleter] = useState(false);
 
@@ -33,7 +33,7 @@ const CustomTaskDisplay: React.FC<CustomTaskDisplayProps> = ({ task, onClose }) 
                         </Typography>
                     </Stack>
 
-                    {task.owner === user.username && (
+                    {task.owner === user?.username && (
                         <Stack direction='row' spacing={2}>
                             <Button
                                 variant='contained'

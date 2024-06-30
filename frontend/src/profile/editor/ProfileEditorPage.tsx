@@ -32,7 +32,7 @@ import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
 import { useCache } from '../../api/cache/Cache';
-import { useAuth } from '../../auth/Auth';
+import { useRequiredAuth } from '../../auth/Auth';
 import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 import {
     Rating,
@@ -103,36 +103,32 @@ interface RatingEditor {
 function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
     const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(
         RatingSystem,
-    ).reduce(
-        (m, rs) => {
-            m[rs] = {
-                username: ratings[rs]?.username || '',
-                hideUsername: ratings[rs]?.hideUsername || false,
-                startRating: `${ratings[rs]?.startRating || 0}`,
-                currentRating: `${ratings[rs]?.currentRating || 0}`,
-                name: ratings[rs]?.name || '',
-            };
-            return m;
-        },
-        {} as Record<RatingSystem, RatingEditor>,
-    );
+    ).reduce<Record<string, RatingEditor>>((m, rs) => {
+        m[rs] = {
+            username: ratings[rs]?.username || '',
+            hideUsername: ratings[rs]?.hideUsername || false,
+            startRating: `${ratings[rs]?.startRating || 0}`,
+            currentRating: `${ratings[rs]?.currentRating || 0}`,
+            name: ratings[rs]?.name || '',
+        };
+        return m;
+    }, {});
     return ratingEditors;
 }
 
 function getRatingsFromEditors(ratingEditors: Record<RatingSystem, RatingEditor>) {
-    const ratings: Record<RatingSystem, Rating> = Object.values(RatingSystem).reduce(
-        (m, rs) => {
-            m[rs] = {
-                username: ratingEditors[rs].username || '',
-                hideUsername: ratingEditors[rs].hideUsername || false,
-                startRating: parseRating(ratingEditors[rs].startRating),
-                currentRating: parseRating(ratingEditors[rs].currentRating),
-                name: ratingEditors[rs].name || undefined,
-            };
-            return m;
-        },
-        {} as Record<RatingSystem, Rating>,
-    );
+    const ratings: Record<RatingSystem, Rating> = Object.values(RatingSystem).reduce<
+        Record<string, Rating>
+    >((m, rs) => {
+        m[rs] = {
+            username: ratingEditors[rs].username || '',
+            hideUsername: ratingEditors[rs].hideUsername || false,
+            startRating: parseRating(ratingEditors[rs].startRating),
+            currentRating: parseRating(ratingEditors[rs].currentRating),
+            name: ratingEditors[rs].name || undefined,
+        };
+        return m;
+    }, {});
     return ratings;
 }
 
@@ -146,7 +142,7 @@ function parseRating(rating: string | undefined): number {
         return 0;
     }
     rating = rating.replace(/^0+/, '') || '0';
-    let n = Math.floor(Number(rating));
+    const n = Math.floor(Number(rating));
     if (n === Infinity) {
         return -1;
     }
@@ -161,11 +157,11 @@ function getUpdate(
     formFields: Partial<User>,
     profilePictureData?: string,
 ): Partial<UserUpdate> | undefined {
-    const update: Partial<UserUpdate> = {};
+    const update: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(formFields)) {
-        if ((user as any)[key] !== value) {
-            (update as any)[key] = value;
+        if (user[key as keyof User] !== value) {
+            update[key as keyof User] = value;
         }
     }
 
@@ -196,7 +192,7 @@ function getTimezoneOptions() {
 
 export function encodeFileToBase64(file: File): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.onloadend = function () {
             const base64string = reader.result as string;
             console.log('Base 64 string: ', base64string);
@@ -211,7 +207,7 @@ export function encodeFileToBase64(file: File): Promise<string> {
 }
 
 const ProfileEditorPage = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
     const navigate = useNavigate();
     const { setImageBypass } = useCache();
@@ -290,11 +286,11 @@ const ProfileEditorPage = () => {
     const [profilePictureData, setProfilePictureData] = useState<string>();
 
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const request = useRequest();
+    const request = useRequest<string>();
 
     const onChangeProfilePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (files && files.length) {
+        if (files?.length) {
             if (files[0].size / 1024 / 1024 > MAX_PROFILE_PICTURE_SIZE_MB) {
                 request.onFailure({ message: 'Profile picture must be 9MB or smaller' });
                 return;
@@ -354,7 +350,7 @@ const ProfileEditorPage = () => {
 
         if (
             ratingSystem !== RatingSystem.Custom &&
-            !ratingEditors[ratingSystem]?.username.trim()
+            !ratingEditors[ratingSystem].username.trim()
         ) {
             newErrors[`${ratingSystem}Username`] =
                 `This field is required when using ${formatRatingSystem(
@@ -363,17 +359,17 @@ const ProfileEditorPage = () => {
         }
 
         for (const rs of Object.keys(ratingEditors)) {
-            if (parseRating(ratingEditors[rs as RatingSystem]?.startRating) < 0) {
+            if (parseRating(ratingEditors[rs as RatingSystem].startRating) < 0) {
                 newErrors[`${rs}StartRating`] = 'Rating must be an integer >= 0';
             }
         }
 
         if (ratingSystem === RatingSystem.Custom) {
-            if (parseRating(ratingEditors[RatingSystem.Custom]?.currentRating) <= 0) {
+            if (parseRating(ratingEditors[RatingSystem.Custom].currentRating) <= 0) {
                 newErrors.currentCustomRating =
                     'This field is required when using Custom rating system.';
             }
-            if (parseRating(ratingEditors[RatingSystem.Custom]?.startRating) <= 0) {
+            if (parseRating(ratingEditors[RatingSystem.Custom].startRating) <= 0) {
                 newErrors.startCustomRating =
                     'This field is required when using Custom rating system.';
             }
@@ -410,11 +406,11 @@ const ProfileEditorPage = () => {
         required: ratingSystem === rsf.system,
         label: rsf.label,
         hideLabel: rsf.hideLabel,
-        username: ratingEditors[rsf.system]?.username,
+        username: ratingEditors[rsf.system].username,
         setUsername: (value: string) => setUsername(rsf.system, value),
-        startRating: ratingEditors[rsf.system]?.startRating,
+        startRating: ratingEditors[rsf.system].startRating,
         setStartRating: (value: string) => setStartRating(rsf.system, value),
-        hidden: ratingEditors[rsf.system]?.hideUsername,
+        hidden: ratingEditors[rsf.system].hideUsername,
         setHidden: (value: boolean) => setHidden(rsf.system, value),
         usernameError: errors[`${rsf.system}Username`],
         startRatingError: errors[`${rsf.system}StartRating`],
@@ -810,7 +806,7 @@ const ProfileEditorPage = () => {
                                         label='Current Rating (Custom)'
                                         value={
                                             ratingEditors[RatingSystem.Custom]
-                                                ?.currentRating
+                                                .currentRating
                                         }
                                         onChange={(event) =>
                                             setCurrentRating(
@@ -832,8 +828,7 @@ const ProfileEditorPage = () => {
                                         required={ratingSystem === RatingSystem.Custom}
                                         label='Start Rating (Custom)'
                                         value={
-                                            ratingEditors[RatingSystem.Custom]
-                                                ?.startRating
+                                            ratingEditors[RatingSystem.Custom].startRating
                                         }
                                         onChange={(event) =>
                                             setStartRating(
@@ -853,7 +848,7 @@ const ProfileEditorPage = () => {
                                 <Grid item xs>
                                     <TextField
                                         label='Custom Rating Name'
-                                        value={ratingEditors[RatingSystem.Custom]?.name}
+                                        value={ratingEditors[RatingSystem.Custom].name}
                                         onChange={(event) =>
                                             setRatingName(
                                                 RatingSystem.Custom,

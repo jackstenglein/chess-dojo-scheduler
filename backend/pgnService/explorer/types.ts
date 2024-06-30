@@ -86,19 +86,22 @@ export interface ExplorerGame {
 
     /**
      * The range key of the table, in the form GAME#cohort#date_uuid, where GAME is the
-     * literal value `GAME`, cohort is the value of the hash key in the games table and
+     * literal value `GAME`, cohort is the **explorer** cohort of the game and
      * date_uuid is the value of the range key in the games table.
      */
     id: string;
 
-    /** The cohort of the game. */
+    /**
+     * The **explorer** cohort of the game. The real cohort can be found in the
+     * embedded game field.
+     */
     cohort: string;
 
-    /** The username of the owner of the game. */
+    /**
+     * The username of the owner of the game. This is duplicated in the game field,
+     * but is necessary to eventually support exploring a single user's games.
+     */
     owner: string;
-
-    /** The display name of the owner of the game. */
-    ownerDisplayName?: string;
 
     /**
      * The result of the game, as related to the associated FEN. IE: if the FEN does not appear in
@@ -107,8 +110,8 @@ export interface ExplorerGame {
      */
     result: keyof ExplorerResult;
 
-    /** The game that generated this ExplorerGame. The PGN is not included. */
-    game: Game;
+    /** A subset of the information from the game that generated this ExplorerGame. */
+    game: ExplorerGameEmbed;
 }
 
 /**
@@ -158,6 +161,12 @@ export interface Game {
     /** The date the game was played. */
     date: string;
 
+    /** The datetime the game was uploaded to the database, in ISO format. */
+    createdAt: string;
+
+    /** The datetime the game was last changed from unlisted to public, in ISO format. */
+    publishedAt?: string;
+
     /** The username of the submitter of the game. */
     owner: string;
 
@@ -172,6 +181,60 @@ export interface Game {
 
     /** Whether the game is unlisted. */
     unlisted: boolean;
+
+    /** The time class of the game. Currently only set on games in the masters DB. */
+    timeClass?: string;
+
+    /** Whether the game has been added to the explorer. */
+    inNewExplorer?: boolean;
+}
+
+/** The important information of a game, embedded into the explorer game. */
+export interface ExplorerGameEmbed {
+    /** The cohort the game belongs to. */
+    cohort: string;
+
+    /** The id of the game, in the form date#uuid. */
+    id: string;
+
+    /** The date the game was played. */
+    date: string;
+
+    /** The datetime the game was uploaded to the database, in ISO format. */
+    createdAt: string;
+
+    /** The datetime the game was last changed from unlisted to public, in ISO format. */
+    publishedAt?: string;
+
+    /** The username of the submitter of the game. */
+    owner: string;
+
+    /** The display name of the submitter of the game. */
+    ownerDisplayName?: string;
+
+    /** The time class of the game. Currently only set on games in the masters DB. */
+    timeClass?: string;
+
+    /** A subset of the game's PGN headers. */
+    headers: {
+        /** The player with the white pieces. */
+        White: string;
+
+        /** The ELO of the player with the white pieces. */
+        WhiteElo?: string;
+
+        /** The player with the black pieces. */
+        Black: string;
+
+        /** The ELO of the player with the black pieces. */
+        BlackElo?: string;
+
+        /** The result of the game. */
+        Result: GameResult;
+
+        /** The ply count of the game. */
+        PlyCount?: string;
+    };
 }
 
 /** The header data of a PGN. */
@@ -192,7 +255,7 @@ export interface PgnHeaders {
     Date: string;
 
     /** The site the game was played on. */
-    Site: string;
+    Site?: string;
 
     /** The result of the game. */
     Result: GameResult;
@@ -266,23 +329,3 @@ export const dojoCohorts: string[] = [
     '2300-2400',
     '2400+',
 ];
-
-/**
- * Returns the normalized version of the provided FEN. See the comment on ExplorerPosition for a
- * description of how FENs are normalized.
- * @param fen The FEN to normalize.
- * @returns The normalized FEN.
- */
-export function normalizeFen(fen: string): string {
-    const tokens = fen.split(' ');
-    if (tokens.length < 4) {
-        throw new Error(`Invalid FEN: '${fen}'. FEN does not have at least 4 tokens.`);
-    }
-
-    const pieces = tokens[0];
-    const color = tokens[1];
-    const castling = tokens[2];
-    const enPassant = tokens[3];
-
-    return `${pieces} ${color} ${castling} ${enPassant} 0 1`;
-}

@@ -58,7 +58,7 @@ func processGames(w io.Writer, games []*database.Game) error {
 func uploadFile(archive *os.File) error {
 	log.Info("Uploading file")
 	archive.Seek(0, 0)
-	uploader := s3manager.NewUploader(session.New())
+	uploader := s3manager.NewUploader(session.Must(session.NewSession()))
 	_, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(fmt.Sprintf("chess-dojo-%s-game-database", stage)),
 		Key:    aws.String("dojo_database.zip"),
@@ -81,19 +81,22 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 	var games []*database.Game
 	var startKey string
 
-	for ok := true; ok; ok = startKey != "" {
-		games, startKey, err = repository.ScanGames(startKey)
-		if err != nil {
-			log.Errorf("Failed to scan games: %v", err)
-			return event, err
-		}
+	for _, cohort := range database.Cohorts {
+		for ok := true; ok; ok = startKey != "" {
+			games, startKey, err = repository.ScanCohort(cohort, startKey)
+			if err != nil {
+				log.Errorf("Failed to scan games: %v", err)
+				return event, err
+			}
 
-		log.Infof("Processing %d games", len(games))
-		if err := processGames(w, games); err != nil {
-			log.Errorf("Failed to process games: %v", err)
-			return event, err
+			log.Infof("Processing %d games", len(games))
+			if err := processGames(w, games); err != nil {
+				log.Errorf("Failed to process games: %v", err)
+				return event, err
+			}
 		}
 	}
+
 	zipWriter.Close()
 
 	if err := uploadFile(archive); err != nil {

@@ -5,7 +5,7 @@ import { Graduation } from '../database/graduation';
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type GraduationApiContextType = {
+export interface GraduationApiContextType {
     /**
      * listGraduationsByCohort returns a list of graduations matching the provided cohort.
      * @param cohort The cohort to search for when matching graduations.
@@ -31,7 +31,7 @@ export type GraduationApiContextType = {
      * @returns A list of graduations.
      */
     listGraduationsByDate: (startKey?: string) => Promise<Graduation[]>;
-};
+}
 
 interface ListGraduationsResponse {
     graduations: Graduation[];
@@ -72,7 +72,7 @@ export async function listGraduationsByCohort(
     cohort: string,
     startKey?: string
 ) {
-    let params = { startKey };
+    const params = { startKey };
     return listGraduations(BASE_URL + `/graduations/${cohort}`, params, idToken);
 }
 
@@ -88,7 +88,7 @@ export async function listGraduationsByOwner(
     username: string,
     startKey?: string
 ) {
-    let params = { startKey };
+    const params = { startKey };
     return listGraduations(BASE_URL + `/graduations/owner/${username}`, params, idToken);
 }
 
@@ -99,6 +99,6 @@ export async function listGraduationsByOwner(
  * @returns A list of graduations.
  */
 export async function listGraduationsByDate(idToken: string, startKey?: string) {
-    let params = { startKey };
+    const params = { startKey };
     return listGraduations(BASE_URL + `/graduations`, params, idToken);
 }

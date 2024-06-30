@@ -1,19 +1,21 @@
-import { Chess, COLOR, Move } from '@jackstenglein/chess';
-import { getSolutionScore } from '@jackstenglein/chess-dojo-common';
-import { SimpleLinearRegression } from 'ml-regression-simple-linear';
+import { Chess, Move } from '@jackstenglein/chess';
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
+import {
+    Exam,
+    ExamAnswer,
+    ExamType,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { useRequest } from '../../api/Request';
-import { Exam, ExamAnswer, ExamType } from '../../database/exam';
 import { Requirement } from '../../database/requirement';
 import {
     ALL_COHORTS,
+    User,
     compareCohorts,
-    isCohortGreater,
     isCohortInRange,
     isCohortLess,
-    User,
 } from '../../database/user';
 
 /**
@@ -51,33 +53,6 @@ export function useExam() {
 }
 
 /**
- * Returns the given cohort range as an array of 2 numbers. Ex: 0-1500
- * would return [0, 1500]. For ranges like 2000+, the max cohort is set to Infinity
- * (IE: [2000, Infinity]). If range is not provided or the min cohort is NaN, [-1, -1]
- * is returned.
- * @param range The cohort range to convert.
- * @returns The min and max cohort as numbers.
- */
-export function getCohortRangeInt(range?: string): [number, number] {
-    if (!range) {
-        return [-1, -1];
-    }
-
-    const minCohort = parseInt(range);
-    if (isNaN(minCohort)) {
-        return [-1, -1];
-    }
-
-    let maxCohort =
-        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
-    if (isNaN(maxCohort)) {
-        maxCohort = Infinity;
-    }
-
-    return [minCohort, maxCohort];
-}
-
-/**
  * Returns the cohort range that is used to calculate the best fit line
  * of the exam. This is the exam's recommended cohort range +-100.
  * @param examRange The exam cohort range.
@@ -92,31 +67,6 @@ export function getBestFitCohortRange(examRange: string): string {
         return `${minCohort}+`;
     }
     return `${minCohort}-${maxCohort}`;
-}
-
-/**
- * Returns the linear regression for this exam. If the exam has not been taken
- * by enough people, null is returned.
- * @param exam The exam to get the linear regression for.
- * @returns The linear regression, or null if the exam does not have enough answers.
- */
-export function getRegression(exam: Exam): SimpleLinearRegression | null {
-    const [minCohort, maxCohort] = getCohortRangeInt(exam.cohortRange);
-    const answers = Object.values(exam.answers).filter((a) => {
-        return (
-            a.rating > 0 &&
-            a.score > 0 &&
-            a.rating >= minCohort - 100 &&
-            a.rating < maxCohort + 100
-        );
-    });
-    if (answers.length < 10) {
-        return null;
-    }
-
-    const x = answers.map((a) => a.score);
-    const y = answers.map((a) => a.rating);
-    return new SimpleLinearRegression(x, y);
 }
 
 export function getMoveDescription({
@@ -189,21 +139,6 @@ export function getEventHeader(pgn: string): string {
 }
 
 /**
- * Gets the total score for the given PGN problem in an exam.
- * @param pgn The PGN to get the score for.
- */
-export function getTotalScore(pgn: string): number {
-    const chess = new Chess({ pgn });
-    chess.seek(null);
-    return getSolutionScore(
-        chess.turn() === COLOR.black ? 'black' : 'white',
-        chess.history(),
-        chess,
-        false,
-    );
-}
-
-/**
  * Adds extra variations present in the given answer but not the solution to the solution.
  * Each move in the extra variation has its userData.extra field set to true.
  * @param answer The user's answer to the tactics test.
@@ -215,28 +150,23 @@ export function addExtraVariation(
     currentSolutionMove: Move | null,
     solution: Chess,
 ) {
-    for (let move of answer) {
+    for (const move of answer) {
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 addExtraVariation(variation, currentSolutionMove, solution);
             }
         }
 
-        let existingMove = solution.move(
-            move.san,
-            currentSolutionMove,
-            false,
-            true,
-            true,
-        );
+        let existingMove = solution.move(move.san, {
+            previousMove: currentSolutionMove,
+            existingOnly: true,
+            skipSeek: true,
+        });
         if (!existingMove) {
-            existingMove = solution.move(
-                move.san,
-                currentSolutionMove,
-                false,
-                false,
-                true,
-            );
+            existingMove = solution.move(move.san, {
+                previousMove: currentSolutionMove,
+                skipSeek: true,
+            });
             if (!existingMove) {
                 // This only happens if the user's answer has an invalid move.
                 // IE: the test changed since they took it. In that case, we break, since
@@ -272,6 +202,9 @@ export interface TacticsRatingComponent {
 
     /** A description of the component to be displayed to users. */
     description: string;
+
+    /** Link relevant to this component */
+    link?: string;
 }
 
 /**
@@ -317,9 +250,7 @@ export function calculateTacticsRating(
         });
     }
 
-    if (isCohortGreater(user.dojoCohort, '1400-1500')) {
-        rating.components.push(...getExamRating(user, ExamType.Tactics));
-    }
+    rating.components.push(...getExamRating(user, ExamType.Tactics));
 
     const countedComponents = rating.components.filter((c) => c.rating >= 0);
     if (countedComponents.length > 0) {
@@ -409,10 +340,9 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
         .filter(
             (e) =>
                 e.examType === examType &&
-                // If a user is above the cohort range for a series of tests,
-                // we don't count it, as it could potentially give them an inflated score.
-                (isCohortInRange(user.dojoCohort, e.cohortRange) ||
-                    isCohortLess(user.dojoCohort, e.cohortRange)),
+                // If a user is not in the cohort range for a series of tests,
+                // we don't count it, as it could potentially give them an inflated/deflated score.
+                isCohortInRange(user.dojoCohort, getBestFitCohortRange(e.cohortRange)),
         )
         .sort((lhs, rhs) => rhs.createdAt.localeCompare(lhs.createdAt))
         .slice(0, numberOfExams);
@@ -428,7 +358,8 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
             {
                 name: `${displayExamType(examType)}s`,
                 rating,
-                description: `The average of the 3 most recent ${displayExamType(examType)} ratings`,
+                description: `The average of the 3 most recent ${displayExamType(examType)} ratings. Only tests within the proper cohort range are counted.`,
+                link: linkToExamType(examType),
             },
         ];
     }
@@ -437,19 +368,33 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
         {
             name: 'Test 1',
             rating: countedExams[0]?.rating ?? -1,
-            description: `The most recent ${displayExamType(examType)} rating`,
+            description: `The most recent ${displayExamType(examType)} rating. Only tests within the proper cohort range are counted.`,
         },
         {
             name: 'Test 2',
             rating: countedExams[1]?.rating ?? -1,
-            description: `The second-most recent ${displayExamType(examType)} rating`,
+            description: `The second-most recent ${displayExamType(examType)} rating. Only tests within the proper cohort range are counted.`,
         },
         {
             name: 'Test 3',
             rating: countedExams[2]?.rating ?? -1,
-            description: `The third-most recent ${displayExamType(examType)} rating`,
+            description: `The third-most recent ${displayExamType(examType)} rating. Only tests within the proper cohort range are counted.`,
         },
     ];
+}
+
+/**
+ * Returns URL to the particular exam
+ */
+function linkToExamType(examType: ExamType): string {
+    switch (examType) {
+        case ExamType.Tactics:
+            return '/tests/tactics';
+        case ExamType.Polgar:
+            return '/tests/checkmate';
+        case ExamType.Endgame:
+            return '/tests/endgame';
+    }
 }
 
 /**
@@ -461,6 +406,8 @@ function displayExamType(examType: ExamType): string {
         case ExamType.Tactics:
             return 'Tactics Test';
         case ExamType.Polgar:
-            return 'Polgar Mate Test';
+            return 'Checkmate Test';
+        case ExamType.Endgame:
+            return 'Endgame Test';
     }
 }

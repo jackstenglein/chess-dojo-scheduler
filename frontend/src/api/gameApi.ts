@@ -11,7 +11,7 @@ import {
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type GameApiContextType = {
+export interface GameApiContextType {
     /**
      * createGame saves the provided game in the database.
      * @param req The CreateGameRequest.
@@ -19,7 +19,7 @@ export type GameApiContextType = {
      */
     createGame: (
         req: CreateGameRequest,
-    ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
+    ) => Promise<AxiosResponse<Game | EditGameResponse>>;
 
     /**
      * getGame returns the requested game.
@@ -27,7 +27,7 @@ export type GameApiContextType = {
      * @param id The id of the game.
      * @returns An AxiosResponse containing the requested game.
      */
-    getGame: (cohort: string, id: string) => Promise<AxiosResponse<Game, any>>;
+    getGame: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
 
     /**
      * featureGame sets the featured status of the provided game.
@@ -40,7 +40,7 @@ export type GameApiContextType = {
         cohort: string,
         id: string,
         featured: string,
-    ) => Promise<AxiosResponse<Game, any>>;
+    ) => Promise<AxiosResponse<Game>>;
 
     /**
      * updateGame overwrites the PGN data of the provided game.
@@ -54,7 +54,7 @@ export type GameApiContextType = {
         cohort: string,
         id: string,
         req: UpdateGameRequest,
-    ) => Promise<AxiosResponse<Game | EditGameResponse, any>>;
+    ) => Promise<AxiosResponse<Game>>;
 
     /**
      * deleteGame removes the specified game from the database. The caller
@@ -63,7 +63,7 @@ export type GameApiContextType = {
      * @param id The id of the game.
      * @returns The delete Game.
      */
-    deleteGame: (cohort: string, id: string) => Promise<AxiosResponse<Game, any>>;
+    deleteGame: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
 
     /**
      * listGamesByCohort returns a list of GameInfo objects corresponding to the provided cohort,
@@ -79,7 +79,7 @@ export type GameApiContextType = {
         startKey?: string,
         startDate?: string,
         endDate?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    ) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * listGamesByOwner returns a list of GameInfo objects owned by the provided user,
@@ -100,7 +100,7 @@ export type GameApiContextType = {
         endDate?: string,
         player?: string,
         color?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    ) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * listGamesByOpening returns a list of GameInfo objects with the provided ECO code,
@@ -116,19 +116,21 @@ export type GameApiContextType = {
         startKey?: string,
         startDate?: string,
         endDate?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    ) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * listGamesByPosition returns a list of GameInfo objects matching the provided FEN,
      * as well as the next start key for pagination.
      * @param fen The FEN to search for.
+     * @param mastersOnly Whether to only search for master games.
      * @param startKey The optional start key to use for pagination.
      * @returns A list of games matching the provided FEN.
      */
     listGamesByPosition: (
         fen: string,
+        mastersOnly: boolean,
         startKey?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    ) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * listFeaturedGames returns a list of games featured in the past month.
@@ -142,9 +144,7 @@ export type GameApiContextType = {
      * @param startKey The optional startKey to use when searching.
      * @returns A list of games that are submitted for review.
      */
-    listGamesForReview: (
-        startKey?: string,
-    ) => Promise<AxiosResponse<ListGamesResponse, any>>;
+    listGamesForReview: (startKey?: string) => Promise<AxiosResponse<ListGamesResponse>>;
 
     /**
      * createComment adds the given content as a comment on the given game.
@@ -158,7 +158,7 @@ export type GameApiContextType = {
         id: string,
         comment: PositionComment,
         existingComments: boolean,
-    ) => Promise<AxiosResponse<Game, any>>;
+    ) => Promise<AxiosResponse<Game>>;
 
     /**
      * Updates a comment on a game. The full updated game is returned.
@@ -194,7 +194,7 @@ export type GameApiContextType = {
      * @returns An AxiosResponse containing the updated game.
      */
     markReviewed: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
-};
+}
 
 export enum GameSubmissionType {
     LichessChapter = 'lichessChapter',
@@ -210,17 +210,18 @@ export enum GameSubmissionType {
 export interface CreateGameRequest {
     url?: string;
     pgnText?: string;
-    type?: GameSubmissionType;
+    type: GameSubmissionType;
 }
 
 /** The orientation of the board. */
 export type BoardOrientation = 'white' | 'black';
 
-export interface UpdateGameRequest extends CreateGameRequest {
+export interface UpdateGameRequest extends Omit<CreateGameRequest, 'type'> {
     timelineId?: string;
     orientation?: BoardOrientation;
     unlisted?: boolean;
     headers?: GameHeader;
+    type?: GameSubmissionType;
 }
 
 export interface GameHeader {
@@ -235,8 +236,8 @@ export interface EditGameResponse {
     count: number;
 }
 
-export function isGame(obj: any): obj is Game {
-    return obj.count === undefined;
+export function isGame(obj: Game | EditGameResponse): obj is Game {
+    return !('count' in obj);
 }
 
 /**
@@ -313,7 +314,7 @@ export function updateGame(
     // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded
     id = btoa(id);
 
-    return axios.put<Game | EditGameResponse>(BASE_URL + `/game2/${cohort}/${id}`, req, {
+    return axios.put<Game>(BASE_URL + `/game2/${cohort}/${id}`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }
@@ -357,7 +358,7 @@ export function listGamesByCohort(
     startDate?: string,
     endDate?: string,
 ) {
-    let params = { startDate, endDate, startKey };
+    const params = { startDate, endDate, startKey };
     cohort = encodeURIComponent(cohort);
     return axios.get<ListGamesResponse>(BASE_URL + `/game/${cohort}`, {
         params,
@@ -387,7 +388,7 @@ export function listGamesByOwner(
     player?: string,
     color?: string,
 ) {
-    let params = { owner, startKey, startDate, endDate, player, color };
+    const params = { owner, startKey, startDate, endDate, player, color };
     return axios.get<ListGamesResponse>(BASE_URL + '/game', {
         params,
         headers: {
@@ -413,7 +414,7 @@ export function listGamesByOpening(
     startDate?: string,
     endDate?: string,
 ) {
-    let params = { eco, startKey, startDate, endDate };
+    const params = { eco, startKey, startDate, endDate };
     return axios.get<ListGamesResponse>(BASE_URL + '/game/opening', {
         params,
         headers: {
@@ -427,11 +428,17 @@ export function listGamesByOpening(
  * as well as the next start key for pagination.
  * @param idToken The id token of the current signed-in user.
  * @param fen The FEN to search for.
+ * @param mastersOnly Whether to only search the masters DB.
  * @param startKey The optional start key to use for pagination.
  * @returns A list of games matching the provided FEN.
  */
-export function listGamesByPosition(idToken: string, fen: string, startKey?: string) {
-    let params = { fen, startKey };
+export function listGamesByPosition(
+    idToken: string,
+    fen: string,
+    mastersOnly: boolean,
+    startKey?: string,
+) {
+    const params = { fen, startKey, masters: mastersOnly };
     return axios.get<ListGamesResponse>(BASE_URL + '/game/position', {
         params,
         headers: {
@@ -447,7 +454,7 @@ export function listGamesByPosition(idToken: string, fen: string, startKey?: str
  * @returns A list of featured games.
  */
 export async function listFeaturedGames(idToken: string, startKey?: string) {
-    let params = { startKey };
+    const params = { startKey };
     const result: GameInfo[] = [];
 
     do {
@@ -536,7 +543,7 @@ export function updateComment(idToken: string, update: UpdateCommentRequest) {
     });
 }
 
-export interface DeleteCommentRequest extends Omit<UpdateCommentRequest, 'content'> {}
+export type DeleteCommentRequest = Omit<UpdateCommentRequest, 'content'>;
 
 /**
  * Deletes a comment on a game. The full updated game is returned.
@@ -734,7 +741,10 @@ export function isValidDate(date?: string) {
  * @param header The header to strip question marks from.
  * @returns The stripped header value.
  */
-export function stripTagValue(header: string) {
+export function stripTagValue(header?: string | null): string {
+    if (!header) {
+        return '';
+    }
     header = header.trim();
     return header.replaceAll('?', '') === '' ? '' : header;
 }
@@ -752,4 +762,39 @@ export function isMissingData(game: Game) {
         stripTagValue(h.Black) === '' ||
         !isValidDate(h.Date)
     );
+}
+
+/**
+ * Parses PGN tag date
+ * @param pgnDate the PGN formatted date tag
+ * @returns DateTime if valid, otherwise null
+ */
+export function parsePgnDate(pgnDate?: string): DateTime<true> | null {
+    if (!pgnDate) {
+        return null;
+    }
+
+    const date = DateTime.fromISO(pgnDate.replaceAll('.', '-'));
+    if (!date.isValid) {
+        return null;
+    }
+
+    return date;
+}
+
+/**
+ * Converts a DateTime to a PGN tag suitable string
+ * @param date the DateTime object
+ * @returns a PGN tag value suitable to use for e.g. Date
+ */
+export function toPgnDate(date?: DateTime | null): string | null {
+    let pgnDate = date?.toUTC().toISO();
+    if (!pgnDate) {
+        return null;
+    }
+
+    pgnDate = pgnDate.substring(0, pgnDate.indexOf('T'));
+    pgnDate = pgnDate.replaceAll('-', '.');
+
+    return pgnDate;
 }

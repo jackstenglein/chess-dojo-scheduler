@@ -26,11 +26,12 @@ import {
 } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
-import { useAuth, useFreeTier } from '../../auth/Auth';
+import { useFreeTier, useRequiredAuth } from '../../auth/Auth';
 import { RequirementCategory } from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
+import { MastersCohort } from './ListGamesPage';
 import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (
@@ -101,7 +102,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                     label='Cohort'
                     onChange={(e) => setCohort(e.target.value)}
                 >
-                    {dojoCohorts.map((c) => (
+                    {dojoCohorts.concat(MastersCohort).map((c) => (
                         <MenuItem key={c} value={c}>
                             <CohortIcon
                                 cohort={c}
@@ -110,7 +111,7 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                                 tooltip=''
                                 color='primary'
                             />
-                            {c}
+                            {c === MastersCohort ? 'Masters DB' : c}
                         </MenuItem>
                     ))}
                 </Select>
@@ -507,7 +508,7 @@ interface SearchFiltersProps {
 }
 
 const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
 
     const [searchParams, setSearchParams] = useSearchParams({
@@ -519,7 +520,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         type: SearchType.Cohort,
     });
 
-    const [expanded, setExpanded] = useState<string | false>(searchParams.get('type')!);
+    const [expanded, setExpanded] = useState<string | false>(
+        searchParams.get('type') || '',
+    );
     const onChangePanel =
         (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
             setExpanded(newExpanded ? panel : false);
@@ -551,11 +554,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const color = searchParams.get('color') || 'either';
     const eco = searchParams.get('eco') || '';
     const fen = searchParams.get('fen') || '';
+    const mastersOnly = searchParams.get('masters') === 'true';
+
     let startDateStr: string | undefined = undefined;
     let endDateStr: string | undefined = undefined;
     if (isValid(new Date(paramsStartDate || ''))) {
         startDateStr = new Date(paramsStartDate || '')
-            ?.toISOString()
+            .toISOString()
             .substring(0, 10)
             .replaceAll('-', '.');
     }
@@ -569,7 +574,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     // Functions that actually perform the search
     const searchByCohort = useCallback(
         (startKey: string) =>
-            api.listGamesByCohort(cohort!, startKey, startDateStr, endDateStr),
+            api.listGamesByCohort(cohort, startKey, startDateStr, endDateStr),
         [cohort, api, startDateStr, endDateStr],
     );
 
@@ -580,8 +585,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                 startKey,
                 startDateStr,
                 endDateStr,
-                player!,
-                color!,
+                player,
+                color,
             ),
         [api, startDateStr, endDateStr, player, color],
     );
@@ -599,8 +604,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     );
 
     const searchByPosition = useCallback(
-        (startKey: string) => api.listGamesByPosition(fen, startKey),
-        [api, fen],
+        (startKey: string) => api.listGamesByPosition(fen, mastersOnly, startKey),
+        [api, fen, mastersOnly],
     );
 
     // Search is called every time the above functions change, which should

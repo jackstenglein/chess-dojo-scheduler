@@ -12,7 +12,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { Game, PositionComment } from '../../../../../database/game';
 import { useGame } from '../../../../../games/view/GamePage';
-import { reconcile } from '../../../../Board';
+import { useReconcile } from '../../../../Board';
 import { useChess } from '../../../PgnBoard';
 import Comment from './Comment';
 import CommentEditor, { CommentEditorProps } from './CommentEditor';
@@ -30,9 +30,9 @@ export enum SortBy {
     Oldest = 'OLDEST',
 }
 
-type PositionCommentSortContextType = {
+interface PositionCommentSortContextType {
     sortBy: SortBy;
-};
+}
 
 const PositionCommentSortContext = createContext<PositionCommentSortContextType>({
     sortBy: SortBy.Newest,
@@ -218,12 +218,13 @@ interface CommentSectionProps {
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({ isReadonly, section }) => {
-    const { chess, board } = useChess();
+    const { chess } = useChess();
+    const reconcile = useReconcile();
     const move = section.move;
 
     const onClick = () => {
         chess?.seek(section.move);
-        reconcile(chess, board);
+        reconcile();
     };
 
     return (

@@ -1,10 +1,10 @@
+import { AxiosError } from 'axios';
 import { useEffect, useMemo } from 'react';
-
 import { normalizeFen } from '../../database/explorer';
 import { useApi } from '../Api';
 import { Request, useRequest } from '../Request';
-import { useCache } from './Cache';
 import { GetExplorerPositionResult } from '../explorerApi';
+import { useCache } from './Cache';
 
 interface UsePositionResponse {
     position: GetExplorerPositionResult | undefined;
@@ -20,7 +20,7 @@ export function usePosition(fen: string): UsePositionResponse {
     const normalizedFen = normalizeFen(fen);
     const position = useMemo(
         () => cache.positions.get(normalizedFen),
-        [cache.positions, normalizedFen]
+        [cache.positions, normalizedFen],
     );
 
     useEffect(() => {
@@ -33,7 +33,7 @@ export function usePosition(fen: string): UsePositionResponse {
                     cache.positions.put(resp.data);
                     request.onSuccess();
                 })
-                .catch((err) => {
+                .catch((err: AxiosError) => {
                     console.error('getPosition: ', err);
                     if (err.response?.status === 404) {
                         cache.positions.markFetched(normalizedFen);

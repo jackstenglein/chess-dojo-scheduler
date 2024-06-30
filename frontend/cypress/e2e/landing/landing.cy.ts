@@ -33,8 +33,8 @@ describe('Landing Page', () => {
     it('redirects authenticated user to profile', () => {
         cy.loginByCognitoApi(
             'landingPage',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
 
         cy.visit('/');

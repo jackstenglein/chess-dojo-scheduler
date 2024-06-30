@@ -1,5 +1,13 @@
 import { EventType } from '@jackstenglein/chess';
-import { getSolutionScore, scoreVariation } from '@jackstenglein/chess-dojo-common';
+import {
+    Exam,
+    ExamAnswer,
+    ExamAttempt,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
+import {
+    getSolutionScore,
+    scoreVariation,
+} from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import {
     Assessment,
     Info,
@@ -26,7 +34,7 @@ import { useCountdown } from 'react-countdown-circle-timer';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
+import { useRequiredAuth } from '../../auth/Auth';
 import { BoardApi, Chess } from '../../board/Board';
 import PgnBoard, {
     BlockBoardKeyboardShortcuts,
@@ -36,7 +44,6 @@ import PgnBoard, {
 import { useDebounce } from '../../board/pgn/boardTools/boardButtons/StatusIcon';
 import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from '../../board/pgn/pgnText/MoveButton';
-import { Exam, ExamAnswer, ExamAttempt } from '../../database/exam';
 import { getCurrentRating, normalizeToFide } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import Instructions from '../instructions/Instructions';
@@ -109,7 +116,7 @@ const ExamPage = () => {
 
     if (inProgress || isRetaking) {
         const setAnswer = (a: ExamAnswer) => {
-            request.onSuccess({ ...request.data!, answer: a });
+            request.onSuccess({ exam, answer: a });
         };
         const updateData = (e: Exam, a: ExamAnswer) => {
             request.onSuccess({ exam: e, answer: a });
@@ -180,7 +187,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
     disableClock,
     disableSave,
 }) => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const api = useApi();
     const pgnApi = useRef<PgnBoardApi>(null);
     const [selectedProblem, setSelectedProblem] = useState(0);
@@ -226,7 +233,9 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
             inProgress,
         };
 
-        const attemptIndex = currentAttempt ? answer!.attempts.length - 1 : undefined;
+        const attemptIndex = currentAttempt
+            ? (answer?.attempts.length ?? 1) - 1
+            : undefined;
         return api.putExamAttempt(exam.type, exam.id, attempt, attemptIndex, totalScore);
     };
 
@@ -260,10 +269,11 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                     debouncedOnSave();
                 },
             };
-            pgnApi.current?.addObserver(observer);
+            const currentPgnApi = pgnApi.current;
+            currentPgnApi?.addObserver(observer);
             return () => {
                 debouncedOnSave.cancel();
-                pgnApi.current?.removeObserver(observer);
+                currentPgnApi?.removeObserver(observer);
             };
         }
     }, [disableSave, pgnApi, debouncedOnSave]);
@@ -597,7 +607,13 @@ export const CompletedExam: React.FC<CompletedExamProps> = ({
 };
 
 const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) => {
-    const { score, found, extra, isAlt, altFound } = move.userData || {};
+    const { score, found, extra, isAlt, altFound } = (move.userData || {}) as {
+        score?: number;
+        found?: boolean;
+        extra?: boolean;
+        isAlt?: boolean;
+        altFound?: boolean;
+    };
 
     if (extra) {
         return (
@@ -630,7 +646,7 @@ const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) 
         );
     }
 
-    if (score > 0) {
+    if (score && score > 0) {
         return (
             <Tooltip title={getMoveDescription({ found, score, altFound })}>
                 <Box

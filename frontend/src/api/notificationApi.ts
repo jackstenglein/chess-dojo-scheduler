@@ -8,23 +8,23 @@ const BASE_URL = getConfig().api.baseUrl;
 /**
  * NotificationApiContextType provides an API for interacting with Notifications.
  */
-export type NotificationApiContextType = {
+export interface NotificationApiContextType {
     /**
      * listNotifications returns a list of Notifications for the current signed-in user.
      * @param startKey The startKey to use when searching for Notifications.
      * @returns A list of notifications and the next start key.
      */
     listNotifications: (
-        startKey?: string
-    ) => Promise<AxiosResponse<ListNotificationsResponse, any>>;
+        startKey?: string,
+    ) => Promise<AxiosResponse<ListNotificationsResponse>>;
 
     /**
      * deleteNotification deletes the Notification with the provided id.
      * @param id The id of the Notification to delete.
      * @returns An empty AxiosResponse.
      */
-    deleteNotification: (id: string) => Promise<AxiosResponse<void, any>>;
-};
+    deleteNotification: (id: string) => Promise<AxiosResponse<null>>;
+}
 
 /**
  * The response from a listNotifications request.
@@ -59,7 +59,7 @@ export function listNotifications(idToken: string, startKey?: string) {
  */
 export function deleteNotification(idToken: string, id: string) {
     id = encodeURIComponent(id);
-    return axios.delete<void>(`${BASE_URL}/user/notifications/${id}`, {
+    return axios.delete<null>(`${BASE_URL}/user/notifications/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

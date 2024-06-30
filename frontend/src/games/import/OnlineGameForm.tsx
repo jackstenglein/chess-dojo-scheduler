@@ -4,10 +4,8 @@ import {
     Card,
     CardActionArea,
     CardContent,
-    DialogActions,
     DialogContent,
     DialogTitle,
-    Divider,
     Link,
     Stack,
     TextField,
@@ -39,6 +37,7 @@ import LoadingPage from '../../loading/LoadingPage';
 import { RenderPlayers } from '../list/GameListItem';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
+import { OrDivider } from './OrDivider';
 
 function timeControlMatches(
     cohort: string | undefined,
@@ -85,18 +84,14 @@ const RecentGameCell = ({
     return (
         <Card sx={{ height: 1 }}>
             <CardActionArea
+                data-cy={`recent-game-${game.source}`}
                 onClick={() => {
                     onClick(game);
                 }}
                 sx={{ height: 1 }}
             >
                 <CardContent>
-                    <Stack
-                        spacing={1.125}
-                        onClick={() => {
-                            onClick(game);
-                        }}
-                    >
+                    <Stack spacing={1.125}>
                         <Stack
                             direction='row'
                             spacing={1}
@@ -176,6 +171,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
 
     const lichessUsername = user?.ratings?.[RatingSystem.Lichess]?.username;
     const chesscomUsername = user?.ratings?.[RatingSystem.Chesscom]?.username;
+    const fetchGames = Boolean(lichessUsername || chesscomUsername);
 
     const {
         games,
@@ -224,7 +220,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
     return (
         <>
             <DialogTitle>Import Online Game</DialogTitle>
-            <DialogContent>
+            <DialogContent sx={{ height: fetchGames ? '75vh' : undefined }}>
                 <Stack>
                     <TextField
                         data-cy='online-game-url'
@@ -239,10 +235,20 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                         fullWidth
                         sx={{ mt: 0.8 }}
                     />
-                    <Divider sx={{ color: 'text.secondary', my: 2 }}>
-                        Recent Games
-                    </Divider>
-                    {lichessUsername || chesscomUsername ? (
+                    <Stack
+                        alignSelf='flex-end'
+                        direction='row'
+                        spacing={1}
+                        paddingRight={1}
+                        paddingTop={1}
+                    >
+                        <Button disabled={loading} onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <ImportButton loading={loading} onClick={handleSubmit} />
+                    </Stack>
+                    <OrDivider header='Recent Games' />
+                    {fetchGames ? (
                         chesscom.isLoading() || lichess.isLoading() ? (
                             <LoadingPage />
                         ) : (
@@ -271,12 +277,6 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                     )}
                 </Stack>
             </DialogContent>
-            <DialogActions>
-                <Button disabled={loading} onClick={onClose}>
-                    Cancel
-                </Button>
-                <ImportButton loading={loading} onClick={handleSubmit} />
-            </DialogActions>
         </>
     );
 };

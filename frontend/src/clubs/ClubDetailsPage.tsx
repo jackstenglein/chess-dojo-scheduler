@@ -15,10 +15,9 @@ import { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
-
 import { useApi } from '../api/Api';
-import { GetClubResponse } from '../api/clubApi';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import { GetClubResponse } from '../api/clubApi';
 import { AuthStatus, useAuth, useFreeTier } from '../auth/Auth';
 import { ClubDetails } from '../database/club';
 import LoadingPage from '../loading/LoadingPage';
@@ -33,15 +32,11 @@ import MemberCountChip from './MemberCountChip';
 import ScoreboardTab from './ScoreboardTab';
 import UrlChip from './UrlChip';
 
-export type ClubDetailsParams = {
-    id: string;
-};
-
 const ClubDetailsPage = () => {
     const auth = useAuth();
     const viewer = auth.user;
     const api = useApi();
-    const { id } = useParams<ClubDetailsParams>();
+    const { id } = useParams();
     const request = useRequest<GetClubResponse>();
     const joinRequest = useRequest();
     const navigate = useNavigate();
@@ -228,7 +223,9 @@ const ClubDetailsPage = () => {
                                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                     <Tabs
                                         value={searchParams.get('view')}
-                                        onChange={(_, t) => setSearchParams({ view: t })}
+                                        onChange={(_, t: string) =>
+                                            setSearchParams({ view: t })
+                                        }
                                         aria-label='profile tabs'
                                         variant='scrollable'
                                     >
@@ -256,12 +253,14 @@ const ClubDetailsPage = () => {
                             </TabPanel>
                         </Container>
 
-                        <TabPanel
-                            value='scoreboard'
-                            sx={{ width: 1, px: { xs: 0, sm: 3 } }}
-                        >
-                            <ScoreboardTab data={request.data!.scoreboard} />
-                        </TabPanel>
+                        {request.data?.scoreboard && (
+                            <TabPanel
+                                value='scoreboard'
+                                sx={{ width: 1, px: { xs: 0, sm: 3 } }}
+                            >
+                                <ScoreboardTab data={request.data.scoreboard} />
+                            </TabPanel>
+                        )}
                     </TabContext>
 
                     <ClubJoinRequestDialog

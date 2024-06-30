@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { Divider, Grid, IconButton, Stack, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-
+import { Divider, Grid, IconButton, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
 import {
     CustomTask,
     RequirementProgress,
@@ -15,14 +14,12 @@ interface CustomTaskProgressItemProps {
     progress?: RequirementProgress;
     task: CustomTask;
     cohort: string;
-    isCurrentUser: boolean;
 }
 
 const CustomTaskProgressItem: React.FC<CustomTaskProgressItemProps> = ({
     progress,
     task,
     cohort,
-    isCurrentUser,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);

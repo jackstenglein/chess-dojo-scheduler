@@ -1,13 +1,14 @@
-import { useMemo } from 'react';
 import { Box, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { useMemo } from 'react';
 
-import { SectionProps } from './YearReviewPage';
 import { AxisOptions, Chart } from 'react-charts';
+import { useAuth } from '../../auth/Auth';
 import { YearReviewDataSection } from '../../database/yearReview';
 import { CategoryColors, ScoreCategories } from '../activity/activity';
-import { useAuth } from '../../auth/Auth';
 import Percentiles from './Percentiles';
+import { SectionProps } from './YearReviewPage';
+import { RequirementCategory } from '../../database/requirement';
 
 export interface Datum {
     primary: string;
@@ -19,7 +20,7 @@ export const primaryAxis: AxisOptions<Datum> = {
     getValue: (datum) => datum.primary,
 };
 
-export const secondaryAxes: Array<AxisOptions<Datum>> = [
+export const secondaryAxes: AxisOptions<Datum>[] = [
     {
         position: 'bottom',
         getValue: (datum) => datum.secondary,
@@ -30,11 +31,15 @@ export const secondaryAxes: Array<AxisOptions<Datum>> = [
 export function getCategoryData(
     label: string,
     data: YearReviewDataSection,
-    nonDojo?: boolean
+    nonDojo?: boolean,
 ) {
     let categories = [...ScoreCategories];
     if (nonDojo) {
-        categories = ['Welcome to the Dojo', ...categories, 'Non-Dojo'];
+        categories = [
+            RequirementCategory.Welcome,
+            ...categories,
+            RequirementCategory.NonDojo,
+        ];
     }
 
     return [
@@ -42,7 +47,7 @@ export function getCategoryData(
             label,
             data: categories.reverse().map((category) => ({
                 primary: category,
-                secondary: data.byCategory?.[category] || 0,
+                secondary: data.byCategory[category] || 0,
             })),
         },
     ];
@@ -71,7 +76,7 @@ export function getMonthData(label: string, data: YearReviewDataSection) {
                 .sort((lhs, rhs) => rhs[1].localeCompare(lhs[1]))
                 .map((month) => ({
                     primary: month[0],
-                    secondary: data.byPeriod?.[month[1]] || 0,
+                    secondary: data.byPeriod[month[1]] || 0,
                 })),
         },
     ];

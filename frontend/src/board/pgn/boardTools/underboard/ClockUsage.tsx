@@ -1,11 +1,15 @@
-import { Chess, Event, EventType, Move, Pgn, TAGS } from '@jackstenglein/chess';
-import { Box, CardContent, Stack, Typography } from '@mui/material';
+import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
+import { Edit } from '@mui/icons-material';
+import { Box, CardContent, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
-import { AxisOptions, Chart, Datum as ChartDatum } from 'react-charts';
+import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
 import { useLightMode } from '../../../../ThemeProvider';
-import { reconcile } from '../../../Board';
+import { useReconcile } from '../../../Board';
 import { useChess } from '../../PgnBoard';
 import ClockEditor from './ClockEditor';
+import { TimeControlDescription } from './TimeControlDescription';
+import { TimeControlEditor } from './tags/TimeControlEditor';
 
 interface Datum {
     label?: string;
@@ -23,7 +27,7 @@ const primaryAxis: AxisOptions<Datum> = {
     },
 };
 
-const secondaryAxes: Array<AxisOptions<Datum>> = [
+const secondaryAxes: AxisOptions<Datum>[] = [
     {
         getValue: (datum) => datum.seconds,
         min: 0,
@@ -38,11 +42,11 @@ const barAxis: AxisOptions<Datum> = {
     scaleType: 'band',
     position: 'left',
     formatters: {
-        tooltip: (value) => `Move ${value}`,
+        tooltip: (value) => `Move ${value?.toString()}`,
     },
 };
 
-const secondaryBarAxis: Array<AxisOptions<Datum>> = [
+const secondaryBarAxis: AxisOptions<Datum>[] = [
     {
         ...secondaryAxes[0],
         position: 'bottom',
@@ -56,6 +60,11 @@ const totalTimePrimaryAxis: AxisOptions<Datum> = {
 
 export function formatTime(value: number): string {
     let result = '';
+    if (value < 0) {
+        result = '-';
+        value = Math.abs(value);
+    }
+
     const hours = Math.floor(value / 3600);
     if (hours > 0) {
         result = `${hours}:`;
@@ -65,7 +74,7 @@ export function formatTime(value: number): string {
     result += `${minutes.toLocaleString(undefined, { minimumIntegerDigits: 2 })}:`;
 
     const seconds = (value % 3600) % 60;
-    result += `${seconds.toLocaleString(undefined, { minimumIntegerDigits: 2 })}`;
+    result += seconds.toLocaleString(undefined, { minimumIntegerDigits: 2 });
     return result;
 }
 
@@ -74,7 +83,7 @@ export function getInitialClock(pgn?: Pgn): number {
         return 0;
     }
 
-    const timeControl = pgn.header.tags[TAGS.TimeControl];
+    const timeControl = pgn.header.tags.TimeControl?.value;
     if (!timeControl) {
         return 0;
     }
@@ -94,7 +103,7 @@ export function getIncrement(pgn?: Pgn): number {
         return 0;
     }
 
-    const timeControl = pgn.header.tags[TAGS.TimeControl];
+    const timeControl = pgn.header.tags.TimeControl?.value;
     if (!timeControl) {
         return 0;
     }
@@ -149,7 +158,7 @@ function shouldRerender(chess: Chess, event: Event): boolean {
         return event.commandName === 'clk';
     }
     if (event.type === EventType.UpdateHeader) {
-        return event.headerName === TAGS.TimeControl;
+        return event.headerName === 'TimeControl';
     }
     if (event.type === EventType.LegalMove) {
         return chess.lastMove() === event.move;
@@ -163,20 +172,32 @@ function shouldRerender(chess: Chess, event: Event): boolean {
     return false;
 }
 
-function getSeriesStyle(series: any) {
-    return {
-        fill: series.label === 'White' ? 'rgb(250, 164, 58)' : 'rgb(15, 131, 171)',
-        stroke: series.label === 'White' ? 'rgb(250, 164, 58)' : 'rgb(15, 131, 171)',
-    };
+function getSeriesStyle(series: Series<Datum>, light: boolean) {
+    if (series.label === 'White') {
+        if (light) {
+            return { fill: pink[200], stroke: pink[200] };
+        }
+        return { fill: 'white', stroke: 'white' };
+    }
+
+    if (light) {
+        return { fill: '#212121', stroke: '#212121' };
+    }
+    return { fill: 'rgb(15, 131, 171)', stroke: 'rgb(15, 131, 171)' };
 }
 
-function getDatumStyle(datum: any) {
-    return {
-        fill:
-            datum.originalDatum.label === 'White'
-                ? 'rgb(250, 164, 58)'
-                : 'rgb(15, 131, 171)',
-    };
+function getDatumStyle(datum: ChartDatum<Datum>, light: boolean) {
+    if (datum.originalDatum.label === 'White') {
+        if (light) {
+            return { fill: pink[200] };
+        }
+        return { fill: 'white' };
+    }
+
+    if (light) {
+        return { fill: '#212121' };
+    }
+    return { fill: 'rgb(15, 131, 171)' };
 }
 
 interface ClockUsageProps {
@@ -184,12 +205,13 @@ interface ClockUsageProps {
 }
 
 const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
-    const { chess, board } = useChess();
+    const { chess } = useChess();
     const light = useLightMode();
     const [forceRender, setForceRender] = useState(0);
+    const reconcile = useReconcile();
+    const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
 
-    const initialClock = getInitialClock(chess?.pgn);
-    const increment = getIncrement(chess?.pgn);
+    const timeControls = chess?.header().tags.TimeControl?.items;
 
     useEffect(() => {
         if (chess && showEditor) {
@@ -222,79 +244,97 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             };
         }
 
-        const whiteLineData: Datum[] = [
+        let timeControl = timeControls?.[0] ?? {};
+        let timeControlIdx = 0;
+
+        const whiteClockDisplay: Datum[] = [
             {
                 moveNumber: 0,
-                seconds: initialClock,
+                seconds: timeControl.seconds || 0,
                 move: null,
             },
         ];
-        const blackLineData: Datum[] = [
+        const blackClockDisplay: Datum[] = [
             {
                 moveNumber: 0,
-                seconds: initialClock,
+                seconds: timeControl.seconds || 0,
                 move: null,
             },
         ];
 
-        const whiteBarData: Datum[] = [];
-        const blackBarData: Datum[] = [];
+        const whiteTimePerMove: Datum[] = [];
+        const blackTimePerMove: Datum[] = [];
 
         let whiteSecTotal = 0;
         let blackSecTotal = 0;
 
         const moves = chess.history();
         for (let i = 0; i < moves.length; i += 2) {
+            const bonus = Math.max(0, timeControl.increment || timeControl.delay || 0);
+            let additionalTime = 0;
+
+            if (
+                timeControl.moves &&
+                timeControlIdx + 1 < (timeControls?.length ?? 0) &&
+                i / 2 === timeControl.moves - 1
+            ) {
+                timeControl = timeControls?.[++timeControlIdx] || {};
+                additionalTime = Math.max(0, timeControl.seconds || 0);
+            }
+
             const firstTime = convertClockToSeconds(moves[i]?.commentDiag?.clk);
-            whiteLineData.push({
+            whiteClockDisplay.push({
                 moveNumber: i / 2 + 1,
                 seconds:
                     firstTime !== undefined
                         ? firstTime
-                        : whiteLineData[whiteLineData.length - 1].seconds,
+                        : whiteClockDisplay[whiteClockDisplay.length - 1].seconds,
                 move: moves[i],
             });
 
             const secondTime = convertClockToSeconds(moves[i + 1]?.commentDiag?.clk);
-            blackLineData.push({
+            blackClockDisplay.push({
                 moveNumber: i / 2 + 1,
                 seconds:
                     secondTime !== undefined
                         ? secondTime
-                        : blackLineData[blackLineData.length - 1].seconds,
+                        : blackClockDisplay[blackClockDisplay.length - 1].seconds,
                 move: moves[i + 1] ? moves[i + 1] : moves[i],
             });
 
-            whiteBarData.push({
+            whiteTimePerMove.push({
                 moveNumber: i / 2 + 1,
                 seconds:
-                    whiteLineData[whiteLineData.length - 2].seconds -
-                    whiteLineData[whiteLineData.length - 1].seconds +
-                    increment,
+                    whiteClockDisplay[whiteClockDisplay.length - 2].seconds -
+                    whiteClockDisplay[whiteClockDisplay.length - 1].seconds +
+                    additionalTime +
+                    bonus,
                 move: moves[i],
             });
-            blackBarData.push({
+            blackTimePerMove.push({
                 moveNumber: i / 2 + 1,
-                seconds:
-                    blackLineData[blackLineData.length - 2].seconds -
-                    blackLineData[blackLineData.length - 1].seconds +
-                    increment,
+                seconds: !moves[i + 1]
+                    ? 0
+                    : blackClockDisplay[blackClockDisplay.length - 2].seconds -
+                      blackClockDisplay[blackClockDisplay.length - 1].seconds +
+                      additionalTime +
+                      bonus,
                 move: moves[i + 1] ? moves[i + 1] : moves[i],
             });
 
-            whiteSecTotal += whiteBarData[whiteBarData.length - 1].seconds;
-            blackSecTotal += blackBarData[blackBarData.length - 1].seconds;
+            whiteSecTotal += whiteTimePerMove[whiteTimePerMove.length - 1].seconds;
+            blackSecTotal += blackTimePerMove[blackTimePerMove.length - 1].seconds;
         }
 
-        if (whiteBarData.length === 0) {
-            whiteBarData.push({
+        if (whiteTimePerMove.length === 0) {
+            whiteTimePerMove.push({
                 moveNumber: 0,
                 seconds: 0,
                 move: null,
             });
         }
-        if (blackBarData.length === 0) {
-            blackBarData.push({
+        if (blackTimePerMove.length === 0) {
+            blackTimePerMove.push({
                 moveNumber: 0,
                 seconds: 0,
                 move: null,
@@ -322,15 +362,15 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 },
             ],
             remainingPerMove: [
-                { label: 'White', data: whiteLineData },
-                { label: 'Black', data: blackLineData },
+                { label: 'White', data: whiteClockDisplay },
+                { label: 'Black', data: blackClockDisplay },
             ],
             usedPerMove: [
-                { label: 'White', data: whiteBarData.reverse() },
-                { label: 'Black', data: blackBarData.reverse() },
+                { label: 'White', data: whiteTimePerMove.reverse() },
+                { label: 'Black', data: blackTimePerMove.reverse() },
             ],
         };
-    }, [chess, increment, initialClock, forceRender]);
+    }, [chess, timeControls, forceRender]);
 
     if (!chess) {
         return null;
@@ -339,13 +379,37 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     const onClickDatum = (datum: ChartDatum<Datum> | null) => {
         if (datum) {
             chess.seek(datum.originalDatum.move);
-            reconcile(chess, board);
+            reconcile();
         }
+    };
+
+    const onUpdateTimeControl = (value: string) => {
+        chess.setHeader('TimeControl', value);
+        setShowTimeControlEditor(false);
     };
 
     return (
         <CardContent sx={{ height: 1 }}>
             <Stack height={1} spacing={4}>
+                <Stack>
+                    <Stack direction='row' alignItems='center' spacing={0.5}>
+                        <Typography variant='subtitle1'>Time Control</Typography>
+
+                        {showEditor && (
+                            <Tooltip title='Edit time control'>
+                                <IconButton
+                                    size='small'
+                                    sx={{ position: 'relative', top: '-2px' }}
+                                    onClick={() => setShowTimeControlEditor(true)}
+                                >
+                                    <Edit fontSize='inherit' />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                    </Stack>
+                    <TimeControlDescription timeControls={timeControls || []} />
+                </Stack>
+
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
                         Total Time Used
@@ -357,7 +421,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 primaryAxis: totalTimePrimaryAxis,
                                 secondaryAxes: secondaryBarAxis,
                                 dark: !light,
-                                getDatumStyle,
+                                getDatumStyle: (datum) => getDatumStyle(datum, light),
                             }}
                         />
                     </Box>
@@ -375,7 +439,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 secondaryAxes,
                                 dark: !light,
                                 onClickDatum,
-                                getSeriesStyle,
+                                getSeriesStyle: (series) => getSeriesStyle(series, light),
                             }}
                         />
                     </Box>
@@ -397,13 +461,24 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 secondaryAxes: secondaryBarAxis,
                                 dark: !light,
                                 onClickDatum,
-                                getSeriesStyle,
+                                getSeriesStyle: (series) => getSeriesStyle(series, light),
                             }}
                         />
                     </Box>
                 </Stack>
 
-                {showEditor && <ClockEditor />}
+                {showEditor && (
+                    <ClockEditor setShowTimeControlEditor={setShowTimeControlEditor} />
+                )}
+
+                {showTimeControlEditor && (
+                    <TimeControlEditor
+                        open={showTimeControlEditor}
+                        initialItems={chess.header().tags.TimeControl?.items}
+                        onCancel={() => setShowTimeControlEditor(false)}
+                        onSuccess={onUpdateTimeControl}
+                    />
+                )}
             </Stack>
         </CardContent>
     );

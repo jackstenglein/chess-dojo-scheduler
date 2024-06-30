@@ -1,0 +1,24 @@
+name: Lint
+
+on: push
+
+jobs:
+  run-linter-and-build:
+    name: Lint and perform test build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Frontend
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run linters for frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build

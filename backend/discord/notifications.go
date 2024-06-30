@@ -11,7 +11,45 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-var roleIds = map[database.DojoCohort]string{
+var CohortEmojiIds = map[database.DojoCohort]string{
+	"0-300":     "<:0300:1245553660730277899>",
+	"300-400":   "<:300400:1245553824895209573>",
+	"400-500":   "<:400500:1245553996383522917>",
+	"500-600":   "<:500600:1245554255654555678>",
+	"600-700":   "<:600700:1245554419312103474>",
+	"700-800":   "<:700800:1245554744315875380>",
+	"800-900":   "<:800900:1245555040240926812>",
+	"900-1000":  "<:9001000:1245555222009352236>",
+	"1000-1100": "<:10001100:1245555385776083004>",
+	"1100-1200": "<:11001200:1245555535433171024>",
+	"1200-1300": "<:12001300:1245555683605352569>",
+	"1300-1400": "<:13001400:1245556021850800138>",
+	"1400-1500": "<:14001500:1245556197621366815>",
+	"1500-1600": "<:15001600:1245556433584525416>",
+	"1600-1700": "<:16001700:1245556597632270439>",
+	"1700-1800": "<:17001800:1245556793187242024>",
+	"1800-1900": "<:18001900:1245556946082332752>",
+	"1900-2000": "<:19002000:1245557109404467240>",
+	"2000-2100": "<:20002100:1245557259208101978>",
+	"2100-2200": "<:21002200:1245557558299725834>",
+	"2200-2300": "<:22002300:1245557713296162866>",
+	"2300-2400": "<:23002400:1245557941902512158>",
+}
+
+const (
+	MessageEmojiClock     = "⏰"
+	MessageEmojiNotepad   = "🗒️"
+	MessageEmojiArrow     = "➡️"
+	MessageEmojiDojo      = "🥋"
+	MessageEmojiCheck     = "✅"
+	MessageEmojiVote      = "🗳️"
+	MessageEmojiWave      = "👋"
+	MessageEmojiCoach     = "🚀"
+	MessageEmojiCoachUser = "🎓"
+	MessageEmojiPrice     = "💰"
+)
+
+var RoleIds = map[database.DojoCohort]string{
 	"0-300":     "1107651005547548742",
 	"300-400":   "951960545077100645",
 	"400-500":   "951995036487254026",
@@ -49,7 +87,7 @@ func SendBookingNotification(username string, meetingId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone has just booked a meeting with you! View it [here](%s/meeting/%s).", frontendHost, meetingId)
+	msg := fmt.Sprintf("%s Hello, someone has just booked a meeting with you! View it %s [**Here**](<%s/meeting/%s>).", MessageEmojiWave, MessageEmojiArrow, frontendHost, meetingId)
 	return SendNotification(user, msg)
 }
 
@@ -65,7 +103,7 @@ func SendGroupJoinNotification(username string, availabilityId string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Hello, someone just joined your group meeting! View it [here](%s/meeting/%s)", frontendHost, availabilityId)
+	msg := fmt.Sprintf("%s Hello, someone just joined your group meeting! View it %s [**Here**](<%s/meeting/%s>)", MessageEmojiWave, MessageEmojiArrow, frontendHost, availabilityId)
 	return SendNotification(user, msg)
 }
 
@@ -117,34 +155,34 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 
 	var sb strings.Builder
 
-	discordId, err := getDiscordIdByCognitoUsername(discord, event.Owner)
+	discordId, err := GetDiscordIdByCognitoUsername(discord, event.Owner)
 	if err != nil {
 		log.Errorf("Failed to get discordId: %v", err)
-		sb.WriteString(fmt.Sprintf("Availability posted by %s", event.OwnerDisplayName))
+		sb.WriteString(fmt.Sprintf("## %s **Availability posted by** %s", MessageEmojiWave, event.OwnerDisplayName))
 	} else {
-		sb.WriteString(fmt.Sprintf("Availability posted by <@%s>", discordId))
+		sb.WriteString(fmt.Sprintf("## %s **Availability posted by** <@%s>", MessageEmojiWave, discordId))
 	}
 
-	sb.WriteString(fmt.Sprintf("\nStart Time: <t:%d:f>", startTime.Unix()))
-	sb.WriteString(fmt.Sprintf("\nEnd Time: <t:%d:f>", endTime.Unix()))
+	sb.WriteString(fmt.Sprintf("\n  **Start Time %s:** <t:%d:f>", MessageEmojiClock, startTime.Unix()))
+	sb.WriteString(fmt.Sprintf("\n  **End Time %s:** <t:%d:f>", MessageEmojiClock, endTime.Unix()))
 
 	if event.Description != "" {
-		sb.WriteString(fmt.Sprintf("\nDescription: %s", event.Description))
+		sb.WriteString(fmt.Sprintf("\n **Description %s:** %s", MessageEmojiNotepad, event.Description))
 	}
 
-	sb.WriteString("\nTypes: ")
+	sb.WriteString(fmt.Sprintf("\n **Types %s:** ", MessageEmojiArrow))
 	sb.WriteString(strings.Join(database.GetDisplayNames(event.Types), ", "))
 
-	sb.WriteString("\nCohorts: ")
+	sb.WriteString(fmt.Sprintf("\n **Cohorts %s:** ", MessageEmojiDojo))
 	for i, c := range event.Cohorts {
-		sb.WriteString(string(c))
+		sb.WriteString(fmt.Sprintf("%s %s", string(c), CohortEmojiIds[c]))
 		if i+1 < len(event.Cohorts) {
 			sb.WriteString(", ")
 		}
 	}
 
-	sb.WriteString(fmt.Sprintf("\nCurrent Participants: %d/%d", len(event.Participants), event.MaxParticipants))
-	sb.WriteString(fmt.Sprintf("\n[Click to Book](%s/calendar/availability/%s)", frontendHost, event.Id))
+	sb.WriteString(fmt.Sprintf("\n **Current Participants %s:** %d/%d", MessageEmojiVote, len(event.Participants), event.MaxParticipants))
+	sb.WriteString(fmt.Sprintf("\n %s [**Click to Book**](<%s/calendar/availability/%s>)", MessageEmojiArrow, frontendHost, event.Id))
 
 	if event.DiscordMessageId == "" {
 		msg, err := discord.ChannelMessageSend(findGameChannelId, sb.String())
@@ -183,41 +221,41 @@ func SendCoachingNotification(event *database.Event) (string, error) {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("## %s", event.Title))
+	sb.WriteString(fmt.Sprintf("## %s %s", MessageEmojiCoach, event.Title))
 
-	discordId, err := getDiscordIdByCognitoUsername(discord, event.Owner)
+	discordId, err := GetDiscordIdByCognitoUsername(discord, event.Owner)
 	if err != nil {
 		log.Errorf("Failed to get discordId: %v", err)
-		sb.WriteString(fmt.Sprintf("\n**Coach:** %s", event.OwnerDisplayName))
+		sb.WriteString(fmt.Sprintf("\n **Coach %s:** %s", MessageEmojiCoachUser, event.OwnerDisplayName))
 	} else {
-		sb.WriteString(fmt.Sprintf("\n**Coach:** <@%s>", discordId))
+		sb.WriteString(fmt.Sprintf("\n **Coach %s:** <@%s>", MessageEmojiCoachUser, discordId))
 	}
 
-	sb.WriteString(fmt.Sprintf("\n**Time:** <t:%d:f> - <t:%d:f>", startTime.Unix(), endTime.Unix()))
+	sb.WriteString(fmt.Sprintf("\n **Time %s:** <t:%d:f> - <t:%d:f>", MessageEmojiClock, startTime.Unix(), endTime.Unix()))
 
 	if event.Coaching.CurrentPrice > 0 {
-		sb.WriteString(fmt.Sprintf("\n**Price:** ~~$%.2f~~ $%.2f", float32(event.Coaching.FullPrice)/100, float32(event.Coaching.CurrentPrice)/100))
+		sb.WriteString(fmt.Sprintf("\n **Price %s:** ~~$%.2f~~ $%.2f", MessageEmojiPrice, float32(event.Coaching.FullPrice)/100, float32(event.Coaching.CurrentPrice)/100))
 	} else {
-		sb.WriteString(fmt.Sprintf("\n**Price:** $%.2f", float32(event.Coaching.FullPrice)/100))
+		sb.WriteString(fmt.Sprintf("\n **Price %s:** $%.2f", MessageEmojiPrice, float32(event.Coaching.FullPrice)/100))
 	}
 
-	sb.WriteString(fmt.Sprintf("\n**Description:** %s", event.Description))
+	sb.WriteString(fmt.Sprintf("\n **Description %s:** %s", MessageEmojiNotepad, event.Description))
 
-	sb.WriteString("\n**Cohorts:** ")
+	sb.WriteString(fmt.Sprintf("\n **Cohorts %s:** ", MessageEmojiDojo))
 	for i, c := range event.Cohorts {
-		roleId := roleIds[c]
+		roleId := RoleIds[c]
 		if roleId == "" {
-			sb.WriteString(string(c))
+			sb.WriteString(fmt.Sprintf("%s %s", string(c), CohortEmojiIds[c]))
 		} else {
-			sb.WriteString(fmt.Sprintf("<@&%s>", roleId))
+			sb.WriteString(fmt.Sprintf("<@&%s> %s", roleId, CohortEmojiIds[c]))
 		}
 		if i+1 < len(event.Cohorts) {
 			sb.WriteString(", ")
 		}
 	}
 
-	sb.WriteString(fmt.Sprintf("\n**Current Participants:** %d/%d", len(event.Participants), event.MaxParticipants))
-	sb.WriteString(fmt.Sprintf("\n[Click to Book](%s/calendar/availability/%s)", frontendHost, event.Id))
+	sb.WriteString(fmt.Sprintf("\n **Current Participants %s:** %d/%d", MessageEmojiVote, len(event.Participants), event.MaxParticipants))
+	sb.WriteString(fmt.Sprintf("\n %s [**Click to Book**](<%s/calendar/availability/%s>)", MessageEmojiArrow, frontendHost, event.Id))
 
 	if event.DiscordMessageId == "" {
 		msg, err := discord.ChannelMessageSend(coachingChannelId, sb.String())
@@ -310,4 +348,17 @@ func SendNotification(user *database.User, message string) error {
 
 	_, err = discord.ChannelMessageSend(channel.ID, message)
 	return errors.Wrap(500, "Temporary server error", "Failed to send discord message", err)
+}
+
+func SendMessageInChannel(message string, channelId string) (string, error) {
+	discord, err := discordgo.New("Bot " + authToken)
+	if err != nil {
+		return "", errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+	}
+
+	msg, err := discord.ChannelMessageSend(channelId, message)
+	if err != nil {
+		return "", errors.Wrap(500, "Temporary server error", "Failed to send discord channel message", err)
+	}
+	return msg.ID, nil
 }

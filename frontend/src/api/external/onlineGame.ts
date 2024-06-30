@@ -356,8 +356,6 @@ export function useOnlineGames(params: UseOnlineGamesParams) {
     }, [chesscom, requestChesscomGames]);
 
     const games = useMemo(() => {
-        console.log('lichessGames: ', lichessGames);
-        console.log('chesscomGames: ', chesscomGames);
         return (lichessGames || [])
             .map((g) => lichessOnlineGame(g))
             .concat(chesscomGames?.map((g) => chesscomOnlineGame(g)) || [])

@@ -12,6 +12,7 @@ import {
     Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
@@ -20,11 +21,12 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import {
     CustomTask,
-    isRequirement,
     Requirement,
     ScoreboardDisplay,
+    isRequirement,
 } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
+import { User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import { useTimeline } from '../activity/useTimeline';
 
@@ -201,7 +203,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
             return;
         }
 
-        let itemErrors: HistoryItemError = {};
+        const itemErrors: HistoryItemError = {};
         if (item.date === null) {
             itemErrors.date = 'This field is required';
         }
@@ -293,12 +295,12 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     onClose,
     toggleView,
 }) => {
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const api = useApi();
-    const request = useRequest();
+    const request = useRequest<AxiosResponse<User>>();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
-    const { entries, request: timelineRequest } = useTimeline(user.username);
+    const { entries, request: timelineRequest } = useTimeline(user?.username);
 
     const isTimeOnly =
         requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo ||

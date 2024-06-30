@@ -9,13 +9,13 @@ import {
 import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useClubs } from '../../api/cache/clubs';
-import { useAuth } from '../../auth/Auth';
+import { useRequiredAuth } from '../../auth/Auth';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
 import NewsfeedList from './NewsfeedList';
 
 const NewsfeedListPage = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const { clubs } = useClubs(user.clubs || []);
 
     const [newsfeedIds, newsfeedIdOptions] = useMemo(() => {

@@ -1,32 +1,26 @@
 import LoadingButton from '@mui/lab/LoadingButton';
 import { CircularProgress, Container, Stack, TextField, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-
+import { useState } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
 
 const VerifyEmailPage = () => {
     const auth = useAuth();
 
-    const navigate = useNavigate();
-    const locationState = useLocation().state as any;
+    const locationState = useLocation().state as
+        | { username: string; email: string; password: string }
+        | undefined;
 
-    const username: string = locationState?.username;
-    const email: string = locationState?.email;
-    const password: string = locationState?.password;
-
-    useEffect(() => {
-        if (!username || !email || !password) {
-            navigate('/signup', { replace: true });
-        }
-    }, [username, email, password, navigate]);
+    const username = locationState?.username;
+    const email = locationState?.email;
+    const password = locationState?.password;
 
     const [code, setCode] = useState('');
     const [codeError, setCodeError] = useState<string>();
 
     const submitRequest = useRequest();
-    const codeRequest = useRequest();
+    const codeRequest = useRequest<string>();
 
     if (auth.status === AuthStatus.Loading) {
         return (
@@ -40,6 +34,10 @@ const VerifyEmailPage = () => {
         return <Navigate to='/' />;
     }
 
+    if (!username || !email || !password) {
+        return <Navigate to='/signup' replace />;
+    }
+
     const onSubmit = () => {
         if (code.length === 0) {
             setCodeError('Verification code is required');
@@ -51,7 +49,7 @@ const VerifyEmailPage = () => {
 
         auth.confirmSignup(username, code)
             .then(() => auth.signin(email, password))
-            .catch((err) => {
+            .catch((err: { message?: string; code?: string }) => {
                 console.dir(err);
                 if (err.message) {
                     setCodeError(err.message);
@@ -76,7 +74,7 @@ const VerifyEmailPage = () => {
             .then(() => {
                 codeRequest.onSuccess('New verification code sent');
             })
-            .catch((err) => {
+            .catch((err: { message?: string }) => {
                 console.dir(err);
                 if (err.message) {
                     codeRequest.onFailure(err.message);

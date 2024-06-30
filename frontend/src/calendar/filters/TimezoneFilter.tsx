@@ -44,14 +44,14 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
     const onChangeTimezone = (tz: string) => {
         setTimezone(tz);
         if (auth.user) {
-            api.updateUser({ timezoneOverride: tz });
+            void api.updateUser({ timezoneOverride: tz });
         }
     };
 
     const onChangeTimeFormat = (format: TimeFormat) => {
         setTimeFormat(format);
         if (auth.user) {
-            api.updateUser({ timeFormat: format });
+            void api.updateUser({ timeFormat: format });
         }
     };
 
@@ -59,8 +59,8 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
     const browserDefaultLabel =
         timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
 
-    let minHourNum = minHour?.hour || 0;
-    let maxHourNum = (maxHour?.hour || 23) + 1;
+    const minHourNum = minHour?.hour || 0;
+    const maxHourNum = (maxHour?.hour || 23) + 1;
 
     return (
         <Stack spacing={2.5}>
@@ -112,7 +112,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
                 ampm={timeFormat === TimeFormat.TwelveHour}
                 value={minHour}
                 onChange={(v) => setMinHour(v)}
-                maxTime={maxHour}
+                maxTime={maxHour === null ? undefined : maxHour}
                 slotProps={{
                     textField: {
                         size: 'small',
@@ -129,7 +129,7 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
                 ampm={timeFormat === TimeFormat.TwelveHour}
                 value={maxHour}
                 onChange={(v) => setMaxHour(v)}
-                minTime={minHour}
+                minTime={minHour === null ? undefined : minHour}
                 slotProps={{
                     textField: {
                         size: 'small',

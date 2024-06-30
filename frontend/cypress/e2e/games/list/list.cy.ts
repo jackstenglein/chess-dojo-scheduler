@@ -2,8 +2,8 @@ describe('List Games Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'games',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password'),
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/games');
     });
@@ -45,7 +45,7 @@ describe('List Games Page', () => {
     });
 
     it('populates table with initial cohort', () => {
-        cy.getBySel('games-table').contains('1500-1600');
+        cy.getBySel('games-table').contains('15-1600');
     });
 
     it('allows searching by cohort by default', () => {
@@ -61,7 +61,7 @@ describe('List Games Page', () => {
         cy.contains('1600-1700').click();
         cy.getBySel('cohort-search-button').click();
 
-        cy.getBySel('games-table').contains('1600-1700');
+        cy.getBySel('games-table').contains('16-1700');
         cy.getBySel('games-table').contains('JackStenglein');
         cy.location('search').should(
             'equal',

@@ -1,4 +1,5 @@
 import { Header } from '@jackstenglein/chess';
+import { type Tags as PgnParserTags } from '@jackstenglein/pgn-parser';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
     Button,
@@ -13,8 +14,12 @@ import {
 
 import { PgnHeaders } from '../../database/game';
 
-function getPgnName(header: Record<string, string> | PgnHeaders): string {
-    if (header.PgnName) {
+type PermissiveHeaders = PgnParserTags | Record<string, undefined> | PgnHeaders;
+
+function getPgnName(header: PermissiveHeaders): string {
+    // We do not expect a case where header.PgnName is an object,
+    // but we must make the compiler happy.
+    if (header.PgnName && typeof header.PgnName !== 'object') {
         return header.PgnName;
     }
 
@@ -23,7 +28,7 @@ function getPgnName(header: Record<string, string> | PgnHeaders): string {
 
 interface PgnSelectorProps {
     pgns?: string[];
-    headers?: Array<Record<string, string> | PgnHeaders>;
+    headers?: PermissiveHeaders[];
     selectedIndex: number;
     setSelectedIndex: (i: number) => void;
     completed?: boolean[];
@@ -42,11 +47,11 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
     hiddenCount,
     noCard,
 }) => {
-    let selectedHeaders: Array<Record<string, string> | PgnHeaders> = [];
+    let selectedHeaders: PermissiveHeaders[] = [];
     if (headers) {
         selectedHeaders = headers;
     } else if (pgns) {
-        selectedHeaders = pgns.map((pgn) => new Header(pgn).tags);
+        selectedHeaders = pgns.map((pgn) => new Header({ pgn }).tags);
     }
 
     const items = (
@@ -93,7 +98,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                 ))}
             </List>
 
-            {Boolean(hiddenCount) && (
+            {hiddenCount !== undefined && hiddenCount > 0 && (
                 <Stack
                     data-cy='upsell-message'
                     px={1}
@@ -103,7 +108,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                 >
                     <Typography textAlign='center'>
                         Unlock {hiddenCount} more game
-                        {hiddenCount! > 1 ? 's' : ''} by upgrading to a full account
+                        {hiddenCount > 1 ? 's' : ''} by upgrading to a full account
                     </Typography>
                     <Button variant='outlined' href='/prices'>
                         View Prices

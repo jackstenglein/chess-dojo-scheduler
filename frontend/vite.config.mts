@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
-
 import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import eslint from 'vite-plugin-eslint';
 
 export default defineConfig(() => {
     return {
@@ -15,7 +15,13 @@ export default defineConfig(() => {
             // https://github.com/aws-amplify/amplify-js/issues/11175
             global: {},
         },
-        plugins: [react()],
+        plugins: [
+            react(),
+            eslint({
+                failOnError: false,
+                include: 'src',
+            }),
+        ],
         test: {
             environment: 'happy-dom',
             include: ['./src/**/*.test.ts', './src/**/*.test.tsx'],

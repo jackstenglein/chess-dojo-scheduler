@@ -18,7 +18,8 @@ import { AuthStatus, useAuth } from './Auth';
 const SigninPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
-    const redirectUri = useLocation().state?.redirectUri || '';
+    const redirectUri =
+        (useLocation().state as { redirectUri?: string } | undefined)?.redirectUri || '';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -55,7 +56,7 @@ const SigninPage = () => {
         }
 
         request.onStart();
-        auth.signin(email.trim(), password).catch((err) => {
+        auth.signin(email.trim(), password).catch((err: { code?: string }) => {
             console.error(err);
             if (
                 err.code === 'NotAuthorizedException' ||

@@ -1,10 +1,15 @@
+import {
+    Exam,
+    ExamAnswer,
+    ExamAttempt,
+    ExamType,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
 import axios, { AxiosResponse } from 'axios';
 import { getConfig } from '../config';
-import { Exam, ExamAnswer, ExamAttempt, ExamType } from '../database/exam';
 
 const BASE_URL = getConfig().api.baseUrl;
 
-export type ExamApiContextType = {
+export interface ExamApiContextType {
     /**
      * Fetches the requested exam, as well as the calling user's answer for it.
      * @param type The type of the exam.
@@ -48,7 +53,7 @@ export type ExamApiContextType = {
      * @returns An AxiosResponse containing the requested ExamAnswer.
      */
     getExamAnswer: (id: string) => Promise<AxiosResponse<ExamAnswer>>;
-};
+}
 
 /**
  * Fetches the requested exam, as well as the calling user's answer for it.

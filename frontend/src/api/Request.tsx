@@ -1,5 +1,7 @@
-import { Snackbar, Alert } from '@mui/material';
-import { useState, useCallback, ReactNode, useMemo } from 'react';
+import { Alert, Snackbar } from '@mui/material';
+import { AxiosError } from 'axios';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { isObject } from '../database/scoreboard';
 
 /**
  * RequestStatus defines the different status types that an API request can have.
@@ -14,13 +16,13 @@ export enum RequestStatus {
 /**
  * Request defines the overall state of an API request, as well as functions to update that state.
  */
-export interface Request<T = any> {
+export interface Request<T = undefined> {
     status: RequestStatus;
     data?: T;
-    error?: any;
+    error?: unknown;
     onStart: () => void;
     onSuccess: (data?: T) => void;
-    onFailure: (error?: any) => void;
+    onFailure: (error?: unknown) => void;
     reset: () => void;
     isLoading: () => boolean;
     isSent: () => boolean;
@@ -30,10 +32,10 @@ export interface Request<T = any> {
 /**
  * useRequest returns a Request object that can be used to track the lifecycle of an API request.
  */
-export function useRequest<T = any>(): Request<T> {
+export function useRequest<T = undefined>(): Request<T> {
     const [status, setStatus] = useState<RequestStatus>(RequestStatus.NotSent);
     const [data, setData] = useState<T>();
-    const [error, setError] = useState<any>();
+    const [error, setError] = useState<unknown>();
 
     const onStart = useCallback(() => {
         setStatus(RequestStatus.Loading);
@@ -46,15 +48,15 @@ export function useRequest<T = any>(): Request<T> {
             setData(data);
             setStatus(RequestStatus.Success);
         },
-        [setData, setStatus]
+        [setData, setStatus],
     );
 
     const onFailure = useCallback(
-        (error?: any) => {
+        (error?: unknown) => {
             setError(error);
             setStatus(RequestStatus.Failure);
         },
-        [setError, setStatus]
+        [setError, setStatus],
     );
 
     const reset = useCallback(() => {
@@ -99,11 +101,11 @@ export function useRequest<T = any>(): Request<T> {
             isLoading,
             isSent,
             isFailure,
-        ]
+        ],
     );
 }
 
-function isReactNode(node: any | ReactNode): node is ReactNode {
+function isReactNode(node: unknown): node is ReactNode {
     if (node === null || node === undefined) {
         return true;
     }
@@ -117,7 +119,7 @@ function isReactNode(node: any | ReactNode): node is ReactNode {
     return false;
 }
 
-interface RequestSnackbarProps<T = any> {
+interface RequestSnackbarProps<T> {
     request: Request<T>;
     showError?: boolean;
     showSuccess?: boolean;
@@ -125,25 +127,38 @@ interface RequestSnackbarProps<T = any> {
     defaultSuccessMessage?: string;
 }
 
-export function RequestSnackbar<T = any>({
+export function RequestSnackbar<T>({
     request,
     showError,
     showSuccess,
     defaultErrorMessage,
     defaultSuccessMessage,
 }: RequestSnackbarProps<T>) {
-    let displayError =
+    const displayError =
         (showError === undefined || showError) &&
         request.status === RequestStatus.Failure &&
         request.error !== undefined;
 
-    let displaySuccess = showSuccess && request.data !== undefined;
+    const displaySuccess = showSuccess && request.data !== undefined;
 
     let errorMessage =
-        request.error?.response?.data?.message ||
-        request.error?.message ||
         defaultErrorMessage ||
         'Something went wrong. Please try again later or contact support if the problem persists';
+
+    if (
+        request.error instanceof AxiosError &&
+        isObject(request.error.response?.data) &&
+        'message' in request.error.response.data &&
+        typeof request.error.response.data.message === 'string'
+    ) {
+        errorMessage = request.error.response.data.message;
+    } else if (
+        isObject(request.error) &&
+        'message' in request.error &&
+        typeof request.error.message === 'string'
+    ) {
+        errorMessage = request.error.message;
+    }
 
     if (errorMessage === 'Unauthorized') {
         errorMessage = 'Login expired. Please refresh and try again.';

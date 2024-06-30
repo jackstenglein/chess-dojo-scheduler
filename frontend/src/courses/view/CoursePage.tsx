@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from 'react';
 import {
     Alert,
     Box,
@@ -9,24 +8,19 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import { useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-
+import NotFoundPage from '../../NotFoundPage';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Course, CourseType } from '../../database/course';
-import LoadingPage from '../../loading/LoadingPage';
-import Module from './Module';
-import NotFoundPage from '../../NotFoundPage';
-import Contents from './Contents';
 import { GetCourseResponse } from '../../api/courseApi';
-import PurchaseCoursePage from './PurchaseCoursePage';
 import { AuthStatus, useAuth, useFreeTier } from '../../auth/Auth';
+import { Course } from '../../database/course';
+import LoadingPage from '../../loading/LoadingPage';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../localStorage';
-
-type CoursePageParams = {
-    type: CourseType;
-    id: string;
-};
+import Contents from './Contents';
+import Module from './Module';
+import PurchaseCoursePage from './PurchaseCoursePage';
 
 const CoursePage = () => {
     const navigate = useNavigate();
@@ -34,7 +28,7 @@ const CoursePage = () => {
     const anonymousUser = auth.user === undefined;
     const isFreeTier = useFreeTier();
     const api = useApi();
-    const params = useParams<CoursePageParams>();
+    const params = useParams();
     const request = useRequest<GetCourseResponse>();
     const [searchParams, setSearchParams] = useSearchParams({
         chapter: '0',
@@ -77,7 +71,7 @@ const CoursePage = () => {
     }, [course, chapterIndex]);
 
     const moduleIndex = parseInt(searchParams.get('module') || '0');
-    const module = useMemo(() => {
+    const courseModule = useMemo(() => {
         if (moduleIndex >= 0 && moduleIndex < (chapter?.modules.length || 0)) {
             return chapter?.modules[moduleIndex];
         }
@@ -91,7 +85,7 @@ const CoursePage = () => {
         return <LoadingPage />;
     }
 
-    if (course === undefined || chapter === undefined || module === undefined) {
+    if (course === undefined || chapter === undefined || courseModule === undefined) {
         return <NotFoundPage />;
     }
 
@@ -130,7 +124,7 @@ const CoursePage = () => {
                         <Divider />
 
                         <Box mt={2}>
-                            <Module module={module} />
+                            <Module module={courseModule} />
                         </Box>
                     </Stack>
 
@@ -183,43 +177,49 @@ function getPreviousModule(chapterIndex: number, moduleIndex: number, course: Co
     if (chapterIndex === 0 && moduleIndex === 0) {
         return undefined;
     }
+    if (!course.chapters) {
+        return undefined;
+    }
 
     if (moduleIndex === 0) {
-        const prevModuleIndex = course.chapters![chapterIndex - 1].modules.length - 1;
+        const prevModuleIndex = course.chapters[chapterIndex - 1].modules.length - 1;
         return {
             chapterIndex: `${chapterIndex - 1}`,
             moduleIndex: `${prevModuleIndex}`,
-            name: course.chapters![chapterIndex - 1].modules[prevModuleIndex].name,
+            name: course.chapters[chapterIndex - 1].modules[prevModuleIndex].name,
         };
     }
 
     return {
         chapterIndex: `${chapterIndex}`,
         moduleIndex: `${moduleIndex - 1}`,
-        name: course.chapters![chapterIndex].modules[moduleIndex - 1].name,
+        name: course.chapters[chapterIndex].modules[moduleIndex - 1].name,
     };
 }
 
 function getNextModule(chapterIndex: number, moduleIndex: number, course: Course) {
+    if (!course.chapters) {
+        return undefined;
+    }
     if (
-        chapterIndex === course.chapters!.length - 1 &&
-        moduleIndex === course.chapters![chapterIndex].modules.length - 1
+        chapterIndex === course.chapters.length - 1 &&
+        moduleIndex === course.chapters[chapterIndex].modules.length - 1
     ) {
         return undefined;
     }
 
-    if (moduleIndex === course.chapters![chapterIndex].modules.length - 1) {
+    if (moduleIndex === course.chapters[chapterIndex].modules.length - 1) {
         return {
             chapterIndex: `${chapterIndex + 1}`,
             moduleIndex: '0',
-            name: course.chapters![chapterIndex + 1].modules[0].name,
+            name: course.chapters[chapterIndex + 1].modules[0].name,
         };
     }
 
     return {
         chapterIndex: `${chapterIndex}`,
         moduleIndex: `${moduleIndex + 1}`,
-        name: course.chapters![chapterIndex].modules[moduleIndex + 1].name,
+        name: course.chapters[chapterIndex].modules[moduleIndex + 1].name,
     };
 }
 

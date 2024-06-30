@@ -1,3 +1,5 @@
 *.pgn
 *.csv
 *.json
+__pycache__/
+log*.txt

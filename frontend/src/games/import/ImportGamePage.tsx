@@ -8,7 +8,7 @@ import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
     const api = useApi();
-    const request = useRequest();
+    const request = useRequest<string>();
     const navigate = useNavigate();
 
     const onCreate = (req: CreateGameRequest) => {
@@ -19,19 +19,19 @@ const ImportGamePage = () => {
                     const game = response.data;
                     trackEvent(EventType.SubmitGame, {
                         count: 1,
-                        source: req.type,
+                        method: req.type,
                     });
                     navigate(
                         `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
                             '?',
                             '%3F',
-                        )}`,
+                        )}?firstLoad=true`,
                     );
                 } else {
                     const count = response.data.count;
                     trackEvent(EventType.SubmitGame, {
                         count: count,
-                        source: req.type,
+                        method: req.type,
                     });
                     request.onSuccess(`Created ${count} games`);
                     navigate('/profile?view=games');

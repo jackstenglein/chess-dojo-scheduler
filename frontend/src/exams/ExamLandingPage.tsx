@@ -23,7 +23,7 @@ export const ExamLandingPage = () => {
             <Grid2 container rowSpacing={2} columnSpacing={2}>
                 <ExamCard
                     name='Tactics Tests'
-                    description='1500+'
+                    description='All Ratings'
                     href='/tests/tactics'
                     icon={QueenIcon}
                 />
@@ -37,10 +37,9 @@ export const ExamLandingPage = () => {
 
                 <ExamCard
                     name='Endgame Tests'
-                    description='Coming June 31st'
+                    description='All Ratings'
                     href='/tests/endgame'
                     icon={RookIcon}
-                    disabled
                 />
             </Grid2>
         </Container>
@@ -53,7 +52,7 @@ interface ExamCardProps {
     href: string;
     icon:
         | ((props: SvgIconProps) => JSX.Element)
-        | (OverridableComponent<SvgIconTypeMap<{}, 'svg'>> & { muiName: string });
+        | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
     disabled?: boolean;
 }
 

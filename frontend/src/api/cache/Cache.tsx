@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
     createContext,
     ReactNode,
@@ -119,7 +123,7 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
 /**
  * CacheContextType defines the type of the cache as available through CacheProvider
  */
-type CacheContextType = {
+interface CacheContextType {
     isLoading: boolean;
     setIsLoading: (arg: boolean) => void;
 
@@ -131,8 +135,9 @@ type CacheContextType = {
 
     imageBypass: number;
     setImageBypass: (v: number) => void;
-};
+}
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const CacheContext = createContext<CacheContextType>(null!);
 
 /**

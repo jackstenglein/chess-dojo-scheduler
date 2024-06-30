@@ -2,8 +2,8 @@ describe('Info Tab', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'tournaments',
-            Cypress.env('cognito_username'),
-            Cypress.env('cognito_password')
+            cy.dojo.env('cognito_username'),
+            cy.dojo.env('cognito_password')
         );
         cy.visit('/tournaments?type=info');
     });

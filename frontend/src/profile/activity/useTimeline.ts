@@ -11,14 +11,14 @@ export interface UseTimelineResponse {
     onEdit: (i: number, entry: TimelineEntry) => void;
 }
 
-export function useTimeline(owner: string): UseTimelineResponse {
+export function useTimeline(owner?: string): UseTimelineResponse {
     const api = useApi();
     const [entries, setEntries] = useState<TimelineEntry[]>([]);
     const [startKey, setStartKey] = useState<string>();
     const request = useRequest();
 
     useEffect(() => {
-        if (!request.isSent()) {
+        if (owner && !request.isSent()) {
             request.onStart();
             api.listUserTimeline(owner, startKey)
                 .then((res) => {

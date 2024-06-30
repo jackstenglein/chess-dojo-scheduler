@@ -16,7 +16,7 @@ import { formatTime } from '../../database/requirement';
 import { CategoryColors } from '../activity/activity';
 import Percentiles from './Percentiles';
 
-const secondaryAxes: Array<AxisOptions<Datum>> = [
+const secondaryAxes: AxisOptions<Datum>[] = [
     {
         position: 'bottom',
         getValue: (datum) => datum.secondary,

@@ -1,17 +1,16 @@
-import { useState } from 'react';
-import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/material';
 import { AxiosResponse } from 'axios';
-
+import { useState } from 'react';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
 import Avatar from '../../profile/Avatar';
-import { RequestSnackbar, useRequest } from '../../api/Request';
 
 interface CommentEditorProps<T, CreateFunctionProps> {
     createFunctionProps: CreateFunctionProps;
     createFunction: (
         props: CreateFunctionProps,
-        content: string
+        content: string,
     ) => Promise<AxiosResponse<T>>;
     onSuccess: (item: T) => void;
     label?: string;
@@ -19,11 +18,11 @@ interface CommentEditorProps<T, CreateFunctionProps> {
 }
 
 function CommentEditor<T, CreateFunctionProps>(
-    props: CommentEditorProps<T, CreateFunctionProps>
+    props: CommentEditorProps<T, CreateFunctionProps>,
 ) {
     const { createFunctionProps, createFunction, onSuccess, label, tooltip } = props;
 
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const [comment, setComment] = useState('');
     const request = useRequest();
 

@@ -113,8 +113,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     const isNonDojo = requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo;
     const isMinutes = requirement.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
-    let hoursInt = parseInt(hours) || 0;
-    let minutesInt = parseInt(minutes) || 0;
+    const hoursInt = parseInt(hours) || 0;
+    const minutesInt = parseInt(minutes) || 0;
     const totalTime = 60 * hoursInt + minutesInt + (progress?.minutesSpent[cohort] ?? 0);
     const addedTime = 60 * hoursInt + minutesInt;
 

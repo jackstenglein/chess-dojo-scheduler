@@ -1,7 +1,6 @@
+import { Event, EventType } from '@jackstenglein/chess';
+import { Divider, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Stack, Divider, Typography } from '@mui/material';
-import { TAGS, EventType, Event } from '@jackstenglein/chess';
-
 import { useChess } from '../PgnBoard';
 
 const Result = () => {
@@ -13,7 +12,7 @@ const Result = () => {
             const observer = {
                 types: [EventType.UpdateHeader],
                 handler: (event: Event) => {
-                    if (event.headerName === TAGS.Result) {
+                    if (event.headerName === 'Result') {
                         setForceRender((v) => v + 1);
                     }
                 },
@@ -24,7 +23,7 @@ const Result = () => {
         }
     }, [chess, setForceRender]);
 
-    const result = chess?.pgn.header.tags[TAGS.Result];
+    const result = chess?.pgn.header.tags.Result;
     if (!result) {
         return null;
     }

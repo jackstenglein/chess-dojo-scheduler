@@ -6,16 +6,27 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
     MenuItem,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
-import { useState } from 'react';
-import { GameHeader, stripTagValue } from '../../api/gameApi';
-import { GameResult, isGameResult } from '../../database/game';
+import { useEffect, useState } from 'react';
+import {
+    BoardOrientation,
+    GameHeader,
+    parsePgnDate,
+    stripTagValue,
+    toPgnDate,
+} from '../../api/gameApi';
+import { GameResult, PgnHeaders, isGameResult } from '../../database/game';
 
 interface FormHeader {
     white: string;
@@ -24,35 +35,20 @@ interface FormHeader {
     result: string;
 }
 
-function getFormHeader(h?: GameHeader): FormHeader {
-    let date = null;
-    if (h?.date) {
-        date = DateTime.fromISO(h.date.replaceAll('.', '-'));
-        if (!date.isValid) {
-            date = null;
-        }
-    }
-
-    let result = h?.result;
-    if (!isGameResult(result)) {
-        result = '';
-    }
+function getFormHeader(h?: PgnHeaders): FormHeader {
+    const result = h?.Result ?? '';
 
     return {
-        date,
         result,
-        white: stripTagValue(h?.white || ''),
-        black: stripTagValue(h?.black || ''),
+        date: parsePgnDate(h?.Date),
+        white: stripTagValue(h?.White || ''),
+        black: stripTagValue(h?.Black || ''),
     };
 }
 
 export function getGameHeaders(h: FormHeader): GameHeader {
-    let date = h.date!.toUTC().toISO()!;
-    date = date.substring(0, date.indexOf('T'));
-    date = date.replaceAll('-', '.');
-
     return {
-        date: date,
+        date: toPgnDate(h.date) ?? '',
         white: h.white,
         black: h.black,
         result: h.result,
@@ -66,23 +62,46 @@ interface FormError {
     result: string;
 }
 
-interface PublishGamePreflightProps {
+interface MissingGameDataPreflightProps {
     open: boolean;
     onClose: () => void;
-    initHeaders?: GameHeader;
+    initHeaders?: PgnHeaders;
+    initOrientation?: BoardOrientation;
     loading: boolean;
-    onSubmit: (headers: GameHeader) => void;
+    title?: string;
+    skippable?: boolean;
+    children?: React.ReactNode;
+    onSubmit: (headers: GameHeader, orientation: BoardOrientation) => void;
 }
 
-const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
+export const MissingGameDataPreflight = ({
     open,
     onClose,
     initHeaders,
+    initOrientation,
     loading,
+    skippable,
+    title,
+    children,
     onSubmit,
-}) => {
+}: MissingGameDataPreflightProps) => {
     const [headers, setHeaders] = useState<FormHeader>(getFormHeader(initHeaders));
     const [errors, setErrors] = useState<Partial<FormError>>({});
+    const [orientation, setOrientation] = useState<BoardOrientation>(
+        initOrientation ?? 'white',
+    );
+
+    if (skippable === undefined) {
+        skippable = false;
+    }
+
+    if (title === undefined) {
+        title = 'Missing Data';
+    }
+
+    useEffect(() => {
+        setHeaders(getFormHeader(initHeaders));
+    }, [initHeaders]);
 
     const onChangeHeader = (key: keyof GameHeader, value: string | DateTime | null) => {
         setHeaders((oldHeaders) => ({ ...oldHeaders, [key]: value }));
@@ -91,17 +110,19 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
     const submit = () => {
         const newErrors: Partial<FormError> = {};
 
-        if (stripTagValue(headers.white) === '') {
-            newErrors.white = 'This field is required';
-        }
-        if (stripTagValue(headers.black) === '') {
-            newErrors.black = 'This field is required';
-        }
-        if (!isGameResult(headers.result)) {
-            newErrors.result = 'This field is required';
-        }
-        if (headers.date === null || !headers.date.isValid) {
-            newErrors.date = 'This field is required';
+        if (!skippable) {
+            if (stripTagValue(headers.white) === '') {
+                newErrors.white = 'This field is required';
+            }
+            if (stripTagValue(headers.black) === '') {
+                newErrors.black = 'This field is required';
+            }
+            if (!isGameResult(headers.result)) {
+                newErrors.result = 'This field is required';
+            }
+            if (!headers.date?.isValid) {
+                newErrors.date = 'This field is required';
+            }
         }
 
         setErrors(newErrors);
@@ -109,17 +130,14 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
             return;
         }
 
-        onSubmit(getGameHeaders(headers));
+        onSubmit(getGameHeaders(headers), orientation);
     };
 
     return (
         <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
-            <DialogTitle>Missing Data</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <DialogContentText>
-                    Your game is missing data. Please fill out these fields to publish
-                    your analysis.
-                </DialogContentText>
+                {children && <DialogContentText>{children}</DialogContentText>}
 
                 <Stack spacing={3} mt={3}>
                     <Grid2 container columnSpacing={1} rowSpacing={2}>
@@ -127,7 +145,7 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
                             <TextField
                                 fullWidth
                                 data-cy='white'
-                                label='White'
+                                label="White's name"
                                 value={headers.white}
                                 onChange={(e) => onChangeHeader('white', e.target.value)}
                                 error={!!errors.white}
@@ -139,7 +157,7 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
                             <TextField
                                 fullWidth
                                 data-cy='black'
-                                label='Black'
+                                label="Black's name"
                                 value={headers.black}
                                 onChange={(e) => onChangeHeader('black', e.target.value)}
                                 error={!!errors.black}
@@ -151,8 +169,8 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
                             <TextField
                                 select
                                 data-cy='result'
-                                label='Result'
-                                value={headers.result}
+                                label='Game Result'
+                                value={headers.result.replaceAll('*', '')}
                                 onChange={(e) => onChangeHeader('result', e.target.value)}
                                 error={!!errors.result}
                                 helperText={errors.result}
@@ -179,15 +197,42 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
                                         helperText: errors.date,
                                         fullWidth: true,
                                     },
+                                    field: {
+                                        clearable: true,
+                                    },
                                 }}
                             />
+                        </Grid2>
+
+                        <Grid2 xs={12}>
+                            <FormControl>
+                                <FormLabel>Default Orientation</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={orientation}
+                                    onChange={(e) =>
+                                        setOrientation(e.target.value as BoardOrientation)
+                                    }
+                                >
+                                    <FormControlLabel
+                                        value='white'
+                                        control={<Radio />}
+                                        label='White'
+                                    />
+                                    <FormControlLabel
+                                        value='black'
+                                        control={<Radio />}
+                                        label='Black'
+                                    />
+                                </RadioGroup>
+                            </FormControl>
                         </Grid2>
                     </Grid2>
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} disabled={loading}>
-                    Cancel
+                <Button data-cy='cancel-preflight' onClick={onClose} disabled={loading}>
+                    {skippable ? 'Skip for now' : 'Cancel'}
                 </Button>
                 <LoadingButton
                     data-cy='submit-preflight'
@@ -200,5 +245,3 @@ const PublishGamePreflight: React.FC<PublishGamePreflightProps> = ({
         </Dialog>
     );
 };
-
-export default PublishGamePreflight;

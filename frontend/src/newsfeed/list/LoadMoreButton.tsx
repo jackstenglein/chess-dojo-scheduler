@@ -1,26 +1,25 @@
-import { Button, Stack, Typography } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { LoadingButton } from '@mui/lab';
-
+import { Button, Stack, Typography } from '@mui/material';
 import { Request } from '../../api/Request';
-import { toDojoDateString } from '../../calendar/displayDate';
 import { useAuth } from '../../auth/Auth';
+import { toDojoDateString } from '../../calendar/displayDate';
 
-interface LoadMoreButtonProps {
-    request: Request;
+interface LoadMoreButtonProps<T> {
+    request: Request<T>;
     hasMore?: boolean;
     since?: string;
     startKey?: Record<string, string>;
     onLoadMore: () => void;
 }
 
-const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
+function LoadMoreButton<T>({
     request,
     hasMore,
     since,
     startKey,
     onLoadMore,
-}) => {
+}: LoadMoreButtonProps<T>) {
     const user = useAuth().user;
 
     if (hasMore || Object.values(startKey || {}).length > 0) {
@@ -74,6 +73,6 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
             </Stack>
         </Stack>
     );
-};
+}
 
 export default LoadMoreButton;

@@ -69,6 +69,7 @@ export enum OpenClassicalPlayerStatus {
     Active = '',
     Withdrawn = 'WITHDRAWN',
     Banned = 'BANNED',
+    Unknown = 'UNKNOWN',
 }
 
 export interface OpenClassicalPairing {

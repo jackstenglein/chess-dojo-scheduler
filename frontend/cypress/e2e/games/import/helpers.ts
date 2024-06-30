@@ -12,6 +12,14 @@ export function deleteCurrentGame() {
 }
 
 /**
+ * Cancel the missing-data preflight
+ */
+export function cancelPreflight() {
+    cy.getBySel('cancel-preflight').click();
+    cy.getBySel('cancel-preflight').should('not.be.visible');
+}
+
+/**
  * Verifies that the game currently open in the browser has the provided
  * attributes.
  * @param white The name of the player with white.
@@ -30,6 +38,8 @@ export function verifyGame({
     lastMove?: string;
     lastMoveClock?: { white?: string; black?: string };
 }) {
+    cy.location('pathname').should('match', gameUrlRegex);
+
     if (white) {
         cy.getBySel('player-header-footer').contains(white);
     }
@@ -37,7 +47,10 @@ export function verifyGame({
         cy.getBySel('player-header-header').contains(black);
     }
     if (lastMove) {
-        cy.getBySel('pgn-text-move-button').last().should('have.text', lastMove).click();
+        cy.getBySel('pgn-text-move-button')
+            .last()
+            .should('have.text', lastMove)
+            .click({ force: true });
 
         if (lastMoveClock?.white) {
             cy.getBySel('player-header-footer').contains(lastMoveClock.white);

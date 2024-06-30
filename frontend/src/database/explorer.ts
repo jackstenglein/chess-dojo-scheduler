@@ -1,4 +1,5 @@
 import { Game } from './game';
+import { isObject } from './scoreboard';
 
 /** A single position in the games explorer, aggregating results across all games. */
 export interface ExplorerPosition {
@@ -182,8 +183,8 @@ export interface LichessExplorerMove {
  * @param obj The object to check.
  * @returns True if the object is an ExplorerPosition.
  */
-export function isExplorerPosition(obj: any): obj is ExplorerPosition {
-    return obj && obj.results !== undefined && obj.moves !== undefined;
+export function isExplorerPosition(obj: unknown): obj is ExplorerPosition {
+    return isObject(obj) && obj.results !== undefined && obj.moves !== undefined;
 }
 
 /**
@@ -191,8 +192,8 @@ export function isExplorerPosition(obj: any): obj is ExplorerPosition {
  * @param obj The object to check.
  * @returns True if the object is an ExplorerMove.
  */
-export function isExplorerMove(obj: any): obj is ExplorerMove {
-    return obj && obj.results !== undefined;
+export function isExplorerMove(obj: unknown): obj is ExplorerMove {
+    return isObject(obj) && obj.results !== undefined;
 }
 
 /**
@@ -221,7 +222,7 @@ export function normalizeFen(fen: string): string {
  */
 export function getGameCount(
     results: Record<string, ExplorerResult>,
-    cohortRange: string[]
+    cohortRange: string[],
 ): number {
     return cohortRange.reduce((sum, cohort) => {
         const result = results[cohort] || {};
@@ -244,7 +245,7 @@ export function getGameCount(
 export function getResultCount(
     move: ExplorerMove,
     result: keyof ExplorerResult,
-    cohortRange: string[]
+    cohortRange: string[],
 ): number {
     return cohortRange.reduce((sum, cohort) => {
         const r = move.results[cohort] || {};

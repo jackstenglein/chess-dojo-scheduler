@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { CalendarToday, FormatListBulleted } from '@mui/icons-material';
 import {
     Stack,
     ToggleButton,
@@ -6,19 +6,19 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { CalendarToday, FormatListBulleted } from '@mui/icons-material';
+import { useMemo, useState } from 'react';
 
 import { useEvents } from '../../api/cache/Cache';
-import CoachingList, { displayEvent } from './CoachingList';
 import { useAuth } from '../../auth/Auth';
-import CoachingCalendar from './CoachingCalendar';
-import { User } from '../../database/user';
 import { Event } from '../../database/event';
+import { User } from '../../database/user';
+import CoachingCalendar from './CoachingCalendar';
+import CoachingList, { displayEvent } from './CoachingList';
 
 interface UpcomingSessionsProps {
     header?: (
         view: string,
-        onChangeView: (_: React.MouseEvent<HTMLElement>, newValue: string | null) => void
+        onChangeView: (_: React.MouseEvent<HTMLElement>, newValue: string | null) => void,
     ) => JSX.Element & React.ReactNode;
     filterFunction?: (e: Event, u?: User) => boolean;
 }
@@ -36,7 +36,7 @@ const UpcomingSessions: React.FC<UpcomingSessionsProps> = ({
             events
                 .filter((e) => predicate(e, viewer))
                 .sort((lhs, rhs) => lhs.startTime.localeCompare(rhs.startTime)),
-        [events, viewer, predicate]
+        [events, viewer, predicate],
     );
     const [view, setView] = useState('list');
 

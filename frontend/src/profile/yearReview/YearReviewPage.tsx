@@ -1,31 +1,26 @@
-import { Container, Stack, Typography } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
-import { useParams } from 'react-router-dom';
+import { Container, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
-import Avatar from '../Avatar';
-import { useRequest } from '../../api/Request';
-import { YearReview } from '../../database/yearReview';
-import { getYearReview } from '../../api/yearReviewApi';
-import LoadingPage from '../../loading/LoadingPage';
 import NotFoundPage from '../../NotFoundPage';
-import RatingsSection from './ratings/RatingsSection';
-import GraduationSection from './GraduationSection';
+import { useRequest } from '../../api/Request';
+import { getYearReview } from '../../api/yearReviewApi';
+import { YearReview } from '../../database/yearReview';
+import LoadingPage from '../../loading/LoadingPage';
+import Avatar from '../Avatar';
 import DojoPointSection from './DojoPointSection';
-import TimeSection from './TimeSection';
 import GameSection from './GameSection';
+import GraduationSection from './GraduationSection';
+import TimeSection from './TimeSection';
+import RatingsSection from './ratings/RatingsSection';
 
 export interface SectionProps {
     review: YearReview;
 }
 
-type YearReviewPageParams = {
-    username: string;
-    year: string;
-};
-
 const YearReviewPage = () => {
-    const { username, year } = useParams<YearReviewPageParams>();
+    const { username, year } = useParams();
     const request = useRequest<YearReview>();
 
     useEffect(() => {

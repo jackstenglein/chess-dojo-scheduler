@@ -1,3 +1,9 @@
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
+import { Exam } from '@jackstenglein/chess-dojo-common/src/database/exam';
+import {
+    getExamMaxScore,
+    getRegression,
+} from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import { Speed } from '@mui/icons-material';
 import { CardContent, Stack, Typography } from '@mui/material';
 import {
@@ -20,7 +26,6 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLightMode } from '../../ThemeProvider';
 import { useAuth } from '../../auth/Auth';
-import { Exam } from '../../database/exam';
 import {
     ALL_COHORTS,
     cohortColors,
@@ -30,12 +35,7 @@ import {
 } from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import {
-    getBestFitCohortRange,
-    getCohortRangeInt,
-    getRegression,
-    getTotalScore,
-} from './exam';
+import { getBestFitCohortRange } from './exam';
 
 export const BEST_FIT_RANGE = 'BEST_FIT_COHORTS';
 
@@ -51,7 +51,7 @@ interface ExamStatisticsProps {
 const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
     const bestFitCohortRange = getBestFitCohortRange(exam.cohortRange);
     const [cohorts, setCohorts] = useState([bestFitCohortRange]);
-    const user = useAuth().user!;
+    const { user } = useAuth();
     const isLight = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
     const [legendMargin, setLegendMargin] = useState(100);
@@ -60,7 +60,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
         const cohortToSeries: Record<string, ScatterSeriesType> = {};
 
         Object.entries(exam.answers).forEach(([username, answer]) => {
-            if (answer.rating <= 0 || username === user.username) {
+            if (answer.rating <= 0 || username === user?.username) {
                 return;
             }
 
@@ -100,10 +100,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
             .map((v) => v[1]);
     }, [cohortToSeries, cohorts]);
 
-    const totalScore = useMemo(
-        () => exam.pgns.reduce((sum, pgn) => sum + getTotalScore(pgn), 0),
-        [exam],
-    );
+    const totalScore = useMemo(() => getExamMaxScore(exam), [exam]);
 
     const lineSeries = useMemo(() => {
         const regression = getRegression(exam);
@@ -116,7 +113,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 id: 'best-fit',
                 type: 'line',
                 label: '',
-                data: Array.from(Array(totalScore + 2)).map((_, i) =>
+                data: Array.from(Array(totalScore + 1)).map((_, i) =>
                     regression.predict(i),
                 ),
                 color: isLight ? '#000' : '#fff',
@@ -124,9 +121,9 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
             {
                 id: 'best-fit-scatter',
                 type: 'scatter',
-                label: 'Best Fit',
+                label: 'Test Rating',
                 color: isLight ? '#000' : '#fff',
-                data: Array.from(Array(totalScore + 2)).map((_, i) => ({
+                data: Array.from(Array(totalScore + 1)).map((_, i) => ({
                     x: i,
                     y: Math.round(regression.predict(i)),
                     id: i,
@@ -135,7 +132,7 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                 valueFormatter: (value) => `Score: ${value?.x}, Rating: ${value?.y}`,
             },
         ] as [LineSeriesType, ScatterSeriesType];
-    }, [exam, totalScore]);
+    }, [exam, totalScore, isLight]);
 
     useEffect(() => {
         if (!ref.current) {
@@ -166,30 +163,32 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
         setCohorts(finalCohorts);
     };
 
-    const yourScoreSeries: ScatterSeriesType[] = exam.answers[user.username]
-        ? [
-              {
-                  type: 'scatter',
-                  label: 'Your Score',
-                  data: [
-                      {
-                          x: exam.answers[user.username].score,
-                          y: exam.answers[user.username].rating,
-                          id: user.username,
+    const yourScoreSeries: ScatterSeriesType[] =
+        user && exam.answers[user.username]
+            ? [
+                  {
+                      type: 'scatter',
+                      label: 'Your Score',
+                      data: [
+                          {
+                              x: exam.answers[user.username].score,
+                              y: exam.answers[user.username].rating,
+                              id: user.username,
+                          },
+                      ],
+                      highlightScope: {
+                          highlighted: 'item',
+                          faded: 'global',
                       },
-                  ],
-                  highlightScope: {
-                      highlighted: 'item',
-                      faded: 'global',
+                      valueFormatter: (value) =>
+                          `Score: ${value?.x},\nRating: ${value?.y}`,
+                      color: isLight ? '#000' : '#fff',
                   },
-                  valueFormatter: (value) => `Score: ${value?.x},\nRating: ${value?.y}`,
-                  color: isLight ? '#000' : '#fff',
-              },
-          ]
-        : [];
+              ]
+            : [];
 
     let userCount = series.reduce((sum, s) => sum + s.data.length, 0);
-    if (cohorts[0] === ALL_COHORTS || cohorts.includes(user.dojoCohort)) {
+    if (cohorts[0] === ALL_COHORTS || cohorts.includes(user?.dojoCohort || '')) {
         userCount += 1;
     }
 

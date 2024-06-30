@@ -232,8 +232,8 @@ const CompleteHint: React.FC<HintSectionProps> = ({
     return (
         <>
             <Stack flexGrow={1} spacing={1} sx={{ overflowY: 'hidden' }}>
-                <PgnText onClickMove={onMove} />
-                <BoardButtons onClickMove={onMove} />
+                <PgnText />
+                <BoardButtons />
             </Stack>
             <Stack>
                 <ChatBubble>{chatText}</ChatBubble>

@@ -1,8 +1,13 @@
+import {
+    Exam,
+    ExamAnswer,
+    ExamType,
+} from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Button, Container, Stack, Typography } from '@mui/material';
 import { Link, Navigate } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
-import { Exam, ExamAnswer, ExamType, displayExamType } from '../../database/exam';
+import { displayExamType } from '../../database/exam';
 import LoadingPage from '../../loading/LoadingPage';
 import { CompletedExam, InProgressExam } from '../view/ExamPage';
 import { useExam } from '../view/exam';
@@ -147,6 +152,7 @@ function getSampleExam(exam: Exam): Exam {
 
     switch (exam.type) {
         case ExamType.Tactics:
+        case ExamType.Endgame:
             pgns = tacticsSampleProblems;
             break;
         case ExamType.Polgar:
@@ -163,5 +169,6 @@ function getSampleExam(exam: Exam): Exam {
         timeLimitSeconds: exam.timeLimitSeconds,
         answers: {},
         takebacksDisabled: exam.takebacksDisabled,
+        totalScore: 0,
     };
 }

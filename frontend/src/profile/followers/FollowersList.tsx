@@ -1,22 +1,21 @@
-import React, { useEffect } from 'react';
 import { Link, Stack, Typography } from '@mui/material';
-import { useLocation, useParams, Link as RouterLink } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link as RouterLink, useLocation, useParams } from 'react-router-dom';
 
+import { LoadingButton } from '@mui/lab';
+import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { ListFollowersResponse } from '../../api/userApi';
-import LoadingPage from '../../loading/LoadingPage';
-import { useApi } from '../../api/Api';
-import { ProfilePageProps } from '../ProfilePage';
-import { FollowerEntry } from '../../database/follower';
-import Avatar from '../Avatar';
 import { useAuth } from '../../auth/Auth';
-import { LoadingButton } from '@mui/lab';
+import { FollowerEntry } from '../../database/follower';
+import LoadingPage from '../../loading/LoadingPage';
+import Avatar from '../Avatar';
 
 const FollowersList = () => {
     const api = useApi();
     const isFollowing = useLocation().pathname.endsWith('/following');
     const request = useRequest<ListFollowersResponse>();
-    const { username } = useParams<ProfilePageProps>();
+    const { username } = useParams();
     const auth = useAuth();
     const currentUser = auth.user;
 
@@ -41,7 +40,7 @@ const FollowersList = () => {
         return <LoadingPage />;
     }
 
-    if (!request.data || !request.data.followers || request.data.followers.length === 0) {
+    if (!request.data?.followers || request.data.followers.length === 0) {
         return (
             <>
                 <RequestSnackbar request={request} />

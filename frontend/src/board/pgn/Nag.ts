@@ -4,13 +4,15 @@ export interface NagDetails {
     label: string;
     description: string;
     color?: string;
+    glyphY?: number;
+    glyphFontSize?: string;
 }
 
 export const nags: Record<Nag, NagDetails> = {
     $1: {
         label: '!',
         description: 'Good move',
-        color: '#5ddf73',
+        color: '#21c43a',
     },
     $2: {
         label: '?',
@@ -20,12 +22,13 @@ export const nags: Record<Nag, NagDetails> = {
     $3: {
         label: '!!',
         description: 'Brilliant move',
-        color: '#21c43a',
+        color: '#22ac38',
     },
     $4: {
         label: '??',
         description: 'Blunder',
         color: '#df5353',
+        glyphFontSize: '4rem',
     },
     $5: {
         label: '!?',
@@ -40,10 +43,12 @@ export const nags: Record<Nag, NagDetails> = {
     $7: {
         label: '□',
         description: 'Only move',
+        glyphY: 65,
     },
     $10: {
         label: '=',
         description: 'Equal position',
+        glyphY: 65,
     },
     $11: {
         label: '=',
@@ -60,14 +65,19 @@ export const nags: Record<Nag, NagDetails> = {
     $14: {
         label: '⩲',
         description: 'White is slightly better',
+        glyphFontSize: '4rem',
+        glyphY: 65,
     },
     $15: {
         label: '⩱',
         description: 'Black is slightly better',
+        glyphFontSize: '4rem',
+        glyphY: 65,
     },
     $16: {
         label: '±',
         description: 'White is better',
+        glyphY: 65,
     },
     $17: {
         label: '∓',
@@ -76,14 +86,20 @@ export const nags: Record<Nag, NagDetails> = {
     $18: {
         label: '+−',
         description: 'White is winning',
+        glyphFontSize: '4rem',
+        glyphY: 65,
     },
     $19: {
         label: '−+',
         description: 'Black is winning',
+        glyphFontSize: '4rem',
+        glyphY: 65,
     },
     $22: {
         label: '⨀',
         description: 'Zugzwang',
+        glyphFontSize: '4rem',
+        glyphY: 65,
     },
     $23: {
         label: '⨀',
@@ -100,6 +116,8 @@ export const nags: Record<Nag, NagDetails> = {
     $32: {
         label: '⟳',
         description: 'Development advantage',
+        glyphFontSize: '4rem',
+        glyphY: 65,
     },
     $33: {
         label: '⟳',
@@ -108,6 +126,8 @@ export const nags: Record<Nag, NagDetails> = {
     $36: {
         label: '↑',
         description: 'Initiative',
+        glyphFontSize: '4rem',
+        glyphY: 65,
     },
     $37: {
         label: '↑',
@@ -116,6 +136,7 @@ export const nags: Record<Nag, NagDetails> = {
     $40: {
         label: '→',
         description: 'Attack',
+        glyphY: 65,
     },
     $41: {
         label: '→',
@@ -124,6 +145,7 @@ export const nags: Record<Nag, NagDetails> = {
     $44: {
         label: '=∞',
         description: 'Compensation',
+        glyphFontSize: '4rem',
     },
     $45: {
         label: '=∞',
@@ -132,6 +154,7 @@ export const nags: Record<Nag, NagDetails> = {
     $132: {
         label: '⇆',
         description: 'Counterplay',
+        glyphY: 65,
     },
     $133: {
         label: '⇆',
@@ -140,6 +163,8 @@ export const nags: Record<Nag, NagDetails> = {
     $138: {
         label: '⨁',
         description: 'Time pressure',
+        glyphFontSize: '4rem',
+        glyphY: 65,
     },
     $139: {
         label: '⨁',
@@ -152,6 +177,7 @@ export const nags: Record<Nag, NagDetails> = {
     $146: {
         label: 'N',
         description: 'Novelty',
+        glyphFontSize: '4rem',
     },
 };
 
@@ -207,7 +233,7 @@ export function getNagInSet(nagSet: Nag[], nags: string[] | undefined): Nag {
     }
 
     for (const nag of nags) {
-        let stdNag = getStandardNag(nag);
+        const stdNag = getStandardNag(nag);
         if (nagSet.includes(stdNag)) {
             return stdNag;
         }
@@ -251,11 +277,33 @@ export function setNagsInSet(newNags: Nag[], nagSet: Nag[], nags?: string[]): Na
 }
 
 export function compareNags(lhs: Nag, rhs: Nag): number {
-    let lhsNum = parseInt(lhs.slice(1));
-    let rhsNum = parseInt(rhs.slice(1));
+    const lhsNum = parseInt(lhs.slice(1));
+    const rhsNum = parseInt(rhs.slice(1));
 
     if (lhsNum < rhsNum) {
         return -1;
     }
     return 1;
+}
+
+export function getNagGlyph(nag: NagDetails): string {
+    return `
+        <defs>
+            <filter id="shadow">
+                <feDropShadow dx="4" dy="7" stdDeviation="5" flood-opacity="0.5"></feDropShadow>
+            </filter>
+        </defs>
+        <g transform="translate(71 -12) scale(0.4)">
+            <circle style="fill:${nag.color || 'purple'};filter:url(#shadow)" cx="50" cy="50" r="50"></circle>
+            <text
+                font-size="${nag.glyphFontSize ?? '4.5rem'}" 
+                font-weight="bold" 
+                text-anchor="middle" 
+                fill="white" 
+                x="50" 
+                y="${nag.glyphY ?? 75}"
+            >
+                ${nag.label}
+            </text>
+        </g>`;
 }

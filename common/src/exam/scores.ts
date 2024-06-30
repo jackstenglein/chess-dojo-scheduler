@@ -1,8 +1,19 @@
-import { COLOR, Chess, Move } from '@jackstenglein/chess';
+import { Chess, Color, Move } from '@jackstenglein/chess';
+import { SimpleLinearRegression } from 'ml-regression-simple-linear';
+import { getCohortRangeInt, isCohortInRange } from '../database/cohort';
+import { Exam } from '../database/exam';
 
 const scoreRegex = /\[(\d+)\]/;
 const alternateSolutionRegex = /\[ALT\]/;
 const endOfLineRegex = /\[EOL\]/;
+
+export interface ExamMoveUserData {
+    score?: number;
+    isAlt?: boolean;
+    found?: boolean;
+    altFound?: boolean;
+    extra?: boolean;
+}
 
 /**
  * Gets the exam orientation for the provided Chess instance. The exam
@@ -28,7 +39,31 @@ export function getOrientation(chess: Chess): 'white' | 'black' {
 export function initializeSolution(chess: Chess) {
     chess.seek(null);
     getSolutionScore(
-        chess.turn() === COLOR.black ? 'black' : 'white',
+        chess.turn() === Color.black ? 'black' : 'white',
+        chess.history(),
+        chess,
+        false,
+    );
+}
+
+/**
+ * Gets the total score for the given exam.
+ * @param exam The exam to get the max score for.
+ * @returns The max score possible on the exam.
+ */
+export function getExamMaxScore(exam: Exam): number {
+    return exam.pgns.reduce((sum, pgn) => sum + getTotalScore(pgn), 0);
+}
+
+/**
+ * Gets the total score for the given PGN problem in an exam.
+ * @param pgn The PGN to get the score for.
+ */
+export function getTotalScore(pgn: string): number {
+    const chess = new Chess({ pgn });
+    chess.seek(null);
+    return getSolutionScore(
+        chess.turn() === Color.black ? 'black' : 'white',
         chess.history(),
         chess,
         false,
@@ -50,10 +85,10 @@ export function getSolutionScore(
 ): number {
     let score = 0;
 
-    for (let move of solution) {
+    for (const move of solution) {
         // Recursively check variations
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 score += getSolutionScore(playAs, variation, chess, isUnscored);
             }
         }
@@ -80,7 +115,7 @@ export function getSolutionScore(
             const altSearch = alternateSolutionRegex.exec(move.commentAfter || '');
             if (altSearch) {
                 move.userData = {
-                    ...move.userData,
+                    ...(move.userData as ExamMoveUserData),
                     isAlt: true,
                 };
                 move.commentAfter = move.commentAfter
@@ -89,7 +124,7 @@ export function getSolutionScore(
             }
         }
 
-        score += move.userData?.score || 0;
+        score += (move.userData as ExamMoveUserData)?.score || 0;
 
         const eolSearch = endOfLineRegex.exec(move.commentAfter || '');
         if (eolSearch) {
@@ -119,12 +154,12 @@ export function scoreVariation(
     let score = 0;
     let altFound = false;
 
-    for (let move of solution) {
+    for (const move of solution) {
         // The user may not have found the mainline solution,
         // but may have found a variation, which can also have a score associated, or can be an alternate solution
         // for this move
         if (move.variations.length > 0) {
-            for (let variation of move.variations) {
+            for (const variation of move.variations) {
                 const [variationScore, alt] = scoreVariation(
                     playAs,
                     variation,
@@ -150,7 +185,11 @@ export function scoreVariation(
             break;
         }
 
-        const answerMove = answer.move(move.san, currentAnswerMove, false, true, true);
+        const answerMove = answer.move(move.san, {
+            previousMove: currentAnswerMove,
+            existingOnly: true,
+            skipSeek: true,
+        });
         if (!answerMove && !variationAlt) {
             // The user didn't find this move at all (mainline or variation), so they couldn't
             // have found any subsequent moves and we can break
@@ -158,17 +197,64 @@ export function scoreVariation(
         }
 
         move.userData = {
-            ...move.userData,
+            ...(move.userData as ExamMoveUserData),
             found: Boolean(answerMove),
             altFound: variationAlt,
         };
-        score += move.userData.score || 0;
+
+        score += (move.userData as ExamMoveUserData).score || 0;
         currentAnswerMove = answerMove;
 
-        if (move.userData.isAlt) {
+        if ((move.userData as ExamMoveUserData).isAlt) {
             altFound = true;
         }
     }
 
     return [score, altFound];
+}
+
+/**
+ * Returns the linear regression for this exam. If the exam has not been taken
+ * by enough people, null is returned.
+ * @param exam The exam to get the linear regression for.
+ * @returns The linear regression, or null if the exam does not have enough answers.
+ */
+export function getRegression(exam: Exam): SimpleLinearRegression | null {
+    let [minCohort, maxCohort] = getCohortRangeInt(exam.cohortRange);
+    minCohort = Math.max(0, minCohort - 100);
+    maxCohort += 100;
+
+    const relevantCohortRange = `${minCohort}-${maxCohort}`;
+    const minScore = 0.15 * getExamMaxScore(exam);
+
+    const scoresPerCohort = new Map<number, { sum: number; count: number }>();
+
+    Object.values(exam.answers).forEach((ans) => {
+        if (!isCohortInRange(ans.cohort, relevantCohortRange) || ans.score < minScore) {
+            return;
+        }
+
+        const [cohort] = getCohortRangeInt(ans.cohort);
+        scoresPerCohort.set(cohort, {
+            sum: (scoresPerCohort.get(cohort)?.sum || 0) + ans.score,
+            count: (scoresPerCohort.get(cohort)?.count || 0) + 1,
+        });
+    });
+
+    for (const [cohort, data] of scoresPerCohort) {
+        if (data.count < 3) {
+            scoresPerCohort.delete(cohort);
+        }
+    }
+    if (scoresPerCohort.size < 3) {
+        return null;
+    }
+
+    const x: number[] = [];
+    const y: number[] = [];
+    for (const [cohort, data] of scoresPerCohort) {
+        x.push(data.sum / data.count);
+        y.push(cohort);
+    }
+    return new SimpleLinearRegression(x, y);
 }

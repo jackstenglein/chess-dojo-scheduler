@@ -1,28 +1,30 @@
+import { FEN } from '@jackstenglein/chess';
+import { Help, QuestionMark } from '@mui/icons-material';
+import FunctionsIcon from '@mui/icons-material/Functions';
 import {
+    Box,
+    Link,
+    MenuItem,
     Stack,
-    Typography,
     TextField,
     Tooltip,
-    Box,
-    MenuItem,
+    Typography,
     darken,
     lighten,
     styled,
-    Link,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2/Grid2';
 import {
+    DataGridPro,
     GridColDef,
     GridRenderCellParams,
-    GridValueGetterParams,
-    GridRowParams,
     GridRowModel,
-    DataGridPro,
+    GridRowParams,
 } from '@mui/x-data-grid-pro';
-import FunctionsIcon from '@mui/icons-material/Functions';
 import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+import { Request } from '../../../api/Request';
+import { useFreeTier } from '../../../auth/Auth';
 import {
     ExplorerMove,
     ExplorerPosition,
@@ -34,13 +36,14 @@ import {
     isExplorerMove,
     isExplorerPosition,
 } from '../../../database/explorer';
-import { getCohortRange, dojoCohorts } from '../../../database/user';
+import { dojoCohorts, getCohortRange } from '../../../database/user';
 import LoadingPage from '../../../loading/LoadingPage';
-import { reconcile } from '../../Board';
-import { useChess } from '../PgnBoard';
-import { Request } from '../../../api/Request';
-import { useFreeTier } from '../../../auth/Auth';
+import MultipleSelectChip from '../../../newsfeed/list/MultipleSelectChip';
+import Icon from '../../../style/Icon';
 import UpsellAlert from '../../../upsell/UpsellAlert';
+import { useReconcile } from '../../Board';
+import { useChess } from '../PgnBoard';
+import { ExplorerDatabaseType } from './Explorer';
 
 const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -48,26 +51,28 @@ const getBackgroundColor = (color: string, mode: string) =>
 const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
     ({ theme }) => ({
         '& .chess-dojo-explorer--total': {
-            backgroundColor: getBackgroundColor(
+            backgroundColor: `${getBackgroundColor(
                 theme.palette.info.main,
-                theme.palette.mode
-            ),
+                theme.palette.mode,
+            )} !important`,
         },
-    })
+    }),
 );
 
-interface DatabaseProps {
-    type: 'dojo' | 'lichess';
+interface DatabaseProps<T> {
+    type: ExplorerDatabaseType;
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
-    request: Request;
+    request: Request<T>;
     minCohort: string;
     maxCohort: string;
     setMinCohort: (v: string) => void;
     setMaxCohort: (v: string) => void;
+    timeControls: string[];
+    setTimeControls: (v: string[]) => void;
 }
 
-const Database: React.FC<DatabaseProps> = ({
+function Database<T>({
     type,
     fen,
     position,
@@ -76,23 +81,29 @@ const Database: React.FC<DatabaseProps> = ({
     maxCohort,
     setMinCohort,
     setMaxCohort,
-}) => {
-    const { chess, board } = useChess();
+    timeControls,
+    setTimeControls,
+}: DatabaseProps<T>) {
+    const { chess } = useChess();
+    const reconcile = useReconcile();
     const isFreeTier = useFreeTier();
 
-    const cohortRange = useMemo(
-        () => getCohortRange(minCohort, maxCohort),
-        [minCohort, maxCohort]
-    );
+    const cohortRange = useMemo(() => {
+        if (type === ExplorerDatabaseType.Dojo) {
+            return getCohortRange(minCohort, maxCohort);
+        }
+        return timeControls.map((tc) => `masters-${tc}`);
+    }, [type, minCohort, maxCohort, timeControls]);
 
-    const sortedMoves: Array<ExplorerMove | LichessExplorerMove> = useMemo(() => {
+    const sortedMoves: (ExplorerMove | LichessExplorerMove)[] = useMemo(() => {
         if (!isExplorerPosition(position)) {
             return position?.moves || [];
         }
+
         return Object.values(position?.moves || [])
             .filter((move) => {
                 return cohortRange.some((cohort) => {
-                    const result = move.results[cohort] || {};
+                    const result = move.results?.[cohort] || {};
                     return (
                         result.white || result.black || result.draws || result.analysis
                     );
@@ -132,10 +143,10 @@ const Database: React.FC<DatabaseProps> = ({
     }, [position]);
 
     const totalGames = isExplorerPosition(position)
-        ? getGameCount(position?.results || {}, cohortRange)
+        ? getGameCount(position.results || {}, cohortRange)
         : position
-        ? position.white + position.black + position.draws
-        : 0;
+          ? position.white + position.black + position.draws
+          : 0;
 
     const columns: GridColDef<ExplorerMove | LichessExplorerMove>[] = useMemo(() => {
         return [
@@ -150,10 +161,10 @@ const Database: React.FC<DatabaseProps> = ({
                     params: GridRenderCellParams<
                         ExplorerMove | LichessExplorerMove,
                         string
-                    >
+                    >,
                 ) => {
                     if (params.value === 'Total') {
-                        return <FunctionsIcon fontSize='small' />;
+                        return <FunctionsIcon fontSize='small' sx={{ height: 1 }} />;
                     }
                     return params.value;
                 },
@@ -163,19 +174,17 @@ const Database: React.FC<DatabaseProps> = ({
                 headerName: 'Games',
                 align: 'left',
                 headerAlign: 'left',
-                valueGetter: (
-                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>
-                ) => {
-                    if (isExplorerMove(params.row)) {
-                        return getGameCount(params.row.results, cohortRange);
+                valueGetter: (_value, row) => {
+                    if (isExplorerMove(row)) {
+                        return getGameCount(row.results, cohortRange);
                     }
-                    return params.row.white + params.row.black + params.row.draws;
+                    return row.white + row.black + row.draws;
                 },
                 renderCell: (
                     params: GridRenderCellParams<
                         ExplorerMove | LichessExplorerMove,
                         number
-                    >
+                    >,
                 ) => {
                     const gameCount = params.value || 0;
                     return (
@@ -197,16 +206,14 @@ const Database: React.FC<DatabaseProps> = ({
                 headerName: 'Results',
                 align: 'right',
                 headerAlign: 'left',
-                valueGetter: (
-                    params: GridValueGetterParams<ExplorerMove | LichessExplorerMove>
-                ) => {
-                    if (isExplorerMove(params.row)) {
-                        return getResultCount(params.row, 'white', cohortRange);
+                valueGetter: (_value, row) => {
+                    if (isExplorerMove(row)) {
+                        return getResultCount(row, 'white', cohortRange);
                     }
-                    return params.row.white;
+                    return row.white;
                 },
                 renderCell: (
-                    params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>
+                    params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>,
                 ) => {
                     let graphParams: ResultGraphProps = {
                         totalGames: 0,
@@ -227,7 +234,7 @@ const Database: React.FC<DatabaseProps> = ({
                                 analysis: getResultCount(
                                     params.row,
                                     'analysis',
-                                    cohortRange
+                                    cohortRange,
                                 ),
                             },
                         };
@@ -250,11 +257,11 @@ const Database: React.FC<DatabaseProps> = ({
         ];
     }, [totalGames, cohortRange]);
 
-    if (type === 'dojo' && isFreeTier) {
+    if (type !== ExplorerDatabaseType.Lichess && isFreeTier) {
         return (
             <Box mt={2}>
                 <UpsellAlert>
-                    Upgrade to a full account to search the Dojo Database by position and
+                    Upgrade to a full account to search the Dojo databases by position and
                     subscribe to positions.
                 </UpsellAlert>
             </Box>
@@ -276,13 +283,13 @@ const Database: React.FC<DatabaseProps> = ({
     const onClickMove = (params: GridRowParams<ExplorerMove>) => {
         if (params.id !== 'Total') {
             chess?.move(params.id as string);
-            reconcile(chess, board);
+            reconcile();
         }
     };
 
     return (
         <Grid container columnSpacing={1} rowSpacing={2} mt={2}>
-            {type === 'dojo' && (
+            {type === ExplorerDatabaseType.Dojo && (
                 <>
                     <Grid xs={6} sm={6}>
                         <TextField
@@ -324,6 +331,39 @@ const Database: React.FC<DatabaseProps> = ({
                 </>
             )}
 
+            {type === ExplorerDatabaseType.Masters && (
+                <>
+                    <Grid xs={12}>
+                        <Stack direction='row' alignItems='center' spacing={0.5}>
+                            <MultipleSelectChip
+                                label='Time Controls'
+                                selected={timeControls}
+                                setSelected={setTimeControls}
+                                options={masterTimeControlOptions}
+                                sx={{ width: 1 }}
+                                size='small'
+                                error={timeControls.length === 0}
+                            />
+                            <Tooltip
+                                title={
+                                    <span>
+                                        These time controls follow FIDE regulations:
+                                        <br />
+                                        Standard: &gt;=1 hr for all moves
+                                        <br />
+                                        Rapid: &gt;10 min for all moves
+                                        <br />
+                                        Blitz: &lt;=10 min for all moves
+                                    </span>
+                                }
+                            >
+                                <Help sx={{ color: 'text.secondary' }} />
+                            </Tooltip>
+                        </Stack>
+                    </Grid>
+                </>
+            )}
+
             <Grid xs={12}>
                 <StyledDataGrid
                     autoHeight
@@ -351,7 +391,7 @@ const Database: React.FC<DatabaseProps> = ({
                                 <Typography>
                                     No moves played from this position.
                                 </Typography>
-                                {type === 'dojo' &&
+                                {type === ExplorerDatabaseType.Dojo &&
                                     cohortRange.length < dojoCohorts.length && (
                                         <Typography>
                                             Try expanding your cohort range.
@@ -367,23 +407,47 @@ const Database: React.FC<DatabaseProps> = ({
                 />
             </Grid>
 
-            {type === 'dojo' && (
+            {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
                 <Grid xs={12} display='flex' justifyContent='center'>
                     <Link
                         component={RouterLink}
-                        to={`/games?type=position&fen=${fen}`}
+                        to={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
                         target='_blank'
                         rel='noopener'
                     >
-                        View all games containing this position
+                        View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'}{' '}
+                        games containing this position
                     </Link>
                 </Grid>
             )}
         </Grid>
     );
-};
+}
 
 export default Database;
+
+const masterTimeControlOptions = [
+    {
+        value: 'standard',
+        label: 'Standard',
+        icon: <Icon name='Classical' />,
+    },
+    {
+        value: 'rapid',
+        label: 'Rapid',
+        icon: <Icon name='Rapid' />,
+    },
+    {
+        value: 'blitz',
+        label: 'Blitz',
+        icon: <Icon name='Blitz' />,
+    },
+    {
+        value: 'unknown',
+        label: 'Unknown',
+        icon: <QuestionMark />,
+    },
+];
 
 const resultKeys: (keyof ExplorerResult)[] = ['white', 'draws', 'black', 'analysis'];
 
@@ -412,62 +476,64 @@ const ResultGraph: React.FC<ResultGraphProps> = ({ totalGames, resultCount }) =>
     }
 
     return (
-        <Stack
-            direction='row'
-            sx={{
-                width: 1,
-                border: 1,
-                borderColor: 'divider',
-                borderRadius: '3px',
-                overflow: 'hidden',
-            }}
-        >
-            {resultKeys.map((k) => {
-                const count = resultCount[k];
-                const percentage = (100 * count) / totalGames;
-                if (count === 0) {
-                    return null;
-                }
+        <Stack sx={{ height: 1, justifyContent: 'center' }}>
+            <Stack
+                direction='row'
+                sx={{
+                    width: 1,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: '3px',
+                    overflow: 'hidden',
+                }}
+            >
+                {resultKeys.map((k) => {
+                    const count = resultCount[k];
+                    const percentage = (100 * count) / totalGames;
+                    if (count === 0) {
+                        return null;
+                    }
 
-                return (
-                    <Tooltip
-                        key={k}
-                        title={
-                            <Box sx={{ textAlign: 'center' }}>
-                                {k[0].toUpperCase()}
-                                {k.substring(1)}
-                                <br />
-                                {count.toLocaleString()} Game{count !== 1 ? 's' : ''}
-                                <br />
-                                {Math.round(percentage * 10) / 10}%
-                            </Box>
-                        }
-                    >
-                        <Box
-                            sx={{
-                                width: `${percentage}%`,
-                                minWidth: '26px',
-                                backgroundColor: resultGraphColors[k],
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'end',
-                                overflow: 'hidden',
-                                height: '16px',
-                            }}
+                    return (
+                        <Tooltip
+                            key={k}
+                            title={
+                                <Box sx={{ textAlign: 'center' }}>
+                                    {k[0].toUpperCase()}
+                                    {k.substring(1)}
+                                    <br />
+                                    {count.toLocaleString()} Game{count !== 1 ? 's' : ''}
+                                    <br />
+                                    {Math.round(percentage * 10) / 10}%
+                                </Box>
+                            }
                         >
-                            <Typography
+                            <Box
                                 sx={{
-                                    fontSize: '0.8rem',
-                                    lineHeight: '14px',
-                                    color: resultGraphTextColors[k],
+                                    width: `${percentage}%`,
+                                    minWidth: '26px',
+                                    backgroundColor: resultGraphColors[k],
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'end',
+                                    overflow: 'hidden',
+                                    height: '16px',
                                 }}
                             >
-                                {Math.round(percentage)}%
-                            </Typography>
-                        </Box>
-                    </Tooltip>
-                );
-            })}
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.8rem',
+                                        lineHeight: '14px',
+                                        color: resultGraphTextColors[k],
+                                    }}
+                                >
+                                    {Math.round(percentage)}%
+                                </Typography>
+                            </Box>
+                        </Tooltip>
+                    );
+                })}
+            </Stack>
         </Stack>
     );
 };

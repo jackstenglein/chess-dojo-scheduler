@@ -33,7 +33,7 @@ const RegistrationPage = () => {
 
     const [email, setEmail] = useState('');
     const [lichessUsername, setLichessUsername] = useState(
-        user?.ratings?.LICHESS?.username || '',
+        user?.ratings.LICHESS?.username || '',
     );
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [title, setTitle] = useState('');
@@ -53,7 +53,7 @@ const RegistrationPage = () => {
     const request = useRequest();
 
     useEffect(() => {
-        setLichessUsername(user?.ratings?.LICHESS?.username || '');
+        setLichessUsername(user?.ratings.LICHESS?.username || '');
         setDiscordUsername(user?.discordUsername || '');
     }, [user]);
 
@@ -142,8 +142,8 @@ const RegistrationPage = () => {
                     label='Lichess Username'
                     value={lichessUsername}
                     onChange={(e) => setLichessUsername(e.target.value)}
-                    disabled={Boolean(user?.ratings?.LICHESS?.username)}
-                    required={!Boolean(user?.ratings?.LICHESS?.username)}
+                    disabled={Boolean(user?.ratings.LICHESS?.username)}
+                    required={!user?.ratings.LICHESS?.username}
                     fullWidth
                     error={Boolean(errors.lichessUsername)}
                     helperText={errors.lichessUsername}
@@ -154,7 +154,7 @@ const RegistrationPage = () => {
                     value={discordUsername}
                     onChange={(e) => setDiscordUsername(e.target.value)}
                     disabled={Boolean(user?.discordUsername)}
-                    required={!Boolean(user?.discordUsername)}
+                    required={!user?.discordUsername}
                     fullWidth
                     error={Boolean(errors.discordUsername)}
                     helperText={errors.discordUsername}

@@ -5,10 +5,10 @@ import {
     DynamoDBClient,
     PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { ExplorerPositionFollower, normalizeFen } from './types';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import { ExplorerPositionFollower } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
@@ -58,7 +58,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     try {
         const chess = new Chess({ fen: request.fen });
-        const normalizedFen = normalizeFen(chess.fen());
+        const normalizedFen = chess.normalizedFen();
 
         if (request.unfollow) {
             await dynamo.send(
@@ -68,7 +68,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                         id: { S: `FOLLOWER#${userInfo.username}` },
                     },
                     TableName: explorerTable,
-                })
+                }),
             );
             return {
                 statusCode: 200,
@@ -87,7 +87,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             new PutItemCommand({
                 Item: marshall(follower, { removeUndefinedValues: true }),
                 TableName: explorerTable,
-            })
+            }),
         );
 
         return {

@@ -1,16 +1,15 @@
 import { Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
-import { useEvents } from '../api/cache/Cache';
 import { RequestSnackbar } from '../api/Request';
-import { useAuth } from '../auth/Auth';
+import { useEvents } from '../api/cache/Cache';
+import { useRequiredAuth } from '../auth/Auth';
 import { Event } from '../database/event';
 import MeetingListItem from './MeetingListItem';
 
 const ONE_HOUR = 3600000;
 
 const ListMeetingsPage = () => {
-    const user = useAuth().user!;
+    const { user } = useRequiredAuth();
     const navigate = useNavigate();
 
     const { events, request } = useEvents();
@@ -29,8 +28,8 @@ const ListMeetingsPage = () => {
     const meetings: Event[] = events.filter(meetingFilter);
     meetings.sort((lhs, rhs) =>
         (lhs.bookedStartTime || lhs.startTime).localeCompare(
-            rhs.bookedStartTime || rhs.startTime
-        )
+            rhs.bookedStartTime || rhs.startTime,
+        ),
     );
 
     const requestLoading = request.isLoading() || !request.isSent();
