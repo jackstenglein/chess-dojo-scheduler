@@ -1,0 +1,22 @@
+service: chess-dojo-twic
+frameworkVersion: '3'
+
+plugins:
+  - serverless-python-requirements
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  deploymentMethod: direct
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+
+functions:
+  scrapeTwic:
+    handler: scrape_twic.handler
