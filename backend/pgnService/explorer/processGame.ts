@@ -332,7 +332,7 @@ async function writeExplorerPosition(
     }
 
     if (success) {
-        updateExplorerGame(game, update);
+        await updateExplorerGame(game, update);
     }
     return success;
 }
