@@ -76,7 +76,7 @@
         "precheck": "npm run lint && next build && npm run test:unit",
         "precheck:full": "npm run precheck && npm run test:cypress",
         "dev:precheck": "npm run precheck && npm run dev",
-        "build": "if [[ $(git branch --show-current) == \"beta\" ]]; then npm run build:beta; else npm run build:production; fi",
+        "build": "npm run build:production",
         "build:production": "next build",
         "build:beta": "cross-env NEXT_PUBLIC_BUILD_NODE_ENV=beta next build",
         "build:test": "cross-env NEXT_PUBLIC_BUILD_NODE_ENV=test next build",
