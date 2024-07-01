@@ -561,7 +561,6 @@ async function updateExplorerPositions(
         TableName: explorerTable,
         ReturnValues: 'NONE',
     });
-    console.log('INFO: applying input %j', input);
 
     try {
         await dynamo.send(input);
