@@ -84,26 +84,33 @@ interface ExplorerMoveUpdate {
  * @param event The DynamoDB stream event that triggered this Lambda. It contains the Game table objects.
  */
 export const handler: DynamoDBStreamHandler = async (event) => {
+    const start = Date.now();
     const positionUpdates: Record<string, Record<string, ExplorerPositionUpdate[]>> = {};
 
     for (const record of event.Records) {
         await processRecord(record, positionUpdates);
     }
 
+    const promises: Promise<boolean>[] = [];
     const fenUpdates = Object.values(positionUpdates);
     for (const fenUpdate of fenUpdates) {
         for (const [cohort, updates] of Object.entries(fenUpdate)) {
-            try {
-                await writePositionUpdates(cohort, updates);
-            } catch (err) {
-                console.log(
-                    `ERROR: failed in cohort ${cohort} to write updates %j: `,
-                    updates,
-                    err,
-                );
-            }
+            promises.push(writePositionUpdates(cohort, updates));
         }
     }
+    const results = await Promise.allSettled(promises);
+    const end = Date.now();
+    console.log(
+        'INFO: Finished updating %d explorer positions with %d failures',
+        results.length,
+        results.reduce((sum, v) => {
+            if (v.status === 'rejected') {
+                return sum + 1;
+            }
+            return sum;
+        }, 0),
+    );
+    console.log(`INFO: Execution Time: ${end - start} ms`);
 };
 
 /**
@@ -148,7 +155,16 @@ async function processRecord(
             promises.push(updateExplorerGame(game, update));
         }
         const results = await Promise.allSettled(promises);
-        console.log('Finished with %d results: %j', results.length, results);
+        console.log(
+            'Finished updating %d explorer games with %d failures',
+            results.length,
+            results.reduce((sum, v) => {
+                if (v.status === 'rejected') {
+                    return sum + 1;
+                }
+                return sum;
+            }, 0),
+        );
 
         updates.forEach((update, i) => {
             if (results[i]) {
