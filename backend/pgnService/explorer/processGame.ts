@@ -578,7 +578,7 @@ async function updateExplorerPositions(
 }
 
 function sanitizeSan(san: string): string {
-    return san.replace(/[\+\#=]/g, '');
+    return san.replace(/[\+\#=-]/g, '');
 }
 
 /**
