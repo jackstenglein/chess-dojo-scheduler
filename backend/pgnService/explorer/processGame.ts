@@ -339,14 +339,20 @@ function updateExplorerPosition(
     update: ExplorerPositionUpdate,
     cohort: string,
 ) {
-    position.results[cohort][update.newResult!] =
-        (position.results[cohort][update.newResult!] ?? 0) + 1;
+    if (position.results[cohort]) {
+        position.results[cohort][update.newResult!] =
+            (position.results[cohort][update.newResult!] ?? 0) + 1;
+    } else {
+        position.results[cohort] = {
+            [update.newResult!]: 1,
+        };
 
-    Object.values(position.moves).forEach((move) => {
-        if (move.results[cohort] === undefined) {
-            move.results[cohort] = {};
-        }
-    });
+        Object.values(position.moves).forEach((move) => {
+            if (move.results[cohort] === undefined) {
+                move.results[cohort] = {};
+            }
+        });
+    }
 
     update.moves.forEach((move) => {
         position.moves[move.san].results[cohort][move.newResult!] =

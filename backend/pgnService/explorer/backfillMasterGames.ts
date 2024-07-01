@@ -5,7 +5,7 @@ import { processRecord } from './processGame';
 import { ExplorerPosition } from './types';
 
 const MIN_FILE = 0;
-const MAX_FILE = 1;
+const MAX_FILE = 13;
 const PRINT_MOD = 10000;
 
 async function main() {
@@ -26,7 +26,6 @@ async function main() {
             if (item.cohort.S === 'masters') {
                 processRecord(item, positions, writeStream);
                 processed++;
-
                 if (processed % PRINT_MOD === 0) {
                     console.log('INFO: Processed %d', processed);
                     console.log('INFO: Heap Used %d', process.memoryUsage().heapUsed);
