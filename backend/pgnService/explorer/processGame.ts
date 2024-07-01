@@ -12,7 +12,6 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
-import deepEqual from 'deep-equal';
 import {
     ExplorerGame,
     ExplorerMove,
@@ -26,6 +25,12 @@ const STARTING_POSITION_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQk
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
+const knownPositions: Record<string, Set<string>> = {
+    'masters-standard': new Set(),
+    'masters-rapid': new Set(),
+    'masters-blitz': new Set(),
+    'masters-unknown': new Set(),
+};
 
 /** An ExplorerPosition extracted from a specific game. */
 interface ExplorerPositionExtraction {
@@ -79,18 +84,28 @@ interface ExplorerMoveUpdate {
  * @param event The DynamoDB stream event that triggered this Lambda. It contains the Game table objects.
  */
 export const handler: DynamoDBStreamHandler = async (event) => {
-    const promises: Promise<void>[] = [];
+    const positionUpdates: Record<string, Record<string, ExplorerPositionUpdate[]>> = {};
+
     for (const record of event.Records) {
-        promises.push(processRecord(record));
+        await processRecord(record, positionUpdates);
     }
-    await Promise.all(promises);
+
+    const fenUpdates = Object.values(positionUpdates);
+    for (const fenUpdate of fenUpdates) {
+        for (const [cohort, updates] of Object.entries(fenUpdate)) {
+            await writePositionUpdates(cohort, updates);
+        }
+    }
 };
 
 /**
  * Extracts the positions from a single Game and saves or removes them as necessary.
  * @param record A single DynamoDB stream record to extract positions from.
  */
-async function processRecord(record: DynamoDBRecord) {
+async function processRecord(
+    record: DynamoDBRecord,
+    positionUpdates: Record<string, Record<string, ExplorerPositionUpdate[]>>,
+) {
     try {
         const oldGame = record.dynamodb?.OldImage
             ? (unmarshall(
@@ -121,11 +136,26 @@ async function processRecord(record: DynamoDBRecord) {
         console.log('Length of updates: ', updates.length);
 
         const promises: Promise<boolean>[] = [];
-        for (const update of Object.values(updates)) {
-            promises.push(writeExplorerPosition(game, update));
+        for (const update of updates) {
+            promises.push(updateExplorerGame(game, update));
         }
-        const results = await Promise.all(promises);
+        const results = await Promise.allSettled(promises);
         console.log('Finished with %d results: %j', results.length, results);
+
+        updates.forEach((update, i) => {
+            if (results[i]) {
+                if (!positionUpdates[update.normalizedFen]) {
+                    positionUpdates[update.normalizedFen] = {};
+                }
+                if (!positionUpdates[update.normalizedFen][getExplorerCohort(newGame!)]) {
+                    positionUpdates[update.normalizedFen][getExplorerCohort(newGame!)] =
+                        [];
+                }
+                positionUpdates[update.normalizedFen][getExplorerCohort(newGame!)].push(
+                    update,
+                );
+            }
+        });
     } catch (err) {
         console.log('ERROR: Failed to process record %j: ', record, err);
     }
@@ -230,18 +260,12 @@ function getUpdates(
     // Handles updates and deletes of positions
     for (const [fen, oldPosition] of Object.entries(oldPositions)) {
         const newPosition = newPositions[fen];
-        if (deepEqual(oldPosition, newPosition)) {
-            continue;
-        }
 
         const moves: ExplorerMoveUpdate[] = [];
 
         // Handles updates and deletes of moves
         for (const [san, oldMove] of Object.entries(oldPosition.moves)) {
             const newMove = newPosition?.moves[san];
-            if (deepEqual(oldMove, newMove)) {
-                continue;
-            }
 
             moves.push({
                 san,
@@ -306,35 +330,35 @@ function getExplorerMoveResult(result?: string): keyof ExplorerResult {
     return 'analysis';
 }
 
-/**
- * Writes the provided ExplorerPositionUpdate to DynamoDB, ensuring that an existing ExplorerPosition
- * for the same FEN is not overwritten. If this is a new ExplorerPosition, then it is created in a
- * way that allows for future updates.
- * @param game The game that generated the ExplorerPosition.
- * @param chess The Chess.ts instance to use when generating initial ExplorerPosition moves.
- * @param update The update to apply to the ExplorerPosition.
- */
-async function writeExplorerPosition(
-    game: Game,
-    update: ExplorerPositionUpdate,
+async function writePositionUpdates(
+    cohort: string,
+    updates: ExplorerPositionUpdate[],
 ): Promise<boolean> {
-    if (!update.newResult && !update.oldResult) {
-        throw new Error('ERROR: update does not contain newResult nor oldResult');
+    const fen = updates[0].normalizedFen;
+
+    if (knownPositions[cohort].has(fen)) {
+        return updateExplorerPositions(cohort, updates);
     }
 
-    let success = false;
-
-    const position = await fetchExplorerPosition(update.normalizedFen);
-    if (!position && !update.oldResult) {
-        success = await setOrUpdateExplorerPosition(game, update);
+    let result = false;
+    const position = await fetchExplorerPosition(fen);
+    if (!position) {
+        result = await setOrUpdateExplorerPosition(cohort, updates);
+    } else if (!position.results[cohort]) {
+        const initialExplorerPosition = getInitialExplorerPosition(updates, cohort);
+        result = await setExplorerPositionCohortBatch(cohort, initialExplorerPosition);
+        if (!result) {
+            result = await updateExplorerPositions(cohort, updates);
+        }
     } else {
-        success = await updateExplorerPosition(getExplorerCohort(game), update, position);
+        knownPositions[cohort].add(fen);
+        return updateExplorerPositions(cohort, updates);
     }
 
-    if (success) {
-        await updateExplorerGame(game, update);
+    if (result) {
+        knownPositions[cohort].add(fen);
     }
-    return success;
+    return result;
 }
 
 /**
@@ -375,19 +399,11 @@ async function fetchExplorerPosition(
  * @returns True if the ExplorerPosition was successfully saved.
  */
 async function setOrUpdateExplorerPosition(
-    game: Game,
-    update: ExplorerPositionUpdate,
+    cohort: string,
+    updates: ExplorerPositionUpdate[],
 ): Promise<boolean> {
-    if (!update.newResult) {
-        throw new Error(
-            'ERROR: setExplorerPosition called with update where newResult is undefined',
-        );
-    }
-
-    const cohort = getExplorerCohort(game);
+    const initialExplorerPosition = getInitialExplorerPosition(updates, cohort);
     try {
-        const initialExplorerPosition = getInitialExplorerPosition(update, cohort);
-
         await dynamo.send(
             new PutItemCommand({
                 Item: marshall(initialExplorerPosition),
@@ -400,9 +416,18 @@ async function setOrUpdateExplorerPosition(
         if (err instanceof ConditionalCheckFailedException) {
             // This should be rare, as it only happens when two games with the same
             // new position are added simultaneously
-            return await updateExplorerPosition(cohort, update, undefined);
+            const result = await setExplorerPositionCohortBatch(
+                cohort,
+                initialExplorerPosition,
+            );
+            if (result) {
+                return true;
+            }
+            return updateExplorerPositions(cohort, updates);
         }
-        throw new Error(`ERROR: Failed to set explorer position: ${update}\r\r${err}`);
+        throw new Error(
+            `ERROR: Failed to set initial explorer position ${initialExplorerPosition}:\r\r${err}`,
+        );
     }
 }
 
@@ -425,17 +450,17 @@ function getExplorerCohort(game: Game): string {
 }
 
 /**
- * Returns an ExplorerPosition object initialized with the data in the update.
+ * Returns an ExplorerPosition object initialized with the data in the updates.
  * @param chess A Chess.ts instance to use when generating the list of legal moves in the position.
- * @param update The ExplorerPositionUpdate to apply to a blank ExplorerPosition.
+ * @param updates The ExplorerPositionUpdate to apply to a blank ExplorerPosition.
  * @param cohort The cohort the update applies to.
  * @returns An ExplorerPosition object initialized with the given update data.
  */
 function getInitialExplorerPosition(
-    update: ExplorerPositionUpdate,
+    updates: ExplorerPositionUpdate[],
     cohort: string,
 ): ExplorerPosition {
-    const chess = new Chess({ fen: update.normalizedFen });
+    const chess = new Chess({ fen: updates[0].normalizedFen });
     const moves = chess.moves({ disableNullMoves: true });
 
     const explorerMoves = moves.reduce(
@@ -451,78 +476,70 @@ function getInitialExplorerPosition(
         {} as Record<string, ExplorerMove>,
     );
 
-    const explorerPosition = {
-        normalizedFen: update.normalizedFen,
+    const explorerPosition: ExplorerPosition = {
+        normalizedFen: updates[0].normalizedFen,
         id: 'POSITION',
         results: {
-            [cohort]: {
-                [update.newResult!]: 1,
-            },
+            [cohort]: {},
         },
         moves: explorerMoves,
     };
 
-    for (const move of Object.values(update.moves)) {
-        explorerPosition.moves[move.san].results[cohort] = {
-            [move.newResult!]: 1,
-        };
+    for (const update of updates) {
+        explorerPosition.results[cohort][update.newResult!] =
+            (explorerPosition.results[cohort][update.newResult!] ?? 0) + 1;
+
+        update.moves.forEach((move) => {
+            explorerPosition.moves[move.san].results[cohort][move.newResult!] =
+                (explorerPosition.moves[move.san].results[cohort][move.newResult!] ?? 0) +
+                1;
+        });
     }
 
     return explorerPosition;
 }
 
-/**
- * Updates an existing ExplorerPosition with the provided update.
- * @param cohort The cohort the update applies to.
- * @param update The update to apply to the ExplorerPosition.
- * @param position The current ExplorerPosition in the database.
- * @returns True if the update was successfully applied.
- */
-async function updateExplorerPosition(
+async function updateExplorerPositions(
     cohort: string,
-    update: ExplorerPositionUpdate,
-    position: ExplorerPosition | undefined,
+    updates: ExplorerPositionUpdate[],
 ): Promise<boolean> {
-    if (await setExplorerPositionCohort(cohort, update, position)) {
-        return true;
-    }
+    let updateExpression = `ADD `;
 
-    let updateExpression: string;
     const expressionAttrValues: Record<string, AttributeValue> = {};
     const expressionAttrNames: Record<string, string> = {
         '#cohort': cohort,
     };
 
-    if (update.oldResult && !update.newResult) {
-        // The position was removed or the game as a whole was deleted
-        updateExpression = `ADD results.#cohort.${update.oldResult} :dec, `;
-        expressionAttrValues[':dec'] = { N: '-1' };
-    } else if (update.oldResult !== update.newResult) {
-        // The game's entire result was modified
-        updateExpression = `ADD results.#cohort.${update.newResult} :inc, `;
-        if (update.oldResult) {
-            updateExpression += `results.#cohort.${update.oldResult} :dec, `;
-            expressionAttrValues[':dec'] = { N: '-1' };
-        }
-        expressionAttrValues[':inc'] = { N: '1' };
-    } else {
-        // There was no change to the game's result, but there are changes to the moves
-        updateExpression = `ADD `;
+    const resultUpdates: ExplorerResult = {};
+    const moveUpdates: Record<string, ExplorerResult> = {};
+    for (const update of updates) {
+        resultUpdates[update.newResult!] = (resultUpdates[update.newResult!] ?? 0) + 1;
+
+        update.moves.forEach((move) => {
+            const sanitizedSan = sanitizeSan(move.san);
+            if (!moveUpdates[sanitizedSan]) {
+                moveUpdates[sanitizedSan] = {};
+            }
+            moveUpdates[sanitizedSan][move.newResult!] =
+                (moveUpdates[sanitizedSan][move.newResult!] ?? 0) + 1;
+
+            expressionAttrNames[`#${sanitizedSan}`] = move.san;
+        });
     }
 
-    Object.values(update.moves).forEach((move, index) => {
-        if (move.oldResult && move.oldResult !== move.newResult) {
-            // The move was removed or the result was changed
-            updateExpression += `moves.#san${index}.results.#cohort.${move.oldResult} :dec, `;
-            expressionAttrValues[':dec'] = { N: '-1' };
+    for (const [key, value] of Object.entries(resultUpdates)) {
+        updateExpression += `results.#cohort.${key} :${key}, `;
+        expressionAttrValues[`:${key}`] = { N: `${value}` };
+    }
+
+    for (const [sanitizedSan, result] of Object.entries(moveUpdates)) {
+        for (const [resultName, value] of Object.entries(result)) {
+            if (value) {
+                updateExpression += `moves.#${sanitizedSan}.results.#cohort.${resultName} :${sanitizedSan}${resultName}, `;
+                expressionAttrValues[`:${sanitizedSan}${resultName}`] = { N: `${value}` };
+            }
         }
-        if (move.newResult) {
-            // The move was added or its result changed
-            updateExpression += `moves.#san${index}.results.#cohort.${move.newResult} :inc, `;
-            expressionAttrValues[':inc'] = { N: '1' };
-        }
-        expressionAttrNames[`#san${index}`] = move.san;
-    });
+    }
 
     updateExpression = updateExpression.substring(
         0,
@@ -532,7 +549,7 @@ async function updateExplorerPosition(
     const input = new UpdateItemCommand({
         Key: {
             normalizedFen: {
-                S: update.normalizedFen,
+                S: updates[0].normalizedFen,
             },
             id: {
                 S: 'POSITION',
@@ -544,19 +561,24 @@ async function updateExplorerPosition(
         TableName: explorerTable,
         ReturnValues: 'NONE',
     });
+    console.log('INFO: applying input %j', input);
 
     try {
         await dynamo.send(input);
         return true;
     } catch (err) {
         console.log(
-            'ERROR: Failed to update explorer position %j with input %j: ',
-            update,
+            'ERROR: Failed to apply updates %j with input %j: ',
+            updates,
             input,
             err,
         );
         throw err;
     }
+}
+
+function sanitizeSan(san: string): string {
+    return san.replace(/[\+\#=]/g, '');
 }
 
 /**
@@ -645,13 +667,76 @@ async function setExplorerPositionCohort(
     }
 }
 
+async function setExplorerPositionCohortBatch(
+    cohort: string,
+    initialPosition: ExplorerPosition,
+): Promise<boolean> {
+    let updateExpression = 'SET results.#cohort = :result, ';
+
+    const exprAttrNames: Record<string, string> = {
+        '#cohort': cohort,
+    };
+    const exprAttrValues: Record<string, AttributeValue> = {
+        ':result': {
+            M: marshall(initialPosition.results[cohort], { removeUndefinedValues: true }),
+        },
+    };
+
+    Object.values(initialPosition.moves).forEach((move, index) => {
+        updateExpression += `moves.#san${index}.results.#cohort = :result${index}, `;
+        exprAttrNames[`#san${index}`] = move.san;
+        exprAttrValues[`:result${index}`] = {
+            M: marshall(move.results[cohort], { removeUndefinedValues: true }),
+        };
+    });
+
+    updateExpression = updateExpression.substring(
+        0,
+        updateExpression.length - ', '.length,
+    );
+
+    const input = new UpdateItemCommand({
+        Key: {
+            normalizedFen: {
+                S: initialPosition.normalizedFen,
+            },
+            id: {
+                S: 'POSITION',
+            },
+        },
+        UpdateExpression: updateExpression,
+        ConditionExpression: 'attribute_not_exists(results.#cohort)',
+        ExpressionAttributeNames: exprAttrNames,
+        ExpressionAttributeValues: exprAttrValues,
+        TableName: explorerTable,
+        ReturnValues: 'NONE',
+    });
+
+    try {
+        await dynamo.send(input);
+        return true;
+    } catch (err) {
+        if (err instanceof ConditionalCheckFailedException) {
+            // This happens only when two people in the same cohort simultaneously
+            // upload a game with a move not played before in that cohort
+            console.log('setExplorerPositionCohort conditional check failed');
+            return false;
+        }
+        console.log('Failed setExplorerPositionCohort with input %j: ', input, err);
+        throw err;
+    }
+}
+
 /**
  * Sets or removes the ExplorerGame associated with this game and update as necessary.
  * @param game The game associated with the ExplorerPosition.
  * @param update The update applied to the ExplorerPosition.
  * @returns
  */
-async function updateExplorerGame(game: Game, update: ExplorerPositionUpdate) {
+async function updateExplorerGame(
+    game: Game,
+    update: ExplorerPositionUpdate,
+): Promise<boolean> {
     if (update.oldResult && !update.newResult) {
         // The position or game was deleted
         return removeExplorerGame(game, update);
@@ -667,9 +752,12 @@ async function updateExplorerGame(game: Game, update: ExplorerPositionUpdate) {
  * @param game The game associated with the ExplorerPosition.
  * @param update The update applied to the ExplorerPosition.
  */
-async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
+async function putExplorerGame(
+    game: Game,
+    update: ExplorerPositionUpdate,
+): Promise<boolean> {
     if (update.normalizedFen === STARTING_POSITION_FEN) {
-        return;
+        return true;
     }
 
     const id = `GAME#${getExplorerCohort(game)}#${game.id}`;
@@ -706,8 +794,10 @@ async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
                 TableName: explorerTable,
             }),
         );
+        return true;
     } catch (err) {
         console.log('ERROR: Failed to set explorer game %j: ', explorerGame, err);
+        return false;
     }
 }
 
@@ -717,9 +807,12 @@ async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
  * @param game The game associated with the ExplorerPosition.
  * @param update The update applied to the ExplorerPosition.
  */
-async function removeExplorerGame(game: Game, update: ExplorerPositionUpdate) {
+async function removeExplorerGame(
+    game: Game,
+    update: ExplorerPositionUpdate,
+): Promise<boolean> {
     if (update.normalizedFen === STARTING_POSITION_FEN) {
-        return;
+        return true;
     }
 
     try {
@@ -733,7 +826,9 @@ async function removeExplorerGame(game: Game, update: ExplorerPositionUpdate) {
                 TableName: explorerTable,
             }),
         );
+        return true;
     } catch (err) {
         console.log('ERROR: Failed to delete explorer game: ', err);
+        return false;
     }
 }
