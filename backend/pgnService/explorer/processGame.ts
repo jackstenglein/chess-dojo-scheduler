@@ -81,8 +81,10 @@ export function processRecord(
 
         for (const update of updates) {
             const explorerGame = getExplorerGame(newGame, update);
-            writeStream.write(JSON.stringify(explorerGame));
-            writeStream.write('\n');
+            if (explorerGame) {
+                writeStream.write(JSON.stringify(explorerGame));
+                writeStream.write('\n');
+            }
 
             if (!positions[update.normalizedFen]) {
                 positions[update.normalizedFen] = getInitialExplorerPosition(
