@@ -93,7 +93,15 @@ export const handler: DynamoDBStreamHandler = async (event) => {
     const fenUpdates = Object.values(positionUpdates);
     for (const fenUpdate of fenUpdates) {
         for (const [cohort, updates] of Object.entries(fenUpdate)) {
-            await writePositionUpdates(cohort, updates);
+            try {
+                await writePositionUpdates(cohort, updates);
+            } catch (err) {
+                console.log(
+                    `ERROR: failed in cohort ${cohort} to write updates %j: `,
+                    updates,
+                    err,
+                );
+            }
         }
     }
 };
