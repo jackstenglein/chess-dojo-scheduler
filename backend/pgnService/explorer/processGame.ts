@@ -3,6 +3,7 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import * as readline from 'readline';
 import {
     ExplorerGame,
     ExplorerMove,
@@ -61,39 +62,56 @@ interface ExplorerMoveUpdate {
     newResult?: keyof ExplorerResult;
 }
 
+export let processed = 0;
+const PRINT_MOD = 1000;
+
 /**
  * Extracts the positions from a single Game and saves or removes them as necessary.
  * @param record A single DynamoDB stream record to extract positions from.
  */
-export function* processRecord(
-    record: Record<string, AttributeValue>,
+export async function* processRecord(
+    reader: readline.Interface,
     positions: Record<string, ExplorerPosition>,
 ) {
-    try {
-        const newGame = unmarshall(record) as Game;
-        const cohort = getExplorerCohort(newGame);
-        console.log('INFO: game (%s, %s)', cohort, newGame.id);
+    for await (const line of reader) {
+        const item = JSON.parse(line).Item;
+        if (item.cohort.S === 'masters') {
+            try {
+                const newGame = unmarshall(item) as Game;
+                const cohort = getExplorerCohort(newGame);
+                console.log('INFO: game (%s, %s)', cohort, newGame.id);
 
-        const newExplorerPositions = extractPositions(newGame);
-        const updates = getUpdates({}, newExplorerPositions);
+                const newExplorerPositions = extractPositions(newGame);
+                const updates = getUpdates({}, newExplorerPositions);
 
-        for (const update of updates) {
-            if (!positions[update.normalizedFen]) {
-                positions[update.normalizedFen] = getInitialExplorerPosition(
-                    update,
-                    cohort,
-                );
-            } else {
-                updateExplorerPosition(positions[update.normalizedFen], update, cohort);
+                for (const update of updates) {
+                    if (!positions[update.normalizedFen]) {
+                        positions[update.normalizedFen] = getInitialExplorerPosition(
+                            update,
+                            cohort,
+                        );
+                    } else {
+                        updateExplorerPosition(
+                            positions[update.normalizedFen],
+                            update,
+                            cohort,
+                        );
+                    }
+
+                    const explorerGame = getExplorerGame(newGame, update);
+                    if (explorerGame) {
+                        yield `${JSON.stringify(explorerGame)}\n`;
+                    }
+                }
+            } catch (err) {
+                console.log('ERROR: Failed to process record %j: ', item, err);
             }
 
-            const explorerGame = getExplorerGame(newGame, update);
-            if (explorerGame) {
-                yield `${JSON.stringify(explorerGame)}\n`;
+            processed++;
+            if (processed % PRINT_MOD === 1) {
+                console.log('INFO: processed %d games', processed);
             }
         }
-    } catch (err) {
-        console.log('ERROR: Failed to process record %j: ', record, err);
     }
 }
 
