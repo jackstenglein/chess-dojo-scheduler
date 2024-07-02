@@ -1,4 +1,5 @@
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { once } from 'events';
 import * as fs from 'fs';
 import * as readline from 'readline';
 import { Readable } from 'stream';
@@ -20,6 +21,7 @@ async function main() {
         const writeStream = fs.createWriteStream(`output-${i}.json`);
 
         inputStream.pipe(writeStream);
+        await once(inputStream, 'finish');
     }
 
     console.log('INFO: Read all games. Total processed: %d', processed);
