@@ -3,7 +3,6 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
-import * as fs from 'fs';
 import {
     ExplorerGame,
     ExplorerMove,
@@ -66,10 +65,9 @@ interface ExplorerMoveUpdate {
  * Extracts the positions from a single Game and saves or removes them as necessary.
  * @param record A single DynamoDB stream record to extract positions from.
  */
-export function processRecord(
+export function* processRecord(
     record: Record<string, AttributeValue>,
     positions: Record<string, ExplorerPosition>,
-    writeStream: fs.WriteStream,
 ) {
     try {
         const newGame = unmarshall(record) as Game;
@@ -80,12 +78,6 @@ export function processRecord(
         const updates = getUpdates({}, newExplorerPositions);
 
         for (const update of updates) {
-            const explorerGame = getExplorerGame(newGame, update);
-            if (explorerGame) {
-                writeStream.write(JSON.stringify(explorerGame));
-                writeStream.write('\n');
-            }
-
             if (!positions[update.normalizedFen]) {
                 positions[update.normalizedFen] = getInitialExplorerPosition(
                     update,
@@ -93,6 +85,11 @@ export function processRecord(
                 );
             } else {
                 updateExplorerPosition(positions[update.normalizedFen], update, cohort);
+            }
+
+            const explorerGame = getExplorerGame(newGame, update);
+            if (explorerGame) {
+                yield `${JSON.stringify(explorerGame)}\n`;
             }
         }
     } catch (err) {
