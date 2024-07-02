@@ -27,7 +27,7 @@ async function main() {
         const writeStream = fs.createWriteStream(`output-${i}.json`);
 
         inputStream.pipe(writeStream);
-        await once(inputStream, 'finish');
+        await once(writeStream, 'finish');
     }
 
     console.log('INFO: Read all games. Total processed: %d', processed);
