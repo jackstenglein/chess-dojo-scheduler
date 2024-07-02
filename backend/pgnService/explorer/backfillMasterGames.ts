@@ -36,7 +36,9 @@ async function main() {
     console.log('INFO: Writing %d positions', positions.size);
 
     const inputStream = Readable.from(generatePositions(positions));
-    const writeStream = fs.createWriteStream(`output-positions.json`);
+    const writeStream = fs.createWriteStream(
+        `output-positions-${MIN_FILE}-${MAX_FILE}.json`,
+    );
     inputStream.pipe(writeStream);
     await once(inputStream, 'finish');
 }
