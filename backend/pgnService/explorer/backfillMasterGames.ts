@@ -6,11 +6,17 @@ import { Readable } from 'stream';
 import { processRecord, processed } from './processGame';
 import { ExplorerPosition } from './types';
 
-const MIN_FILE = 0;
-const MAX_FILE = 1;
+const MIN_FILE = 1;
+const MAX_FILE = 2;
+
+function* generatePositions(positions: Map<string, ExplorerPosition>) {
+    for (const position of positions.values()) {
+        yield `${JSON.stringify({ Item: marshall(position, { removeUndefinedValues: true }) })}\n`;
+    }
+}
 
 async function main() {
-    const positions: Record<string, ExplorerPosition> = {};
+    const positions = new Map<string, ExplorerPosition>();
 
     for (let i = MIN_FILE; i < MAX_FILE; i++) {
         console.log('INFO: starting game file %d', i);
@@ -27,15 +33,12 @@ async function main() {
     console.log('INFO: Read all games. Total processed: %d', processed);
     console.log('INFO: Total Heap Used %d', process.memoryUsage().heapUsed);
 
-    console.log('INFO: Writing Positions');
+    console.log('INFO: Writing %d positions', positions.size);
 
+    const inputStream = Readable.from(generatePositions(positions));
     const writeStream = fs.createWriteStream(`output-positions.json`);
-    for (const position of Object.values(positions)) {
-        writeStream.write(
-            JSON.stringify({ Item: marshall(position, { removeUndefinedValues: true }) }),
-        );
-        writeStream.write('\n');
-    }
+    inputStream.pipe(writeStream);
+    await once(inputStream, 'finish');
 }
 
 main();

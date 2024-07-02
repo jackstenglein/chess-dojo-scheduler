@@ -63,6 +63,7 @@ interface ExplorerMoveUpdate {
 }
 
 export let processed = 0;
+export let skipped = 0;
 const PRINT_MOD = 1000;
 
 /**
@@ -71,7 +72,7 @@ const PRINT_MOD = 1000;
  */
 export async function* processRecord(
     reader: readline.Interface,
-    positions: Record<string, ExplorerPosition>,
+    positions: Map<string, ExplorerPosition>,
 ) {
     for await (const line of reader) {
         const item = JSON.parse(line).Item;
@@ -85,17 +86,14 @@ export async function* processRecord(
                 const updates = getUpdates({}, newExplorerPositions);
 
                 for (const update of updates) {
-                    if (!positions[update.normalizedFen]) {
-                        positions[update.normalizedFen] = getInitialExplorerPosition(
-                            update,
-                            cohort,
+                    const position = positions.get(update.normalizedFen);
+                    if (!position) {
+                        positions.set(
+                            update.normalizedFen,
+                            getInitialExplorerPosition(update, cohort),
                         );
                     } else {
-                        updateExplorerPosition(
-                            positions[update.normalizedFen],
-                            update,
-                            cohort,
-                        );
+                        updateExplorerPosition(position, update, cohort);
                     }
 
                     const explorerGame = getExplorerGame(newGame, update);
@@ -109,8 +107,17 @@ export async function* processRecord(
 
             processed++;
             if (processed % PRINT_MOD === 1) {
-                console.log('INFO: processed %d games', processed);
+                console.log(
+                    'INFO: processed %d games. Skipped %d games. Total: %d',
+                    processed,
+                    skipped,
+                    processed + skipped,
+                );
+                console.log('INFO: positions size: %d', positions.size);
+                console.log('INFO: heap used: %d', process.memoryUsage().heapUsed);
             }
+        } else {
+            skipped++;
         }
     }
 }
@@ -313,10 +320,7 @@ function getInitialExplorerPosition(
     update: ExplorerPositionUpdate,
     cohort: string,
 ): ExplorerPosition {
-    const chess = new Chess({ fen: update.normalizedFen });
-    const moves = chess.moves({ disableNullMoves: true });
-
-    const explorerMoves = moves.reduce(
+    const explorerMoves = update.moves.reduce(
         (map, move) => {
             map[move.san] = {
                 san: move.san,
@@ -340,12 +344,6 @@ function getInitialExplorerPosition(
         moves: explorerMoves,
     };
 
-    update.moves.forEach((move) => {
-        explorerPosition.moves[move.san].results[cohort] = {
-            [move.newResult!]: 1,
-        };
-    });
-
     return explorerPosition;
 }
 
@@ -361,17 +359,21 @@ function updateExplorerPosition(
         position.results[cohort] = {
             [update.newResult!]: 1,
         };
-
-        Object.values(position.moves).forEach((move) => {
-            if (move.results[cohort] === undefined) {
-                move.results[cohort] = {};
-            }
-        });
     }
 
     update.moves.forEach((move) => {
-        position.moves[move.san].results[cohort][move.newResult!] =
-            (position.moves[move.san].results[cohort][move.newResult!] ?? 0) + 1;
+        position.moves[move.san] = {
+            san: move.san,
+            results: {
+                ...position.moves[move.san]?.results,
+                [cohort]: {
+                    ...position.moves[move.san]?.results[cohort],
+                    [move.newResult!]:
+                        (position.moves[move.san]?.results[cohort]?.[move.newResult!] ??
+                            0) + 1,
+                },
+            },
+        };
     });
 }
 
