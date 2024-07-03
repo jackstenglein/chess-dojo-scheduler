@@ -64,6 +64,7 @@ interface ExplorerMoveUpdate {
 
 export let processed = 0;
 export let skipped = 0;
+export let explorerGames = 0;
 const PRINT_MOD = 1000;
 
 /**
@@ -98,6 +99,7 @@ export async function* processRecord(
 
                     const explorerGame = getExplorerGame(newGame, update);
                     if (explorerGame) {
+                        explorerGames++;
                         yield `${JSON.stringify(explorerGame)}\n`;
                     }
                 }
@@ -113,6 +115,7 @@ export async function* processRecord(
                     skipped,
                     processed + skipped,
                 );
+                console.log('INFO: created %d explorer games so far', explorerGames);
                 console.log('INFO: positions size: %d', positions.size);
                 console.log('INFO: heap used: %d', process.memoryUsage().heapUsed);
             }

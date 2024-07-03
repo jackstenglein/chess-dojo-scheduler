@@ -3,7 +3,7 @@ import { once } from 'events';
 import * as fs from 'fs';
 import * as readline from 'readline';
 import { Readable } from 'stream';
-import { processRecord, processed } from './processGame';
+import { explorerGames, processRecord, processed } from './processGame';
 import { ExplorerPosition } from './types';
 
 const MIN_FILE = 1;
@@ -31,6 +31,7 @@ async function main() {
     }
 
     console.log('INFO: Read all games. Total processed: %d', processed);
+    console.log('INFO: Total explorer games created: %d', explorerGames);
     console.log('INFO: Total Heap Used %d', process.memoryUsage().heapUsed);
 
     console.log('INFO: Writing %d positions', positions.size);
