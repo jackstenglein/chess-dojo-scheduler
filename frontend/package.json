@@ -121,7 +121,7 @@
         "command-line-usage": "^7.0.1",
         "cross-env": "^7.0.3",
         "cypress": "^13.13.0",
-        "cypress-real-events": "^1.12.0",
+        "cypress-real-events": "^1.13.0",
         "eslint": "^8.57.0",
         "eslint-config-next": "^14.2.3",
         "eslint-plugin-cypress": "^3.3.0",
