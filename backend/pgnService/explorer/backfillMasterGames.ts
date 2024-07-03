@@ -2,12 +2,15 @@ import { once } from 'events';
 import * as fs from 'fs';
 import * as readline from 'readline';
 import { Readable } from 'stream';
+import { close, initialize } from './cache';
 import { explorerGames, processRecord, processed, skipped } from './processGame';
 
 const MIN_FILE = 0;
 const MAX_FILE = 13;
 
 async function main() {
+    await initialize();
+
     for (let i = MIN_FILE; i < MAX_FILE; i++) {
         console.log(`${new Date().toISOString()} INFO ${i}: starting game file`);
 
@@ -26,6 +29,9 @@ async function main() {
     );
     console.log('INFO: Total explorer games created: %d', explorerGames);
     console.log('INFO: Total Heap Used %d', process.memoryUsage().heapUsed);
+
+    console.log('INFO: closing mongo');
+    await close();
 }
 
 main();
