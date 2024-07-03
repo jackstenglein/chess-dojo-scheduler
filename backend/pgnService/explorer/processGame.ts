@@ -1,14 +1,10 @@
 'use strict';
 
-import {
-    AttributeValue,
-    DynamoDBClient,
-    GetItemCommand,
-    PutItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import * as readline from 'readline';
+import { get, set } from './cache';
 import {
     ExplorerGame,
     ExplorerMove,
@@ -19,12 +15,6 @@ import {
 } from './types';
 
 const STARTING_POSITION_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
-const dynamo = new DynamoDBClient({
-    region: 'us-east-1',
-    endpoint: 'http://localhost:8080',
-});
-const mastersTable = 'local-masters';
 
 /** An ExplorerPosition extracted from a specific game. */
 interface ExplorerPositionExtraction {
@@ -82,7 +72,7 @@ const PRINT_MOD = 1000;
  * Extracts the positions from a single Game and saves or removes them as necessary.
  * @param record A single DynamoDB stream record to extract positions from.
  */
-export async function* processRecord(reader: readline.Interface) {
+export async function* processRecord(fileNum: number, reader: readline.Interface) {
     for await (const line of reader) {
         const item = JSON.parse(line).Item;
         if (item.cohort.S === 'masters') {
@@ -95,81 +85,46 @@ export async function* processRecord(reader: readline.Interface) {
                 const updates = getUpdates({}, newExplorerPositions);
 
                 for (const update of updates) {
-                    let position = await fetchExplorerPosition(update.normalizedFen);
+                    let position = await get(update.normalizedFen);
                     if (!position) {
                         position = getInitialExplorerPosition(update, cohort);
                     } else {
                         updateExplorerPosition(position, update, cohort);
                     }
-                    await setExplorerPosition(position);
+                    await set(position);
 
-                    const explorerGame = getExplorerGame(newGame, update);
-                    if (explorerGame) {
-                        explorerGames++;
-                        yield `${JSON.stringify(explorerGame)}\n`;
+                    if (fileNum !== 0 && fileNum !== 5) {
+                        const explorerGame = getExplorerGame(newGame, update);
+                        if (explorerGame) {
+                            explorerGames++;
+                            yield `${JSON.stringify(explorerGame)}\n`;
+                        }
                     }
                 }
             } catch (err) {
-                console.log('ERROR: Failed to process record %j: ', item, err);
+                console.log(
+                    `${new Date().toISOString()} ERROR ${fileNum}: Failed to process record %j: `,
+                    item,
+                    err,
+                );
             }
 
             processed++;
             if (processed % PRINT_MOD === 1) {
                 console.log(
-                    'INFO: processed %d games. Skipped %d games. Total: %d',
-                    processed,
-                    skipped,
-                    processed + skipped,
+                    `${new Date().toISOString()} INFO ${fileNum}: processed ${processed} games. Skipped ${skipped} games. Total: ${processed + skipped}`,
                 );
-                console.log('INFO: created %d explorer games so far', explorerGames);
-                console.log('INFO: heap used: %d', process.memoryUsage().heapUsed);
+                console.log(
+                    `${new Date().toISOString()} INFO ${fileNum}: created ${explorerGames} explorer games so far`,
+                );
+                console.log(
+                    `${new Date().toISOString()} INFO ${fileNum}: heap used: ${process.memoryUsage().heapUsed}`,
+                );
             }
         } else {
             skipped++;
         }
     }
-}
-
-/**
- * Fetches the explorer position with the given FEN from the database.
- * If it does not exist, undefined is returned.
- * @param normalizedFen The normalized FEN to fetch.
- * @returns The explorer position with the normalized FEN.
- */
-async function fetchExplorerPosition(
-    normalizedFen: string,
-): Promise<ExplorerPosition | undefined> {
-    const input = new GetItemCommand({
-        Key: {
-            normalizedFen: {
-                S: normalizedFen,
-            },
-            id: {
-                S: 'POSITION',
-            },
-        },
-        TableName: mastersTable,
-    });
-
-    const output = await dynamo.send(input);
-    if (!output.Item) {
-        return undefined;
-    }
-
-    return unmarshall(output.Item) as ExplorerPosition;
-}
-
-/**
- * Puts the given explorer position in Dynamo.
- * @param position The position to put.
- */
-async function setExplorerPosition(position: ExplorerPosition) {
-    await dynamo.send(
-        new PutItemCommand({
-            Item: marshall(position),
-            TableName: mastersTable,
-        }),
-    );
 }
 
 /**
