@@ -30,11 +30,9 @@ jobs:
           start: npm run start:build
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
-          record: true
+          record: false
           # parallel: true # Runs test in parallel using settings above
         env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
           AWS_COGNITO_REGION: 'us-east-1'
