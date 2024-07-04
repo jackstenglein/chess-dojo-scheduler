@@ -1,3 +1,4 @@
+import { PawnIcon } from '@/style/ChessIcons';
 import {
     AutoStories,
     BorderColor,
@@ -33,7 +34,6 @@ import LanguageIcon from '@mui/icons-material/Language';
 import SearchIcon from '@mui/icons-material/Search';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import {
-    Badge,
     Button,
     Collapse,
     IconButton,
@@ -46,39 +46,40 @@ import {
     Typography,
     useMediaQuery,
 } from '@mui/material';
+import Image from 'next/image';
+import Link from 'next/link';
 import React, { useState } from 'react';
-import { NavigateFunction, useNavigate } from 'react-router-dom';
-import { useNotifications } from '../api/cache/Cache';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { hasCreatedProfile } from '../database/user';
-import NotificationButton from '../notifications/NotificationButton';
-import { PawnIcon } from '../style/ChessIcons';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
 } from './UnauthenticatedMenu';
+import logo from './logo192.png';
 
 export const Logo = () => {
-    const navigate = useNavigate();
     return (
-        <img
-            src='/logo192.png'
+        <Link
+            href='/'
             style={{
+                height: '100%',
                 paddingTop: '10px',
                 paddingBottom: '10px',
-                maxHeight: '100%',
                 marginRight: '15px',
-                cursor: 'pointer',
             }}
-            alt=''
-            onClick={() => navigate('/')}
-        />
+        >
+            <Image
+                src={logo}
+                style={{
+                    height: '100%',
+                    width: 'auto',
+                }}
+                alt=''
+                priority
+            />
+        </Link>
     );
 };
-
-interface MenuProps {
-    meetingCount: number;
-}
 
 export interface NavbarItem {
     name: string;
@@ -88,20 +89,17 @@ export interface NavbarItem {
     href?: string;
 }
 
-function allStartItems(
-    navigate: NavigateFunction,
-    toggleExpansion: (item: string) => void,
-): NavbarItem[] {
+function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
     return [
         {
             name: 'Newsfeed',
             icon: <Feed />,
-            onClick: () => navigate('/newsfeed'),
+            href: '/newsfeed',
         },
         {
             name: 'Training Plan',
             icon: <Checklist />,
-            onClick: () => navigate('/profile?view=progress'),
+            href: '/profile?view=progress',
         },
         {
             name: 'Scoreboard',
@@ -111,27 +109,27 @@ function allStartItems(
                 {
                     name: 'My Cohort',
                     icon: <GroupIcon />,
-                    onClick: () => navigate('/scoreboard'),
+                    href: '/scoreboard',
                 },
                 {
                     name: 'Full Dojo',
                     icon: <LanguageIcon />,
-                    onClick: () => navigate('scoreboard/dojo'),
+                    href: 'scoreboard/dojo',
                 },
                 {
                     name: 'Followers',
                     icon: <ThumbUpIcon />,
-                    onClick: () => navigate('scoreboard/following'),
+                    href: 'scoreboard/following',
                 },
                 {
                     name: 'Search Users',
                     icon: <SearchIcon />,
-                    onClick: () => navigate('scoreboard/search'),
+                    href: 'scoreboard/search',
                 },
                 {
                     name: 'Statistics',
                     icon: <AutoGraphIcon />,
-                    onClick: () => navigate('scoreboard/stats'),
+                    href: 'scoreboard/stats',
                 },
             ],
         },
@@ -143,24 +141,24 @@ function allStartItems(
                 {
                     name: 'DojoLiga',
                     icon: <MilitaryTech />,
-                    onClick: () => navigate('/tournaments'),
+                    href: '/tournaments',
                 },
                 {
                     name: 'Open Classical',
                     icon: <MilitaryTech />,
-                    onClick: () => navigate('/tournaments/open-classical'),
+                    href: '/tournaments/open-classical',
                 },
             ],
         },
         {
             name: 'Games',
             icon: <PawnIcon />,
-            onClick: () => navigate('/games'),
+            href: '/games',
         },
         {
             name: 'Calendar',
             icon: <CalendarToday />,
-            onClick: () => navigate('/calendar'),
+            href: '/calendar',
         },
         {
             name: 'Material',
@@ -170,44 +168,44 @@ function allStartItems(
                 {
                     name: 'Courses',
                     icon: <ImportContacts />,
-                    onClick: () => navigate('/courses'),
+                    href: '/courses',
                 },
                 {
-                    name: 'Tests',
+                    name: 'Tactics Tests',
                     icon: <Speed />,
-                    onClick: () => navigate('/tests'),
+                    href: '/tactics',
                 },
                 {
                     name: 'Books',
                     icon: <AutoStories />,
-                    onClick: () => navigate('/material/books'),
+                    href: '/material/books',
                 },
                 {
                     name: 'Sparring Positions',
                     icon: <LocalFireDepartment />,
-                    onClick: () => navigate('/material/sparring'),
+                    href: '/material/sparring',
                 },
                 {
                     name: 'Model Annotations',
                     icon: <BorderColor />,
-                    onClick: () => navigate('/material/modelgames'),
+                    href: '/material/modelgames',
                 },
                 {
                     name: 'Games to Memorize',
                     icon: <Psychology />,
-                    onClick: () => navigate('/material/memorizegames'),
+                    href: '/material/memorizegames',
                 },
                 {
                     name: 'Rating Conversions',
                     icon: <SignalCellularAlt />,
-                    onClick: () => navigate('/material/ratings'),
+                    href: '/material/ratings',
                 },
             ],
         },
         {
             name: 'Clubs',
             icon: <Groups />,
-            onClick: () => navigate('/clubs'),
+            href: '/clubs',
         },
         {
             name: 'Blog',
@@ -222,12 +220,12 @@ function allStartItems(
                 {
                     name: 'Courses',
                     icon: <ImportContacts />,
-                    onClick: () => navigate('/courses'),
+                    href: '/courses',
                 },
                 {
                     name: 'Coaching',
                     icon: <RocketLaunch />,
-                    onClick: () => navigate('/coaching'),
+                    href: '/coaching',
                 },
                 {
                     name: 'Merch',
@@ -240,42 +238,26 @@ function allStartItems(
     ];
 }
 
-function helpItem(navigate: NavigateFunction): NavbarItem {
+function helpItem(): NavbarItem {
     return {
         name: 'Help',
         icon: <Help />,
-        onClick: () => navigate('/help'),
+        href: '/help',
     };
 }
 
-function NotificationsMenuItem({
-    handleClick,
-}: {
-    handleClick: (func: () => void) => () => void;
-}): JSX.Element {
-    const { notifications } = useNotifications();
-    const navigate = useNavigate();
-
+function NotificationsMenuItem(): JSX.Element {
     return (
-        <MenuItem onClick={handleClick(() => navigate('/notifications'))}>
+        <MenuItem href='/notifications'>
             <ListItemIcon>
-                <Badge
-                    badgeContent={notifications.length}
-                    color='secondary'
-                    overlap='circular'
-                >
-                    <Notifications />
-                </Badge>
+                <Notifications />
             </ListItemIcon>
             <Typography textAlign='center'>Notifications</Typography>
         </MenuItem>
     );
 }
 
-export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = ({
-    item,
-    meetingCount,
-}) => {
+export const StartItem: React.FC<{ item: NavbarItem }> = ({ item }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -292,27 +274,6 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
             handleClose();
         };
     };
-
-    if (item.name === 'Calendar') {
-        return (
-            <Button
-                key={item.name}
-                onClick={item.onClick}
-                sx={{ color: 'white', whiteSpace: 'nowrap' }}
-                startIcon={
-                    <Badge
-                        badgeContent={meetingCount}
-                        color='secondary'
-                        overlap='circular'
-                    >
-                        {item.icon}
-                    </Badge>
-                }
-            >
-                {item.name}
-            </Button>
-        );
-    }
 
     return (
         <>
@@ -339,6 +300,8 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                             onClick={
                                 child.onClick ? handleClick(child.onClick) : undefined
                             }
+                            component={child.href ? Link : 'li'}
+                            href={child.href}
                         >
                             {child.icon && <ListItemIcon>{child.icon}</ListItemIcon>}
                             <Typography textAlign='center'>{child.name}</Typography>
@@ -354,27 +317,17 @@ export const NavMenuItem: React.FC<{
     item: NavbarItem;
     openItems: Record<string, boolean>;
     handleClick: (func: () => void) => () => void;
-    meetingCount?: number;
-}> = ({ item, openItems, handleClick, meetingCount }) => {
+}> = ({ item, openItems, handleClick }) => {
     return (
         <>
             <MenuItem
                 key={item.name}
-                onClick={
-                    item.children
-                        ? item.onClick
-                        : item.onClick
-                          ? handleClick(item.onClick)
-                          : undefined
-                }
+                onClick={item.children ? item.onClick : undefined}
                 component={item.href ? 'a' : 'li'}
                 href={item.href}
             >
                 <ListItemIcon>{item.icon}</ListItemIcon>
-                <Typography textAlign='center'>
-                    {item.name}
-                    {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
-                </Typography>
+                <Typography textAlign='center'>{item.name}</Typography>
                 {item.children &&
                     (openItems[item.name] ? (
                         <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
@@ -396,6 +349,8 @@ export const NavMenuItem: React.FC<{
                                     child.onClick ? handleClick(child.onClick) : undefined
                                 }
                                 sx={{ pl: 3 }}
+                                component={child.href ? 'a' : 'li'}
+                                href={child.href}
                             >
                                 {child.icon ? (
                                     <ListItemIcon>{child.icon}</ListItemIcon>
@@ -414,26 +369,17 @@ export const NavMenuItem: React.FC<{
     );
 };
 
-function HelpButton(navigate: NavigateFunction) {
+function HelpButton() {
     return (
         <Tooltip key='help' title='Help'>
-            <IconButton
-                data-cy='Help'
-                key='help'
-                sx={{ color: 'white' }}
-                onClick={() => navigate('/help')}
-            >
+            <IconButton data-cy='Help' key='help' sx={{ color: 'white' }} href='/help'>
                 <Help />
             </IconButton>
         </Tooltip>
     );
 }
 
-function useNavbarItems(
-    meetingCount: number,
-    handleClick: (func: () => void) => () => void,
-) {
-    const navigate = useNavigate();
+function useNavbarItems(handleClick: (func: () => void) => () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
 
@@ -449,7 +395,7 @@ function useNavbarItems(
     const showNotifications = useMediaQuery('(min-width:567px)');
     const showProfileDropdown = useMediaQuery('(min-width:542px)');
 
-    const startItems = allStartItems(navigate, (item: string) =>
+    const startItems = allStartItems((item: string) =>
         setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
@@ -474,9 +420,7 @@ function useNavbarItems(
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => (
-            <StartItem key={item.name} item={item} meetingCount={meetingCount} />
-        ));
+        .map((item) => <StartItem key={item.name} item={item} />);
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
@@ -486,27 +430,22 @@ function useNavbarItems(
                 item={item}
                 openItems={openItems}
                 handleClick={handleClick}
-                meetingCount={meetingCount}
             />
         ));
 
     const endItems: JSX.Element[] = [];
 
-    if (showNotifications) {
-        endItems.push(<NotificationButton key='notifications' />);
-    } else {
-        menuItems.push(
-            <NotificationsMenuItem key='notifications' handleClick={handleClick} />,
-        );
+    if (!showNotifications) {
+        menuItems.push(<NotificationsMenuItem key='notifications' />);
     }
 
     if (showHelp) {
-        endItems.push(HelpButton(navigate));
+        endItems.push(HelpButton());
     } else {
         menuItems.push(
             <NavMenuItem
                 key='help'
-                item={helpItem(navigate)}
+                item={helpItem()}
                 openItems={openItems}
                 handleClick={handleClick}
             />,
@@ -535,9 +474,8 @@ function useNavbarItems(
     };
 }
 
-const LargeMenu: React.FC<MenuProps> = ({ meetingCount }) => {
+const LargeMenu = () => {
     const auth = useAuth();
-    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -555,7 +493,7 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingCount }) => {
         };
     };
 
-    const { startItems, menuItems, endItems } = useNavbarItems(meetingCount, handleClick);
+    const { startItems, menuItems, endItems } = useNavbarItems(handleClick);
     const profileCreated = hasCreatedProfile(auth.user);
 
     if (!profileCreated) {
@@ -564,7 +502,7 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingCount }) => {
                 <Logo />
                 <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
                     <Button
-                        onClick={() => navigate('/profile')}
+                        href='/profile'
                         sx={{ color: 'white' }}
                         startIcon={<Person2Icon />}
                     >
@@ -572,7 +510,7 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingCount }) => {
                     </Button>
                 </Stack>
 
-                <Button onClick={() => navigate('/help')} sx={{ color: 'white' }}>
+                <Button href='/help' sx={{ color: 'white' }}>
                     Help
                 </Button>
 
@@ -617,14 +555,12 @@ const LargeMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     );
 };
 
-const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
+const ExtraSmallMenu = () => {
     const auth = useAuth();
-    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const { notifications } = useNotifications();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
-    const startItems = allStartItems(navigate, (item: string) =>
+    const startItems = allStartItems((item: string) =>
         setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
@@ -658,7 +594,6 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
                 item={item}
                 openItems={openItems}
                 handleClick={handleClick}
-                meetingCount={meetingCount}
             />
         ));
     }
@@ -689,7 +624,7 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
                 onClose={handleClose}
             >
                 {!profileCreated && (
-                    <MenuItem onClick={handleClick(() => navigate('/profile'))}>
+                    <MenuItem href='/profile'>
                         <ListItemIcon>
                             <Person2Icon />
                         </ListItemIcon>
@@ -699,20 +634,12 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
 
                 {startItemsJsx}
 
-                <MenuItem onClick={handleClick(() => navigate('/notifications'))}>
-                    <ListItemIcon>
-                        <Badge
-                            badgeContent={notifications.length}
-                            color='secondary'
-                            overlap='circular'
-                        >
-                            <Notifications />
-                        </Badge>
-                    </ListItemIcon>
+                <MenuItem href='/notifications'>
+                    <ListItemIcon></ListItemIcon>
                     <Typography textAlign='center'>Notifications</Typography>
                 </MenuItem>
 
-                <MenuItem onClick={handleClick(() => navigate('/help'))}>
+                <MenuItem href='/help'>
                     <ListItemIcon>
                         <Help />
                     </ListItemIcon>
@@ -732,15 +659,15 @@ const ExtraSmallMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     );
 };
 
-const AuthenticatedMenu: React.FC<MenuProps> = ({ meetingCount }) => {
+const AuthenticatedMenu = () => {
     const largeMenu = useMediaQuery('(min-width:450px)');
     if (largeMenu) {
-        return <LargeMenu meetingCount={meetingCount} />;
+        return <LargeMenu />;
     }
-    return <ExtraSmallMenu meetingCount={meetingCount} />;
+    return <ExtraSmallMenu />;
 };
 
-const NavbarMenu: React.FC<MenuProps> = ({ meetingCount }) => {
+const NavbarMenu = () => {
     const auth = useAuth();
 
     if (auth.status === AuthStatus.Loading) {
@@ -749,7 +676,7 @@ const NavbarMenu: React.FC<MenuProps> = ({ meetingCount }) => {
     if (auth.status === AuthStatus.Unauthenticated) {
         return <UnauthenticatedMenu />;
     }
-    return <AuthenticatedMenu meetingCount={meetingCount} />;
+    return <AuthenticatedMenu />;
 };
 
 export default NavbarMenu;

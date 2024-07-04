@@ -19,7 +19,7 @@ import { Notification } from '../../database/notification';
 import { Requirement } from '../../database/requirement';
 import { useApi } from '../Api';
 import { GetExplorerPositionResult } from '../explorerApi';
-import { Request, useRequest } from '../Request';
+import { Request, RequestStatus, useRequest } from '../Request';
 
 interface IdentifiableCache<T> {
     get: (id: string) => T | undefined;
@@ -31,6 +31,29 @@ interface IdentifiableCache<T> {
     isFetched: (id: string) => boolean;
     markFetched: (id: string) => void;
     request: Request;
+}
+
+function emptyIdentifiableCache<T>(): IdentifiableCache<T> {
+    return {
+        get: () => undefined,
+        list: () => [],
+        filter: () => [],
+        put: () => null,
+        putMany: () => null,
+        remove: () => null,
+        isFetched: () => false,
+        markFetched: () => null,
+        request: {
+            status: RequestStatus.Success,
+            onStart: () => null,
+            onSuccess: () => null,
+            onFailure: () => null,
+            reset: () => null,
+            isLoading: () => false,
+            isSent: () => true,
+            isFailure: () => false,
+        },
+    };
 }
 
 function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
@@ -137,8 +160,17 @@ interface CacheContextType {
     setImageBypass: (v: number) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const CacheContext = createContext<CacheContextType>(null!);
+const CacheContext = createContext<CacheContextType>({
+    isLoading: false,
+    setIsLoading: () => null,
+    events: emptyIdentifiableCache(),
+    requirements: emptyIdentifiableCache(),
+    notifications: emptyIdentifiableCache(),
+    positions: emptyIdentifiableCache(),
+    clubs: emptyIdentifiableCache(),
+    imageBypass: 0,
+    setImageBypass: () => null,
+});
 
 /**
  * @returns The current CacheContextType value.
@@ -186,7 +218,7 @@ export function useEvents(): UseEventsResponse {
     const auth = useAuth();
     const api = useApi();
     const cache = useCache();
-    const request = useRequest();
+    const request = cache.events.request;
 
     const events = useMemo(() => cache.events.list(), [cache.events]);
 

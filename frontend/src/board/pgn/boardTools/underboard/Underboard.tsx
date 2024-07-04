@@ -1,3 +1,4 @@
+import { useLightMode } from '@/style/useLightMode';
 import {
     AccessAlarm,
     Chat,
@@ -17,7 +18,6 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
-import { useLightMode } from '../../../../ThemeProvider';
 import { AuthStatus, useAuth } from '../../../../auth/Auth';
 import { useGame } from '../../../../games/view/GamePage';
 import { useChess } from '../../PgnBoard';

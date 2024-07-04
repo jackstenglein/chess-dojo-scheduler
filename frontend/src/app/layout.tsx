@@ -1,4 +1,10 @@
+import { ApiProvider } from '@/api/Api';
+import { AuthProvider } from '@/auth/Auth';
+import Navbar from '@/navbar/Navbar';
+import ThemeProvider from '@/style/ThemeProvider';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
     title: 'ChessDojo',
@@ -8,15 +14,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang='en'>
+        <html lang='en' suppressHydrationWarning>
             <head>
-                <meta name='theme-color' content='#000000' />
                 <link rel='apple-touch-icon' href='/android-chome-192x192.png' />
                 <link rel='manifest' href='/manifest.json' />
-                <title>ChessDojo</title>
             </head>
             <body>
-                <div id='root'>{children}</div>
+                <div id='root'>
+                    <AppRouterCacheProvider>
+                        <ThemeProvider>
+                            <AuthProvider>
+                                <ApiProvider>
+                                    <Navbar />
+
+                                    {children}
+                                </ApiProvider>
+                            </AuthProvider>
+                        </ThemeProvider>
+                    </AppRouterCacheProvider>
+                </div>
             </body>
         </html>
     );

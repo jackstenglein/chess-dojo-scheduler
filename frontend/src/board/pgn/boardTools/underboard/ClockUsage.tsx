@@ -1,10 +1,10 @@
+import { useLightMode } from '@/style/useLightMode';
 import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
 import { Edit } from '@mui/icons-material';
 import { Box, CardContent, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
 import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
-import { useLightMode } from '../../../../ThemeProvider';
 import { useReconcile } from '../../../Board';
 import { useChess } from '../../PgnBoard';
 import ClockEditor from './ClockEditor';
