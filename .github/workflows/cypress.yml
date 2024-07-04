@@ -14,26 +14,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare Frontend
+      - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm ci
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build:test
 
       - name: Cypress Run
         uses: cypress-io/github-action@v6
         with:
           working-directory: frontend
           build: npx cypress info
-          start: npm run dev
+          start: npm run start:build
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
-          record: true
+          record: false
           # parallel: true # Runs test in parallel using settings above
         env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
           AWS_COGNITO_REGION: 'us-east-1'
           AWS_COGNITO_USER_POOL_ID: 'us-east-1_apywr6kwu'
           AWS_COGNITO_USER_POOL_WEB_CLIENT_ID: '76en8knncv8bfpfgbheua6j6k'
           AWS_COGNITO_DOMAIN: 'user-pool-domain-dev-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com'
+
+      - name: Save Cypress Screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots
+          path: frontend/cypress/screenshots

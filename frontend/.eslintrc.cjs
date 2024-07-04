@@ -2,7 +2,7 @@
 module.exports = {
     extends: [
         '@jackstenglein/eslint-config-dojo/recommended',
-        '@jackstenglein/eslint-config-dojo/react',
+        '@jackstenglein/eslint-config-dojo/next',
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {

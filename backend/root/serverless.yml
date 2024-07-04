@@ -116,10 +116,12 @@ resources:
           - ${file(../config-${sls:stage}.yml):frontendHost}
           - ${file(../config-${sls:stage}.yml):mobileHost}
           - https://www.dojoscoreboard.com
+          - https://beta.chessdojo.club
         LogoutURLs:
           - ${file(../config-${sls:stage}.yml):frontendHost}
           - ${file(../config-${sls:stage}.yml):mobileHost}
           - https://www.dojoscoreboard.com
+          - https://beta.chessdojo.club
         SupportedIdentityProviders:
           - COGNITO
           - Google

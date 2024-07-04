@@ -8,9 +8,10 @@ describe('Event Editor', () => {
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
-        cy.clock(tournamentsClock);
 
+        cy.clock(tournamentsClock);
         cy.visit('/calendar');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('shows and hides event editor', () => {

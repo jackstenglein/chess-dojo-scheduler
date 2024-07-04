@@ -8,9 +8,10 @@ describe('Calendar Page', () => {
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
-        cy.clock(tournamentsClock);
 
+        cy.clock(tournamentsClock);
         cy.visit('/calendar');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('has correct filters', () => {
@@ -27,6 +28,7 @@ describe('Calendar Page', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/calendar');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
