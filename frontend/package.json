@@ -129,7 +129,7 @@
         "happy-dom": "^14.12.3",
         "nodemon": "^3.1.4",
         "prettier-plugin-organize-imports": "^3.2.4",
-        "tsx": "^4.13.2",
+        "tsx": "^4.16.2",
         "typescript": "^5.4.5",
         "typescript-eslint": "^7.15.0",
         "vite-plugin-eslint": "^1.8.1"
