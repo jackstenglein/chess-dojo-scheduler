@@ -4,9 +4,7 @@ import { FacebookOutlined, Link, Reddit, Share, Twitter } from '@mui/icons-mater
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 
-function objectToGetParams(object: {
-    [key: string]: string | number | undefined | null;
-}) {
+function objectToGetParams(object: Record<string, string | number | undefined | null>) {
     const params = Object.entries(object)
         .filter(([, value]) => value !== undefined && value !== null)
         .map(
@@ -25,7 +23,7 @@ interface ShareButtonProps {
 const ShareButton: React.FC<ShareButtonProps> = ({ title, href }) => {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-    const onShare = (platform: string) => {
+    const onShare = async (platform: string) => {
         const fullHref = `${window.location.protocol}//${window.location.host}${href}`;
         let link = '';
 
@@ -54,7 +52,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ title, href }) => {
                     objectToGetParams({ url: fullHref, title });
                 break;
             case 'copy':
-                navigator.clipboard.writeText(fullHref);
+                await navigator.clipboard.writeText(fullHref);
                 break;
         }
 
