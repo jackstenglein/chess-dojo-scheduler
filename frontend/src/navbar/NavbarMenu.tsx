@@ -667,7 +667,11 @@ const AuthenticatedMenu = () => {
     return <ExtraSmallMenu />;
 };
 
-const NavbarMenu = () => {
+interface NavbarMenuProps {
+    meetingCount: number;
+}
+
+const NavbarMenu = (_props: NavbarMenuProps) => {
     const auth = useAuth();
 
     if (auth.status === AuthStatus.Loading) {

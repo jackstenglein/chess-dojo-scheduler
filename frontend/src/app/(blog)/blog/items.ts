@@ -1,4 +1,3 @@
-import { StaticImageData } from 'next/image';
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
@@ -10,7 +9,7 @@ export interface BlogItem {
     body: string;
     href: string;
     image: {
-        src: StaticImageData;
+        src: string;
         alt: string;
     };
 }
