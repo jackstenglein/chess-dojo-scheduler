@@ -58,7 +58,7 @@
         "react-tooltip": "^4.4.3",
         "react-use-measure": "^2.1.1",
         "remark-gfm": "^4.0.0",
-        "serve": "^14.2.3",
+        "sharp": "^0.33.4",
         "use-long-press": "^3.2.0",
         "usehooks-ts": "^3.1.0",
         "uuid": "^10.0.0",
@@ -70,8 +70,8 @@
         "zod-validation-error": "^3.3.0"
     },
     "scripts": {
-        "start": "echo ERROR: behavior of 'npm run start' was non-standard and thus has been removed to force migration to 'npm run dev'. In the future, this script will serve the production build via 'next start', per NextJS conventions.",
-        "start:build": "serve -s build/",
+        "start": "echo ERROR: behavior of 'npm run start' was non-standard and thus has been removed to force migration to 'npm run dev'. In the future, 'npm run start' will serve the production build via 'next start', per NextJS conventions.",
+        "start:build": "next start",
         "preinstall": "cd ../common && npm install && cd ../eslint-config-dojo/ && npm install",
         "dev": "next dev",
         "precheck": "npm run lint && next build && npm run test:unit",
