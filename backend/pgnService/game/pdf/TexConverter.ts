@@ -1,5 +1,6 @@
 import { Chess, Color, Move } from '@jackstenglein/chess';
 import { compareNags, nags } from '@jackstenglein/chess-dojo-common/src/pgn/nag';
+import qrcode from 'qrcode';
 import { Game } from '../types';
 
 export default class TexConverter {
@@ -13,6 +14,15 @@ export default class TexConverter {
         this.tex = '';
     }
 
+    /** Writes a QR code linking to the game to the temporary file qrcode.png. */
+    writeQrCode() {
+        const cohort = encodeURIComponent(this.game.cohort);
+        const id = encodeURIComponent(this.game.id);
+        qrcode.toFile('qrcode.png', `https://www.chessdojo.club/games/${cohort}/${id}`, {
+            errorCorrectionLevel: 'H',
+        });
+    }
+
     /**
      * @returns The Tex content of the provided Game.
      */
@@ -20,6 +30,8 @@ export default class TexConverter {
         if (this.tex) {
             return this.tex;
         }
+
+        this.writeQrCode();
 
         this.makeTitle();
 
@@ -43,8 +55,9 @@ export default class TexConverter {
         }
         this.tex = staticTexHeader;
         this.tex += `\n\\title{${this.chess.header().tags.White || 'NN'} - ${this.chess.header().tags.Black || 'NN'}}`;
+        this.tex += `\n\\author{Notes by ${this.game.orientation.slice(0, 1).toUpperCase()}${this.game.orientation.slice(1)}}`;
         this.tex +=
-            '\n\\begin{document}\n\\begin{multicols}{2}\n\\maketitle\n\\newchessgame\n\n';
+            '\n\\begin{document}\n\\maketitle\n\\begin{multicols}{2}\n\\newchessgame\n\n';
     }
 
     /**
@@ -290,6 +303,9 @@ const staticTexHeader = String.raw`\documentclass{article}
 \usepackage[autostyle, english = american]{csquotes}
 \usepackage[dvipsnames]{xcolor}
 \usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage[skip=0pt]{caption}
+\usepackage{titling}
 
 \definecolor{good}{HTML}{21c43a}
 \definecolor{mistake}{HTML}{e69d00}
@@ -301,4 +317,30 @@ const staticTexHeader = String.raw`\documentclass{article}
 \MakeOuterQuote{"}
 
 \geometry{left=1.25cm,right=1.25cm,top=1.5cm,bottom=1.5cm,columnsep=1.2cm}
-\setlength{\parindent}{0pt}`;
+\setlength{\parindent}{0pt}
+
+\pretitle{%
+  \begin{center}
+  \Huge\bfseries
+}
+\posttitle{%
+  \end{center}%
+}
+\preauthor{%
+  \begin{center}
+    \huge \lineskip 0.75em%
+}
+\postauthor{%
+  \end{center}%
+}
+
+\renewcommand\maketitlehookd{
+    \vspace{-20pt}
+    \begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.5]{qrcode.png}
+    \caption*{View on ChessDojo.club}
+    \end{figure}
+}
+
+\date{}`;
