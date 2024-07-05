@@ -1,4 +1,5 @@
 import { Chess, Color, Move } from '@jackstenglein/chess';
+import { compareNags, nags } from '@jackstenglein/chess-dojo-common/src/pgn/nag';
 import { Game } from '../types';
 
 export default class TexConverter {
@@ -106,7 +107,7 @@ export default class TexConverter {
         }
 
         if (depth > 1) {
-            this.tex.trimEnd();
+            this.tex = this.tex.trimEnd();
             this.tex += `)}\n\\end{adjustwidth}\n`;
         }
     }
@@ -224,19 +225,39 @@ export default class TexConverter {
             .replaceAll('K', '\\figsymbol{K}')
             .replaceAll('#', '\\#');
 
+        const nagDetails =
+            move.nags
+                ?.sort(compareNags)
+                .map((n) => nags[n])
+                .filter((n) => n) ?? [];
+        const nagLabel = nagDetails.map((n) => n.label).join('');
+
+        let nagColor = '';
+        for (const nag of nagDetails) {
+            if (nag.pdfColorName) {
+                nagColor = nag.pdfColorName;
+                break;
+            }
+        }
+
+        if (nagColor) {
+            this.tex += `\\color{${nagColor}}`;
+        }
+
         if (!depth) {
-            this.tex += `\\>\\textbf{${moveTex}}\n`;
-            // if (move.color === Color.black) {
-            //     this.tex += '\\\\\n';
-            // }
+            this.tex += `\\>\\textbf{${moveTex}${nagLabel}}\n`;
         } else {
-            this.tex += `${moveTex}`;
-            if (move.next) {
+            this.tex += `${moveTex}${nagLabel}`;
+            if (move.next || move.commentAfter) {
                 this.tex += `\\space `;
-                if (move.color === Color.black) {
+                if (move.color === Color.black && !move.commentAfter) {
                     this.tex += `\\space `;
                 }
             }
+        }
+
+        if (nagColor) {
+            this.tex += '\\color{black}';
         }
     }
 
@@ -267,6 +288,16 @@ const staticTexHeader = String.raw`\documentclass{article}
 \usepackage{parskip}
 \usepackage{changepage}
 \usepackage[autostyle, english = american]{csquotes}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[T1]{fontenc}
+
+\definecolor{good}{HTML}{21c43a}
+\definecolor{mistake}{HTML}{e69d00}
+\definecolor{brilliant}{HTML}{22ac38}
+\definecolor{blunder}{HTML}{df5353}
+\definecolor{interesting}{HTML}{f075e1}
+\definecolor{dubious}{HTML}{53b2ea}
+\definecolor{eval}{HTML}{800080}
 \MakeOuterQuote{"}
 
 \geometry{left=1.25cm,right=1.25cm,top=1.5cm,bottom=1.5cm,columnsep=1.2cm}
