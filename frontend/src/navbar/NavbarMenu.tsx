@@ -25,6 +25,7 @@ import {
     SignalCellularAlt,
     Speed,
     Storefront,
+    LiveTv,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
@@ -32,6 +33,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import LanguageIcon from '@mui/icons-material/Language';
 import SearchIcon from '@mui/icons-material/Search';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+
 import {
     Badge,
     Button,
@@ -45,6 +47,7 @@ import {
     Tooltip,
     Typography,
     useMediaQuery,
+    
 } from '@mui/material';
 import React, { useState } from 'react';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
@@ -133,6 +136,7 @@ function allStartItems(
                     icon: <AutoGraphIcon />,
                     onClick: () => navigate('scoreboard/stats'),
                 },
+                
             ],
         },
         {
@@ -201,6 +205,11 @@ function allStartItems(
                     name: 'Rating Conversions',
                     icon: <SignalCellularAlt />,
                     onClick: () => navigate('/material/ratings'),
+                },
+                {
+                    name: 'Dojo Vods',
+                    icon: <LiveTv/>,
+                    onClick: () => navigate('/material/vods'),
                 },
             ],
         },

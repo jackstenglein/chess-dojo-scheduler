@@ -86,6 +86,7 @@ import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
 import AdminPage from './tournaments/openClassical/admin/AdminPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 import PricingPage from './upsell/PricingPage';
+import DojoVods from './material/DojoVods';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
@@ -225,6 +226,7 @@ const router = createBrowserRouter(
                         <Route path='sparring' element={<SparringPage />} />
                         <Route path='modelgames' element={<ModelGamesPage />} />
                         <Route path='memorizegames' element={<MemorizeGamesPage />} />
+                        <Route path='vods' element={<DojoVods />} />
                     </Route>
 
                     <Route path='notifications' element={<NotificationPage />} />
