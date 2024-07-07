@@ -1,3 +1,4 @@
+import { useLightMode } from '@/style/useLightMode';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { Exam } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import {
@@ -24,7 +25,6 @@ import {
     lineElementClasses,
 } from '@mui/x-charts';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLightMode } from '../../ThemeProvider';
 import { useAuth } from '../../auth/Auth';
 import {
     ALL_COHORTS,

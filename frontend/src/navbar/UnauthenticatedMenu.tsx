@@ -1,3 +1,5 @@
+'use client';
+
 import {
     AutoStories,
     ChevronRight,
@@ -26,7 +28,6 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { Logo, NavMenuItem, NavbarItem, StartItem } from './NavbarMenu';
 import SocialIcons from './SocialIcons';
 
@@ -41,7 +42,6 @@ const UnauthenticatedMenu = () => {
 export default UnauthenticatedMenu;
 
 function unauthenticatedStartItems(
-    navigate: NavigateFunction,
     toggleExpansion: (item: string) => void,
 ): NavbarItem[] {
     return [
@@ -52,11 +52,11 @@ function unauthenticatedStartItems(
             children: [
                 {
                     name: 'DojoLiga',
-                    onClick: () => navigate('/tournaments'),
+                    href: '/tournaments',
                 },
                 {
                     name: 'Open Classical',
-                    onClick: () => navigate('/tournaments/open-classical'),
+                    href: '/tournaments/open-classical',
                 },
             ],
         },
@@ -68,17 +68,17 @@ function unauthenticatedStartItems(
                 {
                     name: 'Courses',
                     icon: <ImportContacts />,
-                    onClick: () => navigate('/courses'),
+                    href: '/courses',
                 },
                 {
                     name: 'Books',
                     icon: <AutoStories />,
-                    onClick: () => navigate('/material/books'),
+                    href: '/material/books',
                 },
                 {
                     name: 'Rating Conversions',
                     icon: <SignalCellularAlt />,
-                    onClick: () => navigate('/material/ratings'),
+                    href: '/material/ratings',
                 },
             ],
         },
@@ -94,11 +94,11 @@ function unauthenticatedStartItems(
             children: [
                 {
                     name: 'Courses',
-                    onClick: () => navigate('/courses'),
+                    href: '/courses',
                 },
                 {
                     name: 'Coaching',
-                    onClick: () => navigate('/coaching'),
+                    href: '/coaching',
                 },
                 {
                     name: 'Merch',
@@ -110,13 +110,12 @@ function unauthenticatedStartItems(
         {
             name: 'Contact Us',
             icon: <ContactSupport />,
-            onClick: () => navigate('/help'),
+            href: '/help',
         },
     ];
 }
 
 function useNavbarItems(handleClick: (func: () => void) => () => void) {
-    const navigate = useNavigate();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
     const showAll = useMediaQuery('(min-width:963px)');
@@ -124,7 +123,7 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
     const hide3 = useMediaQuery('(min-width:665px)');
     const hide4 = useMediaQuery('(min-width:600px)');
 
-    const startItems = unauthenticatedStartItems(navigate, (item: string) =>
+    const startItems = unauthenticatedStartItems((item: string) =>
         setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
@@ -151,7 +150,6 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
                 item={item}
                 openItems={openItems}
                 handleClick={handleClick}
-                meetingCount={0}
             />
         ));
 
@@ -162,7 +160,6 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
 }
 
 export const LargeMenuUnauthenticated = () => {
-    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -214,10 +211,10 @@ export const LargeMenuUnauthenticated = () => {
             </Stack>
 
             <Stack spacing={1} direction='row'>
-                <Button onClick={() => navigate('/signin')} sx={{ color: 'white' }}>
+                <Button href='/signin' sx={{ color: 'white' }}>
                     Sign In
                 </Button>
-                <Button onClick={() => navigate('/signup')} sx={{ color: 'white' }}>
+                <Button href='/signup' sx={{ color: 'white' }}>
                     Sign Up
                 </Button>
             </Stack>
@@ -226,11 +223,10 @@ export const LargeMenuUnauthenticated = () => {
 };
 
 export const ExtraSmallMenuUnauthenticated = () => {
-    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
-    const startItems = unauthenticatedStartItems(navigate, (item: string) =>
+    const startItems = unauthenticatedStartItems((item: string) =>
         setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
@@ -275,23 +271,17 @@ export const ExtraSmallMenuUnauthenticated = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem onClick={handleClick(() => navigate('/signin'))}>
+                <MenuItem href='/signin'>
                     <Typography textAlign='center'>Sign In</Typography>
                 </MenuItem>
-                <MenuItem onClick={handleClick(() => navigate('/signup'))}>
+                <MenuItem href='/signup'>
                     <Typography textAlign='center'>Sign Up</Typography>
                 </MenuItem>
 
                 {startItems.map((item) => [
                     <MenuItem
                         key={item.name}
-                        onClick={
-                            item.children
-                                ? item.onClick
-                                : item.onClick
-                                  ? handleClick(item.onClick)
-                                  : undefined
-                        }
+                        onClick={item.children ? item.onClick : undefined}
                         component={item.href ? 'a' : 'li'}
                         href={item.href}
                     >
@@ -319,6 +309,8 @@ export const ExtraSmallMenuUnauthenticated = () => {
                                                 ? handleClick(child.onClick)
                                                 : undefined
                                         }
+                                        component={child.href ? 'a' : 'li'}
+                                        href={child.href}
                                         sx={{ pl: 3 }}
                                     >
                                         {child.icon ? (

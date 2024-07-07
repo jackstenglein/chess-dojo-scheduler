@@ -13,10 +13,9 @@ import {
     Stack,
     Switch,
     Typography,
+    useColorScheme,
 } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLocalStorage } from 'usehooks-ts';
 import { useApi } from '../api/Api';
 import { useAuth } from '../auth/Auth';
 import Avatar from '../profile/Avatar';
@@ -24,11 +23,7 @@ import Avatar from '../profile/Avatar';
 const ProfileButton = () => {
     const auth = useAuth();
     const user = auth.user;
-    const navigate = useNavigate();
-    const [colorMode, setColorMode] = useLocalStorage(
-        'colorMode',
-        user?.enableLightMode ? 'light' : 'dark',
-    );
+    const { mode, setMode } = useColorScheme();
     const api = useApi();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -52,8 +47,8 @@ const ProfileButton = () => {
     };
 
     const toggleColorMode = () => {
-        setColorMode(colorMode === 'light' ? 'dark' : 'light');
-        void api.updateUser({ enableLightMode: colorMode === 'dark' });
+        setMode(mode === 'light' ? 'dark' : 'light');
+        void api.updateUser({ enableLightMode: mode === 'dark' });
     };
 
     return (
@@ -78,14 +73,14 @@ const ProfileButton = () => {
                     horizontal: 'right',
                 }}
             >
-                <MenuItem onClick={handleClick(() => navigate('/profile?view=stats'))}>
+                <MenuItem href='/profile?view=stats'>
                     <ListItemIcon>
                         <Person2Icon />
                     </ListItemIcon>
                     <Typography textAlign='center'>Profile</Typography>
                 </MenuItem>
 
-                <MenuItem onClick={handleClick(() => navigate('/profile/edit'))}>
+                <MenuItem href='/profile/edit'>
                     <ListItemIcon>
                         <SettingsIcon />
                     </ListItemIcon>
@@ -93,7 +88,7 @@ const ProfileButton = () => {
                 </MenuItem>
 
                 {user.isCoach && (
-                    <MenuItem onClick={handleClick(() => navigate('/coach'))}>
+                    <MenuItem href='/coach'>
                         <ListItemIcon>
                             <SportsIcon />
                         </ListItemIcon>
@@ -111,7 +106,7 @@ const ProfileButton = () => {
                         control={
                             <Switch
                                 color='primary'
-                                checked={colorMode === 'dark'}
+                                checked={mode === 'dark'}
                                 onChange={toggleColorMode}
                             />
                         }

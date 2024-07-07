@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+'use client';
 
 import {
     createContext,
@@ -186,7 +187,7 @@ export function useEvents(): UseEventsResponse {
     const auth = useAuth();
     const api = useApi();
     const cache = useCache();
-    const request = useRequest();
+    const request = cache.events.request;
 
     const events = useMemo(() => cache.events.list(), [cache.events]);
 

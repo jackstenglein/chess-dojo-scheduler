@@ -8,18 +8,15 @@ import {
     Stack,
     Tooltip,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-
 import { useApi } from '../api/Api';
-import { useCache } from '../api/cache/Cache';
 import { Request, RequestSnackbar, useRequest } from '../api/Request';
+import { useCache } from '../api/cache/Cache';
 import { Notification, NotificationType } from '../database/notification';
 import NotificationDescription from './NotificationDescription';
 
 interface NotificationListItemProps {
     notification: Notification;
     menuItem?: boolean;
-    onClick?: () => void;
 }
 
 interface DeletableNotification {
@@ -29,10 +26,8 @@ interface DeletableNotification {
 
 export const NotificationListItem: React.FC<NotificationListItemProps> = ({
     notification,
-    onClick,
     menuItem,
 }) => {
-    const navigate = useNavigate();
     const api = useApi();
     const cache = useCache();
     const request = useRequest<never>();
@@ -53,63 +48,17 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
             });
     };
 
-    const onClickNotification = () => {
-        switch (notification.type) {
-            case NotificationType.GameComment:
-                navigate(
-                    `/games/${notification.gameCommentMetadata?.cohort}/${notification.gameCommentMetadata?.id}`,
-                );
-                break;
-            case NotificationType.GameReviewComplete:
-                navigate(
-                    `/games/${notification.gameReviewMetadata?.cohort}/${notification.gameReviewMetadata?.id}`,
-                );
-                break;
-
-            case NotificationType.NewFollower:
-                navigate(`/profile/${notification.newFollowerMetadata?.username}`);
-                break;
-
-            case NotificationType.TimelineComment:
-            case NotificationType.TimelineReaction:
-                navigate(
-                    `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`,
-                );
-                break;
-
-            case NotificationType.ExplorerGame:
-                navigate(
-                    `/games/${notification.explorerGameMetadata?.cohort}/${notification.explorerGameMetadata?.id}`,
-                );
-                break;
-
-            case NotificationType.NewClubJoinRequest:
-                navigate(`/clubs/${notification.clubMetadata?.id}?view=joinRequests`);
-                break;
-
-            case NotificationType.ClubJoinRequestApproved:
-                navigate(`/clubs/${notification.clubMetadata?.id}`);
-                break;
-        }
-
-        if (onClick) {
-            onClick();
-        }
-    };
-
     return (
         <>
             <RequestSnackbar request={request} />
             {menuItem ? (
                 <NotificationMenuItem
-                    onClick={onClickNotification}
                     notification={notification}
                     onDelete={onDeleteNotification}
                     deleteRequest={request}
                 />
             ) : (
                 <NotificationItem
-                    onClick={onClickNotification}
                     onDelete={onDeleteNotification}
                     notification={notification}
                     deleteRequest={request}
@@ -121,10 +70,10 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
 
 const NotificationItem: React.FC<NotificationListItemProps & DeletableNotification> = ({
     notification,
-    onClick,
     onDelete,
     deleteRequest,
 }) => {
+    const href = getLink(notification);
     return (
         <Stack spacing={1}>
             <Stack
@@ -137,7 +86,7 @@ const NotificationItem: React.FC<NotificationListItemProps & DeletableNotificati
                 <NotificationDescription notification={notification} menuItem />
 
                 <Stack direction='row' spacing={2}>
-                    <Button onClick={onClick}>View</Button>
+                    <Button href={href}>View</Button>
 
                     {deleteRequest.isLoading() ? (
                         <CircularProgress />
@@ -158,10 +107,11 @@ const NotificationItem: React.FC<NotificationListItemProps & DeletableNotificati
 
 const NotificationMenuItem: React.FC<
     NotificationListItemProps & DeletableNotification
-> = ({ notification, onClick, onDelete, deleteRequest }) => {
+> = ({ notification, onDelete, deleteRequest }) => {
+    const href = getLink(notification);
     return (
         <Stack>
-            <MenuItem onClick={onClick}>
+            <MenuItem component='a' href={href}>
                 <Stack
                     direction='row'
                     justifyContent='space-between'
@@ -186,3 +136,28 @@ const NotificationMenuItem: React.FC<
         </Stack>
     );
 };
+
+function getLink(notification: Notification) {
+    switch (notification.type) {
+        case NotificationType.GameComment:
+            return `/games/${notification.gameCommentMetadata?.cohort}/${notification.gameCommentMetadata?.id}`;
+        case NotificationType.GameReviewComplete:
+            return `/games/${notification.gameReviewMetadata?.cohort}/${notification.gameReviewMetadata?.id}`;
+
+        case NotificationType.NewFollower:
+            return `/profile/${notification.newFollowerMetadata?.username}`;
+
+        case NotificationType.TimelineComment:
+        case NotificationType.TimelineReaction:
+            return `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`;
+
+        case NotificationType.ExplorerGame:
+            return `/games/${notification.explorerGameMetadata?.cohort}/${notification.explorerGameMetadata?.id}`;
+
+        case NotificationType.NewClubJoinRequest:
+            return `/clubs/${notification.clubMetadata?.id}?view=joinRequests`;
+
+        case NotificationType.ClubJoinRequestApproved:
+            return `/clubs/${notification.clubMetadata?.id}`;
+    }
+}

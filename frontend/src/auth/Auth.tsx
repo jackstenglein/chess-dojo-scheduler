@@ -1,5 +1,8 @@
+'use client';
+
+import { getConfig } from '@/config';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
-import { Auth as AmplifyAuth } from 'aws-amplify';
+import { Amplify, Auth as AmplifyAuth } from 'aws-amplify';
 import { AxiosError, AxiosResponse } from 'axios';
 import {
     ReactNode,
@@ -30,6 +33,22 @@ import {
 } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
+
+const config = getConfig();
+Amplify.configure({
+    Auth: {
+        region: config.auth.region,
+        userPoolId: config.auth.userPoolId,
+        userPoolWebClientId: config.auth.userPoolWebClientId,
+        oauth: {
+            domain: config.auth.oauth.domain,
+            scope: config.auth.oauth.scope,
+            redirectSignIn: config.auth.oauth.redirectSignIn,
+            redirectSignOut: config.auth.oauth.redirectSignOut,
+            responseType: config.auth.oauth.responseType,
+        },
+    },
+});
 
 export enum AuthStatus {
     Loading = 'Loading',

@@ -157,6 +157,5 @@ export function getConfig(): Config {
     if (envOverride && Object.values(ConfigName).includes(envOverride as ConfigName)) {
         env = envOverride as ConfigName;
     }
-    console.log('Env name: ', env);
     return config[env];
 }
