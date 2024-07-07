@@ -3,15 +3,21 @@ import { compareNags, nags } from '@jackstenglein/chess-dojo-common/src/pgn/nag'
 import qrcode from 'qrcode';
 import { Game } from '../types';
 
+export interface TexConverterOptions {
+    color?: boolean;
+}
+
 export default class TexConverter {
     private chess: Chess;
     private game: Game;
     private tex: string;
+    private options: TexConverterOptions;
 
-    constructor(game: Game) {
+    constructor(game: Game, options: TexConverterOptions = {}) {
         this.game = game;
         this.chess = new Chess({ pgn: game.pgn });
         this.tex = '';
+        this.options = options;
     }
 
     /** Writes a QR code linking to the game to the temporary file qrcode.png. */
@@ -56,8 +62,7 @@ export default class TexConverter {
         this.tex = staticTexHeader;
         this.tex += `\n\\title{${this.chess.header().tags.White || 'NN'} - ${this.chess.header().tags.Black || 'NN'}}`;
         this.tex += `\n\\author{Notes by ${this.game.orientation.slice(0, 1).toUpperCase()}${this.game.orientation.slice(1)}}`;
-        this.tex +=
-            '\n\\begin{document}\n\\maketitle\n\\begin{multicols}{2}\n\\newchessgame\n\n';
+        this.tex += beginTexDocument;
     }
 
     /**
@@ -70,20 +75,11 @@ export default class TexConverter {
     /**
      * Begins a variation with the given depth and index.
      * @param depth The depth of the variation. 0 indicates the mainline.
-     * @param index The index of the variation.
      */
-    private beginVariation(depth: number, index: number) {
-        if (!depth) {
-            this.tex += `\\begin{tabbing}\n\\hspace{.2\\linewidth}\\=\\hspace{.2\\linewidth}\\=\\hspace{.2\\linewidth}\\= \\kill\n`;
-            return;
-        }
-
+    private beginVariation(depth: number) {
         this.tex += `\n\n`;
-        if (index > 0) {
-            this.tex += `\\medskip\n`;
-        }
         if (depth > 1) {
-            this.tex += `\\begin{adjustwidth}{.05\\linewidth}{}\n{\\itshape (`;
+            this.tex += `\\begin{variationInterrupt}\n`;
         }
     }
 
@@ -106,7 +102,9 @@ export default class TexConverter {
         if (depth) {
             return;
         }
-        this.beginVariation(depth, 0);
+        this.tex += '\\vspace{1em}';
+
+        this.beginVariation(depth);
     }
 
     /**
@@ -114,14 +112,9 @@ export default class TexConverter {
      * @param depth The depth of the variation.
      */
     private endVariation(depth: number) {
-        if (!depth) {
-            this.tex += '\\end{tabbing}\n';
-            return;
-        }
-
         if (depth > 1) {
             this.tex = this.tex.trimEnd();
-            this.tex += `)}\n\\end{adjustwidth}\n`;
+            this.tex += `\n\\end{variationInterrupt}\n`;
         }
     }
 
@@ -132,9 +125,9 @@ export default class TexConverter {
      */
     private makeComment(comment: string, depth: number) {
         if (!depth) {
-            this.tex += `\n\n${comment.replaceAll('#', '\\#').trim()}\n\n`;
+            this.tex += `\n\n\\forceindent ${comment.replaceAll('#', '\\#').trim()}\n\n`;
         } else {
-            this.tex += ` ${comment.replaceAll('#', '\\#').trim()} `;
+            this.tex += `\n\\begin{variationInterrupt}\n${comment.replaceAll('#', '\\#').trim()}\n\\end{variationInterrupt}\n\n`;
         }
     }
 
@@ -143,8 +136,8 @@ export default class TexConverter {
      * @param moves The variation to add.
      * @param depth The depth of the variation. The mainline is 0.
      */
-    private makeVariation(moves: Move[], depth: number, index: number = 0) {
-        this.beginVariation(depth, index);
+    private makeVariation(moves: Move[], depth: number) {
+        this.beginVariation(depth);
 
         let forceMoveNumber = true;
         moves.forEach((move) => {
@@ -165,11 +158,14 @@ export default class TexConverter {
             }
 
             if (move.commentAfter) {
+                if (move.san === 'e6' && depth === 0) {
+                    this.makeDiagram(move);
+                }
                 this.makeComment(move.commentAfter, depth);
             }
 
-            move.variations.forEach((variation, index) =>
-                this.makeVariation(variation, depth + 1, index),
+            move.variations.forEach((variation) =>
+                this.makeVariation(variation, depth + 1),
             );
 
             if (forceMoveNumber) {
@@ -203,9 +199,9 @@ export default class TexConverter {
     private makeWhiteMoveNumber(move: Move, depth: number) {
         const moveNumber = Math.floor(move.ply / 2) + 1;
         if (!depth) {
-            this.tex += `\\\\\\>\\textbf{${moveNumber}}`;
+            this.tex += `\\textbf{${moveNumber}}.`;
         } else {
-            this.tex += `${moveNumber}.~`;
+            this.tex += `${moveNumber}.`;
         }
     }
 
@@ -217,10 +213,9 @@ export default class TexConverter {
     private makeBlackMoveNumber(move: Move, depth: number) {
         const moveNumber = move.ply / 2;
         if (!depth) {
-            this.tex += `\\\\\\>\\textbf{${moveNumber}}`;
-            this.tex += `\\>\\ldots`;
+            this.tex += `\\textbf{${moveNumber}}...`;
         } else {
-            this.tex += `${moveNumber}\\ldots~`;
+            this.tex += `${moveNumber}...`;
         }
     }
 
@@ -246,10 +241,12 @@ export default class TexConverter {
         const nagLabel = nagDetails.map((n) => n.label).join('');
 
         let nagColor = '';
-        for (const nag of nagDetails) {
-            if (nag.pdfColorName) {
-                nagColor = nag.pdfColorName;
-                break;
+        if (this.options.color) {
+            for (const nag of nagDetails) {
+                if (nag.pdfColorName) {
+                    nagColor = nag.pdfColorName;
+                    break;
+                }
             }
         }
 
@@ -258,20 +255,29 @@ export default class TexConverter {
         }
 
         if (!depth) {
-            this.tex += `\\>\\textbf{${moveTex}${nagLabel}}\n`;
+            this.tex += `\\textbf{${moveTex}${nagLabel}}`;
         } else {
             this.tex += `${moveTex}${nagLabel}`;
-            if (move.next || move.commentAfter) {
+        }
+
+        if (move.next || move.commentAfter) {
+            this.tex += `\\space `;
+            if (move.color === Color.black && !move.commentAfter) {
                 this.tex += `\\space `;
-                if (move.color === Color.black && !move.commentAfter) {
-                    this.tex += `\\space `;
-                }
             }
         }
 
         if (nagColor) {
             this.tex += '\\color{black}';
         }
+    }
+
+    /**
+     * Adds a diagram of the position after the move into the output.
+     * @param move The move to add a diagram after.
+     */
+    private makeDiagram(move: Move) {
+        this.tex += `\n\n\\begin{center}\\chessboard[setfen=${move.fen},colorbackfields={${move.from},${move.to}}]\\end{center}\n\n`;
     }
 
     /** Adds the result of the game to the output. */
@@ -298,14 +304,26 @@ const staticTexHeader = String.raw`\documentclass{article}
 \usepackage{xskak}
 \usepackage{multicol}
 \usepackage[a4paper]{geometry}
-\usepackage{parskip}
+\usepackage[skip=0pt]{parskip}
 \usepackage{changepage}
 \usepackage[autostyle, english = american]{csquotes}
 \usepackage[dvipsnames]{xcolor}
-\usepackage[T1]{fontenc}
+\usepackage[LSF,T1]{fontenc}
 \usepackage{graphicx}
 \usepackage[skip=0pt]{caption}
 \usepackage{titling}
+\usepackage{etoolbox}
+\AtBeginEnvironment{variationInterrupt}{\partopsep2pt}
+
+\newcommand{\forceindent}{\leavevmode{\parindent=1em\indent}}
+
+\newenvironment{variationInterrupt}
+{
+    \begin{adjustwidth}{.05\linewidth}{}
+}
+{
+    \end{adjustwidth}
+}
 
 \definecolor{good}{HTML}{21c43a}
 \definecolor{mistake}{HTML}{e69d00}
@@ -317,7 +335,10 @@ const staticTexHeader = String.raw`\documentclass{article}
 \MakeOuterQuote{"}
 
 \geometry{left=1.25cm,right=1.25cm,top=1.5cm,bottom=1.5cm,columnsep=1.2cm}
-\setlength{\parindent}{0pt}
+
+\pdfmapfile{+chess.map}
+\setchessboard{boardfontfamily=merida}
+\setfigfontfamily{merida}
 
 \pretitle{%
   \begin{center}
@@ -335,7 +356,7 @@ const staticTexHeader = String.raw`\documentclass{article}
 }
 
 \renewcommand\maketitlehookd{
-    \vspace{-20pt}
+    \vspace{-35pt}
     \begin{figure}[h]
     \centering
     \includegraphics[scale=0.5]{qrcode.png}
@@ -344,3 +365,17 @@ const staticTexHeader = String.raw`\documentclass{article}
 }
 
 \date{}`;
+
+const beginTexDocument = String.raw`
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+
+\storechessboardstyle{diagram}{%
+    pgfstyle=color,
+    color=yellow!40,
+    moversize=0.75em
+}
+\setchessboard{style=diagram}
+
+`;
