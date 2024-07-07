@@ -402,7 +402,11 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             height={1}
             sx={{ ...getPieceSx(pieceStyle), ...getBoardSx(boardStyle) }}
         >
-            <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
+            <div
+                data-cy='chessground-board'
+                ref={boardRef}
+                style={{ width: '100%', height: '100%' }}
+            />
 
             <Dialog open={promotion !== null} onClose={onCancelPromotion}>
                 <DialogContent>
