@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+'use client';
 
 import {
     createContext,
@@ -19,7 +20,7 @@ import { Notification } from '../../database/notification';
 import { Requirement } from '../../database/requirement';
 import { useApi } from '../Api';
 import { GetExplorerPositionResult } from '../explorerApi';
-import { Request, RequestStatus, useRequest } from '../Request';
+import { Request, useRequest } from '../Request';
 
 interface IdentifiableCache<T> {
     get: (id: string) => T | undefined;
@@ -31,29 +32,6 @@ interface IdentifiableCache<T> {
     isFetched: (id: string) => boolean;
     markFetched: (id: string) => void;
     request: Request;
-}
-
-function emptyIdentifiableCache<T>(): IdentifiableCache<T> {
-    return {
-        get: () => undefined,
-        list: () => [],
-        filter: () => [],
-        put: () => null,
-        putMany: () => null,
-        remove: () => null,
-        isFetched: () => false,
-        markFetched: () => null,
-        request: {
-            status: RequestStatus.Success,
-            onStart: () => null,
-            onSuccess: () => null,
-            onFailure: () => null,
-            reset: () => null,
-            isLoading: () => false,
-            isSent: () => true,
-            isFailure: () => false,
-        },
-    };
 }
 
 function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
@@ -160,17 +138,8 @@ interface CacheContextType {
     setImageBypass: (v: number) => void;
 }
 
-const CacheContext = createContext<CacheContextType>({
-    isLoading: false,
-    setIsLoading: () => null,
-    events: emptyIdentifiableCache(),
-    requirements: emptyIdentifiableCache(),
-    notifications: emptyIdentifiableCache(),
-    positions: emptyIdentifiableCache(),
-    clubs: emptyIdentifiableCache(),
-    imageBypass: 0,
-    setImageBypass: () => null,
-});
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const CacheContext = createContext<CacheContextType>(null!);
 
 /**
  * @returns The current CacheContextType value.

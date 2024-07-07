@@ -140,7 +140,7 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => <StartItem key={item.name} item={item} />);
+        .map((item) => <StartItem key={item.name} item={item} meetingCount={0} />);
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)

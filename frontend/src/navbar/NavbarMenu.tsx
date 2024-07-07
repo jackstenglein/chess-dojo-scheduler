@@ -50,7 +50,6 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import Image from 'next/image';
-import Link from 'next/link';
 import React, { useState } from 'react';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { hasCreatedProfile } from '../database/user';
@@ -62,7 +61,7 @@ import logo from './logo192.png';
 
 export const Logo = () => {
     return (
-        <Link
+        <a
             href='/'
             style={{
                 height: '100%',
@@ -80,7 +79,7 @@ export const Logo = () => {
                 alt=''
                 priority
             />
-        </Link>
+        </a>
     );
 };
 
@@ -121,22 +120,22 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                 {
                     name: 'Full Dojo',
                     icon: <LanguageIcon />,
-                    href: 'scoreboard/dojo',
+                    href: '/scoreboard/dojo',
                 },
                 {
                     name: 'Followers',
                     icon: <ThumbUpIcon />,
-                    href: 'scoreboard/following',
+                    href: '/scoreboard/following',
                 },
                 {
                     name: 'Search Users',
                     icon: <SearchIcon />,
-                    href: 'scoreboard/search',
+                    href: '/scoreboard/search',
                 },
                 {
                     name: 'Statistics',
                     icon: <AutoGraphIcon />,
-                    href: 'scoreboard/stats',
+                    href: '/scoreboard/stats',
                 },
             ],
         },
@@ -307,6 +306,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                         {item.icon}
                     </Badge>
                 }
+                href={item.href}
             >
                 {item.name}
             </Button>
@@ -338,7 +338,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                             onClick={
                                 child.onClick ? handleClick(child.onClick) : undefined
                             }
-                            component={child.href ? Link : 'li'}
+                            component={child.href ? 'a' : 'li'}
                             href={child.href}
                         >
                             {child.icon && <ListItemIcon>{child.icon}</ListItemIcon>}

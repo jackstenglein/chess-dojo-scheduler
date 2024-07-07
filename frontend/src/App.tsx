@@ -15,7 +15,6 @@ import {
 } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
-import { CacheProvider } from './api/cache/Cache';
 import { RequireAuth } from './auth/Auth';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import SigninPage from './auth/SigninPage';
@@ -283,13 +282,11 @@ function Root() {
                     return location.pathname;
                 }}
             />
-            <CacheProvider>
-                <TutorialProvider>
-                    <ErrorBoundary>
-                        <Outlet />
-                    </ErrorBoundary>
-                </TutorialProvider>
-            </CacheProvider>
+            <TutorialProvider>
+                <ErrorBoundary>
+                    <Outlet />
+                </ErrorBoundary>
+            </TutorialProvider>
         </>
     );
 }

@@ -1,4 +1,5 @@
 import { ApiProvider } from '@/api/Api';
+import { CacheProvider } from '@/api/cache/Cache';
 import { AuthProvider } from '@/auth/Auth';
 import Navbar from '@/navbar/Navbar';
 import ThemeProvider from '@/style/ThemeProvider';
@@ -10,9 +11,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <ThemeProvider>
                 <AuthProvider>
                     <ApiProvider>
-                        <Navbar />
+                        <CacheProvider>
+                            <Navbar />
 
-                        {children}
+                            {children}
+                        </CacheProvider>
                     </ApiProvider>
                 </AuthProvider>
             </ThemeProvider>
