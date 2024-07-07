@@ -1,3 +1,5 @@
+import { useNotifications } from '@/api/cache/Cache';
+import NotificationButton from '@/notifications/NotificationButton';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
     AutoStories,
@@ -34,6 +36,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import SearchIcon from '@mui/icons-material/Search';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import {
+    Badge,
     Button,
     Collapse,
     IconButton,
@@ -80,6 +83,10 @@ export const Logo = () => {
         </Link>
     );
 };
+
+interface MenuProps {
+    meetingCount: number;
+}
 
 export interface NavbarItem {
     name: string;
@@ -171,9 +178,9 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     href: '/courses',
                 },
                 {
-                    name: 'Tactics Tests',
+                    name: 'Tests',
                     icon: <Speed />,
-                    href: '/tactics',
+                    href: '/tests',
                 },
                 {
                     name: 'Books',
@@ -247,17 +254,27 @@ function helpItem(): NavbarItem {
 }
 
 function NotificationsMenuItem(): JSX.Element {
+    const { notifications } = useNotifications();
     return (
         <MenuItem href='/notifications'>
             <ListItemIcon>
-                <Notifications />
+                <Badge
+                    badgeContent={notifications.length}
+                    color='secondary'
+                    overlap='circular'
+                >
+                    <Notifications />
+                </Badge>
             </ListItemIcon>
             <Typography textAlign='center'>Notifications</Typography>
         </MenuItem>
     );
 }
 
-export const StartItem: React.FC<{ item: NavbarItem }> = ({ item }) => {
+export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = ({
+    item,
+    meetingCount,
+}) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -274,6 +291,27 @@ export const StartItem: React.FC<{ item: NavbarItem }> = ({ item }) => {
             handleClose();
         };
     };
+
+    if (item.name === 'Calendar') {
+        return (
+            <Button
+                key={item.name}
+                onClick={item.onClick}
+                sx={{ color: 'white', whiteSpace: 'nowrap' }}
+                startIcon={
+                    <Badge
+                        badgeContent={meetingCount}
+                        color='secondary'
+                        overlap='circular'
+                    >
+                        {item.icon}
+                    </Badge>
+                }
+            >
+                {item.name}
+            </Button>
+        );
+    }
 
     return (
         <>
@@ -317,7 +355,8 @@ export const NavMenuItem: React.FC<{
     item: NavbarItem;
     openItems: Record<string, boolean>;
     handleClick: (func: () => void) => () => void;
-}> = ({ item, openItems, handleClick }) => {
+    meetingCount?: number;
+}> = ({ item, openItems, handleClick, meetingCount }) => {
     return (
         <>
             <MenuItem
@@ -327,7 +366,10 @@ export const NavMenuItem: React.FC<{
                 href={item.href}
             >
                 <ListItemIcon>{item.icon}</ListItemIcon>
-                <Typography textAlign='center'>{item.name}</Typography>
+                <Typography textAlign='center'>
+                    {item.name}{' '}
+                    {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
+                </Typography>
                 {item.children &&
                     (openItems[item.name] ? (
                         <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
@@ -379,7 +421,10 @@ function HelpButton() {
     );
 }
 
-function useNavbarItems(handleClick: (func: () => void) => () => void) {
+function useNavbarItems(
+    meetingCount: number,
+    handleClick: (func: () => void) => () => void,
+) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
 
@@ -420,7 +465,9 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => <StartItem key={item.name} item={item} />);
+        .map((item) => (
+            <StartItem key={item.name} item={item} meetingCount={meetingCount} />
+        ));
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
@@ -430,12 +477,15 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
                 item={item}
                 openItems={openItems}
                 handleClick={handleClick}
+                meetingCount={meetingCount}
             />
         ));
 
     const endItems: JSX.Element[] = [];
 
-    if (!showNotifications) {
+    if (showNotifications) {
+        endItems.push(<NotificationButton key='notifications' />);
+    } else {
         menuItems.push(<NotificationsMenuItem key='notifications' />);
     }
 
@@ -474,7 +524,7 @@ function useNavbarItems(handleClick: (func: () => void) => () => void) {
     };
 }
 
-const LargeMenu = () => {
+const LargeMenu = ({ meetingCount }: MenuProps) => {
     const auth = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -493,7 +543,7 @@ const LargeMenu = () => {
         };
     };
 
-    const { startItems, menuItems, endItems } = useNavbarItems(handleClick);
+    const { startItems, menuItems, endItems } = useNavbarItems(meetingCount, handleClick);
     const profileCreated = hasCreatedProfile(auth.user);
 
     if (!profileCreated) {
@@ -555,9 +605,10 @@ const LargeMenu = () => {
     );
 };
 
-const ExtraSmallMenu = () => {
+const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
     const auth = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const { notifications } = useNotifications();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
     const startItems = allStartItems((item: string) =>
@@ -594,6 +645,7 @@ const ExtraSmallMenu = () => {
                 item={item}
                 openItems={openItems}
                 handleClick={handleClick}
+                meetingCount={meetingCount}
             />
         ));
     }
@@ -635,7 +687,15 @@ const ExtraSmallMenu = () => {
                 {startItemsJsx}
 
                 <MenuItem href='/notifications'>
-                    <ListItemIcon></ListItemIcon>
+                    <ListItemIcon>
+                        <Badge
+                            badgeContent={notifications.length}
+                            color='secondary'
+                            overlap='circular'
+                        >
+                            <Notifications />
+                        </Badge>
+                    </ListItemIcon>
                     <Typography textAlign='center'>Notifications</Typography>
                 </MenuItem>
 
@@ -659,19 +719,15 @@ const ExtraSmallMenu = () => {
     );
 };
 
-const AuthenticatedMenu = () => {
+const AuthenticatedMenu = ({ meetingCount }: MenuProps) => {
     const largeMenu = useMediaQuery('(min-width:450px)');
     if (largeMenu) {
-        return <LargeMenu />;
+        return <LargeMenu meetingCount={meetingCount} />;
     }
-    return <ExtraSmallMenu />;
+    return <ExtraSmallMenu meetingCount={meetingCount} />;
 };
 
-interface NavbarMenuProps {
-    meetingCount: number;
-}
-
-const NavbarMenu = (_props: NavbarMenuProps) => {
+const NavbarMenu = ({ meetingCount }: MenuProps) => {
     const auth = useAuth();
 
     if (auth.status === AuthStatus.Loading) {
@@ -680,7 +736,7 @@ const NavbarMenu = (_props: NavbarMenuProps) => {
     if (auth.status === AuthStatus.Unauthenticated) {
         return <UnauthenticatedMenu />;
     }
-    return <AuthenticatedMenu />;
+    return <AuthenticatedMenu meetingCount={meetingCount} />;
 };
 
 export default NavbarMenu;
