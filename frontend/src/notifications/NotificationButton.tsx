@@ -1,7 +1,6 @@
-import { Badge, IconButton, Menu, MenuItem, MenuList, Tooltip } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import { Badge, IconButton, Menu, MenuItem, MenuList, Tooltip } from '@mui/material';
 import { useState } from 'react';
-
 import { useNotifications } from '../api/cache/Cache';
 import { NotificationListItem } from './NotificationListItem';
 
@@ -51,12 +50,7 @@ const NotificationButton = () => {
             >
                 <MenuList>
                     {notifications.map((n) => (
-                        <NotificationListItem
-                            key={n.id}
-                            notification={n}
-                            onClick={handleClose}
-                            menuItem
-                        />
+                        <NotificationListItem key={n.id} notification={n} menuItem />
                     ))}
                     {notifications.length === 0 && (
                         <MenuItem onClick={handleClose}>No notifications</MenuItem>

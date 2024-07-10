@@ -1,8 +1,8 @@
+import { useLightMode } from '@/style/useLightMode';
 import { Event, EventType, Move, Pgn } from '@jackstenglein/chess';
 import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { useLightMode } from '../../style/ThemeProvider';
 import { useChess } from './PgnBoard';
 import {
     CapturedMaterialBehavior,

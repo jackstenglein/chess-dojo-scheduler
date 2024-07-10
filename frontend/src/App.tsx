@@ -1,7 +1,7 @@
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LicenseInfo } from '@mui/x-license';
-import { Amplify, Hub } from 'aws-amplify';
+import { Hub } from 'aws-amplify';
 import { useEffect } from 'react';
 import {
     Navigate,
@@ -15,23 +15,19 @@ import {
 } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
-import { ApiProvider } from './api/Api';
-import { CacheProvider } from './api/cache/Cache';
-import { AuthProvider, RequireAuth } from './auth/Auth';
+import { RequireAuth } from './auth/Auth';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import SigninPage from './auth/SigninPage';
 import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
-import ChatPage from './chat/ChatPage';
 import ClubDetailsPage from './clubs/ClubDetailsPage';
 import CreateClubPage from './clubs/CreateClubPage';
 import ListClubsPage from './clubs/ListClubsPage';
 import CoachPortalPage from './coaching/coaches/CoachPortalPage';
 import CourseEditorPage from './coaching/coaches/courseEditor/CourseEditorPage';
 import CoachingPage from './coaching/customers/CoachingPage';
-import { getConfig } from './config';
 import ListCoursesPage from './courses/list/ListCoursesPage';
 import CoursePage from './courses/view/CoursePage';
 import UnsubscribePage from './dojoDigest/UnsubscribePage';
@@ -61,7 +57,6 @@ import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
 import MerchPage from './merch/MerchPage';
-import Navbar from './navbar/Navbar';
 import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
 import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
 import NotificationPage from './notifications/NotificationPage';
@@ -77,7 +72,6 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
-import ThemeProvider from './style/ThemeProvider';
 import TournamentsPage from './tournaments/TournamentsPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import InfoPage from './tournaments/openClassical/InfoPage';
@@ -91,22 +85,6 @@ import PricingPage from './upsell/PricingPage';
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
 );
-
-const config = getConfig();
-Amplify.configure({
-    Auth: {
-        region: config.auth.region,
-        userPoolId: config.auth.userPoolId,
-        userPoolWebClientId: config.auth.userPoolWebClientId,
-        oauth: {
-            domain: config.auth.oauth.domain,
-            scope: config.auth.oauth.scope,
-            redirectSignIn: config.auth.oauth.redirectSignIn,
-            redirectSignOut: config.auth.oauth.redirectSignOut,
-            responseType: config.auth.oauth.responseType,
-        },
-    },
-});
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -182,8 +160,6 @@ const router = createBrowserRouter(
                             element={<Navigate to='/tests/tactics' replace />}
                         />
                     </Route>
-
-                    <Route path='chat' element={<ChatPage />} />
 
                     <Route path='recent' element={<RecentPage />} />
                     <Route path='calendar' element={<CalendarPage />}>
@@ -273,16 +249,12 @@ const router = createBrowserRouter(
 
 function App() {
     return (
-        <AuthProvider>
-            <ThemeProvider>
-                <LocalizationProvider
-                    dateAdapter={AdapterLuxon}
-                    adapterLocale={navigator.languages[0]}
-                >
-                    <RouterProvider router={router} />
-                </LocalizationProvider>
-            </ThemeProvider>
-        </AuthProvider>
+        <LocalizationProvider
+            dateAdapter={AdapterLuxon}
+            adapterLocale={navigator.languages[0]}
+        >
+            <RouterProvider router={router} />
+        </LocalizationProvider>
     );
 }
 
@@ -301,7 +273,7 @@ function Root() {
     }, [navigate]);
 
     return (
-        <ApiProvider>
+        <>
             <ScrollRestoration
                 getKey={(location) => {
                     if (location.pathname.includes('tactics/instructions')) {
@@ -310,15 +282,12 @@ function Root() {
                     return location.pathname;
                 }}
             />
-            <CacheProvider>
-                <TutorialProvider>
-                    <Navbar />
-                    <ErrorBoundary>
-                        <Outlet />
-                    </ErrorBoundary>
-                </TutorialProvider>
-            </CacheProvider>
-        </ApiProvider>
+            <TutorialProvider>
+                <ErrorBoundary>
+                    <Outlet />
+                </ErrorBoundary>
+            </TutorialProvider>
+        </>
     );
 }
 

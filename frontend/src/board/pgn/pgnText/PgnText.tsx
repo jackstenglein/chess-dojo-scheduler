@@ -1,11 +1,10 @@
+import { useLightMode } from '@/style/useLightMode';
 import { Card, Stack } from '@mui/material';
 import React, { useMemo, useRef } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
-
-import { useLightMode } from '../../../style/ThemeProvider';
 import { useChess } from '../PgnBoard';
-import { ResizableData } from '../resize';
 import ResizeHandle from '../ResizeHandle';
+import { ResizableData } from '../resize';
 import GameComment from './GameComment';
 import Result from './Result';
 import Variation from './Variation';

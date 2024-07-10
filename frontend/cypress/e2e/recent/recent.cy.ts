@@ -2,13 +2,15 @@ const now = new Date(2023, 8, 6); // month is 0-indexed
 
 describe('Graduations', () => {
     beforeEach(() => {
-        cy.clock(now);
         cy.loginByCognitoApi(
             'recent',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
+
+        cy.clock(now);
         cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('displays correct message when no graduations', () => {
@@ -65,13 +67,15 @@ describe('Graduations', () => {
 
 describe('Featured Games', () => {
     beforeEach(() => {
-        cy.clock(now);
         cy.loginByCognitoApi(
             'recent',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
+
+        cy.clock(now);
         cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('displays correct message when no featured games', () => {

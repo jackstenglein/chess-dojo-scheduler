@@ -1,8 +1,8 @@
+import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-resizable/css/styles.css';
-import { useWindowSizeEffect } from '../../style/ThemeProvider';
 import { BoardApi, Chess } from '../Board';
 import KeyboardHandler from './KeyboardHandler';
 import ResizableBoardArea from './ResizableBoardArea';

@@ -3,12 +3,10 @@ import { Edit } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { DateTime } from 'luxon';
-import { useState } from 'react';
 import { useChess } from '../../PgnBoard';
 import ClockTextField from './ClockTextField';
 import { formatTime } from './ClockUsage';
 import { TimeControlDescription } from './TimeControlDescription';
-import { TimeControlEditor } from './tags/TimeControlEditor';
 
 export function convertSecondsToDateTime(seconds: number | undefined): DateTime | null {
     if (!seconds) {
@@ -35,18 +33,16 @@ export function onChangeClock(chess: Chess, move: Move, value: DateTime | null) 
     chess.setCommand('clk', clk, move);
 }
 
-const ClockEditor = () => {
+const ClockEditor = ({
+    setShowTimeControlEditor,
+}: {
+    setShowTimeControlEditor: (v: boolean) => void;
+}) => {
     const { chess } = useChess();
-    const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
 
     if (!chess) {
         return null;
     }
-
-    const onUpdateTimeControl = (value: string) => {
-        chess.setHeader('TimeControl', value);
-        setShowTimeControlEditor(false);
-    };
 
     const moves = chess.history();
     const grid = [];
@@ -92,15 +88,6 @@ const ClockEditor = () => {
                 <TimeControlDescription
                     timeControls={chess.header().tags.TimeControl?.items || []}
                 />
-
-                {showTimeControlEditor && (
-                    <TimeControlEditor
-                        open={showTimeControlEditor}
-                        initialItems={chess.header().tags.TimeControl?.items}
-                        onCancel={() => setShowTimeControlEditor(false)}
-                        onSuccess={onUpdateTimeControl}
-                    />
-                )}
             </Grid2>
 
             <Grid2 xs={12} pb={1}>
