@@ -24,7 +24,6 @@ import {
     lineElementClasses,
 } from '@mui/x-charts';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLightMode } from '../../ThemeProvider';
 import { useAuth } from '../../auth/Auth';
 import {
     ALL_COHORTS,
@@ -35,6 +34,7 @@ import {
 } from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
+import { useLightMode } from '../../style/ThemeProvider';
 import { getBestFitCohortRange } from './exam';
 
 export const BEST_FIT_RANGE = 'BEST_FIT_COHORTS';

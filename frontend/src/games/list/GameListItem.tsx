@@ -2,8 +2,8 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { useLightMode } from '../../ThemeProvider';
 import { GameInfo, GameResult } from '../../database/game';
+import { useLightMode } from '../../style/ThemeProvider';
 
 interface RenderPlayersProps {
     white: string;

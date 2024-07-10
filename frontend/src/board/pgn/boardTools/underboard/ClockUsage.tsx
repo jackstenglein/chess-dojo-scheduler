@@ -3,7 +3,7 @@ import { Box, CardContent, Stack, Typography } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
 import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
-import { useLightMode } from '../../../../ThemeProvider';
+import { useLightMode } from '../../../../style/ThemeProvider';
 import { useReconcile } from '../../../Board';
 import { useChess } from '../../PgnBoard';
 import ClockEditor from './ClockEditor';

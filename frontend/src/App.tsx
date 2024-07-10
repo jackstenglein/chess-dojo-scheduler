@@ -15,7 +15,6 @@ import {
 } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
-import ThemeProvider from './ThemeProvider';
 import { ApiProvider } from './api/Api';
 import { CacheProvider } from './api/cache/Cache';
 import { AuthProvider, RequireAuth } from './auth/Auth';
@@ -78,6 +77,7 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
+import ThemeProvider from './style/ThemeProvider';
 import TournamentsPage from './tournaments/TournamentsPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import InfoPage from './tournaments/openClassical/InfoPage';

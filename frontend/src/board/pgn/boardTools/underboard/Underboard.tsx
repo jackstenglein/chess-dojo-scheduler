@@ -17,9 +17,9 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
-import { useLightMode } from '../../../../ThemeProvider';
 import { AuthStatus, useAuth } from '../../../../auth/Auth';
 import { useGame } from '../../../../games/view/GamePage';
+import { useLightMode } from '../../../../style/ThemeProvider';
 import { useChess } from '../../PgnBoard';
 import ResizeHandle from '../../ResizeHandle';
 import Explorer from '../../explorer/Explorer';
