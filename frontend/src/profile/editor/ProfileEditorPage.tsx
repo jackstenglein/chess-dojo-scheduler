@@ -90,6 +90,11 @@ const ratingSystemForms = [
         label: 'ACF ID',
         hideLabel: 'Hide ID',
     },
+    {
+        system: RatingSystem.Knsb,
+        label: 'KNSB ID',
+        hideLabel: 'Hide ID',
+    },
 ];
 
 interface RatingEditor {

@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Checkbox,
@@ -10,9 +9,10 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-
-import { ProfileCreatorFormProps } from './ProfileCreatorPage';
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import {
     RatingSystem,
     User,
@@ -20,8 +20,7 @@ import {
     getRatingUsername,
     hideRatingUsername,
 } from '../../database/user';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
 export function getUsernameLabel(rs: RatingSystem): string {
     switch (rs) {
@@ -41,6 +40,8 @@ export function getUsernameLabel(rs: RatingSystem): string {
             return 'DWZ ID';
         case RatingSystem.Acf:
             return 'ACF ID';
+        case RatingSystem.Knsb:
+            return 'KNSB ID';
         case RatingSystem.Custom:
             return '';
     }
@@ -54,6 +55,7 @@ export function getHelperText(rs: RatingSystem): React.ReactNode | undefined {
         case RatingSystem.Uscf:
         case RatingSystem.Cfc:
         case RatingSystem.Acf:
+        case RatingSystem.Knsb:
         case RatingSystem.Custom:
             return undefined;
 
@@ -86,6 +88,7 @@ export function getUsernameType(rs: RatingSystem): string {
         case RatingSystem.Cfc:
         case RatingSystem.Dwz:
         case RatingSystem.Acf:
+        case RatingSystem.Knsb:
             return 'ID';
 
         case RatingSystem.Ecf:
@@ -99,7 +102,7 @@ export function getUsernameType(rs: RatingSystem): string {
 function getUpdate(
     rs: RatingSystem,
     username: string,
-    hideUsername: boolean
+    hideUsername: boolean,
 ): Partial<User> {
     const result: Partial<User> = {
         ratingSystem: rs,
@@ -129,7 +132,7 @@ const PreferredRatingSystemForm: React.FC<ProfileCreatorFormProps> = ({
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
     const [username, setUsername] = useState(getRatingUsername(user, ratingSystem) || '');
     const [hideUsername, setHideUsername] = useState(
-        hideRatingUsername(user, ratingSystem)
+        hideRatingUsername(user, ratingSystem),
     );
 
     const canSave = (ratingSystem as string) !== '' && username !== '';
@@ -188,7 +191,7 @@ const PreferredRatingSystemForm: React.FC<ProfileCreatorFormProps> = ({
                             />
                         }
                         label={`Hide my ${getUsernameType(
-                            ratingSystem
+                            ratingSystem,
                         )} from other dojo members`}
                     />
                 </Stack>
