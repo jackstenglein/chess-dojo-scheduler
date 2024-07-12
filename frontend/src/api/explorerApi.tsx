@@ -1,5 +1,5 @@
+import { LichessTablebasePosition } from '@jackstenglein/chess-dojo-common/src/explorer/types';
 import axios, { AxiosResponse } from 'axios';
-
 import { getConfig } from '../config';
 import {
     ExplorerPosition,
@@ -26,7 +26,7 @@ export interface ExplorerApiContextType {
      * @returns The new ExplorerPositionFollower or null if request.unfollow is true.
      */
     followPosition: (
-        request: FollowPositionRequest
+        request: FollowPositionRequest,
     ) => Promise<AxiosResponse<ExplorerPositionFollower | null>>;
 }
 
@@ -40,6 +40,9 @@ export interface GetExplorerPositionResult {
 
     /** The data from the Lichess database. */
     lichess: LichessExplorerPosition | null;
+
+    /** The data from the Lichess tablebase API. */
+    tablebase: LichessTablebasePosition | null;
 
     /** The follower config, if the caller is following the position. */
     follower: ExplorerPositionFollower | null;
@@ -86,6 +89,6 @@ export function followPosition(idToken: string, request: FollowPositionRequest) 
     return axios.put<ExplorerPositionFollower | null>(
         `${BASE_URL}/explorer/position/follower`,
         request,
-        { headers: { Authorization: 'Bearer ' + idToken } }
+        { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }
