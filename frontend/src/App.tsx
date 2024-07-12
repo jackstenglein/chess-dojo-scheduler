@@ -25,7 +25,6 @@ import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
-import ChatPage from './chat/ChatPage';
 import ClubDetailsPage from './clubs/ClubDetailsPage';
 import CreateClubPage from './clubs/CreateClubPage';
 import ListClubsPage from './clubs/ListClubsPage';
@@ -182,8 +181,6 @@ const router = createBrowserRouter(
                             element={<Navigate to='/tests/tactics' replace />}
                         />
                     </Route>
-
-                    <Route path='chat' element={<ChatPage />} />
 
                     <Route path='recent' element={<RecentPage />} />
                     <Route path='calendar' element={<CalendarPage />}>

@@ -20,10 +20,6 @@ export interface Config {
     stripe: {
         publishableKey: string;
     };
-    chat: {
-        server: string;
-        channel: string;
-    };
 }
 
 const config: Record<string, Config> = {
@@ -50,10 +46,6 @@ const config: Record<string, Config> = {
             publishableKey:
                 'pk_test_51OB6imGilmvijaecMJqdvLJdu89BcghnjU7eOIoCwlBl8DeV6i2XojJOaZ36lamZMuVjO7aorXtl90OcdtAstFfF0022uf0sdp',
         },
-        chat: {
-            server: '691123894001598536',
-            channel: '691123894001598539',
-        },
     },
 
     development: {
@@ -79,10 +71,6 @@ const config: Record<string, Config> = {
             publishableKey:
                 'pk_test_51OB6imGilmvijaecMJqdvLJdu89BcghnjU7eOIoCwlBl8DeV6i2XojJOaZ36lamZMuVjO7aorXtl90OcdtAstFfF0022uf0sdp',
         },
-        chat: {
-            server: '691123894001598536',
-            channel: '691123894001598539',
-        },
     },
 
     production: {
@@ -107,10 +95,6 @@ const config: Record<string, Config> = {
         stripe: {
             publishableKey:
                 'pk_live_51OB6imGilmvijaecicnOhS1rqgX6VofcmTgi4n3TdhYoPgutx4W8HnUch6iQE7GL62fngez6mL471YWiZSrUhbJI007MlHx5CM',
-        },
-        chat: {
-            server: '951958534113886238',
-            channel: '951958535258898444',
         },
     },
 };
