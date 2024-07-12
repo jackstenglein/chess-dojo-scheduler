@@ -140,6 +140,7 @@ func updateUsers(users []*database.User) {
 		database.Cfc:      ratings.FetchCfcRating,
 		database.Dwz:      ratings.FetchDwzRating,
 		database.Acf:      ratings.FetchAcfRating,
+		database.Knsb:     ratings.FetchKnsbRating,
 	}
 
 	var queuedUpdates []*database.User

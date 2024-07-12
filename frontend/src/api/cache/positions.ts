@@ -46,11 +46,14 @@ export function usePosition(fen: string): UsePositionResponse {
     }, [api, request, cache.positions, normalizedFen]);
 
     const reset = request.reset;
+    const onSuccess = request.onSuccess;
     useEffect(() => {
         if (!cache.positions.isFetched(normalizedFen)) {
             reset();
+        } else {
+            onSuccess();
         }
-    }, [normalizedFen, cache.positions, reset]);
+    }, [normalizedFen, cache.positions, reset, onSuccess]);
 
     return { position, request, putPosition: cache.positions.put };
 }

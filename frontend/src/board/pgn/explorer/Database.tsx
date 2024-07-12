@@ -45,7 +45,7 @@ import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
 import { ExplorerDatabaseType } from './Explorer';
 
-const getBackgroundColor = (color: string, mode: string) =>
+export const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
 
 const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(

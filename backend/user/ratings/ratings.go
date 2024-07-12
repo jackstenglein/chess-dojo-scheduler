@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -62,6 +63,7 @@ var RatingFetchFuncs map[database.RatingSystem]RatingFetchFunc = map[database.Ra
 	database.Cfc:      FetchCfcRating,
 	database.Dwz:      FetchDwzRating,
 	database.Acf:      FetchAcfRating,
+	database.Knsb:     FetchKnsbRating,
 }
 
 func FetchChesscomRating(chesscomUsername string) (int, error) {
@@ -302,4 +304,31 @@ func FetchAcfRating(acfId string) (int, error) {
 		return 0, errors.Wrap(400, fmt.Sprintf("Invalid ACF id `%s`: no rating found on ACF website", acfId), "", err)
 	}
 	return rating, nil
+}
+
+func FetchKnsbRating(knsbId string) (int, error) {
+	resp, err := http.Get(fmt.Sprintf("https://ratingviewer.nl/metrics/getByName/%s/Rating-S.json", knsbId))
+	if err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed call to KNSB API", err)
+		return 0, err
+	}
+
+	if resp.StatusCode != 200 {
+		err = errors.New(400, fmt.Sprintf("Invalid request: KNSB API returned status `%d`", resp.StatusCode), "")
+		return 0, err
+	}
+
+	var r map[string]int
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+		err = errors.Wrap(500, "Temporary server error", "Failed to parse KNSB API response", err)
+		return 0, err
+	}
+
+	var keys = make([]string, 0, len(r))
+	for key := range r {
+		keys = append(keys, key)
+	}
+	slices.Sort(keys)
+
+	return r[keys[len(keys)-1]], nil
 }

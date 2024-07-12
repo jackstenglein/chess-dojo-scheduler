@@ -2,6 +2,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { LoadingButton } from '@mui/lab';
 import {
+    Box,
     Button,
     Card,
     CardActions,
@@ -128,14 +129,16 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     </Stack>
                 }
             />
-            <CardContent sx={{ pt: 0, px: 1, width: '336px', aspectRatio: '1 / 1' }}>
-                <Board
-                    config={{
-                        fen: position.fen.trim(),
-                        viewOnly: true,
-                        orientation: orientation || turn,
-                    }}
-                />
+            <CardContent sx={{ pt: 0, px: 1 }}>
+                <Box sx={{ width: '320px', aspectRatio: '1 / 1', minWidth: '320px' }}>
+                    <Board
+                        config={{
+                            fen: position.fen.trim(),
+                            viewOnly: true,
+                            orientation: orientation || turn,
+                        }}
+                    />
+                </Box>
             </CardContent>
             <CardActions
                 disableSpacing

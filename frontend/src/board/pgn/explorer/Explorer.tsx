@@ -6,10 +6,11 @@ import { SiLichess } from 'react-icons/si';
 import { usePosition } from '../../../api/cache/positions';
 import { ExplorerPositionFollower } from '../../../database/explorer';
 import { ChessDojoIcon } from '../../../style/ChessDojoIcon';
-import { KingIcon } from '../../../style/ChessIcons';
+import { KingIcon, RookIcon } from '../../../style/ChessIcons';
 import { useChess } from '../PgnBoard';
 import Database from './Database';
 import Header from './Header';
+import { Tablebase } from './Tablebase';
 
 const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -19,6 +20,7 @@ export enum ExplorerDatabaseType {
     Dojo = 'dojo',
     Masters = 'masters',
     Lichess = 'lichess',
+    Tablebase = 'tablebase',
 }
 
 const Explorer = () => {
@@ -59,6 +61,7 @@ const Explorer = () => {
                     normalizedFen: f.normalizedFen,
                     dojo: null,
                     lichess: null,
+                    tablebase: null,
                 });
             }
         },
@@ -74,7 +77,7 @@ const Explorer = () => {
         );
     };
 
-    const { dojo, lichess, follower } = position || {};
+    const { dojo, lichess, tablebase, follower } = position || {};
 
     return (
         <CardContent>
@@ -115,21 +118,32 @@ const Explorer = () => {
                             iconPosition='start'
                             sx={{ minHeight: '48px' }}
                         />
+                        <Tab
+                            label='Tablebase'
+                            value={ExplorerDatabaseType.Tablebase}
+                            icon={<RookIcon sx={{ fontSize: '1rem' }} />}
+                            iconPosition='start'
+                            sx={{ minHeight: '48px' }}
+                        />
                     </Tabs>
                 </Box>
 
-                <Database
-                    type={tab}
-                    fen={fen}
-                    position={tab === ExplorerDatabaseType.Lichess ? lichess : dojo}
-                    request={request}
-                    minCohort={minCohort}
-                    maxCohort={maxCohort}
-                    setMinCohort={setMinCohort}
-                    setMaxCohort={setMaxCohort}
-                    timeControls={timeControls}
-                    setTimeControls={onSetTimeControls}
-                />
+                {tab === ExplorerDatabaseType.Tablebase ? (
+                    <Tablebase fen={fen} position={tablebase} request={request} />
+                ) : (
+                    <Database
+                        type={tab}
+                        fen={fen}
+                        position={tab === ExplorerDatabaseType.Lichess ? lichess : dojo}
+                        request={request}
+                        minCohort={minCohort}
+                        maxCohort={maxCohort}
+                        setMinCohort={setMinCohort}
+                        setMaxCohort={setMaxCohort}
+                        timeControls={timeControls}
+                        setTimeControls={onSetTimeControls}
+                    />
+                )}
             </TabContext>
         </CardContent>
     );

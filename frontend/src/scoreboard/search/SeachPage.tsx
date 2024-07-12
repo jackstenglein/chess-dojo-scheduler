@@ -106,6 +106,12 @@ const AllColumns: GridColDef<User>[] = [
         valueGetter: (_value, row: User) => row.ratings[RatingSystem.Acf]?.username,
         flex: 1,
     },
+    {
+        field: RatingSystem.Knsb,
+        headerName: 'KNSB ID',
+        valueGetter: (_value, row: User) => row.ratings[RatingSystem.Knsb]?.username,
+        flex: 1,
+    },
 ];
 
 const SearchFields = ['display', 'discord', ...Object.values(RatingSystem)];
@@ -132,6 +138,8 @@ function getDisplayString(field: string): string {
             return 'DWZ ID';
         case RatingSystem.Acf:
             return 'ACF ID';
+        case RatingSystem.Knsb:
+            return 'KNSB ID';
     }
     return '';
 }
