@@ -1,20 +1,30 @@
 import { z } from 'zod';
 
 export const EnvSchema = z.object({
-    AUTH_REGION: z.literal('us-east-1'),
-    AUTH_USER_POOL_ID: z.string(),
-    AUTH_USER_POOL_WEB_CLIENT_ID: z.string(),
-    AUTH_OAUTH_DOMAIN: z.string(),
-    AUTH_OAUTH_SCOPES: z
-        .string()
-        .transform((value) => value.split(',').map((v) => v.trim()))
-        .pipe(z.string().array()),
-    AUTH_OAUTH_REDIRECT_SIGN_IN: z.string(),
-    AUTH_OAUTH_REDIRECT_SIGN_OUT: z.string(),
-    AUTH_OAUTH_RESPONSE_TYPE: z.literal('code'),
-    API_BASE_URL: z.string(),
-    MEDIA_PICTURES_BUCKET: z.string(),
-    STRIPE_PUBLISHABLE_KEY: z.string(),
+    auth: z.object({
+        region: z.literal('us-east-1'),
+        userPoolId: z.string(),
+        userPoolWebClientId: z.string(),
+        oauth: z.object({
+            domain: z.string(),
+            scope: z
+                .string()
+                .transform((value) => value.split(',').map((v) => v.trim()))
+                .pipe(z.string().array()),
+            redirectSignIn: z.string(),
+            redirectSignOut: z.string(),
+            responseType: z.literal('code'),
+        }),
+    }),
+    api: z.object({
+        baseUrl: z.string(),
+    }),
+    media: z.object({
+        picturesBucket: z.string(),
+    }),
+    stripe: z.object({
+        publishableKey: z.string(),
+    }),
 });
 
 export interface Config {
@@ -42,29 +52,27 @@ export interface Config {
 }
 
 export function getConfig(): Config {
-    const env = EnvSchema.parse(process.env);
-
-    return {
+    return EnvSchema.parse({
         auth: {
-            region: env.AUTH_REGION,
-            userPoolId: env.AUTH_USER_POOL_ID,
-            userPoolWebClientId: env.AUTH_USER_POOL_WEB_CLIENT_ID,
+            region: process.env.NEXT_PUBLIC_AUTH_REGION,
+            userPoolId: process.env.NEXT_PUBLIC_AUTH_USER_POOL_ID,
+            userPoolWebClientId: process.env.NEXT_PUBLIC_AUTH_USER_POOL_WEB_CLIENT_ID,
             oauth: {
-                domain: env.AUTH_OAUTH_DOMAIN,
-                scope: env.AUTH_OAUTH_SCOPES,
-                redirectSignIn: env.AUTH_OAUTH_REDIRECT_SIGN_IN,
-                redirectSignOut: env.AUTH_OAUTH_REDIRECT_SIGN_OUT,
-                responseType: env.AUTH_OAUTH_RESPONSE_TYPE,
+                domain: process.env.NEXT_PUBLIC_AUTH_OAUTH_DOMAIN,
+                scope: process.env.NEXT_PUBLIC_AUTH_OAUTH_SCOPES,
+                redirectSignIn: process.env.NEXT_PUBLIC_AUTH_OAUTH_REDIRECT_SIGN_IN,
+                redirectSignOut: process.env.NEXT_PUBLIC_AUTH_OAUTH_REDIRECT_SIGN_OUT,
+                responseType: process.env.NEXT_PUBLIC_AUTH_OAUTH_RESPONSE_TYPE,
             },
         },
         api: {
-            baseUrl: env.API_BASE_URL,
+            baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
         },
         media: {
-            picturesBucket: env.MEDIA_PICTURES_BUCKET,
+            picturesBucket: process.env.NEXT_PUBLIC_MEDIA_PICTURES_BUCKET,
         },
         stripe: {
-            publishableKey: env.STRIPE_PUBLISHABLE_KEY,
+            publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
         },
-    };
+    });
 }
