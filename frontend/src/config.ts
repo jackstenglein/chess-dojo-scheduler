@@ -103,10 +103,6 @@ const config: Record<ConfigName, Config> = {
             publishableKey:
                 'pk_live_51OB6imGilmvijaecicnOhS1rqgX6VofcmTgi4n3TdhYoPgutx4W8HnUch6iQE7GL62fngez6mL471YWiZSrUhbJI007MlHx5CM',
         },
-        chat: {
-            server: '951958534113886238',
-            channel: '951958535258898444',
-        },
     },
 
     production: {
