@@ -10,6 +10,7 @@ const checkboxes = [
     'CFC ID',
     'DWZ ID',
     'ACF ID',
+    'KNSB ID',
 ];
 
 describe('Search Page', () => {
