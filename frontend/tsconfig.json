@@ -1,41 +1,38 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "target": "ES2015",
-    "useDefineForClassFields": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "allowJs": true,
-    "forceConsistentCasingInFileNames": true,
-    "incremental": true,
-    "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["src/*"] }
-  },
-  "include": [
-    "src",
-    "cypress.config.ts",
-    "vitest.config.ts",
-    ".eslintrc.cjs",
-    "scripts",
-    "./*.cjs",
-    "./*.mjs",
-    "./build/types/**/*.ts",
-    "./next-env.d.ts",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "compilerOptions": {
+        "baseUrl": ".",
+        "target": "ES2015",
+        "useDefineForClassFields": true,
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "preserve",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "allowJs": true,
+        "forceConsistentCasingInFileNames": true,
+        "incremental": true,
+        "plugins": [{ "name": "next" }],
+        "paths": { "@/*": ["src/*"] }
+    },
+    "include": [
+        "src",
+        "cypress.config.ts",
+        "vitest.config.ts",
+        ".eslintrc.cjs",
+        "scripts",
+        "./*.cjs",
+        "./*.mjs",
+        "./next-env.d.ts",
+        ".next/types/**/*.ts"
+    ],
+    "exclude": ["node_modules"]
 }
