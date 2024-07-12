@@ -344,3 +344,45 @@ func (repo *dynamoRepository) GetRequirement(id string) (*Requirement, error) {
 	}
 	return &requirement, nil
 }
+
+// IsDeletedRequirement returns true if the given id is the id of a deleted requirement.
+func IsDeletedRequirement(id string) bool {
+	for _, req := range deletedRequirements {
+		if id == req {
+			return true
+		}
+	}
+	return false
+}
+
+var deletedRequirements = []string{
+	"c4457102-d390-415d-ad44-854d2cc66466",
+	"4a9300ea-247e-41cb-8457-7a301d4d1bf0",
+	"1111ec21-72e0-4452-8f2a-1931b97c3988",
+	"4f196ecf-9f3d-415a-9fee-e1e062117d75",
+	"9d4e6524-2d50-4a4c-b383-0dab58d91875",
+	"ffae41d9-f2af-4725-b67f-9ecdd23537d0",
+	"5a93136f-226c-4ec9-a8fa-ed3895569a9e",
+	"4cf79c1e-4d0e-4dd3-93db-8c8a0b08f916",
+	"ebb7ccdd-6829-41ff-be1d-ebd4b23bbed1",
+	"c1ec6ea2-ac2d-4efb-b66e-bbbd3de104d7",
+	"64d36d05-d5cd-4c07-9e01-061b03172ba3",
+	"df881e1d-c963-4017-a9e9-039a01de3995",
+	"4960230c-25ca-4709-9c4e-7f54f6838fb7",
+	"ed0790f6-e23c-4248-85d7-9fb319a56185",
+	"bf080fe1-8f93-40cc-8719-7fcd7f19a087",
+	"54c79e7e-a268-4374-a5aa-aad17bdb668e",
+	"fe6cadb5-699d-4349-8244-f3e1193cf7b9",
+	"30ca7f54-b799-4e70-b46b-57e40b467b7a",
+	"b2115163-c4d5-487e-bd67-3aa79b3acf90",
+	"76f48895-396b-4ebc-9b73-a96a3fb78151",
+	"07b996bd-f72a-482b-8f44-dcd9443fc53e",
+	"d1f743f7-b6d9-4ba7-a94b-5065ddf91b12",
+	"1c45c7d6-9431-4bcd-a74a-e3db2e7306b0",
+	"010d677f-64db-4eb0-b773-d91b20dd5acc",
+	"35705ad5-0cb2-46af-8516-539842c10c8c",
+	"96d26db7-2c02-4a2d-9f97-fe867dbcf061",
+	"f827da04-dce5-4def-a1db-9131693befb8",
+	"a9b7efac-2c4c-4439-8cf1-44edc1fff6ab",
+	"dbf1f938-5818-4f74-90c7-34ce42085b0c",
+}

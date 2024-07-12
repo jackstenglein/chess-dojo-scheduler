@@ -3,6 +3,10 @@
 import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import {
+    LichessTablebasePosition,
+    isInTablebase,
+} from '@jackstenglein/chess-dojo-common/src/explorer/types';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import axios from 'axios';
 import {
@@ -34,6 +38,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const results = await Promise.all([
             fetchFromDojo(normalizedFen),
             fetchFromLichess(normalizedFen),
+            fetchFromTablebase(normalizedFen),
             fetchFollower(normalizedFen, event),
         ]);
 
@@ -43,7 +48,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 normalizedFen,
                 dojo: results[0],
                 lichess: results[1],
-                follower: results[2],
+                tablebase: results[2],
+                follower: results[3],
             }),
         };
     } catch (err) {
@@ -91,6 +97,28 @@ async function fetchFromLichess(fen: string): Promise<LichessExplorerPosition | 
         return response.data;
     } catch (err) {
         console.error('Failed to get explorer position from Lichess: ', err);
+        return null;
+    }
+}
+
+/**
+ * Fetches the tablebase data from the Lichess API for the provided FEN.
+ * @param fen The FEN to fetch from Lichess.
+ * @returns A LichessTablebasePosition for the provided FEN.
+ */
+async function fetchFromTablebase(fen: string): Promise<LichessTablebasePosition | null> {
+    if (!isInTablebase(fen)) {
+        return null;
+    }
+
+    try {
+        const response = await axios.get<LichessTablebasePosition>(
+            'http://tablebase.lichess.ovh/standard',
+            { params: { fen } },
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Failed to get Lichess tablebase position: ', err);
         return null;
     }
 }

@@ -99,6 +99,7 @@ const (
 	Cfc      RatingSystem = "CFC"
 	Dwz      RatingSystem = "DWZ"
 	Acf      RatingSystem = "ACF"
+	Knsb     RatingSystem = "KNSB"
 	Custom   RatingSystem = "CUSTOM"
 )
 
@@ -111,6 +112,7 @@ var ratingSystems = []RatingSystem{
 	Cfc,
 	Dwz,
 	Acf,
+	Knsb,
 	Custom,
 }
 

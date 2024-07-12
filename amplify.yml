@@ -15,26 +15,6 @@ applications:
             - pwd
             - npm run build
       artifacts:
-        baseDirectory: build
-        files:
-          - '**/*'
-      cache:
-        paths:
-          - .next/cache/**/*
-          - .npm/**/*
-  - appRoot: blog
-    frontend:
-      phases:
-        preBuild:
-          commands:
-            - echo 'Pre Build'
-            - pwd
-            - npm ci --cache .npm --prefer-offline
-        build:
-          commands:
-            - pwd
-            - npm run build
-      artifacts:
         baseDirectory: .next
         files:
           - '**/*'

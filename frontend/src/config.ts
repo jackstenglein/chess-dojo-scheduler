@@ -15,8 +15,6 @@ export const EnvSchema = z.object({
     API_BASE_URL: z.string(),
     MEDIA_PICTURES_BUCKET: z.string(),
     STRIPE_PUBLISHABLE_KEY: z.string(),
-    CHAT_SERVER: z.string(),
-    CHAT_CHANNEL: z.string(),
 });
 
 export interface Config {
@@ -40,10 +38,6 @@ export interface Config {
     };
     stripe: {
         publishableKey: string;
-    };
-    chat: {
-        server: string;
-        channel: string;
     };
 }
 
@@ -71,10 +65,6 @@ export function getConfig(): Config {
         },
         stripe: {
             publishableKey: env.STRIPE_PUBLISHABLE_KEY,
-        },
-        chat: {
-            server: env.CHAT_SERVER,
-            channel: env.CHAT_CHANNEL,
         },
     };
 }

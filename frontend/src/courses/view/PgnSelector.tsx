@@ -51,7 +51,9 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
     if (headers) {
         selectedHeaders = headers;
     } else if (pgns) {
-        selectedHeaders = pgns.map((pgn) => new Header({ pgn }).tags);
+        selectedHeaders = pgns.map((pgn) => {
+            return new Header({ pgn: pgn.split('\n\n')[0] }).tags;
+        });
     }
 
     const items = (

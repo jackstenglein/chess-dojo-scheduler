@@ -136,7 +136,7 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 
 	var minutes int
 	for _, progress := range user.Progress {
-		if isRequirement := requirementsMap[progress.RequirementId]; isRequirement {
+		if isRequirement := requirementsMap[progress.RequirementId]; isRequirement || database.IsDeletedRequirement(progress.RequirementId) {
 			m := progress.MinutesSpent[user.DojoCohort]
 			minutes += m
 		}
