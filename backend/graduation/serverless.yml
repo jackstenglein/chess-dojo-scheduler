@@ -33,9 +33,6 @@ functions:
       - httpApi:
           path: /graduations/{cohort}
           method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -52,9 +49,6 @@ functions:
       - httpApi:
           path: /graduations/owner/{username}
           method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -67,9 +61,6 @@ functions:
       - httpApi:
           path: /graduations
           method: get
-          authorizer:
-            type: jwt
-            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
