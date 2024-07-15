@@ -1,6 +1,3 @@
-import { useNotifications } from '@/api/cache/Cache';
-import NotificationButton from '@/notifications/NotificationButton';
-import { PawnIcon } from '@/style/ChessIcons';
 import {
     AutoStories,
     BorderColor,
@@ -36,7 +33,6 @@ import LanguageIcon from '@mui/icons-material/Language';
 import SearchIcon from '@mui/icons-material/Search';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import {
-    Badge,
     Button,
     Collapse,
     IconButton,
@@ -53,6 +49,7 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { hasCreatedProfile } from '../database/user';
+import PawnIcon from './PawnIcon';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
@@ -77,15 +74,10 @@ export const Logo = () => {
                     width: 'auto',
                 }}
                 alt=''
-                priority
             />
         </a>
     );
 };
-
-interface MenuProps {
-    meetingCount: number;
-}
 
 export interface NavbarItem {
     name: string;
@@ -120,22 +112,22 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                 {
                     name: 'Full Dojo',
                     icon: <LanguageIcon />,
-                    href: '/scoreboard/dojo',
+                    href: 'scoreboard/dojo',
                 },
                 {
                     name: 'Followers',
                     icon: <ThumbUpIcon />,
-                    href: '/scoreboard/following',
+                    href: 'scoreboard/following',
                 },
                 {
                     name: 'Search Users',
                     icon: <SearchIcon />,
-                    href: '/scoreboard/search',
+                    href: 'scoreboard/search',
                 },
                 {
                     name: 'Statistics',
                     icon: <AutoGraphIcon />,
-                    href: '/scoreboard/stats',
+                    href: 'scoreboard/stats',
                 },
             ],
         },
@@ -177,9 +169,9 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     href: '/courses',
                 },
                 {
-                    name: 'Tests',
+                    name: 'Tactics Tests',
                     icon: <Speed />,
-                    href: '/tests',
+                    href: '/tactics',
                 },
                 {
                     name: 'Books',
@@ -253,27 +245,17 @@ function helpItem(): NavbarItem {
 }
 
 function NotificationsMenuItem(): JSX.Element {
-    const { notifications } = useNotifications();
     return (
         <MenuItem href='/notifications'>
             <ListItemIcon>
-                <Badge
-                    badgeContent={notifications.length}
-                    color='secondary'
-                    overlap='circular'
-                >
-                    <Notifications />
-                </Badge>
+                <Notifications />
             </ListItemIcon>
             <Typography textAlign='center'>Notifications</Typography>
         </MenuItem>
     );
 }
 
-export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = ({
-    item,
-    meetingCount,
-}) => {
+export const StartItem: React.FC<{ item: NavbarItem }> = ({ item }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -290,28 +272,6 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
             handleClose();
         };
     };
-
-    if (item.name === 'Calendar') {
-        return (
-            <Button
-                key={item.name}
-                onClick={item.onClick}
-                sx={{ color: 'white', whiteSpace: 'nowrap' }}
-                startIcon={
-                    <Badge
-                        badgeContent={meetingCount}
-                        color='secondary'
-                        overlap='circular'
-                    >
-                        {item.icon}
-                    </Badge>
-                }
-                href={item.href}
-            >
-                {item.name}
-            </Button>
-        );
-    }
 
     return (
         <>
@@ -355,8 +315,7 @@ export const NavMenuItem: React.FC<{
     item: NavbarItem;
     openItems: Record<string, boolean>;
     handleClick: (func: () => void) => () => void;
-    meetingCount?: number;
-}> = ({ item, openItems, handleClick, meetingCount }) => {
+}> = ({ item, openItems, handleClick }) => {
     return (
         <>
             <MenuItem
@@ -366,10 +325,7 @@ export const NavMenuItem: React.FC<{
                 href={item.href}
             >
                 <ListItemIcon>{item.icon}</ListItemIcon>
-                <Typography textAlign='center'>
-                    {item.name}{' '}
-                    {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
-                </Typography>
+                <Typography textAlign='center'>{item.name}</Typography>
                 {item.children &&
                     (openItems[item.name] ? (
                         <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
@@ -421,10 +377,7 @@ function HelpButton() {
     );
 }
 
-function useNavbarItems(
-    meetingCount: number,
-    handleClick: (func: () => void) => () => void,
-) {
+function useNavbarItems(handleClick: (func: () => void) => () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
 
@@ -465,9 +418,7 @@ function useNavbarItems(
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => (
-            <StartItem key={item.name} item={item} meetingCount={meetingCount} />
-        ));
+        .map((item) => <StartItem key={item.name} item={item} />);
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
@@ -477,15 +428,12 @@ function useNavbarItems(
                 item={item}
                 openItems={openItems}
                 handleClick={handleClick}
-                meetingCount={meetingCount}
             />
         ));
 
     const endItems: JSX.Element[] = [];
 
-    if (showNotifications) {
-        endItems.push(<NotificationButton key='notifications' />);
-    } else {
+    if (!showNotifications) {
         menuItems.push(<NotificationsMenuItem key='notifications' />);
     }
 
@@ -524,7 +472,7 @@ function useNavbarItems(
     };
 }
 
-const LargeMenu = ({ meetingCount }: MenuProps) => {
+const LargeMenu = () => {
     const auth = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -543,8 +491,8 @@ const LargeMenu = ({ meetingCount }: MenuProps) => {
         };
     };
 
-    const { startItems, menuItems, endItems } = useNavbarItems(meetingCount, handleClick);
-    const profileCreated = hasCreatedProfile(auth.user);
+    const { startItems, menuItems, endItems } = useNavbarItems(handleClick);
+    const profileCreated = hasCreatedProfile(auth.user!);
 
     if (!profileCreated) {
         return (
@@ -605,10 +553,9 @@ const LargeMenu = ({ meetingCount }: MenuProps) => {
     );
 };
 
-const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
+const ExtraSmallMenu = () => {
     const auth = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const { notifications } = useNotifications();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
     const startItems = allStartItems((item: string) =>
@@ -635,7 +582,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
         };
     };
 
-    const profileCreated = hasCreatedProfile(auth.user);
+    const profileCreated = hasCreatedProfile(auth.user!);
 
     let startItemsJsx: JSX.Element[] = [];
     if (profileCreated) {
@@ -645,7 +592,6 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                 item={item}
                 openItems={openItems}
                 handleClick={handleClick}
-                meetingCount={meetingCount}
             />
         ));
     }
@@ -687,15 +633,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                 {startItemsJsx}
 
                 <MenuItem href='/notifications'>
-                    <ListItemIcon>
-                        <Badge
-                            badgeContent={notifications.length}
-                            color='secondary'
-                            overlap='circular'
-                        >
-                            <Notifications />
-                        </Badge>
-                    </ListItemIcon>
+                    <ListItemIcon></ListItemIcon>
                     <Typography textAlign='center'>Notifications</Typography>
                 </MenuItem>
 
@@ -719,15 +657,15 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
     );
 };
 
-const AuthenticatedMenu = ({ meetingCount }: MenuProps) => {
+const AuthenticatedMenu = () => {
     const largeMenu = useMediaQuery('(min-width:450px)');
     if (largeMenu) {
-        return <LargeMenu meetingCount={meetingCount} />;
+        return <LargeMenu />;
     }
-    return <ExtraSmallMenu meetingCount={meetingCount} />;
+    return <ExtraSmallMenu />;
 };
 
-const NavbarMenu = ({ meetingCount }: MenuProps) => {
+const NavbarMenu = () => {
     const auth = useAuth();
 
     if (auth.status === AuthStatus.Loading) {
@@ -736,7 +674,7 @@ const NavbarMenu = ({ meetingCount }: MenuProps) => {
     if (auth.status === AuthStatus.Unauthenticated) {
         return <UnauthenticatedMenu />;
     }
-    return <AuthenticatedMenu meetingCount={meetingCount} />;
+    return <AuthenticatedMenu />;
 };
 
 export default NavbarMenu;
