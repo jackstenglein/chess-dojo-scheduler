@@ -1,8 +1,6 @@
-import * as React from 'react';
-
-import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, Link, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Link, Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
 import { calculateTacticsRating } from '../../exams/view/exam';

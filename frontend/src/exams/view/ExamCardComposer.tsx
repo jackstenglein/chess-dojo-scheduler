@@ -1,7 +1,7 @@
 import { Card, CardContent, Stack } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { ExamType } from '../../database/exam';
-import { KnightIcon, QueenIcon, RookIcon } from '../../style/ChessIcons';
+import { QueenIcon, RookIcon } from '../../style/ChessIcons';
 import { ExamCard } from './ExamCard';
 
 export const ExamCardComposer = () => {
@@ -32,14 +32,6 @@ export const ExamCardComposer = () => {
                         colorType={ExamType.Endgame}
                     />
                 </Grid2>
-                <ExamCard
-                    name='Positional Tests'
-                    description='Coming soon'
-                    href='/tests/'
-                    disabled={true}
-                    icon={KnightIcon}
-                    colorType={ExamType.Positional}
-                />
             </CardContent>
         </Card>
     );

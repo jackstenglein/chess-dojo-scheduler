@@ -1,3 +1,4 @@
+import { AxisConfig } from '@mui/x-charts';
 import { BarChart } from '@mui/x-charts/BarChart';
 import * as React from 'react';
 
@@ -40,7 +41,7 @@ const BarGraph: React.FC<BarGraphProps> = ({
                     categoryGapRatio: 0.7,
                     barGapRatio: 0.2,
                     label: 'Tactics Rating Component',
-                },
+                } as Omit<AxisConfig<'band'>, 'position'>,
             ]}
             yAxis={[
                 {

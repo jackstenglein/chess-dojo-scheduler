@@ -59,7 +59,6 @@ export interface CustomTask {
     /** The category of the CustomTask. Should always be non-dojo. */
     category: RequirementCategory.NonDojo;
 
-
     /** The last time the CustomTask definition was updated. */
     updatedAt: string;
 

@@ -5,7 +5,6 @@ import { Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
 import { GameInfo, GameResult } from '../../database/game';
 
-
 interface RenderPlayersProps {
     white: string;
     whiteElo?: string | number;

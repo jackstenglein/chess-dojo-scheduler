@@ -6,6 +6,7 @@ import {
     Alert,
     ButtonBase,
     Collapse,
+    IconButton,
     Link,
     Snackbar,
     Stack,
@@ -28,7 +29,6 @@ import { isCohortInRange } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import { getColorBasedOnExamType } from '../view/ExamCard';
-import {IconButton} from '@mui/material';
 
 interface CohortRangeExams {
     name: string;
@@ -165,15 +165,19 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                                         <IconButton>
                                             {expanded[i] ? (
                                                 <ExpandLess
-                                                    color={getColorBasedOnExamType(
-                                                        examType,
-                                                    )}
+                                                    sx={{
+                                                        color: getColorBasedOnExamType(
+                                                            examType,
+                                                        ),
+                                                    }}
                                                 />
                                             ) : (
                                                 <ExpandMore
-                                                    color={getColorBasedOnExamType(
-                                                        examType,
-                                                    )}
+                                                    sx={{
+                                                        color: getColorBasedOnExamType(
+                                                            examType,
+                                                        ),
+                                                    }}
                                                 />
                                             )}
                                         </IconButton>

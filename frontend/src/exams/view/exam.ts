@@ -207,8 +207,6 @@ export interface TacticsRatingComponent {
     link?: string;
 }
 
-
-
 /**
  * Calculates the user's tactics rating.
  *
@@ -264,14 +262,12 @@ export function calculateTacticsRating(
     return rating;
 }
 
-
-export function getTaskRatingSingleCount(req?: Requirement, count?: number){
-
-    if(!req){
+export function getTaskRatingSingleCount(req?: Requirement, count?: number) {
+    if (!req) {
         return -1;
     }
 
-    if(!count){
+    if (!count) {
         return -1;
     }
 
@@ -286,11 +282,7 @@ export function getTaskRatingSingleCount(req?: Requirement, count?: number){
             const minCohort = parseInt(tokens[0]);
             const maxCohort = parseInt(tokens[1] || '2500');
 
-            
             const minReqCount = i ? reqCounts[i - 1][1] : req.startCount;
-
-            
-
 
             const rating =
                 ((maxCohort - minCohort) / (reqCount - minReqCount)) *
@@ -301,10 +293,7 @@ export function getTaskRatingSingleCount(req?: Requirement, count?: number){
     }
 
     return getTaskMaxRating(req);
-
-
 }
-
 
 /**
  * Calculates the user's rating for a given requirement.
@@ -328,10 +317,7 @@ export function getTaskRating(user: User, req?: Requirement): number {
     }
 
     return getTaskRatingSingleCount(req, count);
-
-    
 }
-
 
 /**
  * Returns the max possible rating for the given requirement.

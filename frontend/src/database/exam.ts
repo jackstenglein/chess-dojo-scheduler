@@ -1,12 +1,6 @@
+import { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 
-/** The type of an exam. */
-export enum ExamType {
-    Tactics = 'TACTICS_EXAM',
-    Polgar = 'POLGAR_EXAM',
-    Endgame = 'ENDGAME_EXAM',
-    Positional = 'POSITIONAL_EXAM',
-}
-
+export { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 
 /**
  * Returns a display string for the given Exam type.
@@ -21,8 +15,5 @@ export function displayExamType(type: ExamType): string {
             return 'Checkmate Test';
         case ExamType.Endgame:
             return 'Endgame Test';
-        case ExamType.Positional:
-            return 'Positional Test';    
-            
     }
 }

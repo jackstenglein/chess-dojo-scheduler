@@ -16,8 +16,11 @@ export const ListEndgameExamsPage = () => {
                 <Typography variant='h4'>
                     <RookIcon
                         fontSize='inherit'
-                        sx={{ mr: 2, verticalAlign: 'center' }}
-                        color={getColorBasedOnExamType(ExamType.Endgame)}
+                        sx={{
+                            mr: 2,
+                            verticalAlign: 'center',
+                            color: getColorBasedOnExamType(ExamType.Endgame),
+                        }}
                     />
                     Endgame Tests
                 </Typography>

@@ -17,8 +17,11 @@ export const ListCheckmateExamsPage = () => {
                     <Typography variant='h4'>
                         <KingIcon
                             fontSize='inherit'
-                            sx={{ mr: 2, verticalAlign: 'center' }}
-                            color={getColorBasedOnExamType(ExamType.Polgar)}
+                            sx={{
+                                mr: 2,
+                                verticalAlign: 'center',
+                                color: getColorBasedOnExamType(ExamType.Polgar),
+                            }}
                         />
                         Checkmate Tests
                     </Typography>
@@ -28,5 +31,3 @@ export const ListCheckmateExamsPage = () => {
         </Stack>
     );
 };
-
-export default ListCheckmateExamsPage;

@@ -31,8 +31,6 @@ export function getColorBasedOnExamType(examType: ExamType): string {
             return 'checkmateTest';
         case ExamType.Tactics:
             return 'tacticsTest';
-        case ExamType.Positional:
-            return 'positionalTest';
     }
 }
 
@@ -60,8 +58,11 @@ export const ExamCard = ({
                     <CardContent>
                         <Stack justifyContent='center' alignItems='center'>
                             <Icon
-                                sx={{ fontSize: '5rem', mb: 2 }}
-                                color={getColorBasedOnExamType(colorType)}
+                                sx={{
+                                    fontSize: '5rem',
+                                    mb: 2,
+                                    color: getColorBasedOnExamType(colorType),
+                                }}
                             />
                             <Typography variant='h5' mb={0.5}>
                                 {name}

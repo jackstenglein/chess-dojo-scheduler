@@ -17,7 +17,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     const [graphpicker, setGraphPicker] = React.useState<string | null>('meter');
 
     const handleAlignment = (
-        event: React.MouseEvent<HTMLElement>,
+        _event: React.MouseEvent<HTMLElement>,
         newAlignment: string | null,
     ) => {
         setGraphPicker(newAlignment);
