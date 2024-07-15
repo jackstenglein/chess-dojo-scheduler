@@ -1,7 +1,6 @@
 import { useLightMode } from '@/style/useLightMode';
 import { Box, Paper, Stack } from '@mui/material';
 import { useGame } from '../../../../games/view/GamePage';
-import { useLightMode } from '../../../../style/ThemeProvider';
 import { useChess } from '../../PgnBoard';
 import ControlButtons from './ControlButtons';
 import StartButtons from './StartButtons';

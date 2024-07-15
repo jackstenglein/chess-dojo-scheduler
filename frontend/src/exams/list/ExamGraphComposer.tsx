@@ -90,7 +90,6 @@ interface ExamComposer {
 const ExamGraphComposer: React.FC<ExamComposer> = ({ user, width, height }) => {
     const { requirements } = useRequirements(ALL_COHORTS, true);
     const tacticsRating = calculateTacticsRating(user, requirements);
-    const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
     const realRating = Math.round(tacticsRating.overall);
     const [graphpicker, setGraphPicker] = React.useState<
         'tactics' | 'checkmate' | 'prfive' | 'prsuv'

@@ -35,7 +35,6 @@ import {
 } from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import { useLightMode } from '../../style/ThemeProvider';
 import { getBestFitCohortRange } from './exam';
 
 export const BEST_FIT_RANGE = 'BEST_FIT_COHORTS';
