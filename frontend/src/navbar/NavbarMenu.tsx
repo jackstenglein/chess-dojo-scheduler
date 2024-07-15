@@ -213,7 +213,7 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                 {
                     name: 'Dojo Vods',
                     icon: <LiveTv/>,
-                    onClick: () => navigate('/material/vods'),
+                    href: 'material/vods',
                 },
             ],
         },
