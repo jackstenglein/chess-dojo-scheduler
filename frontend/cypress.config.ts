@@ -15,9 +15,10 @@ export default defineConfig({
 
         cognito_username: process.env.AWS_COGNITO_USERNAME,
         cognito_password: process.env.AWS_COGNITO_PASSWORD,
-        cognito_region: process.env.AWS_COGNITO_REGION,
-        cognito_user_pool_id: process.env.AWS_COGNITO_USER_POOL_ID,
-        cognito_user_pool_web_client_id: process.env.AWS_COGNITO_USER_POOL_WEB_CLIENT_ID,
-        cognito_domain: process.env.AWS_COGNITO_DOMAIN,
+        cognito_region: process.env.NEXT_PUBLIC_AUTH_REGION,
+        cognito_user_pool_id: process.env.NEXT_PUBLIC_AUTH_USER_POOL_WEB_CLIENT_ID,
+        cognito_user_pool_web_client_id:
+            process.env.NEXT_PUBLIC_AUTH_USER_POOL_WEB_CLIENT_ID,
+        cognito_domain: process.env.NEXT_PUBLIC_AUTH_OAUTH_DOMAIN,
     }),
 });
