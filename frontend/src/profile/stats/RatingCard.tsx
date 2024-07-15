@@ -42,6 +42,8 @@ export function getMemberLink(ratingSystem: RatingSystem, username: string): str
             return `https://www.schachbund.de/spieler/${username}.html`;
         case RatingSystem.Acf:
             return `https://sachess.org.au/ratings/player?id=${username}`;
+        case RatingSystem.Knsb:
+            return `https://ratingviewer.nl/list/117/players/${username}`;
         case RatingSystem.Custom:
             return '';
     }

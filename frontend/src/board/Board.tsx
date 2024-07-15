@@ -145,6 +145,7 @@ export function reconcile(chess?: Chess, board?: BoardApi | null, showGlyphs?: b
         drawable: {
             shapes: toShapes(chess),
             autoShapes: toAutoShapes(chess, showGlyphs),
+            eraseOnClick: false,
         },
     });
 }
@@ -317,6 +318,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                     autoShapes: toAutoShapes(chess, showGlyphs),
                     onChange:
                         config?.drawable?.onChange || defaultOnDrawableChange(chess),
+                    eraseOnClick: false,
                 },
                 addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
             });
@@ -389,6 +391,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             drawable: {
                 shapes: toShapes(chess),
                 autoShapes: toAutoShapes(chess, showGlyphs),
+                eraseOnClick: false,
             },
         });
     }, [board, chess, showGlyphs]);
@@ -399,7 +402,11 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             height={1}
             sx={{ ...getPieceSx(pieceStyle), ...getBoardSx(boardStyle) }}
         >
-            <div ref={boardRef} style={{ width: '100%', height: '100%' }} />
+            <div
+                data-cy='chessground-board'
+                ref={boardRef}
+                style={{ width: '100%', height: '100%' }}
+            />
 
             <Dialog open={promotion !== null} onClose={onCancelPromotion}>
                 <DialogContent>

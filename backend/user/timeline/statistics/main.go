@@ -189,7 +189,7 @@ func calculateTotalTime(user *database.User, minutesSpent map[string]int, cohort
 			allCohortsTime += v
 		}
 
-		if requirements[p.RequirementId] {
+		if requirements[p.RequirementId] || database.IsDeletedRequirement(p.RequirementId) {
 			minutesSpent[database.AllTime] += cohortTime
 			minutesSpent[database.AllCohortsAllTime] += allCohortsTime
 		} else {

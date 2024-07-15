@@ -1,8 +1,5 @@
 import { defineConfig } from 'cypress';
-import dotenv from 'dotenv';
 import { EnvSchema } from './cypress/env';
-
-dotenv.config({ path: '.env.test.local' });
 
 export default defineConfig({
     projectId: 'ut1fmk',
