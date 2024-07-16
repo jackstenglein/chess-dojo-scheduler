@@ -17,12 +17,22 @@ const gameMetadataSchema = z.object({
     createdAt: z.string().datetime(),
 });
 
+const directoryVisibility = z.enum(['PUBLIC', 'PRIVATE']);
+
+/** The visibility of a directory. */
+export const DirectoryVisibility = directoryVisibility.enum;
+
+const directoryItemType = z.enum(['DIRECTORY', 'OWNED_GAME', 'MASTER_GAME', 'DOJO_GAME']);
+
+/** The type of a directory item. */
+export const DirectoryItemType = directoryItemType.enum;
+
 export const DirectoryItemSchema = z.discriminatedUnion('type', [
     z.object({
         /** The type of the directory item. */
-        type: z.literal('DIRECTORY'),
+        type: z.literal(DirectoryItemType.DIRECTORY),
 
-        /** The id of the directory item. */
+        /** The id of the directory item. For a directory, this is just the name (last component) of the directory. */
         id: z.string(),
 
         /** The metadata of the directory item. */
@@ -32,11 +42,14 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 
             /** The datetime the directory was updated, in ISO format. */
             updatedAt: z.string().datetime(),
+
+            /** The visibility of the directory. */
+            visibility: directoryVisibility,
         }),
     }),
     z.object({
         /** The type of the directory item. */
-        type: z.literal('OWNED_GAME'),
+        type: z.literal(DirectoryItemType.OWNED_GAME),
 
         /** The id of the directory item. */
         id: z.string(),
@@ -46,7 +59,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
     }),
     z.object({
         /** The type of the directory item. */
-        type: z.literal('MASTER_GAME'),
+        type: z.literal(DirectoryItemType.MASTER_GAME),
 
         /** The id of the directory item. */
         id: z.string(),
@@ -56,7 +69,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
     }),
     z.object({
         /** The type of the directory item. */
-        type: z.literal('DOJO_GAME'),
+        type: z.literal(DirectoryItemType.DOJO_GAME),
 
         /** The id of the directory item. */
         id: z.string(),
@@ -70,14 +83,20 @@ export const DirectorySchema = z.object({
     /** The username of the owner of the directory. */
     owner: z.string(),
 
-    /** The name of the directory. */
-    name: z.string().regex(/^[ .a-zA-Z0-9_-]+$/),
+    /** The full path name of the directory. The root directory has an empty path. */
+    path: z.string().regex(/^[ ./a-zA-Z0-9_-]*$/),
 
     /** Whether the directory is visible to other users. */
-    visibility: z.enum(['PUBLIC', 'PRIVATE']),
+    visibility: directoryVisibility,
 
     /** The items in the directory, mapped by their ids. */
     items: z.record(z.string(), DirectoryItemSchema),
+
+    /** The datetime the directory was created, in ISO format. */
+    createdAt: z.string().datetime(),
+
+    /** The datetime the directory was updated, in ISO format. */
+    updatedAt: z.string().datetime(),
 });
 
 /** A directory owned by a user. */
