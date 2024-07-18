@@ -3,6 +3,7 @@ import {
     faChessPawn,
     faChessQueen,
     faChessRook,
+    faChessKnight
 } from '@fortawesome/free-solid-svg-icons';
 import { SvgIconProps } from '@mui/material';
 import { FontAwesomeSvgIcon } from '../profile/info/DiscordChip';
@@ -21,4 +22,8 @@ export function KingIcon(props: SvgIconProps) {
 
 export function PawnIcon(props: SvgIconProps) {
     return <FontAwesomeSvgIcon icon={faChessPawn} {...props} />;
+}
+
+export function KnightIcon(props: SvgIconProps) {
+    return <FontAwesomeSvgIcon icon={faChessKnight} {...props} />;
 }

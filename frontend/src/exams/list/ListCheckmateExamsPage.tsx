@@ -1,6 +1,7 @@
-import { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
-import { Container, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { ExamType } from '../../database/exam';
 import { KingIcon } from '../../style/ChessIcons';
+import { getColorBasedOnExamType } from '../view/ExamCard';
 import { ExamList } from './ExamList';
 
 const POLGAR_RANGES = ['0-500', '500-1000', '1000-1500', '1500+'];
@@ -10,17 +11,23 @@ const POLGAR_RANGES = ['0-500', '500-1000', '1000-1500', '1500+'];
  */
 export const ListCheckmateExamsPage = () => {
     return (
-        <Container sx={{ py: 5 }}>
-            <Stack spacing={4}>
-                <Typography variant='h4'>
-                    <KingIcon
-                        fontSize='inherit'
-                        sx={{ mr: 2, verticalAlign: 'center' }}
-                    />
-                    Checkmate Tests
-                </Typography>
-                <ExamList cohortRanges={POLGAR_RANGES} examType={ExamType.Polgar} />
-            </Stack>
-        </Container>
+        <Stack spacing={4}>
+            <Card variant='outlined'>
+                <CardContent>
+                    <Typography variant='h4'>
+                        <KingIcon
+                            fontSize='inherit'
+                            sx={{
+                                mr: 2,
+                                verticalAlign: 'center',
+                                color: getColorBasedOnExamType(ExamType.Polgar),
+                            }}
+                        />
+                        Checkmate Tests
+                    </Typography>
+                    <ExamList cohortRanges={POLGAR_RANGES} examType={ExamType.Polgar} />
+                </CardContent>
+            </Card>
+        </Stack>
     );
 };

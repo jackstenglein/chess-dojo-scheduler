@@ -132,6 +132,30 @@ const defaultPalette = {
         },
         name: 'coaching',
     }),
+    positionalTest: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#d61313',
+        },
+        name: 'positionalTest',
+    }),
+    checkmateTest: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#8c03fc',
+        },
+        name: 'checkmateTest',
+    }),
+    endgameTest: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#186aed',
+        },
+        name: 'endgameTest',
+    }),
+    tacticsTest: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#55d444',
+        },
+        name: 'tacticsTest',
+    }),
 };
 
 const theme = experimental_extendTheme({
