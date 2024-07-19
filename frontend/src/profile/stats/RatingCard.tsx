@@ -1,3 +1,4 @@
+import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import HelpIcon from '@mui/icons-material/Help';
@@ -198,16 +199,20 @@ const RatingCard: React.FC<RatingCardProps> = ({
         <Card variant='outlined'>
             <CardContent>
                 <Stack direction='row' justifyContent='space-between' mb={2}>
-                    <Stack>
-                        <Typography variant='h6'>
-                            {formatRatingSystem(system)}
-                            {system === RatingSystem.Custom && name && ` (${name})`}
-                        </Typography>
-                        <RatingProfileLink
-                            usernameHidden={usernameHidden}
-                            username={username}
-                            system={system}
-                        />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                        <RatingSystemIcon system={system} />
+
+                        <Stack>
+                            <Typography variant='h6' sx={{ mb: -1 }}>
+                                {formatRatingSystem(system)}
+                                {system === RatingSystem.Custom && name && ` (${name})`}
+                            </Typography>
+                            <RatingProfileLink
+                                usernameHidden={usernameHidden}
+                                username={username}
+                                system={system}
+                            />
+                        </Stack>
                     </Stack>
 
                     {isPreferred && (
