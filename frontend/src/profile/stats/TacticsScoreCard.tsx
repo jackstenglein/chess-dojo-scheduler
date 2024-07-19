@@ -4,6 +4,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
 import { calculateTacticsRating } from '../../exams/view/exam';
+import Icon from '@/style/Icon';
+import { RequirementCategory } from '@/database/requirement';
 
 interface TacticsScoreCardProps {
     user: User;
@@ -30,7 +32,10 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     justifyContent='start'
                     alignItems='center'
                 >
-                    <Typography variant='h6'>Tactics Rating </Typography>
+                    
+                    <Typography variant='h6'>
+                    <Icon name={RequirementCategory.Tactics} color={"primary"} fontSize='large' style={{marginRight: 3, verticalAlign: "middle"}}/>
+                        Tactics Rating </Typography>
                     <Tooltip
                         title={getTooltip(
                             tacticsRating.overall,

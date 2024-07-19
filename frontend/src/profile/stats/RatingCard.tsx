@@ -23,6 +23,7 @@ import {
     getRatingBoundary,
     normalizeToFide,
 } from '../../database/user';
+import StatsIcon from '@/style/StatsIcon';
 
 export function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     switch (ratingSystem) {
@@ -199,7 +200,9 @@ const RatingCard: React.FC<RatingCardProps> = ({
             <CardContent>
                 <Stack direction='row' justifyContent='space-between' mb={2}>
                     <Stack>
+                        
                         <Typography variant='h6'>
+                        <StatsIcon system={system} />
                             {formatRatingSystem(system)}
                             {system === RatingSystem.Custom && name && ` (${name})`}
                         </Typography>
