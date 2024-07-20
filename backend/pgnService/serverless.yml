@@ -81,7 +81,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: !GetAtt ExplorerTable.Arn
+        Resource:
+          - !GetAtt ExplorerTable.Arn
+          - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
 
   listGamesByPosition:
     handler: explorer/listGames.handler
@@ -96,7 +98,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: !GetAtt ExplorerTable.Arn
+        Resource:
+          - !GetAtt ExplorerTable.Arn
+          - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
 
   followPosition:
     handler: explorer/followPosition.handler
