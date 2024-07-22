@@ -153,4 +153,6 @@ services:
 
   twicService:
     path: twicService
+    params:
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
       

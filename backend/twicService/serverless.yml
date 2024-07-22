@@ -3,6 +3,7 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-python-requirements
+  - serverless-plugin-custom-roles
 
 provider:
   name: aws
@@ -20,3 +21,37 @@ custom:
 functions:
   scrapeTwic:
     handler: scrape_twic.handler
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+        Resource: !GetAtt TwicTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+        Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - ses:SendEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
+  Resources:
+    TwicTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-twic-metadata
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH

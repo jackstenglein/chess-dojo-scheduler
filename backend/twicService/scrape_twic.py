@@ -13,9 +13,6 @@ from zipfile import ZipFile
 from urllib.request import urlopen, Request
 from dynamodb_json import json_util as json
 import os
-import ssl
-
-ssl._create_default_https_context = ssl._create_unverified_context
 
 time_control_re = re.compile('\[TimeControl \"(.*)\"\]')
 event_re = re.compile('\[Event \"(.*)\"]')
@@ -24,19 +21,36 @@ twic_header_re = re.compile(r'^\d+\) ')
 
 stage = os.environ['stage']
 
-# db = boto3.resource('dynamodb')
-# table = db.Table(f'{stage}-games')
+db = boto3.resource('dynamodb')
+twic_table = db.Table(f'{stage}-twic-metadata')
+games_table = db.Table(f'{stage}-games')
+ses = boto3.client('ses')
+
+unknown_time_controls = set()
 
 
 def handler(event, context):
+    """
+    Handles a Lambda CloudWatch event by fetching the last known successful TWIC archive number,
+    extracting/uploading the games from the next TWIC archive number and then saving that as the
+    new last known successful number. Failure notifications are sent via email, as are notifications
+    about unknown TWIC time controls.
+    """
     print('Event: ', event)
-
-    archive_num = 1549
+    archive_num = 0
+    metadata = None
 
     try:
+        metadata = twic_table.get_item(Key={'id': 'METADATA'})['Item']
+        print(f'INFO: Current TWIC metadata: ', metadata)
+
+        last_archive_num = metadata['lastSuccess']['archiveNum']
+        archive_num = last_archive_num + 1
+        print(f'INFO: last successful archive was {last_archive_num}. Fetching {archive_num}')
+
         twic_info = fetch_twic_info(archive_num)
         if len(twic_info) == 0:
-            handle_error(archive_num, 'Empty twic_info')
+            handle_error(archive_num, 'Empty twic_info', metadata)
 
         print(f'INFO {archive_num}: Got TWIC Info: ', twic_info)
         validate_twic_info(archive_num, twic_info)
@@ -45,19 +59,92 @@ def handler(event, context):
         print(f'INFO {archive_num}: Got {len(pgns)} PGNs')
         
         upload_pgns(archive_num, pgns, twic_info)
+        save_success(archive_num, metadata)
+        notify_unknown_time_controls(archive_num)
     except Exception as e:
-        handle_error(archive_num, e)
+        handle_error(archive_num, e, metadata)
 
 
-def handle_error(archive_num, msg):
+def handle_error(archive_num, msg, metadata):
     """
-    Logs the given error and exits.
+    Logs the given error and sends a notification email about the failure.
     @param archive_num The TWIC archive number that generated the error.
     @param msg The error message to log.
+    @param metadata The TWIC metadata before the failure.
     """
+    trace = traceback.format_exc()
     print(f'ERROR {archive_num}: {msg}')
-    print(traceback.format_exc())
-    exit()
+    print(trace)
+
+    if metadata != None:
+        metadata['lastFailure'] = {
+            'archiveNum': archive_num,
+            'updatedAt': datetime.datetime.utcnow().isoformat(),
+        }
+        twic_table.put_item(Item=metadata)
+    
+    ses.send_email(
+        Source='ChessDojo TWIC <no-reply@mail.chessdojo.club>',
+        Destination={
+            'ToAddresses': ['jackstenglein@gmail.com'],
+        },
+        Message={
+            'Subject': {
+                'Data': f'TWIC Failure - Archive {archive_num}',
+                'Charset': 'UTF-8',
+            },
+            'Body': {
+                'Text': {
+                    'Data': f'ERROR {archive_num}: {msg}\n\n{trace}',
+                    'Charset': 'UTF-8',
+                }
+            }
+        }
+    )
+
+
+def save_success(archive_num, metadata):
+    """
+    Records that the archive number was successful in the TWIC metadata table.
+    @param archive_num The successful archive number.
+    @param metadata The TWIC metadata before the success.
+    """
+    metadata['lastSuccess'] = {
+        'archiveNum': archive_num,
+        'updatedAt': datetime.datetime.utcnow().isoformat(),
+    }
+    twic_table.put_item(Item=metadata)
+
+
+def notify_unknown_time_controls(archive_num):
+    """
+    If necessary, sends an email notifying about unknown time controls in the given
+    TWIC archive.
+    @param archive_num The archive num with the unknown time controls.
+    """
+    if len(unknown_time_controls) == 0:
+        return
+    
+    msg = ', '.join(unknown_time_controls)
+    ses.send_email(
+        Source='ChessDojo TWIC <no-reply@mail.chessdojo.club>',
+        Destination={
+            'ToAddresses': ['jackstenglein@gmail.com'],
+        },
+        Message={
+            'Subject': {
+                'Data': f'TWIC Unknown Time Controls - Archive {archive_num}',
+                'Charset': 'UTF-8',
+            },
+            'Body': {
+                'Text': {
+                    'Data': f'Unknown time controls: {msg}',
+                    'Charset': 'UTF-8',
+                }
+            }
+        }
+    )
+    unknown_time_controls.clear()
 
 
 def fetch_twic_pgns(archive_num):
@@ -237,6 +324,12 @@ def validate_twic_info(archive_num, twic_info):
 
 
 def upload_pgns(archive_num, pgns, twic_info):
+    """
+    Uploads the given PGNs to the games database table.
+    @param archive_num The TWIC archive number of the PGNs.
+    @param pgns The list of PGNs to upload.
+    @param twic_info The list of TWIC info objects.
+    """
     time_control_info = load_time_control_info('time_controls.csv')
 
     twic_index = 0
@@ -245,26 +338,23 @@ def upload_pgns(archive_num, pgns, twic_info):
 
     pgns_per_event = {}
 
-    for i, pgn in enumerate(pgns):
-        site_changed = i > 0 and get_site(pgns[i-1]) != get_site(pgn)
-        time_headers, used_twic_index = get_time_headers(archive_num, pgn, site_changed, twic_index, twic_info, time_control_info)
-       
-        twic_index = used_twic_index
-        pgns_per_event[twic_info[twic_index]['event']] = pgns_per_event.get(twic_info[twic_index]['event'], 0) + 1
+    with games_table.batch_writer() as batch:
+        for i, pgn in enumerate(pgns):
+            site_changed = i > 0 and get_site(pgns[i-1]) != get_site(pgn)
+            time_headers, used_twic_index = get_time_headers(archive_num, pgn, site_changed, twic_index, twic_info, time_control_info)
+        
+            twic_index = used_twic_index
+            pgns_per_event[twic_info[twic_index]['event']] = pgns_per_event.get(twic_info[twic_index]['event'], 0) + 1
 
-        game = chess.pgn.read_game(io.StringIO(pgn))
-        if game is None:
-            record_failure(archive_num, pgn)
-            failed += 1
-            continue
+            game = chess.pgn.read_game(io.StringIO(pgn))
+            if game is None:
+                record_failure(archive_num, pgn)
+                failed += 1
+                continue
 
-        game = convert_game(game, time_headers, archive_num)
-        with open(f'twic_games_{archive_num}.json', 'a') as f:
-            f.write('{"Item":')
-            f.write(json.dumps(game))
-            f.write('}\n')
-
-        success += 1            
+            game = convert_game(game, time_headers, archive_num)
+            batch.put_item(Item=game)
+            success += 1            
     
     print(f'INFO {archive_num} Success: {success}')
     print(f'INFO {archive_num} Failed: {failed}')
@@ -386,6 +476,7 @@ def get_time_headers(archive_num, pgn, site_changed, twic_index, twic_infos, tim
             possible_time_classes.add(time_control_info[tc]['time_class'])
         elif tc and tc != "Unknown":
             print(f'ERROR {archive_num}: unknown TWIC time control: {tc}')
+            unknown_time_controls.add(tc)
     
     if len(possible_time_classes) == 0:
         return get_unknown_time_control_headers(pgn), used_twic_index
