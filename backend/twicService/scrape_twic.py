@@ -334,6 +334,7 @@ def upload_pgns(archive_num, pgns, twic_info):
 
     twic_index = 0
     success = 0
+    skipped = 0
     failed = 0
 
     pgns_per_event = {}
@@ -353,13 +354,28 @@ def upload_pgns(archive_num, pgns, twic_info):
                 continue
 
             game = convert_game(game, time_headers, archive_num)
+            if is_variant(game):
+                print(f'INFO {archive_num} Skipping variant PGN: ', pgn)
+                skipped += 1
+                continue
+
             batch.put_item(Item=game)
             success += 1            
     
     print(f'INFO {archive_num} Success: {success}')
     print(f'INFO {archive_num} Failed: {failed}')
-    print(f'INFO {archive_num} Total: ', success+failed)
+    print(f'INFO {archive_num} Skipped: {skipped}')
+    print(f'INFO {archive_num} Total: ', success+failed+skipped)
     print(f'INFO {archive_num} PGNs per event: ', pgns_per_event)
+
+
+def is_variant(game):
+    """
+    Returns true if the game is a chess variant like 960 or atomic chess,
+    based on the game's Variant header.
+    """
+    variant = game['headers'].get('Variant', 'Standard')
+    return variant == 'Standard' or variant == 'From Position'
 
 
 def matches_site(site, info):
