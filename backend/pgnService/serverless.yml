@@ -32,7 +32,7 @@ functions:
           type: dynamodb
           arn: ${param:GamesTableStreamArn}
           batchWindow: 20
-          batchSize: 300
+          batchSize: 1000
           maximumRetryAttempts: 2
           parallelizationFactor: 10
           functionResponseType: ReportBatchItemFailures

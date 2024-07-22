@@ -26,6 +26,8 @@ const STARTING_POSITION_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQk
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
+const mastersTable =
+    process.env.stage === 'dev' ? 'dev-explorer' : 'prod-masters-explorer';
 
 /** An ExplorerPosition extracted from a specific game. */
 interface ExplorerPositionExtraction {
@@ -74,23 +76,50 @@ interface ExplorerMoveUpdate {
     newResult?: keyof ExplorerResult;
 }
 
+interface KnownPositionsCache {
+    masters: Map<string, ExplorerPosition>;
+    dojo: Map<string, ExplorerPosition>;
+}
+
+const knownPositions: KnownPositionsCache = {
+    masters: new Map<string, ExplorerPosition>(),
+    dojo: new Map<string, ExplorerPosition>(),
+};
+
 /**
  * Extracts the positions from a list of Games and saves them to the explorer table.
  * @param event The DynamoDB stream event that triggered this Lambda. It contains the Game table objects.
  */
 export const handler: DynamoDBStreamHandler = async (event) => {
-    const promises: Promise<void>[] = [];
+    console.log(
+        'Size of known positions cache at start: ',
+        knownPositions.masters.size,
+        knownPositions.dojo.size,
+    );
+
+    const positionUpdates = new Map<string, ExplorerPosition>();
+
     for (const record of event.Records) {
-        promises.push(processRecord(record));
+        await processRecord(record, positionUpdates, knownPositions);
     }
-    await Promise.all(promises);
+
+    console.log(
+        `Applying ${positionUpdates.size} positions updates for ${event.Records.length} records`,
+    );
+    await applyBatchUpdates(positionUpdates);
 };
 
 /**
  * Extracts the positions from a single Game and saves or removes them as necessary.
  * @param record A single DynamoDB stream record to extract positions from.
+ * @param positionUpdates The cache of position updates across all records in the stream's batch.
+ * @param knownPositions The cache of known explorer positions in the database.
  */
-async function processRecord(record: DynamoDBRecord) {
+async function processRecord(
+    record: DynamoDBRecord,
+    positionUpdates: Map<string, ExplorerPosition>,
+    knownPositions: KnownPositionsCache,
+) {
     try {
         const oldGame = record.dynamodb?.OldImage
             ? (unmarshall(
@@ -118,14 +147,16 @@ async function processRecord(record: DynamoDBRecord) {
         const newExplorerPositions = extractPositions(newGame);
         const updates = getUpdates(oldExplorerPositions, newExplorerPositions);
 
-        console.log('Length of updates: ', updates.length);
-
         const promises: Promise<boolean>[] = [];
         for (const update of Object.values(updates)) {
-            promises.push(writeExplorerPosition(game, update));
+            promises.push(
+                writeExplorerPosition(game, update, positionUpdates, knownPositions),
+            );
         }
-        const results = await Promise.all(promises);
-        console.log('Finished with %d results: %j', results.length, results);
+        await Promise.all(promises);
+        console.log(
+            `Successfully applied ${updates.length} updates for game ${game.cohort}/${game.id}`,
+        );
     } catch (err) {
         console.log('ERROR: Failed to process record %j: ', record, err);
     }
@@ -311,41 +342,65 @@ function getExplorerMoveResult(result?: string): keyof ExplorerResult {
  * for the same FEN is not overwritten. If this is a new ExplorerPosition, then it is created in a
  * way that allows for future updates.
  * @param game The game that generated the ExplorerPosition.
- * @param chess The Chess.ts instance to use when generating initial ExplorerPosition moves.
  * @param update The update to apply to the ExplorerPosition.
+ * @param positionUpdates The cache of position updates across all records in the stream's batch.
+ * @param knownPositions The cache of known explorer positions in the database.
  */
 async function writeExplorerPosition(
     game: Game,
     update: ExplorerPositionUpdate,
+    positionUpdates: Map<string, ExplorerPosition>,
+    knownPositions: KnownPositionsCache,
 ): Promise<boolean> {
     if (!update.newResult && !update.oldResult) {
         throw new Error('ERROR: update does not contain newResult nor oldResult');
     }
 
     let success = false;
+    const cohort = getExplorerCohort(game);
 
-    const position = await fetchExplorerPosition(update.normalizedFen);
-    if (!position && !update.oldResult) {
+    const position = await fetchExplorerPosition(
+        cohort,
+        update.normalizedFen,
+        knownPositions,
+    );
+    if (!position) {
         success = await setOrUpdateExplorerPosition(game, update);
+    } else if (!position.results[cohort]) {
+        success = await updateExplorerPosition(cohort, update, position);
     } else {
-        success = await updateExplorerPosition(getExplorerCohort(game), update, position);
+        mergeUpdate(positionUpdates, update, cohort);
+        success = true;
     }
 
     if (success) {
-        updateExplorerGame(game, update);
+        await updateExplorerGame(game, update);
     }
     return success;
 }
 
 /**
  * Fetches the explorer position with the given FEN from the database.
- * If it does not exist, undefined is returned.
+ * If it does not exist, undefined is returned. If the position is already
+ * in the knownPositions cache, it is returned unchanged without fetching
+ * from the database.
+ * @param cohort The cohort that needs to be fetched.
  * @param normalizedFen The normalized FEN to fetch.
+ * @param knownPositions The cache of known explorer positions in the database.
  * @returns The explorer position with the normalized FEN.
  */
 async function fetchExplorerPosition(
+    cohort: string,
     normalizedFen: string,
+    knownPositions: KnownPositionsCache,
 ): Promise<ExplorerPosition | undefined> {
+    const isMastersTable = cohort.startsWith('masters');
+    const cache = isMastersTable ? knownPositions.masters : knownPositions.dojo;
+
+    if (cache.has(normalizedFen)) {
+        return cache.get(normalizedFen);
+    }
+
     const input = new GetItemCommand({
         Key: {
             normalizedFen: {
@@ -355,7 +410,7 @@ async function fetchExplorerPosition(
                 S: 'POSITION',
             },
         },
-        TableName: explorerTable,
+        TableName: isMastersTable ? mastersTable : explorerTable,
     });
 
     const output = await dynamo.send(input);
@@ -363,7 +418,9 @@ async function fetchExplorerPosition(
         return undefined;
     }
 
-    return unmarshall(output.Item) as ExplorerPosition;
+    const position = unmarshall(output.Item) as ExplorerPosition;
+    cache.set(normalizedFen, position);
+    return position;
 }
 
 /**
@@ -385,6 +442,7 @@ async function setOrUpdateExplorerPosition(
     }
 
     const cohort = getExplorerCohort(game);
+    const isMastersTable = cohort.startsWith('masters');
     try {
         const initialExplorerPosition = getInitialExplorerPosition(update, cohort);
 
@@ -392,7 +450,7 @@ async function setOrUpdateExplorerPosition(
             new PutItemCommand({
                 Item: marshall(initialExplorerPosition),
                 ConditionExpression: 'attribute_not_exists(normalizedFen)',
-                TableName: explorerTable,
+                TableName: isMastersTable ? mastersTable : explorerTable,
             }),
         );
         return true;
@@ -529,6 +587,7 @@ async function updateExplorerPosition(
         updateExpression.length - ', '.length,
     );
 
+    const isMastersTable = cohort.startsWith('masters');
     const input = new UpdateItemCommand({
         Key: {
             normalizedFen: {
@@ -541,7 +600,7 @@ async function updateExplorerPosition(
         UpdateExpression: updateExpression,
         ExpressionAttributeNames: expressionAttrNames,
         ExpressionAttributeValues: expressionAttrValues,
-        TableName: explorerTable,
+        TableName: isMastersTable ? mastersTable : explorerTable,
         ReturnValues: 'NONE',
     });
 
@@ -613,6 +672,7 @@ async function setExplorerPositionCohort(
         updateExpression.length - ', '.length,
     );
 
+    const isMastersTable = cohort.startsWith('masters');
     const input = new UpdateItemCommand({
         Key: {
             normalizedFen: {
@@ -626,7 +686,7 @@ async function setExplorerPositionCohort(
         ConditionExpression: 'attribute_not_exists(results.#cohort)',
         ExpressionAttributeNames: exprAttrNames,
         ExpressionAttributeValues: exprAttrValues,
-        TableName: explorerTable,
+        TableName: isMastersTable ? mastersTable : explorerTable,
         ReturnValues: 'NONE',
     });
 
@@ -641,6 +701,195 @@ async function setExplorerPositionCohort(
             return false;
         }
         console.log('Failed setExplorerPositionCohort: ', err);
+        throw err;
+    }
+}
+
+/**
+ * Merges the given update into the cache of batch position updates.
+ * @param positionUpdates The cache of batch position updates.
+ * @param update The update to apply to the cache.
+ * @param cohort The cohort the update applies to.
+ */
+function mergeUpdate(
+    positionUpdates: Map<string, ExplorerPosition>,
+    update: ExplorerPositionUpdate,
+    cohort: string,
+) {
+    if (!positionUpdates.has(update.normalizedFen)) {
+        positionUpdates.set(update.normalizedFen, {
+            normalizedFen: update.normalizedFen,
+            id: '',
+            results: {},
+            moves: {},
+        });
+    }
+
+    const currentUpdates = positionUpdates.get(update.normalizedFen);
+    if (!currentUpdates) {
+        throw new Error('currentUpdates is undefined');
+    }
+
+    if (update.oldResult) {
+        if (!currentUpdates.results[cohort]) {
+            currentUpdates.results[cohort] = {};
+        }
+        currentUpdates.results[cohort][update.oldResult] =
+            (currentUpdates.results[cohort][update.oldResult] ?? 0) - 1;
+    }
+
+    if (update.newResult) {
+        if (!currentUpdates.results[cohort]) {
+            currentUpdates.results[cohort] = {};
+        }
+        currentUpdates.results[cohort][update.newResult] =
+            (currentUpdates.results[cohort][update.newResult] ?? 0) + 1;
+    }
+
+    update.moves.forEach((move) => {
+        if (!currentUpdates.moves[move.san]) {
+            currentUpdates.moves[move.san] = {
+                san: move.san,
+                results: {},
+            };
+        }
+        const updateMove = currentUpdates.moves[move.san];
+
+        if (move.oldResult) {
+            if (!updateMove.results[cohort]) {
+                updateMove.results[cohort] = {};
+            }
+            updateMove.results[cohort][move.oldResult] =
+                (updateMove.results[cohort][move.oldResult] ?? 0) - 1;
+        }
+
+        if (move.newResult) {
+            if (!updateMove.results[cohort]) {
+                updateMove.results[cohort] = {};
+            }
+            updateMove.results[cohort][move.newResult] =
+                (updateMove.results[cohort][move.newResult] ?? 0) + 1;
+        }
+    });
+}
+
+/**
+ * Applies the given batch updates to the explorer database.
+ * @param updates The updates to apply.
+ */
+async function applyBatchUpdates(updates: Map<string, ExplorerPosition>) {
+    for (const update of updates.values()) {
+        await applyBatchUpdate(update);
+    }
+}
+
+/**
+ * Applies a batch update to an ExplorerPosition. The update is applied separately
+ * for the masters and non-masters cohorts.
+ * @param update The update to apply.
+ */
+async function applyBatchUpdate(update: ExplorerPosition) {
+    await Promise.all([
+        applyBatchUpdateTable(update, mastersTable, (cohort) =>
+            cohort.startsWith('masters'),
+        ),
+        applyBatchUpdateTable(
+            update,
+            explorerTable,
+            (cohort) => !cohort.startsWith('masters'),
+        ),
+    ]);
+}
+
+/**
+ * Applies a batch update to the given table using the given cohortPredicate function.
+ * If the cohortPredicate returns false for a given cohort, then that cohort's results
+ * are not included in the update.
+ * @param update The update to apply.
+ * @param table The table to apply the update to.
+ * @param cohortPredicate The cohort predicate function to check updates against.
+ */
+async function applyBatchUpdateTable(
+    update: ExplorerPosition,
+    table: string,
+    cohortPredicate: (cohort: string) => boolean,
+) {
+    let updateExpression = 'ADD ';
+    const expressionAttrValues: Record<string, AttributeValue> = {};
+    const expressionAttrNames: Record<string, string> = {};
+
+    let nameIdx = 0;
+    let valIdx = 0;
+
+    for (const [cohort, results] of Object.entries(update.results)) {
+        if (!cohortPredicate(cohort)) {
+            continue;
+        }
+
+        for (const [resultName, count] of Object.entries(results)) {
+            updateExpression += `results.#n${nameIdx}.${resultName} :v${valIdx}, `;
+            expressionAttrNames[`#n${nameIdx}`] = cohort;
+            expressionAttrValues[`:v${valIdx}`] = {
+                N: `${count}`,
+            };
+            nameIdx++;
+            valIdx++;
+        }
+    }
+
+    Object.values(update.moves).forEach((move, moveIdx) => {
+        for (const [cohort, results] of Object.entries(move.results)) {
+            if (!cohortPredicate(cohort)) {
+                continue;
+            }
+
+            for (const [resultName, count] of Object.entries(results)) {
+                updateExpression += `moves.#san${moveIdx}.results.#n${nameIdx}.${resultName} :v${valIdx}, `;
+                expressionAttrNames[`#san${moveIdx}`] = move.san;
+                expressionAttrNames[`#n${nameIdx}`] = cohort;
+                expressionAttrValues[`:v${valIdx}`] = {
+                    N: `${count}`,
+                };
+                nameIdx++;
+                valIdx++;
+            }
+        }
+    });
+
+    if (nameIdx === 0) {
+        return;
+    }
+
+    updateExpression = updateExpression.substring(
+        0,
+        updateExpression.length - ', '.length,
+    );
+
+    const input = new UpdateItemCommand({
+        Key: {
+            normalizedFen: {
+                S: update.normalizedFen,
+            },
+            id: {
+                S: 'POSITION',
+            },
+        },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: expressionAttrNames,
+        ExpressionAttributeValues: expressionAttrValues,
+        TableName: table,
+        ReturnValues: 'NONE',
+    });
+
+    try {
+        await dynamo.send(input);
+    } catch (err) {
+        console.log(
+            'ERROR: Failed to update explorer position %j with input %j: ',
+            update,
+            input,
+            err,
+        );
         throw err;
     }
 }
@@ -700,10 +949,11 @@ async function putExplorerGame(game: Game, update: ExplorerPositionUpdate) {
     };
 
     try {
+        const isMastersTable = game.cohort.startsWith('masters');
         await dynamo.send(
             new PutItemCommand({
                 Item: marshall(explorerGame, { removeUndefinedValues: true }),
-                TableName: explorerTable,
+                TableName: isMastersTable ? mastersTable : explorerTable,
             }),
         );
     } catch (err) {
@@ -724,13 +974,14 @@ async function removeExplorerGame(game: Game, update: ExplorerPositionUpdate) {
 
     try {
         const id = `GAME#${getExplorerCohort(game)}#${game.id}`;
+        const isMastersTable = game.cohort.startsWith('masters');
         await dynamo.send(
             new DeleteItemCommand({
                 Key: {
                     normalizedFen: { S: update.normalizedFen },
                     id: { S: id },
                 },
-                TableName: explorerTable,
+                TableName: isMastersTable ? mastersTable : explorerTable,
             }),
         );
     } catch (err) {
