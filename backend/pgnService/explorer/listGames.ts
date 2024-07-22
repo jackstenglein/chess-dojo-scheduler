@@ -8,6 +8,7 @@ import { ExplorerGame } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
+const mastersTable = 'prod-masters-explorer';
 
 /**
  * Returns a list of games with the provided FEN. The FEN is normalized before searching for games.
@@ -31,18 +32,17 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         const queryOutput = await dynamo.send(
             new QueryCommand({
-                KeyConditionExpression: `#fen = :fen AND #id BETWEEN :minId AND :maxId`,
+                KeyConditionExpression: `#fen = :fen AND begins_with ( #id, :id )`,
                 ExpressionAttributeNames: {
                     '#fen': 'normalizedFen',
                     '#id': 'id',
                 },
                 ExpressionAttributeValues: {
                     ':fen': { S: normalizedFen },
-                    ':minId': { S: masters ? 'GAME#masters' : 'GAME#' },
-                    ':maxId': { S: masters ? 'GAME#z' : 'GAME#masters' },
+                    ':id': { S: 'GAME#' },
                 },
                 ExclusiveStartKey: startKey ? JSON.parse(startKey) : undefined,
-                TableName: explorerTable,
+                TableName: masters ? mastersTable : explorerTable,
             }),
         );
 

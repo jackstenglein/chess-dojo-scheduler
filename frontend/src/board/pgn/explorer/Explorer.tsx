@@ -60,6 +60,7 @@ const Explorer = () => {
                     follower: f,
                     normalizedFen: f.normalizedFen,
                     dojo: null,
+                    masters: null,
                     lichess: null,
                     tablebase: null,
                 });
@@ -77,7 +78,14 @@ const Explorer = () => {
         );
     };
 
-    const { dojo, lichess, tablebase, follower } = position || {};
+    const { dojo, masters, lichess, tablebase, follower } = position || {};
+
+    const selectedPosition =
+        tab === ExplorerDatabaseType.Dojo
+            ? dojo
+            : tab === ExplorerDatabaseType.Masters
+              ? masters
+              : lichess;
 
     return (
         <CardContent>
@@ -134,7 +142,7 @@ const Explorer = () => {
                     <Database
                         type={tab}
                         fen={fen}
-                        position={tab === ExplorerDatabaseType.Lichess ? lichess : dojo}
+                        position={selectedPosition}
                         request={request}
                         minCohort={minCohort}
                         maxCohort={maxCohort}

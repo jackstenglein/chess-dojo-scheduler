@@ -25,31 +25,13 @@ export const EnvSchema = z.object({
     stripe: z.object({
         publishableKey: z.string(),
     }),
+    baseUrl: z
+        .string()
+        .url()
+        .transform((v) => new URL(v)),
 });
 
-export interface Config {
-    auth: {
-        region: 'us-east-1';
-        userPoolId: string;
-        userPoolWebClientId: string;
-        oauth: {
-            domain: string;
-            scope: string[];
-            redirectSignIn: string;
-            redirectSignOut: string;
-            responseType: 'code';
-        };
-    };
-    api: {
-        baseUrl: string;
-    };
-    media: {
-        picturesBucket: string;
-    };
-    stripe: {
-        publishableKey: string;
-    };
-}
+export type Config = z.infer<typeof EnvSchema>;
 
 export function getConfig(): Config {
     return EnvSchema.parse({
@@ -74,5 +56,6 @@ export function getConfig(): Config {
         stripe: {
             publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
         },
+        baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
     });
 }
