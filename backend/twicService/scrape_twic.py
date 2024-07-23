@@ -375,7 +375,7 @@ def is_variant(game):
     based on the game's Variant header.
     """
     variant = game['headers'].get('Variant', 'Standard')
-    return variant == 'Standard' or variant == 'From Position'
+    return variant != 'Standard' and variant != 'From Position'
 
 
 def matches_site(site, info):
