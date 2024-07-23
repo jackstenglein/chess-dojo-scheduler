@@ -143,9 +143,6 @@
         "vite-plugin-eslint": "^1.8.1"
     },
     "overrides": {
-        "cypress-real-events": {
-            "cypress": "$cypress"
-        },
         "d3-interpolate": "^3.0.1",
         "d3-color": "^3.1.0",
         "d3-scale": "^4.0.2"

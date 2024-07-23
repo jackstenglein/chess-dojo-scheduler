@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from 'axios';
-
 import { getConfig } from '../config';
 import { Event } from '../database/event';
 import { User } from '../database/user';
@@ -92,7 +91,7 @@ export interface BookEventResponse {
  */
 export function bookEvent(idToken: string, id: string, startTime?: Date, type?: string) {
     return axios.put<BookEventResponse>(
-        `${BASE_URL}/event/${id}/book`,
+        `${BASE_URL}/calendar/${id}/book`,
         {
             startTime: startTime?.toISOString(),
             type,
@@ -112,7 +111,7 @@ export interface CheckoutEventResponse {
  * @returns The Stripe Checkout URL for the Event.
  */
 export function getEventCheckout(idToken: string, id: string) {
-    return axios.get<CheckoutEventResponse>(`${BASE_URL}/event/${id}/checkout`, {
+    return axios.get<CheckoutEventResponse>(`${BASE_URL}/calendar/${id}/checkout`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -127,7 +126,7 @@ export function getEventCheckout(idToken: string, id: string) {
  */
 export function cancelEvent(idToken: string, id: string) {
     return axios.put<Event>(
-        `${BASE_URL}/event/${id}/cancel`,
+        `${BASE_URL}/calendar/${id}/cancel`,
         {},
         {
             headers: {
@@ -144,7 +143,7 @@ export function cancelEvent(idToken: string, id: string) {
  * @returns An AxiosResponse containing the deleted Event.
  */
 export function deleteEvent(idToken: string, id: string) {
-    return axios.delete<Event>(`${BASE_URL}/event/${id}`, {
+    return axios.delete<Event>(`${BASE_URL}/calendar/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -158,7 +157,7 @@ export function deleteEvent(idToken: string, id: string) {
  * @returns An AxiosResponse containing the Event.
  */
 export function getEvent(idToken: string, id: string) {
-    return axios.get<Event>(`${BASE_URL}/event/${id}`, {
+    return axios.get<Event>(`${BASE_URL}/calendar/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -182,7 +181,7 @@ export async function listEvents(idToken: string, startKey?: string) {
 
     do {
         const resp = await axios.get<ListEventsResponse>(
-            idToken ? `${BASE_URL}/event` : `${BASE_URL}/public/event`,
+            idToken ? `${BASE_URL}/calendar` : `${BASE_URL}/public/calendar`,
             {
                 params,
                 headers: idToken
@@ -207,7 +206,7 @@ export async function listEvents(idToken: string, startKey?: string) {
  * @returns An AxiosResponse containing the Event as saved in the database.
  */
 export function setEvent(idToken: string, event: Partial<Event>) {
-    return axios.put<Event>(`${BASE_URL}/event`, event, {
+    return axios.put<Event>(`${BASE_URL}/calendar`, event, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -236,7 +235,7 @@ export function createMessage(
         content,
     };
 
-    return axios.post<Event>(`${BASE_URL}/event/${id}`, comment, {
+    return axios.post<Event>(`${BASE_URL}/calendar/${id}`, comment, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
