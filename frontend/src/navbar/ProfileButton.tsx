@@ -73,14 +73,14 @@ const ProfileButton = () => {
                     horizontal: 'right',
                 }}
             >
-                <MenuItem href='/profile?view=stats'>
+                <MenuItem component='a' href='/profile?view=stats'>
                     <ListItemIcon>
                         <Person2Icon />
                     </ListItemIcon>
                     <Typography textAlign='center'>Profile</Typography>
                 </MenuItem>
 
-                <MenuItem href='/profile/edit'>
+                <MenuItem component='a' href='/profile/edit'>
                     <ListItemIcon>
                         <SettingsIcon />
                     </ListItemIcon>
@@ -88,7 +88,7 @@ const ProfileButton = () => {
                 </MenuItem>
 
                 {user.isCoach && (
-                    <MenuItem href='/coach'>
+                    <MenuItem component='a' href='/coach'>
                         <ListItemIcon>
                             <SportsIcon />
                         </ListItemIcon>
