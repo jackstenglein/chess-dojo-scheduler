@@ -42,6 +42,12 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /calendar/{id}/book
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -67,6 +73,12 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /calendar/{id}/checkout
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -78,6 +90,12 @@ functions:
     events:
       - httpApi:
           path: /event/{id}/cancel
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /calendar/{id}/cancel
           method: put
           authorizer:
             type: jwt
@@ -109,6 +127,12 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /calendar/{id}
+          method: delete
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -130,6 +154,12 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /calendar/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -147,7 +177,16 @@ functions:
             type: jwt
             id: ${param:apiAuthorizer}
       - httpApi:
+          path: /calendar
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
           path: /public/event
+          method: get
+      - httpApi:
+          path: /public/calendar
           method: get
     iamRoleStatements:
       - Effect: Allow
@@ -160,6 +199,12 @@ functions:
     events:
       - httpApi:
           path: /event
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /calendar
           method: put
           authorizer:
             type: jwt

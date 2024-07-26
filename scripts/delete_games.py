@@ -1,7 +1,7 @@
 import boto3
 
 db = boto3.resource('dynamodb')
-table = db.Table('prod-games')
+table = db.Table('dev-games')
 
 
 def main():

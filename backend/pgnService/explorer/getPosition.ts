@@ -17,6 +17,7 @@ import {
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = process.env.stage + '-explorer';
+const mastersTable = 'prod-masters-explorer';
 
 /**
  * Gets an ExplorerPosition for the provided FEN.
@@ -37,6 +38,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         const results = await Promise.all([
             fetchFromDojo(normalizedFen),
+            fetchFromMasters(normalizedFen),
             fetchFromLichess(normalizedFen),
             fetchFromTablebase(normalizedFen),
             fetchFollower(normalizedFen, event),
@@ -47,9 +49,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             body: JSON.stringify({
                 normalizedFen,
                 dojo: results[0],
-                lichess: results[1],
-                tablebase: results[2],
-                follower: results[3],
+                masters: results[1],
+                lichess: results[2],
+                tablebase: results[3],
+                follower: results[4],
             }),
         };
     } catch (err) {
@@ -71,6 +74,29 @@ async function fetchFromDojo(fen: string): Promise<ExplorerPosition | null> {
                 id: { S: 'POSITION' },
             },
             TableName: explorerTable,
+        }),
+    );
+    if (!getItemOutput.Item) {
+        return null;
+    }
+
+    const position = unmarshall(getItemOutput.Item);
+    return position as ExplorerPosition;
+}
+
+/**
+ * Fetches the ExplorerPosition associated with the given FEN from the Dojo masters database.
+ * @param fen The normalized FEN to fetch.
+ * @returns An ExplorerPosition for the provided FEN.
+ */
+async function fetchFromMasters(fen: string): Promise<ExplorerPosition | null> {
+    const getItemOutput = await dynamo.send(
+        new GetItemCommand({
+            Key: {
+                normalizedFen: { S: fen },
+                id: { S: 'POSITION' },
+            },
+            TableName: mastersTable,
         }),
     );
     if (!getItemOutput.Item) {

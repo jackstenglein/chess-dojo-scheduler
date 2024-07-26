@@ -12,6 +12,11 @@ const nextConfig = {
                 hostname: 'chess-dojo-images.s3.amazonaws.com',
                 pathname: '**',
             },
+            {
+                protocol: 'https',
+                hostname: 'raw.githubusercontent.com',
+                pathname: '/jalpp/DojoIcons/**',
+            },
         ],
     },
 };

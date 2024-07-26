@@ -3,6 +3,7 @@ import { TabContext } from '@mui/lab';
 import { Box, CardContent, Tab, Tabs } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { SiLichess } from 'react-icons/si';
+import { useLocalStorage } from 'usehooks-ts';
 import { usePosition } from '../../../api/cache/positions';
 import { ExplorerPositionFollower } from '../../../database/explorer';
 import { ChessDojoIcon } from '../../../style/ChessDojoIcon';
@@ -16,6 +17,8 @@ const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 
 
 const defaultTimeControls = ['standard', 'rapid', 'blitz', 'unknown'];
 
+const explorerTabKey = 'explorerTab';
+
 export enum ExplorerDatabaseType {
     Dojo = 'dojo',
     Masters = 'masters',
@@ -24,7 +27,7 @@ export enum ExplorerDatabaseType {
 }
 
 const Explorer = () => {
-    const [tab, setTab] = useState<ExplorerDatabaseType>(ExplorerDatabaseType.Dojo);
+    const [tab, setTab] = useLocalStorage(explorerTabKey, ExplorerDatabaseType.Dojo);
     const { chess } = useChess();
     const [fen, setFen] = useState(chess?.fen() || startingPositionFen);
     const { position, request, putPosition } = usePosition(fen);
@@ -60,6 +63,7 @@ const Explorer = () => {
                     follower: f,
                     normalizedFen: f.normalizedFen,
                     dojo: null,
+                    masters: null,
                     lichess: null,
                     tablebase: null,
                 });
@@ -77,7 +81,14 @@ const Explorer = () => {
         );
     };
 
-    const { dojo, lichess, tablebase, follower } = position || {};
+    const { dojo, masters, lichess, tablebase, follower } = position || {};
+
+    const selectedPosition =
+        tab === ExplorerDatabaseType.Dojo
+            ? dojo
+            : tab === ExplorerDatabaseType.Masters
+              ? masters
+              : lichess;
 
     return (
         <CardContent>
@@ -134,7 +145,7 @@ const Explorer = () => {
                     <Database
                         type={tab}
                         fen={fen}
-                        position={tab === ExplorerDatabaseType.Lichess ? lichess : dojo}
+                        position={selectedPosition}
                         request={request}
                         minCohort={minCohort}
                         maxCohort={maxCohort}

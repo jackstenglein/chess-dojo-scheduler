@@ -1,3 +1,5 @@
+import { RequirementCategory } from '@/database/requirement';
+import Icon from '@/style/Icon';
 import { Card, CardContent, Link, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Link as RouterLink } from 'react-router-dom';
@@ -30,7 +32,15 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     justifyContent='start'
                     alignItems='center'
                 >
-                    <Typography variant='h6'>Tactics Rating </Typography>
+                    <Typography variant='h6'>
+                        <Icon
+                            name={RequirementCategory.Tactics}
+                            color='primary'
+                            fontSize='large'
+                            sx={{ marginRight: 1.5, verticalAlign: 'middle' }}
+                        />
+                        Tactics Rating
+                    </Typography>
                     <Tooltip
                         title={getTooltip(
                             tacticsRating.overall,

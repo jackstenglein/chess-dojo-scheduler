@@ -35,10 +35,6 @@ jobs:
         env:
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
-          AWS_COGNITO_REGION: 'us-east-1'
-          AWS_COGNITO_USER_POOL_ID: 'us-east-1_apywr6kwu'
-          AWS_COGNITO_USER_POOL_WEB_CLIENT_ID: '76en8knncv8bfpfgbheua6j6k'
-          AWS_COGNITO_DOMAIN: 'user-pool-domain-dev-chess-dojo-scheduler.auth.us-east-1.amazoncognito.com'
 
       - name: Save Cypress Screenshots
         uses: actions/upload-artifact@v4

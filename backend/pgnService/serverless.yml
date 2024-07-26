@@ -32,7 +32,7 @@ functions:
           type: dynamodb
           arn: ${param:GamesTableStreamArn}
           batchWindow: 20
-          batchSize: 300
+          batchSize: 1000
           maximumRetryAttempts: 2
           parallelizationFactor: 10
           functionResponseType: ReportBatchItemFailures
@@ -43,7 +43,11 @@ functions:
           - dynamodb:PutItem
           - dynamodb:UpdateItem
           - dynamodb:DeleteItem
-        Resource: !GetAtt ExplorerTable.Arn
+        Resource: !If
+          - IsProd
+          - - !GetAtt ExplorerTable.Arn
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
+          - !GetAtt ExplorerTable.Arn
 
   notifyFollowers:
     handler: explorer/notifyFollowers.handler
@@ -81,7 +85,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: !GetAtt ExplorerTable.Arn
+        Resource:
+          - !GetAtt ExplorerTable.Arn
+          - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
 
   listGamesByPosition:
     handler: explorer/listGames.handler
@@ -96,7 +102,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: !GetAtt ExplorerTable.Arn
+        Resource:
+          - !GetAtt ExplorerTable.Arn
+          - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
 
   followPosition:
     handler: explorer/followPosition.handler

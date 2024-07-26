@@ -8,6 +8,7 @@ func getCohort(ratingSystem RatingSystem, currentRating int) DojoCohort {
 	case Ecf:
 		fallthrough
 	case Dwz:
+		fallthrough
 	case Knsb:
 		switch {
 		case currentRating < 300:

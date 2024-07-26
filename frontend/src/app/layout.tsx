@@ -1,4 +1,13 @@
+import { getConfig } from '@/config';
+import { Metadata } from 'next';
 import './globals.css';
+
+export const metadata: Metadata = {
+    metadataBase: getConfig().baseUrl,
+    title: 'ChessDojo Training Program',
+    description:
+        'The ChessDojo Training Program offers structured training plans for all levels 0-2500, along with an active and supportive community',
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (

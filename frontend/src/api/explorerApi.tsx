@@ -38,6 +38,9 @@ export interface GetExplorerPositionResult {
     /** The data from the Dojo database. */
     dojo: ExplorerPosition | null;
 
+    /** The data from the Dojo masters database. */
+    masters: ExplorerPosition | null;
+
     /** The data from the Lichess database. */
     lichess: LichessExplorerPosition | null;
 

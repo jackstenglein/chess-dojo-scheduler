@@ -269,8 +269,8 @@ func FetchDwzRating(dwzId string) (int, error) {
 
 	const ratingIndex = 13
 	tokens := strings.Split(string(b), "|")
-	if len(tokens) < ratingIndex {
-		err = errors.New(400, "Invalid request: DWZ API did not return a rating", "Tokens length less than 14")
+	if ratingIndex >= len(tokens) {
+		err = errors.New(400, "Invalid request: DWZ API did not return a rating", fmt.Sprintf("ratingIndex out of bounds for tokens %v", tokens))
 		return 0, err
 	}
 

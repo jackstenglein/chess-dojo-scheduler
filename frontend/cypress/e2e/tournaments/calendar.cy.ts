@@ -2,7 +2,7 @@ import { tournamentsClock } from './util';
 
 describe('Calendar Tab', () => {
     beforeEach(() => {
-        cy.interceptApi('GET', '/event', { fixture: 'tournaments/events.json' });
+        cy.interceptApi('GET', '/calendar', { fixture: 'tournaments/events.json' });
         cy.loginByCognitoApi(
             'tournaments',
             cy.dojo.env('cognito_username'),
