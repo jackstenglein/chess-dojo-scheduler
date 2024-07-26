@@ -2,12 +2,10 @@
 
 import {
     ConditionalCheckFailedException,
-    DynamoDBClient,
-    GetItemCommand,
     PutItemCommand,
     UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
 import {
     Directory,
     DirectoryItem,
@@ -18,9 +16,8 @@ import {
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { z } from 'zod';
 import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, success } from './api';
-
-const dynamo = new DynamoDBClient({ region: 'us-east-1' });
-const directoryTable = process.env.stage + '-directories';
+import { directoryTable, dynamo } from './database';
+import { fetchDirectory } from './get';
 
 const createDirectorySchema = DirectorySchema.pick({
     visibility: true,
@@ -124,33 +121,6 @@ function getRequest(event: APIGatewayProxyEventV2): createDirectoryRequest {
             cause: err,
         });
     }
-}
-
-/**
- * Fetches the directory with the given owner and name from DynamoDB.
- * @param owner The owner of the directory.
- * @param name The full path name of the directory.
- * @returns The given directory, or undefined if it does not exist.
- */
-async function fetchDirectory(
-    owner: string,
-    name: string,
-): Promise<Directory | undefined> {
-    const getItemOutput = await dynamo.send(
-        new GetItemCommand({
-            Key: {
-                owner: { S: owner },
-                name: { S: name },
-            },
-            TableName: directoryTable,
-        }),
-    );
-    if (!getItemOutput.Item) {
-        return undefined;
-    }
-
-    const directory = unmarshall(getItemOutput.Item);
-    return DirectorySchema.parse(directory);
 }
 
 /**
