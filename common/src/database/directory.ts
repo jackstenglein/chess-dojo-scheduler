@@ -32,8 +32,9 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /** The type of the directory item. */
         type: z.literal(DirectoryItemType.DIRECTORY),
 
-        /** The id of the directory item. For a directory, this is just the name (last component) of the directory. */
-        id: z.string(),
+        /**
+         * The id of the directory item. For a subdirectory, this is the id of the directory. */
+        id: z.string().uuid(),
 
         /** The metadata of the directory item. */
         metadata: z.object({
@@ -45,6 +46,9 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 
             /** The visibility of the directory. */
             visibility: directoryVisibility,
+
+            /** The name of the directory. */
+            name: z.string(),
         }),
     }),
     z.object({
@@ -83,8 +87,14 @@ export const DirectorySchema = z.object({
     /** The username of the owner of the directory. */
     owner: z.string(),
 
-    /** The full path name of the directory. The root directory has an empty path. */
-    path: z.string().regex(/^[ ./a-zA-Z0-9_-]*$/),
+    /** The id of the directory. The root directory is uuid.MAX. */
+    id: z.string().uuid(),
+
+    /** The id of the parent directory. The root directory uses uuid.NIL. */
+    parent: z.string().uuid(),
+
+    /** The name of the directory. */
+    name: z.string().trim(),
 
     /** Whether the directory is visible to other users. */
     visibility: directoryVisibility,

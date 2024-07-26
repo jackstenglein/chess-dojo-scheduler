@@ -13,13 +13,11 @@ import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, success } from './
 import { directoryTable, dynamo } from './database';
 
 const getDirectorySchema = z.object({
+    /** The username of the owner of the directory. */
     owner: z.string(),
 
-    path: z
-        .string()
-        .trim()
-        .regex(/^[ ./a-zA-Z0-9_-]*$/)
-        .refine((val) => !val.includes('//')),
+    /** The id of the directory. The root directory uses the nil UUID. */
+    id: z.string().uuid(),
 });
 
 /**
@@ -41,7 +39,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         }
 
         const request = getRequest(event);
-        const directory = await fetchDirectory(request.owner, request.path);
+        const directory = await fetchDirectory(request.owner, request.id);
 
         if (
             !directory ||
@@ -79,20 +77,20 @@ function getRequest(event: APIGatewayProxyEventV2) {
 }
 
 /**
- * Fetches the directory with the given owner and name from DynamoDB.
+ * Fetches the directory with the given owner and id from DynamoDB.
  * @param owner The owner of the directory.
- * @param name The full path name of the directory.
+ * @param id The id of the directory.
  * @returns The given directory, or undefined if it does not exist.
  */
 export async function fetchDirectory(
     owner: string,
-    name: string,
+    id: string,
 ): Promise<Directory | undefined> {
     const getItemOutput = await dynamo.send(
         new GetItemCommand({
             Key: {
                 owner: { S: owner },
-                name: { S: name },
+                id: { S: id },
             },
             TableName: directoryTable,
         }),

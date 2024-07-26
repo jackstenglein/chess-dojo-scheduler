@@ -57,10 +57,10 @@ resources:
         AttributeDefinitions:
           - AttributeName: owner
             AttributeType: S
-          - AttributeName: path
+          - AttributeName: id
             AttributeType: S
         KeySchema:
           - AttributeName: owner
             KeyType: HASH
-          - AttributeName: path
+          - AttributeName: id
             KeyType: RANGE

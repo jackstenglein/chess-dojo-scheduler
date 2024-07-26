@@ -14,6 +14,7 @@ import {
     DirectoryVisibility,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import { MAX as uuidMax, NIL as uuidNil, v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, success } from './api';
 import { directoryTable, dynamo } from './database';
@@ -23,18 +24,14 @@ const createDirectorySchema = DirectorySchema.pick({
     visibility: true,
 }).merge(
     z.object({
-        /** The full path of the directory containing the new directory. */
-        parent: z
-            .string()
-            .trim()
-            .regex(/^[ ./a-zA-Z0-9_-]*$/)
-            .refine((val) => !val.includes('//')),
+        /** The id of the parent directory. */
+        parent: z.string().uuid(),
 
-        /** The name of the directory to create. Must be a single component and therefore cannot contain / */
-        name: z
-            .string()
-            .trim()
-            .regex(/^[ .a-zA-Z0-9_-]+$/),
+        /** The id of the new directory. Set by the server. */
+        id: z.string().uuid(),
+
+        /** The name of the directory to create. */
+        name: z.string().trim(),
     }),
 );
 
@@ -73,11 +70,11 @@ async function handleCreateDirectory(event: APIGatewayProxyEventV2) {
     if (parent?.items[request.name]) {
         throw new ApiError({
             statusCode: 400,
-            publicMessage: `${parent.path}/${request.name} already exists`,
+            publicMessage: `${parent.name}/${request.name} already exists`,
         });
     }
 
-    if (!parent && request.parent === '') {
+    if (!parent && request.parent === uuidMax) {
         parent = await createRootDirectory(userInfo.username, request);
     } else if (parent) {
         parent = await addSubDirectory(parent, request);
@@ -90,7 +87,9 @@ async function handleCreateDirectory(event: APIGatewayProxyEventV2) {
 
     const child: Directory = {
         owner: userInfo.username,
-        path: `${parent.path}/${request.name}`,
+        id: request.id,
+        parent: request.parent,
+        name: request.name,
         visibility: request.visibility,
         items: {},
         createdAt: parent.items[request.name].metadata.createdAt,
@@ -112,9 +111,11 @@ async function handleCreateDirectory(event: APIGatewayProxyEventV2) {
 function getRequest(event: APIGatewayProxyEventV2): createDirectoryRequest {
     try {
         const body = JSON.parse(event.body || '{}');
+        if (body) {
+            body.id = uuidv4();
+        }
         return createDirectorySchema.parse(body);
     } catch (err) {
-        console.error('Failed to unmarshall body: ', err);
         throw new ApiError({
             statusCode: 400,
             publicMessage: 'Invalid request: body could not be unmarshaled',
@@ -136,18 +137,21 @@ async function createRootDirectory(
     const createdAt = new Date().toISOString();
     const directory = {
         owner,
-        path: '',
+        id: uuidMax,
+        parent: uuidNil,
+        name: 'Home',
         visibility: DirectoryVisibility.PUBLIC,
         createdAt,
         updatedAt: createdAt,
         items: {
-            [request.name]: {
+            [request.id]: {
                 type: DirectoryItemType.DIRECTORY,
-                id: request.name,
+                id: request.id,
                 metadata: {
                     createdAt,
                     updatedAt: createdAt,
                     visibility: request.visibility,
+                    name: request.name,
                 },
             },
         },
@@ -173,7 +177,7 @@ async function createDirectory(directory: Directory) {
         if (err instanceof ConditionalCheckFailedException) {
             throw new ApiError({
                 statusCode: 400,
-                publicMessage: `${directory.path} already exists`,
+                publicMessage: `${directory.name} already exists`,
                 cause: err,
             });
         }
@@ -195,24 +199,25 @@ async function addSubDirectory(
 
     const subdirectory: DirectoryItem = {
         type: DirectoryItemType.DIRECTORY,
-        id: request.name,
+        id: request.id,
         metadata: {
             createdAt,
             updatedAt: createdAt,
             visibility: request.visibility,
+            name: request.name,
         },
     };
 
     const input = new UpdateItemCommand({
         Key: {
             owner: { S: parent.owner },
-            path: { S: parent.path },
+            id: { S: parent.id },
         },
-        ConditionExpression: 'attribute_not_exists(#items.#name)',
-        UpdateExpression: `SET #items.#name = :directory, #updatedAt = :updatedAt`,
+        ConditionExpression: 'attribute_not_exists(#items.#id)',
+        UpdateExpression: `SET #items.#id = :directory, #updatedAt = :updatedAt`,
         ExpressionAttributeNames: {
             '#items': 'items',
-            '#name': request.name,
+            '#id': request.id,
         },
         ExpressionAttributeValues: {
             ':directory': { M: marshall(subdirectory) },
@@ -223,6 +228,6 @@ async function addSubDirectory(
     });
     await dynamo.send(input);
 
-    parent.items[request.name] = subdirectory;
+    parent.items[request.id] = subdirectory;
     return parent;
 }
