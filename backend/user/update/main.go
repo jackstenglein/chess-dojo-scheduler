@@ -145,7 +145,7 @@ func fetchRatings(user *database.User, update *database.UserUpdate) error {
 	}
 
 	for system, rating := range *update.Ratings {
-		existingRating, _ := user.Ratings[system]
+		existingRating := user.Ratings[system]
 		if system != database.Custom && (existingRating == nil || rating.Username != existingRating.Username ||
 			rating.CurrentRating == 0 || rating.StartRating == 0) {
 			if err := fetchCurrentRating(rating, ratings.RatingFetchFuncs[system]); err != nil {
@@ -168,7 +168,7 @@ func handleAutopickCohort(user *database.User, update *database.UserUpdate) api.
 		return api.Failure(err)
 	}
 	if cohort := update.AutopickCohort(); cohort == database.NoCohort {
-		return api.Failure(errors.New(500, "Unable to choose cohort. Please contact support", fmt.Sprintf("Autopick cohort returned NoCohort for update %+v", update)))
+		return api.Failure(errors.New(500, "Unable to choose cohort. Please contact support", fmt.Sprintf("Autopick cohort returned NoCohort for update %#v", update)))
 	}
 
 	user, err := repository.UpdateUser(user.Username, update)
