@@ -6,8 +6,10 @@ import { useState } from 'react';
 import { NewDirectoryDialog } from './NewDirectoryDialog';
 
 export const NewDirectoryButton = ({
+    parent,
     onSuccess,
 }: {
+    parent: string;
     onSuccess: (parent: Directory) => void;
 }) => {
     const [open, setOpen] = useState(false);
@@ -29,6 +31,7 @@ export const NewDirectoryButton = ({
 
             {open && (
                 <NewDirectoryDialog
+                    parent={parent}
                     onSuccess={onCreate}
                     onCancel={() => setOpen(false)}
                 />

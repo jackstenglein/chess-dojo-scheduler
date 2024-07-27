@@ -2,7 +2,7 @@ import { useSearchParams } from '@/hooks/useSearchParams';
 import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { NavigateNext } from '@mui/icons-material';
 import { Breadcrumbs, Link } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface BreadcrumbItem {
     name: string;
@@ -11,29 +11,53 @@ interface BreadcrumbItem {
 
 type BreadcrumbData = Record<string, BreadcrumbItem[]>;
 
-export const DirectoryBreadcrumbs = ({ directory }: { directory: Directory }) => {
-    const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbData>({
+interface UseBreadcrumbs {
+    data: BreadcrumbData;
+    putBreadcrumb: (directory: Directory) => void;
+}
+
+export function useBreadcrumbs(): UseBreadcrumbs {
+    const [data, setData] = useState<BreadcrumbData>({
         home: [{ name: 'Home', id: 'home' }],
     });
+
+    const putBreadcrumb = useCallback(
+        (directory: Directory) => {
+            if (data[directory.id]) {
+                return;
+            }
+
+            if (data[directory.parent]) {
+                setData({
+                    ...data,
+                    [directory.id]: data[directory.parent].concat({
+                        name: directory.name,
+                        id: directory.id,
+                    }),
+                });
+            }
+        },
+        [data],
+    );
+
+    return { data, putBreadcrumb };
+}
+
+export const DirectoryBreadcrumbs = ({
+    directory,
+    breadcrumbs,
+}: {
+    directory: Directory;
+    breadcrumbs: UseBreadcrumbs;
+}) => {
+    const { data, putBreadcrumb } = breadcrumbs;
     const { updateSearchParams } = useSearchParams();
 
     useEffect(() => {
-        if (breadcrumbs[directory.id]) {
-            return;
-        }
+        putBreadcrumb(directory);
+    }, [directory, putBreadcrumb]);
 
-        if (breadcrumbs[directory.parent]) {
-            setBreadcrumbs({
-                ...breadcrumbs,
-                [directory.id]: breadcrumbs[directory.parent].concat({
-                    name: directory.name,
-                    id: directory.id,
-                }),
-            });
-        }
-    }, [directory, breadcrumbs]);
-
-    const currentBreadcrumbs = breadcrumbs[directory.id];
+    const currentBreadcrumbs = data[directory.id];
     if (!currentBreadcrumbs) {
         return null;
     }

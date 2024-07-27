@@ -20,7 +20,7 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useEffect, useMemo } from 'react';
-import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
+import { DirectoryBreadcrumbs, useBreadcrumbs } from './DirectoryBreadcrumbs';
 import { NewDirectoryButton } from './NewDirectoryButton';
 
 export const DirectoriesTab = ({ user }: { user: User }) => {
@@ -29,6 +29,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const request = useRequest<Directory>();
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
+    const breadcrumbs = useBreadcrumbs();
 
     const reset = request.reset;
     useEffect(() => {
@@ -73,10 +74,13 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     return (
         <Stack spacing={2} alignItems='start'>
             {viewer.username === user.username && (
-                <NewDirectoryButton onSuccess={request.onSuccess} />
+                <NewDirectoryButton
+                    parent={request.data.id}
+                    onSuccess={request.onSuccess}
+                />
             )}
 
-            <DirectoryBreadcrumbs directory={request.data} />
+            <DirectoryBreadcrumbs directory={request.data} breadcrumbs={breadcrumbs} />
 
             <DataGridPro
                 rows={rows}

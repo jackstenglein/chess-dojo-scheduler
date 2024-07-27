@@ -14,9 +14,11 @@ import {
 import { useState } from 'react';
 
 export const NewDirectoryDialog = ({
+    parent,
     onSuccess,
     onCancel,
 }: {
+    parent: string;
     onSuccess: (response: CreateDirectoryResponse) => void;
     onCancel: () => void;
 }) => {
@@ -34,7 +36,7 @@ export const NewDirectoryDialog = ({
         request.onStart();
         api.createDirectory({
             id: '',
-            parent: 'home',
+            parent,
             name,
             visibility: DirectoryVisibility.PUBLIC,
         })
