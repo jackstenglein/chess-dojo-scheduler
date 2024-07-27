@@ -1,29 +1,46 @@
+import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
 import { User } from '@/database/user';
+import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import type { DirectoryItemType } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     Directory,
     DirectoryItem,
     DirectoryItemTypes,
-    DirectoryVisibility,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { CreateNewFolder, Folder } from '@mui/icons-material';
-import { Button, Stack } from '@mui/material';
-import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
+import { Folder } from '@mui/icons-material';
+import { Stack } from '@mui/material';
+import {
+    DataGridPro,
+    GridColDef,
+    GridRenderCellParams,
+    GridRowParams,
+} from '@mui/x-data-grid-pro';
 import { useEffect, useMemo } from 'react';
+import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
+import { NewDirectoryButton } from './NewDirectoryButton';
 
 export const DirectoriesTab = ({ user }: { user: User }) => {
     const { user: viewer } = useRequiredAuth();
     const api = useApi();
     const request = useRequest<Directory>();
+    const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
+    const directoryId = searchParams.get('directory') || 'home';
+
+    const reset = request.reset;
+    useEffect(() => {
+        if (directoryId) {
+            reset();
+        }
+    }, [reset, directoryId]);
 
     useEffect(() => {
         if (!request.isSent()) {
             request.onStart();
-            api.getDirectory(user.username, 'home')
+            api.getDirectory(user.username, directoryId)
                 .then((resp) => {
                     console.log('getDirectory: ', resp);
                     request.onSuccess(resp.data);
@@ -33,7 +50,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                     request.onFailure(err);
                 });
         }
-    });
+    }, [request, directoryId, user, api]);
 
     const rows = useMemo(() => {
         return Object.values(request.data?.items || {});
@@ -43,36 +60,28 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
         return <LoadingPage />;
     }
 
-    const onCreateFolder = () => {
-        api.createDirectory({
-            id: '',
-            name: 'Test',
-            parent: 'home',
-            visibility: DirectoryVisibility.PUBLIC,
-        })
-            .then((resp) => {
-                console.log('createDirectory: ', resp);
-            })
-            .catch((err) => {
-                console.error('createDirectory: ', err);
-            });
+    if (!request.data) {
+        return <NotFoundPage />;
+    }
+
+    const onClickRow = (params: GridRowParams<DirectoryItem>) => {
+        if (params.row.type === DirectoryItemTypes.DIRECTORY) {
+            updateSearchParams({ directory: params.row.id });
+        }
     };
 
     return (
         <Stack spacing={2} alignItems='start'>
             {viewer.username === user.username && (
-                <Button
-                    variant='contained'
-                    startIcon={<CreateNewFolder />}
-                    onClick={onCreateFolder}
-                >
-                    New Folder
-                </Button>
+                <NewDirectoryButton onSuccess={request.onSuccess} />
             )}
+
+            <DirectoryBreadcrumbs directory={request.data} />
 
             <DataGridPro
                 rows={rows}
                 columns={columns}
+                onRowClick={onClickRow}
                 autoHeight
                 loading={request.isLoading()}
                 sx={{ width: 1 }}
