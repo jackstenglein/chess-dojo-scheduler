@@ -24,13 +24,15 @@ export const DirectoryVisibility = directoryVisibility.enum;
 
 const directoryItemType = z.enum(['DIRECTORY', 'OWNED_GAME', 'MASTER_GAME', 'DOJO_GAME']);
 
+export type DirectoryItemType = z.infer<typeof directoryItemType>;
+
 /** The type of a directory item. */
-export const DirectoryItemType = directoryItemType.enum;
+export const DirectoryItemTypes = directoryItemType.enum;
 
 export const DirectoryItemSchema = z.discriminatedUnion('type', [
     z.object({
         /** The type of the directory item. */
-        type: z.literal(DirectoryItemType.DIRECTORY),
+        type: z.literal(DirectoryItemTypes.DIRECTORY),
 
         /**
          * The id of the directory item. For a subdirectory, this is the id of the directory. */
@@ -53,7 +55,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
     }),
     z.object({
         /** The type of the directory item. */
-        type: z.literal(DirectoryItemType.OWNED_GAME),
+        type: z.literal(DirectoryItemTypes.OWNED_GAME),
 
         /** The id of the directory item. */
         id: z.string(),
@@ -63,7 +65,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
     }),
     z.object({
         /** The type of the directory item. */
-        type: z.literal(DirectoryItemType.MASTER_GAME),
+        type: z.literal(DirectoryItemTypes.MASTER_GAME),
 
         /** The id of the directory item. */
         id: z.string(),
@@ -73,7 +75,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
     }),
     z.object({
         /** The type of the directory item. */
-        type: z.literal(DirectoryItemType.DOJO_GAME),
+        type: z.literal(DirectoryItemTypes.DOJO_GAME),
 
         /** The id of the directory item. */
         id: z.string(),

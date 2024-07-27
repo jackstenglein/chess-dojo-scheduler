@@ -1,5 +1,6 @@
 'use client';
 
+import { CreateDirectoryRequest } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     ExamAttempt,
     ExamType,
@@ -35,6 +36,7 @@ import {
     purchaseCourse,
     setCourse,
 } from './courseApi';
+import { DirectoryApiContextType, createDirectory, getDirectory } from './directoryApi';
 import {
     EmailApiContextType,
     SupportTicketRequest,
@@ -179,7 +181,8 @@ type ApiContextType = UserApiContextType &
     PaymentApiContextType &
     ClubApiContextType &
     ExamApiContextType &
-    EmailApiContextType;
+    EmailApiContextType &
+    DirectoryApiContextType;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const ApiContext = createContext<ApiContextType>(null!);
@@ -446,6 +449,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             createSupportTicket: (request: SupportTicketRequest) =>
                 createSupportTicket(idToken, request),
+
+            getDirectory: (owner: string, id: string) => getDirectory(idToken, owner, id),
+            createDirectory: (request: CreateDirectoryRequest) =>
+                createDirectory(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

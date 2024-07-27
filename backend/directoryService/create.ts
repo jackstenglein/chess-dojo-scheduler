@@ -11,7 +11,7 @@ import {
     CreateDirectorySchema,
     Directory,
     DirectoryItem,
-    DirectoryItemType,
+    DirectoryItemTypes,
     DirectoryVisibility,
     HOME_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -133,7 +133,7 @@ async function createHomeDirectory(
         updatedAt: createdAt,
         items: {
             [request.id]: {
-                type: DirectoryItemType.DIRECTORY,
+                type: DirectoryItemTypes.DIRECTORY,
                 id: request.id,
                 metadata: {
                     createdAt,
@@ -187,7 +187,7 @@ async function addSubDirectory(
     const createdAt = new Date().toISOString();
 
     const subdirectory: DirectoryItem = {
-        type: DirectoryItemType.DIRECTORY,
+        type: DirectoryItemTypes.DIRECTORY,
         id: request.id,
         metadata: {
             createdAt,
