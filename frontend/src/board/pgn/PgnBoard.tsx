@@ -1,3 +1,4 @@
+import { useGame } from '@/games/view/GameContext';
 import { Chess, Observer } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { Color } from 'chessground/types';
@@ -12,7 +13,6 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { useGame } from '../../games/view/GamePage';
 import LoadingPage from '../../loading/LoadingPage';
 import { BoardApi } from '../Board';
 import ResizableContainer from './ResizableContainer';

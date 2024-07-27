@@ -1,6 +1,6 @@
 import { Chess } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
-import { createContext, useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
@@ -18,18 +18,6 @@ import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Unde
 import { Game } from '../../database/game';
 import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
 import PgnErrorBoundary from './PgnErrorBoundary';
-
-interface GameContextType {
-    game?: Game;
-    onUpdateGame?: (g: Game) => void;
-    isOwner?: boolean;
-}
-
-const GameContext = createContext<GameContextType>({});
-
-export function useGame() {
-    return useContext(GameContext);
-}
 
 const GamePage = () => {
     const api = useApi();

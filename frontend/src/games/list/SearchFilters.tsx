@@ -31,7 +31,6 @@ import { RequirementCategory } from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
-import { MastersCohort } from './ListGamesPage';
 import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (

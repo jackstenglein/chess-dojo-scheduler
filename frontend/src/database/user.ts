@@ -322,6 +322,8 @@ export const dojoCohorts: string[] = [
 
 export const ALL_COHORTS = 'ALL_COHORTS';
 
+export const MastersCohort = 'masters';
+
 export const cohortColors: Record<string, string> = {
     '0-300': '#f8d0f5',
     '300-400': '#eb92c8',

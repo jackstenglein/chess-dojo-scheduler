@@ -13,12 +13,12 @@ import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { isValidDate, stripTagValue } from '../../../../../api/gameApi';
 import { Game } from '../../../../../database/game';
-import { MastersCohort } from '../../../../../games/list/ListGamesPage';
 import Avatar from '../../../../../profile/Avatar';
 import CohortIcon from '../../../../../scoreboard/CohortIcon';
 import { useChess } from '../../../PgnBoard';
 import { EditDateCell } from './DateEditor';
 import { TimeControlGridEditor } from './TimeControlEditor';
+import { MastersCohort } from '@/database/user';
 
 interface OwnerValue {
     displayName: string;
