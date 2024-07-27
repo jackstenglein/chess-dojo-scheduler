@@ -1,4 +1,5 @@
-import { APIGatewayProxyResultV2 } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { ZodSchema } from 'zod';
 
 export class ApiError extends Error {
     statusCode: number;
@@ -102,4 +103,40 @@ export function getUserInfo(event: any): UserInfo {
         username: claims['cognito:username'] || '',
         email: claims['email'] || '',
     };
+}
+
+/**
+ * Like getUserInfo, but throws a 400 error if the extracted username is empty.
+ * @param event The Lambda event to get the user info from.
+ * @returns An object containing the username and email, if present on the event.
+ */
+export function requireUserInfo(event: any): UserInfo {
+    const userInfo = getUserInfo(event);
+    if (!userInfo.username) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Invalid request: username is required',
+        });
+    }
+    return userInfo;
+}
+
+/**
+ * Parses the given Zod schema from the given API gateway event body. If the body fails
+ * to parse, a 400 error is thrown.
+ * @param event The event to extract the body from.
+ * @param schema The Zod schema to parse.
+ * @returns The parsed request body.
+ */
+export function parseBody<T>(event: APIGatewayProxyEventV2, schema: ZodSchema<T>): T {
+    try {
+        const body = JSON.parse(event.body || '{}');
+        return schema.parse(body);
+    } catch (err) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Invalid request: body could not be unmarshaled',
+            cause: err,
+        });
+    }
 }

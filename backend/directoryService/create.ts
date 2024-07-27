@@ -7,35 +7,19 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import {
+    CreateDirectoryRequest,
+    CreateDirectorySchema,
     Directory,
     DirectoryItem,
     DirectoryItemType,
-    DirectorySchema,
     DirectoryVisibility,
+    HOME_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { MAX as uuidMax, NIL as uuidNil, v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
+import { NIL as uuidNil, v4 as uuidv4 } from 'uuid';
 import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, success } from './api';
 import { directoryTable, dynamo } from './database';
 import { fetchDirectory } from './get';
-
-const createDirectorySchema = DirectorySchema.pick({
-    visibility: true,
-}).merge(
-    z.object({
-        /** The id of the parent directory. */
-        parent: z.string().uuid(),
-
-        /** The id of the new directory. Set by the server. */
-        id: z.string().uuid(),
-
-        /** The name of the directory to create. */
-        name: z.string().trim(),
-    }),
-);
-
-type createDirectoryRequest = z.infer<typeof createDirectorySchema>;
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -67,15 +51,19 @@ async function handleCreateDirectory(event: APIGatewayProxyEventV2) {
     const request = getRequest(event);
 
     let parent = await fetchDirectory(userInfo.username, request.parent);
-    if (parent?.items[request.name]) {
+    if (
+        Object.values(parent?.items || {}).some(
+            (item) => item.type === 'DIRECTORY' && item.metadata.name === request.name,
+        )
+    ) {
         throw new ApiError({
             statusCode: 400,
-            publicMessage: `${parent.name}/${request.name} already exists`,
+            publicMessage: `${parent?.name}/${request.name} already exists`,
         });
     }
 
-    if (!parent && request.parent === uuidMax) {
-        parent = await createRootDirectory(userInfo.username, request);
+    if (!parent && request.parent === HOME_DIRECTORY_ID) {
+        parent = await createHomeDirectory(userInfo.username, request);
     } else if (parent) {
         parent = await addSubDirectory(parent, request);
     } else {
@@ -92,8 +80,8 @@ async function handleCreateDirectory(event: APIGatewayProxyEventV2) {
         name: request.name,
         visibility: request.visibility,
         items: {},
-        createdAt: parent.items[request.name].metadata.createdAt,
-        updatedAt: parent.items[request.name].metadata.createdAt,
+        createdAt: parent.items[request.id].metadata.createdAt,
+        updatedAt: parent.items[request.id].metadata.createdAt,
     };
     await createDirectory(child);
 
@@ -108,13 +96,13 @@ async function handleCreateDirectory(event: APIGatewayProxyEventV2) {
  * @param event The event to extract the request from.
  * @returns The createDirectoryRequest specified in the API gateway event.
  */
-function getRequest(event: APIGatewayProxyEventV2): createDirectoryRequest {
+function getRequest(event: APIGatewayProxyEventV2): CreateDirectoryRequest {
     try {
         const body = JSON.parse(event.body || '{}');
         if (body) {
             body.id = uuidv4();
         }
-        return createDirectorySchema.parse(body);
+        return CreateDirectorySchema.parse(body);
     } catch (err) {
         throw new ApiError({
             statusCode: 400,
@@ -130,14 +118,14 @@ function getRequest(event: APIGatewayProxyEventV2): createDirectoryRequest {
  * @param request The create directory request that caused the root directory to be created.
  * @returns The created directory.
  */
-async function createRootDirectory(
+async function createHomeDirectory(
     owner: string,
-    request: createDirectoryRequest,
+    request: CreateDirectoryRequest,
 ): Promise<Directory> {
     const createdAt = new Date().toISOString();
     const directory = {
         owner,
-        id: uuidMax,
+        id: HOME_DIRECTORY_ID,
         parent: uuidNil,
         name: 'Home',
         visibility: DirectoryVisibility.PUBLIC,
@@ -169,7 +157,8 @@ async function createDirectory(directory: Directory) {
         await dynamo.send(
             new PutItemCommand({
                 Item: marshall(directory),
-                ConditionExpression: 'attribute_not_exists(owner)',
+                ExpressionAttributeNames: { '#owner': 'owner' },
+                ConditionExpression: 'attribute_not_exists(#owner)',
                 TableName: directoryTable,
             }),
         );
@@ -193,7 +182,7 @@ async function createDirectory(directory: Directory) {
  */
 async function addSubDirectory(
     parent: Directory,
-    request: createDirectoryRequest,
+    request: CreateDirectoryRequest,
 ): Promise<Directory> {
     const createdAt = new Date().toISOString();
 
@@ -218,6 +207,7 @@ async function addSubDirectory(
         ExpressionAttributeNames: {
             '#items': 'items',
             '#id': request.id,
+            '#updatedAt': 'updatedAt',
         },
         ExpressionAttributeValues: {
             ':directory': { M: marshall(subdirectory) },

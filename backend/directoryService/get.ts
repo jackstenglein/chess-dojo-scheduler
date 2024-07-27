@@ -8,17 +8,10 @@ import {
     DirectoryVisibility,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { z } from 'zod';
-import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, success } from './api';
+import { ApiError, errToApiGatewayProxyResultV2, requireUserInfo, success } from './api';
 import { directoryTable, dynamo } from './database';
 
-const getDirectorySchema = z.object({
-    /** The username of the owner of the directory. */
-    owner: z.string(),
-
-    /** The id of the directory. The root directory uses the nil UUID. */
-    id: z.string().uuid(),
-});
+const getDirectorySchema = DirectorySchema.pick({ owner: true, id: true });
 
 /**
  * Handles requests to the get directory API. Returns an error if the directory does
@@ -30,14 +23,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
 
-        const userInfo = getUserInfo(event);
-        if (!userInfo.username) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'Invalid request: username is required',
-            });
-        }
-
+        const userInfo = requireUserInfo(event);
         const request = getRequest(event);
         const directory = await fetchDirectory(request.owner, request.id);
 
@@ -65,8 +51,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
  */
 function getRequest(event: APIGatewayProxyEventV2) {
     try {
-        const body = JSON.parse(event.body || '{}');
-        return getDirectorySchema.parse(body);
+        return getDirectorySchema.parse(event.pathParameters);
     } catch (err) {
         throw new ApiError({
             statusCode: 400,

@@ -83,15 +83,33 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
     }),
 ]);
 
+/** The id of the home directory. */
+export const HOME_DIRECTORY_ID = 'home';
+
+/** The ids of default directories. */
+const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID];
+
+/**
+ * Returns true if the given id is a default directory.
+ * @param id The id to check.
+ */
+export function isDefaultDirectory(id: string): boolean {
+    return DEFAULT_DIRECTORIES.includes(id);
+}
+
 export const DirectorySchema = z.object({
     /** The username of the owner of the directory. */
     owner: z.string(),
 
-    /** The id of the directory. The root directory is uuid.MAX. */
-    id: z.string().uuid(),
+    /**
+     * The id of the directory. Most directories are v4 UUIDs, but some have
+     * fixed, known values:
+     *   - The home directory is `home`.
+     */
+    id: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID)]),
 
-    /** The id of the parent directory. The root directory uses uuid.NIL. */
-    parent: z.string().uuid(),
+    /** The id of the parent directory. Top-level directories (home) use uuid.NIL. */
+    parent: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID)]),
 
     /** The name of the directory. */
     name: z.string().trim(),
@@ -114,3 +132,13 @@ export type Directory = z.TypeOf<typeof DirectorySchema>;
 
 /** A single item in a directory. */
 export type DirectoryItem = z.TypeOf<typeof DirectoryItemSchema>;
+
+export const CreateDirectorySchema = DirectorySchema.pick({
+    id: true,
+    parent: true,
+    name: true,
+    visibility: true,
+});
+
+/** The type of a request to create a directory. */
+export type CreateDirectoryRequest = z.infer<typeof CreateDirectorySchema>;
