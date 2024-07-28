@@ -13,11 +13,16 @@ export const directoryTable = process.env.stage + '-directories';
 type updateReturnType = 'NONE' | 'ALL_OLD' | 'UPDATED_OLD' | 'ALL_NEW' | 'UPDATED_NEW';
 
 export class UpdateItemBuilder {
-    #keys: Record<string, AttributeValue> = {};
-    #table: string = '';
-    #attrsToSet: Record<string, AttributeValue> = {};
-    #condition: Condition | undefined;
-    #returnValues: updateReturnType = 'NONE';
+    private keys: Record<string, AttributeValue> = {};
+    private _table: string = '';
+
+    private attrIndex = 0;
+    private exprAttrNames: Record<string, string> = {};
+    private exprAttrValues: Record<string, AttributeValue> = {};
+    private setExpression = '';
+
+    private _condition: Condition | undefined;
+    private returnValues: updateReturnType = 'NONE';
 
     constructor() {}
 
@@ -25,11 +30,16 @@ export class UpdateItemBuilder {
      * Clears any previously set fields on the builder.
      */
     clear() {
-        this.#keys = {};
-        this.#table = '';
-        this.#attrsToSet = {};
-        this.#condition = undefined;
-        this.#returnValues = 'NONE';
+        this.keys = {};
+        this._table = '';
+
+        this.attrIndex = 0;
+        this.exprAttrNames = {};
+        this.exprAttrValues = {};
+        this.setExpression = '';
+
+        this._condition = undefined;
+        this.returnValues = 'NONE';
     }
 
     /**
@@ -39,20 +49,26 @@ export class UpdateItemBuilder {
      * @returns The UpdateItemBuilder for method chaining.
      */
     key(key: string, value: string): UpdateItemBuilder {
-        this.#keys[key] = { S: value };
+        this.keys[key] = { S: value };
         return this;
     }
 
     /**
      * Adds a command to set the given attribute to the given value.
      * If the value is undefined, it is ignored.
-     * @param attr The attribute to set.
+     * @param path The attribute path to set.
      * @param value The value to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    set(attr: string, value: any): UpdateItemBuilder {
+    set(path: string, value: any): UpdateItemBuilder {
         if (value !== undefined) {
-            this.#attrsToSet[attr] = marshall(value);
+            if (this.setExpression.length > 0) {
+                this.setExpression += ', ';
+            }
+            this.setExpression += this.addExpressionPath(path);
+            this.setExpression += ` = :n${this.attrIndex}`;
+            this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value);
+            this.attrIndex++;
         }
         return this;
     }
@@ -63,7 +79,7 @@ export class UpdateItemBuilder {
      * @returns The UpdateItemBuilder for method chaining.
      */
     condition(condition: Condition): UpdateItemBuilder {
-        this.#condition = condition;
+        this._condition = condition;
         return this;
     }
 
@@ -73,7 +89,7 @@ export class UpdateItemBuilder {
      * @returns The UpdateItemBuilder for method chaining.
      */
     table(table: string): UpdateItemBuilder {
-        this.#table = table;
+        this._table = table;
         return this;
     }
 
@@ -83,7 +99,7 @@ export class UpdateItemBuilder {
      * @returns The UpdateItemBuilder for method chaining.
      */
     return(value: updateReturnType): UpdateItemBuilder {
-        this.#returnValues = value;
+        this.returnValues = value;
         return this;
     }
 
@@ -92,34 +108,33 @@ export class UpdateItemBuilder {
      */
     build(): UpdateItemCommand {
         let updateExpression = '';
-        const exprAttrNames: Record<string, string> = {};
-        const exprAttrValues: Record<string, AttributeValue> = {};
-        let attrIdx = 0;
 
-        const setters = Object.entries(this.#attrsToSet);
-        if (setters.length > 0) {
-            updateExpression += 'SET ';
-            for (const [name, value] of setters) {
-                updateExpression += `#n${attrIdx} = :v${attrIdx}, `;
-                exprAttrNames[`#n${attrIdx}`] = name;
-                exprAttrValues[`:v${attrIdx}`] = value;
-                attrIdx++;
-            }
-            updateExpression = updateExpression.slice(
-                0,
-                updateExpression.length - ', '.length,
-            );
+        if (this.setExpression.length > 0) {
+            updateExpression += `SET ${this.setExpression}`;
         }
 
         return new UpdateItemCommand({
-            Key: this.#keys,
+            Key: this.keys,
             UpdateExpression: updateExpression,
-            ExpressionAttributeNames: exprAttrNames,
-            ExpressionAttributeValues: exprAttrValues,
-            ConditionExpression: this.#condition?.build(exprAttrNames),
-            ReturnValues: this.#returnValues,
-            TableName: this.#table,
+            ExpressionAttributeNames: this.exprAttrNames,
+            ExpressionAttributeValues: this.exprAttrValues,
+            ConditionExpression: this._condition?.build(this.exprAttrNames),
+            ReturnValues: this.returnValues,
+            TableName: this._table,
         });
+    }
+
+    private addExpressionPath(path: string) {
+        const tokens = path.split('.');
+        let result = '';
+
+        for (const token of tokens) {
+            result += `#n${this.attrIndex}.`;
+            this.exprAttrNames[`#n${this.attrIndex}`] = token;
+            this.attrIndex++;
+        }
+
+        return result.slice(0, result.length - 1);
     }
 }
 
@@ -128,25 +143,36 @@ enum ConditionType {
 }
 
 class Condition {
-    #type: ConditionType;
-    #operands: string[] = [];
+    private type: ConditionType;
+    private operands: string[] = [];
+    private attrIndex = 0;
 
     constructor(type: ConditionType, operands: string[]) {
-        this.#type = type;
-        this.#operands = operands;
+        this.type = type;
+        this.operands = operands;
     }
 
     build(exprAttrNames: Record<string, string>) {
-        let attrIndx = 0;
         let expression = '';
 
-        if (this.#type === ConditionType.AttributeExists) {
-            expression = `attribute_exists (#c${attrIndx})`;
-            exprAttrNames[`#c${attrIndx}`] = this.#operands[0];
-            attrIndx++;
+        if (this.type === ConditionType.AttributeExists) {
+            expression = `attribute_exists (${this.addExpressionPath(this.operands[0], exprAttrNames)})`;
         }
 
         return expression;
+    }
+
+    private addExpressionPath(path: string, exprAttrNames: Record<string, string>) {
+        const tokens = path.split('.');
+        let result = '';
+
+        for (const token of tokens) {
+            result += `#c${this.attrIndex}.`;
+            exprAttrNames[`#c${this.attrIndex}`] = token;
+            this.attrIndex++;
+        }
+
+        return result.slice(0, result.length - 1);
     }
 }
 

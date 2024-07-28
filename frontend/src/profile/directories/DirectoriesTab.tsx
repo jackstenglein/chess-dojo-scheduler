@@ -1,13 +1,10 @@
 import NotFoundPage from '@/NotFoundPage';
-import { useApi } from '@/api/Api';
-import { useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
 import { User } from '@/database/user';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import type { DirectoryItemType } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
-    Directory,
     DirectoryItem,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -19,49 +16,35 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
-import { useEffect, useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs, useBreadcrumbs } from './DirectoryBreadcrumbs';
+import { useDirectory } from './DirectoryCache';
 import { NewDirectoryButton } from './NewDirectoryButton';
 
 export const DirectoriesTab = ({ user }: { user: User }) => {
     const { user: viewer } = useRequiredAuth();
-    const api = useApi();
-    const request = useRequest<Directory>();
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const breadcrumbs = useBreadcrumbs();
 
-    const reset = request.reset;
-    useEffect(() => {
-        if (directoryId) {
-            reset();
-        }
-    }, [reset, directoryId]);
+    const [selectedRowId, setSelectedRowId] = useState('');
+    const [contextMenuPosition, setContextMenuPosition] = useState<{
+        mouseX: number;
+        mouseY: number;
+    }>();
 
-    useEffect(() => {
-        if (!request.isSent()) {
-            request.onStart();
-            api.getDirectory(user.username, directoryId)
-                .then((resp) => {
-                    console.log('getDirectory: ', resp);
-                    request.onSuccess(resp.data);
-                })
-                .catch((err) => {
-                    console.error('getDirectory: ', err);
-                    request.onFailure(err);
-                });
-        }
-    }, [request, directoryId, user, api]);
+    const { directory, request, putDirectory } = useDirectory(user.username, directoryId);
 
     const rows = useMemo(() => {
-        return Object.values(request.data?.items || {});
-    }, [request]);
+        return Object.values(directory?.items || {});
+    }, [directory]);
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
     }
 
-    if (!request.data) {
+    if (!directory) {
         return <NotFoundPage />;
     }
 
@@ -71,16 +54,28 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
         }
     };
 
+    const openContextMenu = (event: React.MouseEvent) => {
+        event.preventDefault();
+        setSelectedRowId(event.currentTarget.getAttribute('data-id') || '');
+        setContextMenuPosition(
+            contextMenuPosition
+                ? undefined
+                : { mouseX: event.clientX - 2, mouseY: event.clientY - 4 },
+        );
+    };
+
+    const closeContextMenu = () => {
+        setSelectedRowId('');
+        setContextMenuPosition(undefined);
+    };
+
     return (
         <Stack spacing={2} alignItems='start'>
             {viewer.username === user.username && (
-                <NewDirectoryButton
-                    parent={request.data.id}
-                    onSuccess={request.onSuccess}
-                />
+                <NewDirectoryButton parent={directory.id} onSuccess={putDirectory} />
             )}
 
-            <DirectoryBreadcrumbs directory={request.data} breadcrumbs={breadcrumbs} />
+            <DirectoryBreadcrumbs directory={directory} breadcrumbs={breadcrumbs} />
 
             <DataGridPro
                 rows={rows}
@@ -89,6 +84,17 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                 autoHeight
                 loading={request.isLoading()}
                 sx={{ width: 1 }}
+                slotProps={{
+                    row: {
+                        onContextMenu: openContextMenu,
+                    },
+                }}
+            />
+
+            <ContextMenu
+                selectedItem={directory.items[selectedRowId]}
+                onClose={closeContextMenu}
+                position={contextMenuPosition}
             />
         </Stack>
     );
@@ -120,10 +126,12 @@ const columns: GridColDef<DirectoryItem>[] = [
             }
             return '';
         },
+        flex: 1,
     },
     {
         field: 'createdAt',
         headerName: 'Date Created',
         valueGetter: (_value, row) => row.metadata.createdAt,
+        flex: 1,
     },
 ];

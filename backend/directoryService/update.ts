@@ -2,11 +2,11 @@ import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     Directory,
-    DirectorySchema,
     isDefaultDirectory,
+    UpdateDirectoryRequest,
+    UpdateDirectorySchema,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { z } from 'zod';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
@@ -15,14 +15,6 @@ import {
     success,
 } from './api';
 import { attributeExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
-
-const updateDirectorySchema = DirectorySchema.pick({
-    id: true,
-    name: true,
-    visibility: true,
-}).partial({ name: true, visibility: true });
-
-type updateDirectoryRequest = z.infer<typeof updateDirectorySchema>;
 
 /**
  * Handles requests to the update directory API, which allows updating the name and
@@ -36,7 +28,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
 
         const userInfo = requireUserInfo(event);
-        const request = parseBody(event, updateDirectorySchema);
+        const request = parseBody(event, UpdateDirectorySchema);
 
         if (isDefaultDirectory(request.id)) {
             throw new ApiError({
@@ -52,8 +44,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             });
         }
 
-        const directory = updateDirectory(userInfo.username, request);
-        return success(directory);
+        const result = await updateDirectory(userInfo.username, request);
+        return success(result);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
     }
@@ -67,10 +59,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
  */
 async function updateDirectory(
     owner: string,
-    request: updateDirectoryRequest,
-): Promise<Directory> {
+    request: UpdateDirectoryRequest,
+): Promise<{ directory: Directory; parent: Directory }> {
     try {
-        const input = new UpdateItemBuilder()
+        let input = new UpdateItemBuilder()
             .key('owner', owner)
             .key('id', request.id)
             .set('name', request.name)
@@ -82,8 +74,28 @@ async function updateDirectory(
             .build();
 
         console.log('Sending update item: %j', input);
-        const result = await dynamo.send(input);
-        return unmarshall(result.Attributes!) as Directory;
+        let result = await dynamo.send(input);
+        const directory = unmarshall(result.Attributes!) as Directory;
+
+        input = new UpdateItemBuilder()
+            .key('owner', owner)
+            .key('id', directory.parent)
+            .set(`items.${directory.id}.metadata.name`, directory.name)
+            .set(`items.${directory.id}.metadata.visibility`, directory.visibility)
+            .set(`items.${directory.id}.metadata.updatedAt`, directory.updatedAt)
+            .condition(attributeExists(`items.${directory.id}`))
+            .table(directoryTable)
+            .return('ALL_NEW')
+            .build();
+
+        console.log('Sending parent update: %j', input);
+        result = await dynamo.send(input);
+        const parent = unmarshall(result.Attributes!) as Directory;
+
+        return {
+            directory,
+            parent,
+        };
     } catch (err) {
         if (err instanceof ConditionalCheckFailedException) {
             throw new ApiError({

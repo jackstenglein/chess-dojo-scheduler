@@ -135,6 +135,9 @@ export type Directory = z.TypeOf<typeof DirectorySchema>;
 /** A single item in a directory. */
 export type DirectoryItem = z.TypeOf<typeof DirectoryItemSchema>;
 
+/** A subdirectory in another directory. */
+export type DirectoryItemSubdirectory = z.infer<(typeof DirectoryItemSchema.options)[0]>;
+
 export const CreateDirectorySchema = DirectorySchema.pick({
     id: true,
     parent: true,
@@ -144,3 +147,12 @@ export const CreateDirectorySchema = DirectorySchema.pick({
 
 /** The type of a request to create a directory. */
 export type CreateDirectoryRequest = z.infer<typeof CreateDirectorySchema>;
+
+export const UpdateDirectorySchema = DirectorySchema.pick({
+    id: true,
+    name: true,
+    visibility: true,
+}).partial({ name: true, visibility: true });
+
+/** The type of a request to update a directory. */
+export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;

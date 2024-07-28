@@ -27,6 +27,7 @@ import ActivityTab from './activity/ActivityTab';
 import ClubsTab from './clubs/ClubsTab';
 import CoachTab from './coach/CoachTab';
 import { DirectoriesTab } from './directories/DirectoriesTab';
+import { DirectoryCacheProvider } from './directories/DirectoryCache';
 import Bio from './info/Bio';
 import CoachChip from './info/CoachChip';
 import CountChip from './info/CountChip';
@@ -251,7 +252,9 @@ const ProfilePage = () => {
                             <GamesTab user={user} />
                         </TabPanel>
                         <TabPanel value='files' sx={{ px: { xs: 0 } }}>
-                            <DirectoriesTab user={user} />
+                            <DirectoryCacheProvider>
+                                <DirectoriesTab user={user} />
+                            </DirectoryCacheProvider>
                         </TabPanel>
                         <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>
                             <ClubsTab user={user} />
