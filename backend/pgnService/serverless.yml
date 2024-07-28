@@ -33,9 +33,10 @@ functions:
           arn: ${param:GamesTableStreamArn}
           batchWindow: 20
           batchSize: 1000
-          maximumRetryAttempts: 2
+          # If a record fails halfway through, it isn't possible for us to know
+          # which positions were already saved, so we don't retry at all
+          maximumRetryAttempts: 0
           parallelizationFactor: 10
-          functionResponseType: ReportBatchItemFailures
     iamRoleStatements:
       - Effect: Allow
         Action:
