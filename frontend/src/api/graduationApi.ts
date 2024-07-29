@@ -60,9 +60,8 @@ async function listGraduations(url: string, params: Record<string, string | unde
  * @returns A list of graduations.
  */
 export async function listGraduationsByCohort(cohort: string, startKey?: string) {
-    console.log(BASE_URL);
     const params = { startKey };
-    return listGraduations(BASE_URL + `/graduations/${cohort}`, params);
+    return listGraduations(BASE_URL + `/public/graduations/${cohort}`, params);
 }
 
 /**
@@ -73,7 +72,7 @@ export async function listGraduationsByCohort(cohort: string, startKey?: string)
  */
 export async function listGraduationsByOwner(username: string, startKey?: string) {
     const params = { startKey };
-    return listGraduations(BASE_URL + `/graduations/owner/${username}`, params);
+    return listGraduations(BASE_URL + `/public/graduations/owner/${username}`, params);
 }
 
 /**
@@ -83,5 +82,5 @@ export async function listGraduationsByOwner(username: string, startKey?: string
  */
 export async function listGraduationsByDate(startKey?: string) {
     const params = { startKey };
-    return listGraduations(BASE_URL + `/graduations`, params);
+    return listGraduations(BASE_URL + `/public/graduations`, params);
 }
