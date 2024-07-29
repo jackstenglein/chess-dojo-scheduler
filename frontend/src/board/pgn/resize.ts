@@ -31,6 +31,8 @@ export interface AreaSizes {
     board: ResizableData;
     underboard: ResizableData;
     pgn: ResizableData;
+    padding: number;
+    spacing: number;
 }
 
 export function getSizes(
@@ -99,6 +101,8 @@ function xsSizes(
                   minWidth: 0,
                   minHeight: 0,
               },
+        padding,
+        spacing: 0,
     };
 }
 
@@ -151,6 +155,8 @@ function smSizes(
                   minWidth: 0,
                   minHeight: 0,
               },
+        padding,
+        spacing,
     };
 }
 
@@ -215,6 +221,8 @@ function mdSizes(
                   minWidth: 0,
                   minHeight: 0,
               },
+        padding,
+        spacing,
     };
 }
 
