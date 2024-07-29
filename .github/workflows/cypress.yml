@@ -42,3 +42,13 @@ jobs:
         with:
           name: screenshots
           path: frontend/cypress/screenshots
+      
+      - name: Check Coverage
+        working-directory: frontend
+        run: npx nyc report --reporter=text-summary
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: frontend/coverage
