@@ -27,7 +27,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
     const reconcile = useReconcile();
     const [variationBehavior] = useLocalStorage(
         VariationBehaviorKey,
-        VariationBehavior.None,
+        VariationBehavior.Dialog,
     );
     const [variationDialogMove, setVariationDialogMove] = useState<Move | null>(null);
     const [keyBindings] = useLocalStorage(BoardKeyBindingsKey, defaultKeyBindings);
