@@ -53,6 +53,19 @@ jobs:
         with:
           name: build
           path: frontend/.next
+      
+      - name: Unblock Cypress
+        working-directory: frontend
+        run: |
+          echo Download Free Cypress
+          CYPRESS_DOWNLOAD_MIRROR=https://cy-cdn.currents.dev npx cypress install --force
+
+          echo Verify Cypress
+          npx cypress verify
+
+          echo Cypress Cache
+          npx cypress cache list
+          npx cypress cache path
 
       - name: Cypress Run
         uses: cypress-io/github-action@v6
