@@ -1,7 +1,7 @@
 import { Step } from 'react-joyride';
 
-import { TutorialName } from '../../tutorial/tutorialNames';
 import Tutorial from '../../tutorial/Tutorial';
+import { TutorialName } from '../../tutorial/tutorialNames';
 
 const steps: Step[] = [
     {
@@ -46,7 +46,7 @@ const steps: Step[] = [
         target: '#task-details',
         title: 'Task Details',
         content:
-            'Here you can see the name and a short description of the task, and you can click on "View More" to see the full task description.',
+            'Here you can see the name and a short description of the task, and you can click on "View Description" to see the full task description.',
     },
     {
         target: '#task-status',

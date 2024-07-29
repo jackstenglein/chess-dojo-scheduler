@@ -1,4 +1,4 @@
-import { Lock } from '@mui/icons-material';
+import { Help, Lock } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import {
     Checkbox,
@@ -148,6 +148,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     min={requirement.startCount}
                     suffix={requirement.progressBarSuffix}
                     isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
+                    sx={{ height: '6px' }}
                 />
             );
             UpdateElement =
@@ -186,7 +187,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     description = description.replaceAll('{{count}}', `${totalCount}`);
 
     if (blocker.isBlocked) {
-        UpdateElement = <Lock />;
+        UpdateElement = <Lock sx={{ marginRight: 1 }} />;
     }
 
     return (
@@ -220,23 +221,29 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                         sx={{ cursor: 'pointer', position: 'relative' }}
                         id='task-details'
                     >
-                        <Stack
-                            direction='row'
-                            justifyContent='space-between'
-                            flexWrap='wrap'
-                            alignItems='center'
-                        >
-                            <Typography sx={{ opacity: blocker.isBlocked ? 0.5 : 1 }}>
-                                {requirementName}
-                            </Typography>
-                        </Stack>
-
                         <Typography
+                            sx={{
+                                opacity: blocker.isBlocked ? 0.5 : 1,
+                            }}
+                        >
+                            {requirementName}
+
+                            <Help
+                                sx={{
+                                    color: 'text.secondary',
+                                    fontSize: { xs: '1rem', sm: '1.25rem' },
+                                    verticalAlign: 'middle',
+                                    marginLeft: 1,
+                                }}
+                            />
+                        </Typography>
+
+                        {/* <Typography
                             color='text.secondary'
                             dangerouslySetInnerHTML={{ __html: description }}
                             sx={{
                                 WebkitLineClamp: 3,
-                                display: '-webkit-box',
+                                display: { xs: 'none', sm: '-webkit-box' },
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
                                 whiteSpace: 'pre-wrap',
@@ -254,41 +261,42 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                             variant='caption'
                             sx={{ opacity: blocker.isBlocked ? 0.7 : 1 }}
                         >
-                            View More
-                        </Typography>
+                            View Description
+                        </Typography> */}
                         {DescriptionElement}
                     </Grid>
                     <Grid item xs={2} sm='auto' id='task-status'>
-                        <Stack
-                            direction='row'
-                            alignItems='center'
-                            justifyContent='end'
-                            spacing={1}
-                        >
-                            {!blocker.isBlocked && (
-                                <Typography
-                                    color='text.secondary'
-                                    sx={{ display: { xs: 'none', sm: 'initial' } }}
-                                    noWrap
-                                    textOverflow='unset'
-                                >
-                                    {time}
-                                </Typography>
+                        <Stack>
+                            {expired && (
+                                <Tooltip title='Your progress on this task has expired and it must be recompleted'>
+                                    <Chip
+                                        variant='outlined'
+                                        color='error'
+                                        label='Expired'
+                                    />
+                                </Tooltip>
                             )}
-                            {UpdateElement}
+
+                            <Stack
+                                direction='row'
+                                alignItems='center'
+                                justifyContent='end'
+                                gap={1}
+                            >
+                                {!blocker.isBlocked && (
+                                    <Typography
+                                        color='text.secondary'
+                                        sx={{ display: { xs: 'none', sm: 'initial' } }}
+                                        noWrap
+                                        textOverflow='unset'
+                                    >
+                                        {time}
+                                    </Typography>
+                                )}
+                                {UpdateElement}
+                            </Stack>
                         </Stack>
                     </Grid>
-
-                    {expired && (
-                        <Tooltip title='Your progress on this task has expired and it must be recompleted'>
-                            <Chip
-                                variant='outlined'
-                                color='error'
-                                label='Expired'
-                                sx={{ position: 'absolute', right: 0, top: 0 }}
-                            />
-                        </Tooltip>
-                    )}
                 </Grid>
                 <Divider />
 

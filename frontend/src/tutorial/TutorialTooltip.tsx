@@ -1,11 +1,11 @@
 import {
+    Box,
+    Button,
     Card,
     CardActions,
     CardContent,
     CardHeader,
     Typography,
-    Button,
-    Box,
 } from '@mui/material';
 import { TooltipRenderProps } from 'react-joyride';
 
@@ -21,7 +21,11 @@ const TutorialTooltip: React.FC<TooltipRenderProps> = ({
     isLastStep,
 }) => {
     return (
-        <Card data-cy='tutorial-tooltip' sx={{ maxWidth: 'md' }} {...tooltipProps}>
+        <Card
+            data-cy='tutorial-tooltip'
+            sx={{ maxWidth: 'md', width: { xs: '95vw', sm: undefined } }}
+            {...tooltipProps}
+        >
             <CardHeader title={step.title} />
             <CardContent>
                 <Typography>{step.content}</Typography>
