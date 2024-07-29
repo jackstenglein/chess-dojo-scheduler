@@ -1,5 +1,5 @@
+import { GraduationLinkCard } from '@/components/graduations/GraduationLinkCard';
 import { Graduation } from '@/database/graduation';
-import { GraduationLinkCard } from '@/graduation/UserGraduationLinkCard';
 import { Container } from '@mui/material';
 
 interface GraduationReportsGridProps {
@@ -19,7 +19,7 @@ export default function GraduationReportsGrid({
                 <GraduationLinkCard
                     key={`${grad.username}//${grad.createdAt}`}
                     graduation={grad}
-                    to={`/graduation/reports/${grad.newCohort}/${grad.username}`}
+                    to={`/graduations/reports/${grad.newCohort}/${grad.username}`}
                 />
             ))}
         </Container>
