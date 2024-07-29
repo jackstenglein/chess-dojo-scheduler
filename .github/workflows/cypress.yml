@@ -43,6 +43,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
 
       - name: Download Build Folder
         uses: actions/download-artifact@v4
