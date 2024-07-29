@@ -1,5 +1,6 @@
 import task from '@cypress/code-coverage/task';
 import { defineConfig } from 'cypress';
+import { cloudPlugin } from 'cypress-cloud/plugin';
 import dotenv from 'dotenv';
 import { EnvSchema } from './cypress/env';
 
@@ -17,7 +18,7 @@ export default defineConfig({
         experimentalRunAllSpecs: true,
         setupNodeEvents(on, config) {
             task(on, config);
-            return config;
+            return cloudPlugin(on, config);
         },
     },
 
