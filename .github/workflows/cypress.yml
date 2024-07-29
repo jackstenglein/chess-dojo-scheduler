@@ -76,8 +76,9 @@ jobs:
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
           command: |
-            npx cypress-cloud run --parallel --record --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}"
+            npx cypress-cloud run --parallel --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}"
         env:
+          CURRENTS_API_URL: http://sorry-cypress:1234
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
 
