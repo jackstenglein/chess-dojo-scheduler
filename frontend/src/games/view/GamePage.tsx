@@ -1,22 +1,23 @@
-import { Chess } from '@jackstenglein/chess';
-import { Box } from '@mui/material';
-import { useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import {
     BoardOrientation,
     GameHeader,
     GameSubmissionType,
     UpdateGameRequest,
     isMissingData,
-} from '../../api/gameApi';
-import { useAuth } from '../../auth/Auth';
-import PgnBoard from '../../board/pgn/PgnBoard';
-import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
-import { Game } from '../../database/game';
-import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
+} from '@/api/gameApi';
+import { useAuth } from '@/auth/Auth';
+import PgnBoard from '@/board/pgn/PgnBoard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { Game } from '@/database/game';
+import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
+import { Chess } from '@jackstenglein/chess';
+import { Box } from '@mui/material';
+import { useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { GameContext } from './GameContext';
 import PgnErrorBoundary from './PgnErrorBoundary';
 
 const GamePage = () => {

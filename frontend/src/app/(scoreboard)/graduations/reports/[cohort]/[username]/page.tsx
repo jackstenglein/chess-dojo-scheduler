@@ -1,5 +1,5 @@
 import { listGraduationsByCohort } from '@/api/graduationApi';
-import GraduationReport from '@/graduation/GraduationReport';
+import GraduationReport from '@/components/graduations/GraduationReport';
 import { Container } from '@mui/material';
 import { notFound } from 'next/navigation';
 

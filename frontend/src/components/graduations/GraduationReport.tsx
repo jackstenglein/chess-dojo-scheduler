@@ -1,18 +1,15 @@
 'use client';
 
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { Box, Card, CardContent, Stack, Typography, useTheme } from '@mui/material';
-
-import { SiChessdotcom, SiLichess } from 'react-icons/si';
-
-import { ForwardedRef, Fragment, forwardRef, useRef } from 'react';
-import { Graduation } from '../database/graduation';
-import { RatingSystem, formatRatingSystem } from '../database/user';
-
+import { Graduation } from '@/database/graduation';
+import { RatingSystem, formatRatingSystem } from '@/database/user';
+import { cohortIcons } from '@/scoreboard/CohortIcon';
 import { SaveAlt } from '@mui/icons-material';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { LoadingButton } from '@mui/lab';
+import { Box, Card, CardContent, Stack, Typography, useTheme } from '@mui/material';
 import { toPng } from 'html-to-image';
-import { cohortIcons } from '../scoreboard/CohortIcon';
+import { ForwardedRef, Fragment, forwardRef, useRef } from 'react';
+import { SiChessdotcom, SiLichess } from 'react-icons/si';
 
 const ratingLogos: Record<string, React.ReactNode> = {
     [RatingSystem.Chesscom]: <SiChessdotcom />,
@@ -175,7 +172,7 @@ const GraduationReport = ({ graduation }: GraduationReportProps) => {
                 link.click();
             })
             .catch((error) => {
-                console.error('error :-(', error.type);
+                console.error('error :-(', error);
             });
     };
 
