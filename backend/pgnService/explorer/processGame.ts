@@ -81,6 +81,15 @@ export async function processRecord(fileNum: number, reader: readline.Interface)
 
         try {
             const newGame = unmarshall(item) as Game;
+            if (
+                newGame.headers.Variation &&
+                newGame.headers.Variation !== 'Standard' &&
+                newGame.headers.Variation !== 'From Position'
+            ) {
+                skipped++;
+                continue;
+            }
+
             const cohort = getExplorerCohort(newGame);
             // console.log('INFO: game (%s, %s)', cohort, newGame.id);
 
