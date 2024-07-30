@@ -376,7 +376,6 @@ function getInitialExplorerPosition(
         moves: explorerMoves,
     };
 
-    positionInvariant(explorerPosition);
     return explorerPosition;
 }
 
@@ -408,8 +407,6 @@ function updateExplorerPosition(
             },
         };
     });
-
-    positionInvariant(position);
 }
 
 interface DynamoDBJson {
