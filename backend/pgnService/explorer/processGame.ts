@@ -82,9 +82,9 @@ export async function processRecord(fileNum: number, reader: readline.Interface)
         try {
             const newGame = unmarshall(item) as Game;
             if (
-                newGame.headers.Variation &&
-                newGame.headers.Variation !== 'Standard' &&
-                newGame.headers.Variation !== 'From Position'
+                newGame.headers.Variant &&
+                newGame.headers.Variant !== 'Standard' &&
+                newGame.headers.Variant !== 'From Position'
             ) {
                 skipped++;
                 continue;
