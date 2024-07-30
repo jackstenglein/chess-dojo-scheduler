@@ -8,7 +8,7 @@ import { ExplorerPosition } from './types';
 const client = new MongoClient('mongodb://localhost:27017');
 let collection: Collection<ExplorerPosition> | null = null;
 
-const PRINT_MOD = 10_000;
+const PRINT_MOD = 1_000_000;
 let count = 0;
 
 async function* cursorToStream(cursor: FindCursor<WithId<ExplorerPosition>>) {

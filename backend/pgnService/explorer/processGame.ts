@@ -65,66 +65,61 @@ interface ExplorerMoveUpdate {
 
 export let processed = 0;
 export let skipped = 0;
-export let explorerGames = 0;
-const PRINT_MOD = 1000;
+const PRINT_MOD = 10_000;
 
 /**
  * Extracts the positions from a single Game and saves or removes them as necessary.
  * @param record A single DynamoDB stream record to extract positions from.
  */
-export async function* processRecord(fileNum: number, reader: readline.Interface) {
+export async function processRecord(fileNum: number, reader: readline.Interface) {
     for await (const line of reader) {
         const item = JSON.parse(line).Item;
-        if (item.cohort.S === 'masters') {
-            try {
-                const newGame = unmarshall(item) as Game;
-                const cohort = getExplorerCohort(newGame);
-                // console.log('INFO: game (%s, %s)', cohort, newGame.id);
-
-                const newExplorerPositions = extractPositions(newGame);
-                const updates = getUpdates({}, newExplorerPositions);
-
-                for (const update of updates) {
-                    let position = await get(update.normalizedFen);
-                    if (!position) {
-                        position = getInitialExplorerPosition(update, cohort);
-                    } else {
-                        updateExplorerPosition(position, update, cohort);
-                    }
-                    await set(position);
-
-                    if (fileNum !== 0 && fileNum !== 5) {
-                        const explorerGame = getExplorerGame(newGame, update);
-                        if (explorerGame) {
-                            explorerGames++;
-                            yield `${JSON.stringify(explorerGame)}\n`;
-                        }
-                    }
-                }
-            } catch (err) {
-                console.log(
-                    `${new Date().toISOString()} ERROR ${fileNum}: Failed to process record %j: `,
-                    item,
-                    err,
-                );
-            }
-
-            processed++;
-            if (processed % PRINT_MOD === 1) {
-                console.log(
-                    `${new Date().toISOString()} INFO ${fileNum}: processed ${processed} games. Skipped ${skipped} games. Total: ${processed + skipped}`,
-                );
-                console.log(
-                    `${new Date().toISOString()} INFO ${fileNum}: created ${explorerGames} explorer games so far`,
-                );
-                console.log(
-                    `${new Date().toISOString()} INFO ${fileNum}: heap used: ${process.memoryUsage().heapUsed}`,
-                );
-            }
-        } else {
+        if (item.cohort.S !== 'masters') {
             skipped++;
+            continue;
+        }
+
+        try {
+            const newGame = unmarshall(item) as Game;
+            const cohort = getExplorerCohort(newGame);
+            // console.log('INFO: game (%s, %s)', cohort, newGame.id);
+
+            const newExplorerPositions = extractPositions(newGame);
+            const updates = getUpdates({}, newExplorerPositions);
+
+            const promises: Promise<void>[] = [];
+            for (const update of updates) {
+                promises.push(updatePosition(update, cohort));
+            }
+            await Promise.all(promises);
+        } catch (err) {
+            console.log(
+                `${new Date().toISOString()} ERROR ${fileNum}: Failed to process record %j: `,
+                item,
+                err,
+            );
+        }
+
+        processed++;
+        if (processed % PRINT_MOD === 1) {
+            console.log(
+                `${new Date().toISOString()} INFO ${fileNum}: processed ${processed} games. Skipped ${skipped} games. Total: ${processed + skipped}`,
+            );
+            console.log(
+                `${new Date().toISOString()} INFO ${fileNum}: heap used: ${process.memoryUsage().heapUsed}`,
+            );
         }
     }
+}
+
+async function updatePosition(update: ExplorerPositionUpdate, cohort: string) {
+    let position = await get(update.normalizedFen);
+    if (!position) {
+        position = getInitialExplorerPosition(update, cohort);
+    } else {
+        updateExplorerPosition(position, update, cohort);
+    }
+    await set(position);
 }
 
 /**
@@ -314,6 +309,27 @@ function getExplorerCohort(game: Game): string {
     return `masters-${game.timeClass.toLowerCase()}`;
 }
 
+function positionInvariant(position: ExplorerPosition) {
+    const totalResults = Object.values(position.results).reduce(
+        (sum, c) => sum + Object.values(c).reduce((s, r) => s + r, 0),
+        0,
+    );
+    const moveResults = Object.values(position.moves).reduce((sum, move) => {
+        return (
+            sum +
+            Object.values(move.results).reduce((sum2, c) => {
+                return sum2 + Object.values(c).reduce((s, r) => s + r, 0);
+            }, 0)
+        );
+    }, 0);
+
+    if (totalResults !== moveResults) {
+        throw new Error(
+            `Total results (${totalResults}) !== move results (${moveResults}) for position ${JSON.stringify(position)}`,
+        );
+    }
+}
+
 /**
  * Returns an ExplorerPosition object initialized with the data in the updates.
  * @param chess A Chess.ts instance to use when generating the list of legal moves in the position.
@@ -330,7 +346,9 @@ function getInitialExplorerPosition(
             map[move.san] = {
                 san: move.san,
                 results: {
-                    [cohort]: {},
+                    [cohort]: {
+                        [move.newResult!]: 1,
+                    },
                 },
             };
             return map;
@@ -349,6 +367,7 @@ function getInitialExplorerPosition(
         moves: explorerMoves,
     };
 
+    positionInvariant(explorerPosition);
     return explorerPosition;
 }
 
@@ -380,6 +399,8 @@ function updateExplorerPosition(
             },
         };
     });
+
+    positionInvariant(position);
 }
 
 interface DynamoDBJson {
