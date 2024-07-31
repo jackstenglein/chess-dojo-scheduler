@@ -111,6 +111,8 @@
         ]
     },
     "devDependencies": {
+        "@cypress/code-coverage": "^3.12.44",
+        "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@jackstenglein/eslint-config-dojo": "file:../eslint-config-dojo",
         "@testing-library/jest-dom": "^6.4.6",
         "@testing-library/react": "^16.0.0",
@@ -125,6 +127,7 @@
         "@types/uuid": "^10.0.0",
         "@typescript-eslint/eslint-plugin": "^7.12.0",
         "@typescript-eslint/parser": "^7.12.0",
+        "babel-plugin-istanbul": "^7.0.0",
         "command-line-args": "^5.2.1",
         "command-line-usage": "^7.0.1",
         "cypress": "^13.13.0",
@@ -136,6 +139,7 @@
         "eslint-plugin-react-hooks": "^4.6.2",
         "happy-dom": "^14.12.3",
         "nodemon": "^3.1.4",
+        "nyc": "^17.0.0",
         "prettier-plugin-organize-imports": "^3.2.4",
         "tsx": "^4.16.2",
         "typescript": "^5.4.5",

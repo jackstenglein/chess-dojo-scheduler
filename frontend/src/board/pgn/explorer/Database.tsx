@@ -288,7 +288,13 @@ function Database<T>({
     };
 
     return (
-        <Grid container columnSpacing={1} rowSpacing={2} mt={2}>
+        <Grid
+            data-cy={`explorer-tab-${type}`}
+            container
+            columnSpacing={1}
+            rowSpacing={2}
+            mt={2}
+        >
             {type === ExplorerDatabaseType.Dojo && (
                 <>
                     <Grid xs={6} sm={6}>

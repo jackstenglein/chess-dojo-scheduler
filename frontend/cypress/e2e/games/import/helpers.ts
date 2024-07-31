@@ -5,7 +5,7 @@ export const gameUrlRegex = /^\/games\/\d{3,4}-\d{3,4}\/\d{4}\.\d{2}\.\d{2}_.+$/
  * Deletes the game currently open in the browser.
  */
 export function deleteCurrentGame() {
-    cy.getBySel('settings').click();
+    cy.getBySel('underboard-button-settings').click();
     cy.getBySel('delete-game-button').click();
     cy.getBySel('delete-game-confirm-button').click();
     cy.location('pathname').should('equal', '/profile');

@@ -33,9 +33,10 @@ functions:
           arn: ${param:GamesTableStreamArn}
           batchWindow: 20
           batchSize: 1000
-          maximumRetryAttempts: 2
+          # If a record fails halfway through, it isn't possible for us to know
+          # which positions were already saved, so we don't retry at all
+          maximumRetryAttempts: 0
           parallelizationFactor: 10
-          functionResponseType: ReportBatchItemFailures
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -46,7 +47,7 @@ functions:
         Resource: !If
           - IsProd
           - - !GetAtt ExplorerTable.Arn
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
           - !GetAtt ExplorerTable.Arn
 
   notifyFollowers:
@@ -85,9 +86,11 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource:
+        Resource: !If
+          - IsProd
+          - - !GetAtt ExplorerTable.Arn
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
           - !GetAtt ExplorerTable.Arn
-          - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
 
   listGamesByPosition:
     handler: explorer/listGames.handler
@@ -102,9 +105,11 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource:
+        Resource: !If
+          - IsProd
+          - - !GetAtt ExplorerTable.Arn
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
           - !GetAtt ExplorerTable.Arn
-          - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
 
   followPosition:
     handler: explorer/followPosition.handler

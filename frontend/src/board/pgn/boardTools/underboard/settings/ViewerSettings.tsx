@@ -13,7 +13,7 @@ export const BoardStyleKey = 'boardStyle';
 export const PieceStyleKey = 'pieceStyle';
 export const CoordinateStyleKey = 'coordinateStyle';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
-export const VariationBehaviorKey = 'variationBehavior';
+export const VariationBehaviorKey = 'variationBehavior2';
 export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
 export const ShowLegalMovesKey = 'showLegalMoves';
 export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
@@ -82,7 +82,7 @@ const ViewerSettings = () => {
     );
     const [variationBehavior, setVariationBehavior] = useLocalStorage<string>(
         VariationBehaviorKey,
-        VariationBehavior.None,
+        VariationBehavior.Dialog,
     );
     const [showMoveTimes, setShowMoveTimes] = useLocalStorage(
         ShowMoveTimesInPgnKey,

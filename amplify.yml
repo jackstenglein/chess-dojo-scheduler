@@ -13,7 +13,7 @@ applications:
         build:
           commands:
             - pwd
-            - npm run build
+            - npm run build:$AMPLIFY_ENV
       artifacts:
         baseDirectory: .next
         files:

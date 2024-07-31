@@ -21,6 +21,7 @@ export interface Category {
     name: RequirementCategory;
     requirements: (Requirement | CustomTask)[];
     totalComplete: number;
+    totalRequirements: number;
 }
 
 interface ProgressCategoryProps {
@@ -94,7 +95,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                         </Typography>
                     ) : (
                         <Typography color='text.secondary'>
-                            {`${c.totalComplete}/${c.requirements.length} Tasks`}
+                            {`${c.totalComplete}/${c.totalRequirements} Tasks`}
                         </Typography>
                     )}
                 </Stack>

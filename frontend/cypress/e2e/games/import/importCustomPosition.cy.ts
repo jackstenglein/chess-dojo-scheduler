@@ -30,7 +30,7 @@ describe('Import Games Page - Custom Position', () => {
         cy.location('pathname').should('match', gameUrlRegex);
         cancelPreflight();
 
-        cy.getBySel('tags').click();
+        cy.getBySel('underboard-button-tags').click();
         cy.contains(fen);
 
         deleteCurrentGame();

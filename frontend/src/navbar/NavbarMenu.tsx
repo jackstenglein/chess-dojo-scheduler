@@ -676,7 +676,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                 onClose={handleClose}
             >
                 {!profileCreated && (
-                    <MenuItem href='/profile'>
+                    <MenuItem component='a' href='/profile'>
                         <ListItemIcon>
                             <Person2Icon />
                         </ListItemIcon>
@@ -686,7 +686,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
 
                 {startItemsJsx}
 
-                <MenuItem href='/notifications'>
+                <MenuItem component='a' href='/notifications'>
                     <ListItemIcon>
                         <Badge
                             badgeContent={notifications.length}
@@ -699,7 +699,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                     <Typography textAlign='center'>Notifications</Typography>
                 </MenuItem>
 
-                <MenuItem href='/help'>
+                <MenuItem component='a' href='/help'>
                     <ListItemIcon>
                         <Help />
                     </ListItemIcon>

@@ -263,6 +263,7 @@ Underboard.displayName = 'Underboard';
 
 interface UnderboardButtonProps extends ToggleButtonProps {
     tooltip: string;
+    value: string;
 }
 
 const UnderboardButton: React.FC<UnderboardButtonProps> = ({
@@ -273,7 +274,7 @@ const UnderboardButton: React.FC<UnderboardButtonProps> = ({
 }) => {
     return (
         <Tooltip title={tooltip}>
-            <ToggleButton data-cy={value} value={value} {...props}>
+            <ToggleButton data-cy={`underboard-button-${value}`} value={value} {...props}>
                 {children}
             </ToggleButton>
         </Tooltip>

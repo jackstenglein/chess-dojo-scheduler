@@ -21,8 +21,8 @@ import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory, { Category } from './ProgressCategory';
 
 function useHideCompleted(isCurrentUser: boolean) {
-    const myProfile = useLocalStorage('hideCompletedTasks', 'false');
-    const otherProfile = useState('false');
+    const myProfile = useLocalStorage('hideCompletedTasks2', false);
+    const otherProfile = useState(false);
 
     if (isCurrentUser) {
         return myProfile;
@@ -60,18 +60,19 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         requirements.forEach((r) => {
             const c = categories.find((c) => c.name === r.category);
             const complete = isComplete(cohort, r, user.progress[r.id]);
-            if (complete && hideCompleted === 'true') {
-                return;
-            }
 
             if (c === undefined) {
                 categories.push({
                     name: r.category,
-                    requirements: [r],
+                    requirements: complete && hideCompleted ? [] : [r],
                     totalComplete: complete ? 1 : 0,
+                    totalRequirements: 1,
                 });
             } else {
-                c.requirements.push(r);
+                c.totalRequirements++;
+                if (!complete || !hideCompleted) {
+                    c.requirements.push(r);
+                }
                 if (complete) {
                     c.totalComplete++;
                 }
@@ -85,9 +86,11 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                         name: RequirementCategory.NonDojo,
                         requirements: [task],
                         totalComplete: 0,
+                        totalRequirements: 1,
                     });
                 } else {
                     c.requirements.push(task);
+                    c.totalRequirements++;
                 }
             }
         });
@@ -173,8 +176,8 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                         control={
                             <Checkbox
                                 size='small'
-                                checked={hideCompleted === 'true'}
-                                onChange={(e) => setHideCompleted(`${e.target.checked}`)}
+                                checked={hideCompleted}
+                                onChange={(e) => setHideCompleted(e.target.checked)}
                             />
                         }
                         label='Hide Completed Tasks'
