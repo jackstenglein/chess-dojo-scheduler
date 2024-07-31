@@ -55,10 +55,11 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                         variant='determinate'
                         {...rest}
                         value={displayValue}
+                        
                     />
                 </Box>
                 <Box>
-                    <Typography variant='body2' color='text.secondary'>
+                    <Typography variant='body2' color='text.secondary' sx={{fontWeight: "bold"}} >
                         {label
                             ? label
                             : isTime
