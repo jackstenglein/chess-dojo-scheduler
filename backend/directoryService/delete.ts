@@ -17,6 +17,8 @@ import { directoryTable, dynamo } from './database';
 /**
  * Handles requests to the delete directory API. Returns the directory as
  * it was before the delete. If the directory did not exist, returns undefined.
+ * Note that only the specified directory is deleted. Subdirectories are deleted
+ * asynchronously by the recursiveDelete stream handler.
  * @param event The API gateway event that triggered the request.
  * @returns The directory before the delete, or undefined if it did not exist.
  */

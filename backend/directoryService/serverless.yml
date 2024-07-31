@@ -83,6 +83,23 @@ functions:
           - dynamodb:DeleteItem
         Resource: !GetAtt DirectoriesTable.Arn
 
+  recursiveDelete:
+    handler: recursiveDelete.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt DirectoriesTable.StreamArn
+          batchWindow: 60
+          batchSize: 100
+          parallelizationFactor: 10
+          filterPatterns:
+            - eventName: [REMOVE]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -109,3 +126,5 @@ resources:
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
+        StreamSpecification:
+          StreamViewType: OLD_IMAGE
